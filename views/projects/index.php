@@ -20,7 +20,7 @@ use WorkHorse\View;
 		</div>
 		<a href="<?= admin_url('admin.php?page=workhorse') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
 	</section>
-	<section class="pagination-wrapper text-right">
+	<section class="pagination-wrapper text-right py-3">
 		<span class="pagination-links">
 			<?= paginate_links(array(
 			'total' => $pages,

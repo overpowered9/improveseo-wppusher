@@ -546,7 +546,7 @@ class WC_Testimonial {
 	/****=====Load Admin JS And CSS files====***/
 	function load_admin_files(){
 		if(page_)
-		wp_enqueue_style('bootstrap_css', WT_URL."/assets/css/bootstrap.min.css",  true);
+		//wp_enqueue_style('bootstrap_css', WT_URL."/assets/css/bootstrap.min.css",  true);
 		wp_enqueue_style('improveseo_style', WT_URL."/assets/css/improveseo_style.css",  true);
 		wp_enqueue_style('custom_css', WT_URL."/assets/css/custom.css",  true);
 		// wp_enqueue_script('bootstrap-min-js', WT_URL."/assets/js/bootstrap.min.js",  array('jquery'));
