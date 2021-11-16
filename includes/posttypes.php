@@ -3,7 +3,7 @@
 use WorkHorse\Storage;
 
 add_action('init', 'workhorse_create_posttypes');
-add_action('pre_get_posts', 'add_workhorse_post_types_to_query');
+//add_action('pre_get_posts', 'add_workhorse_post_types_to_query');
 
 function add_workhorse_post_types_to_query($query) {
 	$storage = new Storage('workhouse');
