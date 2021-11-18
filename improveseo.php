@@ -37,7 +37,7 @@ function load_media_files() {
 }
 add_action( 'admin_enqueue_scripts', 'load_media_files' );
 
-add_action( 'init', "workdex_init" );
+//add_action( 'init', "workdex_init" );
 
 add_filter('jpeg_quality', function($arg){return 75;});
 
