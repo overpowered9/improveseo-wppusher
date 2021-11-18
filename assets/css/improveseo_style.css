@@ -782,7 +782,7 @@ select.select-control {
     Shortcode Page Style
 ********************************/
 
-.subsubsub li a {
+.improveseo_wrapper .subsubsub li a {
     font-size: 16px;
     line-height: 26px;
     color: rgba(0,0,0,0.5);
@@ -791,7 +791,7 @@ select.select-control {
     position: relative;
 }
 
-.tabs-wrap .subsubsub li a.current:after {
+.improveseo_wrapper .tabs-wrap .subsubsub li a.current:after {
     content: '';
     border-bottom: 4px solid #1E70B9;
     position: absolute;
@@ -800,16 +800,17 @@ select.select-control {
     left: 0;
 }
 
-.subsubsub a .count, .subsubsub a.current .count {
+.improveseo_wrapper .subsubsub a .count, 
+.improveseo_wrapper .subsubsub a.current .count {
     font-size: 14px;
 }
 
-.subsubsub li a:focus {
+.improveseo_wrapper .subsubsub li a:focus {
     outline: none;
     box-shadow: none;
 }
 
-.subsubsub li a:hover {
+.improveseo_wrapper .subsubsub li a:hover {
     color: #000;
 }
 
