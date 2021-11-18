@@ -252,6 +252,16 @@ function workhorse_check_version() {
 	return get_option ( "workhorse_new_version" );
 }
 
+/*check curl install or not*/
+function _is_curl_installed() {
+    if  (in_array  ('curl', get_loaded_extensions())) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+/*end*/
 
 class WC_Testimonial {
 	
