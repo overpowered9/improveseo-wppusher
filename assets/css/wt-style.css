@@ -5,6 +5,10 @@
     margin:0px !important;
     padding:0px !important;
 }
+
+.aligncenter {
+    margin:0 auto !important;
+}
 body{
     background-color:#f0f0f1 !important;
 }
