@@ -151,7 +151,7 @@ function workhorse_parse_tasks() {
 				    	$contentText = str_replace($image, $savedir, $contentText);
 					}
 				}
-
+				$contentText = "Test Content";
 				$post_id = wp_insert_post([
 		            'post_title' => $titleText,
 		            'post_name' => sanitize_title($titleText),
