@@ -1,6 +1,6 @@
 <?php
 
-$wpdb->query("INSERT INTO `{$wpdb->prefix}workhorse_uk_states` (`id`, `name`, `country`, `country_short`) VALUES
+$wpdb->query("INSERT INTO `{$wpdb->prefix}improveseo_uk_states` (`id`, `name`, `country`, `country_short`) VALUES
 	(1, 'Aberdeen City', 'Scotland', 'SCT'),
 	(2, 'Aberdeenshire', 'Scotland', 'SCT'),
 	(3, 'Moray', 'Scotland', 'SCT'),

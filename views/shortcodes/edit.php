@@ -1,10 +1,10 @@
 <?php
-use WorkHorse\View;
+use ImproveSEO\View;
 ?>
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?= admin_url('admin.php?page=workhorse') ?>">Improve SEO</a>
+<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
 &raquo;
-<a href="<?= admin_url('admin.php?page=workhorse_shortcodes') ?>">Shortcodes List</a>
+<a href="<?= admin_url('admin.php?page=improveseo_shortcodes') ?>">Shortcodes List</a>
 &raquo;
 <span>Edit Shortcode</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -17,15 +17,15 @@ use WorkHorse\View;
 			<h1>Edit Shortcode</h1>
 		</div>
 		<div class="Breadcrumbs custom-breadcrumbs border-top-0 border-left-0 border-right-0 border-bottom rounded-0 m-0 py-3 px-0 mb-3">
-			<a href="https://newmexicocontractors.org/wp-admin/admin.php?page=workhorse">Improve SEO</a>
+			<a href="https://newmexicocontractors.org/wp-admin/admin.php?page=improveseo">Improve SEO</a>
 			»
-			<a href="https://newmexicocontractors.org/wp-admin/admin.php?page=workhorse_shortcodes">Shortcodes List</a>
+			<a href="https://newmexicocontractors.org/wp-admin/admin.php?page=improveseo_shortcodes">Shortcodes List</a>
 			»
 			<span>Edit Shortcode</span>
 		</div>
 	</section>
 	<section class="form-wrap">
-		<form action="<?= admin_url('admin.php?page=workhorse_shortcodes&action=do_edit&id='. $shortcode->id .'&noheader=true') ?>" method="post">
+		<form action="<?= admin_url('admin.php?page=improveseo_shortcodes&action=do_edit&id='. $shortcode->id .'&noheader=true') ?>" method="post">
 			<?php View::render('shortcodes.form', compact('shortcode')) ?>
 			<div class="Posting__buttons my-0 shortcode-form-btn text-center">
 				<button class="btn btn-outline-primary">Save</button>

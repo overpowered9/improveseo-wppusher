@@ -1,8 +1,8 @@
 <?php
 
-use WorkHorse\View;
+use ImproveSEO\View;
 
-define('WORKHORSE_ROOT', dirname(__FILE__));
+define('IMPROVESEO_ROOT', dirname(__FILE__));
 
 include_once 'autoloader.php';
 

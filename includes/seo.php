@@ -1,20 +1,20 @@
 <?php
 
 if (!is_admin()) {
-	add_action('init', 'workhorse_seo_buffer_start');
-	add_action('wp_head', 'workhorse_seo_buffer_end');
+	add_action('init', 'improveseo_seo_buffer_start');
+	add_action('wp_head', 'improveseo_seo_buffer_end');
 
-	add_filter('the_content', 'workhorse_seo_filter_content');
+	add_filter('the_content', 'improveseo_seo_filter_content');
 
-	function workhorse_seo_buffer_start() { 
-		ob_start("workhorse_seo_callback");
+	function improveseo_seo_buffer_start() { 
+		ob_start("improveseo_seo_callback");
 	}
 
-	function workhorse_seo_buffer_end() { 
+	function improveseo_seo_buffer_end() { 
 		ob_end_flush();
 	}
 
-	function workhorse_seo_callback($buffer) {
+	function improveseo_seo_callback($buffer) {
 		global $wp_query;
 
 		if (!is_single() && !is_tag()) {
@@ -25,16 +25,16 @@ if (!is_admin()) {
 			$tag = $wp_query->queried_object;
 			$meta = get_term_meta($tag->term_id);
 			
-			if (isset($meta['workhorse_noindex_tag'])) {
+			if (isset($meta['improveseo_noindex_tag'])) {
 				$buffer = str_replace('</title>', "</title>\n<meta name=\"robots\" content=\"noindex, nofollow\">", $buffer);
 			}
 
 			return $buffer;
 		}
 
-		$title = esc_attr(get_post_meta($wp_query->post->ID, 'workhorse_custom_title', true));
-		$description = esc_attr(get_post_meta($wp_query->post->ID, 'workhorse_custom_description', true));
-		$keywords = esc_attr(get_post_meta($wp_query->post->ID, 'workhorse_custom_keywords', true));
+		$title = esc_attr(get_post_meta($wp_query->post->ID, 'improveseo_custom_title', true));
+		$description = esc_attr(get_post_meta($wp_query->post->ID, 'improveseo_custom_description', true));
+		$keywords = esc_attr(get_post_meta($wp_query->post->ID, 'improveseo_custom_keywords', true));
 
 		$meta_seo = array();
 
@@ -63,20 +63,20 @@ if (!is_admin()) {
 		return $buffer;
 	}
 
-	function workhorse_seo_filter_content($content) {
+	function improveseo_seo_filter_content($content) {
 		global $wp_query;
 
 		if (is_single()) {
-			$business = esc_attr(get_post_meta($wp_query->post->ID, 'workhorse_schema_business', true));
-			$description = esc_attr(get_post_meta($wp_query->post->ID, 'workhorse_schema_description', true));
-			$email = esc_attr(get_post_meta($wp_query->post->ID, 'workhorse_schema_email', true));
-			$telephone = esc_attr(get_post_meta($wp_query->post->ID, 'workhorse_schema_telephone', true));
-			$social = esc_attr(get_post_meta($wp_query->post->ID, 'workhorse_schema_social', true));
-			$rating_object = esc_attr(get_post_meta($wp_query->post->ID, 'workhorse_schema_rating_object', true));
-			$rating = esc_attr(get_post_meta($wp_query->post->ID, 'workhorse_schema_rating', true));
-			$rating_count = esc_attr(get_post_meta($wp_query->post->ID, 'workhorse_schema_rating_count', true));
-			$address = esc_attr(get_post_meta($wp_query->post->ID, 'workhorse_schema_address', true));
-			$hidden = esc_attr(get_post_meta($wp_query->post->ID, 'workhorse_hide_schema', true));
+			$business = esc_attr(get_post_meta($wp_query->post->ID, 'improveseo_schema_business', true));
+			$description = esc_attr(get_post_meta($wp_query->post->ID, 'improveseo_schema_description', true));
+			$email = esc_attr(get_post_meta($wp_query->post->ID, 'improveseo_schema_email', true));
+			$telephone = esc_attr(get_post_meta($wp_query->post->ID, 'improveseo_schema_telephone', true));
+			$social = esc_attr(get_post_meta($wp_query->post->ID, 'improveseo_schema_social', true));
+			$rating_object = esc_attr(get_post_meta($wp_query->post->ID, 'improveseo_schema_rating_object', true));
+			$rating = esc_attr(get_post_meta($wp_query->post->ID, 'improveseo_schema_rating', true));
+			$rating_count = esc_attr(get_post_meta($wp_query->post->ID, 'improveseo_schema_rating_count', true));
+			$address = esc_attr(get_post_meta($wp_query->post->ID, 'improveseo_schema_address', true));
+			$hidden = esc_attr(get_post_meta($wp_query->post->ID, 'improveseo_hide_schema', true));
 			
 			if ($business || $description || $email || $telephone || $social || $rating || $address) {
 				$schema = '<div itemscope>';

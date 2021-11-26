@@ -1,24 +1,24 @@
 <?php
 
-use WorkHorse\Spintax;
+use ImproveSEO\Spintax;
 use lsolesen\pel\PelIfd;
 use lsolesen\pel\PelTag;
 use lsolesen\pel\PelExif;
 use lsolesen\pel\PelJpeg;
 use lsolesen\pel\PelTiff;
-use WorkHorse\Models\Lists;
-use WorkHorse\Models\Country;
-use WorkHorse\Models\GeoData;
+use ImproveSEO\Models\Lists;
+use ImproveSEO\Models\Country;
+use ImproveSEO\Models\GeoData;
 use lsolesen\pel\PelEntryByte;
 use lsolesen\pel\PelEntryAscii;
 use lsolesen\pel\PelEntryRational;
 use lsolesen\pel\PelEntryUserComment;
 
-function workhorse_configured() {
+function improveseo_configured() {
 	return defined('DISABLE_WP_CRON');
 }
 
-function workhorse_permalink($previous = null) {
+function improveseo_permalink($previous = null) {
 	$permalink = get_option('permalink_structure');
 
 	$rewritecode = array(
@@ -66,7 +66,7 @@ function workhorse_permalink($previous = null) {
 /**
  * Get current iteration for field.
  */
-function workhorse_get_current_subiteration($current, $submax) {
+function improveseo_get_current_subiteration($current, $submax) {
 	if ($submax == 0) {
 		$submax = 1;
 	}
@@ -81,13 +81,13 @@ function workhorse_get_current_subiteration($current, $submax) {
 /**
  * Get current spintax iteration for field.
  */
-function workhorse_get_spintax_subiteration($max, $project, $iteration) {
-	return $max < $project->spintax_iterations ? workhorse_get_current_subiteration($iteration, $max) : $iteration;
+function improveseo_get_spintax_subiteration($max, $project, $iteration) {
+	return $max < $project->spintax_iterations ? improveseo_get_current_subiteration($iteration, $max) : $iteration;
 }
 
-function workhorse_set_list_item($text, $lists, $iteration) {
+function improveseo_set_list_item($text, $lists, $iteration) {
 	foreach ($lists as $name => $list) {
-		$index = workhorse_get_current_subiteration($iteration, $list->size);
+		$index = improveseo_get_current_subiteration($iteration, $list->size);
 		$values = explode("\n", $list->list);
 
 		$text = str_replace("@list:$name", trim($values[$index - 1]), $text);
@@ -96,7 +96,7 @@ function workhorse_set_list_item($text, $lists, $iteration) {
 	return $text;
 }
 
-function workhorse_get_lists_from_text($fields) {
+function improveseo_get_lists_from_text($fields) {
 	$allowed = array('title', 'content', 'custom_title', 'custom_description', 'custom_keywords', 'permalink', 'tags');
 
 	// Uncomment the below snippet to make list shortcode mandatory in title.
@@ -122,8 +122,8 @@ function workhorse_get_lists_from_text($fields) {
 	return $items;
 }
 
-function workhorse_count_list_items($fields) {
-	$lists = workhorse_get_lists_from_text($fields);
+function improveseo_count_list_items($fields) {
+	$lists = improveseo_get_lists_from_text($fields);
 
 	if (sizeof($lists) == 0) {
 		return 0;
@@ -138,7 +138,7 @@ function workhorse_count_list_items($fields) {
 	return $items;
 }
 
-function workhorse_search_geotags($fields) {
+function improveseo_search_geotags($fields) {
 	$tags = array();
 
 	foreach ($fields as $field) {
@@ -159,7 +159,7 @@ function workhorse_search_geotags($fields) {
 	return $tags;
 }
 
-function workhorse_expand_geodata($country, $geodata, $tags) {
+function improveseo_expand_geodata($country, $geodata, $tags) {
 	global $wpdb;
 
 	sort($geodata);
@@ -173,7 +173,7 @@ function workhorse_expand_geodata($country, $geodata, $tags) {
 			if (preg_match("/^[A-z]{2}$/", $loc)) {
 				if (in_array('city', $tags) || in_array('zip', $tags)) {
 					if ((isset($geodata[$key + 1]) && !preg_match("/^$loc/", $geodata[$key + 1])) || !isset($geodata[$key + 1])) {
-						$cities = $wpdb->get_results("SELECT id, zip FROM {$wpdb->prefix}workhorse_us_cities WHERE state_code = '$loc' AND 1=1". (!in_array('zip', $tags) ? ' GROUP BY city, county' : ''));
+						$cities = $wpdb->get_results("SELECT id, zip FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = '$loc' AND 1=1". (!in_array('zip', $tags) ? ' GROUP BY city, county' : ''));
 
 						foreach ($cities as $city) {
 							if (in_array('zip', $tags))	$tweaked[] = "$loc/{$city->id}/{$city->zip}";
@@ -188,8 +188,8 @@ function workhorse_expand_geodata($country, $geodata, $tags) {
 			elseif (preg_match("/^([A-z]{2})\/(\d+)$/", $loc, $loccy)) {
 				if (in_array('zip', $tags)) {
 					if ((isset($geodata[$key + 1]) && !preg_match("/^$loccy[1]\/$loccy[2]\//", $geodata[$key + 1])) || !isset($geodata[$key + 1])) {
-						$city = $wpdb->get_row("SELECT city FROM {$wpdb->prefix}workhorse_us_cities WHERE id = {$loccy[2]}");
-						$zippy = $wpdb->get_results("SELECT zip FROM {$wpdb->prefix}workhorse_us_cities WHERE state_code = '$loccy[1]' AND city = '{$city->city}' AND 1=1");
+						$city = $wpdb->get_row("SELECT city FROM {$wpdb->prefix}improveseo_us_cities WHERE id = {$loccy[2]}");
+						$zippy = $wpdb->get_results("SELECT zip FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = '$loccy[1]' AND city = '{$city->city}' AND 1=1");
 
 						foreach ($zippy as $zip) {
 							$tweaked[] = "$loc/{$zip->zip}";
@@ -213,7 +213,7 @@ function workhorse_expand_geodata($country, $geodata, $tags) {
 			if (preg_match("/^\d+$/", $loc)) {
 				if (in_array('city', $tags) || in_array('zip', $tags)) {
 					if ((isset($geodata[$key + 1]) && !preg_match("/^$loc/", $geodata[$key + 1])) || !isset($geodata[$key + 1])) {
-						$cities = $wpdb->get_results("SELECT id, postcode FROM {$wpdb->prefix}workhorse_uk_cities WHERE region_id = '$loc' AND 1=1". (!in_array('zip', $tags) ? ' GROUP BY name' : ''));
+						$cities = $wpdb->get_results("SELECT id, postcode FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = '$loc' AND 1=1". (!in_array('zip', $tags) ? ' GROUP BY name' : ''));
 
 						foreach ($cities as $city) {
 							if (in_array('zip', $tags))	$tweaked[] = "$loc/{$city->id}/{$city->postcode}";
@@ -228,8 +228,8 @@ function workhorse_expand_geodata($country, $geodata, $tags) {
 			elseif (preg_match("/^(\d+)\/(\d+)$/", $loc, $loccy)) {
 				if (in_array('zip', $tags)) {
 					if ((isset($geodata[$key + 1]) && !preg_match("/^$loccy[1]\/$loccy[2]\//", $geodata[$key + 1])) || !isset($geodata[$key + 1])) {
-						$city = $wpdb->get_row("SELECT name FROM {$wpdb->prefix}workhorse_uk_cities WHERE id = {$loccy[2]}");
-						$zippy = $wpdb->get_results("SELECT postcode FROM {$wpdb->prefix}workhorse_uk_cities WHERE region_id = '$loccy[1]' AND name = '{$city->name}' AND 1=1");
+						$city = $wpdb->get_row("SELECT name FROM {$wpdb->prefix}improveseo_uk_cities WHERE id = {$loccy[2]}");
+						$zippy = $wpdb->get_results("SELECT postcode FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = '$loccy[1]' AND name = '{$city->name}' AND 1=1");
 
 						foreach ($zippy as $zip) {
 							$tweaked[] = "$loc/{$zip->postcode}";
@@ -309,7 +309,7 @@ function workhorse_expand_geodata($country, $geodata, $tags) {
 /**
  * Get geo information from geopath.
  */
-function workhorse_get_geodata($country, $geopath) {
+function improveseo_get_geodata($country, $geopath) {
 	global $wpdb;
 
 	$path = explode('/', $geopath);
@@ -319,12 +319,12 @@ function workhorse_get_geodata($country, $geopath) {
 		$result['country'] = 'United States';
 		$result['countryshort'] = 'US';
 
-		$state = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}workhorse_us_states WHERE state_code = '". $path[0] ."'");
+		$state = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}improveseo_us_states WHERE state_code = '". $path[0] ."'");
 		$result['state'] = $state->state;
 		$result['stateshort'] = $state->state_code;
 
 		if (isset($path[1])) {
-			$city = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}workhorse_us_cities WHERE id = ". $path[1]);
+			$city = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE id = ". $path[1]);
 			$result['city'] = $city->city;
 		}
 		if (isset($path[2])) $result['zip'] = $path[2];
@@ -333,12 +333,12 @@ function workhorse_get_geodata($country, $geopath) {
 		$result['country'] = 'United Kingdom';
 		$result['countryshort'] = 'UK';
 
-		$state = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}workhorse_uk_states WHERE id = ". $path[0]);
+		$state = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}improveseo_uk_states WHERE id = ". $path[0]);
 		$result['state'] = $state->name;
 		$result['stateshort'] = $state->name;
 
 		if (isset($path[1])) {
-			$city = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}workhorse_uk_cities WHERE id = ". $path[1]);
+			$city = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE id = ". $path[1]);
 			$result['city'] = $city->name;
 		}
 		if (isset($path[2])) $result['zip'] = $path[2];
@@ -366,21 +366,21 @@ function workhorse_get_geodata($country, $geopath) {
 	return $result;
 }
 
-function workhorse_spintax_the_field($value, $project, $spintaxIteration, $geo = false, $geoData = null, $lists = null) {
+function improveseo_spintax_the_field($value, $project, $spintaxIteration, $geo = false, $geoData = null, $lists = null) {
 	$spintax = Spintax::parse($value);
 	$max = Spintax::count($spintax);
 
-	$iteration = workhorse_get_spintax_subiteration($max, $project, $spintaxIteration);
+	$iteration = improveseo_get_spintax_subiteration($max, $project, $spintaxIteration);
 
 	$text = Spintax::make($value, $iteration, $spintax);
 	if ($geo) $text = Spintax::geo($text, $geoData);
 
-	if ($lists) $text = workhorse_set_list_item($value, $lists, $project->iteration);
+	if ($lists) $text = improveseo_set_list_item($value, $lists, $project->iteration);
 
 	return $text;
 }
 
-function workhorse_check_dir($dir) {
+function improveseo_check_dir($dir) {
 	$dirs = explode("/", $dir);
 	$check = WP_CONTENT_DIR;
 

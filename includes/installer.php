@@ -1,55 +1,55 @@
 <?php
 
-global $workhorse_db_version;
-$workhorse_db_version = '0.8';
+global $improveseo_db_version;
+$improveseo_db_version = '0.8';
 
-function workhorse_update_db_check() {
-    global $workhorse_db_version;
-    if ( get_site_option( 'workhorse_db_version' ) != $workhorse_db_version ) {
-        workhorse_install();
+function improveseo_update_db_check() {
+    global $improveseo_db_version;
+    if ( get_site_option( 'improveseo_db_version' ) != $improveseo_db_version ) {
+        improveseo_install();
     }
 }
-add_action('plugins_loaded', 'workhorse_update_db_check');
+add_action('plugins_loaded', 'improveseo_update_db_check');
 
-function workhorse_uninstall() {
-	wp_clear_scheduled_hook('workhorse_parse_tasks_hook');
+function improveseo_uninstall() {
+	wp_clear_scheduled_hook('improveseo_parse_tasks_hook');
 
-	workhorse_wp_config_delete();
+	improveseo_wp_config_delete();
 }
 
 
-function workhorse_wp_config_put($slash = '') {
+function improveseo_wp_config_put($slash = '') {
     $config = file_get_contents (ABSPATH . "wp-config.php");
     $config = preg_replace ("/^([\r\n\t ]*)(\<\?)(php)?/i", "<?php define('WP_MEMORY_LIMIT', '5000M');\n", $config);
     $config = preg_replace ("/^([\r\n\t ]*)(\<\?)(php)?/i", "<?php define('WP_MAX_MEMORY_LIMIT', '5000M');\n", $config);
     file_put_contents (ABSPATH . $slash . "wp-config.php", $config);
 }
 
-function workhorse_wp_config_delete($slash = '') {
+function improveseo_wp_config_delete($slash = '') {
     $config = file_get_contents (ABSPATH . "wp-config.php");
     $config = preg_replace ("/( ?)(define)( ?)(\()( ?)(['\"])WP_MEMORY_LIMIT(['\"])( ?)(,)( ?)(['\"])(\w*)(['\"])( ?)(\))( ?);/i", "", $config);
     $config = preg_replace ("/( ?)(define)( ?)(\()( ?)(['\"])WP_MAX_MEMORY_LIMIT(['\"])( ?)(,)( ?)(['\"])(\w*)(['\"])( ?)(\))( ?);/i", "", $config);
     file_put_contents (ABSPATH . $slash . "wp-config.php", $config);
 }
 
-function workhorse_install() {
+function improveseo_install() {
 	global $wpdb;
-	global $workhorse_db_version;
+	global $improveseo_db_version;
 	global $wp_rewrite;
 
 	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
 	// Config
-	workhorse_wp_config_put();
+	improveseo_wp_config_put();
 
 	// Roles
-	add_role('workhorse_user', 'Work Horse User');
+	add_role('improveseo_user', 'Work Horse User');
 
 	// Scheduler
-	//wp_schedule_event(time(), 'every_minute', 'workhorse_parse_tasks_hook');
+	//wp_schedule_event(time(), 'every_minute', 'improveseo_parse_tasks_hook');
 	
 	// Tasks table
-	$table_name = $wpdb->prefix . 'workhorse_tasks';
+	$table_name = $wpdb->prefix . 'improveseo_tasks';
 	
 	$charset_collate = $wpdb->get_charset_collate();
 
@@ -77,7 +77,7 @@ function workhorse_install() {
 	$wpdb->query($sql);
 
 	// Shortcodes table
-	$table_name = $wpdb->prefix . 'workhorse_shortcodes';
+	$table_name = $wpdb->prefix . 'improveseo_shortcodes';
 	
 	$charset_collate = $wpdb->get_charset_collate();
 
@@ -96,7 +96,7 @@ function workhorse_install() {
 	// Tags noindex
 
 	// Lists table
-	$table_name = $wpdb->prefix .'workhorse_lists';
+	$table_name = $wpdb->prefix .'improveseo_lists';
 
 	$charset_collate = $wpdb->get_charset_collate();
 
@@ -114,18 +114,18 @@ function workhorse_install() {
 	// Geo codes
 	include_once 'geo/installer.php';
 	
-	// Update WorkHorse DB Schema
-	$installed_ver = get_option("workhorse_db_version");
-	if ($installed_ver && $installed_ver != $workhorse_db_version) {
-		update_option( "workhorse_db_version", $workhorse_db_version );
+	// Update improveseo DB Schema
+	$installed_ver = get_option("improveseo_db_version");
+	if ($installed_ver && $installed_ver != $improveseo_db_version) {
+		update_option( "improveseo_db_version", $improveseo_db_version );
 	}
-	else add_option('workhorse_db_version', $workhorse_db_version);
+	else add_option('improveseo_db_version', $improveseo_db_version);
 
 	// Rebuild URL rules
 	$wp_rewrite->flush_rules();
 }
 
-function workhorse_install_data() {
+function improveseo_install_data() {
 	global $wpdb;
 	
 	

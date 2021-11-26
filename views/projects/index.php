@@ -1,8 +1,8 @@
 <?php
-use WorkHorse\View;
+use ImproveSEO\View;
 ?>
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?= admin_url('admin.php?page=workhorse') ?>">Improve SEO</a>
+<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
 &raquo;
 <span>Projects List</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -18,7 +18,7 @@ use WorkHorse\View;
 			<img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
 			<h1>Projects List</h1>
 		</div>
-		<a href="<?= admin_url('admin.php?page=workhorse') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
+		<a href="<?= admin_url('admin.php?page=improveseo') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
 	</section>
 	<section class="pagination-wrapper text-right py-3">
 		<span class="pagination-links">
@@ -26,7 +26,7 @@ use WorkHorse\View;
 			'total' => $pages,
 			'current' => $page,
 			'format' => '&paged=%#%',
-			'base' => admin_url('admin.php?page=workhorse_projects%_%')
+			'base' => admin_url('admin.php?page=improveseo_projects%_%')
 			)) ?>
 		</span>
 	</section>
@@ -54,35 +54,35 @@ use WorkHorse\View;
 							</strong>
 							<div class="row-actions">
 								<span class="edit">
-									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=workhorse_projects&action=export_urls&id={$project->id}&noheader=true") ?>">
+									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&noheader=true") ?>">
 										Export a list of all posts/pages URLs
 									</a>
 								</span>
 								
 								<span class="edit">
-									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=workhorse&action=edit_post&id={$project->id}&update=true") ?>">
+									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo&action=edit_post&id={$project->id}&update=true") ?>">
 										Update posts
 									</a>
 								</span>
 								
 								<span class="edit">
-									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url('admin.php?page=workhorse_projects&action=duplicate&id='. $project->id .'&noheader=true') ?>">
+									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url('admin.php?page=improveseo_projects&action=duplicate&id='. $project->id .'&noheader=true') ?>">
 										Duplicate project
 									</a>
 								</span>
 								
 								<span class="edit">
-									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url('admin.php?page=workhorse_projects&action=stop&id='. $project->id .'&noheader=true') ?>">
+									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url('admin.php?page=improveseo_projects&action=stop&id='. $project->id .'&noheader=true') ?>">
 										Stop process
 									</a>
 								</span>
 								
 								<span class="trash">
-									<a class="del-btn btn btn-outline-danger" class="submitdelete" href="<?= admin_url('admin.php?page=workhorse_projects&action=delete&id='. $project->id .'&noheader=true') ?>" onclick="return confirm('This action will delete project and all generated posts/pages')">Delete project and all posts/pages</a>
+									<a class="del-btn btn btn-outline-danger" class="submitdelete" href="<?= admin_url('admin.php?page=improveseo_projects&action=delete&id='. $project->id .'&noheader=true') ?>" onclick="return confirm('This action will delete project and all generated posts/pages')">Delete project and all posts/pages</a>
 								</span>
 								
 								<span class="trash">
-									<a class="del-btn btn btn-outline-danger" class="submitdelete" href="<?= admin_url('admin.php?page=workhorse_projects&action=delete_posts&id='. $project->id .'&noheader=true') ?>" onclick="return confirm('This action will delete all generated posts/pages')">Delete only posts/pages</a>
+									<a class="del-btn btn btn-outline-danger" class="submitdelete" href="<?= admin_url('admin.php?page=improveseo_projects&action=delete_posts&id='. $project->id .'&noheader=true') ?>" onclick="return confirm('This action will delete all generated posts/pages')">Delete only posts/pages</a>
 								</span>
 							</div>
 							<button type="button" class="toggle-row"><span class="screen-reader-text">Show more details</span></button>
@@ -125,7 +125,7 @@ use WorkHorse\View;
 								<!--<a href="javascript:update_project(<?//= $project->id ?>)" class="btn btn-outline-primary" target="_self">Update posts</a>-->
 							<?php endif; ?>
 							<?php if ($project->state == 'Draft'): ?>
-								<a href="<?= admin_url('admin.php?page=workhorse&action=edit_post&id='. $project->id) ?>" class="btn btn-outline-primary">Continue</a>
+								<a href="<?= admin_url('admin.php?page=improveseo&action=edit_post&id='. $project->id) ?>" class="btn btn-outline-primary">Continue</a>
 							<?php endif; ?>
 						</td>
 					</tr>
@@ -177,7 +177,7 @@ use WorkHorse\View;
 	}
 	var numm_update;
 	function start_update(ids){
-		var new_location = window.location.protocol + "//" + window.location.hostname +"/wp-admin/admin.php?page=workhorse_projects";
+		var new_location = window.location.protocol + "//" + window.location.hostname +"/wp-admin/admin.php?page=improveseo_projects";
 		jQuery
 		.ajax({
 			url : ajaxurl,
@@ -223,7 +223,7 @@ use WorkHorse\View;
 			}
 			
 			elseif($project->state == 'Published' && $project->iteration == $project->max_iterations){
-				header("Location: /wp-admin/admin.php?page=workhorse_projects&action=export_preview_url&id=".$project->id."&noheader=true");
+				header("Location: /wp-admin/admin.php?page=improveseo_projects&action=export_preview_url&id=".$project->id."&noheader=true");
 				exit;
 			}			
 		}		
@@ -244,7 +244,7 @@ use WorkHorse\View;
 			'total' => $pages,
 			'current' => $page,
 			'format' => '&paged=%#%',
-			'base' => admin_url('admin.php?page=workhorse_projects%_%')
+			'base' => admin_url('admin.php?page=improveseo_projects%_%')
 			)) ?>
 		</span>
 	</section>

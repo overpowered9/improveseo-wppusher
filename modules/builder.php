@@ -1,14 +1,14 @@
 <?php
-use WorkHorse\View;
-use WorkHorse\Spintax;
-use WorkHorse\Storage;
-use WorkHorse\LiteSpintax;
-use WorkHorse\Models\Task;
-use WorkHorse\Models\Lists;
-use WorkHorse\ChannelManager;
-use WorkHorse\Models\Shortcode;
+use ImproveSEO\View;
+use ImproveSEO\Spintax;
+use ImproveSEO\Storage;
+use ImproveSEO\LiteSpintax;
+use ImproveSEO\Models\Task;
+use ImproveSEO\Models\Lists;
+use ImproveSEO\ChannelManager;
+use ImproveSEO\Models\Shortcode;
 
-function workhorse_builder() {
+function improveseo_builder() {
 	global $wpdb;
 	global $wp_rewrite;
 	// die('aa');
@@ -25,7 +25,7 @@ function workhorse_builder() {
 	@set_time_limit ( 0 );
 	session_write_close ();
 	
-	workhorse_debug_start ();
+	improveseo_debug_start ();
 	
 	ini_set ( "pcre.backtrack_limit", "23001337" );
 	ini_set ( "pcre.recursion_limit", "23001337" );
@@ -36,7 +36,7 @@ function workhorse_builder() {
 		if ($ajax != 1) {
 			echo 'error';
 		} else {
-			echo '<h3>Please, build posts/pages from <a href="/wp-admin/admin.php?page=workhorse_projects">projects list.</a></h3>';
+			echo '<h3>Please, build posts/pages from <a href="/wp-admin/admin.php?page=improveseo_projects">projects list.</a></h3>';
 		}
 		return;
 	}
@@ -102,7 +102,7 @@ function workhorse_builder() {
 	
 	// Authors
 	if ($options ['distribute']) {
-		$_authors = $wpdb->get_results ( "SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'workhorse_user' ORDER BY RAND() LIMIT 500" );
+		$_authors = $wpdb->get_results ( "SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'improveseo_user' ORDER BY RAND() LIMIT 500" );
 		foreach ( $_authors as $a ) {
 			$authors [] = $a->user_id;
 		}
@@ -140,7 +140,7 @@ function workhorse_builder() {
 				) 
 		) );
 		
-		workhorse_debug_message ( 'New post type created ' . $optoins ['permalink_prefix'] );
+		improveseo_debug_message ( 'New post type created ' . $optoins ['permalink_prefix'] );
 		
 		$wp_rewrite->flush_rules ( false );
 		
@@ -161,7 +161,7 @@ function workhorse_builder() {
 			) 
 	);
 	
-	$google_api_key = get_option ( "workhorse_google_api_key" );
+	$google_api_key = get_option ( "improveseo_google_api_key" );
 	
 	// Load shortcodes
 	$shortModel = new Shortcode ();
@@ -181,7 +181,7 @@ function workhorse_builder() {
 	
 	// Load lists
 	$listModel = new Lists ();
-	$lists = workhorse_get_lists_from_text ( array (
+	$lists = improveseo_get_lists_from_text ( array (
 			'title' => $data ['title'],
 			'content' => $data ['content'],
 			'custom_title' => $options ['custom_title'],
@@ -191,7 +191,7 @@ function workhorse_builder() {
 			'tags' => $options ['tags'] 
 	) );
 	
-	workhorse_debug_message ( 'Ready for building.. (time ' . workhorse_debug_time () . ' ms)<br>--------------------------<br>' );
+	improveseo_debug_message ( 'Ready for building.. (time ' . improveseo_debug_time () . ' ms)<br>--------------------------<br>' );
 	
 	for($i = 1; $i <= $page; $i ++) {
 		$project->iteration ++;
@@ -203,29 +203,29 @@ function workhorse_builder() {
 			break;
 		}
 		
-		workhorse_debug_message ( 'Post #' . $project->iteration );
+		improveseo_debug_message ( 'Post #' . $project->iteration );
 		
 		if (isset ( $options ['permalink_prefix'] )) {
 			$data ['post_type'] = $options ['permalink_prefix'];
 		}
 		
 		if ($geo) {
-			$geoIteration = workhorse_get_current_subiteration ( $project->iteration, $geoIterations );
-			$geoData = workhorse_get_geodata ( $options ['local_geo_country'], $options ['local_geo_locations'] [$geoIteration - 1] );
+			$geoIteration = improveseo_get_current_subiteration ( $project->iteration, $geoIterations );
+			$geoData = improveseo_get_geodata ( $options ['local_geo_country'], $options ['local_geo_locations'] [$geoIteration - 1] );
 			
-			workhorse_debug_message ( 'Received geodata (time ' . workhorse_debug_time () . ' ms)' );
+			improveseo_debug_message ( 'Received geodata (time ' . improveseo_debug_time () . ' ms)' );
 			
 			// Channel pages
 			if ($geoData ['city'] && isset ( $data ['state_channel_page'] )) {
 				ChannelManager::create ( $project->id, $data, $geoData, 'state' );
 				
-				workhorse_debug_message ( 'State channel created (time ' . workhorse_debug_time () . ' ms)' );
+				improveseo_debug_message ( 'State channel created (time ' . improveseo_debug_time () . ' ms)' );
 			}
 			
 			if ($geoData ['zip'] && isset ( $data ['city_channel_page'] )) {
 				ChannelManager::create ( $project->id, $data, $geoData, 'city' );
 				
-				workhorse_debug_message ( 'City channel created (time ' . workhorse_debug_time () . ' ms)' );
+				improveseo_debug_message ( 'City channel created (time ' . improveseo_debug_time () . ' ms)' );
 			}
 			
 			// Save permalink structure for channels
@@ -238,17 +238,17 @@ function workhorse_builder() {
 					
 					$storage->permalink_prefixes = $prefixes;
 					
-					workhorse_debug_message ( 'Permalink structure saved (time ' . workhorse_debug_time () . ' ms)' );
+					improveseo_debug_message ( 'Permalink structure saved (time ' . improveseo_debug_time () . ' ms)' );
 				}
 			}
 		}
 		
 		// Get current spintax iteration
-		$spintaxIteration = workhorse_get_current_subiteration ( $project->iteration, $project->spintax_iterations );
+		$spintaxIteration = improveseo_get_current_subiteration ( $project->iteration, $project->spintax_iterations );
 		
 		// Get current iteration for each field
-		$titleIteration = workhorse_get_spintax_subiteration ( $titleMax, $project, $spintaxIteration );
-		// $contentIteration = workhorse_get_spintax_subiteration($contentMax, $project, $spintaxIteration);
+		$titleIteration = improveseo_get_spintax_subiteration ( $titleMax, $project, $spintaxIteration );
+		// $contentIteration = improveseo_get_spintax_subiteration($contentMax, $project, $spintaxIteration);
 		
 		$titleText = Spintax::make ( $title, $titleIteration, $titleSpintax, false );
 		if ($geo)
@@ -264,7 +264,7 @@ function workhorse_builder() {
 			if (isset ( $options ['use_post_location'] )) {
 				$address = urlencode ( $geoData ['country'] . ', ' . $geoData ['state'] . ', ' . $geoData ['city'] . ', ' . $geoData ['zip'] );
 			} else {
-				$locationIteration = workhorse_get_current_subiteration ( $project->iteration, sizeof ( $exifLocations ) ) - 1;
+				$locationIteration = improveseo_get_current_subiteration ( $project->iteration, sizeof ( $exifLocations ) ) - 1;
 				$address = $exifLocations [$locationIteration]->address;
 			}
 			
@@ -294,7 +294,7 @@ function workhorse_builder() {
 							$imageSrc = imagecreatefromwbmp ( $image );
 						
 						$imagedir = 'uploads/' . date ( 'Y' ) . '/' . date ( 'm' ) . '/' . $filename;
-						workhorse_check_dir ( $imagedir );
+						improveseo_check_dir ( $imagedir );
 						
 						// Location coordinates
 						if (isset ( $options ['use_post_location'] )) {
@@ -383,10 +383,10 @@ function workhorse_builder() {
 			$contentText = str_replace ( "[$short]", '[' . $short . ' key="' . mt_rand ( 0, $max ) . '"]', $contentText );
 		}
 		
-		// Render workhorse lists
-		$titleText = workhorse_set_list_item ( $titleText, $lists, $project->iteration );
-		$contentText = workhorse_set_list_item ( $contentText, $lists, $project->iteration );
-		$postName = workhorse_set_list_item ( $postName, $lists, $project->iteration );
+		// Render improveseo lists
+		$titleText = improveseo_set_list_item ( $titleText, $lists, $project->iteration );
+		$contentText = improveseo_set_list_item ( $contentText, $lists, $project->iteration );
+		$postName = improveseo_set_list_item ( $postName, $lists, $project->iteration );
 		
 		
 		if (! dexwork_wp_exist_post_by_title ( $titleText )) {
@@ -402,7 +402,7 @@ function workhorse_builder() {
 			$res = wp_set_post_categories( $post_id, json_decode($ahmed_cats, true) );
 			
 			
-			workhorse_debug_message ( 'Post created (time ' . workhorse_debug_time () . ' ms)' );
+			improveseo_debug_message ( 'Post created (time ' . improveseo_debug_time () . ' ms)' );
 			
 			// Categorization
 			if (isset ( $options ['categorization'] )) {
@@ -420,84 +420,84 @@ function workhorse_builder() {
 						$category 
 				) );
 				
-				workhorse_debug_message ( 'All categories created (time ' . workhorse_debug_time () . ' ms)' );
+				improveseo_debug_message ( 'All categories created (time ' . improveseo_debug_time () . ' ms)' );
 			}
 			
-			add_post_meta ( $post_id, 'workhorse_project_id', $project->id );
+			add_post_meta ( $post_id, 'improveseo_project_id', $project->id );
 			
 			// On-Page SEO Section
 			if (isset ( $options ['custom_title'] )) {
-				$customTitleText = workhorse_spintax_the_field ( $options ['custom_title'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$customTitleText = improveseo_spintax_the_field ( $options ['custom_title'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_custom_title', $customTitleText );
+				add_post_meta ( $post_id, 'improveseo_custom_title', $customTitleText );
 				// add_post_meta($post_id, '_yoast_wpseo_title', $customTitleText); // Yoast SEO
 			}
 			if (isset ( $options ['custom_description'] )) {
-				$customDescriptionText = workhorse_spintax_the_field ( $options ['custom_description'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$customDescriptionText = improveseo_spintax_the_field ( $options ['custom_description'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_custom_description', $customDescriptionText );
+				add_post_meta ( $post_id, 'improveseo_custom_description', $customDescriptionText );
 				// add_post_meta($post_id, '_yoast_wpseo_metadesc', $customDescriptionText);
 			}
 			if (isset ( $options ['custom_keywords'] )) {
-				$customKeywordsText = workhorse_spintax_the_field ( $options ['custom_keywords'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$customKeywordsText = improveseo_spintax_the_field ( $options ['custom_keywords'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_custom_keywords', $customKeywordsText );
+				add_post_meta ( $post_id, 'improveseo_custom_keywords', $customKeywordsText );
 			}
 			
 			// Schema Section
 			if (isset ( $options ['schema_business'] )) {
-				$schemaBusinessText = workhorse_spintax_the_field ( $options ['schema_business'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaBusinessText = improveseo_spintax_the_field ( $options ['schema_business'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_business', $schemaBusinessText );
+				add_post_meta ( $post_id, 'improveseo_schema_business', $schemaBusinessText );
 			}
 			if (isset ( $options ['schema_description'] )) {
-				$schemaDescriptionText = workhorse_spintax_the_field ( $options ['schema_description'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaDescriptionText = improveseo_spintax_the_field ( $options ['schema_description'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_description', $schemaDescriptionText );
+				add_post_meta ( $post_id, 'improveseo_schema_description', $schemaDescriptionText );
 			}
 			if (isset ( $options ['schema_email'] )) {
-				$schemaEmailText = workhorse_spintax_the_field ( $options ['schema_email'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaEmailText = improveseo_spintax_the_field ( $options ['schema_email'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_email', $schemaEmailText );
+				add_post_meta ( $post_id, 'improveseo_schema_email', $schemaEmailText );
 			}
 			if (isset ( $options ['schema_telephone'] )) {
-				add_post_meta ( $post_id, 'workhorse_schema_telephone', $options ['schema_telephone'] );
+				add_post_meta ( $post_id, 'improveseo_schema_telephone', $options ['schema_telephone'] );
 			}
 			if (isset ( $options ['schema_social'] )) {
-				$schemaSocialText = workhorse_spintax_the_field ( $options ['schema_social'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaSocialText = improveseo_spintax_the_field ( $options ['schema_social'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_social', $schemaSocialText );
+				add_post_meta ( $post_id, 'improveseo_schema_social', $schemaSocialText );
 			}
 			if (isset ( $options ['schema_rating_object'] )) {
-				$schemaRatingObjectText = workhorse_spintax_the_field ( $options ['schema_rating_object'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaRatingObjectText = improveseo_spintax_the_field ( $options ['schema_rating_object'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_rating_object', $schemaRatingObjectText );
+				add_post_meta ( $post_id, 'improveseo_schema_rating_object', $schemaRatingObjectText );
 			}
 			if (isset ( $options ['schema_rating'] )) {
-				$schemaRating = workhorse_spintax_the_field ( $options ['schema_rating'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaRating = improveseo_spintax_the_field ( $options ['schema_rating'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_rating', $schemaRating );
+				add_post_meta ( $post_id, 'improveseo_schema_rating', $schemaRating );
 			}
 			if (isset ( $options ['schema_rating_count'] )) {
-				$schemaRatingCount = workhorse_spintax_the_field ( $options ['schema_rating_count'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaRatingCount = improveseo_spintax_the_field ( $options ['schema_rating_count'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_rating_count', $schemaRatingCount );
+				add_post_meta ( $post_id, 'improveseo_schema_rating_count', $schemaRatingCount );
 			}
 			if (isset ( $options ['schema_address'] )) {
-				$schemaAddressText = workhorse_spintax_the_field ( $options ['schema_address'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaAddressText = improveseo_spintax_the_field ( $options ['schema_address'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_address', $schemaAddressText );
+				add_post_meta ( $post_id, 'improveseo_schema_address', $schemaAddressText );
 			}
 			if (isset ( $options ['hide_schema'] )) {
-				add_post_meta ( $post_id, 'workhorse_hide_schema', 1 );
+				add_post_meta ( $post_id, 'improveseo_hide_schema', 1 );
 			}
 			
-			workhorse_debug_message ( 'Post meta created (time ' . workhorse_debug_time () . ' ms)' );
+			improveseo_debug_message ( 'Post meta created (time ' . improveseo_debug_time () . ' ms)' );
 			
 			// Tags
 			if (isset ( $options ['tags'] ) && $options ['tags']) {
 				$tags = Spintax::geo ( $options ['tags'], $geoData );
-				$tags = workhorse_set_list_item ( $tags, $lists, $project->iteration );
+				$tags = improveseo_set_list_item ( $tags, $lists, $project->iteration );
 				
 				wp_set_post_tags ( $post_id, $tags, true );
 				
@@ -508,7 +508,7 @@ function workhorse_builder() {
 					foreach ( $tags as $tag ) {
 						$term = get_term_by ( 'name', $tag, 'post_tag' );
 						
-						add_term_meta ( $term->term_id, 'workhorse_noindex_tag', 1, true );
+						add_term_meta ( $term->term_id, 'improveseo_noindex_tag', 1, true );
 					}
 				}
 			}
@@ -516,7 +516,7 @@ function workhorse_builder() {
 			// Channel page link
 			ChannelManager::addLink ( $post_id, $geoData );
 			
-			workhorse_debug_message ( 'Channel link saved (time ' . workhorse_debug_time () . ' ms)' );
+			improveseo_debug_message ( 'Channel link saved (time ' . improveseo_debug_time () . ' ms)' );
 			
 			// Pre-Safe project
 			$update = array (
@@ -549,7 +549,7 @@ function workhorse_builder() {
 			// Each 500 iteration, change author list
 			if ($project->iteration % 500 == 0) {
 				$authors = array ();
-				$_authors = $wpdb->get_results ( "SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'workhorse_user' ORDER BY RAND() LIMIT 500" );
+				$_authors = $wpdb->get_results ( "SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'improveseo_user' ORDER BY RAND() LIMIT 500" );
 				foreach ( $_authors as $a ) {
 					$authors [] = $a->user_id;
 				}
@@ -558,7 +558,7 @@ function workhorse_builder() {
 			
 			flush ();
 		} else {
-			workhorse_debug_message ( '<span color="red">Post was skiped due to duplicate post (time ' . workhorse_debug_time () . ' ms)</span>' );
+			improveseo_debug_message ( '<span color="red">Post was skiped due to duplicate post (time ' . improveseo_debug_time () . ' ms)</span>' );
 		}
 	}
 	
@@ -606,13 +606,13 @@ function preview_delete_ajax(){
 	$task = $model->find($id);
 
 	// Delete all posts from this project
-	$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'workhorse_project_id' AND meta_value = %s)", $id));
-	$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE meta_key = 'workhorse_project_id' AND meta_value = %s", $id));
+	$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));
+	$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
 
 	$model->delete($id);
 }
 
-function workhorse_builder_update() {
+function improveseo_builder_update() {
 	global $wpdb;
 	global $wp_rewrite;
 	// die('aa');
@@ -629,7 +629,7 @@ function workhorse_builder_update() {
 	@set_time_limit ( 0 );
 	session_write_close ();
 	
-	workhorse_debug_start ();
+	improveseo_debug_start ();
 	
 	ini_set ( "pcre.backtrack_limit", "23001337" );
 	ini_set ( "pcre.recursion_limit", "23001337" );
@@ -640,7 +640,7 @@ function workhorse_builder_update() {
 		if ($ajax != 1) {
 			echo 'error';
 		} else {
-			echo '<h3>Please, build posts/pages from <a href="/wp-admin/admin.php?page=workhorse_projects">projects list.</a></h3>';
+			echo '<h3>Please, build posts/pages from <a href="/wp-admin/admin.php?page=improveseo_projects">projects list.</a></h3>';
 		}
 		return;
 	}
@@ -652,9 +652,9 @@ function workhorse_builder_update() {
 	
 
 		// Delete all previous posts from this project
-		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE post_id IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'workhorse_project_id' AND meta_value = %s) AND meta_key = 'workhorse_channel'", $id));
-		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'workhorse_project_id' AND meta_value = %s)", $id));
-		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE meta_key = 'workhorse_project_id' AND meta_value = %s", $id));
+		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE post_id IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s) AND meta_key = 'improveseo_channel'", $id));
+		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));
+		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
 
 		$model->update(array('iteration' => 0), $id);
 
@@ -718,7 +718,7 @@ function workhorse_builder_update() {
 	
 	// Authors
 	if ($options ['distribute']) {
-		$_authors = $wpdb->get_results ( "SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'workhorse_user' ORDER BY RAND() LIMIT 500" );
+		$_authors = $wpdb->get_results ( "SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'improveseo_user' ORDER BY RAND() LIMIT 500" );
 		foreach ( $_authors as $a ) {
 			$authors [] = $a->user_id;
 		}
@@ -756,7 +756,7 @@ function workhorse_builder_update() {
 				) 
 		) );
 		
-		workhorse_debug_message ( 'New post type created ' . $optoins ['permalink_prefix'] );
+		improveseo_debug_message ( 'New post type created ' . $optoins ['permalink_prefix'] );
 		
 		$wp_rewrite->flush_rules ( false );
 		
@@ -777,7 +777,7 @@ function workhorse_builder_update() {
 			) 
 	);
 	
-	$google_api_key = get_option ( "workhorse_google_api_key" );
+	$google_api_key = get_option ( "improveseo_google_api_key" );
 	
 	// Load shortcodes
 	$shortModel = new Shortcode ();
@@ -797,7 +797,7 @@ function workhorse_builder_update() {
 	
 	// Load lists
 	$listModel = new Lists ();
-	$lists = workhorse_get_lists_from_text ( array (
+	$lists = improveseo_get_lists_from_text ( array (
 			'title' => $data ['title'],
 			'content' => $data ['content'],
 			'custom_title' => $options ['custom_title'],
@@ -807,7 +807,7 @@ function workhorse_builder_update() {
 			'tags' => $options ['tags'] 
 	) );
 	
-	workhorse_debug_message ( 'Ready for building.. (time ' . workhorse_debug_time () . ' ms)<br>--------------------------<br>' );
+	improveseo_debug_message ( 'Ready for building.. (time ' . improveseo_debug_time () . ' ms)<br>--------------------------<br>' );
 	
 	for($i = 1; $i <= $page; $i ++) {
 		$project->iteration ++;
@@ -819,29 +819,29 @@ function workhorse_builder_update() {
 			break;
 		}
 		
-		workhorse_debug_message ( 'Post #' . $project->iteration );
+		improveseo_debug_message ( 'Post #' . $project->iteration );
 		
 		if (isset ( $options ['permalink_prefix'] )) {
 			$data ['post_type'] = $options ['permalink_prefix'];
 		}
 		
 		if ($geo) {
-			$geoIteration = workhorse_get_current_subiteration ( $project->iteration, $geoIterations );
-			$geoData = workhorse_get_geodata ( $options ['local_geo_country'], $options ['local_geo_locations'] [$geoIteration - 1] );
+			$geoIteration = improveseo_get_current_subiteration ( $project->iteration, $geoIterations );
+			$geoData = improveseo_get_geodata ( $options ['local_geo_country'], $options ['local_geo_locations'] [$geoIteration - 1] );
 			
-			workhorse_debug_message ( 'Received geodata (time ' . workhorse_debug_time () . ' ms)' );
+			improveseo_debug_message ( 'Received geodata (time ' . improveseo_debug_time () . ' ms)' );
 			
 			// Channel pages
 			if ($geoData ['city'] && isset ( $data ['state_channel_page'] )) {
 				ChannelManager::create ( $project->id, $data, $geoData, 'state' );
 				
-				workhorse_debug_message ( 'State channel created (time ' . workhorse_debug_time () . ' ms)' );
+				improveseo_debug_message ( 'State channel created (time ' . improveseo_debug_time () . ' ms)' );
 			}
 			
 			if ($geoData ['zip'] && isset ( $data ['city_channel_page'] )) {
 				ChannelManager::create ( $project->id, $data, $geoData, 'city' );
 				
-				workhorse_debug_message ( 'City channel created (time ' . workhorse_debug_time () . ' ms)' );
+				improveseo_debug_message ( 'City channel created (time ' . improveseo_debug_time () . ' ms)' );
 			}
 			
 			// Save permalink structure for channels
@@ -854,17 +854,17 @@ function workhorse_builder_update() {
 					
 					$storage->permalink_prefixes = $prefixes;
 					
-					workhorse_debug_message ( 'Permalink structure saved (time ' . workhorse_debug_time () . ' ms)' );
+					improveseo_debug_message ( 'Permalink structure saved (time ' . improveseo_debug_time () . ' ms)' );
 				}
 			}
 		}
 		
 		// Get current spintax iteration
-		$spintaxIteration = workhorse_get_current_subiteration ( $project->iteration, $project->spintax_iterations );
+		$spintaxIteration = improveseo_get_current_subiteration ( $project->iteration, $project->spintax_iterations );
 		
 		// Get current iteration for each field
-		$titleIteration = workhorse_get_spintax_subiteration ( $titleMax, $project, $spintaxIteration );
-		// $contentIteration = workhorse_get_spintax_subiteration($contentMax, $project, $spintaxIteration);
+		$titleIteration = improveseo_get_spintax_subiteration ( $titleMax, $project, $spintaxIteration );
+		// $contentIteration = improveseo_get_spintax_subiteration($contentMax, $project, $spintaxIteration);
 		
 		$titleText = Spintax::make ( $title, $titleIteration, $titleSpintax, false );
 		if ($geo)
@@ -880,7 +880,7 @@ function workhorse_builder_update() {
 			if (isset ( $options ['use_post_location'] )) {
 				$address = urlencode ( $geoData ['country'] . ', ' . $geoData ['state'] . ', ' . $geoData ['city'] . ', ' . $geoData ['zip'] );
 			} else {
-				$locationIteration = workhorse_get_current_subiteration ( $project->iteration, sizeof ( $exifLocations ) ) - 1;
+				$locationIteration = improveseo_get_current_subiteration ( $project->iteration, sizeof ( $exifLocations ) ) - 1;
 				$address = $exifLocations [$locationIteration]->address;
 			}
 			
@@ -910,7 +910,7 @@ function workhorse_builder_update() {
 							$imageSrc = imagecreatefromwbmp ( $image );
 						
 						$imagedir = 'uploads/' . date ( 'Y' ) . '/' . date ( 'm' ) . '/' . $filename;
-						workhorse_check_dir ( $imagedir );
+						improveseo_check_dir ( $imagedir );
 						
 						// Location coordinates
 						if (isset ( $options ['use_post_location'] )) {
@@ -999,10 +999,10 @@ function workhorse_builder_update() {
 			$contentText = str_replace ( "[$short]", '[' . $short . ' key="' . mt_rand ( 0, $max ) . '"]', $contentText );
 		}
 		
-		// Render workhorse lists
-		$titleText = workhorse_set_list_item ( $titleText, $lists, $project->iteration );
-		$contentText = workhorse_set_list_item ( $contentText, $lists, $project->iteration );
-		$postName = workhorse_set_list_item ( $postName, $lists, $project->iteration );
+		// Render improveseo lists
+		$titleText = improveseo_set_list_item ( $titleText, $lists, $project->iteration );
+		$contentText = improveseo_set_list_item ( $contentText, $lists, $project->iteration );
+		$postName = improveseo_set_list_item ( $postName, $lists, $project->iteration );
 		
 		
 		if (! dexwork_wp_exist_post_by_title ( $titleText )) {
@@ -1018,7 +1018,7 @@ function workhorse_builder_update() {
 			$res = wp_set_post_categories( $post_id, json_decode($ahmed_cats, true) );
 			
 			
-			workhorse_debug_message ( 'Post created (time ' . workhorse_debug_time () . ' ms)' );
+			improveseo_debug_message ( 'Post created (time ' . improveseo_debug_time () . ' ms)' );
 			
 			// Categorization
 			if (isset ( $options ['categorization'] )) {
@@ -1036,84 +1036,84 @@ function workhorse_builder_update() {
 						$category 
 				) );
 				
-				workhorse_debug_message ( 'All categories created (time ' . workhorse_debug_time () . ' ms)' );
+				improveseo_debug_message ( 'All categories created (time ' . improveseo_debug_time () . ' ms)' );
 			}
 			
-			add_post_meta ( $post_id, 'workhorse_project_id', $project->id );
+			add_post_meta ( $post_id, 'improveseo_project_id', $project->id );
 			
 			// On-Page SEO Section
 			if (isset ( $options ['custom_title'] )) {
-				$customTitleText = workhorse_spintax_the_field ( $options ['custom_title'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$customTitleText = improveseo_spintax_the_field ( $options ['custom_title'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_custom_title', $customTitleText );
+				add_post_meta ( $post_id, 'improveseo_custom_title', $customTitleText );
 				// add_post_meta($post_id, '_yoast_wpseo_title', $customTitleText); // Yoast SEO
 			}
 			if (isset ( $options ['custom_description'] )) {
-				$customDescriptionText = workhorse_spintax_the_field ( $options ['custom_description'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$customDescriptionText = improveseo_spintax_the_field ( $options ['custom_description'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_custom_description', $customDescriptionText );
+				add_post_meta ( $post_id, 'improveseo_custom_description', $customDescriptionText );
 				// add_post_meta($post_id, '_yoast_wpseo_metadesc', $customDescriptionText);
 			}
 			if (isset ( $options ['custom_keywords'] )) {
-				$customKeywordsText = workhorse_spintax_the_field ( $options ['custom_keywords'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$customKeywordsText = improveseo_spintax_the_field ( $options ['custom_keywords'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_custom_keywords', $customKeywordsText );
+				add_post_meta ( $post_id, 'improveseo_custom_keywords', $customKeywordsText );
 			}
 			
 			// Schema Section
 			if (isset ( $options ['schema_business'] )) {
-				$schemaBusinessText = workhorse_spintax_the_field ( $options ['schema_business'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaBusinessText = improveseo_spintax_the_field ( $options ['schema_business'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_business', $schemaBusinessText );
+				add_post_meta ( $post_id, 'improveseo_schema_business', $schemaBusinessText );
 			}
 			if (isset ( $options ['schema_description'] )) {
-				$schemaDescriptionText = workhorse_spintax_the_field ( $options ['schema_description'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaDescriptionText = improveseo_spintax_the_field ( $options ['schema_description'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_description', $schemaDescriptionText );
+				add_post_meta ( $post_id, 'improveseo_schema_description', $schemaDescriptionText );
 			}
 			if (isset ( $options ['schema_email'] )) {
-				$schemaEmailText = workhorse_spintax_the_field ( $options ['schema_email'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaEmailText = improveseo_spintax_the_field ( $options ['schema_email'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_email', $schemaEmailText );
+				add_post_meta ( $post_id, 'improveseo_schema_email', $schemaEmailText );
 			}
 			if (isset ( $options ['schema_telephone'] )) {
-				add_post_meta ( $post_id, 'workhorse_schema_telephone', $options ['schema_telephone'] );
+				add_post_meta ( $post_id, 'improveseo_schema_telephone', $options ['schema_telephone'] );
 			}
 			if (isset ( $options ['schema_social'] )) {
-				$schemaSocialText = workhorse_spintax_the_field ( $options ['schema_social'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaSocialText = improveseo_spintax_the_field ( $options ['schema_social'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_social', $schemaSocialText );
+				add_post_meta ( $post_id, 'improveseo_schema_social', $schemaSocialText );
 			}
 			if (isset ( $options ['schema_rating_object'] )) {
-				$schemaRatingObjectText = workhorse_spintax_the_field ( $options ['schema_rating_object'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaRatingObjectText = improveseo_spintax_the_field ( $options ['schema_rating_object'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_rating_object', $schemaRatingObjectText );
+				add_post_meta ( $post_id, 'improveseo_schema_rating_object', $schemaRatingObjectText );
 			}
 			if (isset ( $options ['schema_rating'] )) {
-				$schemaRating = workhorse_spintax_the_field ( $options ['schema_rating'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaRating = improveseo_spintax_the_field ( $options ['schema_rating'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_rating', $schemaRating );
+				add_post_meta ( $post_id, 'improveseo_schema_rating', $schemaRating );
 			}
 			if (isset ( $options ['schema_rating_count'] )) {
-				$schemaRatingCount = workhorse_spintax_the_field ( $options ['schema_rating_count'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaRatingCount = improveseo_spintax_the_field ( $options ['schema_rating_count'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_rating_count', $schemaRatingCount );
+				add_post_meta ( $post_id, 'improveseo_schema_rating_count', $schemaRatingCount );
 			}
 			if (isset ( $options ['schema_address'] )) {
-				$schemaAddressText = workhorse_spintax_the_field ( $options ['schema_address'], $project, $spintaxIteration, $geo, $geoData, $lists );
+				$schemaAddressText = improveseo_spintax_the_field ( $options ['schema_address'], $project, $spintaxIteration, $geo, $geoData, $lists );
 				
-				add_post_meta ( $post_id, 'workhorse_schema_address', $schemaAddressText );
+				add_post_meta ( $post_id, 'improveseo_schema_address', $schemaAddressText );
 			}
 			if (isset ( $options ['hide_schema'] )) {
-				add_post_meta ( $post_id, 'workhorse_hide_schema', 1 );
+				add_post_meta ( $post_id, 'improveseo_hide_schema', 1 );
 			}
 			
-			workhorse_debug_message ( 'Post meta created (time ' . workhorse_debug_time () . ' ms)' );
+			improveseo_debug_message ( 'Post meta created (time ' . improveseo_debug_time () . ' ms)' );
 			
 			// Tags
 			if (isset ( $options ['tags'] ) && $options ['tags']) {
 				$tags = Spintax::geo ( $options ['tags'], $geoData );
-				$tags = workhorse_set_list_item ( $tags, $lists, $project->iteration );
+				$tags = improveseo_set_list_item ( $tags, $lists, $project->iteration );
 				
 				wp_set_post_tags ( $post_id, $tags, true );
 				
@@ -1124,7 +1124,7 @@ function workhorse_builder_update() {
 					foreach ( $tags as $tag ) {
 						$term = get_term_by ( 'name', $tag, 'post_tag' );
 						
-						add_term_meta ( $term->term_id, 'workhorse_noindex_tag', 1, true );
+						add_term_meta ( $term->term_id, 'improveseo_noindex_tag', 1, true );
 					}
 				}
 			}
@@ -1132,7 +1132,7 @@ function workhorse_builder_update() {
 			// Channel page link
 			ChannelManager::addLink ( $post_id, $geoData );
 			
-			workhorse_debug_message ( 'Channel link saved (time ' . workhorse_debug_time () . ' ms)' );
+			improveseo_debug_message ( 'Channel link saved (time ' . improveseo_debug_time () . ' ms)' );
 			
 			// Pre-Safe project
 			$update = array (
@@ -1165,7 +1165,7 @@ function workhorse_builder_update() {
 			// Each 500 iteration, change author list
 			if ($project->iteration % 500 == 0) {
 				$authors = array ();
-				$_authors = $wpdb->get_results ( "SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'workhorse_user' ORDER BY RAND() LIMIT 500" );
+				$_authors = $wpdb->get_results ( "SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'improveseo_user' ORDER BY RAND() LIMIT 500" );
 				foreach ( $_authors as $a ) {
 					$authors [] = $a->user_id;
 				}
@@ -1174,7 +1174,7 @@ function workhorse_builder_update() {
 			
 			flush ();
 		} else {
-			workhorse_debug_message ( '<span color="red">Post was skiped due to duplicate post (time ' . workhorse_debug_time () . ' ms)</span>' );
+			improveseo_debug_message ( '<span color="red">Post was skiped due to duplicate post (time ' . improveseo_debug_time () . ' ms)</span>' );
 		}
 	}
 	

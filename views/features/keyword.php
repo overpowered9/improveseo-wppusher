@@ -1,8 +1,8 @@
 <?php
-use WorkHorse\View;
+use ImproveSEO\View;
 ?>
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?= admin_url('admin.php?page=workhorse') ?>">Improve SEO</a>
+<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
 &raquo;
 <span>Keyword Generator</span>
 <?php View::endSection('breadcrumbs') ?>

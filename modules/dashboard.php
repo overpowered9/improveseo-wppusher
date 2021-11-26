@@ -1,11 +1,11 @@
 <?php
 
-use WorkHorse\View;
-use WorkHorse\Validator;
-use WorkHorse\Models\Task;
-use WorkHorse\FlashMessage;
+use ImproveSEO\View;
+use ImproveSEO\Validator;
+use ImproveSEO\Models\Task;
+use ImproveSEO\FlashMessage;
 
-function workhorse_dashboard() {
+function improveseo_dashboard() {
 	$action = isset($_GET['action']) ? $_GET['action'] : 'index';
 
 	if ($action == 'index') {

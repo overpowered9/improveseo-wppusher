@@ -1,11 +1,11 @@
 <?php
 
 use Carbon\Carbon;
-use WorkHorse\Spintax;
-use WorkHorse\Models\Task;
+use ImproveSEO\Spintax;
+use ImproveSEO\Models\Task;
 
 // Add every minute schedule
-function workhorse_add_every_minute($schedules) {
+function improveseo_add_every_minute($schedules) {
      $schedules['every_minute'] = array(
         'interval'  => 60,
         'display'   => __( 'Every Minute', 'textdomain' )
@@ -13,11 +13,11 @@ function workhorse_add_every_minute($schedules) {
 
     return $schedules;
 }
-add_filter('cron_schedules', 'workhorse_add_every_minute');
+add_filter('cron_schedules', 'improveseo_add_every_minute');
 
 
 // Schedules
-function workhorse_parse_tasks() {
+function improveseo_parse_tasks() {
 	global $wpdb;
 
 	$model = new Task();
@@ -80,15 +80,15 @@ function workhorse_parse_tasks() {
 
 				if ($geo) {
 					$geoIteration = ceil($project->iteration / $project->spintax_iterations);
-					$geoData = workhorse_get_geodata($options['local_geo_country'], $options['local_geo_locations'][$geoIteration - 1]);
+					$geoData = improveseo_get_geodata($options['local_geo_country'], $options['local_geo_locations'][$geoIteration - 1]);
 				}
 
 				// Get current spintax iteration
-				$spintaxIteration = workhorse_get_current_subiteration($project->iteration, $project->spintax_iterations);
+				$spintaxIteration = improveseo_get_current_subiteration($project->iteration, $project->spintax_iterations);
 
 				// Get current iteration for each field
-				$titleIteration = workhorse_get_spintax_subiteration($titleMax, $project, $spintaxIteration);
-				$contentIteration = workhorse_get_spintax_subiteration($contentMax, $project, $spintaxIteration);
+				$titleIteration = improveseo_get_spintax_subiteration($titleMax, $project, $spintaxIteration);
+				$contentIteration = improveseo_get_spintax_subiteration($contentMax, $project, $spintaxIteration);
 
 				$titleText = Spintax::make($title, $titleIteration, $titleSpintax);
 				if ($geo) $titleText = Spintax::geo($titleText, $geoData);
@@ -98,7 +98,7 @@ function workhorse_parse_tasks() {
 
 				// Images EXIF
 				if (isset($options['exif_locations'])) {
-					$locationIteration = workhorse_get_current_subiteration($project->iteration, sizeof($exifLocations)) - 1;
+					$locationIteration = improveseo_get_current_subiteration($project->iteration, sizeof($exifLocations)) - 1;
 					$address = $exifLocations[$locationIteration]->address;
 
 					if (!isset($options['exif_cache'])) $options['exif_cache'] = [];
@@ -124,7 +124,7 @@ function workhorse_parse_tasks() {
 						        $imageSrc = imagecreatefrombmp($image);
 
 						    $imagedir = 'uploads/'. date('Y') .'/'. date('m') .'/'. $filename;
-							workhorse_check_dir($imagedir);
+							improveseo_check_dir($imagedir);
 
 						    addGpsInfo(
 						    	$imageSrc,
@@ -163,56 +163,56 @@ function workhorse_parse_tasks() {
 		            'ping_status' => 'closed'
 				]);
 
-				add_post_meta($post_id, 'workhorse_project_id', $project->id);
+				add_post_meta($post_id, 'improveseo_project_id', $project->id);
 
 				// On-Page SEO Section
 				if (isset($options['custom_title'])) {
-					$customTitleText = workhorse_spintax_the_field($options['custom_title'], $project, $spintaxIteration, $geo);
+					$customTitleText = improveseo_spintax_the_field($options['custom_title'], $project, $spintaxIteration, $geo);
 
-					add_post_meta($post_id, 'workhorse_custom_title', $customTitleText);
+					add_post_meta($post_id, 'improveseo_custom_title', $customTitleText);
 				}
 				if (isset($options['custom_description'])) {
-					$customDescriptionText = workhorse_spintax_the_field($options['custom_description'], $project, $spintaxIteration, $geo);
+					$customDescriptionText = improveseo_spintax_the_field($options['custom_description'], $project, $spintaxIteration, $geo);
 
-					add_post_meta($post_id, 'workhorse_custom_description', $customDescriptionText);
+					add_post_meta($post_id, 'improveseo_custom_description', $customDescriptionText);
 				}
 				if (isset($options['custom_keywords'])) {
-					$customKeywordsText = workhorse_spintax_the_field($options['custom_keywords'], $project, $spintaxIteration, $geo);
+					$customKeywordsText = improveseo_spintax_the_field($options['custom_keywords'], $project, $spintaxIteration, $geo);
 
-					add_post_meta($post_id, 'workhorse_custom_keywords', $customKeywordsText);
+					add_post_meta($post_id, 'improveseo_custom_keywords', $customKeywordsText);
 				}
 
 				// Schema Section
 				if (isset($options['schema_business'])) {
-					$schemaBusinessText = workhorse_spintax_the_field($options['schema_business'], $project, $spintaxIteration, $geo);
+					$schemaBusinessText = improveseo_spintax_the_field($options['schema_business'], $project, $spintaxIteration, $geo);
 
-					add_post_meta($post_id, 'workhorse_schema_business', $schemaBusinessText);
+					add_post_meta($post_id, 'improveseo_schema_business', $schemaBusinessText);
 				}
 				if (isset($options['schema_description'])) {
-					$schemaDescriptionText = workhorse_spintax_the_field($options['schema_description'], $project, $spintaxIteration, $geo);
+					$schemaDescriptionText = improveseo_spintax_the_field($options['schema_description'], $project, $spintaxIteration, $geo);
 
-					add_post_meta($post_id, 'workhorse_schema_description', $schemaDescriptionText);
+					add_post_meta($post_id, 'improveseo_schema_description', $schemaDescriptionText);
 				}
 				if (isset($options['schema_email'])) {
-					$schemaEmailText = workhorse_spintax_the_field($options['schema_email'], $project, $spintaxIteration, $geo);
+					$schemaEmailText = improveseo_spintax_the_field($options['schema_email'], $project, $spintaxIteration, $geo);
 
-					add_post_meta($post_id, 'workhorse_schema_email', $schemaEmailText);
+					add_post_meta($post_id, 'improveseo_schema_email', $schemaEmailText);
 				}
 				if (isset($options['schema_telephone'])) {
-					add_post_meta($post_id, 'workhorse_schema_telephone', $options['schema_telephone']);
+					add_post_meta($post_id, 'improveseo_schema_telephone', $options['schema_telephone']);
 				}
 				if (isset($options['schema_social'])) {
-					$schemaSocialText = workhorse_spintax_the_field($options['schema_social'], $project, $spintaxIteration, $geo);
+					$schemaSocialText = improveseo_spintax_the_field($options['schema_social'], $project, $spintaxIteration, $geo);
 
-					add_post_meta($post_id, 'workhorse_schema_social', $schemaSocialText);
+					add_post_meta($post_id, 'improveseo_schema_social', $schemaSocialText);
 				}
 				if (isset($options['schema_rating'])) {
-					add_post_meta($post_id, 'workhorse_schema_rating', $options['schema_rating']);
+					add_post_meta($post_id, 'improveseo_schema_rating', $options['schema_rating']);
 				}
 				if (isset($options['schema_address'])) {
-					$schemaAddressText = workhorse_spintax_the_field($options['schema_address'], $project, $spintaxIteration, $geo);
+					$schemaAddressText = improveseo_spintax_the_field($options['schema_address'], $project, $spintaxIteration, $geo);
 
-					add_post_meta($post_id, 'workhorse_schema_address', $schemaAddressText);
+					add_post_meta($post_id, 'improveseo_schema_address', $schemaAddressText);
 				}
 
 				$project->iteration++;
@@ -235,4 +235,4 @@ function workhorse_parse_tasks() {
 		}
 	}
 }
-add_action('workhorse_parse_tasks_hook', 'workhorse_parse_tasks');
+add_action('improveseo_parse_tasks_hook', 'improveseo_parse_tasks');

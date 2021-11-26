@@ -6,9 +6,9 @@ Description: Creates a large number of pages/posts and customize them to rank in
 Author: Improve SEO Team
 Version: 2.0.0
 */
-define("workhorse_version", "1.6.1.5");
-define('WORKHORSE_ROOT', dirname(__FILE__));
-define('WORKHORSE_DIR', substr(WORKHORSE_ROOT, strpos(WORKHORSE_ROOT, 'wp-content') - 1));
+define("improveseo_version", "2.0");
+define('IMPROVESEO_ROOT', dirname(__FILE__));
+define('IMPROVESEO_DIR', substr(IMPROVESEO_ROOT, strpos(IMPROVESEO_ROOT, 'wp-content') - 1));
 
 
 define( 'WT_PATH', untrailingslashit(plugin_dir_path( __FILE__ )) );
@@ -25,12 +25,12 @@ if( file_exists( dirname(__FILE__).'/includes/helpers.php' )) include_once dirna
 
 include_once 'bootstrap.php';
 
-register_activation_hook(__FILE__, 'workhorse_install');
-register_activation_hook(__FILE__, 'workhorse_install_data');
+register_activation_hook(__FILE__, 'improveseo_install');
+register_activation_hook(__FILE__, 'improveseo_install_data');
 
 // Features
 
-register_deactivation_hook(__FILE__, 'workhorse_uninstall');
+register_deactivation_hook(__FILE__, 'improveseo_uninstall');
 
 function load_media_files() {
     wp_enqueue_media();
@@ -96,7 +96,7 @@ function improve_seo_lits(){
 
     global $wpdb;
     $list_names = array();
-    $sql = "SELECT * FROM " . $wpdb->prefix . "workhorse_lists ORDER BY name ASC LIMIT 0, 20";
+    $sql = "SELECT * FROM " . $wpdb->prefix . "improveseo_lists ORDER BY name ASC LIMIT 0, 20";
     $lists = $wpdb->get_results($sql);
     foreach($lists as $li){
         $list_names[] = $li->name;;    
@@ -115,7 +115,7 @@ function testing(){
 add_action('init' , 'updating_post_status_to_publish');
 function updating_post_status_to_publish(){
     
-    // workhorse_project_id
+    // improveseo_project_id
     wp_enqueue_style('tmm_stlye_css', WT_URL."/assets/css/wt-style.css",  true);
     $args = array(
         'post_status' => array('future')    
@@ -168,8 +168,8 @@ function workdex_init(){
 	}
 }
 
-add_action('wp_ajax_workdex_builder_ajax', 'workhorse_builder');
-add_action('wp_ajax_workdex_builder_update_ajax', 'workhorse_builder_update');
+add_action('wp_ajax_workdex_builder_ajax', 'improveseo_builder');
+add_action('wp_ajax_workdex_builder_update_ajax', 'improveseo_builder_update');
 
 //AJAX call to check if preview window is open 
 add_action('wp_ajax_preview_delete_ajax', 'preview_delete_ajax');
@@ -177,16 +177,16 @@ add_action('wp_ajax_preview_delete_ajax', 'preview_delete_ajax');
 
 $debug = 0;
 
-add_filter('pre_set_site_transient_update_plugins', 'workhorse_check_for_update');
+//add_filter('pre_set_site_transient_update_plugins', 'improveseo_check_for_update');
 
-function workhorse_check_for_update($transient)
+function improveseo_check_for_update($transient)
 {
 	if (empty($transient->checked)) {
 		return $transient;
 	}
-	if (workhorse_check_version()) {
-		if (workhorse_check_version() != workhorse_version) {
-			$plugin_slug = plugin_basename("workhorse-by-dexblog/workhorse.php");
+	if (improveseo_check_version()) {
+		if (improveseo_check_version() != improveseo_version) {
+			$plugin_slug = plugin_basename("ImproveSEO/improveseo.php");
 			$transient->response[$plugin_slug] = (object) array(
 					'new_version' => workhorse_check_version(),
 					'package' => "http://www.dexblog.net/workhorse/workhorse-by-dexblog-" . workhorse_check_version() . ".zip",
@@ -200,7 +200,7 @@ function workhorse_check_for_update($transient)
 /**
  * Api handler
  */
-function workhorse_api($action, $arg) {
+function improveseo_api($action, $arg) {
 	$id_last = get_option ( "dexscan_last_id" );
 	$url = 'http://api-dexsecurity.dexblog.net/api.php?action=' . $action . '&host=' . $_SERVER ["HTTP_HOST"] . "&id_scan=" . $id_last;
 	if ($action == "getdata") {
@@ -235,21 +235,21 @@ function workhorse_api($action, $arg) {
 	$da = json_decode ( $result );
 	return $da;
 }
-function workhorse_check_version() {
-	$lastupdate = get_option ( "workhorse_lastcheck" );
+function improveseo_check_version() {
+	$lastupdate = get_option ( "improveseo_lastcheck" );
 	if ($lastupdate < (time () - 600)) {
 		$data2 = array (
-				'version' => workhorse_version
+				'version' => improveseo_version
 		);
-		$data = workhorse_api ( "versionworkhorse", $data2 );
+		$data = improveseo_api ( "versionimproveseo", $data2 );
 		if ($data->status == 1) {
-			update_option ( "workhorse_new_version", $data->version );
+			update_option ( "improveseo_new_version", $data->version );
 		} else {
-			update_option ( "workhorse_new_version", $data->version );
+			update_option ( "improveseo_new_version", $data->version );
 		}
 	}
-	update_option ( "workhorse_lastcheck", time () );
-	return get_option ( "workhorse_new_version" );
+	update_option ( "improveseo_lastcheck", time () );
+	return get_option ( "improveseo_new_version" );
 }
 
 /*check curl install or not*/
@@ -267,7 +267,7 @@ class WC_Testimonial {
 	
 	function __construct() {
 		
-		add_action( 'admin_menu', 'custom_address_option_on_settings_tab' );
+		//add_action( 'admin_menu', 'custom_address_option_on_settings_tab' );
 		
 		add_action( 'admin_init', array($this , 'load_admin_files') );
 
@@ -555,7 +555,7 @@ class WC_Testimonial {
 
 	/****=====Load Admin JS And CSS files====***/
 	function load_admin_files(){
-		if(page_)
+		//if(page_)
 		//wp_enqueue_style('bootstrap_css', WT_URL."/assets/css/bootstrap.min.css",  true);
 		wp_enqueue_style('improveseo_style', WT_URL."/assets/css/improveseo_style.css",  true);
 		wp_enqueue_style('custom_css', WT_URL."/assets/css/custom.css",  true);

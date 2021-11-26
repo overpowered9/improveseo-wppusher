@@ -1,9 +1,9 @@
 <?php
-use WorkHorse\Models\Country;
-use WorkHorse\Models\GeoData;
+use ImproveSEO\Models\Country;
+use ImproveSEO\Models\GeoData;
 
 // US States Table
-$table_name = $wpdb->prefix . 'workhorse_us_states';
+$table_name = $wpdb->prefix . 'improveseo_us_states';
 
 $charset_collate = $wpdb->get_charset_collate ();
 
@@ -16,7 +16,7 @@ $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 dbDelta ( $sql );
 
 // US Cities Table
-$table_name = $wpdb->prefix . 'workhorse_us_cities';
+$table_name = $wpdb->prefix . 'improveseo_us_cities';
 
 $sql = "CREATE TABLE IF NOT EXISTS $table_name (
   `id` INT(10) UNSIGNED AUTO_INCREMENT,
@@ -32,7 +32,7 @@ $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 dbDelta ( $sql );
 
 // UK States Table
-$table_name = $wpdb->prefix . 'workhorse_uk_states';
+$table_name = $wpdb->prefix . 'improveseo_uk_states';
 
 $sql = "CREATE TABLE IF NOT EXISTS $table_name (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -45,7 +45,7 @@ $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 dbDelta ( $sql );
 
 // UK Cities Table
-$table_name = $wpdb->prefix . 'workhorse_uk_cities';
+$table_name = $wpdb->prefix . 'improveseo_uk_cities';
 
 $sql = "CREATE TABLE IF NOT EXISTS $table_name (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -60,7 +60,7 @@ $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 dbDelta ( $sql );
 
 // Other Countries Table
-$table_name = $wpdb->prefix . 'workhorse_countries';
+$table_name = $wpdb->prefix . 'improveseo_countries';
 $countries_table = $table_name;
 
 $sql = "CREATE TABLE IF NOT EXISTS $table_name (
@@ -73,7 +73,7 @@ $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 
 dbDelta ( $sql );
 
-$table_name = $wpdb->prefix . 'workhorse_geodata';
+$table_name = $wpdb->prefix . 'improveseo_geodata';
 
 $sql = "CREATE TABLE IF NOT EXISTS $table_name (
   `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -121,19 +121,19 @@ $basepath = dirname ( __FILE__ );
  * }
  */
 
-$wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "workhorse_us_states;" );
+$wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_us_states;" );
 include_once $basepath . '/us.states.php';
 
-$wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "workhorse_us_cities;" );
+$wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_us_cities;" );
 include_once $basepath . '/us.cities.php';
 
-$wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "workhorse_uk_states;" );
+$wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_uk_states;" );
 include_once $basepath . '/uk.states.php';
 
-$wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "workhorse_uk_cities;" );
+$wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_uk_cities;" );
 include_once $basepath . '/uk.cities.php';
 
 // Install other countries automatically (deprecated by 1.6.0)
-if ($workhorse_db_version != get_option('workhorse_db_version')) {
+if ($improveseo_db_version != get_option('improveseo_db_version')) {
 
 }

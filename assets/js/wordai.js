@@ -48,7 +48,7 @@ var WordAI = {
 		jQuery('#word-ai-result-wrap').hide();
 		jQuery('#word-ai-post-btn').attr('disabled', true);
 
-		jQuery.post('/index.php?api=workhorse&action=word-ai', {
+		jQuery.post('/index.php?api=improveseo&action=word-ai', {
 			text: text,
 			quality: quality,
 			nonested: nesting == 'no' ? 'on' : null,

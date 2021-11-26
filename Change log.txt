@@ -1,0 +1,93 @@
+Change log
+---------------------
+Lookout for workhouse
+
+
+1) Changed WorkForce folder to lib
+2) Change "namespace WorkHorse;" to "namespace ImproveSEO;"
+
+namespace WorkHorse; = namespace ImproveSEO
+workhorse = improveseo
+WORKHORSE_ROOT = IMPROVESEO_ROOT
+WORKHORSE_DIR = IMPROVESEO_DIR
+
+assets ==
+
+features
+    - keyword.php
+
+includes
+    - Carbon ==
+    - lib
+    - geo
+    - Isolesen ==
+    - users ==
+    - api.php
+    - assets.php
+    - crons.php
+    - debug.php
+    - filters.php
+    - functions.php
+    - helpers.php ==
+    - installer.php
+    - menus.php
+    - modules.php
+    - posttypes.php
+    - seo.php
+    - settings.php
+
+modules
+    - all-saved-testimonials.php ==
+    - builder.php
+    - buttons.php ==
+    - cm-admin-settings.php == 
+    - dashboard.php
+    - googlemaps.php ==
+    - lists.php
+    - noindex.php
+    - posting.php
+    - projects.php
+    - settings.php
+    - shortcodes.php
+    - sw-all-saved-keywords.php ==
+    - testimonials.php ==
+    - users.php
+
+storage ==
+
+views
+    - builder
+    - dashboard
+    - exif
+    - features
+    - flashmessage ==
+    - imagescraper ==
+    - layouts
+    - lists
+    - noindex
+    - posting
+    - projects
+    - settings
+    - shortcodes
+    - users
+    - videoscraper ==
+    - wordai ==
+
+autoloader.php
+bootstrap.php ==
+exif.php
+imagescraper.php
+improveseo.php
+videoscraper.php
+wordai.php
+
+
+
+
+
+
+
+
+
+
+

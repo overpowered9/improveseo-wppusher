@@ -1,9 +1,9 @@
 <?php
-use WorkHorse\View;
+use ImproveSEO\View;
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
-	<a href="<?= admin_url('admin.php?page=workhorse') ?>">Improve SEO</a>
+	<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
 	&raquo;
 	<span>Tags List</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -25,7 +25,7 @@ use WorkHorse\View;
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
-				'base' => admin_url('admin.php?page=workhorse_noindex%_%')
+				'base' => admin_url('admin.php?page=improveseo_noindex%_%')
 			)) ?>
 		</span>
 	</p>
@@ -46,7 +46,7 @@ use WorkHorse\View;
 					</strong>
 					<div class="row-actions">
 						<span class="trash">
-							<a href="<?= admin_url('admin.php?page=workhorse_noindex&action=remove&id='. $tag->term_id .'&noheader=true') ?>" onclick="return confirm('Are you sure to delete noindex meta tag from <?= $tag->name ?>?')">Delete noindex key</a>
+							<a href="<?= admin_url('admin.php?page=improveseo_noindex&action=remove&id='. $tag->term_id .'&noheader=true') ?>" onclick="return confirm('Are you sure to delete noindex meta tag from <?= $tag->name ?>?')">Delete noindex key</a>
 						</span>
 					</div>
 				</td>
@@ -67,7 +67,7 @@ use WorkHorse\View;
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
-				'base' => admin_url('admin.php?page=workhorse_noindex%_%')
+				'base' => admin_url('admin.php?page=improveseo_noindex%_%')
 			)) ?>
 		</span>
 	</p>

@@ -1,7 +1,7 @@
 <?php
 
-include_once 'includes/WorkHorse/Autoloader.php';
+include_once 'includes/ImproveSEO/Autoloader.php';
 
-new WorkHorse\Autoloader();
+new ImproveSEO\Autoloader();
 
 session_start();

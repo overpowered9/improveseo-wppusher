@@ -1,11 +1,11 @@
 <?php
 
-use WorkHorse\View;
-use WorkHorse\Validator;
-use WorkHorse\Models\Task;
-use WorkHorse\FlashMessage;
+use ImproveSEO\View;
+use ImproveSEO\Validator;
+use ImproveSEO\Models\Task;
+use ImproveSEO\FlashMessage;
 
-function workhorse_projects() {
+function improveseo_projects() {
 	global $wpdb;
 
 	$action = isset($_GET['action']) ? $_GET['action'] : 'index';
@@ -59,13 +59,13 @@ function workhorse_projects() {
 		$task = $model->find($id);
 
 		// Delete all posts from this project
-		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'workhorse_project_id' AND meta_value = %s)", $id));
-		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE meta_key = 'workhorse_project_id' AND meta_value = %s", $id));
+		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));
+		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
 
 		$model->delete($id);
 
 		FlashMessage::success('Project and all posts/pages deleted.');
-		wp_redirect('/wp-admin/admin.php?page=workhorse_projects');
+		wp_redirect('/wp-admin/admin.php?page=improveseo_projects');
 		exit;
 
 	elseif ($action == 'delete_posts'):
@@ -73,14 +73,14 @@ function workhorse_projects() {
 		$id = $_GET['id'];
 
 		// Delete all posts from this project
-		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE post_id IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'workhorse_project_id' AND meta_value = %s) AND meta_key = 'workhorse_channel'", $id));
-		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'workhorse_project_id' AND meta_value = %s)", $id));
-		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE meta_key = 'workhorse_project_id' AND meta_value = %s", $id));
+		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE post_id IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s) AND meta_key = 'improveseo_channel'", $id));
+		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));
+		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
 
 		$model->update(array('iteration' => 0), $id);
 
 		FlashMessage::success('All posts/pages deleted.');
-		wp_redirect('/wp-admin/admin.php?page=workhorse_projects');
+		wp_redirect('/wp-admin/admin.php?page=improveseo_projects');
 		exit;
 
 	elseif ($action == 'stop'):
@@ -90,7 +90,7 @@ function workhorse_projects() {
 		$model->update(array('deleted_at' => '1970-01-01 11:11:11'), $id);
 
 		FlashMessage::success('Project stopped. You can continue process by clicking Build posts');
-		wp_redirect('/wp-admin/admin.php?page=workhorse_projects');
+		wp_redirect('/wp-admin/admin.php?page=improveseo_projects');
 		exit;
 
 	elseif ($action == 'export_urls'):
@@ -100,7 +100,7 @@ function workhorse_projects() {
 		@set_time_limit(0);
 
 		$urls = "";
-		$posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'workhorse_project_id' AND meta_value = %s", $id));
+		$posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
 		foreach ($posts as $post) {
 			$urls .= get_permalink($post->post_id) ."\r\n";
 		}
@@ -126,7 +126,7 @@ function workhorse_projects() {
 		@set_time_limit(0);
 
 		$urls = [];
-		$posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'workhorse_project_id' AND meta_value = %s", $id));
+		$posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
 		foreach ($posts as $post) {
 			$url = get_permalink($post->post_id);
 			$url .= "?id=" . $id;
@@ -158,7 +158,7 @@ function workhorse_projects() {
 		));
 
 		FlashMessage::success('Project duplicated.');
-		wp_redirect('/wp-admin/admin.php?page=workhorse_projects&highlight='. $new_id);
+		wp_redirect('/wp-admin/admin.php?page=improveseo_projects&highlight='. $new_id);
 		exit;
 
 	endif;

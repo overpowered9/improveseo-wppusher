@@ -3,13 +3,13 @@
 $start = null;
 $debug = false;
 
-function workhorse_debug_start() {
+function improveseo_debug_start() {
 	global $start;
 
 	$start = microtime(true);
 }
 
-function workhorse_debug_time() {
+function improveseo_debug_time() {
 	global $start;
 
 	$time = microtime(true) - $start;
@@ -18,7 +18,7 @@ function workhorse_debug_time() {
 	return $time;
 }
 
-function workhorse_debug_message($message) {
+function improveseo_debug_message($message) {
 	global $debug;
 	
 	if ($debug) {

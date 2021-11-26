@@ -1,11 +1,11 @@
 <?php
 
-use WorkHorse\View;
+use ImproveSEO\View;
 
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
-	<a href="<?= admin_url('admin.php?page=workhorse') ?>">Improve SEO</a>
+	<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
 	&raquo;
 	<span>Create Post</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -20,11 +20,11 @@ use WorkHorse\View;
 		</div>
 	</section>
 
-	<form id="main_form" action="/wp-admin/admin.php?page=workhorse&action=do_create_post&noheader=true" class="form-wrap" method="post">
+	<form id="main_form" action="/wp-admin/admin.php?page=improveseo&action=do_create_post&noheader=true" class="form-wrap" method="post">
 		<?php 
 			$post_type = 'post';
 			$form_id_preview = 'create_post';
-			WorkHorse\View::render('posting.form', compact('post_type'));
+			improveseo\View::render('posting.form', compact('post_type'));
 		?>
 	</form>
 </div>

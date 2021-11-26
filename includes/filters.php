@@ -1,14 +1,14 @@
 <?php
 
-use WorkHorse\Storage;
+use ImproveSEO\Storage;
 
-add_filter('wp_title', 'workhorse_seo_title');
-add_filter('the_content', 'workhorse_the_content_filter');
+add_filter('wp_title', 'improveseo_seo_title');
+add_filter('the_content', 'improveseo_the_content_filter');
 // parse the generated links
-add_filter('post_type_link', 'workhorse_custom_post_permalink', 10, 4);
-add_filter('page_rewrite_rules', 'workhorse_allow_numeric_stubs');
+add_filter('post_type_link', 'improveseo_custom_post_permalink', 10, 4);
+add_filter('page_rewrite_rules', 'improveseo_allow_numeric_stubs');
 
-function workhorse_allow_numeric_stubs($rules) {
+function improveseo_allow_numeric_stubs($rules) {
     unset( $rules['(.+?)(/[0-9]+)?/?$'] );
 
     $rules['(.+?)?/?$'] = 'index.php?pagename=$matches[1]';
@@ -16,7 +16,7 @@ function workhorse_allow_numeric_stubs($rules) {
     return $rules;
 }
 
-function workhorse_custom_post_permalink($permalink, $post, $leavename, $sample) {
+function improveseo_custom_post_permalink($permalink, $post, $leavename, $sample) {
 	$storage = new Storage('workhouse');
 	$prefixes = $storage->permalink_prefixes;
 	
@@ -87,11 +87,11 @@ function workhorse_custom_post_permalink($permalink, $post, $leavename, $sample)
 
     return $permalink;
 }
-function workhorse_seo_title($title) {
+function improveseo_seo_title($title) {
 	return $title;
 }
 
-function workhorse_the_content_filter($content) {
+function improveseo_the_content_filter($content) {
 	global $post;
     
 	if ($post->post_type == 'channel') {

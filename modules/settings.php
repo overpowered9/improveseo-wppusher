@@ -1,13 +1,13 @@
 <?php
 
-use WorkHorse\Geo;
-use WorkHorse\View;
-use WorkHorse\Validator;
-use WorkHorse\FlashMessage;
-use WorkHorse\Models\Country;
-use WorkHorse\Models\GeoData;
+use ImproveSEO\Geo;
+use ImproveSEO\View;
+use ImproveSEO\Validator;
+use ImproveSEO\FlashMessage;
+use ImproveSEO\Models\Country;
+use ImproveSEO\Models\GeoData;
 
-function workhorse_settings() {
+function improveseo_settings() {
 	global $wpdb;
 
 	$action = isset($_GET['action']) ? $_GET['action'] : 'index';
@@ -36,7 +36,7 @@ function workhorse_settings() {
 			FlashMessage::message($country->country .' has been installed successfully.');
 		}
 
-		wp_redirect('/wp-admin/admin.php?page=workhorse_settings');
+		wp_redirect('/wp-admin/admin.php?page=improveseo_settings');
 		exit;
 	elseif ($action == 'delete_country'):
 		$country = $countryModel->getByShort($_GET['country']);
@@ -45,6 +45,6 @@ function workhorse_settings() {
 		$countryModel->delete($country->id);
 
 		FlashMessage::message($country->name .' has been deleted successfully.');
-		wp_redirect('/wp-admin/admin.php?page=workhorse_settings');
+		wp_redirect('/wp-admin/admin.php?page=improveseo_settings');
 	endif;
 }

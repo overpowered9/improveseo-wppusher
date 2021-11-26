@@ -1,8 +1,8 @@
 <?php
-use WorkHorse\View;
+use ImproveSEO\View;
 ?>
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?= admin_url('admin.php?page=workhorse') ?>">Improve SEO</a>
+<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
 &raquo;
 <span>Improve SEO Lists</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -28,7 +28,7 @@ use WorkHorse\View;
 			<img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
 			<h1>Improve SEO Lists</h1>
 		</div>
-		<a href="<?= admin_url('admin.php?page=workhorse_lists&action=create') ?>"  class="btn btn-outline-primary btn-small py-2 px-3">Create New</a>
+		<a href="<?= admin_url('admin.php?page=improveseo_lists&action=create') ?>"  class="btn btn-outline-primary btn-small py-2 px-3">Create New</a>
 	</section>
 	<section class="project-table-wrapper">
 		<form method="get">
@@ -46,7 +46,7 @@ use WorkHorse\View;
 						<tr>
 							<td class="column-title column-primary has-row-actions">
 								<strong>
-								<a class="row-title" href="<?= admin_url('admin.php?page=workhorse_lists&action=edit&id='. $item->id) ?>"><?= $item->name ?></a>
+								<a class="row-title" href="<?= admin_url('admin.php?page=improveseo_lists&action=edit&id='. $item->id) ?>"><?= $item->name ?></a>
 								</strong>
 								<button type="button" class="toggle-row"><span class="screen-reader-text">Show more details</span></button>
 							</td>
@@ -56,10 +56,10 @@ use WorkHorse\View;
 							<td class="text-lg-right pr-2 actions-btn" data-colname="Action">
 								<div class="row-actions">
 									<span class="edit">
-										<a href="<?= admin_url('admin.php?page=workhorse_lists&action=edit&id='. $item->id) ?>" title="Edit this item" class="btn btn-outline-primary">Edit</a>
+										<a href="<?= admin_url('admin.php?page=improveseo_lists&action=edit&id='. $item->id) ?>" title="Edit this item" class="btn btn-outline-primary">Edit</a>
 									</span>
 									<span class="trash">
-										<a class="submitdelete btn btn-outline-danger" href="<?= admin_url('admin.php?page=workhorse_lists&action=delete&id='. $item->id .'&noheader=true') ?>" onclick="return confirm('Are you sure you want to delete the list?')">Trash</a>
+										<a class="submitdelete btn btn-outline-danger" href="<?= admin_url('admin.php?page=improveseo_lists&action=delete&id='. $item->id .'&noheader=true') ?>" onclick="return confirm('Are you sure you want to delete the list?')">Trash</a>
 									</span>
 								</div>
 							</td>

@@ -1,11 +1,11 @@
 <?php
-use WorkHorse\View;
-use WorkHorse\Validator;
+use ImproveSEO\View;
+use ImproveSEO\Validator;
 ?>
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?= admin_url('admin.php?page=workhorse') ?>">Improve SEO</a>
+<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
 &raquo;
-<a href="<?= admin_url('admin.php?page=workhorse_users') ?>">Users List</a>
+<a href="<?= admin_url('admin.php?page=improveseo_users') ?>">Users List</a>
 &raquo;
 <span>Create Users</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -19,15 +19,15 @@ use WorkHorse\Validator;
 				<h1>Create New Users</h1>
 			</div>
 			<div class="Breadcrumbs custom-breadcrumbs border-top-0 border-left-0 border-right-0 border-bottom rounded-0 m-0 py-3 px-0 mb-3">
-				<a href="https://newmexicocontractors.org/wp-admin/admin.php?page=workhorse">Improve SEO</a>
+				<a href="https://newmexicocontractors.org/wp-admin/admin.php?page=improveseo">Improve SEO</a>
 				»
-				<a href="https://newmexicocontractors.org/wp-admin/admin.php?page=workhorse_users">Users List</a>
+				<a href="https://newmexicocontractors.org/wp-admin/admin.php?page=improveseo_users">Users List</a>
 				»
 				<span>Create Users</span>
 			</div>
 		</section>
 		<section class="form-wrap">
-			<form action="/wp-admin/admin.php?page=workhorse_users&action=do_create&noheader=true" method="post">
+			<form action="/wp-admin/admin.php?page=improveseo_users&action=do_create&noheader=true" method="post">
 				<div class="BasicForm__row">
 					<div class="input-group">
 					<label class="form-label">Number of users to create</label>

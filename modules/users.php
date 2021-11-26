@@ -1,9 +1,9 @@
 <?php
 
-use WorkHorse\View;
-use WorkHorse\FlashMessage;
+use ImproveSEO\View;
+use ImproveSEO\FlashMessage;
 
-function workhorse_users() {
+function improveseo_users() {
 	global $wpdb;
 
 	$action = isset($_GET['action']) ? $_GET['action'] : 'index';
@@ -14,12 +14,12 @@ function workhorse_users() {
 		$results = count_users();
 
 		$users = get_users(array(
-			'role' => 'workhorse_user',
+			'role' => 'improveseo_user',
 			'offset' => $offset,
 			'number' => $limit
 		));
 
-		$pages = ceil($results['avail_roles']['workhorse_user'] / $limit);
+		$pages = ceil($results['avail_roles']['improveseo_user'] / $limit);
 		$page = floor($offset / $limit) + 1;
 
 		View::render('users.index', compact('users', 'results', 'page', 'pages'));
@@ -30,8 +30,8 @@ function workhorse_users() {
 
 		@set_time_limit(0);
 
-		include_once WORKHORSE_ROOT .'/includes/users/firstnames.php';
-		include_once WORKHORSE_ROOT .'/includes/users/lastnames.php';
+		include_once IMPROVESEO_ROOT .'/includes/users/firstnames.php';
+		include_once IMPROVESEO_ROOT .'/includes/users/lastnames.php';
 
 		$firstnamesTotal = sizeof($firstnames);
 		$lastnamesTotal = sizeof($lastnames);
@@ -56,15 +56,15 @@ function workhorse_users() {
                 'user_pass'     =>  $firstname . $lastname . time() . rand(0, 1000000),
                 'user_email'    =>  $email,
                 'display_name'	=>	$firstname .' '. $lastname,
-                'role'          =>  'workhorse_user'
+                'role'          =>  'improveseo_user'
             );
 
             $user_id = wp_insert_user($formatData);
-            add_user_meta($user_id, 'workhorse_user', 1);
+            add_user_meta($user_id, 'improveseo_user', 1);
 		}
 
 		FlashMessage::success('All '. $total .' users created.');
-		wp_redirect('/wp-admin/admin.php?page=workhorse_users');
+		wp_redirect('/wp-admin/admin.php?page=improveseo_users');
 		exit;
 
 	endif;
