@@ -1,5 +1,5 @@
 <?php
-use WorkHorse\Validator;
+use ImproveSEO\Validator;
 ?>
 
 <div class="BasicForm__row<?php if (Validator::hasError('name')) echo ' PostForm--error' ?>">

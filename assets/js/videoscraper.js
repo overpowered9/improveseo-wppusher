@@ -136,7 +136,7 @@ var VideoScraper = {
 
 		jQuery('#video-shortcode-btn').attr('disabled', true);
 
-		jQuery.post('/index.php?api=workhorse&action=shortcode', {
+		jQuery.post('/index.php?api=improveseo&action=shortcode', {
 			shortcode: name,
 			media: videos
 		}).done(function(response) {
@@ -144,8 +144,8 @@ var VideoScraper = {
 				Dialog.hideOverlays('VideoScraper');
 				VideoScraper.deselect();
 
-				WorkHorsePopup.open('info');
-				WorkHorsePopup.body('info', 'Congrats! Your shortcode has been created. To call it, please do <strong>['+ name +']</strong> anywhere in the body (post content) of your project!');
+				ImproveSEOPopup.open('info');
+				ImproveSEOPopup.body('info', 'Congrats! Your shortcode has been created. To call it, please do <strong>['+ name +']</strong> anywhere in the body (post content) of your project!');
 			} else {
 				jQuery('#video-shortcode-btn').notify('Error', 'error');
 			}

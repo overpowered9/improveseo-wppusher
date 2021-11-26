@@ -1,13 +1,13 @@
 <?php
 
-use WorkHorse\View;
-use WorkHorse\Spintax;
-use WorkHorse\Validator;
-use WorkHorse\LiteSpintax;
-use WorkHorse\Models\Task;
-use WorkHorse\FlashMessage;
+use ImproveSEO\View;
+use ImproveSEO\Spintax;
+use ImproveSEO\Validator;
+use ImproveSEO\LiteSpintax;
+use ImproveSEO\Models\Task;
+use ImproveSEO\FlashMessage;
 
-function workhorse_posting()
+function improveseo_posting()
 {
 	global $wpdb;
 
@@ -44,7 +44,7 @@ function workhorse_posting()
 				'state_channel_title' => 'required_if:state_channel_page',
 				'state_channel_content' => 'required_if:state_channel_page'
 			)) && !isset($_POST['draft'])) {
-				wp_redirect('/wp-admin/admin.php?page=workhorse&action=create_post');
+				wp_redirect('/wp-admin/admin.php?page=improveseo&action=create_post');
 				exit;
 			}
 		}
@@ -92,7 +92,7 @@ function workhorse_posting()
 
 		if (isset($_POST['local_seo_enabler'])) {
 			// Search tags and remove non-used locations
-			$tags = workhorse_search_geotags(array(
+			$tags = improveseo_search_geotags(array(
 				$title, $content, $_POST['custom_title'], $_POST['custom_description'], $_POST['custom_keywords'], $_POST['permalink'], $_POST['tags']
 			));
 
@@ -101,7 +101,7 @@ function workhorse_posting()
 
 			// Do not expand geo data if saving as draft
 			if (isset($_POST['create'])) {
-				$options_data['local_geo_locations'] = workhorse_expand_geodata($options_data['local_geo_country'], $options_data['local_geo_locations'], $tags);
+				$options_data['local_geo_locations'] = improveseo_expand_geodata($options_data['local_geo_country'], $options_data['local_geo_locations'], $tags);
 			}
 
 			$geo_iterations = sizeof($options_data['local_geo_locations']);
@@ -202,7 +202,7 @@ function workhorse_posting()
 
 		// Math maximum number of posts
 		// Count list items
-        $items = workhorse_count_list_items($_POST);
+        $items = improveseo_count_list_items($_POST);
 
 		if (isset($_POST['local_seo_enabler'])) {
 			if (!$items) $items = 1;
@@ -237,7 +237,7 @@ function workhorse_posting()
 		elseif (isset($_POST['draft'])) {
 			FlashMessage::success('Project successfully saved. You can continue editing by pressing Continue button.');
 		} 
-		wp_redirect('/wp-admin/admin.php?page=workhorse_projects&highlight='. $project_id);
+		wp_redirect('/wp-admin/admin.php?page=improveseo_projects&highlight='. $project_id);
 		exit;
 
 		elseif ($action == 'do_update_post'):
@@ -285,7 +285,7 @@ function workhorse_posting()
 	
 			if (isset($_POST['local_seo_enabler'])) {
 				// Search tags and remove non-used locations
-				$tags = workhorse_search_geotags(array(
+				$tags = improveseo_search_geotags(array(
 					$title, $content, $_POST['custom_title'], $_POST['custom_description'], $_POST['custom_keywords'], $_POST['permalink'], $_POST['tags']
 				));
 	
@@ -294,7 +294,7 @@ function workhorse_posting()
 	
 				// Do not expand geo data if saving as draft
 				if (isset($_POST['create'])) {
-					$options_data['local_geo_locations'] = workhorse_expand_geodata($options_data['local_geo_country'], $options_data['local_geo_locations'], $tags);
+					$options_data['local_geo_locations'] = improveseo_expand_geodata($options_data['local_geo_country'], $options_data['local_geo_locations'], $tags);
 				}
 	
 				$geo_iterations = sizeof($options_data['local_geo_locations']);
@@ -395,7 +395,7 @@ function workhorse_posting()
 	
 			// Math maximum number of posts
 			// Count list items
-			$items = workhorse_count_list_items($_POST);
+			$items = improveseo_count_list_items($_POST);
 	
 			if (isset($_POST['local_seo_enabler'])) {
 				if (!$items) $items = 1;
@@ -423,7 +423,7 @@ function workhorse_posting()
 			$project_id = $model->update($data, $_GET['id']) ;
 			if (isset($_GET['id'])) $project_id = $_GET['id'];
 			FlashMessage::success('Project successfully updated. You can update old post by clicking update my posts.');
-			wp_redirect('/wp-admin/admin.php?page=workhorse_projects&highlight='. $project_id . '&build_posts_id=' .$project_id);
+			wp_redirect('/wp-admin/admin.php?page=improveseo_projects&highlight='. $project_id . '&build_posts_id=' .$project_id);
 			exit;
 	
 		elseif ($action == 'edit_post'):

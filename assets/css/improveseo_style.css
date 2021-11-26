@@ -2,7 +2,7 @@
         Generic Style
 ********************************/
 
-body[class*="page_workhorse"] #wpcontent{
+body[class*="page_improveseo"] #wpcontent{
     background-color: #ECF5FF;
 }
 
@@ -255,7 +255,7 @@ select.select-control {
     border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 8px;
     width: 100%;
-    max-width: 100%
+    max-width: 100%;
     height: 53px;
     font-size: 14px;
     line-height: 21px;
@@ -348,7 +348,7 @@ select.select-control {
     border-radius: 4px;
 }
 
-.category_workhorse .cta-check {
+.category_improveseo .cta-check {
     flex-wrap: wrap;
 }
 
@@ -632,7 +632,6 @@ select.select-control {
 
 #wp-content-editor-tools .sw-editor-selector {
     padding: 8px 30px 8px 15px;
-    background: 
 }
 
 #post_form_buttons .btn {

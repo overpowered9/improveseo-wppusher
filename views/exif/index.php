@@ -17,7 +17,7 @@
 </div>
 
 <?php
-	$google_api_key = get_option('workhorse_google_api_key');
+	$google_api_key = get_option('improveseo_google_api_key');
 	if ($google_api_key):
 ?>
 <script src="//maps.googleapis.com/maps/api/js?key=<?= $google_api_key ?>&callback=ImageEXIF.initMap"

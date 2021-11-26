@@ -9,7 +9,7 @@ function determineMaxPosts() {
 
 	var locations = getUniqueLocations();
 
-	jQuery.post('/index.php?api=workhorse&action=count_posts', {
+	jQuery.post('/index.php?api=improveseo&action=count_posts', {
 		title: jQuery('#title').val(),
 		content: jQuery.trim(tinymce.get('content') ? tinymce.get('content').getContent() : jQuery('#content').val()),
 		custom_title: jQuery('#custom-title').val(),
@@ -49,7 +49,7 @@ function getUniqueLocations() {
 	// On Ready
 	$(document).ready(function() {
 		var $form = $('#poststuff').parent('form');
-		WorkHorsePopup.init('info');
+		ImproveSEOPopup.init('info');
 
 		// Max Posts
 		$form.find('#max-posts').change(function () {
@@ -281,7 +281,7 @@ function getUniqueLocations() {
 				core: {
 					'data': {
 						url: function(node) {
-							return '/index.php?api=workhorse&action=geo-tree&country='+ $('#local-country').val();
+							return '/index.php?api=improveseo&action=geo-tree&country='+ $('#local-country').val();
 						},
 						data: function(node) {
 							return {id: node.id};
@@ -316,7 +316,7 @@ function getUniqueLocations() {
 				var pass = $('#word-ai-pass').val();
 
 				$(this).text('Processing..').attr('disabled', true);
-				$.post('/index.php?api=workhorse&action=word-ai', {
+				$.post('/index.php?api=improveseo&action=word-ai', {
 					text: text,
 					quality: 'Readable',
 					email: email,
@@ -385,7 +385,7 @@ function getUniqueLocations() {
 			}
 
 			if (max_posts > 5000) {
-				if (!confirm('Your project contains more than 5,000 pages. While WorkHorse can create hundreds of thousands of posts per project, it is recommended to split your project into multiple smaller projects if you are using shared hosting for maximum efficiency. VPS and dedicated server users can avoid this message.\n\nPress OK to continue or cancel to resume editing.')) {
+				if (!confirm('Your project contains more than 5,000 pages. While ImproveSEO can create hundreds of thousands of posts per project, it is recommended to split your project into multiple smaller projects if you are using shared hosting for maximum efficiency. VPS and dedicated server users can avoid this message.\n\nPress OK to continue or cancel to resume editing.')) {
 					e.preventDefault();
 				}
 			}

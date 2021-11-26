@@ -1,8 +1,8 @@
 <?php
-use WorkHorse\View;
+use ImproveSEO\View;
 ?>
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?= admin_url('admin.php?page=workhorse') ?>">Improve SEO</a>
+<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
 &raquo;
 <span>Dashboard</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -26,7 +26,7 @@ use WorkHorse\View;
 			</div>
 		</div>
 		<div class="Breadcrumbs custom-breadcrumbs border-0 m-0 pt-3 pb-0 px-0">
-			<a href="https://newmexicocontractors.org/wp-admin/admin.php?page=workhorse">Improve SEO</a> /
+			<a href="https://newmexicocontractors.org/wp-admin/admin.php?page=improveseo">Improve SEO</a> /
 			<span>Modules</span>
 		</div>
 	</section>

@@ -1,12 +1,12 @@
 <?php
 
-use WorkHorse\View;
-use WorkHorse\Validator;
-use WorkHorse\FlashMessage;
-use WorkHorse\Models\Lists;
-use WorkHorse\Models\Shortcode;
+use ImproveSEO\View;
+use ImproveSEO\Validator;
+use ImproveSEO\FlashMessage;
+use ImproveSEO\Models\Lists;
+use ImproveSEO\Models\Shortcode;
 
-function workhorse_lists() {
+function improveseo_lists() {
 	global $wpdb;
 	$action = isset($_GET['action']) ? $_GET['action'] : 'index';
 	$limit = isset($_GET['limit']) ? $_GET['limit'] : 20;
@@ -59,7 +59,7 @@ function workhorse_lists() {
 			'name' => 'required|unique:'. $model->getTable(),
 			'list' => 'required'
 		))) {
-			wp_redirect('/wp-admin/admin.php?page=workhorse_lists&action=create');
+			wp_redirect('/wp-admin/admin.php?page=improveseo_lists&action=create');
 			exit;
 		}
 
@@ -75,7 +75,7 @@ function workhorse_lists() {
 				To activate your list, make sure to use it in the title of the post/page (you can use it everywhere else too, but it must be included in the title).
 			</p>
 		');
-		wp_redirect('/wp-admin/admin.php?page=workhorse_lists');
+		wp_redirect('/wp-admin/admin.php?page=improveseo_lists');
 		exit;
 
 	elseif ($action == 'edit'):
@@ -94,7 +94,7 @@ function workhorse_lists() {
 			'name' => 'required|unique:'. $model->getTable() .',name,'. $id,
 			'list' => 'required'
 		))) {
-			wp_redirect('/wp-admin/admin.php?page=workhorse_lists&action=edit&id='. $id);
+			wp_redirect('/wp-admin/admin.php?page=improveseo_lists&action=edit&id='. $id);
 			exit;
 		}
 
@@ -103,7 +103,7 @@ function workhorse_lists() {
 		$model->update($_POST, $id);
 
 		FlashMessage::success('List has been updated.');
-		wp_redirect('/wp-admin/admin.php?page=workhorse_lists&action=edit&id='. $id);
+		wp_redirect('/wp-admin/admin.php?page=improveseo_lists&action=edit&id='. $id);
 		exit;
 
 	elseif ($action == 'delete'):
@@ -112,7 +112,7 @@ function workhorse_lists() {
 		$model->delete($id);
 
 		FlashMessage::success('List has been deleted.');
-		wp_redirect('/wp-admin/admin.php?page=workhorse_lists');
+		wp_redirect('/wp-admin/admin.php?page=improveseo_lists');
 		exit;
 
 	endif;

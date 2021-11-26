@@ -1,5 +1,5 @@
 <?php
-use WorkHorse\View;
+use ImproveSEO\View;
 ?>
 
 <?php View::startSection('breadcrumbs') ?>

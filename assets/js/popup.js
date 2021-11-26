@@ -1,12 +1,12 @@
-var WorkHorsePopup = {
+var ImproveSEOPopup = {
 	overlays: {},
 
 	init: function(id, overlays) {
 		jQuery('\
-			<div id="'+ id + '" class="Popup" onclick="WorkHorsePopup.close(\''+ id +'\')">\
+			<div id="'+ id + '" class="Popup" onclick="ImproveSEOPopup.close(\''+ id +'\')">\
 				<div class="Popup__container" onclick="Dialog.hideOverlays(\''+ id +'\'); event.cancelBubble = true;">\
 					<div class="Popup__title-wrap">\
-						<a class="Popup__close" onclick="WorkHorsePopup.close(\''+ id +'\')"><div class="tb-close-icon"></div></a>\
+						<a class="Popup__close" onclick="ImproveSEOPopup.close(\''+ id +'\')"><div class="tb-close-icon"></div></a>\
 					</div>\
 					<div class="Popup__body">\
 						\
@@ -34,11 +34,11 @@ var WorkHorsePopup = {
 			overflow: 'auto'
 		});
 
-		WorkHorsePopup.hideOverlays(id);
+		ImproveSEOPopup.hideOverlays(id);
 	},
 
 	hideOverlays: function(id) {
-		_.each(WorkHorsePopup.overlays[id], function(overlay) {
+		_.each(ImproveSEOPopup.overlays[id], function(overlay) {
 			jQuery(overlay).hide();
 		});
 	},

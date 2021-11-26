@@ -1,13 +1,13 @@
 <?php
 
-use WorkHorse\View;
+use ImproveSEO\View;
 
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
-	<a href="<?= admin_url('admin.php?page=workhorse') ?>">Improve SEO</a>
+	<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
 	&raquo;
-	<a href="<?= admin_url('admin.php?page=workhorse_projects') ?>">Improve SEO Projects</a>
+	<a href="<?= admin_url('admin.php?page=improveseo_projects') ?>">Improve SEO Projects</a>
 	&raquo;
 	<span>Edit Project</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -22,11 +22,11 @@ use WorkHorse\View;
 		</div>
 	</section>
 
-	<form id="main_form" class="form-wrap" action="/wp-admin/admin.php?page=workhorse&action=<?php echo isset($_GET['update']) ? 'do_update_post' : 'do_create_post'; ?>&id=<?= $task->id ?>&noheader=true" method="post">
+	<form id="main_form" class="form-wrap" action="/wp-admin/admin.php?page=improveseo&action=<?php echo isset($_GET['update']) ? 'do_update_post' : 'do_create_post'; ?>&id=<?= $task->id ?>&noheader=true" method="post">
 		<?php 
 			$post_type = $task->content['post_type'];
 
-			WorkHorse\View::render('posting.form', compact('post_type', 'task'));
+			improveseo\View::render('posting.form', compact('post_type', 'task'));
 		?>
 	</form>
 </div>

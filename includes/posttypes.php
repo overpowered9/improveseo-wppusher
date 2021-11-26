@@ -1,11 +1,11 @@
 <?php
 
-use WorkHorse\Storage;
+use ImproveSEO\Storage;
 
-add_action('init', 'workhorse_create_posttypes');
-//add_action('pre_get_posts', 'add_workhorse_post_types_to_query');
+add_action('init', 'improveseo_create_posttypes');
+//add_action('pre_get_posts', 'add_improveseo_post_types_to_query');
 
-function add_workhorse_post_types_to_query($query) {
+function add_improveseo_post_types_to_query($query) {
 	$storage = new Storage('workhouse');
 	$types = $storage->permalink_prefixes;
 	$post_types = array('post', 'page', 'channel');
@@ -28,7 +28,7 @@ function add_workhorse_post_types_to_query($query) {
 	return $query;
 }
 
-function workhorse_create_posttypes() {
+function improveseo_create_posttypes() {
 	global $wp_rewrite;
 
 	$storage = new Storage('workhouse');

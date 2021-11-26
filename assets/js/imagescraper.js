@@ -167,7 +167,7 @@ var ImageScraper = {
 
 		ImageScraper.shortcodeCreateProgress(true);
 
-		jQuery.post('/index.php?api=workhorse&action=shortcode', {
+		jQuery.post('/index.php?api=improveseo&action=shortcode', {
 			shortcode: name,
 			media: images
 		}).done(function(response) {
@@ -175,8 +175,8 @@ var ImageScraper = {
 				Dialog.hideOverlays('ImageScraper');
 				ImageScraper.deselect();
 
-				WorkHorsePopup.open('info');
-				WorkHorsePopup.body('info', 'Congrats! Your shortcode has been created. To call it, please do <strong>['+ name +']</strong> anywhere in the body (post content) of your project!');
+				ImproveSEOPopup.open('info');
+				ImproveSEOPopup.body('info', 'Congrats! Your shortcode has been created. To call it, please do <strong>['+ name +']</strong> anywhere in the body (post content) of your project!');
 			} else {
 				jQuery('#shortcode-btn').notify('Error', 'error');
 			}

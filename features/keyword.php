@@ -1,7 +1,7 @@
 <?php
 
-use WorkHorse\View;
+use ImproveSEO\View;
 
-function workhorse_keyword_generator() {
+function improveseo_keyword_generator() {
 	View::render('features.keyword');
 }

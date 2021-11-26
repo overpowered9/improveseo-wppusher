@@ -1,9 +1,9 @@
 <?php
-use WorkHorse\View;
+use ImproveSEO\View;
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
-	<a href="<?= admin_url('admin.php?page=workhorse') ?>">Improve SEO</a>
+	<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
 	&raquo;
 	<span>Users List</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -12,7 +12,7 @@ use WorkHorse\View;
 <h1 class="hidden">Users List</h1>
 
 	<div class="notice notice-success">
-		<p>Here you can create users that are only for use within WorkHorse. The posts and projects you make will be distributed among these users to make your site look more authoritative (multiple authors) and natural.</p>
+		<p>Here you can create users that are only for use within ImproveSEO. The posts and projects you make will be distributed among these users to make your site look more authoritative (multiple authors) and natural.</p>
 	</div>
 
 <div class="shortcode improveseo_wrapper intro_page  p-3 p-lg-4">
@@ -21,17 +21,17 @@ use WorkHorse\View;
 			<img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
 			<h1>Users List</h1>
 		</div>
-		<a href="<?= admin_url('admin.php?page=workhorse_users&action=create') ?>" id="btn-add" class="btn btn-outline-primary btn-small">Create Users</a>
+		<a href="<?= admin_url('admin.php?page=improveseo_users&action=create') ?>" id="btn-add" class="btn btn-outline-primary btn-small">Create Users</a>
 	</section>
 
 <section class="pagination-wrapper text-right d-flex flex-row align-items-center justify-content-between py-3">
-		<span class="displaying-num"><?= $results['avail_roles']['workhorse_user'] ?> users</span>
+		<span class="displaying-num"><?= $results['avail_roles']['improveseo_user'] ?> users</span>
 		<span class="pagination-links">
 			<?= paginate_links(array(
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
-				'base' => admin_url('admin.php?page=workhorse_users%_%')
+				'base' => admin_url('admin.php?page=improveseo_users%_%')
 			)) ?>
 		</span>
 	</section>
@@ -70,13 +70,13 @@ use WorkHorse\View;
 </section>
 
 <section class="pagination-wrapper text-right d-flex flex-row align-items-center justify-content-between py-3">
-		<span class="displaying-num"><?= $results['avail_roles']['workhorse_user'] ?> users</span>
+		<span class="displaying-num"><?= $results['avail_roles']['improveseo_user'] ?> users</span>
 		<span class="pagination-links">
 			<?= paginate_links(array(
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
-				'base' => admin_url('admin.php?page=workhorse_users%_%')
+				'base' => admin_url('admin.php?page=improveseo_users%_%')
 			)) ?>
 		</span>
 	</section>

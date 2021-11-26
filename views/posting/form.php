@@ -1,22 +1,22 @@
 <?php
-use WorkHorse\Validator;
-use WorkHorse\Models\Country;
+use ImproveSEO\Validator;
+use ImproveSEO\Models\Country;
 
 wp_enqueue_script('post');
 ?>
 
 <input type="hidden" name="post_type" value="<?= isset($task) ? $task->content['post_type'] : $post_type ?>">
 <?php
-	$word_ai_pass = get_option('workhorse_word_ai_pass');
-	$word_ai_email = get_option('workhorse_word_ai_email');
+	$word_ai_pass = get_option('improveseo_word_ai_pass');
+	$word_ai_email = get_option('improveseo_word_ai_email');
 
-	$pixabay_key = get_option('workhorse_pixabay_key');
-	$google_api_key = get_option('workhorse_google_api_key');
+	$pixabay_key = get_option('improveseo_pixabay_key');
+	$google_api_key = get_option('improveseo_google_api_key');
 ?>
 
 <div class="notice notice-success is-dismissible">
 	<p>
-		WorkHorse tags for local SEO feature:
+		ImproveSEO tags for local SEO feature:
 	</p>
 	<p>
 		<strong>@city</strong> - current city (i.e Rochester) <br>
@@ -33,7 +33,7 @@ wp_enqueue_script('post');
 
 <div class="notice notice-success is-dismissible">
 	<p>
-		WorkHorse is a powerful software! Make sure that your server can handle the large amount of traffic that your site will be getting and is powerful enough to handle the page creation. If you are on a smaller server, consider breaking a large project into multiple smaller ones.
+		ImproveSEO is a powerful software! Make sure that your server can handle the large amount of traffic that your site will be getting and is powerful enough to handle the page creation. If you are on a smaller server, consider breaking a large project into multiple smaller ones.
 	</p>
 </div>
 
@@ -45,7 +45,7 @@ wp_enqueue_script('post');
 
 <div class="notice notice-success is-dismissible">
 	<p>
-		<strong>Looking to use Improve SEO for non-local, such as affiliate or Amazon?</strong> Check out the <a href="/wp-admin/admin.php?page=workhorse_lists">WorkHorse lists feature!</a>
+		<strong>Looking to use Improve SEO for non-local, such as affiliate or Amazon?</strong> Check out the <a href="/wp-admin/admin.php?page=improveseo_lists">ImproveSEO lists feature!</a>
 	</p>
 </div>
 
@@ -88,8 +88,8 @@ wp_enqueue_script('post');
 						$old_permalink = Validator::old('permalink', $task->options['permalink']);
 					?>
 					<input type="hidden" class="form-control" name="permalink" value="<?= $old_permalink ?>">
-					<strong>Permalink:<?php echo workhorse_permalink($old_permalink) ?></strong>
-					<!--<span><?= workhorse_permalink($old_permalink) ?></span>-->
+					<strong>Permalink:<?php echo improveseo_permalink($old_permalink) ?></strong>
+					<!--<span><?= improveseo_permalink($old_permalink) ?></span>-->
 					<a id="edit-permalink" class="btn btn-outline-primary" aria-label="Edit permalink">Edit</a>
 					<a id="save-permalink" class="btn btn-outline-primary" style="display: none">OK</a>
 					<a id="prefix-permalink" class="btn btn-outline-primary" style="display: none;">Add Prefix</a>
@@ -220,7 +220,7 @@ wp_enqueue_script('post');
 						<p>
 							<strong>Distribute among users randomly:</strong> </br>
 							<span>
-								Distribute posts among <a href="<?= admin_url('admin.php?page=workhorse_users') ?>">Improve SEO users</a> randomly.
+								Distribute posts among <a href="<?= admin_url('admin.php?page=improveseo_users') ?>">Improve SEO users</a> randomly.
 							</span>
 						</p>
 						<div class="input-group m-0 cta-check">
@@ -308,7 +308,7 @@ wp_enqueue_script('post');
 					<h3 class="hndle ui-sortable-handle"><span>Word AI Options</span></h3>
 					<div class="inside mt-3">
 						<p>
-							<a href="<?= WORKHORSE_DIR ?>/wordai.php" onclick="return WordAI.start(this)">Launch Word AI Console</a>
+							<a href="<?= IMPROVESEO_DIR ?>/wordai.php" onclick="return WordAI.start(this)">Launch Word AI Console</a>
 						</p>
 					</div>
 				</div>
@@ -364,7 +364,7 @@ wp_enqueue_script('post');
 						</div>
 						<?php else: ?>
 							<div class="PixabayKeyWarning info-sec">
-								Please, enter Google Maps API Key in <a href="/wp-admin/admin.php?page=workhorse_settings">Plugin Settings</a>.
+								Please, enter Google Maps API Key in <a href="/wp-admin/admin.php?page=improveseo_settings">Plugin Settings</a>.
 							</div>
 						<?php endif; ?>
 
@@ -376,7 +376,7 @@ wp_enqueue_script('post');
 								</span>
 							</div>
 							<p>
-								<a href="/index.php?api=workhorse&action=exif" onclick="return ImageEXIF.start(this)">Set Locations For Images</a>
+								<a href="/index.php?api=improveseo&action=exif" onclick="return ImageEXIF.start(this)">Set Locations For Images</a>
 							</p>
 						</div>
 
@@ -387,10 +387,10 @@ wp_enqueue_script('post');
 								if (!empty($pixabay_key)):
 							?>
 							<input type="hidden" id="pixabay-api-key" value="<?= $pixabay_key ?>">
-							<a href="<?= WORKHORSE_DIR ?>/imagescraper.php" title="Image Scraper" onclick="return ImageScraper.start(this)">Launch Images Scraper</a>
+							<a href="<?= IMPROVESEO_DIR ?>/imagescraper.php" title="Image Scraper" onclick="return ImageScraper.start(this)">Launch Images Scraper</a>
 							<?php else: ?>
 								<div class="PixabayKeyWarning info-sec">
-									Please, enter Pixabay API Key in <a href="/wp-admin/admin.php?page=workhorse_settings">Plugin Settings</a>.
+									Please, enter Pixabay API Key in <a href="/wp-admin/admin.php?page=improveseo_settings">Plugin Settings</a>.
 								</div>
 							<?php endif; ?>
 						</p>
@@ -406,15 +406,15 @@ wp_enqueue_script('post');
 					<div class="inside mt-3">
 						<p>
 							<?php
-								$youtube_key = get_option('workhorse_google_api_key');
+								$youtube_key = get_option('improveseo_google_api_key');
 
 								if (!empty($youtube_key)):
 							?>
 							<input type="hidden" id="youtube-api-key" value="<?= $youtube_key ?>">
-							<a href="<?= WORKHORSE_DIR ?>/videoscraper.php" title="Image Scraper" onclick="return VideoScraper.start(this)">Launch Videos Scraper</a>
+							<a href="<?= IMPROVESEO_DIR ?>/videoscraper.php" title="Image Scraper" onclick="return VideoScraper.start(this)">Launch Videos Scraper</a>
 							<?php else: ?>
 								<div class="PixabayKeyWarning">
-									Please, enter YouTube API Key in <a href="/wp-admin/admin.php?page=workhorse_settings">Plugin Settings</a>.
+									Please, enter YouTube API Key in <a href="/wp-admin/admin.php?page=improveseo_settings">Plugin Settings</a>.
 								</div>
 							<?php endif; ?>
 						</p>
@@ -705,14 +705,14 @@ wp_enqueue_script('post');
 					var preview_id= 0;					
 					var check_status = setInterval(function() {
 						
-												if(myWindow.location.href.indexOf('?page=workhorse_projects') > 0) {
+												if(myWindow.location.href.indexOf('?page=improveseo_projects') > 0) {
 													var location = myWindow.location.search;
 													var location_2 = location.split('&');
 													var location_3 = location_2[1];
 													var preview_ids = location_3.split('=');
 													preview_id = preview_ids[1];
 													
-													myWindow.location.href= "/wp-admin/admin.php?page=workhorse_projects&post_preview=true"; 
+													myWindow.location.href= "/wp-admin/admin.php?page=improveseo_projects&post_preview=true"; 
 													clearInterval(check_status);
 												}
 
@@ -760,7 +760,7 @@ wp_enqueue_script('post');
 					var location = myWindow.location.search;
 					var preview_ids = location.split("=");
 					var id = preview_ids[1];
-					myWindow.location.href= "/wp-admin/admin.php?page=workhorse_projects&action=delete&id="+ id +"&noheader=true";
+					myWindow.location.href= "/wp-admin/admin.php?page=improveseo_projects&action=delete&id="+ id +"&noheader=true";
 					setTimeout(function() {
 						myWindow.close();
 					}, 10000);
@@ -772,7 +772,7 @@ wp_enqueue_script('post');
 				
 				function changeWin(){
 					myWindow.focus(); 
-					myWindow.location.href= "/wp-admin/admin.php?page=workhorse_projects&post_preview=true";
+					myWindow.location.href= "/wp-admin/admin.php?page=improveseo_projects&post_preview=true";
 				}
 	
 

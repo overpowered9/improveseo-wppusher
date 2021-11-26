@@ -1,12 +1,12 @@
 <?php
-use WorkHorse\View;
-use WorkHorse\Spintax;
-use WorkHorse\Validator;
-use WorkHorse\Models\Country;
-use WorkHorse\Models\GeoData;
-use WorkHorse\Models\Shortcode;
+use ImproveSEO\View;
+use ImproveSEO\Spintax;
+use ImproveSEO\Validator;
+use ImproveSEO\Models\Country;
+use ImproveSEO\Models\GeoData;
+use ImproveSEO\Models\Shortcode;
 
-if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
+if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'improveseo') {
 	$act = $_GET ['action'];
 	$results = array ();
 	
@@ -22,9 +22,9 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
 				// Show zip codes
 				if (substr_count ( $id, '/' ) == 1) {
 					list ( $state, $city ) = explode ( '/', $id );
-					$city_obj = $wpdb->get_row ( "SELECT * FROM {$wpdb->prefix}workhorse_us_cities WHERE id = " . $city );
+					$city_obj = $wpdb->get_row ( "SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE id = " . $city );
 					
-					$codes = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}workhorse_us_cities WHERE county = '{$city_obj->county}' AND state_code = '{$city_obj->state_code}' AND city = '{$city_obj->city}' ORDER BY zip" );
+					$codes = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE county = '{$city_obj->county}' AND state_code = '{$city_obj->state_code}' AND city = '{$city_obj->city}' ORDER BY zip" );
 					
 					foreach ( $codes as $code ) {
 						$results [] = array (
@@ -35,7 +35,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
 					}
 				} 				// Show cities
 				else {
-					$cities = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}workhorse_us_cities WHERE state_code = '$id' GROUP BY county, state_code, city ORDER BY city" );
+					$cities = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = '$id' GROUP BY county, state_code, city ORDER BY city" );
 					
 					foreach ( $cities as $city ) {
 						$results [] = array (
@@ -47,7 +47,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
 				}
 			} 			// Show states
 			else {
-				$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}workhorse_us_states" );
+				$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_us_states" );
 				foreach ( $states as $state ) {
 					$results [] = array (
 							'id' => $state->state_code,
@@ -57,12 +57,12 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
 				}
 				if (count ( $states ) == 0) {
 					global $wpdb;
-					global $workhorse_db_version;
+					global $improveseo_db_version;
 					global $wp_rewrite;
 					
 					require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 					include_once 'geo/installer.php';
-					$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}workhorse_us_states" );
+					$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_us_states" );
 					foreach ( $states as $state ) {
 						$results [] = array (
 								'id' => $state->state_code,
@@ -80,9 +80,9 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
 				// Show zip codes
 				if (substr_count ( $id, '/' )) {
 					list ( $state, $city ) = explode ( '/', $id );
-					$city_obj = $wpdb->get_row ( "SELECT * FROM {$wpdb->prefix}workhorse_uk_cities WHERE id = $city" );
+					$city_obj = $wpdb->get_row ( "SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE id = $city" );
 					
-					$codes = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}workhorse_uk_cities WHERE region_id = '{$city_obj->region_id}' AND name = '{$city_obj->name}' ORDER BY postcode" );
+					$codes = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = '{$city_obj->region_id}' AND name = '{$city_obj->name}' ORDER BY postcode" );
 					
 					foreach ( $codes as $code ) {
 						$results [] = array (
@@ -93,7 +93,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
 					}
 				} 				// Show cities
 				else {
-					$cities = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}workhorse_uk_cities WHERE region_id = '" . $id . "' GROUP BY region_id, name ORDER BY name" );
+					$cities = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = '" . $id . "' GROUP BY region_id, name ORDER BY name" );
 					
 					foreach ( $cities as $city ) {
 						$results [] = array (
@@ -105,7 +105,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
 				}
 			} 			// Show states
 			else {
-				$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}workhorse_uk_states ORDER BY name" );
+				$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_uk_states ORDER BY name" );
 				foreach ( $states as $state ) {
 					$results [] = array (
 							'id' => $state->id,
@@ -115,12 +115,12 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
 				}
 				if (count ( $states ) == 0) {
 					global $wpdb;
-					global $workhorse_db_version;
+					global $improveseo_db_version;
 					global $wp_rewrite;
 					
 					require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 					include_once 'geo/installer.php';
-					$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}workhorse_uk_states ORDER BY name" );
+					$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_uk_states ORDER BY name" );
 					foreach ( $states as $state ) {
 						$results [] = array (
 								'id' => $state->id,
@@ -178,7 +178,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
 	} elseif ($act == 'count_posts') {
 		include_once ('functions.php');
 		
-		$tags = workhorse_search_geotags ( array (
+		$tags = improveseo_search_geotags ( array (
 				$_POST ['title'],
 				$_POST ['content'],
 				$_POST ['custom_title'],
@@ -191,7 +191,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
 		$geo_iterations = 0;
 		
 		if ($_POST ['locations']) {
-			$locations = workhorse_expand_geodata ( $_POST ['country'], $_POST ['locations'], $tags );
+			$locations = improveseo_expand_geodata ( $_POST ['country'], $_POST ['locations'], $tags );
 			$geo_iterations = sizeof ( $locations );
 		}
 		
@@ -201,7 +201,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
 			$iterations = $geo_iterations;
 			
 			// Count list items
-		$items = workhorse_count_list_items ( $_POST );
+		$items = improveseo_count_list_items ( $_POST );
 		if ($items == 0) {
 			$items = 1;
 		}
@@ -242,7 +242,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
 				$imagedir = 'uploads/' . date ( 'Y' ) . '/' . date ( 'm' ) . '/' . $filename;
 				
 				include_once 'functions.php';
-				workhorse_check_dir ( $imagedir );
+				improveseo_check_dir ( $imagedir );
 				
 				imagejpeg ( $imageSrc, WP_CONTENT_DIR . '/' . $imagedir );
 				
@@ -253,7 +253,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
 		$medias = $_POST ['media'];
 		$media = json_encode ( $medias );
 		
-		$sql = $wpdb->prepare ( "INSERT INTO {$wpdb->prefix}workhorse_shortcodes (shortcode, type, content) VALUES (%s, %s, %s)", array (
+		$sql = $wpdb->prepare ( "INSERT INTO {$wpdb->prefix}improveseo_shortcodes (shortcode, type, content) VALUES (%s, %s, %s)", array (
 				$shortcode,
 				'static',
 				$media 
@@ -275,8 +275,8 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'workhorse') {
 		$query = array (
 				's' => $_POST ['text'],
 				'quality' => $_POST ['quality'],
-				'email' => get_option ( 'workhorse_word_ai_email' ),
-				'pass' => get_option ( 'workhorse_word_ai_pass' ),
+				'email' => get_option ( 'improveseo_word_ai_email' ),
+				'pass' => get_option ( 'improveseo_word_ai_pass' ),
 				'nonested' => $_POST ['nonested'],
 				'paragraph' => $_POST ['paragraph'],
 				'nooriginal' => $_POST ['nooriginal'],

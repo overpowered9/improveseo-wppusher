@@ -1,12 +1,12 @@
-<div class="wrap workhorse-page">
+<div class="wrap improveseo-page">
 
 	<div class="Breadcrumbs">
-		<?= WorkHorse\View::section('breadcrumbs') ?>
+		<?= ImproveSEO\View::section('breadcrumbs') ?>
 	</div>
 
 	<?php
-		WorkHorse\FlashMessage::handle();
+		ImproveSEO\FlashMessage::handle();
 	?>
 
-	<?= WorkHorse\View::section('content') ?>
+	<?= ImproveSEO\View::section('content') ?>
 </div>
