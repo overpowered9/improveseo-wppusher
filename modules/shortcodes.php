@@ -102,14 +102,14 @@ function improveseo_shortcodes() {
 			'type' => 'required',
 			'content' => 'required'
 		))) {
-			wp_redirect('/wp-admin/admin.php?page=improveseo_shortcodes&action=create');
+			wp_redirect(admin_url('admin.php?page=improveseo_shortcodes&action=create'));
 			exit;
 		}
 
 		$id = $model->create($_POST);
 
 		FlashMessage::success('Shortcode created.');
-		wp_redirect('/wp-admin/admin.php?page=improveseo_shortcodes');
+		wp_redirect(admin_url('admin.php?page=improveseo_shortcodes'));
 		exit;
 
 	elseif ($action == 'edit'):
@@ -128,14 +128,14 @@ function improveseo_shortcodes() {
 			'shortcode' => 'required|unique:'. $model->getTable() .',shortcode,'. $id,
 			'content' => 'if_not:dynamic,'. $shortcode->type
 		))) {
-			wp_redirect('/wp-admin/admin.php?page=improveseo_shortcodes&action=edit&id='. $id);
+			wp_redirect(admin_url("admin.php?page=improveseo_shortcodes&action=edit&id={$id}"));
 			exit;
 		}
 
 		$model->update($_POST, $id);
 
 		FlashMessage::success('Shortcode updated.');
-		wp_redirect('/wp-admin/admin.php?page=improveseo_shortcodes&action=edit&id='. $id);
+		wp_redirect(admin_url("admin.php?page=improveseo_shortcodes&action=edit&id={$id}"));
 		exit;
 
 	elseif ($action == 'delete'):
@@ -144,7 +144,7 @@ function improveseo_shortcodes() {
 		$model->delete($id);
 
 		FlashMessage::success('Shortcode deleted.');
-		wp_redirect('/wp-admin/admin.php?page=improveseo_shortcodes');
+		wp_redirect(admin_url('admin.php?page=improveseo_shortcodes'));
 		exit;
 
 	endif;

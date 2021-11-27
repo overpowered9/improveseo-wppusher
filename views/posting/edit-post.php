@@ -21,8 +21,10 @@ use ImproveSEO\View;
 			<h1>Edit Project</h1>
 		</div>
 	</section>
-
-	<form id="main_form" class="form-wrap" action="/wp-admin/admin.php?page=improveseo&action=<?php echo isset($_GET['update']) ? 'do_update_post' : 'do_create_post'; ?>&id=<?= $task->id ?>&noheader=true" method="post">
+	<?php
+	$form_action = isset($_GET['update']) ? 'do_update_post' : 'do_create_post';
+	?>
+	<form id="main_form" class="form-wrap" action="<?php echo admin_url("admin.php?page=improveseo&action={$form_action}&id={$task->id}&noheader=true"); ?>" method="post">
 		<?php 
 			$post_type = $task->content['post_type'];
 

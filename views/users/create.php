@@ -27,7 +27,7 @@ use ImproveSEO\Validator;
 			</div>
 		</section>
 		<section class="form-wrap">
-			<form action="/wp-admin/admin.php?page=improveseo_users&action=do_create&noheader=true" method="post">
+			<form action="<?php echo admin_url('admin.php?page=improveseo_users&action=do_create&noheader=true'); ?>" method="post">
 				<div class="BasicForm__row">
 					<div class="input-group">
 					<label class="form-label">Number of users to create</label>

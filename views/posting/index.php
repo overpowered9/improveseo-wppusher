@@ -31,8 +31,8 @@ if($_POST['cat_name']){
 	      	<section class="create_sec col-lg-12 border-bottom mx-auto p-4">
 	   		<h3 class="Posting__subheader h1">What would you like to create?</h3>
       		<div class="Posting__buttons clearfix d-flex justify-content-center flex-column flex-sm-row align-items-center mt-4">
-      			<a href="/wp-admin/admin.php?page=improveseo&action=create_post" class="btn-trans btn btn-outline-primary Posting__post-button mr-0 mr-sm-3 mb-3 mb-sm-0">Create Post</a>
-      			<a href="/wp-admin/admin.php?page=improveseo&action=create_page" class="btn-trans btn btn-outline-primary mb-3 mb-sm-0 Posting__page-button">Create Page</a>
+      			<a href="<?php echo admin_url("admin.php?page=improveseo&action=create_post"); ?>" class="btn-trans btn btn-outline-primary Posting__post-button mr-0 mr-sm-3 mb-3 mb-sm-0">Create Post</a>
+      			<a href="<?php echo admin_url("admin.php?page=improveseo&action=create_page"); ?>" class="btn-trans btn btn-outline-primary mb-3 mb-sm-0 Posting__page-button">Create Page</a>
       		</div>
 	  	</section>
 	  	<section class="create_cat_sec col-lg-12 mx-auto">

@@ -65,7 +65,7 @@ function improveseo_projects() {
 		$model->delete($id);
 
 		FlashMessage::success('Project and all posts/pages deleted.');
-		wp_redirect('/wp-admin/admin.php?page=improveseo_projects');
+		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
 		exit;
 
 	elseif ($action == 'delete_posts'):
@@ -80,7 +80,7 @@ function improveseo_projects() {
 		$model->update(array('iteration' => 0), $id);
 
 		FlashMessage::success('All posts/pages deleted.');
-		wp_redirect('/wp-admin/admin.php?page=improveseo_projects');
+		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
 		exit;
 
 	elseif ($action == 'stop'):
@@ -90,7 +90,7 @@ function improveseo_projects() {
 		$model->update(array('deleted_at' => '1970-01-01 11:11:11'), $id);
 
 		FlashMessage::success('Project stopped. You can continue process by clicking Build posts');
-		wp_redirect('/wp-admin/admin.php?page=improveseo_projects');
+		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
 		exit;
 
 	elseif ($action == 'export_urls'):
@@ -158,7 +158,7 @@ function improveseo_projects() {
 		));
 
 		FlashMessage::success('Project duplicated.');
-		wp_redirect('/wp-admin/admin.php?page=improveseo_projects&highlight='. $new_id);
+		wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$new_id}"));
 		exit;
 
 	endif;

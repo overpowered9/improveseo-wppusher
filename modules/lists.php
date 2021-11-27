@@ -59,7 +59,7 @@ function improveseo_lists() {
 			'name' => 'required|unique:'. $model->getTable(),
 			'list' => 'required'
 		))) {
-			wp_redirect('/wp-admin/admin.php?page=improveseo_lists&action=create');
+			wp_redirect(admin_url('admin.php?page=improveseo_lists&action=create'));
 			exit;
 		}
 
@@ -75,7 +75,7 @@ function improveseo_lists() {
 				To activate your list, make sure to use it in the title of the post/page (you can use it everywhere else too, but it must be included in the title).
 			</p>
 		');
-		wp_redirect('/wp-admin/admin.php?page=improveseo_lists');
+		wp_redirect(admin_url('admin.php?page=improveseo_lists'));
 		exit;
 
 	elseif ($action == 'edit'):
@@ -94,7 +94,7 @@ function improveseo_lists() {
 			'name' => 'required|unique:'. $model->getTable() .',name,'. $id,
 			'list' => 'required'
 		))) {
-			wp_redirect('/wp-admin/admin.php?page=improveseo_lists&action=edit&id='. $id);
+			wp_redirect(admin_url("admin.php?page=improveseo_lists&action=edit&id={$id}"));
 			exit;
 		}
 
@@ -103,7 +103,7 @@ function improveseo_lists() {
 		$model->update($_POST, $id);
 
 		FlashMessage::success('List has been updated.');
-		wp_redirect('/wp-admin/admin.php?page=improveseo_lists&action=edit&id='. $id);
+		wp_redirect(admin_url("admin.php?page=improveseo_lists&action=edit&id={$id}"));
 		exit;
 
 	elseif ($action == 'delete'):
@@ -112,7 +112,7 @@ function improveseo_lists() {
 		$model->delete($id);
 
 		FlashMessage::success('List has been deleted.');
-		wp_redirect('/wp-admin/admin.php?page=improveseo_lists');
+		wp_redirect(admin_url('admin.php?page=improveseo_lists'));
 		exit;
 
 	endif;

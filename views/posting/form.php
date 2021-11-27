@@ -45,7 +45,7 @@ wp_enqueue_script('post');
 
 <div class="notice notice-success is-dismissible">
 	<p>
-		<strong>Looking to use Improve SEO for non-local, such as affiliate or Amazon?</strong> Check out the <a href="/wp-admin/admin.php?page=improveseo_lists">ImproveSEO lists feature!</a>
+		<strong>Looking to use Improve SEO for non-local, such as affiliate or Amazon?</strong> Check out the <a href="<?php echo admin_url('admin.php?page=improveseo_lists'); ?>">ImproveSEO lists feature!</a>
 	</p>
 </div>
 
@@ -364,7 +364,7 @@ wp_enqueue_script('post');
 						</div>
 						<?php else: ?>
 							<div class="PixabayKeyWarning info-sec">
-								Please, enter Google Maps API Key in <a href="/wp-admin/admin.php?page=improveseo_settings">Plugin Settings</a>.
+								Please, enter Google Maps API Key in <a href="<?php echo admin_url('admin.php?page=improveseo_settings'); ?>">Plugin Settings</a>.
 							</div>
 						<?php endif; ?>
 
@@ -390,7 +390,7 @@ wp_enqueue_script('post');
 							<a href="<?= IMPROVESEO_DIR ?>/imagescraper.php" title="Image Scraper" onclick="return ImageScraper.start(this)">Launch Images Scraper</a>
 							<?php else: ?>
 								<div class="PixabayKeyWarning info-sec">
-									Please, enter Pixabay API Key in <a href="/wp-admin/admin.php?page=improveseo_settings">Plugin Settings</a>.
+									Please, enter Pixabay API Key in <a href="<?php echo admin_url('admin.php?page=improveseo_settings'); ?>">Plugin Settings</a>.
 								</div>
 							<?php endif; ?>
 						</p>
@@ -414,7 +414,7 @@ wp_enqueue_script('post');
 							<a href="<?= IMPROVESEO_DIR ?>/videoscraper.php" title="Image Scraper" onclick="return VideoScraper.start(this)">Launch Videos Scraper</a>
 							<?php else: ?>
 								<div class="PixabayKeyWarning">
-									Please, enter YouTube API Key in <a href="/wp-admin/admin.php?page=improveseo_settings">Plugin Settings</a>.
+									Please, enter YouTube API Key in <a href="<?php echo admin_url('admin.php?page=improveseo_settings'); ?>">Plugin Settings</a>.
 								</div>
 							<?php endif; ?>
 						</p>
@@ -690,8 +690,6 @@ wp_enqueue_script('post');
 		</div>
 	</div>
 </div>
-
-
 <script type="text/javascript">
 
 				function openWin() {

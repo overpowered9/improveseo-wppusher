@@ -35,8 +35,7 @@ function improveseo_settings() {
 			Geo::installCountry($country_id, $country);
 			FlashMessage::message($country->country .' has been installed successfully.');
 		}
-
-		wp_redirect('/wp-admin/admin.php?page=improveseo_settings');
+		wp_redirect(admin_url('admin.php?page=improveseo_settings'));
 		exit;
 	elseif ($action == 'delete_country'):
 		$country = $countryModel->getByShort($_GET['country']);
@@ -45,6 +44,6 @@ function improveseo_settings() {
 		$countryModel->delete($country->id);
 
 		FlashMessage::message($country->name .' has been deleted successfully.');
-		wp_redirect('/wp-admin/admin.php?page=improveseo_settings');
+		wp_redirect(admin_url('admin.php?page=improveseo_settings'));
 	endif;
 }

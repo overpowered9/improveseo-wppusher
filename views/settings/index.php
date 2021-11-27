@@ -99,9 +99,9 @@ use ImproveSEO\View;
                             <td data-colname="Filesize"><?= $country->size ?></td>
                             <td data-colname="Action" class="actions-btn">
                                 <?php if (in_array($country->country, $installed)): ?>
-                                <a href="/wp-admin/admin.php?page=improveseo_settings&action=delete_country&country=<?= $country->code ?>&noheader=true" class="btn btn-outline-danger">Delete</a>
+                                <a href="<?php echo admin_url("admin.php?page=improveseo_settings&action=delete_country&country={$country->code}&noheader=true"); ?>" class="btn btn-outline-danger">Delete</a>
                                 <?php else: ?>
-                                <a href="/wp-admin/admin.php?page=improveseo_settings&action=add_country&country=<?= $country->code ?>&noheader=true" class="btn btn-outline-primary">Download</a>
+                                <a href="<?php echo admin_url("admin.php?page=improveseo_settings&action=add_country&country={$country->code}&noheader=true"); ?>" class="btn btn-outline-primary">Download</a>
                                 <?php endif; ?>
                             </td>
                         </tr>

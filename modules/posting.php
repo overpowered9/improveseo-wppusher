@@ -44,7 +44,7 @@ function improveseo_posting()
 				'state_channel_title' => 'required_if:state_channel_page',
 				'state_channel_content' => 'required_if:state_channel_page'
 			)) && !isset($_POST['draft'])) {
-				wp_redirect('/wp-admin/admin.php?page=improveseo&action=create_post');
+				wp_redirect(admin_url('admin.php?page=improveseo&action=create_post'));
 				exit;
 			}
 		}
@@ -237,7 +237,7 @@ function improveseo_posting()
 		elseif (isset($_POST['draft'])) {
 			FlashMessage::success('Project successfully saved. You can continue editing by pressing Continue button.');
 		} 
-		wp_redirect('/wp-admin/admin.php?page=improveseo_projects&highlight='. $project_id);
+		wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$project_id}"));
 		exit;
 
 		elseif ($action == 'do_update_post'):
@@ -423,7 +423,7 @@ function improveseo_posting()
 			$project_id = $model->update($data, $_GET['id']) ;
 			if (isset($_GET['id'])) $project_id = $_GET['id'];
 			FlashMessage::success('Project successfully updated. You can update old post by clicking update my posts.');
-			wp_redirect('/wp-admin/admin.php?page=improveseo_projects&highlight='. $project_id . '&build_posts_id=' .$project_id);
+			wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$project_id}&build_posts_id={$project_id}"));
 			exit;
 	
 		elseif ($action == 'edit_post'):

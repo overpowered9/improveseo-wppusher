@@ -223,7 +223,7 @@ use ImproveSEO\View;
 			}
 			
 			elseif($project->state == 'Published' && $project->iteration == $project->max_iterations){
-				header("Location: /wp-admin/admin.php?page=improveseo_projects&action=export_preview_url&id=".$project->id."&noheader=true");
+				wp_redirect(admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true"));
 				exit;
 			}			
 		}		

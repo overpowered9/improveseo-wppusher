@@ -61,27 +61,30 @@ function add_my_media_button() {
              </select>';
     $saved_rnos =  get_option('get_saved_random_numbers');
     
-    foreach($saved_rnos as $id){
-        
-        //testimonials        
-        $testimonial = get_option('get_testimonials_'.$id);
-        if(!empty($testimonial)){
-            $html .= '<button data-action="testimonial" id='.$id.' class="sw-hide-btn button">Add Testimonial '.$id.'</button>';   
-        }
-         
-        //buttons        
-        $buttons = get_option('get_buttons_'.$id);
-        if(!empty($buttons)){
-            $html .= '<button data-action="button" id='.$id.' class="sw-hide-btn button">Add Button '.$id.'</button>';   
-        }
-         
-        //googlemaps        
-        $google_map = get_option('get_googlemaps_'.$id);
-        if(!empty($google_map)){
-            $html .= '<button data-action="googlemap" id='.$id.' class="sw-hide-btn button">Add GoogleMap '.$id.'</button>';   
-        }
-    
-    }
+	if(!empty($saved_rnos)){
+		foreach($saved_rnos as $id){
+			
+			//testimonials        
+			$testimonial = get_option('get_testimonials_'.$id);
+			if(!empty($testimonial)){
+				$html .= '<button data-action="testimonial" id='.$id.' class="sw-hide-btn button">Add Testimonial '.$id.'</button>';   
+			}
+			
+			//buttons        
+			$buttons = get_option('get_buttons_'.$id);
+			if(!empty($buttons)){
+				$html .= '<button data-action="button" id='.$id.' class="sw-hide-btn button">Add Button '.$id.'</button>';   
+			}
+			
+			//googlemaps        
+			$google_map = get_option('get_googlemaps_'.$id);
+			if(!empty($google_map)){
+				$html .= '<button data-action="googlemap" id='.$id.' class="sw-hide-btn button">Add GoogleMap '.$id.'</button>';   
+			}
+		
+		}
+	}
+
     $seo_list = improve_seo_lits();
     if(!empty($seo_list)){
         foreach($seo_list as $li){

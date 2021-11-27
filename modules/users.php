@@ -64,7 +64,7 @@ function improveseo_users() {
 		}
 
 		FlashMessage::success('All '. $total .' users created.');
-		wp_redirect('/wp-admin/admin.php?page=improveseo_users');
+		wp_redirect(admin_url('admin.php?page=improveseo_users'));
 		exit;
 
 	endif;

@@ -25,7 +25,7 @@ function improveseo_noindex() {
 		$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}termmeta WHERE term_id = %s AND meta_key = 'improveseo_noindex_tag'", array($id)));
 
 		FlashMessage::success('Noindex tag removed.');
-		wp_redirect('/wp-admin/admin.php?page=improveseo_noindex');
+		wp_redirect(admin_url('admin.php?page=improveseo_noindex'));
 		exit;
 
 	endif;
