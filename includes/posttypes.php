@@ -6,7 +6,7 @@ add_action('init', 'improveseo_create_posttypes');
 //add_action('pre_get_posts', 'add_improveseo_post_types_to_query');
 
 function add_improveseo_post_types_to_query($query) {
-	$storage = new Storage('workhouse');
+	$storage = new Storage('improveseo');
 	$types = $storage->permalink_prefixes;
 	$post_types = array('post', 'page', 'channel');
 
@@ -31,7 +31,7 @@ function add_improveseo_post_types_to_query($query) {
 function improveseo_create_posttypes() {
 	global $wp_rewrite;
 
-	$storage = new Storage('workhouse');
+	$storage = new Storage('improveseo');
 	$types = $storage->permalink_prefixes;
 
 	register_post_type('channel',

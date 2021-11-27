@@ -17,7 +17,7 @@ function improveseo_allow_numeric_stubs($rules) {
 }
 
 function improveseo_custom_post_permalink($permalink, $post, $leavename, $sample) {
-	$storage = new Storage('workhouse');
+	$storage = new Storage('improveseo');
 	$prefixes = $storage->permalink_prefixes;
 	
     // only do our stuff if we're using pretty permalinks
@@ -105,7 +105,7 @@ function improveseo_the_content_filter($content) {
 function change_blog_links($post_link, $id = 0){
 	$post = get_post($id);
  
-	$storage = new Storage('workhouse');
+	$storage = new Storage('improveseo');
 	$prefixes = $storage->permalink_prefixes;
 	
 	/*if (sizeof($prefixes)) {

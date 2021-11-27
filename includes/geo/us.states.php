@@ -7,7 +7,6 @@ Target Host: localhost
 Target Database: fresnojazz2
 Date: 9/18/2009 7:38:14 AM
 */
-
 $wpdb->query("INSERT INTO `{$wpdb->prefix}improveseo_us_states` VALUES ('Alaska', 'AK')");
 $wpdb->query("INSERT INTO `{$wpdb->prefix}improveseo_us_states` VALUES ('Alabama', 'AL')");
 $wpdb->query("INSERT INTO `{$wpdb->prefix}improveseo_us_states` VALUES ('Arkansas', 'AR')");

@@ -98,7 +98,7 @@ function improveseo_builder() {
 	$step = 100;
 	$current_post = 0;
 	
-	$storage = new Storage ( 'workhouse' );
+	$storage = new Storage ( 'improveseo' );
 	
 	// Authors
 	if ($options ['distribute']) {
@@ -230,7 +230,7 @@ function improveseo_builder() {
 			
 			// Save permalink structure for channels
 			if (isset ( $options ['permalink_prefix'] )) {
-				$storage = new Storage ( 'workhouse' );
+				$storage = new Storage ( 'improveseo' );
 				
 				$prefixes = $storage->permalink_prefixes;
 				if (! sizeof ( $prefixes [$options ['permalink_prefix']] )) {
@@ -535,7 +535,7 @@ function improveseo_builder() {
 				$wpdb->query ( 'COMMIT;' );
 				$current_post = 0;
 				
-				$storage = new Storage ( 'workhouse' );
+				$storage = new Storage ( 'improveseo' );
 				$storage->flush_rules = true;
 			}
 			
@@ -568,7 +568,7 @@ function improveseo_builder() {
 	
 	ChannelManager::save ();
 	
-	$storage = new Storage ( 'workhouse' );
+	$storage = new Storage ( 'improveseo' );
 	$storage->flush_rules = true;
 	
 	// Save project changes
@@ -714,7 +714,7 @@ function improveseo_builder_update() {
 	$step = 100;
 	$current_post = 0;
 	
-	$storage = new Storage ( 'workhouse' );
+	$storage = new Storage ( 'improveseo' );
 	
 	// Authors
 	if ($options ['distribute']) {
@@ -846,7 +846,7 @@ function improveseo_builder_update() {
 			
 			// Save permalink structure for channels
 			if (isset ( $options ['permalink_prefix'] )) {
-				$storage = new Storage ( 'workhouse' );
+				$storage = new Storage ( 'improveseo' );
 				
 				$prefixes = $storage->permalink_prefixes;
 				if (! sizeof ( $prefixes [$options ['permalink_prefix']] )) {
@@ -1151,7 +1151,7 @@ function improveseo_builder_update() {
 				$wpdb->query ( 'COMMIT;' );
 				$current_post = 0;
 				
-				$storage = new Storage ( 'workhouse' );
+				$storage = new Storage ( 'improveseo' );
 				$storage->flush_rules = true;
 			}
 			
@@ -1184,7 +1184,7 @@ function improveseo_builder_update() {
 	
 	ChannelManager::save ();
 	
-	$storage = new Storage ( 'workhouse' );
+	$storage = new Storage ( 'improveseo' );
 	$storage->flush_rules = true;
 	
 	// Save project changes

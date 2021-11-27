@@ -27,7 +27,7 @@ abstract class AbstractModel
 		if (!$this->table) {
 			preg_match("/([^\\\]+)$/i", get_class($this), $class);
 			$class[1] = preg_replace("/y$/", "ie", $class[1]);
-			$this->table = 'workhorse_'. strtolower($class[1]) .'s';
+			$this->table = 'improveseo_'. strtolower($class[1]) .'s';
 		}
 
 		$this->offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
