@@ -33,9 +33,30 @@ use ImproveSEO\View;
 	<section class="project-table-wrapper">
 		<form method="get">
 			<div class="table-responsive-sm">
+				<div class="tablenav top">
+					<div class="alignleft actions bulkactions">
+						<label for="bulk-action-selector-top" class="screen-reader-text">Select bulk action</label>
+						<select name="action" id="bulk-action-selector-top">
+							<option value="bulk-empty">Bulk actions</option>
+							<option value="bulk-delete-all" class="hide-if-no-js">Delete project and all posts/pages</option>
+							<option value="bulk-delete-posts">Delete only posts/pages</option>
+							
+						</select>
+						<input type="hidden" name="page" value="improveseo_projects" />
+						<input type="hidden" name="noheader" value="true" />
+						<input type="submit" id="doaction" class="del-btn btn btn-outline-danger button action" value="Delete Projects">
+					</div>
+					<div class="tablenav-pages one-page"><span class="displaying-num"><?php echo count($projects); ?> items</span></div>
+					<br class="clear">
+				</div>
+
 			<table class="table widefat fixed wp-list-table widefat fixed striped table-view-list posts">
 				<thead>
 					<tr>
+						<th scope="col" class="manage-column column-cb">
+							<label class="screen-reader-text" for="cb-select-all">Select All</label>
+							<input id="cb-select-all" type="checkbox">
+						</th>
 						<th scope="col" class="manage-column column-title column-primary" style="width: 26.66%">Name</th>
 						<th scope="col" class="manage-column">Created Posts</th>
 						<th scope="col" class="manage-column">Max Posts</th>
@@ -48,6 +69,7 @@ use ImproveSEO\View;
 				<tbody>
 					<?php foreach ($projects as $project): ?>
 					<tr <?= $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
+						<td><input id="cb-select-<?php echo $project->id; ?>" type="checkbox" name="project_ids[]" value="<?php echo $project->id; ?>"></td>
 						<td scope="col" class="column-title column-primary has-row-actions">
 							<strong> 
 								<a href="javascript:void(0)" class="primary"><?= $project->name ?></a>
@@ -204,6 +226,9 @@ use ImproveSEO\View;
 		});
 		
 	}
+	jQuery('#cb-select-all').click(function(e){
+		jQuery("input[type=checkbox]").prop('checked', jQuery(this).prop('checked'));
+	});
 	</script>
 	
 	<!-- Building Post Preview -->

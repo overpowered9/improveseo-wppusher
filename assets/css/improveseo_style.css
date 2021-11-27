@@ -245,8 +245,8 @@ a:hover {
     position: relative;
     top: 7px;
     left: -1px;
-    float: left;
     display: inline-block;
+    float: left;
     vertical-align: middle;
 }
 
@@ -432,11 +432,18 @@ select.select-control {
     color: #fff;
     background-color: #1e70b9;
 }
-
+.project-table-wrapper .tablenav{
+    padding: 10px 20px;
+}
 .project-table-wrapper thead tr th,
 .project-table-wrapper tbody tr td {
     padding: 19px 0 19px 21px;
 }
+.project-table-wrapper thead tr th.column-cb{
+    padding-left: 12px;
+    width:2.2em;
+}
+
 
 .project-table-wrapper thead tr th {
     font-family: 'Poppins', sans-serif;
@@ -486,6 +493,9 @@ select.select-control {
     display: inline-block;
     background: #FFFFFF;
     border: 1px solid rgba(194, 11, 11, 0.3) !important;
+}
+.project-table-wrapper .tablenav .del-btn{
+    padding: 0 10px;
 }
 
 .project-table-wrapper .del-btn:hover, 

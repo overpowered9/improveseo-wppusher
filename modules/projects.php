@@ -56,7 +56,6 @@ function improveseo_projects() {
 	elseif ($action == 'delete'):
 
 		$id = $_GET['id'];
-		$task = $model->find($id);
 
 		// Delete all posts from this project
 		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));
@@ -161,5 +160,46 @@ function improveseo_projects() {
 		wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$new_id}"));
 		exit;
 
+	elseif ($action == 'bulk-delete-all'):
+		if(isset($_GET['project_ids'])){
+			$project_ids = $_GET['project_ids'];
+			if(!empty($project_ids)){
+				foreach($project_ids as $project_id){
+					// Delete all posts from this project
+					$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $project_id));
+
+					$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $project_id));
+
+					$model->delete($project_id);
+				}
+				FlashMessage::success('All posts/pages deleted.');
+			}
+		}else{
+			FlashMessage::message('Please select projects', 'error');
+		}
+		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+		exit;
+	elseif($action == 'bulk-delete-posts'):
+		if(isset($_GET['project_ids'])){
+			$project_ids = $_GET['project_ids'];
+			if(!empty($project_ids)){
+				foreach($project_ids as $project_id){
+					// Delete all posts from this project
+					$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE post_id IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s) AND meta_key = 'improveseo_channel'", $project_id));
+					$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $project_id));
+					$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $project_id));
+
+					$model->update(array('iteration' => 0), $project_id);
+
+				}
+				FlashMessage::success('All posts/pages deleted.');
+			}
+		}
+		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+		exit;
+	elseif($action == 'bulk-empty'):
+		FlashMessage::message('Please select an option from bulk actions', 'error');
+		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+		exit;
 	endif;
 }
