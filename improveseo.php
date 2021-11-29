@@ -8,7 +8,7 @@ Version: 2.0.0
 */
 define("improveseo_version", "2.0");
 define('IMPROVESEO_ROOT', dirname(__FILE__));
-define('IMPROVESEO_DIR', substr(IMPROVESEO_ROOT, strpos(IMPROVESEO_ROOT, 'wp-content') - 1));
+define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url( __FILE__ )));
 
 
 define( 'WT_PATH', untrailingslashit(plugin_dir_path( __FILE__ )) );
@@ -107,13 +107,6 @@ function improve_seo_lits(){
     return $list_names;
     
 }
-
-//testing
-// add_action('init' , 'testing');
-function testing(){
-}
-
-
 
 add_action('init' , 'updating_post_status_to_publish');
 function updating_post_status_to_publish(){

@@ -5,7 +5,6 @@
         $('.Posting__post-button').attr('href','/wp-admin/admin.php?page=improveseo&action=create_post&cat_pre='+vals.join(","));
         $('.Posting__page-button').attr('href','/wp-admin/admin.php?page=improveseo&action=create_page&cat_pre='+vals.join(","));
     });
-    console.log("main.js");
      $(document).on("click", '.improveseo_wrapper .nav-tabs .nav-link', function(e) {
         e.preventDefault();
         $(".improveseo_wrapper .nav-tabs .nav-link").removeClass('active');
