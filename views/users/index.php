@@ -11,7 +11,7 @@ use ImproveSEO\View;
 <?php View::startSection('content') ?>
 <h1 class="hidden">Users List</h1>
 
-	<div class="notice notice-success">
+	<div class="notice notice-success notice-improveseo">
 		<p>Here you can create users that are only for use within ImproveSEO. The posts and projects you make will be distributed among these users to make your site look more authoritative (multiple authors) and natural.</p>
 	</div>
 

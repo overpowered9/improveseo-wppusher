@@ -56,7 +56,7 @@ use ImproveSEO\View;
                     </div>
                 </div>
             </div>
-            <div class="notice notice-success">
+            <div class="notice notice-success notice-improveseo">
                 <p>WordAi is a third party spinner that allows you to generate spun content on the fly. If you have a WordAi account, input your settings here. If not, leave the boxes blank. <strong>This is NOT a necessity to use Improve SEO and only here for convenience for users who need it.</strong></p>
             </div>
             <p class="submit shortcode-form-btn text-center">

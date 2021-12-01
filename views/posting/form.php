@@ -14,7 +14,7 @@ wp_enqueue_script('post');
 	$google_api_key = get_option('improveseo_google_api_key');
 ?>
 
-<div class="notice notice-success is-dismissible">
+<div class="notice notice-success is-dismissible notice-improveseo">
 	<p>
 		ImproveSEO tags for local SEO feature:
 	</p>
@@ -27,29 +27,29 @@ wp_enqueue_script('post');
 	</p>
 </div>
 
-<div class="notice notice-success is-dismissible">
+<div class="notice notice-success is-dismissible notice-improveseo">
 	<p>Spintax is supported everywhere! You can use {1|2|3} and either 1, 2, or 3 will be the outcome.</p>
 </div>
 
-<div class="notice notice-success is-dismissible">
+<div class="notice notice-success is-dismissible notice-improveseo">
 	<p>
 		ImproveSEO is a powerful software! Make sure that your server can handle the large amount of traffic that your site will be getting and is powerful enough to handle the page creation. If you are on a smaller server, consider breaking a large project into multiple smaller ones.
 	</p>
 </div>
 
-<div class="notice notice-success is-dismissible">
+<div class="notice notice-success is-dismissible notice-improveseo">
 	<p>
 		Don't use any unnecessary features! See something you don't understand? It's probably best not to mess with it. Almost all errors come from using features that you don't understand. Barebones Improve SEO is more than powerful so please don't feel the need to enable anything you don't know. If you don't need it, it's probably not for you.
 	</p>
 </div>
 
-<div class="notice notice-success is-dismissible">
+<div class="notice notice-success is-dismissible notice-improveseo">
 	<p>
 		<strong>Looking to use Improve SEO for non-local, such as affiliate or Amazon?</strong> Check out the <a href="<?php echo admin_url('admin.php?page=improveseo_lists'); ?>">ImproveSEO lists feature!</a>
 	</p>
 </div>
 
-<div class="notice notice-success is-dismissible">
+<div class="notice notice-success is-dismissible notice-improveseo">
 	<p>
 		Struggling to find content? No worries!
 	</p>
@@ -58,7 +58,7 @@ wp_enqueue_script('post');
 	</p>
 </div>
 
-<div class="notice notice-success is-dismissible">
+<div class="notice notice-success is-dismissible notice-improveseo">
 	<p>
 		To use gateway / channel pages call @citylist for state area and @ziplist for city area. This will greatly increase the load on your server from the project.
 	</p>
@@ -151,10 +151,10 @@ wp_enqueue_script('post');
 			</div>
 			
 			<script>
-			$('#preview_on').click(function() {
-				$('#ex1').modal();
+			jQuery('#preview_on').click(function() {
+				jQuery('#ex1').modal();
 				
-				$("#ex1").modal({
+				jQuery("#ex1").modal({
 					escapeClose: false,
 					clickClose: false,
 					showClose: false,
@@ -273,6 +273,7 @@ wp_enqueue_script('post');
 				</div>
 
 				<!-- Tags -->
+				<?php /*
 				<div class="postbox">
 					<button type="button" class="handlediv button-link" aria-expanded="true">
 						<span class="toggle-indicator" aria-hidden="true"></span>
@@ -297,7 +298,7 @@ wp_enqueue_script('post');
 						</div>
 						<p class="howto">Helps fight duplicate content on tag pages; not recommended</p>
 					</div>
-				</div>
+				</div> */ ?>
 
 				<?php if ($word_ai_email && $word_ai_pass): ?>
 				<!-- Word AI -->
@@ -315,6 +316,7 @@ wp_enqueue_script('post');
 				<?php endif; ?>
 
 				<!-- Categorization -->
+				<?php /*
 				<div class="postbox">
 					<button type="button" class="handlediv button-link" aria-expanded="true">
 						<span class="toggle-indicator" aria-hidden="true"></span>
@@ -343,6 +345,7 @@ wp_enqueue_script('post');
 						</p>
 					</div>
 				</div>
+				*/ ?>
 
 				<!-- Images Scraper -->
 				<div class="postbox">
@@ -603,6 +606,8 @@ wp_enqueue_script('post');
 							</div>
 						</div>
 					</div>
+					<?php
+					/* 
 					<div class="postbox">
 						<button type="button" class="handlediv button-link" aria-expanded="false">
 							<span class="toggle-indicator" aria-hidden="true"></span>
@@ -684,7 +689,7 @@ wp_enqueue_script('post');
 								</div>
 							</div>
 						</div>
-					</div>
+					</div> */ ?>
 				</div>
 			</div>
 		</div>
@@ -736,9 +741,9 @@ wp_enqueue_script('post');
 					var check_prev_win = setInterval(function() {
 		
 						if(typeof (myWindow) == 'undefined' || myWindow.closed) {
-							if($.modal.isActive()){
+							if(jQuery.modal.isActive()){
 							   preview_delete_ajax(preview_id);
-								$.modal.close();
+								jQuery.modal.close();
 								//document.getElementById("main_form").action = form_action_old;
 								var myForm = document.getElementById('main_form');
 								myForm.onsubmit = function() {}
@@ -754,7 +759,7 @@ wp_enqueue_script('post');
 
 				function closeWin() {
 					
-					$.modal.close();
+					jQuery.modal.close();
 					var location = myWindow.location.search;
 					var preview_ids = location.split("=");
 					var id = preview_ids[1];

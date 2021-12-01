@@ -8,7 +8,7 @@ use ImproveSEO\View;
 <?php View::endSection('breadcrumbs') ?>
 <?php View::startSection('content') ?>
 <h1 class="hidden">Shortcodes List</h1>
-<div class="notice notice-success is-dismissible">
+<div class="notice notice-success is-dismissible notice-improveseo">
 	<p>
 		Shortcodes are created for use within the YouTube video and image scraper, but you can create shortcodes here manually. Once you've created a shortcode, simply use <strong>[name of your shortcode]</strong> to implement it within your post!
 	</p>

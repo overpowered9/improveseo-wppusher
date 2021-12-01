@@ -8,7 +8,7 @@ use ImproveSEO\View;
 <?php View::endSection('breadcrumbs') ?>
 <?php View::startSection('content') ?>
 <h2 class="hidden">Improve SEO Lists</h2>
-<div class="notice notice-success">
+<div class="notice notice-success notice-improveseo">
 	<p>
 		Improve SEO lists allow you to input a list of keywords or niches that you would like to target and use Improve SEO to quickly create posts for all of them.
 	</p>

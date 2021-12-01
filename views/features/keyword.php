@@ -8,7 +8,7 @@ use ImproveSEO\View;
 <?php View::endSection('breadcrumbs') ?>
 <?php View::startSection('content') ?>
 <h2 class="hidden">Keyword Generator</h2>
-<div class="notice notice-success is-dismissible">
+<div class="notice notice-success is-dismissible notice-improveseo">
     <p>
         The Improve SEO Keyword Generator takes a seed keyword and uses the Google autosuggest feature to generate a list of long tail keywords. You can put these long tail keywords into a Improve SEO List and make posts/pages for each keyword in the list!
     </p>
