@@ -44,7 +44,7 @@
                         <td data-colname="Position">'.$tw_testi_position.'</td>
                         <td data-colname="Box Color">'.$tw_box_color.'</td>
                         <td data-colname="Font Color">'.$tw_font_color.'</td>
-                        <td class="actions-btn" data-colname="Actions"><span data-action="testimonial" data-rand_id='.$id.' class="wt-edit-testi btn btn-outline-primary mr-2">Eidt</span><span data-action="testimonial" data-rand_id='.$id.' class="wt-dlt-testi wt-icons btn btn-outline-danger">Remove</span></td>
+                        <td class="actions-btn" data-colname="Actions"><span data-action="testimonial" data-rand_id='.$id.' class="wt-edit-testi btn btn-outline-primary mr-2">Edit</span><span data-action="testimonial" data-rand_id='.$id.' class="wt-dlt-testi wt-icons btn btn-outline-danger">Remove</span></td>
                     </tr>';
                     }
                     echo $html;
@@ -83,7 +83,7 @@
                         $html .= '<td class="column-title column-primary has-row-actions">'.$id.'</td>';
                         $tw_maps_apikey = isset($get_data['tw_maps_apikey']) ? $get_data['tw_maps_apikey'] : '';
                         $html .= '<td data-colname="Google Maps APIKEY">'.$tw_maps_apikey.'</td>
-                        <td class="actions-btn" data-colname="Actions"><span data-action="googlemaps" data-rand_id='.$id.' class="wt-edit-testi btn btn-outline-primary px-4 mr-2 py-2">Eidt</span><span data-action="googlemaps" data-rand_id='.$id.' class="wt-dlt-testi wt-icons btn btn-outline-danger py-2">Remove</span></td>
+                        <td class="actions-btn" data-colname="Actions"><span data-action="googlemaps" data-rand_id='.$id.' class="wt-edit-testi btn btn-outline-primary px-4 mr-2 py-2">Edit</span><span data-action="googlemaps" data-rand_id='.$id.' class="wt-dlt-testi wt-icons btn btn-outline-danger py-2">Remove</span></td>
                     </tr>';
                     }
                     echo $html;
@@ -131,7 +131,7 @@
                         <td data-colname="Button Link">'.$tw_btn_link.'</td>
                         <td data-colname="Button Color">'.$tw_buttontxt_color.'</td>
                         <td data-colname="Button BG Color">'.$tw_buttonbg_color.'</td>
-                        <td class="actions-btn" data-colname="Actions"><span  data-action="buttons" data-rand_id='.$id.' class="wt-edit-testi wt-icons btn btn-outline-primary px-4 mr-2 py-2">Eidt</span><span data-rand_id='.$id.' data-action="buttons" class="wt-dlt-testi wt-icons btn btn-outline-danger py-2">Remove</span></td>
+                        <td class="actions-btn" data-colname="Actions"><span  data-action="buttons" data-rand_id='.$id.' class="wt-edit-testi wt-icons btn btn-outline-primary px-4 mr-2 py-2">Edit</span><span data-rand_id='.$id.' data-action="buttons" class="wt-dlt-testi wt-icons btn btn-outline-danger py-2">Remove</span></td>
                     </tr>';
                     }
                     echo $html;
