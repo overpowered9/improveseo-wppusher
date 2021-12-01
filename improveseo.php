@@ -259,6 +259,31 @@ function _is_curl_installed() {
 }
 /*end*/
 
+add_action('admin_enqueue_scripts', 'improveseo_hide_other_notices');
+function improveseo_hide_other_notices() {
+    if ( is_admin() ) {
+        $my_current_screen = get_current_screen();
+		$improve_seo_pages = array(
+			'toplevel_page_improveseo',
+			'improve-seo_page_improveseo_dashboard',
+			'improve-seo_page_improveseo_projects',
+			'improve-seo_page_improveseo_shortcodes',
+			'improve-seo_page_improveseo_lists',
+			'improve-seo_page_improveseo_settings',
+			'improve-seo_page_improveseo_users',
+			'improve-seo_page_improveseo_keyword_generator',
+			'improve-seo_page_testimonials_googlemaps'
+		);
+		
+        if ( isset( $my_current_screen->base )  ) {
+			if(in_array($my_current_screen->base, $improve_seo_pages)){
+				echo '<style>.notice{ display:none;} .notice.notice-improveseo{ display:block; } .wrap.improveseo-page {margin-top:40px;}';
+			}
+			
+        }
+    }
+}
+
 class WC_Testimonial {
 	
 	function __construct() {
@@ -342,7 +367,7 @@ class WC_Testimonial {
 	/****=====Notice on how to use the shortcodes====***/
 	function general_admin_notice(){
 
-        echo '<div class="notice notice-warning is-dismissible">
+        echo '<div class="notice notice-warning is-dismissible notice-improveseo">
             <p><b>1)</b>For Testimonials You can use the shortcode as <b>[testimonial id="YOURID"]</b> 
             	You can Add multiple Ids for testimonials just like <b>[testimonial id="YOURID_1 , YOURID_2 , YOURID_3"]</b><br><br>
             	<b>2)</b>For Buttons You can use the shortcode as <b>[buttons id="YOURID"]</b> 
