@@ -63,23 +63,19 @@
     text-align: center;
     line-height: 1.2rem;
     padding: 2rem 0 1.4rem 0;
-    font-family: 'Varela Round'
+    font-family: 'Varela Round';
 }
-
-#name {
+#name{
     font-size: 1.0rem;
-    font-weight: bold
+    font-weight: bold;
 }
-
-#position {
-    font-size: 0.7rem
+#position{
+    font-size: 0.7rem;
 }
-
 a {
     color: rgb(151, 248, 6);
     font-weight: bold
 }
-
 a:hover {
     color: rgb(151, 248, 6)
 }

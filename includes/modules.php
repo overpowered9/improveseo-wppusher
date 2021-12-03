@@ -4,7 +4,7 @@ include_once IMPROVESEO_ROOT .'/modules/dashboard.php';
 include_once IMPROVESEO_ROOT .'/modules/posting.php';
 include_once IMPROVESEO_ROOT .'/modules/projects.php';
 include_once IMPROVESEO_ROOT .'/modules/settings.php';
-include_once IMPROVESEO_ROOT .'/modules/users.php';
+include_once IMPROVESEO_ROOT .'/modules/authors.php';
 include_once IMPROVESEO_ROOT .'/modules/shortcodes.php';
 include_once IMPROVESEO_ROOT .'/modules/lists.php';
 

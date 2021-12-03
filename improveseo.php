@@ -20,9 +20,6 @@ define( 'WT_URL' ,  untrailingslashit(plugin_dir_url( __FILE__ )) );
 if( file_exists( dirname(__FILE__).'/includes/helpers.php' )) include_once dirname(__FILE__).'/includes/helpers.php';
 // if( file_exists( dirname(__FILE__).'/includes/admin.php' )) include_once dirname(__FILE__).'/includes/admin.php';
 
-
-
-
 include_once 'bootstrap.php';
 
 register_activation_hook(__FILE__, 'improveseo_install');
@@ -46,12 +43,6 @@ add_filter('jpeg_quality', function($arg){return 75;});
 add_action('media_buttons', 'add_my_media_button');
 function add_my_media_button() {
     $html = '';
-//     $html .= '<style>
-// .sw-hide-btn{
-//     display:none !important;
-// }
-//               </style>';
-                
     $html .= '<select class="sw-editor-selector">
                     <option value="addshortcode">Add Shortcode</option>
                     <option value="testimonial">Testimonials</option>
@@ -270,14 +261,14 @@ function improveseo_hide_other_notices() {
 			'improve-seo_page_improveseo_shortcodes',
 			'improve-seo_page_improveseo_lists',
 			'improve-seo_page_improveseo_settings',
-			'improve-seo_page_improveseo_users',
+			'improve-seo_page_improveseo_authors',
 			'improve-seo_page_improveseo_keyword_generator',
 			'improve-seo_page_testimonials_googlemaps'
 		);
 		
         if ( isset( $my_current_screen->base )  ) {
 			if(in_array($my_current_screen->base, $improve_seo_pages)){
-				echo '<style>.notice{ display:none;} .notice.notice-improveseo{ display:block; } .wrap.improveseo-page {margin-top:40px;}';
+				echo '<style>.notice{ display:none;} .notice.notice-improveseo{ display:block; }';
 			}
 			
         }
@@ -305,9 +296,9 @@ class WC_Testimonial {
 		add_action('wp_ajax_sw_saved_search_results_keyword' , array($this , 'sw_saved_search_results_keyword'));
 
 		//shortcode for things testimonials / MAPS / Buttons
-		add_shortcode('testimonial' , array($this , 'testimonial_callback'));
-		add_shortcode('googlemaps' , array($this , 'maps_callback'));
-		add_shortcode('buttons' , array($this , 'button_callback'));
+		add_shortcode('improveseo_testimonial' , array($this , 'testimonial_callback'));
+		add_shortcode('improveseo_googlemaps' , array($this , 'maps_callback'));
+		add_shortcode('improveseo_buttons' , array($this , 'button_callback'));
 
 	}
 	
@@ -368,11 +359,11 @@ class WC_Testimonial {
 	function general_admin_notice(){
 
         echo '<div class="notice notice-warning is-dismissible notice-improveseo">
-            <p><b>1)</b>For Testimonials You can use the shortcode as <b>[testimonial id="YOURID"]</b> 
-            	You can Add multiple Ids for testimonials just like <b>[testimonial id="YOURID_1 , YOURID_2 , YOURID_3"]</b><br><br>
-            	<b>2)</b>For Buttons You can use the shortcode as <b>[buttons id="YOURID"]</b> 
-            	You can Add multiple Ids for buttons just like <b>[buttons id="YOURID_1 , YOURID_2 , YOURID_3"]</b><br><br>
-            	<b>3)</b>For Google Maps You can use the shortcode as <b>[googlemaps id="YOURID" address="YOURADDRESS" title="YOURTITLE" ]</b>
+            <p><b>1)</b>For Testimonials You can use the shortcode as <b>[improveseo_testimonial id="YOURID"]</b> 
+            	You can Add multiple Ids for testimonials just like <b>[improveseo_testimonial id="YOURID_1 , YOURID_2 , YOURID_3"]</b><br><br>
+            	<b>2)</b>For Buttons You can use the shortcode as <b>[improveseo_buttons id="YOURID"]</b> 
+            	You can Add multiple Ids for buttons just like <b>[improveseo_buttons id="YOURID_1 , YOURID_2 , YOURID_3"]</b><br><br>
+            	<b>3)</b>For Google Maps You can use the shortcode as <b>[improveseo_googlemaps id="YOURID" address="YOURADDRESS" title="YOURTITLE" ]</b>
             </p>
         </div>';
 	}

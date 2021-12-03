@@ -14,55 +14,6 @@ wp_enqueue_script('post');
 	$google_api_key = get_option('improveseo_google_api_key');
 ?>
 
-<div class="notice notice-success is-dismissible notice-improveseo">
-	<p>
-		ImproveSEO tags for local SEO feature:
-	</p>
-	<p>
-		<strong>@city</strong> - current city (i.e Rochester) <br>
-		<strong>@state</strong> - current state (i.e Michigan) <br>
-		<strong>@stateshort</strong> - current state abbreviation (i.e MI) <br>
- 		<strong>@country</strong> - current country (i.e United States) <br>
-		<strong>@countryshort</strong> current country abbreviation (i.e US)
-	</p>
-</div>
-
-<div class="notice notice-success is-dismissible notice-improveseo">
-	<p>Spintax is supported everywhere! You can use {1|2|3} and either 1, 2, or 3 will be the outcome.</p>
-</div>
-
-<div class="notice notice-success is-dismissible notice-improveseo">
-	<p>
-		ImproveSEO is a powerful software! Make sure that your server can handle the large amount of traffic that your site will be getting and is powerful enough to handle the page creation. If you are on a smaller server, consider breaking a large project into multiple smaller ones.
-	</p>
-</div>
-
-<div class="notice notice-success is-dismissible notice-improveseo">
-	<p>
-		Don't use any unnecessary features! See something you don't understand? It's probably best not to mess with it. Almost all errors come from using features that you don't understand. Barebones Improve SEO is more than powerful so please don't feel the need to enable anything you don't know. If you don't need it, it's probably not for you.
-	</p>
-</div>
-
-<div class="notice notice-success is-dismissible notice-improveseo">
-	<p>
-		<strong>Looking to use Improve SEO for non-local, such as affiliate or Amazon?</strong> Check out the <a href="<?php echo admin_url('admin.php?page=improveseo_lists'); ?>">ImproveSEO lists feature!</a>
-	</p>
-</div>
-
-<div class="notice notice-success is-dismissible notice-improveseo">
-	<p>
-		Struggling to find content? No worries!
-	</p>
-	<p>
-		You can use the same article across all your posts (you can even use free content from sites like Ezine, just be sure to link back to the source). It is recommended that you sprinkle the keyword that you’re trying to rank for within the article to make it unique and more relevant!
-	</p>
-</div>
-
-<div class="notice notice-success is-dismissible notice-improveseo">
-	<p>
-		To use gateway / channel pages call @citylist for state area and @ziplist for city area. This will greatly increase the load on your server from the project.
-	</p>
-</div>
 
 <div id="poststuff" class="PostForm">
 	<div id="post-body" class="metabox-holder columns-2">
@@ -218,9 +169,9 @@ wp_enqueue_script('post');
 						</p>
 
 						<p>
-							<strong>Distribute among users randomly:</strong> </br>
+							<strong>Distribute among authors randomly:</strong> </br>
 							<span>
-								Distribute posts among <a href="<?= admin_url('admin.php?page=improveseo_users') ?>">Improve SEO users</a> randomly.
+								Distribute posts among <a href="<?= admin_url('admin.php?page=improveseo_authors') ?>">Improve SEO authors</a> randomly.
 							</span>
 						</p>
 						<div class="input-group m-0 cta-check">
@@ -534,7 +485,7 @@ wp_enqueue_script('post');
 									<div class="input-group my-4 cta-check">
 										<span>
 											<input type="checkbox" name="hide_schema" id="hide-schema" value="1" <?= Validator::old('hide_schema', $task->options['hide_schema']) ? 'checked' : '' ?>>
-											<label for="hide-schema" class="form-label">Hide schema from users</label>
+											<label for="hide-schema" class="form-label">Hide schema from authors</label>
 										</span>
 									</div>
 									<div class="input-group">

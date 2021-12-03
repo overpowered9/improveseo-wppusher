@@ -51,6 +51,10 @@ function getUniqueLocations() {
 		var $form = $('#poststuff').parent('form');
 		ImproveSEOPopup.init('info');
 
+		$('.notice-improveseo-dismiss').click(function(e){
+			e.preventDefault();
+			$(this).parent().slideUp(100, function() {	});
+		});
 		// Max Posts
 		$form.find('#max-posts').change(function () {
 			var value = parseInt($(this).val());
@@ -436,4 +440,5 @@ function getUniqueLocations() {
 		}
 
 	});
+	
 })(jQuery);

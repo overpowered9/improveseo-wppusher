@@ -65,7 +65,8 @@ jQuery(function($){
         
         var proj_name = $('.sw-project-name').val();
         console.log(proj_name);
-
+        alert(proj_name);
+        
         var output = $('.sw-output-ta').val();
         if(output ==null || output == ''){
              swal({
@@ -377,13 +378,13 @@ jQuery(function($){
             
             var text = '';
             if(selector=='testimonial'){
-                text = '[testimonial id="'+id+'"]';
+                text = '[improveseo_testimonial id="'+id+'"]';
             }
             else if(selector=='googlemap'){
-                text ='[googlemaps id="'+id+'" address="" title=""]';
+                text ='[improveseo_googlemaps id="'+id+'" address="" title=""]';
             }
             else if(selector=='button'){
-                text = '[buttons id="'+id+'"]';
+                text = '[improveseo_buttons id="'+id+'"]';
             }
             else if(selector=='list'){
                 text = '@list:'+id;

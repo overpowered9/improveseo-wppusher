@@ -3,7 +3,7 @@
 use ImproveSEO\View;
 use ImproveSEO\FlashMessage;
 
-function improveseo_users() {
+function improveseo_authors() {
 	global $wpdb;
 
 	$action = isset($_GET['action']) ? $_GET['action'] : 'index';
@@ -22,16 +22,16 @@ function improveseo_users() {
 		$pages = ceil($results['avail_roles']['improveseo_user'] / $limit);
 		$page = floor($offset / $limit) + 1;
 
-		View::render('users.index', compact('users', 'results', 'page', 'pages'));
+		View::render('authors.index', compact('users', 'results', 'page', 'pages'));
 	elseif ($action == 'create'):
-		View::render('users.create');
+		View::render('authors.create');
 	elseif ($action == 'do_create'):
 		$total = $_POST['users'];
 
 		@set_time_limit(0);
 
-		include_once IMPROVESEO_ROOT .'/includes/users/firstnames.php';
-		include_once IMPROVESEO_ROOT .'/includes/users/lastnames.php';
+		include_once IMPROVESEO_ROOT .'/includes/authors/firstnames.php';
+		include_once IMPROVESEO_ROOT .'/includes/authors/lastnames.php';
 
 		$firstnamesTotal = sizeof($firstnames);
 		$lastnamesTotal = sizeof($lastnames);
@@ -63,8 +63,8 @@ function improveseo_users() {
             add_user_meta($user_id, 'improveseo_user', 1);
 		}
 
-		FlashMessage::success('All '. $total .' users created.');
-		wp_redirect(admin_url('admin.php?page=improveseo_users'));
+		FlashMessage::success('All '. $total .' authors created.');
+		wp_redirect(admin_url('admin.php?page=improveseo_authors'));
 		exit;
 
 	endif;

@@ -25,18 +25,12 @@ use ImproveSEO\View;
             <div class="BasicForm__row">
                 <div class="input-group">
                     <label class="form-label">Seed Keyword</label>
-                    <div class="input-prefix">
-                        <input type="text" id="input" class="form-control" placeholder="Monkhk " class="sw-project-name keyword_input" value=""></input>
-                        <span>Ex.</span>
-                    </div>
+                    <input type="text" id="input" placeholder="" class="sw-project-name keyword_input form-control" value="" />
                 </div>
             </div>
             <div class="BasicForm__row">
                 <label class="form-label">Results</label>
-                <div class="input-prefix">
-                    <textarea id="output" rows="5" class="textarea-control sw-output-ta keyword_input" placeholder="4Monkhk"></textarea>
-                    <span>Ex.</span>
-                </div>
+                <textarea id="output" rows="5" class="textarea-control sw-output-ta keyword_input" placeholder=""></textarea>
             </div>
             <div class="BasicForm__row mb-3">
                 <input id="startjob" onclick="generate();" type="button" class="btn btn-outline-primary mr-2 mb-2 mb-sm-0" value="Generate Keywords!">

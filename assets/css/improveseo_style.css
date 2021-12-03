@@ -206,7 +206,7 @@ a:hover {
     font-weight: 500;
     font-size: 14px;
     line-height: 21px;
-    color: #686B74;
+    color: rgb(104 107 116 / 50%);
     transition: all 0.3s;
 }
 
@@ -218,7 +218,7 @@ a:hover {
   color: rgb(104 107 116 / 50%);
 }
 
-.form-wrap .form-control::placeholder {
+.form-wrap .form-control::placeholder, .form-wrap .textarea-control::placeholder {
   color: rgb(104 107 116 / 50%);
 }
 
@@ -562,6 +562,65 @@ select.select-control {
     }
 }
 
+/* Custom Notice Design */
+.notice-improveseo.is-dismissible{
+    padding-right:38px;
+    position:relative;
+}
+.notice-improveseo{
+    margin:5px 0 15px;
+    border:1px solid #c3c4c7;
+    border-left-color:#00a32a;
+    border-left-width:4px;
+    background-color: #fff;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    padding:1px 12px;
+}
+.notice-improveseo p{
+    font-size: 13px;
+    line-height: 1.5;
+    margin:.5em 0;
+    padding: 2px;
+}
+.notice-improveseo-dismiss {
+	position: absolute;
+	top: 0;
+	right: 1px;
+	border: none;
+	margin: 0;
+	padding: 9px;
+	background: 0 0;
+	color: #787c82;
+	cursor: pointer;
+}
+.notice-improveseo-dismiss::before{
+    background: 0 0;
+	color: #787c82;
+	content: "\f153";
+	display: block;
+	font: normal 16px/20px dashicons;
+	height: 20px;
+	text-align: center;
+	width: 20px;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+.notice-improveseo-dismiss:hover::before{
+    color:#d63638;
+}
+.improve_seo_notices_wrapper{
+    min-height: auto;
+    margin-right: 20px;
+}
+.improve_seo_notices_wrapper .hndle{
+    margin-left: 20px;
+}
+.improve_seo_notices_wrapper .inside{
+    margin-top: 40px;
+}
+.postbox-container{
+    width:100%;
+}
 /*******************************
     Create Porject Page Style
 ********************************/

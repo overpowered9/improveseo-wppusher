@@ -10,6 +10,8 @@ use ImproveSEO\View;
 	<span>Create Page</span>
 <?php View::endSection('breadcrumbs') ?>
 
+<?php improveseo\View::render('notices.notice'); ?>
+
 <?php View::startSection('content') ?>
 <h1 class="hidden">Create</h1>
 <div class="CreatePost improveseo_wrapper">

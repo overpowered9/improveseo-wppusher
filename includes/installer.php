@@ -43,7 +43,7 @@ function improveseo_install() {
 	improveseo_wp_config_put();
 
 	// Roles
-	add_role('improveseo_user', 'Work Horse User');
+	add_role('improveseo_user', 'Improve SEO User');
 
 	// Scheduler
 	//wp_schedule_event(time(), 'every_minute', 'improveseo_parse_tasks_hook');

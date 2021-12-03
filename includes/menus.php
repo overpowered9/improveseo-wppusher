@@ -21,7 +21,7 @@ function improveseo_add_menu_items()
     add_submenu_page('improveseo', 'Shortcodes', 'Shortcodes', 2, 'improveseo_shortcodes', 'improveseo_shortcodes');
     add_submenu_page('improveseo', 'Lists', 'Lists', 2, 'improveseo_lists', 'improveseo_lists');
     add_submenu_page('improveseo', 'Settings', 'Settings', 2, 'improveseo_settings', 'improveseo_settings');
-    add_submenu_page('improveseo', 'Users', 'Users', 2, 'improveseo_users', 'improveseo_users');
+    add_submenu_page('improveseo', 'Authors', 'Authors', 2, 'improveseo_authors', 'improveseo_authors');
     
     //add_submenu_page('improveseo', 'Builder', 'Builder', 0, 'improveseo_builder', 'improveseo_builder');
     //add_submenu_page('improveseo', 'BuilderUpdate', 'BuilderUpdate', 0, 'improveseo_update_builder', 'improveseo_update_builder');
