@@ -17,9 +17,9 @@ use ImproveSEO\View;
 			<h1>Create New List</h1>
 		</div>
 		<div class="Breadcrumbs custom-breadcrumbs border-top-0 border-left-0 border-right-0 border-bottom rounded-0 m-0 py-3 px-0 mb-3">
-			<a href="https://newmexicocontractors.org/wp-admin/admin.php?page=improveseo">Improve SEO</a>
+			<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
 			»
-			<a href="https://newmexicocontractors.org/wp-admin/admin.php?page=improveseo_lists">Improve SEO Lists</a>
+			<a href="<?= admin_url('admin.php?page=improveseo_lists') ?>">Improve SEO Lists</a>
 			»
 			<span>Create New List</span>
 		</div>
