@@ -78,11 +78,7 @@ wp_enqueue_script('post');
 				<?php endif;?>
 				</button>
 				<button name="draft" type="submit" formtarget="_self" class="btn btn-outline-primary">Save As Draft</button>
-				<?php if(isset($_GET['action'])):?>
-					<?php if($_GET['action'] != 'edit_post'):?>
 				<button id="preview_on" type="submit" class="btn btn-outline-primary" onclick= "openWin()">Post preview</button>
-					<?php endif; ?>
-				<?php endif; ?>
 			</div>
 
 			<?php echo $site_link; ?>
@@ -90,15 +86,19 @@ wp_enqueue_script('post');
 
 			<!-- HTML modal for close preview button -->
 			<div id="ex1" class="modal" style="text-align:center">
-				<div> 
+				<div id="wh_prev_modal_1"> 					
+					<?php $gif_src = IMPROVESEO_DIR . '/assets/images/loader.gif'?>
+					<b style="font-size:20px">Generating preview</b>
+					<br /><br />
+					<img id="preview_rcube" src="<?=$gif_src?>" width="200">
+				</div>
+				<div id="wh_prev_modal_2"> 
 					<b style="font-size:18px">Close preview to continue editing the project</b>
 					<br><br>
 					<button id="open_win" class="button button-primary" onclick= "closeWin()" rel="modal:close">Close preview</button>
 					&nbsp; &nbsp; 
 					<button id="close_win" class="button button-primary" onclick= "changeWin()">Switch preview</button>
 				</div>
-
-
 			</div>
 			
 			<script>
@@ -110,14 +110,11 @@ wp_enqueue_script('post');
 					clickClose: false,
 					showClose: false,
 					fadeDuration: 1000,
-				    fadeDelay: 1.75 
+				    fadeDelay: 0.35
 				});
 
 			});
-			 
 			</script>
-			
-			
 		</div>
 
 		<div id="postbox-container-1" class="postbox-container">
@@ -646,15 +643,33 @@ wp_enqueue_script('post');
 		</div>
 	</div>
 </div>
+<?php
+$admin_url = admin_url('admin.php'); 
+?>
 <script type="text/javascript">
 
+				let form_action_old_wh=document.getElementById('main_form').action;
+				let reset_hidden_input_wh=document.getElementById('hidden_input_wh').value;
 				function openWin() {
+					document.getElementById("main_form").action = "<?php echo $admin_url; ?>?page=improveseo&action=do_create_post&noheader=true";
+					var prev_hidden_input = "post";
+					document.getElementById('hidden_input_wh').setAttribute('value', prev_hidden_input);
+					
+					let max_no_posts_old = document.getElementById('max-posts').value;					
+					if (max_no_posts_old > 50) {
+						alert("Recommended no. of total posts for preiew is less than 50");				
+					}
+					
 					var myForm = document.getElementById('main_form');
 					myForm.onsubmit = function() {
-						myWindow = window.open('about:blank','Popup_Window','toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=720,height=360,left = 312,top = 234');
+						myWindow = window.open('about:blank','Popup_Window','toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=200,height=200,left = 5000,top = 5000');
 						this.target = 'Popup_Window';
 					}
 					
+					var wh_modal_1_style = document.getElementById("wh_prev_modal_1");
+					var wh_modal_2_style = document.getElementById("wh_prev_modal_2");
+					wh_modal_1_style.style.display = "block";
+					wh_modal_2_style.style.display = "none";
 					
 					var preview_id= 0;					
 					var check_status = setInterval(function() {
@@ -666,11 +681,21 @@ wp_enqueue_script('post');
 													var preview_ids = location_3.split('=');
 													preview_id = preview_ids[1];
 													
-													myWindow.location.href= "/wp-admin/admin.php?page=improveseo_projects&post_preview=true"; 
+													myWindow.location.href= "<?php echo $admin_url; ?>?page=improveseo_projects&post_preview=true"; 
 													clearInterval(check_status);
 												}
 
-										}, 2000);					
+										}, 2000);
+					
+					var check_status_2 = setInterval(function() {
+						
+												if(myWindow.location.href.indexOf('?id=') > 0) {
+													wh_modal_1_style.style.display = "none";
+													wh_modal_2_style.style.display = "block";																		myWindow.resizeTo(720, 360);																					myWindow.moveTo(312, 234); 
+													clearInterval(check_status_2);
+												}
+
+										}, 2500);
 					
 					
 					function preview_delete_ajax(prev_id){
@@ -692,10 +717,11 @@ wp_enqueue_script('post');
 					var check_prev_win = setInterval(function() {
 		
 						if(typeof (myWindow) == 'undefined' || myWindow.closed) {
-							if(jQuery.modal.isActive()){
+							if($.modal.isActive()){
 							   preview_delete_ajax(preview_id);
-								jQuery.modal.close();
-								//document.getElementById("main_form").action = form_action_old;
+								$.modal.close();
+								document.getElementById("main_form").action = form_action_old_wh;
+								document.getElementById('hidden_input_wh').setAttribute('value', reset_hidden_input_wh);
 								var myForm = document.getElementById('main_form');
 								myForm.onsubmit = function() {}
 							   }
@@ -710,11 +736,13 @@ wp_enqueue_script('post');
 
 				function closeWin() {
 					
-					jQuery.modal.close();
+					$.modal.close();
+					document.getElementById("main_form").action = form_action_old_wh;
+					document.getElementById('hidden_input_wh').setAttribute('value', reset_hidden_input_wh);
 					var location = myWindow.location.search;
 					var preview_ids = location.split("=");
 					var id = preview_ids[1];
-					myWindow.location.href= "/wp-admin/admin.php?page=improveseo_projects&action=delete&id="+ id +"&noheader=true";
+					myWindow.location.href= "<?php echo $admin_url; ?>?page=improveseo_projects&action=delete&id="+ id +"&noheader=true";
 					setTimeout(function() {
 						myWindow.close();
 					}, 10000);
@@ -726,7 +754,7 @@ wp_enqueue_script('post');
 				
 				function changeWin(){
 					myWindow.focus(); 
-					myWindow.location.href= "/wp-admin/admin.php?page=improveseo_projects&post_preview=true";
+					myWindow.location.href= "<?php echo $admin_url; ?>?page=improveseo_projects&post_preview=true";
 				}
 	
 

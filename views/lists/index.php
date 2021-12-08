@@ -30,6 +30,16 @@ use ImproveSEO\View;
 		</div>
 		<a href="<?= admin_url('admin.php?page=improveseo_lists&action=create') ?>"  class="btn btn-outline-primary btn-small py-2 px-3">Create New</a>
 	</section>
+	<section class="pagination-wrapper text-right py-3">
+		<span class="pagination-links">
+			<?= paginate_links(array(
+			'total' => $pages,
+			'current' => $page,
+			'format' => '&paged=%#%',
+			'base' => admin_url('admin.php?page=improveseo_lists%_%')
+			)) ?>
+		</span>
+	</section>
 	<section class="project-table-wrapper">
 		<form method="get">
 			<div class="table-responsive-sm">
@@ -51,7 +61,15 @@ use ImproveSEO\View;
 								<button type="button" class="toggle-row"><span class="screen-reader-text">Show more details</span></button>
 							</td>
 							<td data-colname="Content">
-								<?= $item->list ?>
+								<?php 
+									if(str_word_count($item->list) > 50):
+										echo "<span class='list-content-overflow'>".$item->list."</span>";
+									else:
+										echo $item->list;
+									endif;
+								?>
+
+								
 							</td>
 							<td class="text-lg-right pr-2 actions-btn" data-colname="Action">
 								<div class="row-actions">
@@ -71,7 +89,16 @@ use ImproveSEO\View;
 				
 			</form>
 		</section>
-		
+	<section class="pagination-wrapper text-right py-3">
+		<span class="pagination-links">
+			<?= paginate_links(array(
+			'total' => $pages,
+			'current' => $page,
+			'format' => '&paged=%#%',
+			'base' => admin_url('admin.php?page=improveseo_lists%_%')
+			)) ?>
+		</span>
+	</section>
 	</div>
 	<?php View::endSection('content') ?>
 	<?php View::make('layouts.main') ?>

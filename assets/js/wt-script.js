@@ -64,9 +64,6 @@ jQuery(function($){
     $(document).on('click', '.sw-save-search-results', function(e) {
         
         var proj_name = $('.sw-project-name').val();
-        console.log(proj_name);
-        alert(proj_name);
-        
         var output = $('.sw-output-ta').val();
         if(output ==null || output == ''){
              swal({
@@ -399,7 +396,10 @@ jQuery(function($){
     
         });
 
-    })
+        tinymce.activeEditor.on('keyup', function(e) {
+            
+        });
+    });
 
 
 

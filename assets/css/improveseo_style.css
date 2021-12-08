@@ -551,7 +551,11 @@ select.select-control {
     line-height: 18px;
     padding: 7px 15px;
 }
-
+.list-content-overflow{
+    height: 100px;
+    display: block;
+    overflow-y: scroll;
+}
 @media (max-width: 767px){
     .Posting__subheader {
         font-size: 1.5em;

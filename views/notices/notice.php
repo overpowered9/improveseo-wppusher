@@ -6,7 +6,7 @@
 					<button type="button" class="handlediv button-link" aria-expanded="false">
 						<span class="toggle-indicator" aria-hidden="false"></span>
 					</button>
-					<h3 class="hndle"><span>Notices</span></h3>
+					<h3 class="hndle"><span>Tips & Best Practices</span></h3>
 					<div class="inside">
 						<div class="is-dismissible notice-improveseo">
 							<p>

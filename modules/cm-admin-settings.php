@@ -135,8 +135,7 @@
 						<div class="input-group">
 							<label class="form-label">Google Maps API Key:</label>
 							<div class="input-prefix">
-								<input type="text" class="form-control name" name="tw_maps_apikey" placeholder="Lorem Ipsome" value="<?php echo $tw_maps_apikey; ?>">
-								<span>Ex.</span>
+								<input type="text" class="form-control name" name="tw_maps_apikey" placeholder="" value="<?php echo $tw_maps_apikey; ?>">
 							</div>
 						</div>
 						<input type="submit" class="btn btn-outline-primary py-3 px-4 cm-custom-btn" value="Save API Key">

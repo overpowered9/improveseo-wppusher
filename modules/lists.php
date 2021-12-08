@@ -9,8 +9,8 @@ use ImproveSEO\Models\Shortcode;
 function improveseo_lists() {
 	global $wpdb;
 	$action = isset($_GET['action']) ? $_GET['action'] : 'index';
-	$limit = isset($_GET['limit']) ? $_GET['limit'] : 20;
-	$offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
+	$limit = isset($_GET['limit']) ? $_GET['limit'] : 2;
+	$offset = isset($_GET['paged']) ? $_GET['paged'] * $limit - $limit : 0;
 	$model = new Lists();
 
 	if ($action == 'index'):
@@ -45,9 +45,13 @@ function improveseo_lists() {
 		$lists = $wpdb->get_results($sql);
 		$total_row = $wpdb->get_row($sqlTotal);
 		$total = $total_row->total;
+
+		$pages = ceil($total / $limit);
+		$page = floor($offset / $limit) + 1;
+
 		$all = $model->count();
 
-		View::render('lists.index', compact('lists', 'total', 'all', 'order', 'orderBy'));
+		View::render('lists.index', compact('lists', 'total', 'all', 'order', 'orderBy', 'pages', 'page'));
 
 	elseif ($action == 'create'):
 

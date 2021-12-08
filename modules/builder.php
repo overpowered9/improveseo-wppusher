@@ -389,7 +389,7 @@ function improveseo_builder() {
 		$postName = improveseo_set_list_item ( $postName, $lists, $project->iteration );
 		
 		
-		if (! dexwork_wp_exist_post_by_title ( $titleText )) {
+		if (! improveseo_wp_exist_post_by_title ( $titleText )) {
     
     
 			$postdate_gmt = gmdate('Y-m-d H:i:s',strtotime($post_date));
@@ -1005,7 +1005,7 @@ function improveseo_builder_update() {
 		$postName = improveseo_set_list_item ( $postName, $lists, $project->iteration );
 		
 		
-		if (! dexwork_wp_exist_post_by_title ( $titleText )) {
+		if (! improveseo_wp_exist_post_by_title ( $titleText )) {
     
     
 			$postdate_gmt = gmdate('Y-m-d H:i:s',strtotime($post_date));
@@ -1209,9 +1209,10 @@ function improveseo_builder_update() {
 	}
 	return;
 }
-function dexwork_wp_exist_post_by_title($title) {
+function improveseo_wp_exist_post_by_title($title) {
 	global $wpdb;
 	$return = $wpdb->get_row ( "SELECT ID FROM wp_posts WHERE post_title = '" . $title . "' && post_status = 'publish' && post_type = 'post' ", 'ARRAY_N' );
+	return false;
 	if (empty ( $return )) {
 		return false;
 	} else {

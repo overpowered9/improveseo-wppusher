@@ -268,7 +268,7 @@ function improveseo_hide_other_notices() {
 		
         if ( isset( $my_current_screen->base )  ) {
 			if(in_array($my_current_screen->base, $improve_seo_pages)){
-				echo '<style>.notice{ display:none;} .notice.notice-improveseo{ display:block; }';
+				echo '<style>.notice{ display:none !important;}';
 			}
 			
         }

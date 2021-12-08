@@ -199,7 +199,7 @@ use ImproveSEO\View;
 	}
 	var numm_update;
 	function start_update(ids){
-		var new_location = window.location.protocol + "//" + window.location.hostname +"/wp-admin/admin.php?page=improveseo_projects";
+		var new_location = "<?php echo admin_url('admin.php?page=improveseo_projects'); ?>";
 		jQuery
 		.ajax({
 			url : ajaxurl,
