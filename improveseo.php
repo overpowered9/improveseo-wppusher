@@ -580,6 +580,13 @@ class WC_Testimonial {
 	    	'ajax_url'      		=> 	admin_url( 'admin-ajax.php' ),
 	    	)
 		);		
+		
+		wp_enqueue_script('improveseo-form', WT_URL.'/assets/js/form.js', array('jquery'));
+		wp_localize_script('improveseo-form', 'form_ajax_vars', array(
+	    	'ajax_url'      		=> 	admin_url( 'admin-ajax.php' ),
+	    	)
+		);
+
 	}
 	
 		/****=====Saving Form Fields From Admin Side For Button====***/

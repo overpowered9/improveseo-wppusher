@@ -26,5 +26,6 @@ if (is_admin()) {
 	
 	//wp_enqueue_script('improveseo-jquery',$assets_dir .'/js/jquery.min.js', array('jquery'));
 	wp_enqueue_script('improveseo-modal',$assets_dir .'/js/jquery.modal.min.js', array('jquery'));
+	wp_enqueue_script('improveseo-shortcode-popup',$assets_dir .'/js/shortcode-popup.js', array('jquery'));
 	
 }

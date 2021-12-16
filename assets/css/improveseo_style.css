@@ -42,6 +42,7 @@ a:hover {
     transition: all 0.3s;
     display: inline-block;
     padding: 0.375rem 0.75rem;
+    cursor:pointer;
 }
 
 .btn-small {
@@ -206,20 +207,20 @@ a:hover {
     font-weight: 500;
     font-size: 14px;
     line-height: 21px;
-    color: rgb(104 107 116 / 50%);
+    color: rgba(104,107,116,0.5);
     transition: all 0.3s;
 }
 
 .form-wrap .form-control::-webkit-input-placeholder { /* Edge */
-  color: rgb(104 107 116 / 50%);
+  color: rgba(104,107,116,0.5);
 }
 
 .form-wrap .form-control:-ms-input-placeholder { /* Internet Explorer 10-11 */
-  color: rgb(104 107 116 / 50%);
+  color: rgba(104,107,116,0.5);
 }
 
 .form-wrap .form-control::placeholder, .form-wrap .textarea-control::placeholder {
-  color: rgb(104 107 116 / 50%);
+  color: rgba(104,107,116,0.5);
 }
 
 .form-wrap .form-control:focus {
@@ -227,6 +228,9 @@ a:hover {
     box-shadow: 0px 2px 15px rgb(22 88 147 / 15%);
     color: #000;
     outline: none;
+}
+.form-wrap select.form-control{
+    height:auto;
 }
 
 .improveseo_wrapper input[type="checkbox"]:checked{
@@ -1202,4 +1206,18 @@ select.select-control {
     display: none; 
     text-align: center;
     right: 0;
+}
+.shortcode_popup{
+    min-height:350px;
+}
+.shortcode_popup label{
+    line-height: 2em;
+    font-size: 16px;
+    color: #000;
+}
+.shortcode_popup button{
+    margin-top: 20px;
+}
+.shortcode_popup p.improveseo_shortcode_error{
+    color:#C20B0B;
 }

@@ -1,5 +1,8 @@
 <?php
 	$saved_random_nos = get_option('get_saved_random_numbers');
+	echo "<pre>";
+	print_r($saved_random_nos);
+	echo "</pre>";
 	$specific_no = isset($_GET['rand_id']) ? $_GET['rand_id'] : '';
 	
 	// For testimonial

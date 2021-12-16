@@ -5,7 +5,7 @@ use ImproveSEO\Models\Country;
 wp_enqueue_script('post');
 ?>
 
-<input type="hidden" name="post_type" value="<?= isset($task) ? $task->content['post_type'] : $post_type ?>">
+<input type="hidden" name="post_type" value="<?= isset($task) ? $task->content['post_type'] : $post_type ?>" />
 <?php
 	$word_ai_pass = get_option('improveseo_word_ai_pass');
 	$word_ai_email = get_option('improveseo_word_ai_email');
@@ -84,8 +84,8 @@ wp_enqueue_script('post');
 			<?php echo $site_link; ?>
 
 
-			<!-- HTML modal for close preview button -->
-			<div id="ex1" class="modal" style="text-align:center">
+			<!-- HTML modal for preview button -->
+			<div id="preview_popup" class="modal" style="text-align:center">
 				<div id="wh_prev_modal_1"> 					
 					<?php $gif_src = IMPROVESEO_DIR . '/assets/images/loader.gif'?>
 					<b style="font-size:20px">Generating preview</b>
@@ -101,20 +101,32 @@ wp_enqueue_script('post');
 				</div>
 			</div>
 			
-			<script>
-			jQuery('#preview_on').click(function() {
-				jQuery('#ex1').modal();
-				
-				jQuery("#ex1").modal({
-					escapeClose: false,
-					clickClose: false,
-					showClose: false,
-					fadeDuration: 1000,
-				    fadeDelay: 0.35
-				});
-
-			});
-			</script>
+			<!-- HTML modal for close preview button -->
+			<div id="shortcode_popup" class="modal shortcode_popup" tabindex="-1" role="dialog" aria-labelledby="shortcode_popup" aria-hidden="true" data-focus="true">
+				<h3>Select ImproveSEO Shortcode</h3>
+				<div class="form-wrap">
+					<input type="hidden" id="is_shortcode_popup_open" value="no" />
+					<p class="hidden improveseo_shortcode_error" id="improveseo_shortcode_error">No shortcodes available. </p>
+					<div class="form-group">
+						<label for="improveseo_shortcode_type">Select Shortcode Type</label>
+						<select class="form-control" id="improveseo_shortcode_type" name="improveseo_shortcode_type">
+							<option value="">Select Shortcode Type</option>
+							<option value="testimonial">Testimonials</option>
+							<option value="googlemap">Google Maps</option>
+							<option value="button">Buttons</option>
+							<option value="list">Lists</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="improveseo_shortcode">Select Shortcode</label>
+						<select class="form-control" id="improveseo_shortcode" name="improveseo_shortcode" disabled>
+						</select>
+					</div>
+					<div class="form-group hidden">
+						<button type="button" class="btn btn-outline-primary" id="improveseo_shortcode_add_btn">Add</button>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<div id="postbox-container-1" class="postbox-container">
@@ -645,15 +657,15 @@ wp_enqueue_script('post');
 </div>
 <?php
 $admin_url = admin_url('admin.php'); 
-?>
+/*?>
 <script type="text/javascript">
-
-				let form_action_old_wh=document.getElementById('main_form').action;
-				let reset_hidden_input_wh=document.getElementById('hidden_input_wh').value;
+	
+				let form_action_old_wh = document.getElementById('main_form').action;
+				//let reset_hidden_input_wh=document.getElementById('hidden_input_wh').value;
 				function openWin() {
 					document.getElementById("main_form").action = "<?php echo $admin_url; ?>?page=improveseo&action=do_create_post&noheader=true";
-					var prev_hidden_input = "post";
-					document.getElementById('hidden_input_wh').setAttribute('value', prev_hidden_input);
+					//var prev_hidden_input = "post";
+					//document.getElementById('hidden_input_wh').setAttribute('value', prev_hidden_input);
 					
 					let max_no_posts_old = document.getElementById('max-posts').value;					
 					if (max_no_posts_old > 50) {
@@ -717,11 +729,11 @@ $admin_url = admin_url('admin.php');
 					var check_prev_win = setInterval(function() {
 		
 						if(typeof (myWindow) == 'undefined' || myWindow.closed) {
-							if($.modal.isActive()){
+							if(jQuery.modal.isActive()){
 							   preview_delete_ajax(preview_id);
-								$.modal.close();
+								jQuery.modal.close();
 								document.getElementById("main_form").action = form_action_old_wh;
-								document.getElementById('hidden_input_wh').setAttribute('value', reset_hidden_input_wh);
+								//document.getElementById('hidden_input_wh').setAttribute('value', reset_hidden_input_wh);
 								var myForm = document.getElementById('main_form');
 								myForm.onsubmit = function() {}
 							   }
@@ -736,9 +748,9 @@ $admin_url = admin_url('admin.php');
 
 				function closeWin() {
 					
-					$.modal.close();
+					jQuery.modal.close();
 					document.getElementById("main_form").action = form_action_old_wh;
-					document.getElementById('hidden_input_wh').setAttribute('value', reset_hidden_input_wh);
+					//document.getElementById('hidden_input_wh').setAttribute('value', reset_hidden_input_wh);
 					var location = myWindow.location.search;
 					var preview_ids = location.split("=");
 					var id = preview_ids[1];
@@ -759,3 +771,4 @@ $admin_url = admin_url('admin.php');
 	
 
 </script>
+*/ ?>

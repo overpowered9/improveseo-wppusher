@@ -11,6 +11,7 @@ include_once 'includes/api.php';
 include_once 'includes/debug.php';
 
 include_once 'includes/assets.php';
+include_once 'includes/ajax.php';
 include_once 'includes/crons.php';
 include_once 'includes/filters.php';
 include_once 'includes/functions.php';
@@ -19,6 +20,7 @@ include_once 'includes/menus.php';
 include_once 'includes/posttypes.php';
 include_once 'includes/seo.php';
 include_once 'includes/settings.php';
+include_once 'includes/shortcode-popup.php';
 
 // Features
 include_once 'features/keyword.php';

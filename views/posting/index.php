@@ -18,7 +18,7 @@ if($_POST['cat_name']){
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
-	<span>Improve SEO</span>
+	<!-- <span>Improve SEO</span> -->
 <?php View::endSection('breadcrumbs') ?>
 
 <?php View::startSection('content'); ?>
