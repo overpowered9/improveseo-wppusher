@@ -253,6 +253,7 @@ function _is_curl_installed() {
 add_action('admin_enqueue_scripts', 'improveseo_hide_other_notices');
 function improveseo_hide_other_notices() {
     if ( is_admin() ) {
+		
         $my_current_screen = get_current_screen();
 		$improve_seo_pages = array(
 			'toplevel_page_improveseo',
@@ -268,7 +269,7 @@ function improveseo_hide_other_notices() {
 		
         if ( isset( $my_current_screen->base )  ) {
 			if(in_array($my_current_screen->base, $improve_seo_pages)){
-				echo '<style>.notice{ display:none !important;}';
+				echo '<style>.notice{ display:none !important;}</style>';
 			}
 			
         }

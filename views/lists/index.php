@@ -30,6 +30,7 @@ use ImproveSEO\View;
 		</div>
 		<a href="<?= admin_url('admin.php?page=improveseo_lists&action=create') ?>"  class="btn btn-outline-primary btn-small py-2 px-3">Create New</a>
 	</section>
+
 	<section class="pagination-wrapper text-right py-3">
 		<span class="pagination-links">
 			<?= paginate_links(array(
@@ -43,6 +44,16 @@ use ImproveSEO\View;
 	<section class="project-table-wrapper">
 		<form method="get">
 			<div class="table-responsive-sm">
+				<div class="tablenav top">
+					<div class="alignright actions">
+						<label for="bulk-action-selector-top" class="screen-reader-text">Search Lists</label>
+						<input type="search" id="post-search-input" name="s" value="<?= $s; ?>">
+						<input type="hidden" name="page" value="improveseo_lists" />
+						<input type="hidden" name="action" value="index" />
+						<input type="submit" id="doaction" class="btn btn-outline-primary button action" value="Search Lists">
+					</div>
+					<br class="clear">
+				</div>	
 				<table class="table widefat fixed wp-list-table widefat fixed table-view-list posts">
 					<thead>
 						<tr>
@@ -52,6 +63,7 @@ use ImproveSEO\View;
 						</tr>
 					</thead>
 					<tbody>
+						<?php if(!empty($lists)): ?>
 						<?php foreach ($lists as $item): ?>
 						<tr>
 							<td class="column-title column-primary has-row-actions">
@@ -83,6 +95,13 @@ use ImproveSEO\View;
 							</td>
 							</tr>
 							<?php endforeach; ?>
+							
+							<?php
+							else: ?>
+							<tr>
+								<td colspan="3">No Lists Available.</td>
+							</tr>
+							<?php endif; ?>
 						</tbody>
 					</table>
 				</div>

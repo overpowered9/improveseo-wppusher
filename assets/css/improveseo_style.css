@@ -437,6 +437,7 @@ select.select-control {
 }
 .project-table-wrapper .tablenav{
     padding: 10px 20px;
+    height: auto;
 }
 .project-table-wrapper thead tr th,
 .project-table-wrapper tbody tr td {
@@ -576,6 +577,7 @@ select.select-control {
     position:relative;
 }
 .notice-improveseo{
+    display: block !important;
     margin:5px 0 15px;
     border:1px solid #c3c4c7;
     border-left-color:#00a32a;
