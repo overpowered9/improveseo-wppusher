@@ -23,6 +23,10 @@
 	$tw_btn_link = isset($data_btn['tw_btn_link']) ? $data_btn['tw_btn_link'] : '';
 	$tw_buttontxt_color = isset($data_btn['tw_buttontxt_color']) ? $data_btn['tw_buttontxt_color'] : '#ffffff';
 	$tw_buttonbg_color = isset($data_btn['tw_buttonbg_color']) ? $data_btn['tw_buttonbg_color'] : '#ffffff';
+	$tw_button_outline_color = isset($data_btn['tw_button_outline_color']) ? $data_btn['tw_button_outline_color'] : '#ffffff';
+	$tw_button_size = isset($data_btn['tw_button_size']) ? $data_btn['tw_button_size'] : 'sm';
+	$tw_button_border_type = isset($data_btn['tw_button_border_type']) ? $data_btn['tw_button_border_type'] : 'square';
+	
 	// For Buttons
 	
 ?>
@@ -165,17 +169,18 @@
 										</div>
 									</div>
 								</div>
-								<div class="BasicForm__row col-lg-2">
+								<div class="BasicForm__row col-lg-4">
 									<div class="input-group">
 										<label class="form-label">Button Link:</label>
 										<div class="input-prefix">
-											<input type="text" class="form-control name" placeholder="Florem"name="tw_btn_link" value="<?php echo $tw_btn_link; ?>">
+											<input type="text" class="form-control name" placeholder="https://google.com"name="tw_btn_link" value="<?php echo $tw_btn_link; ?>">
 											<span>Ex.</span>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
+						
 						<div class="col-12">
 							<div class="row">
 								<div class="BasicForm__row col-lg-2">
@@ -186,9 +191,52 @@
 								</div>
 								<div class="BasicForm__row col-lg-2">
 									<div class="input-group">
+										<label class="form-label">Outline Color:</label>
+										<input type="color" class="form-control name color-pick name" name="tw_button_outline_color" value="<?php echo $tw_button_outline_color; ?>">
+									</div>
+								</div>
+								<div class="BasicForm__row col-lg-2">
+									<div class="input-group">
 										<label class="form-label">Text Color:</label>
 										<input type="color" class="form-control name color-pick name" name="tw_buttontxt_color" value="<?php echo $tw_buttontxt_color; ?>">
 									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<div class="row">
+								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
+									<label class="form-label">Button Size:</label>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="radio" name="tw_button_size" id="tw_button_size_small" value="sm" <?= checked('sm', $tw_button_size); ?> />
+										<label class="form-check-label" for="tw_button_size_small">Small</label>
+									</div>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="radio" name="tw_button_size" id="tw_button_size_medium" value="md" <?= checked('md', $tw_button_size); ?> />
+										<label class="form-check-label" for="tw_button_size_medium">Medium</label>
+									</div>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="radio" name="tw_button_size" id="tw_button_size_large" value="lg" <?= checked('lg', $tw_button_size); ?> />
+										<label class="form-check-label" for="tw_button_size_large">Large</label>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<div class="row">
+								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
+									<label class="form-label">Button Border Type:</label>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="radio" name="tw_button_border_type" id="tw_button_border_type_square" value="square" <?= checked('square', $tw_button_border_type); ?> />
+										<label class="form-check-label" for="tw_button_border_type_square">Square Corners</label>
+									</div>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="radio" name="tw_button_border_type" id="tw_button_border_type_square" value="round" <?= checked('round', $tw_button_border_type); ?> />
+										<label class="form-check-label" for="tw_button_border_type_square">Round Corners</label>
+									</div>
+									
 								</div>
 							</div>
 						</div>

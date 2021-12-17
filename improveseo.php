@@ -264,7 +264,7 @@ function improveseo_hide_other_notices() {
 			'improve-seo_page_improveseo_settings',
 			'improve-seo_page_improveseo_authors',
 			'improve-seo_page_improveseo_keyword_generator',
-			'improve-seo_page_improvseo_shortcode'
+			'improve-seo_page_improveseo_shortcode'
 		);
 		
         if ( isset( $my_current_screen->base )  ) {
@@ -282,7 +282,7 @@ class WC_Testimonial {
 		
 		//add_action( 'admin_menu', 'custom_address_option_on_settings_tab' );
 		
-		add_action( 'admin_init', array($this , 'load_admin_files') );
+		add_action( 'admin_enqueue_scripts', array($this , 'load_admin_files') );
 
 		add_action('wp_ajax_wt_save_form_fields_for_testimonials' , array($this , 'wt_save_form_fields_for_testimonials'));
 		add_action('wp_ajax_wt_save_form_fields_for_googlemaps' , array($this , 'wt_save_form_fields_for_googlemaps'));
@@ -528,7 +528,7 @@ class WC_Testimonial {
 			$url_param = array(
 			    'action' => 'deleted'
     		);
-    		$url = admin_url('admin.php?page=improvseo_shortcode');
+    		$url = admin_url('admin.php?page=improveseo_shortcodes');
 		    $page_url = add_query_arg($url_param, $url);
 			
 			
@@ -568,12 +568,11 @@ class WC_Testimonial {
 
 	/****=====Load Admin JS And CSS files====***/
 	function load_admin_files(){
-		//if(page_)
-		//wp_enqueue_style('bootstrap_css', WT_URL."/assets/css/bootstrap.min.css",  true);
+		$my_current_screen = get_current_screen();
 		wp_enqueue_style('improveseo_style', WT_URL."/assets/css/improveseo_style.css",  true);
 		wp_enqueue_style('custom_css', WT_URL."/assets/css/custom.css",  true);
-		// wp_enqueue_script('bootstrap-min-js', WT_URL."/assets/js/bootstrap.min.js",  array('jquery'));
-        wp_enqueue_style("poppins_fonts", "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
+
+		wp_enqueue_style("poppins_fonts", "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
 		wp_enqueue_script('tmm_script_js', WT_URL."/assets/js/wt-script.js",  array('jquery'));
 		wp_enqueue_script('tmm_sweeetalertscript_js', WT_URL."/assets/js/wt-sweetalert.js",  array('jquery'));
 
@@ -581,12 +580,18 @@ class WC_Testimonial {
 	    	'ajax_url'      		=> 	admin_url( 'admin-ajax.php' ),
 	    	)
 		);		
-		
-		wp_enqueue_script('improveseo-form', WT_URL.'/assets/js/form.js', array('jquery'));
-		wp_localize_script('improveseo-form', 'form_ajax_vars', array(
-	    	'ajax_url'      		=> 	admin_url( 'admin-ajax.php' ),
-	    	)
-		);
+	
+		if ( isset( $my_current_screen->base )  ) {
+			if($my_current_screen->base=="improve-seo_page_improveseo_posting" && isset($_REQUEST['action'])){
+				wp_enqueue_script('improveseo-shortcode-popup', WT_URL.'/assets/js/shortcode-popup-button.js', array('jquery'));
+
+				wp_enqueue_script('improveseo-form', WT_URL.'/assets/js/form.js', array('jquery'));
+				wp_localize_script('improveseo-form', 'form_ajax_vars', array(
+					'ajax_url'      		=> 	admin_url( 'admin-ajax.php' ),
+					)
+				);
+			}
+		}
 
 	}
 	
@@ -599,13 +604,19 @@ class WC_Testimonial {
 		$tw_btn_link = isset($_REQUEST['tw_btn_link']) ? $_REQUEST['tw_btn_link'] : '';
 		$tw_buttontxt_color = isset($_REQUEST['tw_buttontxt_color']) ? $_REQUEST['tw_buttontxt_color'] : '';
 		$tw_buttonbg_color = isset($_REQUEST['tw_buttonbg_color']) ? $_REQUEST['tw_buttonbg_color'] : '';
+		$tw_button_outline_color = isset($data_btn['tw_button_outline_color']) ? $data_btn['tw_button_outline_color'] : '#ffffff';
+		$tw_button_size = isset($data_btn['tw_button_size']) ? $data_btn['tw_button_size'] : 'sm';
+		$tw_button_border_type = isset($data_btn['tw_button_border_type']) ? $data_btn['tw_button_border_type'] : 'square';
 
 		$arr = array(
 			'tw_maps_apikey' 	=> $tw_maps_apikey,
 			'tw_btn_text' 		=> $tw_btn_text,
 			'tw_btn_link' 		=> $tw_btn_link,
-			'tw_buttontxt_color' 		=> $tw_buttontxt_color,
-			'tw_buttonbg_color' 		=> $tw_buttonbg_color,
+			'tw_buttontxt_color'=> $tw_buttontxt_color,
+			'tw_buttonbg_color' => $tw_buttonbg_color,
+			'tw_button_outline_color' => $tw_button_outline_color,
+			'tw_button_size' => $tw_button_size,
+			'tw_button_border_type' => $tw_button_border_type,
 		);
 
 		if (empty($rand_no)) {
@@ -619,7 +630,7 @@ class WC_Testimonial {
 		$random_no_arr[] = $rand_no;
 		$result = array_unique($random_no_arr);
 		update_option('get_saved_random_numbers' , $result );
-		$url = admin_url('admin.php?page=improvseo_shortcode');
+		$url = admin_url('admin.php?page=improveseo_shortcodes');
 		wp_send_json(array('status' => 'success' , 'url' => $url));
 	}
 
@@ -643,7 +654,7 @@ class WC_Testimonial {
 		$random_no_arr[] = $rand_no;
 		$result = array_unique($random_no_arr);
 		update_option('get_saved_random_numbers' , $result );
-		$url = admin_url('admin.php?page=improvseo_shortcode');
+		$url = admin_url('admin.php?page=improveseo_shortcodes');
 		wp_send_json(array('status' => 'success' , 'url' => $url));
 	}
 
@@ -680,7 +691,7 @@ class WC_Testimonial {
 		$result = array_unique($random_no_arr);
 		update_option('get_saved_random_numbers' , $result );
 		
-		$url = admin_url('admin.php?page=improvseo_shortcode');
+		$url = admin_url('admin.php?page=improveseo_shortcodes');
 		wp_send_json(array('status' => 'success' , 'url' => $url));
 
 	}

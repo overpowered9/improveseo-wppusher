@@ -160,6 +160,17 @@ a:hover {
 .BasicForm__row{
     margin-bottom: 20px;
 }
+.form-check.form-check-inline{
+    display: inline-block;
+}
+.form-wrap .form-check-label{
+    display: inline-block;
+    padding-right: 50px;
+}
+.form-wrap .radio-btns-wrapper .form-label{
+    display: inline-block;
+    margin-right: 40px;
+}
 .form-wrap .form-control {
     background-color: transparent;
     border: 1px solid rgba(0, 0, 0, 0.2);

@@ -24,8 +24,10 @@ if (is_admin()) {
 	
 	wp_enqueue_script('improveseo-underscore', 'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js', array('underscore'));
 	
-	//wp_enqueue_script('improveseo-jquery',$assets_dir .'/js/jquery.min.js', array('jquery'));
-	wp_enqueue_script('improveseo-modal',$assets_dir .'/js/jquery.modal.min.js', array('jquery'));
-	wp_enqueue_script('improveseo-shortcode-popup',$assets_dir .'/js/shortcode-popup.js', array('jquery'));
-	
+	wp_enqueue_script('improveseo-modal',$assets_dir .'/js/jquery.modal.min.js', array('jquery'));	
+}
+
+add_action( 'wp_enqueue_scripts', 'improveseo_enqueue_front' );
+function improveseo_enqueue_front(){
+	wp_enqueue_style('improveseo-front', IMPROVESEO_DIR . '/assets/css/improveseo-front.css', array(), '2.0');
 }
