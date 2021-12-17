@@ -37,7 +37,6 @@ if ( ! class_exists( 'ImproveSEO_Shortcode_List_Btn' ) ) {
 		 * @since 2.0.0
 		 */
 		public function __construct() {
-			add_action( 'admin_footer', array( $this, 'improveseo_shortcodes_list' ) );
 			add_action( 'admin_head', array( $this, 'improveseo_shortcodes_button' ) );
 		}
 
