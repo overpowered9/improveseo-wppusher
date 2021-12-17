@@ -157,7 +157,9 @@ a:hover {
 .improveseo_wrapper .input-group {
     margin-bottom: 16px;
 }
-
+.BasicForm__row{
+    margin-bottom: 20px;
+}
 .form-wrap .form-control {
     background-color: transparent;
     border: 1px solid rgba(0, 0, 0, 0.2);
@@ -300,6 +302,7 @@ select.select-control {
     color: #686B74;
     padding: 15px 22px;
     margin-top: 0px;
+    width: 100%;
 }
 
 .textarea-control:focus {

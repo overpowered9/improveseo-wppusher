@@ -131,13 +131,15 @@ abstract class AbstractModel
 		$row = $wpdb->get_row($sql);
 
 		// Type-cast
-		if (sizeof($this->casts)) {
-			foreach ($this->casts as $field => $type) {
-				if ($type == 'array') {
-					$row->$field = json_decode($row->$field, true);
-				}
-				elseif ($type == 'array|b64') {
-					$row->$field = json_decode(base64_decode($row->$field), true);
+		if(!empty($this->casts)){
+			if (sizeof($this->casts)) {
+				foreach ($this->casts as $field => $type) {
+					if ($type == 'array') {
+						$row->$field = json_decode($row->$field, true);
+					}
+					elseif ($type == 'array|b64') {
+						$row->$field = json_decode(base64_decode($row->$field), true);
+					}
 				}
 			}
 		}
