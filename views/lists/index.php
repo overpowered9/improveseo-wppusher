@@ -2,7 +2,7 @@
 use ImproveSEO\View;
 ?>
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
+<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 &raquo;
 <span>Improve SEO Lists</span>
 <?php View::endSection('breadcrumbs') ?>

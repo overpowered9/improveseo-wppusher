@@ -2,7 +2,7 @@
 use ImproveSEO\View;
 ?>
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
+<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 &raquo;
 <span>Dashboard</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -26,7 +26,7 @@ use ImproveSEO\View;
 			</div>
 		</div>
 		<div class="Breadcrumbs custom-breadcrumbs border-0 m-0 pt-3 pb-0 px-0">
-			<a href="https://newmexicocontractors.org/wp-admin/admin.php?page=improveseo">Improve SEO</a> /
+			<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a> /
 			<span>Modules</span>
 		</div>
 	</section>
@@ -47,17 +47,20 @@ use ImproveSEO\View;
 				<div class="row">
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card">
-							<div class="card-body text-center">
-								<div class="icon-wrap">
-		                        	<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
-		                    	</div>
-								<div class="title">
-									<h4>Posting</h4>
+							<a href="<?= admin_url('admin.php?page=improveseo_posting') ?>">
+								<div class="card-body text-center">
+									<div class="icon-wrap">
+										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
+									</div>
+									<div class="title">
+										<h4>Posting</h4>
+									</div>
+									<div class="text">
+										<span>Create keyword rich Posts or Pages. Preview content. Add spintax for unique content versions. Schedule/drip feed content. Add Shortcodes and more!</span>
+									</div>
 								</div>
-								<div class="text">
-									<span>Create keyword rich Posts or Pages. Preview content. Add spintax for unique content versions. Schedule/drip feed content. Add Shortcodes and more!</span>
-								</div>
-							</div>
+							</a>
+
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
 								  	<input type="checkbox" class="custom-control-input" id="customSwitch1">
@@ -68,17 +71,19 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card">
-							<div class="card-body text-center">
-								<div class="icon-wrap">
-		                        	<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
-		                    	</div>
-								<div class="title">
-									<h4>Projects</h4>
+							<a href="<?= admin_url('admin.php?page=improveseo_projects') ?>">
+								<div class="card-body text-center">
+									<div class="icon-wrap">
+										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
+									</div>
+									<div class="title">
+										<h4>Projects</h4>
+									</div>
+									<div class="text">
+										<span>Create projects. Option to duplicate project, update all published content, download content urls to desktop, delete all posts/pages and project</span>
+									</div>
 								</div>
-								<div class="text">
-									<span>Create projects. Option to duplicate project, update all published content, download content urls to desktop, delete all posts/pages and project</span>
-								</div>
-							</div>
+							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
 								  	<input type="checkbox" class="custom-control-input" id="customSwitch2">
@@ -89,17 +94,19 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card">
-							<div class="card-body text-center">
-								<div class="icon-wrap">
-		                        	<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
-		                    	</div>
-								<div class="title">
-									<h4>Shortcodes</h4>
+							<a href="<?= admin_url('admin.php?page=improveseo_shortcodes') ?>">
+								<div class="card-body text-center">
+									<div class="icon-wrap">
+										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
+									</div>
+									<div class="title">
+										<h4>Shortcodes</h4>
+									</div>
+									<div class="text">
+										<span>Create shortcodes here manually. Once you've created a shortcode, simply use [name of your shortcode] to implement it within your post!</span>
+									</div>
 								</div>
-								<div class="text">
-									<span>Create shortcodes here manually. Once you've created a shortcode, simply use [name of your shortcode] to implement it within your post!</span>
-								</div>
-							</div>
+							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
 								  	<input type="checkbox" class="custom-control-input" id="customSwitch3">
@@ -110,17 +117,19 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card">
-							<div class="card-body text-center">
-								<div class="icon-wrap">
-		                        	<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
-		                    	</div>
-								<div class="title">
-									<h4>Lists</h4>
+							<a href="<?= admin_url('admin.php?page=improveseo_lists') ?>">
+								<div class="card-body text-center">
+									<div class="icon-wrap">
+										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
+									</div>
+									<div class="title">
+										<h4>Lists</h4>
+									</div>
+									<div class="text">
+										<span>Add keywords that you would like to target and use to quickly create posts for all of them. This is handy for lists of keywords that you would like to bulk create posts for.</span>
+									</div>
 								</div>
-								<div class="text">
-									<span>Add keywords that you would like to target and use to quickly create posts for all of them. This is handy for lists of keywords that you would like to bulk create posts for.</span>
-								</div>
-							</div>
+							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
 								  	<input type="checkbox" class="custom-control-input" id="customSwitch4">
@@ -152,17 +161,19 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card">
-							<div class="card-body text-center">
-								<div class="icon-wrap">
-		                        	<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
-		                    	</div>
-								<div class="title">
-									<h4>FAQ</h4>
+							<a href="http://bit.ly/improveseofaq" target="_blank">
+								<div class="card-body text-center">
+									<div class="icon-wrap">
+										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
+									</div>
+									<div class="title">
+										<h4>FAQ</h4>
+									</div>
+									<div class="text">
+										<span>User guide : Latest Updates- Improve SEO FAQ & Common Problems (and Workarounds)</span>
+									</div>
 								</div>
-								<div class="text">
-									<span>User guide : Latest Updates- Improve SEO FAQ & Common Problems (and Workarounds)</span>
-								</div>
-							</div>
+							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
 								  	<input type="checkbox" class="custom-control-input" id="customSwitch6">
@@ -173,17 +184,19 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-							<div class="card-body text-center">
-								<div class="icon-wrap">
-		                        	<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
-		                    	</div>
-								<div class="title">
-									<h4>Author List <span class="module-pro-tab">Pro</span></h4>
+							<a href="<?= admin_url('admin.php?page=improveseo_authors') ?>">
+								<div class="card-body text-center">
+									<div class="icon-wrap">
+										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
+									</div>
+									<div class="title">
+										<h4>Author List <span class="module-pro-tab">Pro</span></h4>
+									</div>
+									<div class="text">
+										<span>Create authors that are only for use within Improve SEO. The authors you make will be distributed among these multiple posts to make your site look more authoritative and natural.</span>
+									</div>
 								</div>
-								<div class="text">
-									<span>Create authors that are only for use within Improve SEO. The authors you make will be distributed among these multiple posts to make your site look more authoritative and natural.</span>
-								</div>
-							</div>
+							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
 								  	<input type="checkbox" class="custom-control-input" id="customSwitch7">
@@ -194,17 +207,19 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-							<div class="card-body text-center">
-								<div class="icon-wrap">
-		                        	<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
-		                    	</div>
-								<div class="title">
-									<h4>Keyword Generator <span class="module-pro-tab">Pro</span></h4>
+							<a href="<?= admin_url('admin.php?page=improveseo_keyword_generator') ?>">
+								<div class="card-body text-center">
+									<div class="icon-wrap">
+										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
+									</div>
+									<div class="title">
+										<h4>Keyword Generator <span class="module-pro-tab">Pro</span></h4>
+									</div>
+									<div class="text">
+										<span>Add seed keyword and uses the Google autosuggest feature to generate a list of keywords. Save projects and put these keywords into a your list projects.</span>
+									</div>
 								</div>
-								<div class="text">
-									<span>Add seed keyword and uses the Google autosuggest feature to generate a list of keywords. Save projects and put these keywords into a your list projects.</span>
-								</div>
-							</div>
+							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
 								  	<input type="checkbox" class="custom-control-input" id="customSwitch8">
@@ -215,17 +230,19 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-							<div class="card-body text-center">
-								<div class="icon-wrap">
-		                        	<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
-		                    	</div>
-								<div class="title">
-									<h4>Testimonials <span class="module-pro-tab">Pro</span></h4>
+							<a href="<?= admin_url('admin.php?page=improveseo_shortcodes') ?>">
+								<div class="card-body text-center">
+									<div class="icon-wrap">
+										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
+									</div>
+									<div class="title">
+										<h4>Testimonials <span class="module-pro-tab">Pro</span></h4>
+									</div>
+									<div class="text">
+										<span>Create one or multiple testimonial shortcodes to add to your posts for social proof of your products and services</span>
+									</div>
 								</div>
-								<div class="text">
-									<span>Create one or multiple testimonial shortcodes to add to your posts for social proof of your products and services</span>
-								</div>
-							</div>
+							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
 								  	<input type="checkbox" class="custom-control-input" id="customSwitch9">
@@ -236,17 +253,19 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-							<div class="card-body text-center">
-								<div class="icon-wrap">
-		                        	<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
-		                    	</div>
-								<div class="title">
-									<h4>Buttons <span class="module-pro-tab">Pro</span></h4>
+							<a href="<?= admin_url('admin.php?page=improveseo_shortcodes') ?>">
+								<div class="card-body text-center">
+									<div class="icon-wrap">
+										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
+									</div>
+									<div class="title">
+										<h4>Buttons <span class="module-pro-tab">Pro</span></h4>
+									</div>
+									<div class="text">
+										<span>Create one or multiple buy/book button shortcodes with hyperlinks to your calender or shopping cart to add to your posts.</span>
+									</div>
 								</div>
-								<div class="text">
-									<span>Create one or multiple buy/book button shortcodes with hyperlinks to your calender or shopping cart to add to your posts.</span>
-								</div>
-							</div>
+							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
 								  	<input type="checkbox" class="custom-control-input" id="customSwitch10">
@@ -257,17 +276,19 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-							<div class="card-body text-center">
-								<div class="icon-wrap">
-		                        	<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
-		                    	</div>
-								<div class="title">
-									<h4>Maps <span class="module-pro-tab">Pro</span></h4>
+							<a href="<?= admin_url('admin.php?page=improveseo_shortcodes') ?>">
+								<div class="card-body text-center">
+									<div class="icon-wrap">
+										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
+									</div>
+									<div class="title">
+										<h4>Maps <span class="module-pro-tab">Pro</span></h4>
+									</div>
+									<div class="text">
+										<span>Create map shortcodes to add to your posts adding your Google api [great for local seo ]</span>
+									</div>
 								</div>
-								<div class="text">
-									<span>Create map shortcodes to add to your posts adding your Google api [great for local seo ]</span>
-								</div>
-							</div>
+							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
 								  	<input type="checkbox" class="custom-control-input" id="customSwitch11">

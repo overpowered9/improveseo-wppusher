@@ -1075,7 +1075,11 @@ select.select-control {
     border: 0.625px solid #B9BABD;
 
 }
-
+.dashboard-tabpanel a{
+    text-decoration: none;
+    color: #3c434a;
+    flex: 1 1 auto;
+}
 .icon-wrap {
     width: 57px;
     background: #EDFEF1;

@@ -2,7 +2,7 @@
 use ImproveSEO\View;
 ?>
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
+<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 &raquo;
 <span>Projects List</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -18,7 +18,7 @@ use ImproveSEO\View;
 			<img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
 			<h1>Projects List</h1>
 		</div>
-		<a href="<?= admin_url('admin.php?page=improveseo') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
+		<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
 	</section>
 	<section class="pagination-wrapper text-right py-3">
 		<span class="pagination-links">
@@ -82,7 +82,7 @@ use ImproveSEO\View;
 								</span>
 								
 								<span class="edit">
-									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo&action=edit_post&id={$project->id}&update=true") ?>">
+									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true") ?>">
 										Update posts
 									</a>
 								</span>
@@ -147,7 +147,7 @@ use ImproveSEO\View;
 								<!--<a href="javascript:update_project(<?//= $project->id ?>)" class="btn btn-outline-primary" target="_self">Update posts</a>-->
 							<?php endif; ?>
 							<?php if ($project->state == 'Draft'): ?>
-								<a href="<?= admin_url('admin.php?page=improveseo&action=edit_post&id='. $project->id) ?>" class="btn btn-outline-primary">Continue</a>
+								<a href="<?= admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id='. $project->id) ?>" class="btn btn-outline-primary">Continue</a>
 							<?php endif; ?>
 						</td>
 					</tr>

@@ -3,7 +3,7 @@ use ImproveSEO\View;
 use ImproveSEO\Validator;
 ?>
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
+<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 &raquo;
 <a href="<?= admin_url('admin.php?page=improveseo_authors') ?>">Authors List</a>
 &raquo;
@@ -19,7 +19,7 @@ use ImproveSEO\Validator;
 				<h1>Create New Authors</h1>
 			</div>
 			<div class="Breadcrumbs custom-breadcrumbs border-top-0 border-left-0 border-right-0 border-bottom rounded-0 m-0 py-3 px-0 mb-3">
-				<a href="<?php echo admin_url('admin.php?page=improveseo'); ?>">Improve SEO</a>
+				<a href="<?php echo admin_url('admin.php?page=improveseo_dashboard'); ?>">Improve SEO</a>
 				»
 				<a href="<?php echo admin_url('admin.php?page=improveseo_authors'); ?>">Authors List</a>
 				»

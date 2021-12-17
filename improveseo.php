@@ -256,15 +256,15 @@ function improveseo_hide_other_notices() {
 		
         $my_current_screen = get_current_screen();
 		$improve_seo_pages = array(
-			'toplevel_page_improveseo',
-			'improve-seo_page_improveseo_dashboard',
+			'toplevel_page_improveseo_dashboard ',
+			'improve-seo_page_improveseo_posting',
 			'improve-seo_page_improveseo_projects',
 			'improve-seo_page_improveseo_shortcodes',
 			'improve-seo_page_improveseo_lists',
 			'improve-seo_page_improveseo_settings',
 			'improve-seo_page_improveseo_authors',
 			'improve-seo_page_improveseo_keyword_generator',
-			'improve-seo_page_testimonials_googlemaps'
+			'improve-seo_page_improvseo_shortcode'
 		);
 		
         if ( isset( $my_current_screen->base )  ) {
@@ -528,7 +528,7 @@ class WC_Testimonial {
 			$url_param = array(
 			    'action' => 'deleted'
     		);
-    		$url = admin_url('admin.php?page=testimonials_googlemaps');
+    		$url = admin_url('admin.php?page=improvseo_shortcode');
 		    $page_url = add_query_arg($url_param, $url);
 			
 			
@@ -619,7 +619,7 @@ class WC_Testimonial {
 		$random_no_arr[] = $rand_no;
 		$result = array_unique($random_no_arr);
 		update_option('get_saved_random_numbers' , $result );
-		$url = admin_url('admin.php?page=testimonials_googlemaps');
+		$url = admin_url('admin.php?page=improvseo_shortcode');
 		wp_send_json(array('status' => 'success' , 'url' => $url));
 	}
 
@@ -643,7 +643,7 @@ class WC_Testimonial {
 		$random_no_arr[] = $rand_no;
 		$result = array_unique($random_no_arr);
 		update_option('get_saved_random_numbers' , $result );
-		$url = admin_url('admin.php?page=testimonials_googlemaps');
+		$url = admin_url('admin.php?page=improvseo_shortcode');
 		wp_send_json(array('status' => 'success' , 'url' => $url));
 	}
 
@@ -680,7 +680,7 @@ class WC_Testimonial {
 		$result = array_unique($random_no_arr);
 		update_option('get_saved_random_numbers' , $result );
 		
-		$url = admin_url('admin.php?page=testimonials_googlemaps');
+		$url = admin_url('admin.php?page=improvseo_shortcode');
 		wp_send_json(array('status' => 'success' , 'url' => $url));
 
 	}

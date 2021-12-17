@@ -44,7 +44,7 @@ function improveseo_posting()
 				'state_channel_title' => 'required_if:state_channel_page',
 				'state_channel_content' => 'required_if:state_channel_page'
 			)) && !isset($_POST['draft'])) {
-				wp_redirect(admin_url('admin.php?page=improveseo&action=create_post'));
+				wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post'));
 				exit;
 			}
 		}

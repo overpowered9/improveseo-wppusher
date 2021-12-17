@@ -5,7 +5,7 @@ use ImproveSEO\View;
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
-	<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
+	<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 	&raquo;
 	<span>Create Post</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -22,7 +22,7 @@ use ImproveSEO\View;
 		</div>
 	</section>
 	
-	<form id="main_form" action="<?php echo admin_url('admin.php?page=improveseo&action=do_create_post&noheader=true'); ?>" class="form-wrap" method="post">
+	<form id="main_form" action="<?php echo admin_url('admin.php?page=improveseo_dashboard&action=do_create_post&noheader=true'); ?>" class="form-wrap" method="post">
 		<?php 
 			$post_type = 'post';
 			$form_id_preview = 'create_post';

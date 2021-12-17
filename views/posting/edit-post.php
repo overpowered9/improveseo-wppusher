@@ -5,7 +5,7 @@ use ImproveSEO\View;
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
-	<a href="<?= admin_url('admin.php?page=improveseo') ?>">Improve SEO</a>
+	<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 	&raquo;
 	<a href="<?= admin_url('admin.php?page=improveseo_projects') ?>">Improve SEO Projects</a>
 	&raquo;
@@ -24,7 +24,7 @@ use ImproveSEO\View;
 	<?php
 	$form_action = isset($_GET['update']) ? 'do_update_post' : 'do_create_post';
 	?>
-	<form id="main_form" class="form-wrap" action="<?php echo admin_url("admin.php?page=improveseo&action={$form_action}&id={$task->id}&noheader=true"); ?>" method="post">
+	<form id="main_form" class="form-wrap" action="<?php echo admin_url("admin.php?page=improveseo_dashboard&action={$form_action}&id={$task->id}&noheader=true"); ?>" method="post">
 		<?php 
 			$post_type = $task->content['post_type'];
 

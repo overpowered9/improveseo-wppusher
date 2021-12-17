@@ -1,8 +1,6 @@
 <?php
 	$saved_random_nos = get_option('get_saved_random_numbers');
-	echo "<pre>";
-	print_r($saved_random_nos);
-	echo "</pre>";
+	
 	$specific_no = isset($_GET['rand_id']) ? $_GET['rand_id'] : '';
 	
 	// For testimonial
@@ -28,8 +26,6 @@
 	// For Buttons
 	
 ?>
-<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
 <div class="cm-admin improveseo_wrapper p-3 p-lg-4">
 	<section class="project-section">
 		<div class="project-heading border-bottom d-flex flex-row pb-2">
@@ -49,7 +45,7 @@
 				<a class="nav-link" data-toggle="tab" href="#button_wt" role="tab" aria-controls="Button Settings" aria-selected="false">Button Settings</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" data-toggle="tab" href="#saved_testimonials" role="tab" aria-controls="All Saved Testimonials/Maps/Buttons" aria-selected="false">Saved Testimonials/Maps/Buttons</a>
+				<a class="nav-link" data-toggle="tab" href="#saved_testimonials" role="tab" aria-controls="All Saved Shortcodes" aria-selected="false">Saved Shortcodes</a>
 			</li>
 		</ul>
 		<div class="tab-content" id="myTabContent">
