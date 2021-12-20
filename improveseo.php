@@ -29,10 +29,10 @@ register_activation_hook(__FILE__, 'improveseo_install_data');
 
 register_deactivation_hook(__FILE__, 'improveseo_uninstall');
 
-function load_media_files() {
+function improveseo_load_media_files() {
     wp_enqueue_media();
 }
-add_action( 'admin_enqueue_scripts', 'load_media_files' );
+add_action( 'admin_enqueue_scripts', 'improveseo_load_media_files' );
 
 //add_action( 'init', "workdex_init" );
 
@@ -256,7 +256,7 @@ function improveseo_hide_other_notices() {
 		
         $my_current_screen = get_current_screen();
 		$improve_seo_pages = array(
-			'toplevel_page_improveseo_dashboard ',
+			'toplevel_page_improveseo_dashboard',
 			'improve-seo_page_improveseo_posting',
 			'improve-seo_page_improveseo_projects',
 			'improve-seo_page_improveseo_shortcodes',

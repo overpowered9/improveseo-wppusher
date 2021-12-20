@@ -7,13 +7,11 @@ use ImproveSEO\LiteSpintax;
 use ImproveSEO\Models\Task;
 use ImproveSEO\FlashMessage;
 
-function improveseo_posting()
-{
+function improveseo_posting(){
 	global $wpdb;
 
 	$action = isset($_GET['action']) ? $_GET['action'] : 'index';
 	$model = new Task();
-
 	// Main posting page
 	if ($action == 'index'):
 		View::render('posting.index');
@@ -23,6 +21,7 @@ function improveseo_posting()
 	elseif ($action == 'create_page'):
 		View::render('posting.create-page');
 	elseif ($action == 'do_create_post'):
+
 		if (isset($_POST['create'])) {
 			if (!Validator::validate($_POST, array(
 				'name' => 'required',

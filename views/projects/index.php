@@ -18,7 +18,7 @@ use ImproveSEO\View;
 			<img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
 			<h1>Projects List</h1>
 		</div>
-		<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
+		<a href="<?= admin_url('admin.php?page=improveseo_posting') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
 	</section>
 	<section class="pagination-wrapper text-right py-3">
 		<span class="pagination-links">

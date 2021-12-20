@@ -21,7 +21,7 @@ use ImproveSEO\View;
 			<h1>Create Page</h1>
 		</div>
 	</section>
-	<form id="main_form" action="<?php echo admin_url('admin.php?page=improveseo_dashboard&action=do_create_post&noheader=true'); ?>" class="form-wrap" method="post">
+	<form id="main_form" action="<?php echo admin_url('admin.php?page=improveseo_posting&action=do_create_post&noheader=true'); ?>" class="form-wrap" method="post">
 		<?php 
 			$post_type = 'page';
 
