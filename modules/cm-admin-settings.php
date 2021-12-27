@@ -2,7 +2,8 @@
 	$saved_random_nos = get_option('get_saved_random_numbers');
 	
 	$specific_no = isset($_GET['rand_id']) ? $_GET['rand_id'] : '';
-	
+	$action = isset($_GET['action']) ? $_GET['action'] : '';
+
 	// For testimonial
 	$data = get_option('get_testimonials_'.$specific_no);
 	$testi_img_src = isset($data['testi_img_src']) ? $data['testi_img_src'] : '';
@@ -19,6 +20,7 @@
 	
 	// For Buttons
 	$data_btn = get_option('get_buttons_'.$specific_no);
+	
 	$tw_btn_text = isset($data_btn['tw_btn_text']) ? $data_btn['tw_btn_text'] : '';
 	$tw_btn_link = isset($data_btn['tw_btn_link']) ? $data_btn['tw_btn_link'] : '';
 	$tw_buttontxt_color = isset($data_btn['tw_buttontxt_color']) ? $data_btn['tw_buttontxt_color'] : '#ffffff';
@@ -40,20 +42,20 @@
 	<section class="tabs-wrap-content">
 		<ul class="nav nav-tabs" role="tablist">
 			<li class="nav-item">
-				<a class="nav-link active" data-toggle="tab" href="#wt_testimonial" role="tab" aria-controls="Testimonial" aria-selected="true">Testimonial</a>
+				<a class="nav-link <?php echo ($action!="googlemaps" && $action!="buttons")?'active':''; ?>" data-toggle="tab" href="#wt_testimonial" role="tab" aria-controls="Testimonial" aria-selected="true">Testimonial</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" data-toggle="tab" href="#google_maps" role="tab" aria-controls="Google Maps" aria-selected="false">Google Maps</a>
+				<a class="nav-link <?php echo ($action=="googlemaps")?'active':''; ?>" data-toggle="tab" href="#google_maps" role="tab" aria-controls="Google Maps" aria-selected="false">Google Maps</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" data-toggle="tab" href="#button_wt" role="tab" aria-controls="Button Settings" aria-selected="false">Button Settings</a>
+				<a class="nav-link <?php echo ($action=="buttons")?'active':''; ?>" data-toggle="tab" href="#button_wt" role="tab" aria-controls="Button Settings" aria-selected="false">Button Settings</a>
 			</li>
 			<li class="nav-item">
 				<a class="nav-link" data-toggle="tab" href="#saved_testimonials" role="tab" aria-controls="All Saved Shortcodes" aria-selected="false">Saved Shortcodes</a>
 			</li>
 		</ul>
 		<div class="tab-content" id="myTabContent">
-			<div class="tab-pane fade show active" id="wt_testimonial" role="tabpanel" aria-labelledby="wt_testimonial">
+			<div class="tab-pane fade <?php echo ($action!="googlemaps" && $action!="buttons")?'show active':''; ?>" id="wt_testimonial" role="tabpanel" aria-labelledby="wt_testimonial">
 				<?php
 				$no = isset($_GET['action']) ? $_GET['action'] : '';
 				if($no == 'testimonial'){
@@ -122,7 +124,7 @@
 					
 				</form>
 			</div>
-			<div class="tab-pane fade" id="google_maps" role="tabpanel" aria-labelledby="google_maps">
+			<div class="tab-pane fade <?php echo ($action=="googlemaps")?'show active':''; ?>" id="google_maps" role="tabpanel" aria-labelledby="google_maps">
 				<!-- For Google Maps -->
 				<?php
 				$no = isset($_GET['action']) ? $_GET['action'] : '';
@@ -146,7 +148,7 @@
 				</form>
 			</div>
 			<!-- Button settings -->
-			<div class="tab-pane fade" id="button_wt" role="tabpanel" aria-labelledby="button_wt">
+			<div class="tab-pane fade <?php echo ($action=="buttons")?'show active':''; ?>" id="button_wt" role="tabpanel" aria-labelledby="button_wt">
 				<?php
 						$no = isset($_GET['action']) ? $_GET['action'] : '';
 						if($no == 'buttons'){
@@ -233,8 +235,8 @@
 										<label class="form-check-label" for="tw_button_border_type_square">Square Corners</label>
 									</div>
 									<div class="form-check form-check-inline">
-										<input class="form-check-input" type="radio" name="tw_button_border_type" id="tw_button_border_type_square" value="round" <?= checked('round', $tw_button_border_type); ?> />
-										<label class="form-check-label" for="tw_button_border_type_square">Round Corners</label>
+										<input class="form-check-input" type="radio" name="tw_button_border_type" id="tw_button_border_type_round" value="round" <?= checked('round', $tw_button_border_type); ?> />
+										<label class="form-check-label" for="tw_button_border_type_round">Round Corners</label>
 									</div>
 									
 								</div>

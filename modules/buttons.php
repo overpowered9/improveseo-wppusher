@@ -7,7 +7,7 @@ foreach ($id as $p) {
       $color = isset($data_btn['tw_buttontxt_color']) ? $data_btn['tw_buttontxt_color'] : '';
       $bgcolor = isset($data_btn['tw_buttonbg_color']) ? $data_btn['tw_buttonbg_color'] : '';
 
-      $tw_button_outline_color = isset($dataaa['tw_button_outline_color']) ? $data_btn['tw_button_outline_color'] : '';
+      $tw_button_outline_color = isset($data_btn['tw_button_outline_color']) ? $data_btn['tw_button_outline_color'] : '';
 	$tw_button_size = isset($data_btn['tw_button_size']) ? $data_btn['tw_button_size'] : 'sm';
 	$tw_button_border_type = isset($data_btn['tw_button_border_type']) ? $data_btn['tw_button_border_type'] : 'square';
 

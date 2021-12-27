@@ -282,7 +282,7 @@ class WC_Testimonial {
 		
 		//add_action( 'admin_menu', 'custom_address_option_on_settings_tab' );
 		
-		add_action( 'admin_enqueue_scripts', array($this , 'load_admin_files') );
+		add_action( 'admin_enqueue_scripts', array($this , 'load_admin_files'), 30 );
 
 		add_action('wp_ajax_wt_save_form_fields_for_testimonials' , array($this , 'wt_save_form_fields_for_testimonials'));
 		add_action('wp_ajax_wt_save_form_fields_for_googlemaps' , array($this , 'wt_save_form_fields_for_googlemaps'));
@@ -572,7 +572,7 @@ class WC_Testimonial {
 		wp_enqueue_style('custom_css', WT_URL."/assets/css/custom.css",  true);
 
 		wp_enqueue_style("poppins_fonts", "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
-		wp_enqueue_script('tmm_script_js', WT_URL."/assets/js/wt-script.js",  array('jquery'));
+		wp_enqueue_script('tmm_script_js', WT_URL."/assets/js/wt-script.js",  array('jquery'), IMPROVESEO_VERSION, true);
 		wp_enqueue_script('tmm_sweeetalertscript_js', WT_URL."/assets/js/wt-sweetalert.js",  array('jquery'));
 
 	    wp_localize_script('tmm_script_js', 'ajax_vars', array(
@@ -591,9 +591,9 @@ class WC_Testimonial {
 		$tw_btn_link = isset($_REQUEST['tw_btn_link']) ? $_REQUEST['tw_btn_link'] : '';
 		$tw_buttontxt_color = isset($_REQUEST['tw_buttontxt_color']) ? $_REQUEST['tw_buttontxt_color'] : '';
 		$tw_buttonbg_color = isset($_REQUEST['tw_buttonbg_color']) ? $_REQUEST['tw_buttonbg_color'] : '';
-		$tw_button_outline_color = isset($data_btn['tw_button_outline_color']) ? $data_btn['tw_button_outline_color'] : '#ffffff';
-		$tw_button_size = isset($data_btn['tw_button_size']) ? $data_btn['tw_button_size'] : 'sm';
-		$tw_button_border_type = isset($data_btn['tw_button_border_type']) ? $data_btn['tw_button_border_type'] : 'square';
+		$tw_button_outline_color = isset($_REQUEST['tw_button_outline_color']) ? $_REQUEST['tw_button_outline_color'] : '#ffffff';
+		$tw_button_size = isset($_REQUEST['tw_button_size']) ? $_REQUEST['tw_button_size'] : 'sm';
+		$tw_button_border_type = isset($_REQUEST['tw_button_border_type']) ? $_REQUEST['tw_button_border_type'] : 'square';
 
 		$arr = array(
 			'tw_maps_apikey' 	=> $tw_maps_apikey,
@@ -699,7 +699,7 @@ class WC_Testimonial {
 	function load_script_style_files(){
 		
 		wp_enqueue_style('tmm_stlye_css', WT_URL."/css/wt-style.css",  true);
-		wp_enqueue_script('tmm_script_js', WT_URL."/js/wt-script.js",  array('jquery'));
+		wp_enqueue_script('tmm_script_js', WT_URL."/js/wt-script.js",  array('jquery'), IMPROVESEO_VERSION, true);
 
 		//sweet alert
 		wp_enqueue_script('tmm_sweetalerttt', WT_URL."/js/wt-sweetalert.js",  array('jquery'));

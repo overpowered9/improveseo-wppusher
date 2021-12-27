@@ -12,7 +12,7 @@ jQuery(function($){
         var data = $(this).serialize();
 
         var submit_btn = $("input[type='submit']", this);
-        submit_btn.css({'width' : '100px'});
+        //submit_btn.css({'width' : '100px'});
         submit_btn.val("Please Wait...").attr('disabled', true);
         $.post(ajax_vars.ajax_url, data, function(resp){
             swal("Data Have Been Saved Successfully!", {
@@ -30,7 +30,7 @@ jQuery(function($){
         var data = $(this).serialize();
 
         var submit_btn = $("input[type='submit']", this);
-        submit_btn.css({'width' : '100px'});
+        //submit_btn.css({'width' : '100px'});
         submit_btn.val("Please Wait...").attr('disabled', true);
         $.post(ajax_vars.ajax_url, data, function(resp){
             swal("Data Have Been Saved Successfully!", {
@@ -48,7 +48,7 @@ jQuery(function($){
         var data = $(this).serialize();
 
         var submit_btn = $("input[type='submit']", this);
-        submit_btn.css({'width' : '100px'});
+        //submit_btn.css({'width' : '100px'});
         submit_btn.val("Please Wait...").attr('disabled', true);
         $.post(ajax_vars.ajax_url, data, function(resp){
             swal("Data Have Been Saved Successfully!", {
@@ -280,7 +280,7 @@ jQuery(function($){
     }
     
     //active Tab
-    $(document).ready(function(){
+    /* $(document).ready(function(){
         
         var action = getUrlVars();
         if(action!=null){
@@ -300,7 +300,7 @@ jQuery(function($){
     
     function actionson_init(activeTab){
         $('#myTab a[href="#' + activeTab + '"]').tab('show');
-    }
+    } */
 
     //Edit The Selected Testimonial With ID
     $(document).on('click', '.wt-edit-testi', function(e) {
