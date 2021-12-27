@@ -6,7 +6,7 @@ Description: Creates a large number of pages/posts and customize them to rank in
 Author: Improve SEO Team
 Version: 2.0.0
 */
-define("improveseo_version", "2.0");
+define("IMPROVESEO_VERSION", "2.0");
 define('IMPROVESEO_ROOT', dirname(__FILE__));
 define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url( __FILE__ )));
 
@@ -172,7 +172,7 @@ function improveseo_check_for_update($transient)
 		return $transient;
 	}
 	if (improveseo_check_version()) {
-		if (improveseo_check_version() != improveseo_version) {
+		if (improveseo_check_version() != IMPROVESEO_VERSION) {
 			$plugin_slug = plugin_basename("ImproveSEO/improveseo.php");
 			$transient->response[$plugin_slug] = (object) array(
 					'new_version' => workhorse_check_version(),
@@ -226,7 +226,7 @@ function improveseo_check_version() {
 	$lastupdate = get_option ( "improveseo_lastcheck" );
 	if ($lastupdate < (time () - 600)) {
 		$data2 = array (
-				'version' => improveseo_version
+				'version' => IMPROVESEO_VERSION
 		);
 		$data = improveseo_api ( "versionimproveseo", $data2 );
 		if ($data->status == 1) {
@@ -568,7 +568,6 @@ class WC_Testimonial {
 
 	/****=====Load Admin JS And CSS files====***/
 	function load_admin_files(){
-		$my_current_screen = get_current_screen();
 		wp_enqueue_style('improveseo_style', WT_URL."/assets/css/improveseo_style.css",  true);
 		wp_enqueue_style('custom_css', WT_URL."/assets/css/custom.css",  true);
 
@@ -580,18 +579,6 @@ class WC_Testimonial {
 	    	'ajax_url'      		=> 	admin_url( 'admin-ajax.php' ),
 	    	)
 		);		
-	
-		if ( isset( $my_current_screen->base )  ) {
-			if($my_current_screen->base=="improve-seo_page_improveseo_posting" && isset($_REQUEST['action'])){
-				wp_enqueue_script('improveseo-shortcode-popup', WT_URL.'/assets/js/shortcode-popup-button.js', array('jquery'));
-
-				wp_enqueue_script('improveseo-form', WT_URL.'/assets/js/form.js', array('jquery'));
-				wp_localize_script('improveseo-form', 'form_ajax_vars', array(
-					'ajax_url'      		=> 	admin_url( 'admin-ajax.php' ),
-					)
-				);
-			}
-		}
 
 	}
 	

@@ -48,13 +48,19 @@ if ( ! class_exists( 'ImproveSEO_Shortcode_List_Btn' ) ) {
 		 */
 		public function improveseo_shortcodes_button() {
 			// check user permissions.
+			$my_current_screen = get_current_screen();
+
 			if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
 				return;
 			}
 			// check if WYSIWYG is enabled.
 			if ( 'true' == get_user_option( 'rich_editing' ) ) {
-				add_filter( 'mce_external_plugins', array( $this, 'improveseo_add_mce_plugin' ) );
-				add_filter( 'mce_buttons', array( $this, 'improveseo_register_mce_button' ) );
+				if ( isset( $my_current_screen->base )  ) {
+					if($my_current_screen->base=="improve-seo_page_improveseo_posting" && isset($_REQUEST['action'])){
+						add_filter( 'mce_external_plugins', array( $this, 'improveseo_add_mce_plugin' ) );
+						add_filter( 'mce_buttons', array( $this, 'improveseo_register_mce_button' ) );
+					}
+				}
 			}
 		}
 

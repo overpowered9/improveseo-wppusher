@@ -17,6 +17,31 @@ function improveseo_get_shortcodes(){
                     }
                 }
             break;
+            case 'button':
+                foreach($saved_rnos as $id){
+                    $button = get_option('get_buttons_'.$id);
+                    if(!empty($button)){
+                        $shortcode_html .= '<option value="'.$id.'">'.$button['tw_btn_text'].' - '.$id.'</option>';
+                    }
+                }
+            break;
+            case 'googlemap':
+                foreach($saved_rnos as $id){
+                    $googlemap = get_option('get_googlemaps_'.$id);
+                    if(!empty($googlemap)){
+                        $shortcode_html .= '<option value="'.$id.'">GoogleMap - '.$id.'</option>';
+                    }
+                }
+            break;
+            case 'list':
+                $seo_list = improve_seo_lits();
+                if(!empty($seo_list)){
+                    foreach($seo_list as $list){
+                        $shortcode_html .= '<option value="'.$list.'">@list: '.$list.'</option>';
+                    }
+                }
+            break;
+
         }
     }else{
         echo json_encode(array('status' => 'empty array', 'data' => $improveseo_shortcode_type));

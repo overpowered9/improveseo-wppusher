@@ -285,7 +285,7 @@ function getUniqueLocations() {
 				core: {
 					'data': {
 						url: function(node) {
-							return '/index.php?api=improveseo&action=geo-tree&country='+ $('#local-country').val();
+							return posting_ajax_vars.site_url+'/wp-admin/index.php?api=improveseo&action=geo-tree&country='+ $('#local-country').val();
 						},
 						data: function(node) {
 							return {id: node.id};

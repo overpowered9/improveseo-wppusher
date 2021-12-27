@@ -121,7 +121,7 @@ $basepath = dirname ( __FILE__ );
  * }
  */
 
-$wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_us_states;" );
+/* $wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_us_states;" );
 include_once $basepath . '/us.states.php';
 
 $wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_us_cities;" );
@@ -131,7 +131,7 @@ $wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_uk_states;" );
 include_once $basepath . '/uk.states.php';
 
 $wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_uk_cities;" );
-include_once $basepath . '/uk.cities.php';
+include_once $basepath . '/uk.cities.php'; */
 
 // Install other countries automatically (deprecated by 1.6.0)
 if ($improveseo_db_version != get_option('improveseo_db_version')) {
