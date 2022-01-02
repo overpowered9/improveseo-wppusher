@@ -568,9 +568,7 @@ class WC_Testimonial {
 
 	/****=====Load Admin JS And CSS files====***/
 	function load_admin_files(){
-		wp_enqueue_style('improveseo_style', WT_URL."/assets/css/improveseo_style.css",  true);
-		wp_enqueue_style('custom_css', WT_URL."/assets/css/custom.css",  true);
-
+		wp_enqueue_style('improveseo_style', WT_URL."/assets/css/improveseo_style.css",  array(), '1.1');
 		wp_enqueue_style("poppins_fonts", "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
 		wp_enqueue_script('tmm_script_js', WT_URL."/assets/js/wt-script.js",  array('jquery'), IMPROVESEO_VERSION, true);
 		wp_enqueue_script('tmm_sweeetalertscript_js', WT_URL."/assets/js/wt-sweetalert.js",  array('jquery'));
@@ -594,16 +592,26 @@ class WC_Testimonial {
 		$tw_button_outline_color = isset($_REQUEST['tw_button_outline_color']) ? $_REQUEST['tw_button_outline_color'] : '#ffffff';
 		$tw_button_size = isset($_REQUEST['tw_button_size']) ? $_REQUEST['tw_button_size'] : 'sm';
 		$tw_button_border_type = isset($_REQUEST['tw_button_border_type']) ? $_REQUEST['tw_button_border_type'] : 'square';
+		
+		$tw_button_type = isset($_REQUEST['tw_button_type']) ? $_REQUEST['tw_button_type'] : 'normal_btn';
+		$tw_tap_to_call_img_source = isset($_REQUEST['tw_tap_to_call_img_source']) ? $_REQUEST['tw_tap_to_call_img_source'] : '';
+		$tw_tap_btn_text = isset($_REQUEST['tw_tap_btn_text']) ? $_REQUEST['tw_tap_btn_text'] : '';
+		$tw_tap_btn_number = isset($_REQUEST['tw_tap_btn_number']) ? $_REQUEST['tw_tap_btn_number'] : '';
 
 		$arr = array(
-			'tw_maps_apikey' 	=> $tw_maps_apikey,
-			'tw_btn_text' 		=> $tw_btn_text,
-			'tw_btn_link' 		=> $tw_btn_link,
-			'tw_buttontxt_color'=> $tw_buttontxt_color,
-			'tw_buttonbg_color' => $tw_buttonbg_color,
-			'tw_button_outline_color' => $tw_button_outline_color,
-			'tw_button_size' => $tw_button_size,
-			'tw_button_border_type' => $tw_button_border_type,
+			'tw_maps_apikey' 			=> $tw_maps_apikey,
+			'tw_btn_text' 				=> $tw_btn_text,
+			'tw_btn_link' 				=> $tw_btn_link,
+			'tw_buttontxt_color'		=> $tw_buttontxt_color,
+			'tw_buttonbg_color' 		=> $tw_buttonbg_color,
+			'tw_button_outline_color'	=> $tw_button_outline_color,
+			'tw_button_size' 			=> $tw_button_size,
+			'tw_button_border_type' 	=> $tw_button_border_type,
+			'tw_button_type' 			=> $tw_button_type,
+			'tw_tap_to_call_img_source' => $tw_tap_to_call_img_source,
+			'tw_tap_btn_text' 			=> $tw_tap_btn_text,
+			'tw_tap_btn_number' 		=> $tw_tap_btn_number,
+
 		);
 
 		if (empty($rand_no)) {
@@ -619,6 +627,7 @@ class WC_Testimonial {
 		update_option('get_saved_random_numbers' , $result );
 		$url = admin_url('admin.php?page=improveseo_shortcodes');
 		wp_send_json(array('status' => 'success' , 'url' => $url));
+		die;
 	}
 
 	/****=====Saving Form Fields From Admin Side For Googlemaps====***/
@@ -643,6 +652,7 @@ class WC_Testimonial {
 		update_option('get_saved_random_numbers' , $result );
 		$url = admin_url('admin.php?page=improveseo_shortcodes');
 		wp_send_json(array('status' => 'success' , 'url' => $url));
+		die;
 	}
 
 	/****=====Saving Form Fields From Admin Side For testimonials====***/
@@ -655,6 +665,7 @@ class WC_Testimonial {
 		$tw_testi_position = isset($_REQUEST['tw_testi_position']) ? $_REQUEST['tw_testi_position'] : '';
 		$tw_box_color = isset($_REQUEST['tw_box_color']) ? $_REQUEST['tw_box_color'] : '';
 		$tw_font_color = isset($_REQUEST['tw_font_color']) ? $_REQUEST['tw_font_color'] : '';
+		$tw_testi_outline_color = isset($data['tw_testi_outline_color']) ? $data['tw_testi_outline_color'] : '#ffffff';
 
 
 		$arr = array(
@@ -664,6 +675,7 @@ class WC_Testimonial {
 			'tw_testi_position' => $tw_testi_position,
 			'tw_box_color' 		=> $tw_box_color,
 			'tw_font_color' 		=> $tw_font_color,
+			'tw_testi_outline_color'=> $tw_testi_outline_color,
 		);
 
 		if (empty($rand_no)) {
@@ -680,7 +692,7 @@ class WC_Testimonial {
 		
 		$url = admin_url('admin.php?page=improveseo_shortcodes');
 		wp_send_json(array('status' => 'success' , 'url' => $url));
-
+		die;
 	}
 
 	/****=====Creating The Random Number====***/

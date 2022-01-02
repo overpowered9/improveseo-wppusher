@@ -38,8 +38,15 @@
                         
                         $tw_box_color = isset($get_data['tw_box_color']) ? $get_data['tw_box_color'] : '';
                         $tw_font_color = isset($get_data['tw_font_color']) ? $get_data['tw_font_color'] : '';
-                        $html .= '<td data-colname="Testimonial IMG"><img style="width:45px;height:45px;" src='.$testi_img_src.'></td>
-                        <td data-colname="Content">'.$tw_testi_content.'</td>
+                        
+                        $html .= '<td data-colname="Testimonial IMG">';
+                        if($testi_img_src!=""){
+                            $html .= '<img style="width:45px;height:45px;" src='.$testi_img_src.' />';
+                        }else{
+                            $html .= 'No Image';
+                        }
+                        $html .= '</td>';
+                        $html .= '<td data-colname="Content">'.$tw_testi_content.'</td>
                         <td data-colname="Name">'.$tw_testi_name.'</td>
                         <td data-colname="Position">'.$tw_testi_position.'</td>
                         <td data-colname="Box Color">'.$tw_box_color.'</td>
@@ -101,8 +108,9 @@
                 <thead>
                     <tr>
                         <th scope="col" class="text-center manage-column manage-column column-title column-primary" style="width:10%">#ID</th>
+                        <th scope="col" class="text-center manage-column">Button Type</th>
                         <th scope="col" class="text-center manage-column">Button Text</th>
-                        <th scope="col" class="text-center manage-column">Button Link</th>
+                        <th scope="col" class="text-center manage-column">Button Link/Number</th>
                         <th scope="col" class="text-center manage-column">Button Color</th>
                         <th scope="col" class="text-center manage-column">Button BG Color</th>
                         <th scope="col" class="text-center manage-column" style="width:20%">Actions</th>
@@ -127,8 +135,20 @@
                         
                         $tw_buttontxt_color = isset($get_data['tw_buttontxt_color']) ? $get_data['tw_buttontxt_color'] : '';
                         $tw_buttonbg_color = isset($get_data['tw_buttonbg_color']) ? $get_data['tw_buttonbg_color'] : '';
-                        $html .= '<td data-colname="Button Text">'.$tw_btn_text.'</td>
-                        <td data-colname="Button Link">'.$tw_btn_link.'</td>
+                    	$tw_button_type = isset($get_data['tw_button_type']) ? $get_data['tw_button_type'] : 'normal_btn';
+                        $tw_tap_btn_text = isset($get_data['tw_tap_btn_text']) ? $get_data['tw_tap_btn_text'] : '';
+                    	$tw_tap_btn_number = isset($get_data['tw_tap_btn_number']) ? $get_data['tw_tap_btn_number'] : '';
+
+                        if($tw_button_type=="normal_btn"){
+                            $html .= '<td data-colname="Button Type">Normal Button</td>';
+                            $html .= '<td data-colname="Button Text">'.$tw_btn_text.'</td>';
+                            $html .= '<td data-colname="Button Link">'.$tw_btn_link.'</td>';
+                        }else{
+                            $html .= '<td data-colname="Button Type">Tap To Call</td>';
+                            $html .= '<td data-colname="Button Text">'.$tw_tap_btn_text.'</td>';
+                            $html .= '<td data-colname="Button Link">'.$tw_tap_btn_number.'</td>';
+                        }
+                        $html .= '
                         <td data-colname="Button Color">'.$tw_buttontxt_color.'</td>
                         <td data-colname="Button BG Color">'.$tw_buttonbg_color.'</td>
                         <td class="actions-btn" data-colname="Actions"><span  data-action="buttons" data-rand_id='.$id.' class="wt-edit-testi wt-icons btn btn-outline-primary px-4 mr-2 py-2">Edit</span><span data-rand_id='.$id.' data-action="buttons" class="wt-dlt-testi wt-icons btn btn-outline-danger py-2">Remove</span></td>

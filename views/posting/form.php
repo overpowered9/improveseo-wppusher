@@ -173,7 +173,7 @@ wp_enqueue_script('post');
 								Maximum number of posts to generate. Input `0` if you want to generate all available posts from spintax.
 							</span>
 							<div class="input-group">
-								<input type="number" id="max-posts" name="max_posts" class="form-control" value="<?= Validator::old('max_posts', (int) $task->options['max_posts']) ?>">
+								<input type="number" id="max-posts" name="max_posts" class="form-control" value="<?= Validator::old('max_posts', (int) $task->options['max_posts']) ?>" min="0" />
 							</div>
 						</p>
 
@@ -315,7 +315,10 @@ wp_enqueue_script('post');
 					<h3 class="hndle ui-sortable-handle"><span>Improve SEO Images</span></h3>
 					<div class="inside mt-3">
 						<?php
-							$old_exif_enabler = Validator::old('exif_enabler', sizeof($task->options['exif_locations']) > 0);
+							if(!empty($task->options['exif_locations']))
+								$old_exif_enabler = Validator::old('exif_enabler', sizeof($task->options['exif_locations']) > 0);
+							else
+								$old_exif_enabler = 0;
 
 							if (!empty($google_api_key)):
 						?>
@@ -408,6 +411,35 @@ wp_enqueue_script('post');
 									</span>
 								</div>
 								<div id="on-page-seo-wrap" style="display: <?= $old_on_page_seo == 1 ? 'block' : 'none' ?>;">
+									<div id="google-preview" style="display:none;">
+										<div class="input-group mt-4 cta-check">
+											<label for="preview-label" class="form-label">Google Preview</label>
+											<span>
+												<input id="mobile-preview" name="preview-type"  type="radio" value="mobile" checked />
+												<label for="mobile-preview">Mobile result</label>
+												&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+												<input id="desktop-preview" name="preview-type"  type="radio" value="desktop" />
+												<label for="desktop-preview">Desktop result</label>
+											</span>
+										</div>
+										<div id="google-mobile-preview" class="google-mobile-preview">
+											<div class="google-preview-content-wrapper">
+												<div class="google-preview-content-wrapper2">
+													<div class="google-preview-logo">
+														<i class="fa fa-globe"></i>
+														<span class="google-preview-mobile-url">
+															<span class="google-preview-mobile-disabled">localhost</span> › demo
+														</span>
+													</div>
+													<div class="google-mobile-preview-pagename">
+														Demo - test
+													</div>
+												</div>
+												
+											</div>
+											<div class="google-preview-content-wrapper"></div>
+										</div>
+									</div>
 									<div class="input-group">
 										<label for="custom-title" class="form-label">Title</label>
 										<div class="input-prefix">

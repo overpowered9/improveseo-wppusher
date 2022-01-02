@@ -440,5 +440,9 @@ function getUniqueLocations() {
 		}
 
 	});
+
+	$('#custom-title').keyup(function(e){
+		$('#google-preview').text($(this).val());
+	});
 	
 })(jQuery);

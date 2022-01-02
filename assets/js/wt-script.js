@@ -6,8 +6,8 @@ jQuery(function($){
 
         e.preventDefault();
         
-        var img_src = $('.testimonial-img').prop('src');
-        $('.img-source').val(img_src);
+        /* var img_src = $('.testimonial-img').prop('src');
+        $('.img-source').val(img_src); */
 
         var data = $(this).serialize();
 
@@ -18,7 +18,7 @@ jQuery(function($){
             swal("Data Have Been Saved Successfully!", {
               icon: "success",
             }).then(function(){
-                window.location.href=resp.url;
+                window.location.href = resp.url;
             });
         });
     });
@@ -419,12 +419,47 @@ jQuery(function($){
         }).on('select', function() {
             var attachment = custom_uploader.state().get('selection').first().toJSON();
             var fileurl = attachment.url;
-            var fileid = attachment.id;
-            var filename = attachment.filename;
-
+            
             button.html('<img class="testimonial-img" style="width: 62px;" src="' + attachment.url + '">').next().val(attachment.id).next().show();
+            
+            $('.img-source').val(fileurl);
 
         }).open();
     });
 
+    $(document).on('click', '.tap-to-call-upload-image-js', function(e) {
+        e.preventDefault();
+
+        var button = $(this),
+        custom_uploader = wp.media({
+            title: 'Insert Image',
+            library: {
+                type: 'image'
+            },
+            button: {
+                text: 'Use this image'
+            },
+            multiple: false
+        }).on('select', function() {
+            var attachment = custom_uploader.state().get('selection').first().toJSON();
+            var fileurl = attachment.url;
+            
+            button.html('<img class="tap-to-call-img" style="width: 62px;" src="' + attachment.url + '">').next().val(attachment.id).next().show();
+            
+            $('.tap-to-call-img-source').val(fileurl);
+
+        }).open();
+    });
+    
+
+    $(document).on('click', '.tw_button_type', function(e){
+        var btn_type = $(this).val();
+        if(btn_type=="normal_btn"){
+            $('#tap_to_call_btn_wrapper').hide();
+            $('#normal_btn_wrapper').show();
+        }else if(btn_type=="tap_to_call"){
+            $('#tap_to_call_btn_wrapper').show();
+            $('#normal_btn_wrapper').hide();
+        }
+    });
 })

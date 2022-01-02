@@ -19,8 +19,8 @@ class FlashMessage
 
 	public static function handle()
 	{
-		$message = $_SESSION['improveseo.flashmessage.message'];
-		$type = $_SESSION['improveseo.flashmessage.type'];
+		$message = isset($_SESSION['improveseo.flashmessage.message'])?$_SESSION['improveseo.flashmessage.message']:'';
+		$type = isset($_SESSION['improveseo.flashmessage.type'])?$_SESSION['improveseo.flashmessage.type']:'';
 
 		unset($_SESSION['improveseo.flashmessage.message']);
 		unset($_SESSION['improveseo.flashmessage.type']);

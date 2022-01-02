@@ -1,6 +1,6 @@
 <?php
 use ImproveSEO\View;
-if($_POST['cat_name']){
+if(isset($_POST['cat_name'])){
     $cat_slug = $_POST['cat_name'];
     $cat_slug = preg_replace('/\s*/', '-', $cat_slug);
     $cat_slug = strtolower($cat_slug);
@@ -41,6 +41,7 @@ if($_POST['cat_name']){
 		<div class="category_improveseo clearfix card-body text-center p-0">
 			<div class="cta-check clearfix d-flex justify-content-center flex-column flex-sm-row  align-items-start align-items-sm-center"> 
 			<?php
+			$select = '';
 			$args = array("hide_empty" => 0,
 			"type"      => "post",
 			"orderby"   => "name",

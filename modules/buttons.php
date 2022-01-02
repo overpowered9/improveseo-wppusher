@@ -11,7 +11,12 @@ foreach ($id as $p) {
 	$tw_button_size = isset($data_btn['tw_button_size']) ? $data_btn['tw_button_size'] : 'sm';
 	$tw_button_border_type = isset($data_btn['tw_button_border_type']) ? $data_btn['tw_button_border_type'] : 'square';
 
-      $style = $classes = '';
+      $tw_button_type = isset($data_btn['tw_button_type']) ? $data_btn['tw_button_type'] : 'normal_btn';
+	$tw_tap_to_call_img_source = isset($data_btn['tw_tap_to_call_img_source']) ? $data_btn['tw_tap_to_call_img_source'] : '';
+	$tw_tap_btn_text = isset($data_btn['tw_tap_btn_text']) ? $data_btn['tw_tap_btn_text'] : '';
+	$tw_tap_btn_number = isset($data_btn['tw_tap_btn_number']) ? $data_btn['tw_tap_btn_number'] : '';
+
+      $style = $classes = $btn = '';
 
       if (!empty($color)) {
       	$style .= 'color :'.$color.' !important;';
@@ -35,6 +40,17 @@ foreach ($id as $p) {
       if($tw_button_border_type=="round")
             $classes .= ' btn_round';
 
+      if($tw_button_type=="normal_btn"){
+            $btn .= '<a style="'.$style.'" class="improveseo_btn '.$classes.'" href="'.$link.'">'.$text.'</a>';
+      }else{
+            $btn .= '<a style="'.$style.'" class="improveseo_btn '.$classes.'" href="tel:'.$tw_tap_btn_number.'">';
+            if($tw_tap_to_call_img_source!=""){
+                  $btn .= '<img src="'.$tw_tap_to_call_img_source.'" />';
+            }
 
-      echo '<a style="'.$style.'" class="improveseo_btn '.$classes.'" href="'.$link.'">'.$text.'</a>';
+            $btn .= $tw_tap_btn_text;
+            $btn .= '</a>';
+            //echo '<a style="'.$style.'" class="improveseo_btn '.$classes.'" href="'.$link.'">'.$text.'</a>';
+      }
+      echo $btn;
 }

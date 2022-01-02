@@ -12,6 +12,7 @@
 	$tw_testi_position = isset($data['tw_testi_position']) ? $data['tw_testi_position'] : '';
 	$tw_box_color = isset($data['tw_box_color']) ? $data['tw_box_color'] : '#ffffff';
 	$tw_font_color = isset($data['tw_font_color']) ? $data['tw_font_color'] : '#ffffff';
+	$tw_testi_outline_color = isset($data['tw_testi_outline_color']) ? $data['tw_testi_outline_color'] : '#ffffff';
 	// for testimonial
 	// for google_maps
 	$data_gm = get_option('get_googlemaps_'.$specific_no);
@@ -28,6 +29,11 @@
 	$tw_button_outline_color = isset($data_btn['tw_button_outline_color']) ? $data_btn['tw_button_outline_color'] : '#ffffff';
 	$tw_button_size = isset($data_btn['tw_button_size']) ? $data_btn['tw_button_size'] : 'sm';
 	$tw_button_border_type = isset($data_btn['tw_button_border_type']) ? $data_btn['tw_button_border_type'] : 'square';
+	$tw_button_type = isset($data_btn['tw_button_type']) ? $data_btn['tw_button_type'] : 'normal_btn';
+
+	$tw_tap_to_call_img_source = isset($data_btn['tw_tap_to_call_img_source']) ? $data_btn['tw_tap_to_call_img_source'] : '';
+	$tw_tap_btn_text = isset($data_btn['tw_tap_btn_text']) ? $data_btn['tw_tap_btn_text'] : '';
+	$tw_tap_btn_number = isset($data_btn['tw_tap_btn_number']) ? $data_btn['tw_tap_btn_number'] : '';
 	
 	// For Buttons
 	
@@ -51,6 +57,9 @@
 				<a class="nav-link <?php echo ($action=="buttons")?'active':''; ?>" data-toggle="tab" href="#button_wt" role="tab" aria-controls="Button Settings" aria-selected="false">Button Settings</a>
 			</li>
 			<li class="nav-item">
+				<a class="nav-link <?php echo ($action=="videos")?'active':''; ?>" data-toggle="tab" href="#videos" role="tab" aria-controls="Button Settings" aria-selected="false">Videos</a>
+			</li>
+			<li class="nav-item">
 				<a class="nav-link" data-toggle="tab" href="#saved_testimonials" role="tab" aria-controls="All Saved Shortcodes" aria-selected="false">Saved Shortcodes</a>
 			</li>
 		</ul>
@@ -68,26 +77,16 @@
 							<div class="BasicForm__row">
 								<input type="hidden" name="action" value="wt_save_form_fields_for_testimonials">
 								<input type="hidden" name="active_action" value="testimonial">
-								<input type="hidden" class="form-control img-source" name="img_source" value="<?php echo $testi_img_src; ?>">
+								<input type="hidden" class="img-source" name="img_source" value="<?php echo $testi_img_src; ?>">
 								<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
 								<label class="form-label">Testimonial Image</label>
 								<button class="btn btn-outline-primary w-100 upload-image-js">
 								Upload Image
-								<img class="testimonial-img" style="width: 62px;" src="<?php echo $testi_img_src; ?>" />
+									<?php
+									if($testi_img_src!=""): ?>
+										<img class="testimonial-img" style="width: 62px;" src="<?php echo $testi_img_src; ?>" />
+									<?php endif; ?>
 								</button>
-							</div>
-							<div class="BasicForm__row">
-								<div class="input-group">
-									<label class="form-label">Client Name:</label>
-									<div class="input-prefix">
-										<input type="text" class="form-control name" name="tw_testi_name" placeholder="Robbert Aleex." value="<?php echo $tw_testi_name; ?>">
-										<span>Ex.</span>
-									</div>
-								</div>
-							</div>
-							<div class="BasicForm__row">
-								<label class="form-label">Box Color:</label>
-								<input type="color" class="form-control name color-pick" name="tw_box_color" value="<?php echo $tw_box_color; ?>">
 							</div>
 						</div>
 						<div class="col-lg-10">
@@ -99,9 +98,23 @@
 										<span>Ex.</span>
 									</div>
 								</div>
-								
 							</div>
-							<div class="BasicForm__row col-lg-2 p-0">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-2">
+							<div class="BasicForm__row">
+								<div class="input-group">
+									<label class="form-label">Client Name:</label>
+									<div class="input-prefix">
+										<input type="text" class="form-control name" name="tw_testi_name" placeholder="Robbert Aleex." value="<?php echo $tw_testi_name; ?>">
+										<span>Ex.</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<div class="BasicForm__row">
 								<div class="input-group">
 									<label class="form-label">Client Position:</label>
 									<div class="input-prefix">
@@ -109,19 +122,33 @@
 										<span>Ex.</span>
 									</div>
 								</div>
-								
-							</div>
-							<div class="BasicForm__row col-lg-2 p-0">
-								<label class="form-label">Font Color:</label>
-								<input type="color" class="form-control color-pick name" name="tw_font_color" value="<?php echo $tw_font_color; ?>">
 							</div>
 						</div>
-						<div class="col-lg-2 mr-auto">
+					</div>
+					<div class="row">
+						<div class="col-lg-2">
+							<div class="BasicForm__row">
+								<label class="form-label">Box Color:</label>
+								<input type="color" class="form-control name color-pick" name="tw_box_color" value="<?php echo $tw_box_color; ?>">
+							</div>
+						</div>
+						<div class="col-lg-2">	
+							<div class="BasicForm__row p-0">
+								<label class="form-label">Font Color:</label>
+								<input type="color" class="form-control color-pick name" name="tw_font_color" value="<?php echo $tw_font_color; ?>">
+								
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<label class="form-label">Outline Color:</label>
+							<input type="color" class="form-control color-pick name" name="tw_testi_outline_color" value="<?php echo $tw_testi_outline_color; ?>" />
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-2">
 							<input type="submit" class="btn btn-outline-primary py-3 px-4 cm-custom-btn" value="Save Testimonial">
 						</div>
 					</div>
-					
-					
 				</form>
 			</div>
 			<div class="tab-pane fade <?php echo ($action=="googlemaps")?'show active':''; ?>" id="google_maps" role="tabpanel" aria-labelledby="google_maps">
@@ -162,6 +189,22 @@
 						<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
 						<div class="col-12">
 							<div class="row">
+								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
+									<label class="form-label">Button Type:</label>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input tw_button_type" type="radio" name="tw_button_type" id="tw_button_type_normal" value="normal_btn" <?= checked('normal_btn', $tw_button_type); ?> />
+										<label class="form-check-label" for="tw_button_type_normal">Normal Button</label>
+									</div>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input tw_button_type" type="radio" name="tw_button_type" id="tw_button_type_tap_to_call" value="tap_to_call" <?= checked('tap_to_call', $tw_button_type); ?> />
+										<label class="form-check-label" for="tw_button_type_tap_to_call">Tap to Call</label>
+									</div>
+									
+								</div>
+							</div>
+						</div>
+						<div class="col-12" id="normal_btn_wrapper" style="<?php echo ($tw_button_type=="tap_to_call")?'display:none':''; ?>">
+							<div class="row">
 								<div class="BasicForm__row col-lg-2">
 									<div class="input-group">
 										<label class="form-label">Button Text:</label>
@@ -176,6 +219,40 @@
 										<label class="form-label">Button Link:</label>
 										<div class="input-prefix">
 											<input type="text" class="form-control name" placeholder="https://google.com"name="tw_btn_link" value="<?php echo $tw_btn_link; ?>">
+											<span>Ex.</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12" id="tap_to_call_btn_wrapper" style="<?php echo ($tw_button_type=="normal_btn")?'display:none':''; ?>">
+							<div class="row">
+								<div class="BasicForm_row col-lg-2">
+									<input type="hidden" class="tap-to-call-img-source" name="tw_tap_to_call_img_source" value="<?php echo $tw_tap_to_call_img_source; ?>" />
+									<label class="form-label">Tap to Call Icon</label>
+									<button class="btn btn-outline-primary w-100 tap-to-call-upload-image-js">
+									Upload Image
+										<?php
+										if($tw_tap_to_call_img_source!=""): ?>
+											<img class="tap-to-call-img" style="width: 62px;" src="<?php echo $tw_tap_to_call_img_source; ?>" />
+										<?php endif; ?>
+									</button>
+								</div>
+								<div class="BasicForm__row col-lg-2">
+									<div class="input-group">
+										<label class="form-label">Button Text:</label>
+										<div class="input-prefix">
+											<input type="text" class="form-control name" placeholder="Next"name="tw_tap_btn_text" value="<?php echo $tw_tap_btn_text; ?>">
+											<span>Ex.</span>
+										</div>
+									</div>
+								</div>
+								<div class="BasicForm__row col-lg-3">
+									<div class="input-group">
+										<label class="form-label">Number:</label>
+										<div class="input-prefix">
+											<input type="text" class="form-control name" placeholder="+1 1231231231"name="tw_tap_btn_number" value="<?php echo $tw_tap_btn_number; ?>" />
 											<span>Ex.</span>
 										</div>
 									</div>
@@ -244,6 +321,49 @@
 						</div>
 						<div class="col-lg-2 mr-auto">
 							<input type="submit" class="btn btn-outline-primary py-3 px-5" value="Save Button">
+						</div>
+						
+					</div>
+				</form>
+			</div>
+
+
+			<div class="tab-pane fade <?php echo ($action=="videos")?'show active':''; ?>" id="videos" role="tabpanel" aria-labelledby="videos">
+				<?php
+						$no = isset($_GET['action']) ? $_GET['action'] : '';
+						if($no == 'videos'){
+						$no = $specific_no;
+						}else $no = '';
+				?>
+				<form class="wt-save-admin-settings-videos mt-3 form-wrap">
+					<div class="row">
+						<input type="hidden" name="action" value="wt_save_form_fields_for_videos">
+						<input type="hidden" name="active_action" value="videos">
+						<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
+						<div class="col-12">
+							<div class="row">
+								<div class="BasicForm__row col-lg-2">
+									<div class="input-group">
+										<label class="form-label">Button Text:</label>
+										<div class="input-prefix">
+											<input type="text" class="form-control name" placeholder="Next"name="tw_btn_text" value="<?php echo $tw_btn_text; ?>">
+											<span>Ex.</span>
+										</div>
+									</div>
+								</div>
+								<div class="BasicForm__row col-lg-4">
+									<div class="input-group">
+										<label class="form-label">Button Link:</label>
+										<div class="input-prefix">
+											<input type="text" class="form-control name" placeholder="https://google.com"name="tw_btn_link" value="<?php echo $tw_btn_link; ?>">
+											<span>Ex.</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-2 mr-auto">
+							<input type="submit" class="btn btn-outline-primary py-3 px-5" value="Save Video">
 						</div>
 						
 					</div>
