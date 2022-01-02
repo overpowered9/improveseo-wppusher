@@ -6,7 +6,7 @@ Description: Creates a large number of pages/posts and customize them to rank in
 Author: Improve SEO Team
 Version: 2.0.0
 */
-define("IMPROVESEO_VERSION", "2.0");
+define("IMPROVESEO_VERSION", "2.1");
 define('IMPROVESEO_ROOT', dirname(__FILE__));
 define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url( __FILE__ )));
 
@@ -665,7 +665,7 @@ class WC_Testimonial {
 		$tw_testi_position = isset($_REQUEST['tw_testi_position']) ? $_REQUEST['tw_testi_position'] : '';
 		$tw_box_color = isset($_REQUEST['tw_box_color']) ? $_REQUEST['tw_box_color'] : '';
 		$tw_font_color = isset($_REQUEST['tw_font_color']) ? $_REQUEST['tw_font_color'] : '';
-		$tw_testi_outline_color = isset($data['tw_testi_outline_color']) ? $data['tw_testi_outline_color'] : '#ffffff';
+		$tw_testi_outline_color = isset($_REQUEST['tw_testi_outline_color']) ? $_REQUEST['tw_testi_outline_color'] : '#000000';
 
 
 		$arr = array(

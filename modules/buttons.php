@@ -39,7 +39,8 @@ foreach ($id as $p) {
 
       if($tw_button_border_type=="round")
             $classes .= ' btn_round';
-
+      
+      $btn .= '<div class="improveseo_row">';
       if($tw_button_type=="normal_btn"){
             $btn .= '<a style="'.$style.'" class="improveseo_btn '.$classes.'" href="'.$link.'">'.$text.'</a>';
       }else{
@@ -52,5 +53,6 @@ foreach ($id as $p) {
             $btn .= '</a>';
             //echo '<a style="'.$style.'" class="improveseo_btn '.$classes.'" href="'.$link.'">'.$text.'</a>';
       }
+      $btn .= '</div>';
       echo $btn;
 }

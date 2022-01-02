@@ -1,7 +1,6 @@
 .improveseo_row{
 	width: 100%;
-	padding: 0;
-
+	padding: 10px 0;
 }
 
 .improveseo_btn {
@@ -26,7 +25,7 @@
     padding: 0.5rem 1rem;
 }
 .improveseo_btn.btn_round{
-	border-radius: 4px;
+	border-radius: 10px;
 }
 .improveseo_btn.btn_md img {
 	height: 25px;
