@@ -14,7 +14,7 @@ add_action('plugins_loaded', 'improveseo_update_db_check');
 function improveseo_uninstall() {
 	wp_clear_scheduled_hook('improveseo_parse_tasks_hook');
 
-	improveseo_wp_config_delete();
+	//improveseo_wp_config_delete();
 }
 
 
@@ -40,7 +40,7 @@ function improveseo_install() {
 	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
 	// Config
-	improveseo_wp_config_put();
+	//improveseo_wp_config_put();
 
 	// Roles
 	add_role('improveseo_user', 'Improve SEO User');
