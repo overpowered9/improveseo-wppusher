@@ -120,3 +120,10 @@ function change_blog_links($post_link, $id = 0){
 
 	return $post_link;
 }
+
+add_filter( 'upload_mimes', 'improveseo_mime_types', 1, 1 );
+function improveseo_mime_types( $mime_types ) {
+  $mime_types['ogg'] = 'audio/ogg';
+  $mime_types['ogg'] = 'video/ogg';
+  return $mime_types;
+}

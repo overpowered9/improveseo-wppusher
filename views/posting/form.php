@@ -114,6 +114,7 @@ wp_enqueue_script('post');
 							<option value="testimonial">Testimonials</option>
 							<option value="googlemap">Google Maps</option>
 							<option value="button">Buttons</option>
+							<option value="video">Videos</option>
 							<option value="list">Lists</option>
 						</select>
 					</div>

@@ -35,7 +35,27 @@
 	$tw_tap_btn_text = isset($data_btn['tw_tap_btn_text']) ? $data_btn['tw_tap_btn_text'] : '';
 	$tw_tap_btn_number = isset($data_btn['tw_tap_btn_number']) ? $data_btn['tw_tap_btn_number'] : '';
 	
-	// For Buttons
+
+	// For Videos
+	$data_video = get_option('get_videos_'.$specific_no);
+	$video_poster_img_source = isset($data_video['video_poster_img_source'])?$data_video['video_poster_img_source']:'';
+	$video_poster_img_id = isset($data_video['video_poster_img_id'])?$data_video['video_poster_img_id']:'';
+
+	$video_id_mp4 = isset($data_video['video_id_mp4'])?$data_video['video_id_mp4']:'';
+	$video_url_mp4 = isset($data_video['video_url_mp4'])?$data_video['video_url_mp4']:'';
+
+	$video_id_ogv = isset($data_video['video_id_ogv'])?$data_video['video_id_ogv']:'';
+	$video_url_ogv = isset($data_video['video_url_ogv'])?$data_video['video_url_ogv']:'';
+
+	$video_id_webm = isset($data_video['video_id_webm'])?$data_video['video_id_webm']:'';
+	$video_url_webm = isset($data_video['video_url_webm'])?$data_video['video_url_webm']:'';
+
+	$video_autoplay = isset($data_video['video_autoplay'])?$data_video['video_autoplay']:'no';
+	$video_muted = isset($data_video['video_muted'])?$data_video['video_muted']:'no';
+	$video_controls = isset($data_video['video_controls'])?$data_video['video_controls']:'no';
+	$video_loop = isset($data_video['video_loop'])?$data_video['video_loop']:'no';
+	$video_height = isset($data_video['video_height'])?$data_video['video_height']:'auto';
+	$video_width = isset($data_video['video_width'])?$data_video['video_width']:'100%';
 	
 ?>
 <div class="cm-admin improveseo_wrapper p-3 p-lg-4">
@@ -48,7 +68,10 @@
 	<section class="tabs-wrap-content">
 		<ul class="nav nav-tabs" role="tablist">
 			<li class="nav-item">
-				<a class="nav-link <?php echo ($action!="googlemaps" && $action!="buttons")?'active':''; ?>" data-toggle="tab" href="#wt_testimonial" role="tab" aria-controls="Testimonial" aria-selected="true">Testimonial</a>
+				<a class="nav-link <?php echo ($action!="googlemaps" && $action!="buttons"  && $action!="videos" && $action!="testimonial")?'active':''; ?>" data-toggle="tab" href="#saved_testimonials" role="tab" aria-controls="All Saved Shortcodes" aria-selected="false">Saved Shortcodes</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link <?php echo ($action=="testimonial")?'active':''; ?>" data-toggle="tab" href="#wt_testimonial" role="tab" aria-controls="Testimonial" aria-selected="true">Testimonial</a>
 			</li>
 			<li class="nav-item">
 				<a class="nav-link <?php echo ($action=="googlemaps")?'active':''; ?>" data-toggle="tab" href="#google_maps" role="tab" aria-controls="Google Maps" aria-selected="false">Google Maps</a>
@@ -59,12 +82,17 @@
 			<li class="nav-item">
 				<a class="nav-link <?php echo ($action=="videos")?'active':''; ?>" data-toggle="tab" href="#videos" role="tab" aria-controls="Button Settings" aria-selected="false">Videos</a>
 			</li>
-			<li class="nav-item">
-				<a class="nav-link" data-toggle="tab" href="#saved_testimonials" role="tab" aria-controls="All Saved Shortcodes" aria-selected="false">Saved Shortcodes</a>
-			</li>
+			
 		</ul>
 		<div class="tab-content" id="myTabContent">
-			<div class="tab-pane fade <?php echo ($action!="googlemaps" && $action!="buttons")?'show active':''; ?>" id="wt_testimonial" role="tabpanel" aria-labelledby="wt_testimonial">
+			<!-- Saved TEstimonails -->
+			<div class="tab-pane fade <?php echo ($action!="googlemaps" && $action!="buttons" && $action!="videos" && $action!="testimonial")?'show active':''; ?>" id="saved_testimonials" role="tabpanel" aria-labelledby="saved_testimonials">
+				
+				<?php
+					wt_load_templates('all-saved-testimonials.php');
+				?>
+			</div>
+			<div class="tab-pane fade <?php echo ($action=="testimonial")?'show active':''; ?>" id="wt_testimonial" role="tabpanel" aria-labelledby="wt_testimonial">
 				<?php
 				$no = isset($_GET['action']) ? $_GET['action'] : '';
 				if($no == 'testimonial'){
@@ -80,7 +108,7 @@
 								<input type="hidden" class="img-source" name="img_source" value="<?php echo $testi_img_src; ?>">
 								<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
 								<label class="form-label">Testimonial Image</label>
-								<button class="btn btn-outline-primary w-100 upload-image-js">
+								<button class="btn btn-outline-primary w-100 upload-image-js upload-btn-padding">
 								Upload Image
 									<?php
 									if($testi_img_src!=""): ?>
@@ -231,7 +259,7 @@
 								<div class="BasicForm_row col-lg-2">
 									<input type="hidden" class="tap-to-call-img-source" name="tw_tap_to_call_img_source" value="<?php echo $tw_tap_to_call_img_source; ?>" />
 									<label class="form-label">Tap to Call Icon</label>
-									<button class="btn btn-outline-primary w-100 tap-to-call-upload-image-js">
+									<button class="btn btn-outline-primary w-100 tap-to-call-upload-image-js upload-btn-padding">
 									Upload Image
 										<?php
 										if($tw_tap_to_call_img_source!=""): ?>
@@ -326,8 +354,6 @@
 					</div>
 				</form>
 			</div>
-
-
 			<div class="tab-pane fade <?php echo ($action=="videos")?'show active':''; ?>" id="videos" role="tabpanel" aria-labelledby="videos">
 				<?php
 						$no = isset($_GET['action']) ? $_GET['action'] : '';
@@ -344,24 +370,170 @@
 							<div class="row">
 								<div class="BasicForm__row col-lg-2">
 									<div class="input-group">
-										<label class="form-label">Button Text:</label>
-										<div class="input-prefix">
-											<input type="text" class="form-control name" placeholder="Next"name="tw_btn_text" value="<?php echo $tw_btn_text; ?>">
-											<span>Ex.</span>
-										</div>
+										<input type="hidden" class="video-poster-img-source" name="video_poster_img_source" value="<?php echo $video_poster_img_source; ?>" />
+										<input type="hidden" class="video-poster-img-id" name="video_poster_img_id" value="<?php echo $video_poster_img_id; ?>" />
+
+										<label class="form-label">Poster Image</label>
+										<button class="btn btn-outline-primary w-100 video-poster-image-js upload-btn-padding">
+											Upload Image
+										</button>
 									</div>
 								</div>
-								<div class="BasicForm__row col-lg-4">
+								<div class="BasicForm__row col-lg-4 video-poster-img-wrapper">
+									<?php
+									if($video_poster_img_source!=""): ?>
+										<img class="video-poster-img" style="width: auto; height:100px;" src="<?php echo $video_poster_img_source; ?>" />
+									<?php endif; ?>
+								</div>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="row">
+								<div class="BasicForm__row col-lg-2">
 									<div class="input-group">
-										<label class="form-label">Button Link:</label>
-										<div class="input-prefix">
-											<input type="text" class="form-control name" placeholder="https://google.com"name="tw_btn_link" value="<?php echo $tw_btn_link; ?>">
-											<span>Ex.</span>
-										</div>
+										<label class="form-label">Upload Video (MP4)</label>
+										<button class="btn btn-outline-primary w-100 video-upload-btn upload-btn-padding" data-video-type="video/mp4" >
+											Upload Video
+										</button>
+									</div>
+								</div>
+								<div class="BasicForm__row col-lg-4 video-url-mp4-wrapper">
+									<div class="input-group">
+										<label class="form-label">Video MP4 URL</label>
+										<input type="hidden" class="form-control video-id-mp4" name="video_id_mp4" value="<?php echo $video_id_mp4; ?>" />
+										<input type="text" class="form-control video-url-mp4" name="video_url_mp4" value="<?php echo $video_url_mp4; ?>" disabled  />
 									</div>
 								</div>
 							</div>
 						</div>
+
+						<div class="col-12">
+							<div class="row">
+								<div class="BasicForm__row col-lg-2">
+									<div class="input-group">
+										<label class="form-label">Upload Video (OGV)</label>
+										<button class="btn btn-outline-primary w-100 video-upload-btn upload-btn-padding" data-video-type="video/ogg" >
+											Upload Video
+										</button>
+									</div>
+								</div>
+								<div class="BasicForm__row col-lg-4 video-url-ogv-wrapper">
+									<div class="input-group">
+										<label class="form-label">Video OGV URL</label>
+										<input type="hidden" class="form-control video-id-ogv" name="video_id_ogv" value="<?php echo $video_id_ogv; ?>" />
+
+										<input type="text" class="form-control video-url-ogv" name="video_url_ogv" value="<?php echo $video_url_ogv; ?>" disabled  />
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<div class="row">
+								<div class="BasicForm__row col-lg-2">
+									<div class="input-group">
+										
+										<label class="form-label">Upload Video (WebM)</label>
+										<button class="btn btn-outline-primary w-100 video-upload-btn upload-btn-padding" data-video-type="video/webm" >
+											Upload Video
+										</button>
+									</div>
+								</div>
+								<div class="BasicForm__row col-lg-4 video-url-webm-wrapper">
+									<div class="input-group">
+										<label class="form-label">Video WebM URL</label>
+										<input type="hidden" class="form-control video-id-webm" name="video_id_webm" value="<?php echo $video_id_webm; ?>" />
+										<input type="text" class="form-control video-url-webm" name="video_url_webm" value="<?php echo $video_url_webm; ?>" disabled  />
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="row">
+								<div class="BasicForm__row col-lg-2">
+									<div class="input-group">
+										<label class="form-label">Video Width:</label>
+										<div class="input-prefix">
+											<input type="number" class="form-control name" placeholder="320"name="video_width" value="<?php echo $video_width; ?>" min="1" max="1920" />
+											<span>Ex.</span>
+										</div>
+									</div>
+								</div>
+								<div class="BasicForm__row col-lg-2">
+									<div class="input-group">
+										<label class="form-label">Video Height:</label>
+										<div class="input-prefix">
+											<input type="number" class="form-control name" placeholder="240"name="video_height" value="<?php echo $video_height; ?>" min="1" max="700" />
+											<span>Ex.</span>
+										</div>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="row">
+								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
+									<label class="form-label">Video Autoplay:</label>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input video_autoplay" type="radio" name="video_autoplay" id="video_autoplay_yes" value="yes" <?= checked('yes', $video_autoplay); ?> />
+										<label class="form-check-label" for="video_autoplay_yes">Yes</label>
+									</div>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input video_autoplay" type="radio" name="video_autoplay" id="video_autoplay_no" value="no" <?= checked('no', $video_autoplay); ?> />
+										<label class="form-check-label" for="video_autoplay_no">No</label>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<div class="col-12">
+							<div class="row">
+								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
+									<label class="form-label">Video Muted:</label>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input video_muted" type="radio" name="video_muted" id="video_muted_yes" value="yes" <?= checked('yes', $video_muted); ?> />
+										<label class="form-check-label" for="video_muted_yes">Yes</label>
+									</div>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input video_muted" type="radio" name="video_muted" id="video_muted_no" value="no" <?= checked('no', $video_muted); ?> />
+										<label class="form-check-label" for="video_muted_no">No</label>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="row">
+								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
+									<label class="form-label">Show Video Controls:</label>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input video_controls" type="radio" name="video_controls" id="video_controls_yes" value="yes" <?= checked('yes', $video_controls); ?> />
+										<label class="form-check-label" for="video_controls_yes">Yes</label>
+									</div>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input video_controls" type="radio" name="video_controls" id="video_controls_no" value="no" <?= checked('no', $video_controls); ?> />
+										<label class="form-check-label" for="video_controls_no">No</label>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<div class="row">
+								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
+									<label class="form-label">Video Loop:</label>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input video_loop" type="radio" name="video_loop" id="video_loop_yes" value="yes" <?= checked('yes', $video_loop); ?> />
+										<label class="form-check-label" for="video_loop_yes">Yes</label>
+									</div>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input video_loop" type="radio" name="video_loop" id="video_loop_no" value="no" <?= checked('no', $video_loop); ?> />
+										<label class="form-check-label" for="video_loop_no">No</label>
+									</div>
+								</div>
+							</div>
+						</div>
+
 						<div class="col-lg-2 mr-auto">
 							<input type="submit" class="btn btn-outline-primary py-3 px-5" value="Save Video">
 						</div>
@@ -369,13 +541,7 @@
 					</div>
 				</form>
 			</div>
-			<!-- Saved TEstimonails -->
-			<div class="tab-pane fade" id="saved_testimonials" role="tabpanel" aria-labelledby="saved_testimonials">
-				
-				<?php
-					wt_load_templates('all-saved-testimonials.php');
-				?>
-			</div>
+			
 		</div>
 	</section>
 </div>

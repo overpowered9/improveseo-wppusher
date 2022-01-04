@@ -160,4 +160,86 @@
             </table>
         </div>
     </section>
+
+    <div class="project-heading pt-4">
+        <h1>Videos</h1>
+    </div>
+    <section class="project-table-wrapper">
+        <div class="form table-responsive-sm">
+            <table class="table widefat fixed wp-list-table widefat fixed table-view-list posts text-center">
+                <thead>
+                    <tr>
+                        <th scope="col" class="text-center manage-column manage-column column-title column-primary" style="width:10%">#ID</th>
+                        <th scope="col" class="text-center manage-column" style="width:17%;">Video Poster</th>
+                        <th scope="col" class="text-center manage-column" style="width:17%;">Video URLs</th>
+                        <th scope="col" class="text-center manage-column" style="width:18%;">Autoplay - Mute - Controls - Loop</th>
+                        <th scope="col" class="text-center manage-column">Height</th>
+                        <th scope="col" class="text-center manage-column">Width</th>
+                        <th scope="col" class="text-center manage-column" style="width:20%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $ids = get_option('get_saved_random_numbers');
+                    if (empty($ids)) {
+                    return;
+                    }
+                    $html = '';
+                    foreach ($ids as $id) {
+                        $get_data = get_option('get_videos_'.$id);
+                        if (empty($get_data)) {
+                            continue;
+                        }
+                        $video_poster_img_source = isset($get_data['video_poster_img_source'])?$get_data['video_poster_img_source']:'';
+                        $video_url_mp4 = isset($get_data['video_url_mp4'])?$get_data['video_url_mp4']:'';
+                        $video_url_ogv = isset($get_data['video_url_ogv'])?$get_data['video_url_ogv']:'';
+                        $video_url_webm = isset($get_data['video_url_webm'])?$get_data['video_url_webm']:'';
+                        $video_autoplay = isset($get_data['video_autoplay'])?$get_data['video_autoplay']:'no';
+                        $video_muted = isset($get_data['video_muted'])?$get_data['video_muted']:'no';
+                        $video_controls = isset($get_data['video_controls'])?$get_data['video_controls']:'no';
+                        $video_loop = isset($get_data['video_loop'])?$get_data['video_loop']:'no';
+                        $video_height = isset($get_data['video_height'])?$get_data['video_height']:'Default';
+                        $video_width = isset($get_data['video_width'])?$get_data['video_width']:'Default';
+
+                        if($video_height=="")
+                            $video_height = 'Default';
+
+                        if($video_width=="")
+                            $video_width = 'Default';
+
+                        $html .= '<tr>';
+                        $html .= '<td class="column-title column-primary has-row-actions">'.$id.'</td>';
+                        
+                        if($video_poster_img_source!="")
+                            $html .= '<td data-colname="video_poster_img"><img src="'.$video_poster_img_source.'" style="max-width:200px; height:100px;" /></td>';
+                        else
+                            $html .= '<td data-colname="video_poster_img">No Poster Image</td>';
+                        
+                        $html .= '<td data-colname="video_urls">';
+                            if($video_url_mp4!="")
+                                $html .= '<a href="'.$video_url_mp4.'" target="_blank">'.$video_url_mp4."</a><hr />";
+                            
+                            if($video_url_ogv!="")
+                                $html .= '<a href="'.$video_url_ogv.'" target="_blank">'.$video_url_ogv."</a><hr />";
+
+                            if($video_url_webm!="")
+                                $html .= '<a href="'.$video_url_webm.'" target="_blank">'.$video_url_webm."</a><hr />";
+
+                        $html .= '</td>';
+
+                        $html .= '<td data-colname="video_extras">'.ucfirst($video_autoplay).' - '.ucfirst($video_muted).' - '.ucfirst($video_controls).' - '.ucfirst($video_loop).'</td>';
+                        
+                        $html .= '<td data-colname="video_height">'.$video_height.'</td>';
+                        $html .= '<td data-colname="video_width">'.$video_width.'</td>';
+
+                        $html .= '
+                            <td class="actions-btn" data-colname="Actions"><span data-action="videos" data-rand_id='.$id.' class="wt-edit-testi btn btn-outline-primary px-4 mr-2 py-2">Edit</span><span data-action="videos" data-rand_id='.$id.' class="wt-dlt-testi wt-icons btn btn-outline-danger py-2">Remove</span></td>
+                        </tr>';
+                    }
+                    echo $html;
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </section>
 </section>

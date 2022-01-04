@@ -53,7 +53,6 @@
             var text = '';
             var improveseo_shortcode_type = $('#improveseo_shortcode_type').val();
             var improveseo_shortcode_id = $('#improveseo_shortcode').val();
-
             if(improveseo_shortcode_type=='testimonial'){
                 text = '[improveseo_testimonial id="'+improveseo_shortcode_id+'"]';
             }
@@ -62,6 +61,9 @@
             }
             else if(improveseo_shortcode_type=='button'){
                 text = '[improveseo_buttons id="'+improveseo_shortcode_id+'"]';
+            }
+            else if(improveseo_shortcode_type=='video'){
+                text = '[improveseo_video id="'+improveseo_shortcode_id+'"]';
             }
             else if(improveseo_shortcode_type=='list'){
                 text = '@list:'+improveseo_shortcode_id;

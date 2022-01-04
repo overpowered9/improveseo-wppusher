@@ -59,6 +59,25 @@ jQuery(function($){
         });
     });
 
+    //saving the form fields for videos
+    $(document).on('submit', '.wt-save-admin-settings-videos', function(e) {
+
+        e.preventDefault();
+        var disabled = $(this).find(':input:disabled').removeAttr('disabled');
+        var data = $(this).serialize();
+        disabled.attr('disabled','disabled');
+
+        var submit_btn = $("input[type='submit']", this);
+        submit_btn.val("Please Wait...").attr('disabled', true);
+        $.post(ajax_vars.ajax_url, data, function(resp){
+            swal("Data Have Been Saved Successfully!", {
+              icon: "success",
+            }).then(function(){
+                window.location.href = resp.url;
+            });
+        });
+    });
+
 
     //Download the file with search results clear-search-results
     $(document).on('click', '.sw-save-search-results', function(e) {
@@ -382,6 +401,8 @@ jQuery(function($){
             }
             else if(selector=='button'){
                 text = '[improveseo_buttons id="'+id+'"]';
+            }else if(selector=="video"){
+                text = '[improveseo_video id="'+id+'"]';
             }
             else if(selector=='list'){
                 text = '@list:'+id;
@@ -448,6 +469,63 @@ jQuery(function($){
             
             $('.tap-to-call-img-source').val(fileurl);
 
+        }).open();
+    });
+    
+    $(document).on('click', '.video-poster-image-js', function(e) {
+        e.preventDefault();
+         
+        var custom_uploader = wp.media({
+            title: 'Insert Image',
+            library: {
+                type: 'image'
+            },
+            button: {
+                text: 'Use this image'
+            },
+            multiple: false
+        }).on('select', function() {
+            var attachment = custom_uploader.state().get('selection').first().toJSON();
+            var fileurl = attachment.url;
+            
+            var img_poster = '<img class="video-poster-img" src="'+fileurl+'" style="width:auto; height:100px;" />';
+            $('.video-poster-img-wrapper').html(img_poster);
+            $('.video-poster-img-source').val(fileurl);
+            $('.video-poster-img-id').val(attachment.id);
+
+        }).open();
+    });
+    
+    $(document).on('click', '.video-upload-btn', function(e) {
+        e.preventDefault();
+        var video_type = $(this).data('video-type');
+        var video_url_cls = '.video-url-mp4';
+        var video_id_cls = '.video-id-mp4';
+
+        if(video_type=='video/mp4'){
+            video_url_cls = '.video-url-mp4';
+            video_id_cls = '.video-id-mp4';
+        }else if(video_type=="video/ogg"){
+            video_url_cls = '.video-url-ogv';
+            video_id_cls = '.video-id-ogv';
+        }else if(video_type=="video/webm"){
+            video_url_cls = '.video-url-webm';
+            video_id_cls = '.video-id-webm';
+        }
+        var custom_uploader = wp.media({
+            title: 'Insert MP4 Video',
+            library: {
+                type: video_type
+            },
+            button: {
+                text: 'Use this Video'
+            },
+            multiple: false
+        }).on('select', function() {
+            var attachment = custom_uploader.state().get('selection').first().toJSON();
+            
+            $(video_url_cls).val(attachment.url);
+            $(video_id_cls).val(attachment.id);
         }).open();
     });
     

@@ -6,7 +6,7 @@ Description: Creates a large number of pages/posts and customize them to rank in
 Author: Improve SEO Team
 Version: 2.0.0
 */
-define("IMPROVESEO_VERSION", "2.1");
+define("IMPROVESEO_VERSION", "2.2");
 define('IMPROVESEO_ROOT', dirname(__FILE__));
 define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url( __FILE__ )));
 
@@ -48,6 +48,7 @@ function add_my_media_button() {
                     <option value="testimonial">Testimonials</option>
                     <option value="googlemap">Google Maps</option>
                     <option value="button">Buttons</option>
+                    <option value="video">Videos</option>
                     <option value="list">Lists</option>
              </select>';
     $saved_rnos =  get_option('get_saved_random_numbers');
@@ -71,6 +72,12 @@ function add_my_media_button() {
 			$google_map = get_option('get_googlemaps_'.$id);
 			if(!empty($google_map)){
 				$html .= '<button data-action="googlemap" id='.$id.' class="sw-hide-btn button">Add GoogleMap '.$id.'</button>';   
+			}
+
+			//videos
+			$videos = get_option('get_videos_'.$id);
+			if(!empty($videos)){
+				$html .= '<button data-action="video" id='.$id.' class="sw-hide-btn button">Add Video '.$id.'</button>';   
 			}
 		
 		}
@@ -287,6 +294,7 @@ class WC_Testimonial {
 		add_action('wp_ajax_wt_save_form_fields_for_testimonials' , array($this , 'wt_save_form_fields_for_testimonials'));
 		add_action('wp_ajax_wt_save_form_fields_for_googlemaps' , array($this , 'wt_save_form_fields_for_googlemaps'));
 		add_action('wp_ajax_wt_save_form_fields_for_buttons' , array($this , 'wt_save_form_fields_for_buttons'));
+		add_action('wp_ajax_wt_save_form_fields_for_videos' , array($this , 'wt_save_form_fields_for_videos'));
 		
 		add_action('wp_ajax_delete_selected_data' , array($this , 'delete_selected_data'));
 		add_action('wp_ajax_kwdelete_selected_data_for_keyword' , array($this , 'kwdelete_selected_data_for_keyword'));
@@ -300,6 +308,7 @@ class WC_Testimonial {
 		add_shortcode('improveseo_testimonial' , array($this , 'testimonial_callback'));
 		add_shortcode('improveseo_googlemaps' , array($this , 'maps_callback'));
 		add_shortcode('improveseo_buttons' , array($this , 'button_callback'));
+		add_shortcode('improveseo_video' , array($this , 'video_callback'));
 
 	}
 	
@@ -489,7 +498,31 @@ class WC_Testimonial {
 	}
 
 
+	function video_callback( $atts ){
+		$sc_att = shortcode_atts(
+            array(
+              'id' => null, 
+            ), $atts
+        );
 
+        $id = $sc_att['id'];
+        $id = $new_str = str_replace(' ', '', $id);
+        if (empty($id)) {
+        	return;
+        }
+
+        $id = explode(',', $id);
+        $args = array(
+        	'id' => $id
+        );
+
+
+        ob_start();
+			wt_load_templates('videos.php' , $args);
+            $html = ob_get_contents(); 
+            ob_end_clean();
+        return $html;
+	}
 
 
 	/****=====Edit/Updating the selected data====***/
@@ -690,6 +723,64 @@ class WC_Testimonial {
 		$result = array_unique($random_no_arr);
 		update_option('get_saved_random_numbers' , $result );
 		
+		$url = admin_url('admin.php?page=improveseo_shortcodes');
+		wp_send_json(array('status' => 'success' , 'url' => $url));
+		die;
+	}
+
+	/****=====Saving Form Fields From Admin Side For videos====***/
+	function wt_save_form_fields_for_videos(){
+		$rand_no = isset($_REQUEST['updateandedit_data']) ? $_REQUEST['updateandedit_data'] : '';
+
+
+		$video_poster_img_source = isset($_REQUEST['video_poster_img_source'])?$_REQUEST['video_poster_img_source']:'';
+		$video_poster_img_id = isset($_REQUEST['video_poster_img_id'])?$_REQUEST['video_poster_img_id']:'';
+
+		$video_id_mp4 = isset($_REQUEST['video_id_mp4'])?$_REQUEST['video_id_mp4']:'';
+		$video_url_mp4 = isset($_REQUEST['video_url_mp4'])?$_REQUEST['video_url_mp4']:'';
+
+		$video_id_ogv = isset($_REQUEST['video_id_ogv'])?$_REQUEST['video_id_ogv']:'';
+		$video_url_ogv = isset($_REQUEST['video_url_ogv'])?$_REQUEST['video_url_ogv']:'';
+
+		$video_id_webm = isset($_REQUEST['video_id_webm'])?$_REQUEST['video_id_webm']:'';
+		$video_url_webm = isset($_REQUEST['video_url_webm'])?$_REQUEST['video_url_webm']:'';
+
+		$video_autoplay = isset($_REQUEST['video_autoplay'])?$_REQUEST['video_autoplay']:'no';
+		$video_muted = isset($_REQUEST['video_muted'])?$_REQUEST['video_muted']:'no';
+		$video_controls = isset($_REQUEST['video_controls'])?$_REQUEST['video_controls']:'no';
+		$video_loop = isset($_REQUEST['video_loop'])?$_REQUEST['video_loop']:'no';
+		$video_height = isset($_REQUEST['video_height'])?$_REQUEST['video_height']:'auto';
+		$video_width = isset($_REQUEST['video_width'])?$_REQUEST['video_width']:'100%';		
+
+		$arr = array(
+			'video_poster_img_source'	=> $video_poster_img_source,
+			'video_poster_img_id' 		=> $video_poster_img_id,
+			'video_id_mp4' 				=> $video_id_mp4,
+			'video_url_mp4'				=> $video_url_mp4,
+			'video_id_ogv' 				=> $video_id_ogv,
+			'video_url_ogv'				=> $video_url_ogv,
+			'video_id_webm' 			=> $video_id_webm,
+			'video_url_webm' 			=> $video_url_webm,
+			'video_autoplay' 			=> $video_autoplay,
+			'video_muted' 				=> $video_muted,
+			'video_controls' 			=> $video_controls,
+			'video_loop' 				=> $video_loop,
+			'video_height' 				=> $video_height,
+			'video_width' 				=> $video_width,
+		);
+
+		if (empty($rand_no)) {
+			$rand_no = $this->create_random_number();
+		}
+		update_option('get_videos_'.$rand_no , $arr);
+
+		//saving random numbers too
+		$random_no_arr = get_option('get_saved_random_numbers');
+
+		$random_no_arr[] = $rand_no;
+		$result = array_unique($random_no_arr);
+		update_option('get_saved_random_numbers' , $result );
+
 		$url = admin_url('admin.php?page=improveseo_shortcodes');
 		wp_send_json(array('status' => 'success' , 'url' => $url));
 		die;

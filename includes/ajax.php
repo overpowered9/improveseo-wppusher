@@ -4,7 +4,7 @@ add_action('wp_ajax_improveseo_get_shortcodes', 'improveseo_get_shortcodes');
 function improveseo_get_shortcodes(){
     $improveseo_shortcode_type = sanitize_text_field($_POST['improveseo_shortcode_type']);
     $saved_rnos =  get_option('get_saved_random_numbers');
-    $allowed_shortcode_types = array('testimonial', 'googlemap', 'button', 'list');
+    $allowed_shortcode_types = array('testimonial', 'googlemap', 'button', 'video', 'list');
     $shortcode_html = '';
 
     if(in_array($improveseo_shortcode_type, $allowed_shortcode_types)){
@@ -30,6 +30,14 @@ function improveseo_get_shortcodes(){
                     $googlemap = get_option('get_googlemaps_'.$id);
                     if(!empty($googlemap)){
                         $shortcode_html .= '<option value="'.$id.'">GoogleMap - '.$id.'</option>';
+                    }
+                }
+            break;
+            case 'video':
+                foreach($saved_rnos as $id){
+                    $videos = get_option('get_videos_'.$id);
+                    if(!empty($videos)){
+                        $shortcode_html .= '<option value="'.$id.'">Video - '.$id.'</option>';
                     }
                 }
             break;

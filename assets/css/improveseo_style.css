@@ -170,6 +170,7 @@ a:hover {
 .form-wrap .radio-btns-wrapper .form-label{
     display: inline-block;
     margin-right: 40px;
+    width: 150px;
 }
 .form-wrap .form-control {
     background-color: transparent;
@@ -183,7 +184,10 @@ a:hover {
     padding:15px 22px;
     color: #000;
 }
-
+.form-wrap .form-control:disabled{
+    background-color: rgb(235,235,228);
+    cursor: not-allowed;
+}
 .input-prefix {
     position: relative;
     width: 100%;
@@ -1065,7 +1069,7 @@ select.select-control {
     padding: 2px !important;
 }
 
-.upload-image-js, .tap-to-call-upload-image-js{
+.upload-btn-padding{
     padding: 13.5px;
 }
 
