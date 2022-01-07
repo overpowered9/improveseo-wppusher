@@ -561,3 +561,26 @@ if (!function_exists('addGpsInfo')) {
 	    file_put_contents($output, $jpeg->getBytes());
 	}
 }
+function improveseo_generate_youtube_url($video_url){
+    return preg_replace(
+        "/\s*[a-zA-Z\/\/:\.]*youtu(be.com\/watch\?v=|.be\/)([a-zA-Z0-9\-_]+)([a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*)/i",
+        "//www.youtube.com/embed/$2",
+        $video_url
+    );
+
+}
+
+
+function improveseo_generate_vimeo_url($url){
+    //This is a general function for generating an embed link of an FB/Vimeo/Youtube Video.
+    $finalUrl = '';
+    if(strpos($url, 'vimeo.com/') !== false) {
+        //it is Vimeo video
+        $videoId = explode("vimeo.com/",$url)[1];
+        if(strpos($videoId, '&') !== false){
+            $videoId = explode("&",$videoId)[0];
+        }
+        $finalUrl.='https://player.vimeo.com/video/'.$videoId;
+    }
+    return $finalUrl;
+}

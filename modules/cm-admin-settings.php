@@ -38,6 +38,7 @@
 
 	// For Videos
 	$data_video = get_option('get_videos_'.$specific_no);
+	$video_type = isset($data_video['video_type'])?$data_video['video_type']:'upload_video';
 	$video_poster_img_source = isset($data_video['video_poster_img_source'])?$data_video['video_poster_img_source']:'';
 	$video_poster_img_id = isset($data_video['video_poster_img_id'])?$data_video['video_poster_img_id']:'';
 
@@ -49,6 +50,9 @@
 
 	$video_id_webm = isset($data_video['video_id_webm'])?$data_video['video_id_webm']:'';
 	$video_url_webm = isset($data_video['video_url_webm'])?$data_video['video_url_webm']:'';
+
+	$video_url_vimeo = isset($data_video['video_url_vimeo'])?$data_video['video_url_vimeo']:'';
+	$video_url_youtube = isset($data_video['video_url_youtube'])?$data_video['video_url_youtube']:'';
 
 	$video_autoplay = isset($data_video['video_autoplay'])?$data_video['video_autoplay']:'no';
 	$video_muted = isset($data_video['video_muted'])?$data_video['video_muted']:'no';
@@ -96,7 +100,7 @@
 				<?php
 				$no = isset($_GET['action']) ? $_GET['action'] : '';
 				if($no == 'testimonial'){
-				$no = $specific_no;
+					$no = $specific_no;
 				}else $no = '';
 				?>
 				<form class="wt-save-admin-settings-testimonials form-wrap mt-3">
@@ -368,6 +372,25 @@
 						<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
 						<div class="col-12">
 							<div class="row">
+								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
+									<label class="form-label">Video Type:</label>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input video_type" type="radio" name="video_type" id="video_type_upload" value="upload_video" <?= checked('upload_video', $video_type); ?> />
+										<label class="form-check-label" for="video_type_upload">Upload Video</label>
+									</div>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input video_type" type="radio" name="video_type" id="video_type_youtube" value="youtube" <?= checked('youtube', $video_type); ?> />
+										<label class="form-check-label" for="video_type_youtube">Youtube Video</label>
+									</div>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input video_type" type="radio" name="video_type" id="video_type_vimeo" value="vimeo" <?= checked('vimeo', $video_type); ?> />
+										<label class="form-check-label" for="video_type_vimeo">Vimeo Video</label>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-12 upload_video_wrapper" style="<?php echo ($video_type!='upload_video')?'display:none':''; ?>">
+							<div class="row">
 								<div class="BasicForm__row col-lg-2">
 									<div class="input-group">
 										<input type="hidden" class="video-poster-img-source" name="video_poster_img_source" value="<?php echo $video_poster_img_source; ?>" />
@@ -387,7 +410,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="col-12">
+						<div class="col-12 upload_video_wrapper" style="<?php echo ($video_type!='upload_video')?'display:none':''; ?>">
 							<div class="row">
 								<div class="BasicForm__row col-lg-2">
 									<div class="input-group">
@@ -407,7 +430,7 @@
 							</div>
 						</div>
 
-						<div class="col-12">
+						<div class="col-12 upload_video_wrapper" style="<?php echo ($video_type!='upload_video')?'display:none':''; ?>">
 							<div class="row">
 								<div class="BasicForm__row col-lg-2">
 									<div class="input-group">
@@ -428,7 +451,7 @@
 							</div>
 						</div>
 
-						<div class="col-12">
+						<div class="col-12 upload_video_wrapper" style="<?php echo ($video_type!='upload_video')?'display:none':''; ?>">
 							<div class="row">
 								<div class="BasicForm__row col-lg-2">
 									<div class="input-group">
@@ -448,6 +471,29 @@
 								</div>
 							</div>
 						</div>
+
+						<div class="col-12 youtube_wrapper" style="<?php echo ($video_type!='youtube')?'display:none':''; ?>">
+							<div class="row">
+								<div class="BasicForm__row col-lg-4">
+									<div class="input-group">
+										<label class="form-label">YouTube URL</label>
+										<input type="text" class="form-control video-url-youtube" name="video_url_youtube" placeholder="https://www.youtube.com/embed/{video-id}" value="<?php echo $video_url_youtube; ?>"  />
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12 vimeo_wrapper" style="<?php echo ($video_type!='vimeo')?'display:none':''; ?>">
+							<div class="row">
+								<div class="BasicForm__row col-lg-4">
+									<div class="input-group">
+										<label class="form-label">Vimeo URL</label>
+										<input type="text" class="form-control video-url-vimeo" name="video_url_vimeo" value="<?php echo $video_url_vimeo; ?>"  />
+									</div>
+								</div>
+							</div>
+						</div>
+
 						<div class="col-12">
 							<div class="row">
 								<div class="BasicForm__row col-lg-2">

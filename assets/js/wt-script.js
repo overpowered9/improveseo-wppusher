@@ -540,4 +540,21 @@ jQuery(function($){
             $('#normal_btn_wrapper').hide();
         }
     });
+
+    $(document).on('click', '.video_type', function(e){
+        var video_type = $(this).val();
+        if(video_type=="upload_video"){
+            $('.youtube_wrapper').hide();
+            $('.vimeo_wrapper').hide();
+            $('.upload_video_wrapper').show();
+        }else if(video_type=="youtube"){
+            $('.youtube_wrapper').show();
+            $('.vimeo_wrapper').hide();
+            $('.upload_video_wrapper').hide();
+        }else if(video_type=="vimeo"){
+            $('.youtube_wrapper').hide();
+            $('.vimeo_wrapper').show();
+            $('.upload_video_wrapper').hide();
+        }
+    });
 })

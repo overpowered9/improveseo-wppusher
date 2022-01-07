@@ -6,7 +6,7 @@ Description: Creates a large number of pages/posts and customize them to rank in
 Author: Improve SEO Team
 Version: 2.0.0
 */
-define("IMPROVESEO_VERSION", "2.01");
+define("IMPROVESEO_VERSION", "2.02");
 define('IMPROVESEO_ROOT', dirname(__FILE__));
 define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url( __FILE__ )));
 
@@ -732,6 +732,7 @@ class WC_Testimonial {
 	function wt_save_form_fields_for_videos(){
 		$rand_no = isset($_REQUEST['updateandedit_data']) ? $_REQUEST['updateandedit_data'] : '';
 
+		$video_type = isset($_REQUEST['video_type'])?$_REQUEST['video_type']:'upload_video';
 
 		$video_poster_img_source = isset($_REQUEST['video_poster_img_source'])?$_REQUEST['video_poster_img_source']:'';
 		$video_poster_img_id = isset($_REQUEST['video_poster_img_id'])?$_REQUEST['video_poster_img_id']:'';
@@ -745,6 +746,9 @@ class WC_Testimonial {
 		$video_id_webm = isset($_REQUEST['video_id_webm'])?$_REQUEST['video_id_webm']:'';
 		$video_url_webm = isset($_REQUEST['video_url_webm'])?$_REQUEST['video_url_webm']:'';
 
+		$video_url_vimeo = isset($_REQUEST['video_url_vimeo'])?$_REQUEST['video_url_vimeo']:'';
+		$video_url_youtube = isset($_REQUEST['video_url_youtube'])?$_REQUEST['video_url_youtube']:'';
+
 		$video_autoplay = isset($_REQUEST['video_autoplay'])?$_REQUEST['video_autoplay']:'no';
 		$video_muted = isset($_REQUEST['video_muted'])?$_REQUEST['video_muted']:'no';
 		$video_controls = isset($_REQUEST['video_controls'])?$_REQUEST['video_controls']:'no';
@@ -753,6 +757,7 @@ class WC_Testimonial {
 		$video_width = isset($_REQUEST['video_width'])?$_REQUEST['video_width']:'100%';		
 
 		$arr = array(
+			'video_type'				=> $video_type,
 			'video_poster_img_source'	=> $video_poster_img_source,
 			'video_poster_img_id' 		=> $video_poster_img_id,
 			'video_id_mp4' 				=> $video_id_mp4,
@@ -761,6 +766,8 @@ class WC_Testimonial {
 			'video_url_ogv'				=> $video_url_ogv,
 			'video_id_webm' 			=> $video_id_webm,
 			'video_url_webm' 			=> $video_url_webm,
+			'video_url_vimeo' 			=> $video_url_vimeo,
+			'video_url_youtube' 		=> $video_url_youtube,
 			'video_autoplay' 			=> $video_autoplay,
 			'video_muted' 				=> $video_muted,
 			'video_controls' 			=> $video_controls,
