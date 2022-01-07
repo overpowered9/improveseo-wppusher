@@ -33,7 +33,8 @@ function improveseo_enqueue_admin(){
 	wp_enqueue_script('improveseo-modal',IMPROVESEO_DIR . '/assets/js/jquery.modal.min.js', array('jquery'), IMPROVESEO_VERSION, true);	
 
 	if ( isset( $my_current_screen->base )  ) {
-		if($my_current_screen->base=="improve-seo_page_improveseo_posting" && isset($_REQUEST['action'])){
+		$allowed_bases = array('toplevel_page_improveseo_dashboard', 'improve-seo_page_improveseo_posting');
+		if(in_array($my_current_screen->base, $allowed_bases) && isset($_REQUEST['action'])){
 			wp_enqueue_script('improveseo-form', IMPROVESEO_DIR.'/assets/js/form.js', array('jquery'), IMPROVESEO_VERSION, true);
 			wp_localize_script('improveseo-form', 'form_ajax_vars', array(
 				'ajax_url'      		=> 	admin_url( 'admin-ajax.php' ),
