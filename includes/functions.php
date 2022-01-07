@@ -569,8 +569,6 @@ function improveseo_generate_youtube_url($video_url){
     );
 
 }
-
-
 function improveseo_generate_vimeo_url($url){
     //This is a general function for generating an embed link of an FB/Vimeo/Youtube Video.
     $finalUrl = '';
