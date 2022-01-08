@@ -37,5 +37,5 @@ function improveseo_add_menu_items()
 add_action('admin_menu', function () {
     global $submenu;
 
-    $submenu['improveseo_dashboard'][] = array('FAQ', 0, 'http://bit.ly/improveseofaq');
+    $submenu['improveseo_dashboard'][] = array('FAQ', 'manage_options', 'http://bit.ly/improveseofaq');
 });
