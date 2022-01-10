@@ -28,7 +28,7 @@ foreach ($id as $p) {
     if($video_height=="")
         $video_height = 'auto';
 
-    $video = '<div class="improveseo_row">';
+    $video = '<span class="improveseo_row">';
     if($video_type=="upload_video"){
         if($video_url_mp4!="" || $video_url_ogv!="" || $video_url_webm!=""){
             $video .= '<video width="'.$video_width.'" height="'.$video_height.'"';
@@ -109,6 +109,6 @@ foreach ($id as $p) {
             $video .= '</div><script src="https://player.vimeo.com/api/player.js"></script>';
         }
     }
-    $video .= '</div>';
+    $video .= '</span>';
     echo $video;
 }

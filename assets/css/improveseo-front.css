@@ -1,5 +1,4 @@
 .improveseo_row{
-	width: 100%;
 	padding: 10px 0;
 }
 
@@ -27,29 +26,31 @@
 .improveseo_btn.btn_round{
 	border-radius: 10px;
 }
-.improveseo_btn.btn_md img {
-	height: 25px;
-	width: 25px;
-	margin-right: 10px;
-	vertical-align: middle;
-	position: relative;
-}
 
-.improveseo_btn.btn_lg img {
+.improveseo_row .improveseo_btn.btn_sm img {
 	height: 30px;
 	width: 30px;
 	margin-right: 10px;
 	vertical-align: middle;
 	position: relative;
 }
-
-.improveseo_btn.btn_lg img {
-	height: 20px;
-	width: 20px;
+.improveseo_row .improveseo_btn.btn_md img {
+	height: 40px;
+	width: 40px;
 	margin-right: 10px;
 	vertical-align: middle;
 	position: relative;
 }
+
+.improveseo_row .improveseo_btn.btn_lg img {
+	height: 50px;
+	width: 50px;
+	margin-right: 10px;
+	vertical-align: middle;
+	position: relative;
+}
+
+
 
 
 .improveseo_testimonial_wrapper::before {
@@ -62,8 +63,8 @@
 	margin-left: -16px;
 	border-radius: 50%;
 	z-index: 2;
-	border: 4px solid #fff;
-	padding: 2px 6px;
+	border: 1px solid #fff;
+	padding: 4px 8px;
 }
 .improveseo_testimonial_wrapper{
 	text-align: left;

@@ -582,3 +582,16 @@ function improveseo_generate_vimeo_url($url){
     }
     return $finalUrl;
 }
+// Function to add http
+function improveseo_addHttp($url) {
+      
+    // Search the pattern
+    if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
+          
+        // If not exist then add http
+        $url = "http://" . $url;
+    }
+      
+    // Return the URL
+    return $url;
+}

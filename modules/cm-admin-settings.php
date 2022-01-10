@@ -81,10 +81,10 @@
 				<a class="nav-link <?php echo ($action=="googlemaps")?'active':''; ?>" data-toggle="tab" href="#google_maps" role="tab" aria-controls="Google Maps" aria-selected="false">Google Maps</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link <?php echo ($action=="buttons")?'active':''; ?>" data-toggle="tab" href="#button_wt" role="tab" aria-controls="Button Settings" aria-selected="false">Button Settings</a>
+				<a class="nav-link <?php echo ($action=="buttons")?'active':''; ?>" data-toggle="tab" href="#button_wt" role="tab" aria-controls="Button Settings" aria-selected="false">Button</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link <?php echo ($action=="videos")?'active':''; ?>" data-toggle="tab" href="#videos" role="tab" aria-controls="Button Settings" aria-selected="false">Videos</a>
+				<a class="nav-link <?php echo ($action=="videos")?'active':''; ?>" data-toggle="tab" href="#videos" role="tab" aria-controls="Videos" aria-selected="false">Videos</a>
 			</li>
 			
 		</ul>

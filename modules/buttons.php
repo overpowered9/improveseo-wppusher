@@ -40,9 +40,9 @@ foreach ($id as $p) {
       if($tw_button_border_type=="round")
             $classes .= ' btn_round';
       
-      $btn .= '<div class="improveseo_row">';
+      $btn .= '<span class="improveseo_row">';
       if($tw_button_type=="normal_btn"){
-            $btn .= '<a style="'.$style.'" class="improveseo_btn '.$classes.'" href="'.$link.'">'.$text.'</a>';
+            $btn .= '<a style="'.$style.'" class="improveseo_btn '.$classes.'" href="'.improveseo_addHttp($link).'">'.$text.'</a>';
       }else{
             $btn .= '<a style="'.$style.'" class="improveseo_btn '.$classes.'" href="tel:'.$tw_tap_btn_number.'">';
             if($tw_tap_to_call_img_source!=""){
@@ -53,6 +53,6 @@ foreach ($id as $p) {
             $btn .= '</a>';
             //echo '<a style="'.$style.'" class="improveseo_btn '.$classes.'" href="'.$link.'">'.$text.'</a>';
       }
-      $btn .= '</div>';
+      $btn .= '</span>';
       echo $btn;
 }
