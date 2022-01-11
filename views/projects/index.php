@@ -169,7 +169,7 @@ use ImproveSEO\View;
 	function start_build(ids){
 		jQuery
 		.ajax({
-			url : ajaxurl,
+			url : "<?php echo admin_url("admin-ajax.php"); ?>",
 			data : ({
 				action : 'workdex_builder_ajax',
 				page : 100,
@@ -200,9 +200,8 @@ use ImproveSEO\View;
 	var numm_update;
 	function start_update(ids){
 		var new_location = "<?php echo admin_url('admin.php?page=improveseo_projects'); ?>";
-		jQuery
-		.ajax({
-			url : ajaxurl,
+		jQuery.ajax({
+			url : "<?php echo admin_url("admin-ajax.php"); ?>",
 			data : ({
 				action : 'workdex_builder_update_ajax',
 				page : 100,
@@ -235,7 +234,7 @@ use ImproveSEO\View;
 	<?php 
 
 	if(isset($_GET['post_preview'])){
-		
+			
 		if($_GET['post_preview'] == 'true'){
 			
 			$project = $projects[0];
@@ -248,7 +247,8 @@ use ImproveSEO\View;
 			}
 			
 			elseif($project->state == 'Published' && $project->iteration == $project->max_iterations){
-				wp_redirect(admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true"));
+				$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
+				header("Location:".$export_url);
 				exit;
 			}			
 		}		

@@ -75,17 +75,108 @@
     });
    
     $('#preview_on').click(function(e) {
-        console.log('works');
-        
-		/* jQuery('#preview_popup').modal();
-		
+        //e.preventDefault();
 		jQuery("#preview_popup").modal({
 			escapeClose: false,
 			clickClose: false,
 			showClose: false,
 			fadeDuration: 1000,
 			fadeDelay: 0.35
-		}); */
+		});
 
 	});
+
+    
 })(jQuery);
+let form_action_old_wh = document.getElementById('main_form').action;
+	function openWin() {
+    	document.getElementById("main_form").action = form_ajax_vars.admin_url + "?page=improveseo_dashboard&action=do_create_post&noheader=true";
+		
+		let max_no_posts_old = document.getElementById('max-posts').value;					
+		if (max_no_posts_old > 50) {
+			alert("Recommended no. of total posts for preiew is less than 50");				
+		}
+		var myForm = document.getElementById('main_form');
+		myForm.onsubmit = function() {
+			myWindow = window.open('about:blank','Popup_Window','toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=200,height=200,left = 5000,top = 5000');
+			this.target = 'Popup_Window';
+		}
+
+        var wh_modal_1_style = document.getElementById("wh_prev_modal_1");
+		var wh_modal_2_style = document.getElementById("wh_prev_modal_2");
+		wh_modal_1_style.style.display = "block";
+		wh_modal_2_style.style.display = "none";
+
+        var preview_id= 0;					
+		var check_status = setInterval(function() {
+            if(myWindow.location.href.indexOf('?page=improveseo_projects') > 0) {
+				var location = myWindow.location.search;
+				var location_2 = location.split('&');
+				var location_3 = location_2[1];
+				var preview_ids = location_3.split('=');
+				preview_id = preview_ids[1];
+    			myWindow.location.href= form_ajax_vars.admin_url + "?page=improveseo_projects&post_preview=true"; 
+                    clearInterval(check_status);
+            }
+        }, 2000);
+
+        var check_status_2 = setInterval(function() {
+    		if(myWindow.location.href.indexOf('?id=') > 0) {
+				wh_modal_1_style.style.display = "none";
+				wh_modal_2_style.style.display = "block";
+                myWindow.resizeTo(720, 360);
+                myWindow.moveTo(312, 234); 
+                clearInterval(check_status_2);
+			}
+        }, 2500);
+
+        function preview_delete_ajax(prev_id){
+            jQuery.ajax({
+                url : form_ajax_vars.ajax_url,
+                data : ({
+                    action : 'preview_delete_ajax',
+                    prev_id : prev_id,
+                    ajax : 1,
+				}),
+                success : function(data) {
+					//alert(data);
+				}
+            });
+		}
+
+        var check_prev_win = setInterval(function() {
+			if(typeof (myWindow) == 'undefined' || myWindow.closed) {
+				if(jQuery.modal.isActive()){
+                    preview_delete_ajax(preview_id);
+					jQuery.modal.close();
+					document.getElementById("main_form").action = form_action_old_wh;
+					//document.getElementById('hidden_input_wh').setAttribute('value', reset_hidden_input_wh);
+					var myForm = document.getElementById('main_form');
+					myForm.onsubmit = function() {}
+			    }
+				clearInterval(check_prev_win);
+			}
+		}, 500);
+	}
+				
+	function closeWin() {
+		jQuery.modal.close();
+		document.getElementById("main_form").action = form_action_old_wh;
+		//document.getElementById('hidden_input_wh').setAttribute('value', reset_hidden_input_wh);
+        var location = myWindow.location.search;
+        var preview_ids = location.split("=");
+        var id = preview_ids[1];
+        myWindow.location.href= form_ajax_vars.admin_url + "?page=improveseo_projects&action=delete&id="+ id +"&noheader=true";
+            setTimeout(function() {
+                myWindow.close();
+            }, 10000);
+        var myForm = document.getElementById('main_form');
+        myForm.onsubmit = function() {}
+	}
+				
+    function changeWin(){
+		myWindow.focus(); 
+		myWindow.location.href= form_ajax_vars.admin_url + "?page=improveseo_projects&post_preview=true";
+	}
+
+    

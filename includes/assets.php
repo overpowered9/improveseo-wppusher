@@ -38,6 +38,7 @@ function improveseo_enqueue_admin(){
 			wp_enqueue_script('improveseo-form', IMPROVESEO_DIR.'/assets/js/form.js', array('jquery'), IMPROVESEO_VERSION, true);
 			wp_localize_script('improveseo-form', 'form_ajax_vars', array(
 				'ajax_url'      		=> 	admin_url( 'admin-ajax.php' ),
+				'admin_url'      		=> 	admin_url( 'admin.php' ),
 				)
 			);
 		}
