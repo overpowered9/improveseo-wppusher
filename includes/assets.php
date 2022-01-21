@@ -31,14 +31,77 @@ function improveseo_enqueue_admin(){
 	wp_enqueue_script('improveseo-underscore', 'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js', array('underscore'));
 	
 	wp_enqueue_script('improveseo-modal',IMPROVESEO_DIR . '/assets/js/jquery.modal.min.js', array('jquery'), IMPROVESEO_VERSION, true);	
+	
 
 	if ( isset( $my_current_screen->base )  ) {
 		$allowed_bases = array('toplevel_page_improveseo_dashboard', 'improve-seo_page_improveseo_posting');
 		if(in_array($my_current_screen->base, $allowed_bases) && isset($_REQUEST['action'])){
+			wp_enqueue_script( 'jquery-ui-autocomplete' );
+			$saved_rnos =  get_option('get_saved_random_numbers');
+			$autocomplete_arr = array();
+			if(!empty($saved_rnos)){
+				foreach($saved_rnos as $id){
+					$testimonial = get_option('get_testimonials_'.$id);
+					$buttons = get_option('get_buttons_'.$id);
+					$google_map = get_option('get_googlemaps_'.$id);
+					$videos = get_option('get_videos_'.$id);
+
+					if(!empty($testimonial)){
+						$autocomplete = array(
+							'value' => '@testimonial : '.$id,
+							'label' => '@testimonial : '.$id,
+							'desc' => '[improveseo_testimonial id='.$id.']'
+						);
+						$autocomplete_arr[] = $autocomplete;
+					}
+
+					if(!empty($buttons)){
+						$autocomplete = array(
+							'value' => '@button : '.$id,
+							'label' => '@button : '.$id,
+							'desc' => '[improveseo_buttons id='.$id.']'
+						);
+						$autocomplete_arr[] = $autocomplete;
+					}
+
+					
+
+					if(!empty($google_map)){
+						$autocomplete = array(
+							'value' => '@googlemap : '.$id,
+							'label' => '@googlemap : '.$id,
+							'desc' => '[improveseo_googlemaps id='.$id.']'
+						);
+						$autocomplete_arr[] = $autocomplete;
+					}
+
+					if(!empty($videos)){
+						$autocomplete = array(
+							'value' => '@video : '.$id,
+							'label' => '@video : '.$id,
+							'desc' => '[improveseo_video id='.$id.']'
+						);
+						$autocomplete_arr[] = $autocomplete;
+					}
+				}
+			}
+			$seo_list = improve_seo_lits();
+			if(!empty($seo_list)){
+				foreach($seo_list as $li){
+					$autocomplete = array(
+						'value' => '@list : '.$li,
+						'label' => '@list : '.$li,
+						'desc' => '@list:list-'.$li
+					);
+					$autocomplete_arr[] = $autocomplete;
+				}
+			}
+			
 			wp_enqueue_script('improveseo-form', IMPROVESEO_DIR.'/assets/js/form.js', array('jquery'), IMPROVESEO_VERSION, true);
 			wp_localize_script('improveseo-form', 'form_ajax_vars', array(
 				'ajax_url'      		=> 	admin_url( 'admin-ajax.php' ),
 				'admin_url'      		=> 	admin_url( 'admin.php' ),
+				'autocomplete_src'		=> $autocomplete_arr
 				)
 			);
 		}

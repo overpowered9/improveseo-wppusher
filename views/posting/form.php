@@ -101,7 +101,7 @@ wp_enqueue_script('post');
 				</div>
 			</div>
 			
-			<!-- HTML modal for close preview button -->
+			
 			<div id="shortcode_popup" class="modal shortcode_popup" tabindex="-1" role="dialog" aria-labelledby="shortcode_popup" aria-hidden="true" data-focus="true">
 				<h3>Select ImproveSEO Shortcode</h3>
 				<div class="form-wrap">
@@ -125,6 +125,16 @@ wp_enqueue_script('post');
 					</div>
 					<div class="form-group hidden">
 						<button type="button" class="btn btn-outline-primary" id="improveseo_shortcode_add_btn">Add</button>
+					</div>
+				</div>
+			</div>
+
+			<div id="all_shortcode_popup" class="modal all_shortcode_popup" tabindex="-1" role="dialog" aria-labelledby="all_shortcode_popup" aria-hidden="true" data-focus="true">
+				<h3>Search ImproveSEO Shortcode</h3>
+				<div class="form-wrap">
+					<div class="form-group">
+						<label for="improveseo_shortcode_text">Search Shortcode</label>
+						<input type="text" class="form-control" id="improveseo_shortcode_text" name="improveseo_shortcode_text">
 					</div>
 				</div>
 			</div>
@@ -174,7 +184,7 @@ wp_enqueue_script('post');
 								Maximum number of posts to generate. Input `0` if you want to generate all available posts from spintax.
 							</span>
 							<div class="input-group">
-								<input type="number" id="max-posts" name="max_posts" class="form-control" value="<?= Validator::old('max_posts', (int) $task->options['max_posts']) ?>" min="0" />
+								<input type="number" id="max-posts" name="max_posts" class="form-control" value="<?= (Validator::old('max_posts', (int) $task->options['max_posts']) <= 0) ? '1': (Validator::old('max_posts', (int) $task->options['max_posts'])); ?>" min="1" />
 							</div>
 						</p>
 
@@ -412,33 +422,82 @@ wp_enqueue_script('post');
 									</span>
 								</div>
 								<div id="on-page-seo-wrap" style="display: <?= $old_on_page_seo == 1 ? 'block' : 'none' ?>;">
-									<div id="google-preview" style="display:none;">
+
+									<div id="google-preview" class="google-preview">
+										<h4 class=""><span>Google Preview</span></h4>
 										<div class="input-group mt-4 cta-check">
-											<label for="preview-label" class="form-label">Google Preview</label>
+											<label for="preview-label" class="form-label">Preview As:</label>
 											<span>
-												<input id="mobile-preview" name="preview-type"  type="radio" value="mobile" checked />
+												<input id="mobile-preview" name="preview-type"  type="radio" class="google-preview-type" value="mobile" checked />
 												<label for="mobile-preview">Mobile result</label>
 												&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-												<input id="desktop-preview" name="preview-type"  type="radio" value="desktop" />
+												<input id="desktop-preview" name="preview-type"  type="radio" class="google-preview-type" value="desktop" />
 												<label for="desktop-preview">Desktop result</label>
 											</span>
 										</div>
-										<div id="google-mobile-preview" class="google-mobile-preview">
+										<div id="google-mobile-preview" class="google-mobile-preview" >
 											<div class="google-preview-content-wrapper">
 												<div class="google-preview-content-wrapper2">
 													<div class="google-preview-logo">
 														<i class="fa fa-globe"></i>
 														<span class="google-preview-mobile-url">
-															<span class="google-preview-mobile-disabled">localhost</span> › demo
+															<span class="google-preview-mobile-disabled">
+																<?php echo site_url(); ?></span> › @title
 														</span>
 													</div>
 													<div class="google-mobile-preview-pagename">
-														Demo - test
+														<?php
+														if($task->options['custom_title']=="")
+															echo '@title';
+														else
+															echo $task->options['custom_title']; ?>
+													</div>
+													<div class="google-mobile-preview-description">
+													<span class="google-mobile-preview-description-date"><?php echo date('M d, Y'); ?> － </span>
+													<span class="google-description-content">
+														<?php 
+															if($task->options['custom_title']==""){
+																echo "Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.";
+															}else{
+																echo $task->options['custom_title'];
+															}
+														?>
+														</span>
 													</div>
 												</div>
-												
 											</div>
-											<div class="google-preview-content-wrapper"></div>
+										</div>
+										<div id="google-desktop-preview" class="google-desktop-preview" style="display:none;">
+											<div class="google-preview-content-wrapper">
+													<div class="google-preview-content-wrapper2">
+														<div class="google-preview-logo-desktop">
+															<span class="google-preview-desktop-url">
+																<span class="google-preview-desktop-disabled"><?php echo site_url(); ?></span> › @title
+															</span>
+														</div>
+														<div class="google-desktop-preview-pagename">
+															<?php
+															if($task->options['custom_title']=="")
+																echo '@title';
+															else
+																echo $task->options['custom_title']; ?>
+														</div>
+														<div class="google-desktop-preview-description">
+														<span class="google-desktop-preview-description-date">
+															<?php echo date('M d, Y'); ?>－ 
+														</span>
+														<span class="google-description-content">
+														<?php 
+														if($task->options['custom_title']==""){
+															echo "Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.";
+														}else{
+															echo $task->options['custom_title'];
+														}
+													 	?>	
+														</span>
+														</div>
+													</div>
+												</div>
 										</div>
 									</div>
 									<div class="input-group">
@@ -688,4 +747,3 @@ wp_enqueue_script('post');
 		</div>
 	</div>
 </div>
-?>
