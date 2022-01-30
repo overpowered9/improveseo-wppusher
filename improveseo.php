@@ -97,7 +97,7 @@ function improve_seo_lits(){
 
     global $wpdb;
     $list_names = array();
-    $sql = "SELECT * FROM " . $wpdb->prefix . "improveseo_lists ORDER BY name ASC LIMIT 0, 20";
+    $sql = "SELECT * FROM " . $wpdb->prefix . "improveseo_lists ORDER BY name ASC";
     $lists = $wpdb->get_results($sql);
     foreach($lists as $li){
         $list_names[] = $li->name;;    

@@ -33,16 +33,16 @@ function improveseo_lists() {
 		} */
 		$sqlTotal = 'SELECT COUNT(id) AS total FROM '. $model->getTable();
 		if($s != ""){
-			$sql .= ' WHERE name like "%'.$s.'%"';
-			$sqlTotal .= ' WHERE name like "%'.$s.'%"';
+			$sql .= " WHERE name like '%%%s%%'";
+			$sqlTotal .= " WHERE name like '%%%s%%'";
+			$params[] = $s;
 		}
-
-
+		
 		$sqlTotal = $wpdb->prepare($sqlTotal, $params);
-
+		
 		$sql .= " ORDER BY $orderBy $order";
 		$sql .= " LIMIT %d, %d";
-
+		
 		$params[] = $offset;
 		$params[] = $limit;
 

@@ -87,7 +87,7 @@ foreach ($id as $p) {
             $vimeo_url .= '&autoplay=1';
             $allow .= 'autoplay;';
         }
-        $allow .= 'fullscreen; picture-in-picture';
+        $allow .= 'fullscreen; picture-in-picture;';
         
         if($video_loop=="yes")
             $vimeo_url .= '&loop=1';

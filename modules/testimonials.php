@@ -17,7 +17,7 @@
         <style>#improveseo_testimonial_wrapper_<?php echo $i; ?>::before{ border-color: <?php echo $tw_testi_outline_color; ?> }</style>
         <div class="improveseo_row" style="width:100%;">
             <div class="improveseo_testimonial_wrapper" style="border-color:<?php echo $tw_testi_outline_color; ?>; background-color:<?php echo $tw_box_color; ?>; color: <?php echo $tw_font_color; ?>" id="improveseo_testimonial_wrapper_<?php echo $i; ?>">
-                <div style="<?php echo ($testi_img_src!='')?'background-image:'.$testi_img_src.'}':''; ?>" class="improveseo_testimonial_portrait"></div>
+                <div style="<?php echo ($testi_img_src!='')?'background-image:url('.$testi_img_src.')':''; ?>" class="improveseo_testimonial_portrait"></div>
                 <div class="improveseo_testimonial_description">
                     <div class="improveseo_testimonial_description_inner">
                         <div class="improveseo_testimonial_content">
