@@ -43,7 +43,7 @@ add_filter('jpeg_quality', function($arg){return 75;});
 add_action('media_buttons', 'add_my_media_button');
 function add_my_media_button() {
     $html = '';
-    $html .= '<select class="sw-editor-selector">
+    $html .= '<select class="sw-editor-selector" style="text-align:left !important;">
                     <option value="addshortcode">Add Shortcode</option>
                     <option value="testimonial">Testimonials</option>
                     <option value="googlemap">Google Maps</option>

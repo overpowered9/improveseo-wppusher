@@ -63,21 +63,23 @@ foreach ($id as $p) {
     }elseif($video_type=="youtube"){
         $youtube_url = improveseo_generate_youtube_url($video_url_youtube);
         $youtube_url .= '?rel=0';
+        $allow = '';
 
-        if($video_autoplay=="yes")
+        if($video_autoplay=="yes"){
             $youtube_url .= '&autoplay=1';
+            $allow .= 'autoplay';
+        }
 
         if($video_muted=="yes")
             $youtube_url .= '&mute=1';
 
         if($video_controls=="yes")
-            $youtube_url .= '&controls=0';
+            $youtube_url .= '&controls=1';
 
         if($video_loop=="yes")
             $youtube_url .= '&loop=1';
 
-
-        $video .= '<iframe src="'.$youtube_url.'" width="'.$video_width.'" height="'.$video_height.'"></iframe>';
+        $video .= '<iframe src="'.$youtube_url.'" width="'.$video_width.'" height="'.$video_height.'" allow="'.$allow.'"></iframe>';
     }elseif($video_type=="vimeo"){
         $vimeo_url = improveseo_generate_vimeo_url($video_url_vimeo);
         $vimeo_url .= '?';
