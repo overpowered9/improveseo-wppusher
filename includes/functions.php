@@ -582,6 +582,14 @@ function improveseo_generate_vimeo_url($url){
     }
     return $finalUrl;
 }
+function improveseo_get_youtube_id($url)
+{
+    if (stristr($url,'youtu.be/'))
+        {preg_match('/(https:|http:|)(\/\/www\.|\/\/|)(.*?)\/(.{11})/i', $url, $final_ID); return $final_ID[4]; }
+    else 
+        {@preg_match('/(https:|http:|):(\/\/www\.|\/\/|)(.*?)\/(embed\/|watch.*?v=|)([a-z_A-Z0-9\-]{11})/i', $url, $IDD); return $IDD[5]; }
+}
+
 // Function to add http
 function improveseo_addHttp($url) {
       

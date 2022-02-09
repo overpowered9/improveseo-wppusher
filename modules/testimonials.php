@@ -13,28 +13,35 @@
         $tw_box_color = isset($data['tw_box_color']) ? $data['tw_box_color'] : '#fff';
         $tw_font_color = isset($data['tw_font_color']) ? $data['tw_font_color'] : '#000';
         $tw_testi_outline_color = isset($data['tw_testi_outline_color']) ? $data['tw_testi_outline_color'] : '#ffffff';
-        ?>        
-        <style>#improveseo_testimonial_wrapper_<?php echo $i; ?>::before{ border-color: <?php echo $tw_testi_outline_color; ?> }</style>
-        <div class="improveseo_row" style="width:100%;">
-            <div class="improveseo_testimonial_wrapper" style="border-color:<?php echo $tw_testi_outline_color; ?>; background-color:<?php echo $tw_box_color; ?>; color: <?php echo $tw_font_color; ?>" id="improveseo_testimonial_wrapper_<?php echo $i; ?>">
-                <div style="<?php echo ($testi_img_src!='')?'background-image:url('.$testi_img_src.')':''; ?>" class="improveseo_testimonial_portrait"></div>
-                <div class="improveseo_testimonial_description">
+        $style = 'border-color:'.$tw_testi_outline_color.'; background-color:'.$tw_box_color.'; color: '.$tw_font_color.';';
+        $html .= '<style>
+		#improveseo_testimonial_wrapper_'.$i.'::before{ border-color: '. $tw_testi_outline_color.' }
+		#improveseo_testimonial_wrapper_'.$i.'{'.$style.'}
+		</style>';
+        $html .= '<div class="improveseo_row" style="width:100%;">
+		<div class="improveseo_testimonial_wrapper" id="improveseo_testimonial_wrapper_'.$i.'">';
+        if($testi_img_src != ''){
+            $html .= '<div style="background-image:url('.$testi_img_src.');" class="improveseo_testimonial_portrait"></div>';
+        }else{
+            $html .= '<div style="" class="improveseo_testimonial_portrait"></div>';
+        }
+                
+        $html .= '<div class="improveseo_testimonial_description">
                     <div class="improveseo_testimonial_description_inner">
                         <div class="improveseo_testimonial_content">
-                            <p><span style=""><?php echo $tw_testi_content; ?></span></p>
+                            <p><span style="">'.$tw_testi_content.'</span></p>
                         </div>
-                    </div>
-                    <?php if($tw_testi_name!=""): ?>
-                    <span class="improveseo_testimonial_author">Testimonia Author</span>
+                    </div>';
+        if($tw_testi_name!=""): 
+            $html .= '<span class="improveseo_testimonial_author">Testimonial Author</span>
                     <p class="improveseo_testimonial_meta">
-                        <span class="improveseo_testimonial_position"><?php echo $tw_testi_name; ?></span>
+                        <span class="improveseo_testimonial_position">'.$tw_testi_name.'</span>
                         <span class="improveseo_testimonial_separator">,</span> 
-                        <span class="improveseo_testimonial_company"><?php echo $tw_testi_position; ?></span>
-                    </p>
-                    <?php
-                    endif; ?>
-                </div>
+                        <span class="improveseo_testimonial_company">'.$tw_testi_position.'</span>
+                    </p>';
+        endif;
+                $html .= '</div>
             </div>
-        </div>
-<?php
-    } ?>
+        </div>';
+    echo $html;
+} ?>

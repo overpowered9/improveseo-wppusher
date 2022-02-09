@@ -1,30 +1,37 @@
 (function($){
     $(document).ready(function(){
         
-        $( "#improveseo_shortcode_text" ).autocomplete({
+        /* $( "#improveseo_shortcode_text" ).autocomplete({
             source: form_ajax_vars.autocomplete_src,
             select: function(event, ui){
                 tinymce.activeEditor.insertContent(ui.item.desc);
                 $.modal.close();
                 tinyMCE.activeEditor.focus();
             },
-        });
+        }); */
         tinymce.activeEditor.on('keydown', function(e) {
             if(!$.modal.isActive()){
 
-                if(e.keyCode==219){
-                    e.preventDefault();
-                    $("#shortcode_popup").modal({
-                        escapeClose: false,
-                        fadeDuration: 1000,
-                        fadeDelay: 0.35,
-                        keyboard: false,
-                        focus: true
-                    });
+                
+                var full_content = tinyMCE.activeEditor.selection.getStart().textContent;
+                var length = full_content.length;
+                if(e.keyCode==50){
                     
+                    console.log(full_content);
+                    var last_char = full_content.charAt((length-1));
+                    if($.trim(last_char)==""){
+                        e.preventDefault();
+                        $("#shortcode_popup").modal({
+                            escapeClose: false,
+                            fadeDuration: 1000,
+                            fadeDelay: 0.35,
+                            keyboard: false,
+                            focus: true
+                        });
+                    }
                 }
 
-                if(e.keyCode==50){
+                /* if(e.keyCode==50){
                     e.preventDefault();
                     $('#improveseo_shortcode_text').val('@');
                     $("#all_shortcode_popup").modal({
@@ -35,7 +42,7 @@
                         focus: true
                     });
                     
-                }
+                } */
             }
         });
         $('#shortcode_popup').on($.modal.OPEN, function(event, modal) {

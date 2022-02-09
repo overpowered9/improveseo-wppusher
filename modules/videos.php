@@ -62,7 +62,8 @@ foreach ($id as $p) {
         }
     }elseif($video_type=="youtube"){
         $youtube_url = improveseo_generate_youtube_url($video_url_youtube);
-        $youtube_url .= '?rel=0';
+        $youtube_id = improveseo_get_youtube_id($video_url_youtube);
+        $youtube_url .= '?rel=0&showinfo=0';
         $allow = '';
 
         if($video_autoplay=="yes"){
@@ -70,16 +71,25 @@ foreach ($id as $p) {
             $allow .= 'autoplay';
         }
 
-        if($video_muted=="yes")
+        $youtube_url .= '&mute=1';
+        if($video_muted=="yes"){
             $youtube_url .= '&mute=1';
+        }else{
+            $youtube_url .= '&mute=0';
+        }
 
-        if($video_controls=="yes")
+        if($video_controls=="yes"){
             $youtube_url .= '&controls=1';
+        }else{
+            $youtube_url .= '&controls=0';
+        }
 
-        if($video_loop=="yes")
+        if($video_loop=="yes"){
             $youtube_url .= '&loop=1';
+            $youtube_url .= '&playlist='.$youtube_id;
+        }
 
-        $video .= '<iframe src="'.$youtube_url.'" width="'.$video_width.'" height="'.$video_height.'" allow="'.$allow.'"></iframe>';
+        $video .= '<iframe type="text/html" class="fitvidsignore" src="'.$youtube_url.'" width="'.$video_width.'" height="'.$video_height.'" allow="'.$allow.'" style="margin:10px 0;" frameborder="0" allowfullscreen></iframe>';
     }elseif($video_type=="vimeo"){
         $vimeo_url = improveseo_generate_vimeo_url($video_url_vimeo);
         $vimeo_url .= '?';
