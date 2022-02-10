@@ -408,7 +408,7 @@ function improveseo_dashboard() {
 				'name' => $name,
 				'content' => base64_encode(json_encode($project_data)),
 				'options' => base64_encode(json_encode($options_data)),
-				'state' => 'Updated',
+				'state' => 'Update_started',
 				'iteration' => 0,
 				'spintax_iterations' => max($iterations),
 				//'max_iterations' => max($iterations) * $geo_iterations

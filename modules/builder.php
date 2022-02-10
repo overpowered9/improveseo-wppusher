@@ -650,19 +650,24 @@ function improveseo_builder_update() {
 			'deleted_at' => '0000-00-00 00:00:00' 
 	), $id );
 	
+	$project = $model->find ( $id );
 
+	if($project->state=="Update_started"){
+		
 		// Delete all previous posts from this project
+
 		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE post_id IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s) AND meta_key = 'improveseo_channel'", $id));
 		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));
 		$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
 
-		$model->update(array('iteration' => 0), $id);
+		$model->update(array('iteration' => 0, 'state' => 'Update_pending'), $id);
+	}
 
 	
 
 	
 	// Build a set of new updated posts
-	$project = $model->find ( $id );
+	//$project = $model->find ( $id );
 	
 	$options = $project->options;
 	$ahmed_cats = $project->cats;
@@ -1189,10 +1194,11 @@ function improveseo_builder_update() {
 	
 	// Save project changes
 	$update = array (
-			'iteration' => $project->iteration 
+		'iteration' => $project->iteration 
 	);
 	
 	if ($project->iteration == $project->max_iterations) {
+		$update ['state'] = 'Updated';
 		$update ['finished_at'] = date ( 'Y-m-d H:i:s' );
 	}
 	
