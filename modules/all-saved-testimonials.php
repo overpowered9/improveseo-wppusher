@@ -49,7 +49,7 @@
                                 $html .= '</td>';
                                 $html .= '<td data-colname="Content">'.$tw_testi_content.'</td>
                                 <td data-colname="Name">'.$tw_testi_name.'</td>
-                                <td data-colname="Position">'.$tw_testi_position.'</td>
+                                <td data-colname="Position">'.stripslashes($tw_testi_position).'</td>
                                 <td data-colname="Box Color">'.$tw_box_color.'</td>
                                 <td data-colname="Font Color">'.$tw_font_color.'</td>
                                 <td class="actions-btn" data-colname="Actions"><span data-action="testimonial" data-rand_id='.$id.' class="wt-edit-testi btn btn-outline-primary mr-2">Edit</span><span data-action="testimonial" data-rand_id='.$id.' class="wt-dlt-testi wt-icons btn btn-outline-danger">Remove</span></td>

@@ -20,24 +20,25 @@
 		</style>';
         $html .= '<div class="improveseo_row" style="width:100%;">
 		<div class="improveseo_testimonial_wrapper" id="improveseo_testimonial_wrapper_'.$i.'">';
+        $margin = '';
         if($testi_img_src != ''){
             $html .= '<div style="background-image:url('.$testi_img_src.');" class="improveseo_testimonial_portrait"></div>';
         }else{
-            $html .= '<div style="" class="improveseo_testimonial_portrait"></div>';
+            //$html .= '<div style="" class="improveseo_testimonial_portrait"></div>';
+            $margin = 'margin-left:10px !important';
         }
-                
-        $html .= '<div class="improveseo_testimonial_description">
+        
+        
+        $html .= '<div class="improveseo_testimonial_description" style="'.$margin.'">
                     <div class="improveseo_testimonial_description_inner">
                         <div class="improveseo_testimonial_content">
                             <p><span style="">'.$tw_testi_content.'</span></p>
                         </div>
                     </div>';
         if($tw_testi_name!=""): 
-            $html .= '<span class="improveseo_testimonial_author">Testimonial Author</span>
+            $html .= '<span class="improveseo_testimonial_author">'.$tw_testi_name.'</span>
                     <p class="improveseo_testimonial_meta">
-                        <span class="improveseo_testimonial_position">'.$tw_testi_name.'</span>
-                        <span class="improveseo_testimonial_separator">,</span> 
-                        <span class="improveseo_testimonial_company">'.$tw_testi_position.'</span>
+                        <span class="improveseo_testimonial_company">'.stripslashes($tw_testi_position).'</span>
                     </p>';
         endif;
                 $html .= '</div>
