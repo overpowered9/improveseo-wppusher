@@ -31,11 +31,12 @@ foreach ($id as $p) {
     $video = '<span class="improveseo_row">';
     if($video_type=="upload_video"){
         if($video_url_mp4!="" || $video_url_ogv!="" || $video_url_webm!=""){
-            $video .= '<video width="'.$video_width.'" height="'.$video_height.'"';
+            $video .= '<video id="improveseo_custom_video_upload" width="'.$video_width.'" height="'.$video_height.'"';
             $video .= ' poster="'.$video_poster_img_source.'"';
 
-            if($video_autoplay=="yes")
+            if($video_autoplay=="yes"){
                 $video .= ' autoplay';
+            }
 
             if($video_muted=="yes")
                 $video .= ' muted';
@@ -59,6 +60,15 @@ foreach ($id as $p) {
 
             $video .= 'Your browser does not support the video tag.';
             $video .= '</video>';
+
+            /* if($video_autoplay == "yes"){
+                $video .= "<script>
+                setTimeout(function(){
+                    document.getElementById('improveseo_custom_video_upload').play();
+                    alert('executed');
+                },2000);
+                </script>";
+            } */
         }
     }elseif($video_type=="youtube"){
         $youtube_url = improveseo_generate_youtube_url($video_url_youtube);
@@ -105,7 +115,7 @@ foreach ($id as $p) {
             $vimeo_url .= '&loop=1';
         
         if($video_muted=="yes")
-            $vimeo_url .= '&mute=1';
+            $vimeo_url .= '&muted=1';
 
         if($video_controls=="yes")
             $vimeo_url .= '&controls=0';
@@ -116,7 +126,7 @@ foreach ($id as $p) {
             $video .= '<div style="padding:56.25% 0 0 0;position:relative;">';
             $video_style .= 'position:absolute;top:0;left:0;width:100%;height:100%;';
         }
-        $video .= '<iframe src="'.$vimeo_url.'" width="'.$video_width.'" height="'.$video_height.'" frameborder="0" allow="'.$allow.'" style="'.$video_style.'"></iframe>';
+        $video .= '<iframe class="fitvidsignore" src="'.$vimeo_url.'" width="'.$video_width.'" height="'.$video_height.'" frameborder="0" allow="'.$allow.'" style="'.$video_style.' margin:10px 0;"></iframe>';
         if($video_height=="auto" && $video_width=="100%"){
             $video .= '</div><script src="https://player.vimeo.com/api/player.js"></script>';
         }

@@ -129,7 +129,7 @@ function improveseo_mime_types( $mime_types ) {
 }
 
 function improveseo_skip_loading_lazy_youtube_iframes( $value, $iframe, $context ) {
-    if ( false !== strpos( $iframe, 'youtube.com' ) ) {
+    if ( false !== strpos( $iframe, 'youtube.com' )  && false !== strpos( $iframe, 'vimeo.com' )) {
         return false;
     }
     return $value;

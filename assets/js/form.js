@@ -106,6 +106,7 @@
             $.modal.close();
             tinyMCE.activeEditor.focus();
         });
+
     });
    
     $('#preview_on').click(function(e) {
@@ -133,11 +134,21 @@
 
     $('#custom-description').keyup(function(e){
 		$('.google-description-content').text($(this).val());
+        if($(this).val().length > 160){
+            $('#custom-description-error').show();
+        }else{
+            $('#custom-description-error').hide();
+        }
 	});
 
     $('#custom-title').keyup(function(e){
 		$('.google-mobile-preview-pagename').text($(this).val());
 		$('.google-desktop-preview-pagename').text($(this).val());
+        if($(this).val().length > 60){
+            $('#custom-title-error').show();
+        }else{
+            $('#custom-title-error').hide();
+        }
 	});
 })(jQuery);
 let form_action_old_wh = document.getElementById('main_form').action;

@@ -506,6 +506,8 @@ wp_enqueue_script('post');
 											<input id="custom-title" name="custom_title" class="form-control" type="text" class="full-width form-control textarea-control" placeholder="Title" value="<?= Validator::old('custom_title', $task->options['custom_title']) ?>">
 											<span>Ex.</span>
 										</div>
+										<div id="custom-title-error" style="display:none; color:red; margin-top:5px;">Your meta title contains more than 60 characters! <br />
+										<b>PRO TIP</b>: the meta title should not contain more than 60 characters for best results on Google.</div>
 									</div>
 									<div class="input-group">
 										<label for="custom-description" class="form-label">Description</label>
@@ -513,6 +515,8 @@ wp_enqueue_script('post');
 											<textarea id="custom-description" placeholder="Description" name="custom_description" class="full-width textarea-control"><?= Validator::old('custom_description', $task->options['custom_description']) ?></textarea>
 											<span>Ex.</span>
 										</div>
+										<div id="custom-description-error" style="display:none; color:red; margin-top:5px;">Your meta description contains more than 160 characters! <br />
+										<b>PRO TIP</b>: the meta description should not contain more than 160 characters for best results on Google.</div>
 									</div>
 									<div class="input-group">
 										<label for="custom-keywords" class="form-label">Keywords</label>
