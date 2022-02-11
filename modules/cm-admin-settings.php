@@ -150,7 +150,7 @@
 								<div class="input-group">
 									<label class="form-label">Client Position:</label>
 									<div class="input-prefix">
-										<input type="text" class="form-control name" name="tw_testi_position" placeholder="Founder" value="<?php echo $tw_testi_position; ?>">
+										<input type="text" class="form-control name" name="tw_testi_position" placeholder="Founder" value="<?php echo stripslashes($tw_testi_position); ?>">
 										<span>Ex.</span>
 									</div>
 								</div>
