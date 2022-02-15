@@ -10,3 +10,4 @@ include_once IMPROVESEO_ROOT .'/modules/lists.php';
 
 include_once IMPROVESEO_ROOT .'/modules/builder.php';
 include_once IMPROVESEO_ROOT .'/modules/noindex.php';
+include_once IMPROVESEO_ROOT .'/modules/ajax.php';

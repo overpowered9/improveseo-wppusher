@@ -78,7 +78,9 @@ wp_enqueue_script('post');
 				<?php endif;?>
 				</button>
 				<button name="draft" type="submit" formtarget="_self" class="btn btn-outline-primary">Save As Draft</button>
-				<button id="preview_on" type="submit" class="btn btn-outline-primary" onclick= "openWin()">Post preview</button>
+				<button id="preview_on" type="submit" class="btn btn-outline-primary">Post preview</button>
+				<input type="hidden" name="preview_id" id="preview_id" />
+				<input type="hidden" name="is_preview_available" id="is_preview_available" value="no" />
 			</div>
 
 			<?php echo $site_link; ?>

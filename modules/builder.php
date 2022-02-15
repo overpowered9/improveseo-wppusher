@@ -610,6 +610,7 @@ function preview_delete_ajax(){
 	$wpdb->query($wpdb->prepare("DELETE FROM ". $wpdb->prefix ."postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
 
 	$model->delete($id);
+	die;
 }
 
 function improveseo_builder_update() {
@@ -629,7 +630,7 @@ function improveseo_builder_update() {
 	@set_time_limit ( 0 );
 	session_write_close ();
 	
-	improveseo_debug_start ();
+	improveseo_debug_start();
 	
 	ini_set ( "pcre.backtrack_limit", "23001337" );
 	ini_set ( "pcre.recursion_limit", "23001337" );

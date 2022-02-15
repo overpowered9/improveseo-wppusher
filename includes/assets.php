@@ -102,7 +102,7 @@ function improveseo_enqueue_admin(){
 			wp_localize_script('improveseo-form', 'form_ajax_vars', array(
 				'ajax_url'      		=> 	admin_url( 'admin-ajax.php' ),
 				'admin_url'      		=> 	admin_url( 'admin.php' ),
-				'autocomplete_src'		=> $autocomplete_arr
+				//'autocomplete_src'		=> $autocomplete_arr
 				)
 			);
 		}

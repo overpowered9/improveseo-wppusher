@@ -8,8 +8,10 @@ function determineMaxPosts() {
 	if (!determine) return;
 
 	var locations = getUniqueLocations();
+	
+	var request_url = posting_ajax_vars.site_url+'/wp-admin/index.php?api=improveseo&action=count_posts';
 
-	jQuery.post('/index.php?api=improveseo&action=count_posts', {
+	jQuery.post(request_url, {
 		title: jQuery('#title').val(),
 		content: jQuery.trim(tinymce.get('content') ? tinymce.get('content').getContent() : jQuery('#content').val()),
 		custom_title: jQuery('#custom-title').val(),
