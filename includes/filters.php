@@ -134,9 +134,21 @@ function improveseo_skip_loading_lazy_youtube_iframes( $value, $iframe, $context
     }
     return $value;
 }
-add_filter(
-    'wp_iframe_tag_add_loading_attr',
-    'improveseo_skip_loading_lazy_youtube_iframes',
-    10,
-    3
-);
+add_filter('wp_iframe_tag_add_loading_attr','improveseo_skip_loading_lazy_youtube_iframes',10,3);
+
+function improveseo_exclude_category_posts($query) {
+    if(!is_admin()){
+        $improveseo_category = get_category_by_slug('improve-seo');
+        $category_id = $improveseo_category->term_id;
+        $query->set( 'category__not_in', array($category_id) );
+    }
+    return $query;
+}
+add_filter( 'pre_get_posts', 'improveseo_exclude_category_posts' );
+
+function improveseo_hide_improveseo_category(){
+    $improveseo_category = get_category_by_slug('improve-seo');
+    $category_id = $improveseo_category->term_id;
+    echo '<style type="text/css">.cat-item-'.$category_id.' { display:none; }</style>';
+}
+add_action('wp_head', 'improveseo_hide_improveseo_category');

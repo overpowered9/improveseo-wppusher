@@ -152,14 +152,25 @@ wp_enqueue_script('post');
 					<h3 class="hndle ui-sortable-handle"><span>Categories</span></h3>
 					<div class="inside mt-2">
 						<?php
-						    $cat_pre = $_GET['cat_pre'];
-						    $cat_pre = explode(",",$cat_pre);
+							$cat_pre = array();
+						    if(isset($_GET['cat_pre'])){
+								$cat_pre = $_GET['cat_pre'];
+								$cat_pre = explode(",",$cat_pre);
+							}else if($task->cats!=""){
+								$cat_pre = json_decode($task->cats, true);
+							}
+
 						    $args = array("hide_empty" => 0,
-                            "type"      => "post",      
-                            "orderby"   => "name",
-                            "order"     => "ASC" );
+								"type"      => "post",      
+								"orderby"   => "name",
+								"order"     => "ASC" );
 						    $cats = get_categories($args);
 						    foreach($cats as $category){
+								// do not show improve SEO category
+								
+								if($category->slug=="improve-seo")
+									continue;
+
 						        if(in_array($category->term_id, $cat_pre)){
 						            $checked = 'checked';
 						        }else{

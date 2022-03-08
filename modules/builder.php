@@ -51,6 +51,7 @@ function improveseo_builder() {
 	$options = $project->options;
 	$ahmed_cats = $project->cats;
 	
+	
 	$posts = 1;
 	$geo = isset ( $options ['local_geo_country'] );
 	if ($geo) {
@@ -399,8 +400,7 @@ function improveseo_builder() {
 			VALUES (%s, %s, %s, 'closed', 'closed', %s, %s, %s, %s, %s)", $author_id, $contentText, $titleText, sanitize_title ( $postName ), $data ['post_type'], $post_date, $post_date, strtotime ( $post_date ) <= time () ? 'publish' : 'future' ) );
 			$post_id = $wpdb->insert_id;
 			
-			$res = wp_set_post_categories( $post_id, json_decode($ahmed_cats, true) );
-			
+			$res = wp_set_post_categories( $post_id, json_decode($ahmed_cats, true), true );
 			
 			improveseo_debug_message ( 'Post created (time ' . improveseo_debug_time () . ' ms)' );
 			
@@ -418,10 +418,17 @@ function improveseo_builder() {
 				
 				wp_set_post_categories ( $post_id, array (
 						$category 
-				) );
+				), true );
 				
 				improveseo_debug_message ( 'All categories created (time ' . improveseo_debug_time () . ' ms)' );
 			}
+
+			// create improveseo category and assign all posts to it
+			$improveseo_category_id = wp_create_category ( 'Improve SEO', 0);
+			wp_set_post_categories ( $post_id, array (
+				$improveseo_category_id
+			), true );
+			
 			
 			add_post_meta ( $post_id, 'improveseo_project_id', $project->id );
 			
@@ -1021,7 +1028,7 @@ function improveseo_builder_update() {
 			VALUES (%s, %s, %s, 'closed', 'closed', %s, %s, %s, %s, %s)", $author_id, $contentText, $titleText, sanitize_title ( $postName ), $data ['post_type'], $post_date, $post_date, strtotime ( $post_date ) <= time () ? 'publish' : 'future' ) );
 			$post_id = $wpdb->insert_id;
 			
-			$res = wp_set_post_categories( $post_id, json_decode($ahmed_cats, true) );
+			$res = wp_set_post_categories( $post_id, json_decode($ahmed_cats, true), true );
 			
 			
 			improveseo_debug_message ( 'Post created (time ' . improveseo_debug_time () . ' ms)' );
@@ -1040,7 +1047,7 @@ function improveseo_builder_update() {
 				
 				wp_set_post_categories ( $post_id, array (
 						$category 
-				) );
+				), true );
 				
 				improveseo_debug_message ( 'All categories created (time ' . improveseo_debug_time () . ' ms)' );
 			}
