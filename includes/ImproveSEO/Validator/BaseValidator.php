@@ -4,7 +4,7 @@ namespace ImproveSEO\Validator;
 
 class BaseValidator
 {
-	public function fieldName($field) 
+	public static function fieldName($field) 
 	{
 		return ucwords(implode(" ", explode("_", $field)));
 	}

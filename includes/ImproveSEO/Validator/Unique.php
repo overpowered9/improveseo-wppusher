@@ -4,7 +4,7 @@ namespace ImproveSEO\Validator;
 
 class Unique extends BaseValidator
 {
-	public function validate($data, $field, $table, $column = null, $except = null) 
+	public static function validate($data, $field, $table, $column = null, $except = null) 
 	{
 		global $wpdb;
 
