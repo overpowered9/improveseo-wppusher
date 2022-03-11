@@ -222,7 +222,10 @@ if(isset($_GET['post_preview'])){
 						jQuery(".show_loading h2").html("");
 						window.location.href = export_url+ids+'&noheader=true';
 					}else{
-						jQuery('.show_loading').css("display", "none");
+						setTimeout(function(){
+							jQuery('.show_loading').css("display", "none");
+							location.reload(true);
+						}, 100);
 					}
 				}
 			}

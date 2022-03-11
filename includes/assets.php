@@ -11,6 +11,11 @@ function improveseo_enqueue_admin(){
 
 	//wp_enqueue_script('improveseo-bootstrap', IMPROVESEO_DIR . '/assets/js/bootstrap.min.js', array('jquery'), IMPROVESEO_VERSION, true);
 	wp_enqueue_script('improveseo-main', IMPROVESEO_DIR . '/assets/js/main.js', array('jquery'), IMPROVESEO_VERSION, true);
+	wp_localize_script('improveseo-main', 'main_ajax_vars', array(
+		'site_url'      		=> 	site_url(),
+		)
+	);
+
 	wp_enqueue_script('improveseo-dialog', IMPROVESEO_DIR . '/assets/js/dialog.js', array('jquery'), IMPROVESEO_VERSION, true);
 
 	wp_enqueue_script('improveseo-posting', IMPROVESEO_DIR . '/assets/js/posting.js', array('jquery'), IMPROVESEO_VERSION, true);

@@ -46,7 +46,7 @@ wp_enqueue_script('post');
 					<a id="prefix-permalink" class="btn btn-outline-primary" style="display: none;">Add Prefix</a>
 					<a id="cancel-permalink" class="cancel btn btn-outline-primary" style="display: none">Cancel</a><br />
 					<div class="howto">
-						The non-editable URL structure is determined by your <a href="/wp-admin/options-permalink.php">permalink settings</a>.
+						The non-editable URL structure is determined by your <a href="<?php echo site_url(); ?>/wp-admin/options-permalink.php">permalink settings</a>.
 					</div>
 					<p id="too-many-posts" class="notice notice-error" style="display: none;">Your project contains more than 5,000 pages. While Improve SEO can create hundreds of thousands of posts per project, it is recommended to split your project into multiple smaller projects if you are using shared hosting for maximum efficiency. VPS and dedicated server users can ignore this message. </p>
 				</div>
@@ -170,12 +170,13 @@ wp_enqueue_script('post');
 								
 								if($category->slug=="improve-seo")
 									continue;
-
-						        if(in_array($category->term_id, $cat_pre)){
-						            $checked = 'checked';
-						        }else{
-						            $checked = '';
-						        }
+								if(!empty($cat_pre)){
+									if(in_array($category->term_id, $cat_pre)){
+										$checked = 'checked';
+									}else{
+										$checked = '';
+									}
+								}
 						        $select.= "<div class='input-group cta-check m-0'><span><input ".$checked." id='".$category->term_id."' type='checkbox' value='".$category->term_id."' name='cats[]'><label for='".$category->term_id."'>".$category->name."</label></span></div>";
 						 
 						    }

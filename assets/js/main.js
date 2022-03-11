@@ -2,8 +2,8 @@
     var get_al = '';
     $(document).on("click", '.category_improveseo input[type="checkbox"]', function() {
         var vals = $('input[type="checkbox"]:checked').map(function() { return this.value; }).get();
-        $('.Posting__post-button').attr('href','/wp-admin/admin.php?page=improveseo_posting&action=create_post&cat_pre='+vals.join(","));
-        $('.Posting__page-button').attr('href','/wp-admin/admin.php?page=improveseo_posting&action=create_page&cat_pre='+vals.join(","));
+        $('.Posting__post-button').attr('href', main_ajax_vars.site_url + '/wp-admin/admin.php?page=improveseo_posting&action=create_post&cat_pre='+vals.join(","));
+        $('.Posting__page-button').attr('href', main_ajax_vars.site_url + '/wp-admin/admin.php?page=improveseo_posting&action=create_page&cat_pre='+vals.join(","));
     });
      $(document).on("click", '.improveseo_wrapper .nav-tabs .nav-link', function(e) {
         e.preventDefault();
