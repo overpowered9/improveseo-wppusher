@@ -22,6 +22,7 @@ if( file_exists( dirname(__FILE__).'/includes/helpers.php' )) include_once dirna
 
 include_once 'bootstrap.php';
 
+
 register_activation_hook(__FILE__, 'improveseo_install');
 register_activation_hook(__FILE__, 'improveseo_install_data');
 

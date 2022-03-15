@@ -21,6 +21,7 @@ include_once 'includes/posttypes.php';
 include_once 'includes/seo.php';
 include_once 'includes/settings.php';
 include_once 'includes/shortcode-popup.php';
+include_once 'includes/ScheduledPosts.php';
 
 // Features
 include_once 'features/keyword.php';

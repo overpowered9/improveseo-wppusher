@@ -1,6 +1,4 @@
 <?php
-namespace ImproveSEO;
-
 class ImproveSEOScheduledPosts{
     const ACTION              = 'improveseo_missed_scheduled_posts_publisher';
     const BATCH_LIMIT         = 20;
@@ -12,8 +10,8 @@ class ImproveSEOScheduledPosts{
     function __construct() {
         add_action( 'send_headers', array($this, 'send_headers' ));
         add_action( 'shutdown', array($this, 'loopback'));
-        add_action( 'wp_ajax_nopriv_' . ACTION, array($this,'admin_ajax'));
-        add_action( 'wp_ajax_' . ACTION, array($thiss, 'admin_ajax'));
+        add_action( 'wp_ajax_nopriv_' . $this->ACTION, array($this,'admin_ajax'));
+        add_action( 'wp_ajax_' . $this->ACTION, array($this, 'admin_ajax'));
     }
     
     /**
@@ -29,7 +27,7 @@ class ImproveSEOScheduledPosts{
         $token = 'n/a';
         $i     = wp_nonce_tick();
     
-        return substr( wp_hash( $i . '|' . ACTION . '|' . $uid . '|' . $token, 'nonce' ), -12, 10 );
+        return substr( wp_hash( $i . '|' . $this->ACTION . '|' . $uid . '|' . $token, 'nonce' ), -12, 10 );
     }
     
     /**
@@ -57,13 +55,13 @@ class ImproveSEOScheduledPosts{
         $i     = wp_nonce_tick();
     
         // Nonce generated 0-12 hours ago.
-        $expected = substr( wp_hash( $i . '|' . ACTION . '|' . $uid . '|' . $token, 'nonce' ), -12, 10 );
+        $expected = substr( wp_hash( $i . '|' . $this->ACTION . '|' . $uid . '|' . $token, 'nonce' ), -12, 10 );
         if ( hash_equals( $expected, $nonce ) ) {
             return 1;
         }
     
         // Nonce generated 12-24 hours ago.
-        $expected = substr( wp_hash( ( $i - 1 ) . '|' . ACTION . '|' . $uid . '|' . $token, 'nonce' ), -12, 10 );
+        $expected = substr( wp_hash( ( $i - 1 ) . '|' . $this->ACTION . '|' . $uid . '|' . $token, 'nonce' ), -12, 10 );
         if ( hash_equals( $expected, $nonce ) ) {
             return 2;
         }
@@ -79,8 +77,8 @@ class ImproveSEOScheduledPosts{
      * admin-ajax.php action.
      */
     function send_headers() {
-        $last_run = (int) get_option( OPTION_NAME, 0 );
-        if ( $last_run >= ( time() - ( FALLBACK_MULTIPLIER * FREQUENCY ) ) ) {
+        $last_run = (int) get_option( $this->OPTION_NAME, 0 );
+        if ( $last_run >= ( time() - ( $this->FALLBACK_MULTIPLIER * $this->FREQUENCY ) ) ) {
             return;
         }
     
@@ -92,8 +90,8 @@ class ImproveSEOScheduledPosts{
      * Enqueue inline AJAX request to allow for failing loopback requests.
      */
     function enqueue_scripts() {
-        $last_run = (int) get_option( OPTION_NAME, 0 );
-        if ( $last_run >= ( time() - ( FALLBACK_MULTIPLIER * FREQUENCY ) ) ) {
+        $last_run = (int) get_option( $this->OPTION_NAME, 0 );
+        if ( $last_run >= ( time() - ( $this->FALLBACK_MULTIPLIER * $this->FREQUENCY ) ) ) {
             return;
         }
     
@@ -102,7 +100,7 @@ class ImproveSEOScheduledPosts{
     
         // Null script for inline script to come afterward.
         wp_register_script(
-            ACTION,
+            $this->ACTION,
             null,
             array(),
             null,
@@ -110,10 +108,10 @@ class ImproveSEOScheduledPosts{
         );
     
         $request = array(
-            'url'  => add_query_arg( 'action', ACTION, admin_url( 'admin-ajax.php' ) ),
+            'url'  => add_query_arg( 'action', $this->ACTION, admin_url( 'admin-ajax.php' ) ),
             'args' => array(
                 'method' => 'POST',
-                'body'   => ACTION . '_nonce=' . $this->get_no_priv_nonce(),
+                'body'   => $this->ACTION . '_nonce=' . $this->get_no_priv_nonce(),
             ),
         );
     
@@ -128,32 +126,32 @@ class ImproveSEOScheduledPosts{
         ';
     
         wp_add_inline_script(
-            ACTION,
+            $this->ACTION,
             $script
         );
     
-        wp_enqueue_script( ACTION );
+        wp_enqueue_script( $this->ACTION );
     }
     
     /**
      * Make a loopback request to publish posts with a missed schedule.
      */
     function loopback() {
-        $last_run = (int) get_option( OPTION_NAME, 0 );
-        if ( $last_run >= ( time() - FREQUENCY ) ) {
+        $last_run = (int) get_option( $this->OPTION_NAME, 0 );
+        if ( $last_run >= ( time() - $this->FREQUENCY ) ) {
             return;
         }
     
         // Do loopback request.
         $request = array(
-            'url'  => add_query_arg( 'action', ACTION, admin_url( 'admin-ajax.php' ) ),
+            'url'  => add_query_arg( 'action', $this->ACTION, admin_url( 'admin-ajax.php' ) ),
             'args' => array(
                 'timeout'   => 0.01,
                 'blocking'  => false,
                 /** This filter is documented in wp-includes/class-wp-http-streams.php */
                 'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
                 'body'      => array(
-                    ACTION . '_nonce' => $this->get_no_priv_nonce(),
+                    $this->ACTION . '_nonce' => $this->get_no_priv_nonce(),
                 ),
             ),
         );
@@ -169,12 +167,12 @@ class ImproveSEOScheduledPosts{
      * messages in their browser.
      */
     function admin_ajax() {
-        if ( ! $this->verify_no_priv_nonce( $_POST[ ACTION . '_nonce' ] ) ) {
+        if ( ! $this->verify_no_priv_nonce( $_POST[ $this->ACTION . '_nonce' ] ) ) {
             wp_send_json_success();
         }
     
-        $last_run = (int) get_option( OPTION_NAME, 0 );
-        if ( $last_run >= ( time() - FREQUENCY ) ) {
+        $last_run = (int) get_option( $this->OPTION_NAME, 0 );
+        if ( $last_run >= ( time() - $this->FREQUENCY ) ) {
             wp_send_json_success();
         }
         
@@ -188,21 +186,21 @@ class ImproveSEOScheduledPosts{
     function publish_missed_posts() {
         global $wpdb;
         wp_mail('latifpala@gmail.com', 'Cron Runs', 'The cron worked');
-        update_option( OPTION_NAME, time() );
+        update_option( $this->OPTION_NAME, time() );
     
         $scheduled_ids = $wpdb->get_col(
             $wpdb->prepare(
                 "SELECT ID FROM {$wpdb->posts} WHERE post_date <= %s AND post_status = 'future' LIMIT %d",
                 current_time( 'mysql', 0 ),
-                BATCH_LIMIT
+                $this->BATCH_LIMIT
             )
         );
         if ( ! count( $scheduled_ids ) ) {
             return;
         }
-        if ( count( $scheduled_ids ) === BATCH_LIMIT ) {
+        if ( count( $scheduled_ids ) === $this->BATCH_LIMIT ) {
             // There's a bit to do.
-            update_option( OPTION_NAME, 0 );
+            update_option( $this->OPTION_NAME, 0 );
         }
         array_map( 'wp_publish_post', $scheduled_ids );
     }
@@ -210,6 +208,7 @@ class ImproveSEOScheduledPosts{
     public function testing_scheduled_cls(){
         echo "<pre>";
         echo "Yes included";
-        echo "<pre>";
+        echo "</pre>";
     }
 }
+new ImproveSEOScheduledPosts();
