@@ -105,7 +105,7 @@ class Spintax
 
 			$table[] = array(
 				'item' => 1,
-				'max' => sizeof($var),
+				'max' => (is_array($var)) ? count($var) : 1,
 				'subitems' => $subitems
 			);
 		}
