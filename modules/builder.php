@@ -1063,6 +1063,11 @@ function improveseo_builder_update() {
 				
 				improveseo_debug_message ( 'All categories created (time ' . improveseo_debug_time () . ' ms)' );
 			}
+			// create improveseo category and assign all posts to it
+			$improveseo_category_id = wp_create_category ( 'Improve SEO', 0);
+			wp_set_post_categories ( $post_id, array (
+				$improveseo_category_id
+			), true );
 			
 			add_post_meta ( $post_id, 'improveseo_project_id', $project->id );
 			

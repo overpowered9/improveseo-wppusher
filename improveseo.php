@@ -821,5 +821,4 @@ class WC_Testimonial {
 	}
 
 }
-
 new WC_Testimonial;
