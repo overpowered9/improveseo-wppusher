@@ -107,9 +107,13 @@ function improveseo_builder() {
 		foreach ( $_authors as $a ) {
 			$authors [] = $a->user_id;
 		}
-		shuffle ( $authors );
+		if(!empty($authors)){
+			shuffle ( $authors );
+		}else{
+			$authors[] = get_current_user_id();
+		}
 	}
-	
+
 	// Permalink prefix
 	if (isset ( $options ['permalink_prefix'] )) {
 		$prefixes = $storage->permalink_prefixes;
@@ -560,7 +564,11 @@ function improveseo_builder() {
 				foreach ( $_authors as $a ) {
 					$authors [] = $a->user_id;
 				}
-				shuffle ( $authors );
+				if(!empty($authors)){
+					shuffle ( $authors );
+				}else{
+					$authors[] = get_current_user_id();
+				}
 			}
 			
 			flush ();
@@ -735,7 +743,11 @@ function improveseo_builder_update() {
 		foreach ( $_authors as $a ) {
 			$authors [] = $a->user_id;
 		}
-		shuffle ( $authors );
+		if(!empty($authors)){
+			shuffle ( $authors );
+		}else{
+			$authors[] = get_current_user_id();
+		}
 	}
 	
 	// Permalink prefix
@@ -1182,7 +1194,11 @@ function improveseo_builder_update() {
 				foreach ( $_authors as $a ) {
 					$authors [] = $a->user_id;
 				}
-				shuffle ( $authors );
+				if(!empty($authors)){
+					shuffle ( $authors );
+				}else{
+					$authors[] = get_current_user_id();
+				}
 			}
 			
 			flush ();
