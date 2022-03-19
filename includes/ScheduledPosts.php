@@ -1,214 +1,26 @@
 <?php
-class ImproveSEOScheduledPosts{
-    const ACTION              = 'improveseo_missed_scheduled_posts_publisher';
-    const BATCH_LIMIT         = 20;
-    const FALLBACK_MULTIPLIER = 1.1;
-    const FREQUENCY           = 900;
-    const OPTION_NAME         = 'improveseo-missed-scheduled-posts-publisher-last-run';
-
-
-    function __construct() {
-        add_action( 'send_headers', array($this, 'send_headers' ));
-        add_action( 'shutdown', array($this, 'loopback'));
-        add_action( 'wp_ajax_nopriv_' . $this->ACTION, array($this,'admin_ajax'));
-        add_action( 'wp_ajax_' . $this->ACTION, array($this, 'admin_ajax'));
-    }
-    
-    /**
-     * Generate a nonce without the UID and session components.
-     *
-     * As this is a loopback request, the user will not be registered as logged in
-     * so the generic WP Nonce function will not work.
-     *
-     * @return string Nonce based on action name and tick.
-     */
-    function get_no_priv_nonce() {
-        $uid   = 'n/a';
-        $token = 'n/a';
-        $i     = wp_nonce_tick();
-    
-        return substr( wp_hash( $i . '|' . $this->ACTION . '|' . $uid . '|' . $token, 'nonce' ), -12, 10 );
-    }
-    
-    /**
-     * Verify a nonce without the UID and session components.
-     *
-     * As this comes from a loopback request, the user will not be registered as
-     * logged in so the generic WP Nonce function will not work.
-     *
-     * The goal here is to mainly to protect against database reads in the event
-     * of both full page caching and falling back to the ajax request in place of
-     * a successful loopback request.
-     *
-     * @param string $nonce Nonce based on action name and tick.
-     * @return false|int False if nonce invalid. Integer containing tick if valid.
-     */
-    function verify_no_priv_nonce( $nonce ) {
-        $nonce = (string) $nonce;
-    
-        if ( empty( $nonce ) ) {
-            return false;
-        }
-    
-        $uid   = 'n/a';
-        $token = 'n/a';
-        $i     = wp_nonce_tick();
-    
-        // Nonce generated 0-12 hours ago.
-        $expected = substr( wp_hash( $i . '|' . $this->ACTION . '|' . $uid . '|' . $token, 'nonce' ), -12, 10 );
-        if ( hash_equals( $expected, $nonce ) ) {
-            return 1;
-        }
-    
-        // Nonce generated 12-24 hours ago.
-        $expected = substr( wp_hash( ( $i - 1 ) . '|' . $this->ACTION . '|' . $uid . '|' . $token, 'nonce' ), -12, 10 );
-        if ( hash_equals( $expected, $nonce ) ) {
-            return 2;
-        }
-    
-        return false;
-    }
-    
-    /**
-     * Prevent caching of requests including the AJAX script.
-     *
-     * Includes the no-caching headers if the response will include the
-     * AJAX fallback script. This is to prevent excess calls to the
-     * admin-ajax.php action.
-     */
-    function send_headers() {
-        $last_run = (int) get_option( $this->OPTION_NAME, 0 );
-        if ( $last_run >= ( time() - ( $this->FALLBACK_MULTIPLIER * $this->FREQUENCY ) ) ) {
-            return;
-        }
-    
-        add_action( 'wp_enqueue_scripts', array($this, 'enqueue_scripts') );
-        nocache_headers();
-    }
-    
-    /**
-     * Enqueue inline AJAX request to allow for failing loopback requests.
-     */
-    function enqueue_scripts() {
-        $last_run = (int) get_option( $this->OPTION_NAME, 0 );
-        if ( $last_run >= ( time() - ( $this->FALLBACK_MULTIPLIER * $this->FREQUENCY ) ) ) {
-            return;
-        }
-    
-        // Shutdown loopback request is not needed.
-        remove_action( 'shutdown', array($this, 'loopback') );
-    
-        // Null script for inline script to come afterward.
-        wp_register_script(
-            $this->ACTION,
-            null,
-            array(),
-            null,
-            true
-        );
-    
-        $request = array(
-            'url'  => add_query_arg( 'action', $this->ACTION, admin_url( 'admin-ajax.php' ) ),
-            'args' => array(
-                'method' => 'POST',
-                'body'   => $this->ACTION . '_nonce=' . $this->get_no_priv_nonce(),
-            ),
-        );
-    
-        $script = '
-        (function( request ){
-            if ( ! window.fetch ) {
-                return;
-            }
-            request.args.body = new URLSearchParams( request.args.body );
-            fetch( request.url, request.args );
-        }( ' . wp_json_encode( $request ) . ' ));
-        ';
-    
-        wp_add_inline_script(
-            $this->ACTION,
-            $script
-        );
-    
-        wp_enqueue_script( $this->ACTION );
-    }
-    
-    /**
-     * Make a loopback request to publish posts with a missed schedule.
-     */
-    function loopback() {
-        $last_run = (int) get_option( $this->OPTION_NAME, 0 );
-        if ( $last_run >= ( time() - $this->FREQUENCY ) ) {
-            return;
-        }
-    
-        // Do loopback request.
-        $request = array(
-            'url'  => add_query_arg( 'action', $this->ACTION, admin_url( 'admin-ajax.php' ) ),
-            'args' => array(
-                'timeout'   => 0.01,
-                'blocking'  => false,
-                /** This filter is documented in wp-includes/class-wp-http-streams.php */
-                'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
-                'body'      => array(
-                    $this->ACTION . '_nonce' => $this->get_no_priv_nonce(),
-                ),
-            ),
-        );
-    
-        wp_remote_post( $request['url'], $request['args'] );
-    }
-    
-    /**
-     * Handle HTTP request for publishing posts with a missed schedule.
-     *
-     * Always response with a success result to allow for full page caching
-     * retaining the inline script. The visitor does not need to see error
-     * messages in their browser.
-     */
-    function admin_ajax() {
-        if ( ! $this->verify_no_priv_nonce( $_POST[ $this->ACTION . '_nonce' ] ) ) {
-            wp_send_json_success();
-        }
-    
-        $last_run = (int) get_option( $this->OPTION_NAME, 0 );
-        if ( $last_run >= ( time() - $this->FREQUENCY ) ) {
-            wp_send_json_success();
-        }
-        
-        $this->publish_missed_posts();
-        wp_send_json_success();
-    }
-    
-    /**
-     * Publish posts with a missed schedule.
-     */
-    function publish_missed_posts() {
-        global $wpdb;
-        wp_mail('latifpala@gmail.com', 'Cron Runs', 'The cron worked');
-        update_option( $this->OPTION_NAME, time() );
-    
-        $scheduled_ids = $wpdb->get_col(
-            $wpdb->prepare(
-                "SELECT ID FROM {$wpdb->posts} WHERE post_date <= %s AND post_status = 'future' LIMIT %d",
-                current_time( 'mysql', 0 ),
-                $this->BATCH_LIMIT
-            )
-        );
-        if ( ! count( $scheduled_ids ) ) {
-            return;
-        }
-        if ( count( $scheduled_ids ) === $this->BATCH_LIMIT ) {
-            // There's a bit to do.
-            update_option( $this->OPTION_NAME, 0 );
-        }
-        array_map( 'wp_publish_post', $scheduled_ids );
-    }
-
-    public function testing_scheduled_cls(){
-        echo "<pre>";
-        echo "Yes included";
-        echo "</pre>";
-    }
+if(get_option("improveseo_scheduled_last_execute_time") == false){
+    update_option('improveseo_scheduled_last_execute_time', time());
 }
-new ImproveSEOScheduledPosts();
+
+if(get_option("improveseo_scheduled_execute_time") == false){
+    update_option("improveseo_scheduled_execute_time", 20);
+}
+
+if(time() >= get_option("improveseo_scheduled_last_execute_time") + (60 * get_option("improveseo_scheduled_execute_time"))){
+	function pubMissedPosts() {
+        if (is_front_page() || is_single()) {
+            global $wpdb;
+            $now	=	gmdate("Y-m-d H:i:00");
+            $sql = "Select ID from {$wpdb->posts} where post_status='future' and post_date_gmt<='$now'";
+            $resulto = $wpdb->get_results($sql);
+            if($resulto) {
+                foreach( $resulto as $thisarr ) {
+                    wp_publish_post($thisarr->ID);
+                }
+            }
+		}
+	}
+	update_option('improveseo_scheduled_last_execute_time', time());
+	add_action('wp_head', 'pubMissedPosts');
+}

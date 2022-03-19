@@ -14,6 +14,8 @@ add_action('plugins_loaded', 'improveseo_update_db_check');
 function improveseo_uninstall() {
 	wp_clear_scheduled_hook('improveseo_parse_tasks_hook');
 
+	delete_option('improveseo_scheduled_last_execute_time');
+	delete_option('improveseo_scheduled_execute_time');
 	//improveseo_wp_config_delete();
 }
 
@@ -123,6 +125,9 @@ function improveseo_install() {
 
 	// Rebuild URL rules
 	$wp_rewrite->flush_rules();
+
+	update_option('improveseo_scheduled_last_execute_time', time());
+	update_option('improveseo_scheduled_execute_time', 20);
 }
 
 function improveseo_install_data() {
