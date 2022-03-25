@@ -362,14 +362,16 @@ function improveseo_builder() {
 				$days = ceil($project->iteration/$options['dripfeed_x']);
 				$start_date = new DateTime ();
 				$start_date->add ( new DateInterval ( 'P'.$days.'D' ) );
-				$date_start = strtotime ( $start_date->format ( 'Y-m-d' ) . ' 00:00:00' );
+				//$date_start = strtotime ( $start_date->format ( 'Y-m-d' ) . ' 00:00:00' );
+				$date_start = time();
 				$date_end = strtotime ( $start_date->format ( 'Y-m-d' ) . ' 23:59:59' );
 				
 				$post_date = date ( 'Y-m-d H:i:s', rand ( $date_start, $date_end ) );
 				// $post_date = date('Y-m-d H:i:s',strtotime('+1 Day'));
 			} else {
 				$date_start1 = new DateTime ();	
-				$date_start = strtotime ( $date_start1->format ( 'Y-m-d' ) . ' 00:00:00' );
+				//$date_start = strtotime ( $date_start1->format ( 'Y-m-d' ) . ' 00:00:00' );
+				$date_start = time();
 				$date_end1 = $date_start1->add ( new DateInterval ( 'P'.$options['dripfeed_x'].'D' ) );
 				$date_end = strtotime ( $date_end1->format ( 'Y-m-d' ) . ' 23:59:59' );
 				$post_date = date ( 'Y-m-d H:i:s', rand ( $date_start, $date_end ) );
@@ -998,14 +1000,14 @@ function improveseo_builder_update() {
 				$days = ceil($project->iteration/$options['dripfeed_x']);
 				$start_date = new DateTime ();
 				$start_date->add ( new DateInterval ( 'P'.$days.'D' ) );
-				$date_start = strtotime ( $start_date->format ( 'Y-m-d' ) . ' 00:00:00' );
+				$date_start = time();
 				$date_end = strtotime ( $start_date->format ( 'Y-m-d' ) . ' 23:59:59' );
 				
 				$post_date = date ( 'Y-m-d H:i:s', rand ( $date_start, $date_end ) );
 				// $post_date = date('Y-m-d H:i:s',strtotime('+1 Day'));
 			} else {
 				$date_start1 = new DateTime ();	
-				$date_start = strtotime ( $date_start1->format ( 'Y-m-d' ) . ' 00:00:00' );
+				$date_start = time();
 				$date_end1 = $date_start1->add ( new DateInterval ( 'P'.$options['dripfeed_x'].'D' ) );
 				$date_end = strtotime ( $date_end1->format ( 'Y-m-d' ) . ' 23:59:59' );
 				$post_date = date ( 'Y-m-d H:i:s', rand ( $date_start, $date_end ) );
