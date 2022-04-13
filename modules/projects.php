@@ -148,7 +148,7 @@ function improveseo_projects() {
 		$task = $model->find($id);
 
 		$new_id = $model->create(array(
-			'name' => $task->name,
+			'name' => $task->name.' - Copy',
 			'content' => base64_encode(json_encode($task->content)),
 			'options' => base64_encode(json_encode($task->options)),
 			'spintax_iterations' => $task->spintax_iterations,
