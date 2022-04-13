@@ -70,17 +70,20 @@
             var text = '';
             var improveseo_shortcode_type = $('#improveseo_shortcode_type').val();
             var improveseo_shortcode_id = $('#improveseo_shortcode').val();
+            var name = $('option:selected', $('#improveseo_shortcode')).attr('data-name');
+            
+
             if(improveseo_shortcode_type=='testimonial'){
-                text = '[improveseo_testimonial id="'+improveseo_shortcode_id+'"]';
+                text = '[improveseo_testimonial id="'+improveseo_shortcode_id+'" name="'+name+'"]';
             }
             else if(improveseo_shortcode_type=='googlemap'){
-                text ='[improveseo_googlemaps id="'+improveseo_shortcode_id+'" address="" title=""]';
+                text ='[improveseo_googlemaps id="'+improveseo_shortcode_id+'" name="'+name+'" address="" title=""]';
             }
             else if(improveseo_shortcode_type=='button'){
-                text = '[improveseo_buttons id="'+improveseo_shortcode_id+'"]';
+                text = '[improveseo_buttons id="'+improveseo_shortcode_id+'" name="'+name+'"]';
             }
             else if(improveseo_shortcode_type=='video'){
-                text = '[improveseo_video id="'+improveseo_shortcode_id+'"]';
+                text = '[improveseo_video id="'+improveseo_shortcode_id+'" name="'+name+'"]';
             }
             else if(improveseo_shortcode_type=='list'){
                 text = '@list:'+improveseo_shortcode_id;

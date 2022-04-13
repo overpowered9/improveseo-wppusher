@@ -391,18 +391,19 @@ jQuery(function($){
             e.preventDefault();
             var id = $(this).attr('id');
             var selector = $('.sw-editor-selector').val();
-            
+            var name = $(this).data('name');
+
             var text = '';
             if(selector=='testimonial'){
-                text = '[improveseo_testimonial id="'+id+'"]';
+                text = '[improveseo_testimonial id="'+id+'" name="'+name+'"]';
             }
             else if(selector=='googlemap'){
-                text ='[improveseo_googlemaps id="'+id+'" address="" title=""]';
+                text ='[improveseo_googlemaps id="'+id+'" name="'+name+'" address="" title=""]';
             }
             else if(selector=='button'){
-                text = '[improveseo_buttons id="'+id+'"]';
+                text = '[improveseo_buttons id="'+id+'" name="'+name+'"]';
             }else if(selector=="video"){
-                text = '[improveseo_video id="'+id+'"]';
+                text = '[improveseo_video id="'+id+'" name="'+name+'"]';
             }
             else if(selector=='list'){
                 text = '@list:'+id;

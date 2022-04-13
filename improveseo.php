@@ -6,7 +6,7 @@ Description: Creates a large number of pages/posts and customize them to rank in
 Author: Improve SEO Team
 Version: 2.0.1
 */
-define("IMPROVESEO_VERSION", "2.0.1");
+define("IMPROVESEO_VERSION", "2.0.2");
 define('IMPROVESEO_ROOT', dirname(__FILE__));
 define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url( __FILE__ )));
 
@@ -21,7 +21,6 @@ if( file_exists( dirname(__FILE__).'/includes/helpers.php' )) include_once dirna
 // if( file_exists( dirname(__FILE__).'/includes/admin.php' )) include_once dirname(__FILE__).'/includes/admin.php';
 
 include_once 'bootstrap.php';
-
 
 register_activation_hook(__FILE__, 'improveseo_install');
 register_activation_hook(__FILE__, 'improveseo_install_data');
@@ -60,27 +59,54 @@ function add_my_media_button() {
 			//testimonials        
 			$testimonial = get_option('get_testimonials_'.$id);
 			if(!empty($testimonial)){
-				$html .= '<button data-action="testimonial" id='.$id.' class="sw-hide-btn button">Add Testimonial '.$id.'</button>';   
+				$display_name = $id;
+				$data_name = '';
+				if(isset($testimonial['tw_testi_shortcode_name'])){
+					if($testimonial['tw_testi_shortcode_name']!=""){
+						$data_name = $display_name = $testimonial['tw_testi_shortcode_name'];
+					}
+				}
+				$html .= '<button data-action="testimonial" data-name="'.$data_name.'" id="'.$id.'" class="sw-hide-btn button">Add Testimonial - '.$display_name.'</button>';   
 			}
 			
 			//buttons        
 			$buttons = get_option('get_buttons_'.$id);
 			if(!empty($buttons)){
-				$html .= '<button data-action="button" id='.$id.' class="sw-hide-btn button">Add Button '.$id.'</button>';   
+				$display_name = $id;
+				$data_name = '';
+				if(isset($buttons['tw_button_shortcode_name'])){
+					if($buttons['tw_button_shortcode_name']!=""){
+						$data_name = $display_name = $buttons['tw_button_shortcode_name'];
+					}
+				}
+				$html .= '<button data-action="button" data-name="'.$data_name.'" id="'.$id.'" class="sw-hide-btn button">Add Button - '.$display_name.'</button>';   
 			}
 			
 			//googlemaps        
 			$google_map = get_option('get_googlemaps_'.$id);
 			if(!empty($google_map)){
-				$html .= '<button data-action="googlemap" id='.$id.' class="sw-hide-btn button">Add GoogleMap '.$id.'</button>';   
+				$display_name = $id;
+				$data_name = '';
+				if(isset($google_map['tw_maps_shortcode_name'])){
+					if($google_map['tw_maps_shortcode_name']!=""){
+						$data_name = $display_name = $google_map['tw_maps_shortcode_name'];
+					}
+				}
+				$html .= '<button data-action="googlemap" data-name="'.$data_name.'" id="'.$id.'" class="sw-hide-btn button">Add GoogleMap - '.$display_name.'</button>';   
 			}
 
 			//videos
 			$videos = get_option('get_videos_'.$id);
 			if(!empty($videos)){
-				$html .= '<button data-action="video" id='.$id.' class="sw-hide-btn button">Add Video '.$id.'</button>';   
+				$display_name = $id;
+				$data_name = '';
+				if(isset($videos['video_shortcode_name'])){
+					if($videos['video_shortcode_name']!=""){
+						$data_name = $display_name = $videos['video_shortcode_name'];
+					}
+				}
+				$html .= '<button data-action="video" data-name="'.$data_name.'" id="'.$id.'" class="sw-hide-btn button">Add Video - '.$display_name.'</button>';   
 			}
-		
 		}
 	}
 
@@ -619,6 +645,7 @@ class WC_Testimonial {
 
 		$rand_no = isset($_REQUEST['updateandedit_data']) ? $_REQUEST['updateandedit_data'] : '';
 
+		$tw_button_shortcode_name = isset($_REQUEST['tw_button_shortcode_name']) ? $_REQUEST['tw_button_shortcode_name'] : '';
 		$tw_btn_text = isset($_REQUEST['tw_btn_text']) ? $_REQUEST['tw_btn_text'] : '';
 		$tw_btn_link = isset($_REQUEST['tw_btn_link']) ? $_REQUEST['tw_btn_link'] : '';
 		$tw_buttontxt_color = isset($_REQUEST['tw_buttontxt_color']) ? $_REQUEST['tw_buttontxt_color'] : '';
@@ -633,6 +660,7 @@ class WC_Testimonial {
 		$tw_tap_btn_number = isset($_REQUEST['tw_tap_btn_number']) ? $_REQUEST['tw_tap_btn_number'] : '';
 
 		$arr = array(
+			'tw_button_shortcode_name'  => $tw_button_shortcode_name,
 			'tw_maps_apikey' 			=> $tw_maps_apikey,
 			'tw_btn_text' 				=> $tw_btn_text,
 			'tw_btn_link' 				=> $tw_btn_link,
@@ -668,8 +696,11 @@ class WC_Testimonial {
 	function wt_save_form_fields_for_googlemaps(){
 		
 		$rand_no = isset($_REQUEST['updateandedit_data']) ? $_REQUEST['updateandedit_data'] : '';
-		$tw_maps_apikey = isset($_REQUEST['tw_maps_apikey']) ? $_REQUEST['tw_maps_apikey'] : '';			
+		$tw_maps_apikey = isset($_REQUEST['tw_maps_apikey']) ? $_REQUEST['tw_maps_apikey'] : '';
+		$tw_maps_shortcode_name = isset($_REQUEST['tw_maps_shortcode_name']) ? $_REQUEST['tw_maps_shortcode_name'] : '';
+
 		$arr = array(
+			'tw_maps_shortcode_name' => $tw_maps_shortcode_name,
 			'tw_maps_apikey' 	=> $tw_maps_apikey,
 		);
 
@@ -693,6 +724,8 @@ class WC_Testimonial {
 	function wt_save_form_fields_for_testimonials(){
 
 		$rand_no = isset($_REQUEST['updateandedit_data']) ? $_REQUEST['updateandedit_data'] : '';
+		
+		$tw_testi_shortcode_name = isset($_REQUEST['tw_testi_shortcode_name']) ? $_REQUEST['tw_testi_shortcode_name'] : '';
 		$testi_img_src = isset($_REQUEST['img_source']) ? $_REQUEST['img_source'] : '';
 		$tw_testi_content = isset($_REQUEST['tw_testi_content']) ? $_REQUEST['tw_testi_content'] : '';
 		$tw_testi_name = isset($_REQUEST['tw_testi_name']) ? $_REQUEST['tw_testi_name'] : '';
@@ -703,6 +736,7 @@ class WC_Testimonial {
 
 
 		$arr = array(
+			'tw_testi_shortcode_name' => $tw_testi_shortcode_name,
 			'testi_img_src' 	=> $testi_img_src,
 			'tw_testi_content' 	=> $tw_testi_content,
 			'tw_testi_name' 	=> $tw_testi_name,
@@ -733,6 +767,7 @@ class WC_Testimonial {
 	function wt_save_form_fields_for_videos(){
 		$rand_no = isset($_REQUEST['updateandedit_data']) ? $_REQUEST['updateandedit_data'] : '';
 
+		$video_shortcode_name = isset($_REQUEST['video_shortcode_name'])?$_REQUEST['video_shortcode_name']:'';
 		$video_type = isset($_REQUEST['video_type'])?$_REQUEST['video_type']:'upload_video';
 
 		$video_poster_img_source = isset($_REQUEST['video_poster_img_source'])?$_REQUEST['video_poster_img_source']:'';
@@ -758,6 +793,7 @@ class WC_Testimonial {
 		$video_width = isset($_REQUEST['video_width'])?$_REQUEST['video_width']:'100%';		
 
 		$arr = array(
+			'video_shortcode_name'		=> $video_shortcode_name,
 			'video_type'				=> $video_type,
 			'video_poster_img_source'	=> $video_poster_img_source,
 			'video_poster_img_id' 		=> $video_poster_img_id,

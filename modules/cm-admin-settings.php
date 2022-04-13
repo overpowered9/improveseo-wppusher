@@ -6,6 +6,7 @@
 
 	// For testimonial
 	$data = get_option('get_testimonials_'.$specific_no);
+	$tw_testi_shortcode_name = isset($data['tw_testi_shortcode_name']) ? $data['tw_testi_shortcode_name'] : '';
 	$testi_img_src = isset($data['testi_img_src']) ? $data['testi_img_src'] : '';
 	$tw_testi_content = isset($data['tw_testi_content']) ? $data['tw_testi_content'] : '';
 	$tw_testi_name = isset($data['tw_testi_name']) ? $data['tw_testi_name'] : '';
@@ -14,14 +15,17 @@
 	$tw_font_color = isset($data['tw_font_color']) ? $data['tw_font_color'] : '#ffffff';
 	$tw_testi_outline_color = isset($data['tw_testi_outline_color']) ? $data['tw_testi_outline_color'] : '#ffffff';
 	// for testimonial
+	
 	// for google_maps
 	$data_gm = get_option('get_googlemaps_'.$specific_no);
+	$tw_maps_shortcode_name = isset($data_gm['tw_maps_shortcode_name']) ? $data_gm['tw_maps_shortcode_name'] : '';
 	$tw_maps_apikey = isset($data_gm['tw_maps_apikey']) ? $data_gm['tw_maps_apikey'] : '';
 	// for google_maps
 	
 	// For Buttons
 	$data_btn = get_option('get_buttons_'.$specific_no);
 	
+	$tw_button_shortcode_name = isset($data_btn['tw_button_shortcode_name']) ? $data_btn['tw_button_shortcode_name'] : '';
 	$tw_btn_text = isset($data_btn['tw_btn_text']) ? $data_btn['tw_btn_text'] : '';
 	$tw_btn_link = isset($data_btn['tw_btn_link']) ? $data_btn['tw_btn_link'] : '';
 	$tw_buttontxt_color = isset($data_btn['tw_buttontxt_color']) ? $data_btn['tw_buttontxt_color'] : '#ffffff';
@@ -38,6 +42,7 @@
 
 	// For Videos
 	$data_video = get_option('get_videos_'.$specific_no);
+	$video_shortcode_name = isset($data_video['video_shortcode_name'])?$data_video['video_shortcode_name']:'';
 	$video_type = isset($data_video['video_type'])?$data_video['video_type']:'upload_video';
 	$video_poster_img_source = isset($data_video['video_poster_img_source'])?$data_video['video_poster_img_source']:'';
 	$video_poster_img_id = isset($data_video['video_poster_img_id'])?$data_video['video_poster_img_id']:'';
@@ -104,6 +109,19 @@
 				}else $no = '';
 				?>
 				<form class="wt-save-admin-settings-testimonials form-wrap mt-3">
+					<div class="row">
+						<div class="col-lg-6">
+							<div class="BasicForm__row">
+								<div class="input-group">
+									<label class="form-label">Shortcode Name:</label>
+									<div class="input-prefix">
+										<input type="text" class="form-control name" name="tw_testi_shortcode_name" placeholder="Testimonial 1" value="<?php echo $tw_testi_shortcode_name; ?>">
+										<span>Ex.</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
 					<div class="row">
 						<div class="col-lg-2">
 							<div class="BasicForm__row">
@@ -192,18 +210,35 @@
 				}else $no = '';
 				?>
 				<form class="wt-save-admin-settings-googlemaps form-wrap mt-3">
-					<div class="BasicForm__row">
-						<input type="hidden" name="action" value="wt_save_form_fields_for_googlemaps">
-						<input type="hidden" name="active_action" value="googlemap">
-						<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
-						<div class="input-group">
-							<label class="form-label">Google Maps API Key:</label>
-							<div class="input-prefix">
-								<input type="text" class="form-control name" name="tw_maps_apikey" placeholder="" value="<?php echo $tw_maps_apikey; ?>">
+					<div class="row">
+						<div class="col-lg-6">
+							<div class="BasicForm__row">
+								<div class="input-group">
+									<label class="form-label">Shortcode Name:</label>
+									<div class="input-prefix">
+										<input type="text" class="form-control name" name="tw_maps_shortcode_name" placeholder="Map 1" value="<?php echo $tw_maps_shortcode_name; ?>">
+										<span>Ex.</span>
+									</div>
+								</div>
 							</div>
 						</div>
-						<input type="submit" class="btn btn-outline-primary py-3 px-4 cm-custom-btn" value="Save API Key">
 					</div>
+					<div class="row">
+						<div class="col-lg-6">
+							<div class="BasicForm__row">
+								<input type="hidden" name="action" value="wt_save_form_fields_for_googlemaps">
+								<input type="hidden" name="active_action" value="googlemap">
+								<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
+								<div class="input-group">
+									<label class="form-label">Google Maps API Key:</label>
+									<div class="input-prefix">
+										<input type="text" class="form-control name" name="tw_maps_apikey" placeholder="" value="<?php echo $tw_maps_apikey; ?>">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<input type="submit" class="btn btn-outline-primary py-3 px-4 cm-custom-btn" value="Save API Key">
 				</form>
 			</div>
 			<!-- Button settings -->
@@ -215,27 +250,39 @@
 						}else $no = '';
 				?>
 				<form class="wt-save-admin-settings-buttons mt-3 form-wrap">
+					<input type="hidden" name="action" value="wt_save_form_fields_for_buttons">
+					<input type="hidden" name="active_action" value="button">
+					<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
 					<div class="row">
-						<input type="hidden" name="action" value="wt_save_form_fields_for_buttons">
-						<input type="hidden" name="active_action" value="button">
-						<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
-						<div class="col-12">
-							<div class="row">
-								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
-									<label class="form-label">Button Type:</label>
-									<div class="form-check form-check-inline">
-										<input class="form-check-input tw_button_type" type="radio" name="tw_button_type" id="tw_button_type_normal" value="normal_btn" <?= checked('normal_btn', $tw_button_type); ?> />
-										<label class="form-check-label" for="tw_button_type_normal">Normal Button</label>
+						<div class="col-lg-6">
+							<div class="BasicForm__row">
+								<div class="input-group">
+									<label class="form-label">Shortcode Name:</label>
+									<div class="input-prefix">
+										<input type="text" class="form-control name" name="tw_button_shortcode_name" placeholder="Button 1" value="<?php echo $tw_button_shortcode_name; ?>">
+										<span>Ex.</span>
 									</div>
-									<div class="form-check form-check-inline">
-										<input class="form-check-input tw_button_type" type="radio" name="tw_button_type" id="tw_button_type_tap_to_call" value="tap_to_call" <?= checked('tap_to_call', $tw_button_type); ?> />
-										<label class="form-check-label" for="tw_button_type_tap_to_call">Tap to Call</label>
-									</div>
-									
 								</div>
 							</div>
 						</div>
-						<div class="col-12" id="normal_btn_wrapper" style="<?php echo ($tw_button_type=="tap_to_call")?'display:none':''; ?>">
+					</div>
+					<div class="row">
+						<div class="col-lg-6">
+							<div class="BasicForm__row radio-btns-wrapper">
+								<label class="form-label">Button Type:</label>
+								<div class="form-check form-check-inline">
+									<input class="form-check-input tw_button_type" type="radio" name="tw_button_type" id="tw_button_type_normal" value="normal_btn" <?= checked('normal_btn', $tw_button_type); ?> />
+									<label class="form-check-label" for="tw_button_type_normal">Normal Button</label>
+								</div>
+								<div class="form-check form-check-inline">
+									<input class="form-check-input tw_button_type" type="radio" name="tw_button_type" id="tw_button_type_tap_to_call" value="tap_to_call" <?= checked('tap_to_call', $tw_button_type); ?> />
+									<label class="form-check-label" for="tw_button_type_tap_to_call">Tap to Call</label>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12"id="normal_btn_wrapper" style="<?php echo ($tw_button_type=="tap_to_call")?'display:none':''; ?>">
 							<div class="row">
 								<div class="BasicForm__row col-lg-2">
 									<div class="input-group">
@@ -257,7 +304,8 @@
 								</div>
 							</div>
 						</div>
-
+					</div>
+					<div class="row">
 						<div class="col-12" id="tap_to_call_btn_wrapper" style="<?php echo ($tw_button_type=="normal_btn")?'display:none':''; ?>">
 							<div class="row">
 								<div class="BasicForm_row col-lg-2">
@@ -291,7 +339,8 @@
 								</div>
 							</div>
 						</div>
-						
+					</div>
+					<div class="row">
 						<div class="col-12">
 							<div class="row">
 								<div class="BasicForm__row col-lg-2">
@@ -314,7 +363,9 @@
 								</div>
 							</div>
 						</div>
-
+					</div>
+					<div class="row">
+					
 						<div class="col-12">
 							<div class="row">
 								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
@@ -334,7 +385,8 @@
 								</div>
 							</div>
 						</div>
-
+					</div>
+					<div class="row">
 						<div class="col-12">
 							<div class="row">
 								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
@@ -351,10 +403,11 @@
 								</div>
 							</div>
 						</div>
+					</div>
+					<div class="row">
 						<div class="col-lg-2 mr-auto">
 							<input type="submit" class="btn btn-outline-primary py-3 px-5" value="Save Button">
 						</div>
-						
 					</div>
 				</form>
 			</div>
@@ -366,12 +419,24 @@
 						}else $no = '';
 				?>
 				<form class="wt-save-admin-settings-videos mt-3 form-wrap">
+					<input type="hidden" name="action" value="wt_save_form_fields_for_videos">
+					<input type="hidden" name="active_action" value="videos">
+					<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
 					<div class="row">
-						<input type="hidden" name="action" value="wt_save_form_fields_for_videos">
-						<input type="hidden" name="active_action" value="videos">
-						<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
+						<div class="col-lg-6">
+							<div class="BasicForm__row">
+								<div class="input-group">
+									<label class="form-label">Shortcode Name:</label>
+									<div class="input-prefix">
+										<input type="text" class="form-control name" name="video_shortcode_name" placeholder="Video 1" value="<?php echo $video_shortcode_name; ?>">
+										<span>Ex.</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
 						<div class="col-12">
-							<div class="row">
 								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
 									<label class="form-label">Video Type:</label>
 									<div class="form-check form-check-inline">
@@ -387,8 +452,10 @@
 										<label class="form-check-label" for="video_type_vimeo">Vimeo Video</label>
 									</div>
 								</div>
-							</div>
 						</div>
+					</div>
+					
+					<div class="row">
 						<div class="col-12 upload_video_wrapper" style="<?php echo ($video_type!='upload_video')?'display:none':''; ?>">
 							<div class="row">
 								<div class="BasicForm__row col-lg-2">
@@ -410,6 +477,8 @@
 								</div>
 							</div>
 						</div>
+					</div>
+					<div class="row">
 						<div class="col-12 upload_video_wrapper" style="<?php echo ($video_type!='upload_video')?'display:none':''; ?>">
 							<div class="row">
 								<div class="BasicForm__row col-lg-2">
@@ -429,7 +498,8 @@
 								</div>
 							</div>
 						</div>
-
+					</div>
+					<div class="row">
 						<div class="col-12 upload_video_wrapper" style="<?php echo ($video_type!='upload_video')?'display:none':''; ?>">
 							<div class="row">
 								<div class="BasicForm__row col-lg-2">
@@ -450,7 +520,8 @@
 								</div>
 							</div>
 						</div>
-
+					</div>
+					<div class="row">
 						<div class="col-12 upload_video_wrapper" style="<?php echo ($video_type!='upload_video')?'display:none':''; ?>">
 							<div class="row">
 								<div class="BasicForm__row col-lg-2">
@@ -471,7 +542,8 @@
 								</div>
 							</div>
 						</div>
-
+					</div>
+					<div class="row">
 						<div class="col-12 youtube_wrapper" style="<?php echo ($video_type!='youtube')?'display:none':''; ?>">
 							<div class="row">
 								<div class="BasicForm__row col-lg-4">
@@ -482,7 +554,8 @@
 								</div>
 							</div>
 						</div>
-
+					</div>
+					<div class="row">
 						<div class="col-12 vimeo_wrapper" style="<?php echo ($video_type!='vimeo')?'display:none':''; ?>">
 							<div class="row">
 								<div class="BasicForm__row col-lg-4">
@@ -493,7 +566,8 @@
 								</div>
 							</div>
 						</div>
-
+					</div>
+					<div class="row">
 						<div class="col-12">
 							<div class="row">
 								<div class="BasicForm__row col-lg-2">
@@ -517,6 +591,8 @@
 								
 							</div>
 						</div>
+					</div>
+					<div class="row">
 						<div class="col-12">
 							<div class="row">
 								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
@@ -532,7 +608,8 @@
 								</div>
 							</div>
 						</div>
-						
+					</div>
+					<div class="row">	
 						<div class="col-12">
 							<div class="row">
 								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
@@ -548,6 +625,8 @@
 								</div>
 							</div>
 						</div>
+					</div>
+					<div class="row">
 						<div class="col-12">
 							<div class="row">
 								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
@@ -563,7 +642,8 @@
 								</div>
 							</div>
 						</div>
-
+					</div>
+					<div class="row">
 						<div class="col-12">
 							<div class="row">
 								<div class="BasicForm__row col-lg-6 radio-btns-wrapper">
@@ -579,11 +659,11 @@
 								</div>
 							</div>
 						</div>
-
+					</div>
+					<div class="row">
 						<div class="col-lg-2 mr-auto">
 							<input type="submit" class="btn btn-outline-primary py-3 px-5" value="Save Video">
 						</div>
-						
 					</div>
 				</form>
 			</div>
