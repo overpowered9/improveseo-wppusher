@@ -144,7 +144,7 @@
 								<div class="input-group">
 									<label class="form-label">Testimonial Content:</label>
 									<div class="input-prefix">
-										<input type="text" name="tw_testi_content" placeholder="lorem ipsum" class="form-control"><?php echo $tw_testi_content; ?>
+										<input type="text" name="tw_testi_content" placeholder="lorem ipsum" class="form-control" value="<?php echo $tw_testi_content; ?>" />
 										<span>Ex.</span>
 									</div>
 								</div>

@@ -373,6 +373,7 @@ function improveseo_spintax_the_field($value, $project, $spintaxIteration, $geo 
 	$iteration = improveseo_get_spintax_subiteration($max, $project, $spintaxIteration);
 
 	$text = Spintax::make($value, $iteration, $spintax);
+	
 	if ($geo) $text = Spintax::geo($text, $geoData);
 
 	if ($lists) $text = improveseo_set_list_item($value, $lists, $project->iteration);
@@ -603,3 +604,14 @@ function improveseo_addHttp($url) {
     // Return the URL
     return $url;
 }
+
+function test_spintax(){
+	$string = '{Best|Top|Reliable} Brick And Stone Contractor Chimayo, NM &#124; Rakso Construction';
+	//$string = 'The {best|good|amazing} spintax {tool|generator} &#124; test';
+	$string = 'I {love {PHP|Java|C|C++|JavaScript|Python}|hate Ruby} &#124';
+
+	$text = improveseo_spintax_the_field($string, $project = array(), 1);
+	echo $text;
+	die;
+}
+//add_action('init', 'test_spintax');

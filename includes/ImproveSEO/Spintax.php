@@ -96,10 +96,11 @@ class Spintax
 		$variables = isset($spintax['vars']) ? $spintax['vars'] : $spintax;
 		foreach ($variables as $key => $var) {
 			$subitems = array();
-
-			foreach ($var as $key_vr => $vr) {
-				if (isset($vr['template'])) {
-					$subitems[$key_vr] = self::build($vr);
+			if(is_array($var)){
+				foreach ($var as $key_vr => $vr) {
+					if (isset($vr['template'])) {
+						$subitems[$key_vr] = self::build($vr);
+					}
 				}
 			}
 

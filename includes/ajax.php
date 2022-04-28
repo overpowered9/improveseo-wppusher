@@ -13,21 +13,21 @@ function improveseo_get_shortcodes(){
                 foreach($saved_rnos as $id){
                     $testimonial = get_option('get_testimonials_'.$id);
                     if(!empty($testimonial)){
-                        $display_name = $id;
+                        $display_name = 'Testimonial - '.$id;
 				        $data_name = '';
                         if(isset($testimonial['tw_testi_shortcode_name'])){
                             if($testimonial['tw_testi_shortcode_name']!=""){
                                 $data_name = $display_name = $testimonial['tw_testi_shortcode_name'];
                             }
                         }
-                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$testimonial['tw_testi_name'].' - '.$display_name.'</option>';
+                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
                     }
                 }
             break;
             case 'button':
                 foreach($saved_rnos as $id){
                     $button = get_option('get_buttons_'.$id);
-                    $display_name = $id;
+                    $display_name = 'Button - '.$id;
                     $data_name = '';
                     if(isset($button['tw_button_shortcode_name'])){
                         if($button['tw_button_shortcode_name']!=""){
@@ -35,7 +35,7 @@ function improveseo_get_shortcodes(){
                         }
                     }
                     if(!empty($button)){
-                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$button['tw_btn_text'].' - '.$display_name.'</option>';
+                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
                     }
                 }
             break;
@@ -43,21 +43,21 @@ function improveseo_get_shortcodes(){
                 foreach($saved_rnos as $id){
                     $googlemap = get_option('get_googlemaps_'.$id);
                     if(!empty($googlemap)){
-                        $display_name = $id;
+                        $display_name = 'GoogleMap - '.$id;
                         $data_name = '';
                         if(isset($googlemap['tw_maps_shortcode_name'])){
                             if($googlemap['tw_maps_shortcode_name']!=""){
                                 $data_name = $display_name = $googlemap['tw_maps_shortcode_name'];
                             }
                         }
-                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">GoogleMap - '.$display_name.'</option>';
+                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
                     }
                 }
             break;
             case 'video':
                 foreach($saved_rnos as $id){
                     $videos = get_option('get_videos_'.$id);
-                    $display_name = $id;
+                    $display_name = 'Video - '.$id;
                     $data_name = '';
                     if(isset($videos['video_shortcode_name'])){
                         if($videos['video_shortcode_name']!=""){
@@ -65,7 +65,7 @@ function improveseo_get_shortcodes(){
                         }
                     }
                     if(!empty($videos)){
-                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">Video - '.$display_name.'</option>';
+                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
                     }
                 }
             break;

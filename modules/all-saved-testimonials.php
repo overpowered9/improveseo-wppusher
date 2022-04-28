@@ -7,13 +7,10 @@
             <table class="table widefat fixed wp-list-table widefat fixed table-view-list posts text-center">
                 <thead>
                     <tr>
-                        <th scope="col" class="text-center manage-column manage-column column-title column-primary" style="width:10%">#ID</th>
+                        <th scope="col" class="text-center manage-column manage-column column-title column-primary" style="width:12%">Name/#ID</th>
                         <th scope="col" class="text-center manage-column">Testimonial IMG</th>
-                        <th scope="col" class="text-center manage-column">Content</th>
+                        <th scope="col" class="text-center manage-column" style="width:25%;">Content</th>
                         <th scope="col" class="text-center manage-column">Name</th>
-                        <th scope="col" class="text-center manage-column">Position</th>
-                        <th scope="col" class="text-center manage-column">Box Color</th>
-                        <th scope="col" class="text-center manage-column">Font Color</th>
                         <th scope="col" class="text-center manage-column" style="width:20%">Actions</th>
                     </tr>
                 </thead>
@@ -25,20 +22,24 @@
                     if(!empty($ids)){
                         foreach ($ids as $id) {
                             $get_data = get_option('get_testimonials_'.$id);
-                            $testi_img_src = isset($get_data['testi_img_src']) ? $get_data['testi_img_src'] : '';
-                            $tw_testi_content = isset($get_data['tw_testi_content']) ? $get_data['tw_testi_content'] : '';
-                            $tw_testi_name = isset($get_data['tw_testi_name']) ? $get_data['tw_testi_name'] : '';
-                            $tw_testi_position = isset($get_data['tw_testi_position']) ? $get_data['tw_testi_position'] : '';
-                            
-                            $tw_box_color = isset($get_data['tw_box_color']) ? $get_data['tw_box_color'] : '';
-                            $tw_font_color = isset($get_data['tw_font_color']) ? $get_data['tw_font_color'] : '';
-
                             if (empty($get_data)) {
                                 continue;
                             }
+
+                            $testi_img_src = isset($get_data['testi_img_src']) ? $get_data['testi_img_src'] : '';
+                            $tw_testi_content = isset($get_data['tw_testi_content']) ? $get_data['tw_testi_content'] : '';
+                            $tw_testi_name = isset($get_data['tw_testi_name']) ? $get_data['tw_testi_name'] : '';
+                            
+
+                            $shortcode_name = isset($get_data['tw_testi_shortcode_name']) ? $get_data['tw_testi_shortcode_name'] : '';
+                            $display_name = ($shortcode_name!="") ? $shortcode_name : $id;
+
+                            $content = stripslashes($tw_testi_content);
+                            $content = (strlen($content) > 100)?substr($content, 0, 100).'...': $content;
+                            
+
                             $html .= '<tr>';
-                                $html .= '<td class="column-title column-primary has-row-actions">'.$id.'</td>';
-                                
+                                $html .= '<td class="column-title column-primary has-row-actions">'.$display_name.'</td>';
                                 
                                 $html .= '<td data-colname="Testimonial IMG">';
                                 if($testi_img_src!=""){
@@ -47,11 +48,8 @@
                                     $html .= 'No Image';
                                 }
                                 $html .= '</td>';
-                                $html .= '<td data-colname="Content">'.$tw_testi_content.'</td>
+                                $html .= '<td data-colname="Content">'.$content.'</td>
                                 <td data-colname="Name">'.$tw_testi_name.'</td>
-                                <td data-colname="Position">'.stripslashes($tw_testi_position).'</td>
-                                <td data-colname="Box Color">'.$tw_box_color.'</td>
-                                <td data-colname="Font Color">'.$tw_font_color.'</td>
                                 <td class="actions-btn" data-colname="Actions"><span data-action="testimonial" data-rand_id='.$id.' class="wt-edit-testi btn btn-outline-primary mr-2">Edit</span><span data-action="testimonial" data-rand_id='.$id.' class="wt-dlt-testi wt-icons btn btn-outline-danger">Remove</span></td>
                             </tr>';
                         }
@@ -71,7 +69,7 @@
             <table class="table widefat fixed wp-list-table widefat fixed table-view-list posts text-center">
                 <thead>
                     <tr>
-                        <th scope="col" class="text-center manage-column manage-column column-title column-primary" style="width:10%">#ID</th>
+                        <th scope="col" class="text-center manage-column manage-column column-title column-primary" style="width:10%">Name/#ID</th>
                         <th scope="col" class="text-center manage-column">Google Maps APIKEY</th>
                         <th scope="col" class="text-center manage-column" style="width:20%">Actions</th>
                     </tr>
@@ -86,8 +84,11 @@
                             if (empty($get_data)) {
                                 continue;
                             }
+                            $shortcode_name = isset($get_data['tw_maps_shortcode_name']) ? $get_data['tw_maps_shortcode_name'] : '';
+                            $display_name = ($shortcode_name!="") ? $shortcode_name : $id;
+
                             $html .= '<tr>';
-                                $html .= '<td class="column-title column-primary has-row-actions">'.$id.'</td>';
+                                $html .= '<td class="column-title column-primary has-row-actions">'.$display_name.'</td>';
                                 $tw_maps_apikey = isset($get_data['tw_maps_apikey']) ? $get_data['tw_maps_apikey'] : '';
                                 $html .= '<td data-colname="Google Maps APIKEY">'.$tw_maps_apikey.'</td>
                                 <td class="actions-btn" data-colname="Actions"><span data-action="googlemaps" data-rand_id='.$id.' class="wt-edit-testi btn btn-outline-primary px-4 mr-2 py-2">Edit</span><span data-action="googlemaps" data-rand_id='.$id.' class="wt-dlt-testi wt-icons btn btn-outline-danger py-2">Remove</span></td>
@@ -108,12 +109,10 @@
             <table class="table widefat fixed wp-list-table widefat fixed table-view-list posts text-center">
                 <thead>
                     <tr>
-                        <th scope="col" class="text-center manage-column manage-column column-title column-primary" style="width:10%">#ID</th>
+                        <th scope="col" class="text-center manage-column manage-column column-title column-primary" style="width:10%">Name/#ID</th>
                         <th scope="col" class="text-center manage-column">Button Type</th>
                         <th scope="col" class="text-center manage-column">Button Text</th>
                         <th scope="col" class="text-center manage-column">Button Link/Number</th>
-                        <th scope="col" class="text-center manage-column">Button Color</th>
-                        <th scope="col" class="text-center manage-column">Button BG Color</th>
                         <th scope="col" class="text-center manage-column" style="width:20%">Actions</th>
                     </tr>
                 </thead>
@@ -128,8 +127,11 @@
                             if (empty($get_data)) {
                                 continue;
                             }
+                            $shortcode_name = isset($get_data['tw_button_shortcode_name']) ? $get_data['tw_button_shortcode_name'] : '';
+                            $display_name = ($shortcode_name!="") ? $shortcode_name : $id;
+
                             $html .= '<tr>';
-                                $html .= '<td class="column-title column-primary has-row-actions">'.$id.'<button type="button" class="toggle-row"><span class="screen-reader-text">Show more details</span></button></td>';
+                                $html .= '<td class="column-title column-primary has-row-actions">'.$display_name.'<button type="button" class="toggle-row"><span class="screen-reader-text">Show more details</span></button></td>';
                                 $tw_btn_text = isset($get_data['tw_btn_text']) ? $get_data['tw_btn_text'] : '';
                                 $tw_btn_link = isset($get_data['tw_btn_link']) ? $get_data['tw_btn_link'] : '';
                                 
@@ -149,8 +151,6 @@
                                     $html .= '<td data-colname="Button Link">'.$tw_tap_btn_number.'</td>';
                                 }
                                 $html .= '
-                                <td data-colname="Button Color">'.$tw_buttontxt_color.'</td>
-                                <td data-colname="Button BG Color">'.$tw_buttonbg_color.'</td>
                                 <td class="actions-btn" data-colname="Actions"><span  data-action="buttons" data-rand_id='.$id.' class="wt-edit-testi wt-icons btn btn-outline-primary px-4 mr-2 py-2">Edit</span><span data-rand_id='.$id.' data-action="buttons" class="wt-dlt-testi wt-icons btn btn-outline-danger py-2">Remove</span></td>
                             </tr>';
                         }
@@ -170,13 +170,11 @@
             <table class="table widefat fixed wp-list-table widefat fixed table-view-list posts text-center">
                 <thead>
                     <tr>
-                        <th scope="col" class="text-center manage-column manage-column column-title column-primary" style="width:10%">#ID</th>
-                        <th scope="col" class="text-center manage-column">Video Type</th>
+                        <th scope="col" class="text-center manage-column manage-column column-title column-primary" style="width:10%">Name/#ID</th>
+                        <th scope="col" class="text-center manage-column" >Video Type</th>
                         <th scope="col" class="text-center manage-column" style="width:17%;">Video Poster</th>
-                        <th scope="col" class="text-center manage-column" style="width:17%;">Video URLs</th>
+                        <th scope="col" class="text-center manage-column" style="width:20%;">Video URLs</th>
                         <th scope="col" class="text-center manage-column" style="width:18%;">Autoplay - Mute - Controls - Loop</th>
-                        <th scope="col" class="text-center manage-column">Height</th>
-                        <th scope="col" class="text-center manage-column">Width</th>
                         <th scope="col" class="text-center manage-column" style="width:20%">Actions</th>
                     </tr>
                 </thead>
@@ -190,6 +188,9 @@
                             if (empty($get_data)) {
                                 continue;
                             }
+                            $shortcode_name = isset($get_data['video_shortcode_name']) ? $get_data['video_shortcode_name'] : '';
+                            $display_name = ($shortcode_name!="") ? $shortcode_name : $id;
+
                             $video_type = isset($get_data['video_type'])?$get_data['video_type']:'upload_video';
 
                             $video_poster_img_source = isset($get_data['video_poster_img_source'])?$get_data['video_poster_img_source']:'';
@@ -203,18 +204,6 @@
                             $video_muted = isset($get_data['video_muted'])?$get_data['video_muted']:'no';
                             $video_controls = isset($get_data['video_controls'])?$get_data['video_controls']:'no';
                             $video_loop = isset($get_data['video_loop'])?$get_data['video_loop']:'no';
-                            $video_height = isset($get_data['video_height'])?$get_data['video_height']:'Default';
-                            $video_width = isset($get_data['video_width'])?$get_data['video_width']:'Default';
-
-                            if($video_height=="")
-                                $video_height = 'Default';
-                            else
-                                $video_height = $video_height." PX";
-
-                            if($video_width=="")
-                                $video_width = 'Default';
-                            else
-                                $video_width = $video_width." PX";
                             
                             if($video_type=="upload_video")
                                 $video_type_display = "Upload Video";
@@ -224,7 +213,7 @@
                                 $video_type_display = "Vimeo";
 
                             $html .= '<tr>';
-                            $html .= '<td class="column-title column-primary has-row-actions">'.$id.'</td>';
+                            $html .= '<td class="column-title column-primary has-row-actions">'.$display_name.'</td>';
                             $html .= '<td data-colname="video_type">'.$video_type_display.'</td>';
                             if($video_poster_img_source!="")
                                 $html .= '<td data-colname="video_poster_img"><img src="'.$video_poster_img_source.'" style="max-width:200px; height:100px;" /></td>';
@@ -254,9 +243,6 @@
 
                             $html .= '<td data-colname="video_extras">'.ucfirst($video_autoplay).' - '.ucfirst($video_muted).' - '.ucfirst($video_controls).' - '.ucfirst($video_loop).'</td>';
                             
-                            $html .= '<td data-colname="video_height">'.$video_height.'</td>';
-                            $html .= '<td data-colname="video_width">'.$video_width.'</td>';
-
                             $html .= '
                                 <td class="actions-btn" data-colname="Actions"><span data-action="videos" data-rand_id='.$id.' class="wt-edit-testi btn btn-outline-primary px-4 mr-2 py-2">Edit</span><span data-action="videos" data-rand_id='.$id.' class="wt-dlt-testi wt-icons btn btn-outline-danger py-2">Remove</span></td>
                             </tr>';
