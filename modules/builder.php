@@ -49,7 +49,7 @@ function improveseo_builder() {
 	$project = $model->find ( $id );
 	
 	$options = $project->options;
-	$ahmed_cats = $project->cats;
+	$categories = $project->cats;
 	
 	
 	$posts = 1;
@@ -78,7 +78,7 @@ function improveseo_builder() {
 	
 	$title = $data ['title'];
 	$content = $data ['content'];
-	
+	$post_type = $data ['post_type'];
 	$titleSpintax = Spintax::parse ( $data ['title'] );
 	$titleMax = Spintax::count ( $titleSpintax );
 	
@@ -400,13 +400,33 @@ function improveseo_builder() {
     
     
 			$postdate_gmt = gmdate('Y-m-d H:i:s',strtotime($post_date));
-			$wpdb->query ( $wpdb->prepare ( "INSERT IGNORE INTO `" . $wpdb->prefix . "posts`
+			/* $wpdb->query ( $wpdb->prepare ( "INSERT IGNORE INTO `" . $wpdb->prefix . "posts`
 			(post_author, post_content, post_title, comment_status, ping_status, post_name, post_type,
 			 post_date, post_date_gmt, post_status)
-			VALUES (%s, %s, %s, 'closed', 'closed', %s, %s, %s, %s, %s)", $author_id, $contentText, $titleText, sanitize_title ( $postName ), $data ['post_type'], $post_date, $post_date, strtotime ( $post_date ) <= time () ? 'publish' : 'future' ) );
-			$post_id = $wpdb->insert_id;
+			VALUES (%s, %s, %s, 'closed', 'closed', %s, %s, %s, %s, %s)", $author_id, $contentText, $titleText, sanitize_title ( $postName ), $data ['post_type'], $post_date, $post_date, strtotime ( $post_date ) <= time () ? 'publish' : 'future' ) ); */
+
+			$post_array = array(
+				'post_author' => $author_id,
+				'post_content' => $contentText,
+				'post_title' => $titleText,
+				'comment_status' => 'closed',
+				'ping_status' => 'closed',
+				'post_type' => $data ['post_type'],
+				'post_date' => $post_date,
+				'post_status' => (strtotime ( $post_date ) <= time () ? 'publish' : 'future' )
+			);
+			$post_id = wp_insert_post($post_array);
+			//$post_id = $wpdb->insert_id;
 			
-			$res = wp_set_post_categories( $post_id, json_decode($ahmed_cats, true), true );
+			if($data ['post_type']=="post"){
+				wp_set_post_categories( $post_id, json_decode($categories, true), true );
+
+				// create improveseo category and assign all posts to it
+				$improveseo_category_id = wp_create_category ( 'Improve SEO', 0);
+				wp_set_post_categories ( $post_id, array (
+					$improveseo_category_id
+				), true );
+			}
 			
 			improveseo_debug_message ( 'Post created (time ' . improveseo_debug_time () . ' ms)' );
 			
@@ -428,13 +448,6 @@ function improveseo_builder() {
 				
 				improveseo_debug_message ( 'All categories created (time ' . improveseo_debug_time () . ' ms)' );
 			}
-
-			// create improveseo category and assign all posts to it
-			$improveseo_category_id = wp_create_category ( 'Improve SEO', 0);
-			wp_set_post_categories ( $post_id, array (
-				$improveseo_category_id
-			), true );
-			
 			
 			add_post_meta ( $post_id, 'improveseo_project_id', $project->id );
 			
@@ -688,7 +701,7 @@ function improveseo_builder_update() {
 	//$project = $model->find ( $id );
 	
 	$options = $project->options;
-	$ahmed_cats = $project->cats;
+	$categories = $project->cats;
 	
 	$posts = 1;
 	$geo = isset ( $options ['local_geo_country'] );
@@ -1036,14 +1049,34 @@ function improveseo_builder_update() {
     
     
 			$postdate_gmt = gmdate('Y-m-d H:i:s',strtotime($post_date));
-			$wpdb->query ( $wpdb->prepare ( "INSERT IGNORE INTO `" . $wpdb->prefix . "posts`
+			
+			/* $wpdb->query ( $wpdb->prepare ( "INSERT IGNORE INTO `" . $wpdb->prefix . "posts`
 			(post_author, post_content, post_title, comment_status, ping_status, post_name, post_type,
 			 post_date, post_date_gmt, post_status)
-			VALUES (%s, %s, %s, 'closed', 'closed', %s, %s, %s, %s, %s)", $author_id, $contentText, $titleText, sanitize_title ( $postName ), $data ['post_type'], $post_date, $post_date, strtotime ( $post_date ) <= time () ? 'publish' : 'future' ) );
-			$post_id = $wpdb->insert_id;
-			
-			$res = wp_set_post_categories( $post_id, json_decode($ahmed_cats, true), true );
-			
+			VALUES (%s, %s, %s, 'closed', 'closed', %s, %s, %s, %s, %s)", $author_id, $contentText, $titleText, sanitize_title ( $postName ), $data ['post_type'], $post_date, $post_date, strtotime ( $post_date ) <= time () ? 'publish' : 'future' ) ); */
+
+			$post_array = array(
+				'post_author' => $author_id,
+				'post_content' => $contentText,
+				'post_title' => $titleText,
+				'comment_status' => 'closed',
+				'ping_status' => 'closed',
+				'post_type' => $data ['post_type'],
+				'post_date' => $post_date,
+				'post_status' => (strtotime ( $post_date ) <= time () ? 'publish' : 'future' )
+			);
+			$post_id = wp_insert_post($post_array);
+
+			//$post_id = $wpdb->insert_id;
+			if($data['post_type'] == 'post'){
+				$res = wp_set_post_categories( $post_id, json_decode($categories, true), true );
+
+				// create improveseo category and assign all posts to it
+				$improveseo_category_id = wp_create_category ( 'Improve SEO', 0);
+				wp_set_post_categories ( $post_id, array (
+					$improveseo_category_id
+				), true );
+			}
 			
 			improveseo_debug_message ( 'Post created (time ' . improveseo_debug_time () . ' ms)' );
 			
@@ -1065,12 +1098,7 @@ function improveseo_builder_update() {
 				
 				improveseo_debug_message ( 'All categories created (time ' . improveseo_debug_time () . ' ms)' );
 			}
-			// create improveseo category and assign all posts to it
-			$improveseo_category_id = wp_create_category ( 'Improve SEO', 0);
-			wp_set_post_categories ( $post_id, array (
-				$improveseo_category_id
-			), true );
-			
+
 			add_post_meta ( $post_id, 'improveseo_project_id', $project->id );
 			
 			// On-Page SEO Section
