@@ -606,11 +606,11 @@ function improveseo_addHttp($url) {
 }
 
 function test_spintax(){
-	$string = '{Best|Top|Reliable} Brick And Stone Contractor Chimayo, NM &#124; Rakso Construction';
+	$string = '{Best|Top|Reliable} Brick And Stone Contractor Chimayo, NM | Rakso Construction';
 	//$string = 'The {best|good|amazing} spintax {tool|generator} &#124; test';
-	$string = 'I {love {PHP|Java|C|C++|JavaScript|Python}|hate Ruby} &#124';
+	//$string = 'I {love {PHP|Java|C|C++|JavaScript|Python} | hate {Ruby|PP}}';
 
-	$text = improveseo_spintax_the_field($string, $project = array(), 1);
+	$text = improveseo_spintax_the_field($string, $project = array(), 3);
 	echo $text;
 	die;
 }

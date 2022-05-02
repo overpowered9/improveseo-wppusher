@@ -1,6 +1,9 @@
 <?php
 	$saved_random_nos = get_option('get_saved_random_numbers');
 	
+	$search_shortcode = isset($_GET['search_shortcode']) ? $_GET['search_shortcode'] : '';
+	$search_shortcode_type = isset($_GET['search-shortcode-type']) ? $_GET['search-shortcode-type'] : array();
+
 	$specific_no = isset($_GET['rand_id']) ? $_GET['rand_id'] : '';
 	$action = isset($_GET['action']) ? $_GET['action'] : '';
 
@@ -93,6 +96,29 @@
 			</li>
 			
 		</ul>
+		
+
+		<form method="get">
+			<div class="table-responsive-sm">
+				<div class="tablenav top">
+					<div class="alignright actions">
+						<input type="hidden" name="page" value="improveseo_shortcodes" />
+						<input type="search" id="post-search-input" name="search_shortcode" value="<?= $search_shortcode; ?>">
+						<input type="hidden" name="action" value="index" />
+						<input type="submit" id="doaction" class="btn btn-outline-primary button action" value="Search Shortcodes"><br /><br />
+						
+						<input type="checkbox" value="testimonials" name="search-shortcode-type[]" id="search-shortcode-type-testimonials" <?php checked(in_array('testimonials', $search_shortcode_type)); ?> /><label for="search-shortcode-type-testimonials" style="margin-right:10px; vertical-align:top;">Testimonials</label>
+						
+						<input type="checkbox" value="googlemap" name="search-shortcode-type[]" id="search-shortcode-type-googlemap" <?php checked(in_array('googlemap', $search_shortcode_type)); ?> /><label for="search-shortcode-type-googlemap" style="margin-right:10px; vertical-align:top;">Google Maps</label>
+
+						<input type="checkbox" value="buttons" name="search-shortcode-type[]" id="search-shortcode-type-buttons" <?php checked(in_array('buttons', $search_shortcode_type)); ?> /><label for="search-shortcode-type-buttons" style="margin-right:10px; vertical-align:top;">Buttons</label>
+
+						<input type="checkbox" value="videos" name="search-shortcode-type[]" id="search-shortcode-type-videos" <?php checked(in_array('videos', $search_shortcode_type)); ?> /><label for="search-shortcode-type-videos" style="vertical-align:top;">Videos</label>
+						
+					</div>
+				</div>
+			</div>
+		</form>
 		<div class="tab-content" id="myTabContent">
 			<!-- Saved TEstimonails -->
 			<div class="tab-pane fade <?php echo ($action!="googlemaps" && $action!="buttons" && $action!="videos" && $action!="testimonial")?'show active':''; ?>" id="saved_testimonials" role="tabpanel" aria-labelledby="saved_testimonials">

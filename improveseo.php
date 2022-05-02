@@ -42,6 +42,13 @@ add_filter('jpeg_quality', function($arg){return 75;});
 //adding buttons to content editor
 add_action('media_buttons', 'add_my_media_button');
 function add_my_media_button() {
+	$my_current_screen = get_current_screen();
+	$allowed_bases = array('improve-seo_page_improveseo_posting');
+	if(!in_array($my_current_screen->base, $allowed_bases)){
+		return;
+	}
+
+
     $html = '';
     $html .= '<select class="sw-editor-selector" style="text-align:left !important;">
                     <option value="addshortcode">Add Shortcode</option>
@@ -50,7 +57,7 @@ function add_my_media_button() {
                     <option value="button">Buttons</option>
                     <option value="video">Videos</option>
                     <option value="list">Lists</option>
-             </select>';
+             </select> &nbsp;';
     $saved_rnos =  get_option('get_saved_random_numbers');
     
 	if(!empty($saved_rnos)){
@@ -109,6 +116,7 @@ function add_my_media_button() {
 			}
 		}
 	}
+	
 
     $seo_list = improve_seo_lits();
     if(!empty($seo_list)){
