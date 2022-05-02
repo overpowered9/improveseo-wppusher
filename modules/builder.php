@@ -1241,6 +1241,7 @@ function improveseo_builder_update() {
 			improveseo_debug_message ( '<span color="red">Post was skiped due to duplicate post (time ' . improveseo_debug_time () . ' ms)</span>' );
 		}
 	}
+
 	
 	$wpdb->query ( 'COMMIT;' );
 	
