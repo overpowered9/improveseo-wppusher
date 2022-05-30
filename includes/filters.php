@@ -144,7 +144,8 @@ function improveseo_exclude_category_posts($query) {
     }
     return $query;
 }
-add_filter( 'pre_get_posts', 'improveseo_exclude_category_posts' );
+
+// add_filter( 'pre_get_posts', 'improveseo_exclude_category_posts' );
 
 function improveseo_hide_improveseo_category(){
     $improveseo_category = get_category_by_slug('improve-seo');
