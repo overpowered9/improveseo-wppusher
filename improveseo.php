@@ -4,7 +4,7 @@ Plugin Name: Improve SEO version 2.0
 Plugin URI: 
 Description: Creates a large number of pages/posts and customize them to rank in Google.
 Author: Improve SEO Team
-Version: 2.0.1
+Version: 2.0.2
 */
 define("IMPROVESEO_VERSION", "2.0.2");
 define('IMPROVESEO_ROOT', dirname(__FILE__));
@@ -42,10 +42,15 @@ add_filter('jpeg_quality', function($arg){return 75;});
 //adding buttons to content editor
 add_action('media_buttons', 'add_my_media_button');
 function add_my_media_button() {
+
+	if(function_exists('get_current_screen')){ 
+
 	$my_current_screen = get_current_screen();
 	$allowed_bases = array('improve-seo_page_improveseo_posting');
 	if(!in_array($my_current_screen->base, $allowed_bases)){
 		return;
+	}
+	
 	}
 
 
