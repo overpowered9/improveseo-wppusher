@@ -168,11 +168,20 @@ wp_enqueue_script('post');
 						    foreach($cats as $category){
 								// do not show improve SEO category
 								
-								if($category->slug=="improve-seo")
-									continue;
+								$checked = '';	
+								if($category->slug=="improve-seo"){
+									$checked = 'checked  onclick="return false"';
+								}
+							
 								if(!empty($cat_pre)){
 									if(in_array($category->term_id, $cat_pre)){
-										$checked = 'checked';
+
+										if($category->slug=="improve-seo"){
+											$checked = 'checked  onclick="return false"';
+										}else{
+											$checked = 'checked';
+										}
+
 									}else{
 										$checked = '';
 									}

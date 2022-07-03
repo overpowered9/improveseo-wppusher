@@ -1,12 +1,12 @@
 <?php
 /*
-Plugin Name: Improve SEO version 2.0
+Plugin Name: Improve SEO
 Plugin URI: 
 Description: Creates a large number of pages/posts and customize them to rank in Google.
 Author: Improve SEO Team
-Version: 2.0.2
+Version: 2.0.3
 */
-define("IMPROVESEO_VERSION", "2.0.2");
+define("IMPROVESEO_VERSION", "2.0.3");
 define('IMPROVESEO_ROOT', dirname(__FILE__));
 define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url( __FILE__ )));
 

@@ -419,13 +419,13 @@ function improveseo_builder() {
 			//$post_id = $wpdb->insert_id;
 			
 			if($data ['post_type']=="post"){
-				wp_set_post_categories( $post_id, json_decode($categories, true), true );
+				wp_set_post_categories( $post_id, json_decode($categories, true), false );
 
 				// create improveseo category and assign all posts to it
-				$improveseo_category_id = wp_create_category ( 'Improve SEO', 0);
-				wp_set_post_categories ( $post_id, array (
-					$improveseo_category_id
-				), true );
+				// $improveseo_category_id = wp_create_category ( 'Improve SEO', 0);
+				// wp_set_post_categories ( $post_id, array (
+				// 	$improveseo_category_id
+				// ), true );
 			}
 			
 			improveseo_debug_message ( 'Post created (time ' . improveseo_debug_time () . ' ms)' );
@@ -1069,13 +1069,13 @@ function improveseo_builder_update() {
 
 			//$post_id = $wpdb->insert_id;
 			if($data['post_type'] == 'post'){
-				$res = wp_set_post_categories( $post_id, json_decode($categories, true), true );
+				$res = wp_set_post_categories( $post_id, json_decode($categories, true), false );
 
 				// create improveseo category and assign all posts to it
-				$improveseo_category_id = wp_create_category ( 'Improve SEO', 0);
-				wp_set_post_categories ( $post_id, array (
-					$improveseo_category_id
-				), true );
+				// $improveseo_category_id = wp_create_category ( 'Improve SEO', 0);
+				// wp_set_post_categories ( $post_id, array (
+				// 	$improveseo_category_id
+				// ), true );
 			}
 			
 			improveseo_debug_message ( 'Post created (time ' . improveseo_debug_time () . ' ms)' );
