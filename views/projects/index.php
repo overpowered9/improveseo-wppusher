@@ -16,7 +16,18 @@ if(isset($_GET['post_preview'])){
 &raquo;
 <span>Projects List</span>
 <?php View::endSection('breadcrumbs') ?>
+
+
 <?php View::startSection('content') ?>
+
+<div class="project-import-box">
+	<form action="">
+		<input type="file" class="form-control">
+		<button type="submit" class="btn btn-outline-primary btn-small">Upload</button>
+	</form>
+</div>
+
+
 <h1 class="hidden">Product Listing</h1>
 <div class="show_loading alert-modal">
 	<h1 class="hidden">Projects List</h1>
@@ -28,7 +39,11 @@ if(isset($_GET['post_preview'])){
 			<img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
 			<h1>Projects List</h1>
 		</div>
-		<a href="<?= admin_url('admin.php?page=improveseo_posting') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
+		<div class="project-buttons">
+			<a href="#" class="btn btn-outline-primary btn-small" id="importProject">Import</a>
+			<a href="<?= admin_url('admin.php?page=improveseo_posting') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
+		</div>
+	
 	</section>
 	<section class="pagination-wrapper text-right py-3">
 		<span class="pagination-links">
@@ -95,8 +110,8 @@ if(isset($_GET['post_preview'])){
 							</strong>
 							<div class="row-actions">
 								<span class="edit">
-									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&noheader=true") ?>">
-										Export a list of all posts/pages URLs
+									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&name={$project->name}&noheader=true") ?>">
+										Export Project
 									</a>
 								</span>
 								

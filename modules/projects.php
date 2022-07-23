@@ -95,6 +95,7 @@ function improveseo_projects() {
 	elseif ($action == 'export_urls'):
 
 		$id = $_GET['id'];
+		$project_name = sanitize_title_with_dashes($_GET['name']);
 
 		@set_time_limit(0);
 
@@ -104,15 +105,15 @@ function improveseo_projects() {
 			$urls .= get_permalink($post->post_id) ."\r\n";
 		}
 
-		file_put_contents("project-$id.txt", $urls);
+		file_put_contents("$project_name.txt", $urls);
 
 		header('Content-Type: application/octet-stream');
-	    header('Content-Disposition: attachment; filename='.basename("project-$id.txt"));
+	    header('Content-Disposition: attachment; filename='.basename("$project_name.txt"));
 	    header('Expires: 0');
 	    header('Cache-Control: must-revalidate');
 	    header('Pragma: public');
-	    header('Content-Length: ' . filesize("project-$id.txt"));
-	    readfile("project-$id.txt");
+	    header('Content-Length: ' . filesize("$project_name.txt"));
+	    readfile("$project_name.txt");
 		exit;
 	
 	

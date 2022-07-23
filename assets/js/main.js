@@ -13,4 +13,10 @@
         $(this).addClass('active');
         $('.improveseo_wrapper '+contentId).addClass('show active');
     });
+
+
+    $('#importProject').click(function(){
+        $('.project-import-box').show('slow');
+    });
+
 })(jQuery);
