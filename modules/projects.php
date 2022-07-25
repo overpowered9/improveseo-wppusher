@@ -117,7 +117,37 @@ function improveseo_projects() {
 		exit;
 	
 	
-	
+		elseif ($action == 'export_project'):
+
+		$id = $_GET['id'];
+		$project_name = sanitize_title_with_dashes($_GET['name']);
+
+		@set_time_limit(0);
+
+		$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_tasks where id = %s", $id));
+		 
+		$header_row = [];
+		$data_row = [];
+		foreach($data[0] as $key => $value){
+			$header_row[] = $key;
+			$data_row[] = $value;
+		}
+
+		header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
+		header( 'Content-Description: File Transfer' );
+		header( 'Content-type: text/csv' );
+		header(	'Content-Disposition: attachment; filename='.basename("$project_name.csv"));
+		header( 'Expires: 0' );
+		header( 'Pragma: public' );
+		  
+		$fh = @fopen( 'php://output', 'w' );
+		
+		fprintf( $fh, chr(0xEF) . chr(0xBB) . chr(0xBF) );
+		fputcsv( $fh, $header_row );
+		fputcsv( $fh, $data_row );
+		fclose( $fh );
+
+		exit;
 	
 		elseif ($action == 'export_preview_url'):
 
