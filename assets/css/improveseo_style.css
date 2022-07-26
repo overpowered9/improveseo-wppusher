@@ -410,6 +410,18 @@ select.select-control {
         Porject Page Style
 ********************************/
 
+
+.project-import-box{
+    border: 1px solid #cdcdcd;
+    width: 100%;
+    background: #fff;
+    padding: 20px;
+    max-width: 397px;
+    margin: 0 auto;
+    border-radius: 8px;
+    display: none;
+}
+
 #btn-add  {
     padding: 7.5px 23px;
 }

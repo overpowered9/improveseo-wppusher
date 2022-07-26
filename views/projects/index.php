@@ -10,13 +10,26 @@ if(isset($_GET['post_preview'])){
 		}			
 	}		
 }
+
+
 ?>
 <?php View::startSection('breadcrumbs') ?>
 <a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 &raquo;
 <span>Projects List</span>
 <?php View::endSection('breadcrumbs') ?>
+
+
 <?php View::startSection('content') ?>
+
+<div class="project-import-box">
+	<form action="<?php admin_url('admin.php?page=improveseo_projects'); ?>" method="post" enctype="multipart/form-data">
+		<input type="file" class="form-control" name="upload_csv">
+		<input type="submit" name="submit" class="btn btn-outline-primary btn-small" value="Upload">
+	</form>
+</div>
+
+
 <h1 class="hidden">Product Listing</h1>
 <div class="show_loading alert-modal">
 	<h1 class="hidden">Projects List</h1>
@@ -28,7 +41,11 @@ if(isset($_GET['post_preview'])){
 			<img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
 			<h1>Projects List</h1>
 		</div>
-		<a href="<?= admin_url('admin.php?page=improveseo_posting') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
+		<div class="project-buttons">
+			<a href="#" class="btn btn-outline-primary btn-small" id="importProject">Import</a>
+			<a href="<?= admin_url('admin.php?page=improveseo_posting') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
+		</div>
+	
 	</section>
 	<section class="pagination-wrapper text-right py-3">
 		<span class="pagination-links">
@@ -95,8 +112,14 @@ if(isset($_GET['post_preview'])){
 							</strong>
 							<div class="row-actions">
 								<span class="edit">
-									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&noheader=true") ?>">
-										Export a list of all posts/pages URLs
+									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo_projects&action=export_project&id={$project->id}&name={$project->name}&noheader=true") ?>">
+										Expor Project
+									</a>
+								</span>
+
+								<span class="edit">
+									<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&name={$project->name}&noheader=true") ?>">
+										Export  a list of all posts/pages URLs
 									</a>
 								</span>
 								
