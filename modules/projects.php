@@ -18,19 +18,22 @@ function improveseo_projects()
 
 	// Allowed mime types
 	$fileMimes = array(
-		'application/x-csv',
-		'text/x-csv',
 		'text/csv',
-		'application/csv',
 	);
 
 	//Upload CSV File
 	if (isset($_POST['submit'])) {
 
+		if (!current_user_can('upload_files')) {
+			FlashMessage::success('Current user can\'t upload file');
+			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+			exit();
+		}
 
 		if (in_array($_FILES['upload_csv']['type'], $fileMimes) === false) {
-			echo "Please upload valid file type";
-			header('location:' . admin_url('admin.php?page=improveseo_projects'));
+			FlashMessage::success('Please Upload a Valid CSV file');
+			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+			exit();
 		}
 
 
@@ -52,7 +55,7 @@ function improveseo_projects()
 			}
 
 			// Insert the row into the database
-			$wpdb->insert("wp_improveseo_tasks", array(
+			$wpdb->insert($wpdb->prefix . "improveseo_tasks", array(
 				'id' => $data[0],
 				'name' => $data[1],
 				'content' => $data[2],
@@ -71,7 +74,10 @@ function improveseo_projects()
 
 		fclose($handle);
 
-		header('location:' . admin_url('admin.php?page=improveseo_projects'));
+		FlashMessage::success('Project Imported Successfully.');
+		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+
+		exit;
 	}
 
 
@@ -178,6 +184,44 @@ function improveseo_projects()
 		readfile("$project_name.txt");
 		exit;
 
+	elseif ($action == 'export_all_project') :
+
+		@set_time_limit(0);
+
+		$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_tasks"));
+
+		if (empty($data)) {
+			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+		}
+
+		$header_row = [];
+		$data_row = [];
+
+		foreach ($data[0] as $key => $value) {
+			$header_row[] = $key;
+		}
+
+		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+		header('Content-Description: File Transfer');
+		header('Content-type: text/csv');
+		header('Content-Disposition: attachment; filename=' . basename("all-projects.csv"));
+		header('Expires: 0');
+		header('Pragma: public');
+
+		$fh = @fopen('php://output', 'w');
+
+		fprintf($fh, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+		fputcsv($fh, $header_row);
+
+		foreach ($data as $key => $value) {
+			$data_row = array_values((array) $value);
+			fputcsv($fh, $data_row);
+		}
+
+		fclose($fh);
+
+		exit;
 
 	elseif ($action == 'export_project') :
 
