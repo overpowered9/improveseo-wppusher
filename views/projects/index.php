@@ -10,6 +10,8 @@ if(isset($_GET['post_preview'])){
 		}			
 	}		
 }
+
+
 ?>
 <?php View::startSection('breadcrumbs') ?>
 <a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
@@ -21,9 +23,9 @@ if(isset($_GET['post_preview'])){
 <?php View::startSection('content') ?>
 
 <div class="project-import-box">
-	<form action="">
-		<input type="file" class="form-control">
-		<button type="submit" class="btn btn-outline-primary btn-small">Upload</button>
+	<form action="<?php admin_url('admin.php?page=improveseo_projects'); ?>" method="post" enctype="multipart/form-data">
+		<input type="file" class="form-control" name="upload_csv">
+		<input type="submit" name="submit" class="btn btn-outline-primary btn-small" value="Upload">
 	</form>
 </div>
 
