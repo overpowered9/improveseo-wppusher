@@ -24,6 +24,13 @@ function improveseo_projects()
 	//Upload CSV File
 	if (isset($_POST['submit'])) {
 
+
+		if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'import_project_nonce')) {
+			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+			exit();
+		}
+
+
 		if (!current_user_can('upload_files')) {
 			FlashMessage::success('Current user can\'t upload file');
 			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
@@ -201,12 +208,10 @@ function improveseo_projects()
 			$header_row[] = $key;
 		}
 
-		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-		header('Content-Description: File Transfer');
 		header('Content-type: text/csv');
 		header('Content-Disposition: attachment; filename=' . basename("all-projects.csv"));
-		header('Expires: 0');
-		header('Pragma: public');
+		header("Pragma: no-cache");
+		header("Expires: 0");
 
 		$fh = @fopen('php://output', 'w');
 
@@ -239,8 +244,6 @@ function improveseo_projects()
 			$data_row[] = $value;
 		}
 
-		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-		header('Content-Description: File Transfer');
 		header('Content-type: text/csv');
 		header('Content-Disposition: attachment; filename=' . basename("$project_name.csv"));
 		header('Expires: 0');
