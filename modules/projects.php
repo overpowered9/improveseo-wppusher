@@ -54,7 +54,7 @@ function improveseo_projects()
 			// Skip the first row as is likely column names
 			if ($counter === 0) {
 
-				$counter++;
+				$counter++; 
 
 				$header_row = $data;
 
@@ -77,14 +77,18 @@ function improveseo_projects()
 				'deleted_at' => $data[11],
 				'cats' => $data[12],
 			));
+
+		$counter++;
+
 		}
+
+		$counter = $counter-1;
 
 		fclose($handle);
 
-		FlashMessage::success('Project Imported Successfully.');
-		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+		FlashMessage::success($counter . ' Project Imported Successfully.');
 
-		exit;
+
 	}
 
 
