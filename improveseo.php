@@ -4,9 +4,9 @@ Plugin Name: Improve SEO
 Plugin URI: 
 Description: Creates a large number of pages/posts and customize them to rank in Google.
 Author: Improve SEO Team
-Version: 2.0.5
+Version: 2.0.6
 */
-define("IMPROVESEO_VERSION", "2.0.5");
+define("IMPROVESEO_VERSION", "2.0.6");
 define('IMPROVESEO_ROOT', dirname(__FILE__));
 define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url( __FILE__ )));
 

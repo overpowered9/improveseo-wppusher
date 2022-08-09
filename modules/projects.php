@@ -18,7 +18,13 @@ function improveseo_projects()
 
 	// Allowed mime types
 	$fileMimes = array(
-		'text/csv',
+		'application/vnd.ms-excel',
+		'application/x-csv',
+		'text/x-csv',
+		'text/csv', 
+		'application/csv',
+		'application/excel',
+		'application/vnd.msexcel'
 	);
 
 	//Upload CSV File
@@ -45,49 +51,41 @@ function improveseo_projects()
 
 
 		//Import uploaded file to Database
-		$handle = fopen($_FILES['upload_csv']['tmp_name'], "r");
+		$file = fopen($_FILES['upload_csv']['tmp_name'], "r");
 
 		$counter = 0;
-		while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+		while (!feof($file)) {
 
-			$header_row = [];
-			// Skip the first row as is likely column names
-			if ($counter === 0) {
+			$file_content = fgetcsv($file);
 
-				$counter++; 
+			if ($counter != 0) {
 
-				$header_row = $data;
-
-				continue;
+				$wpdb->insert($wpdb->prefix . "improveseo_tasks", array(
+					'id' => $file_content[0],
+					'name' => $file_content[1],
+					'content' => $file_content[2],
+					'options' => $file_content[3],
+					'iteration' => $file_content[4],
+					'spintax_iterations' => $file_content[5],
+					'max_iterations' => $file_content[6],
+					'state' => $file_content[7],
+					'created_at' => $file_content[8],
+					'updated_at' => $file_content[9],
+					'finished_at' => $file_content[10],
+					'deleted_at' => $file_content[11],
+					'cats' => $file_content[12],
+				));
 			}
-
-			// Insert the row into the database
-			$wpdb->insert($wpdb->prefix . "improveseo_tasks", array(
-				'id' => $data[0],
-				'name' => $data[1],
-				'content' => $data[2],
-				'options' => $data[3],
-				'iteration' => $data[4],
-				'spintax_iterations' => $data[5],
-				'max_iterations' => $data[6],
-				'state' => $data[7],
-				'created_at' => $data[8],
-				'updated_at' => $data[9],
-				'finished_at' => $data[10],
-				'deleted_at' => $data[11],
-				'cats' => $data[12],
-			));
-
-		$counter++;
+			
+			$counter++;
 
 		}
 
-		$counter = $counter-1;
+		$counter = $counter-2;  
 
-		fclose($handle);
+		fclose($file);
 
 		FlashMessage::success($counter . ' Project Imported Successfully.');
-
 
 	}
 
