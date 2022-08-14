@@ -22,13 +22,7 @@ if(isset($_GET['post_preview'])){
 
 <?php View::startSection('content') ?>
 
-<div class="project-import-box">
-	<form action="<?php admin_url('admin.php?page=improveseo_projects'); ?>" method="post" enctype="multipart/form-data">
-		<?php wp_nonce_field('import_project_nonce'); ?>
-		<input type="file" class="form-control" name="upload_csv">
-		<input type="submit" name="submit" class="btn btn-outline-primary btn-small" value="Upload">
-	</form>
-</div>
+<?php View::render('import/import') ?>
 
 
 <h1 class="hidden">Product Listing</h1>
@@ -42,7 +36,7 @@ if(isset($_GET['post_preview'])){
 			<img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
 			<h1>Projects List</h1>
 		</div>
-		<div class="project-buttons">
+		<div class="action-buttons">
 			
 			<a onclick="return confirm('Are you sure you want to export all item?');" href="<?= admin_url('admin.php?page=improveseo_projects&action=export_all_project&noheader=true') ?>" class="btn btn-outline-primary btn-small" id="exportProject">Export All Project</a>
 			<a href="#" class="btn btn-outline-primary btn-small" id="importProject">Import</a>

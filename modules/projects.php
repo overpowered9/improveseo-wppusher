@@ -195,38 +195,15 @@ function improveseo_projects()
 
 	elseif ($action == 'export_all_project') :
 
-		@set_time_limit(0);
-
 		$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_tasks"));
 
 		if (empty($data)) {
 			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
 		}
 
-		$header_row = [];
-		$data_row = [];
-
-		foreach ($data[0] as $key => $value) {
-			$header_row[] = $key;
-		}
-
-		header('Content-type: text/csv');
-		header('Content-Disposition: attachment; filename=' . basename("all-projects.csv"));
-		header("Pragma: no-cache");
-		header("Expires: 0");
-
-		$fh = @fopen('php://output', 'w');
-
-		fprintf($fh, chr(0xEF) . chr(0xBB) . chr(0xBF));
-
-		fputcsv($fh, $header_row);
-
-		foreach ($data as $key => $value) {
-			$data_row = array_values((array) $value);
-			fputcsv($fh, $data_row);
-		}
-
-		fclose($fh);
+		wt_load_templates('import-export.php');
+		$exportRecords = new improveseo_import_export();
+		$exportRecords->export($data, 'all-project');
 
 		exit;
 

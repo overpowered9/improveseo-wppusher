@@ -5,8 +5,12 @@ use ImproveSEO\View;
 <a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 &raquo;
 <span>Improve SEO Lists</span>
+
 <?php View::endSection('breadcrumbs') ?>
+
 <?php View::startSection('content') ?>
+
+
 <h2 class="hidden">Improve SEO Lists</h2>
 <div class="notice notice-success notice-improveseo">
 	<p>
@@ -22,13 +26,22 @@ use ImproveSEO\View;
 		You can embed your list by using <strong>@list:listname</strong> (this will also be shown on the create a project page and when you create your list, so no need to memorize it).
 	</p>
 </div>
+
+
+<?php View::render('import/import') ?>
+
 <div class="listing improveseo_wrapper p-3 p-lg-4">
 	<section class="project-section border-bottom d-flex flex-row  justify-content-between align-items-center pb-2 mb-3">
 		<div class="project-heading d-flex flex-row">
 			<img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
 			<h1>Improve SEO Lists</h1>
 		</div>
+
+		<div class="action-buttons">
+		<a onclick="return confirm('Are you sure you want to export all item?');" href="<?= admin_url('admin.php?page=improveseo_lists&action=export_all_list&noheader=true') ?>" class="btn btn-outline-primary btn-small" id="exportProject">Export All List</a>
+			<a href="#" class="btn btn-outline-primary btn-small" id="importProject">Import</a>
 		<a href="<?= admin_url('admin.php?page=improveseo_lists&action=create') ?>"  class="btn btn-outline-primary btn-small py-2 px-3">Create New</a>
+		</div>
 	</section>
 
 	<section class="pagination-wrapper text-right py-3">
