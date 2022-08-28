@@ -60,7 +60,6 @@ function improveseo_builder()
 	$options = $project->options;
 	$categories = $project->cats;
 
-
 	$posts = 1;
 	$geo = isset($options['local_geo_country']);
 	if ($geo) {
@@ -154,7 +153,7 @@ function improveseo_builder()
 			)
 		));
 
-		improveseo_debug_message('New post type created ' . $optoins['permalink_prefix']);
+		improveseo_debug_message('New post type created ' . $options['permalink_prefix']);
 
 		$wp_rewrite->flush_rules(false);
 
@@ -409,6 +408,7 @@ function improveseo_builder()
 
 
 			$postdate_gmt = gmdate('Y-m-d H:i:s', strtotime($post_date));
+
 			/* $wpdb->query ( $wpdb->prepare ( "INSERT IGNORE INTO `" . $wpdb->prefix . "posts`
 			(post_author, post_content, post_title, comment_status, ping_status, post_name, post_type,
 			 post_date, post_date_gmt, post_status)
@@ -817,7 +817,7 @@ function improveseo_builder_update()
 			)
 		));
 
-		improveseo_debug_message('New post type created ' . $optoins['permalink_prefix']);
+		improveseo_debug_message('New post type created ' . $options['permalink_prefix']);
 
 		$wp_rewrite->flush_rules(false);
 
