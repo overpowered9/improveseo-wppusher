@@ -8,6 +8,13 @@ use ImproveSEO\Models\Lists;
 use ImproveSEO\ChannelManager;
 use ImproveSEO\Models\Shortcode;
 
+
+
+/**
+ * improveseo_builder
+ *
+ * @return void
+ */
 function improveseo_builder() {
 	global $wpdb;
 	global $wp_rewrite;
@@ -624,7 +631,12 @@ function improveseo_builder() {
 	return;
 }
 
-// Function to delete the project created for previewing through ajax
+
+/**
+ * Function to delete the project created for previewing through ajax
+ *
+ * @return void
+ */
 function preview_delete_ajax(){
 	
 	global $wpdb;
@@ -643,6 +655,11 @@ function preview_delete_ajax(){
 	die;
 }
 
+/**
+ * improveseo_builder_update
+ *
+ * @return void
+ */
 function improveseo_builder_update() {
 	global $wpdb;
 	global $wp_rewrite;
@@ -1013,14 +1030,16 @@ function improveseo_builder_update() {
 				$days = ceil($project->iteration/$options['dripfeed_x']);
 				$start_date = new DateTime ();
 				$start_date->add ( new DateInterval ( 'P'.$days.'D' ) );
-				$date_start = time();
+				$date_start = strtotime ( $start_date->format ( 'Y-m-d' ) . ' 00:00:00' ); 
+				// $date_start = time();
 				$date_end = strtotime ( $start_date->format ( 'Y-m-d' ) . ' 23:59:59' );
 				
 				$post_date = date ( 'Y-m-d H:i:s', rand ( $date_start, $date_end ) );
 				// $post_date = date('Y-m-d H:i:s',strtotime('+1 Day'));
 			} else {
 				$date_start1 = new DateTime ();	
-				$date_start = time();
+				$date_start = strtotime ( $date_start1->format ( 'Y-m-d' ) . ' 00:00:00' ); 
+				// $date_start = time();
 				$date_end1 = $date_start1->add ( new DateInterval ( 'P'.$options['dripfeed_x'].'D' ) );
 				$date_end = strtotime ( $date_end1->format ( 'Y-m-d' ) . ' 23:59:59' );
 				$post_date = date ( 'Y-m-d H:i:s', rand ( $date_start, $date_end ) );
@@ -1275,6 +1294,14 @@ function improveseo_builder_update() {
 	}
 	return;
 }
+
+
+/**
+ * improveseo_wp_exist_post_by_title
+ *
+ * @param  mixed $title
+ * @return void
+ */
 function improveseo_wp_exist_post_by_title($title) {
 	global $wpdb;
 	$return = $wpdb->get_row ( "SELECT ID FROM wp_posts WHERE post_title = '" . $title . "' && post_status = 'publish' && post_type = 'post' ", 'ARRAY_N' );

@@ -13,7 +13,7 @@ use ImproveSEO\View;
 		<div class="project-heading border-bottom justify-content-between d-flex flex-row align-items-center pb-2">
 			<div class="project-header-left d-flex">
 				<img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
-				<h1>ImproveSEO</h1>
+				<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION;?></h1>
 				<div class="pro-tag">
 					<span>Pro</span>
 				</div>
