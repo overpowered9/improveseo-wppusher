@@ -68,7 +68,7 @@ function improveseo_projects()
 					'iteration' => $file_content[4],
 					'spintax_iterations' => $file_content[5],
 					'max_iterations' => $file_content[6],
-					'state' => $file_content[7],
+					'state' => "Draft",
 					'created_at' => $file_content[8],
 					'updated_at' => $file_content[9],
 					'finished_at' => $file_content[10],
