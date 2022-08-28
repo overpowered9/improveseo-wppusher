@@ -4,8 +4,14 @@ namespace ImproveSEO;
 
 class Spintax
 {
+
+		
 	/**
 	 * Creates spintax array from text.
+	 *
+	 * @param  mixed $content
+	 * @param  mixed $parent_key
+	 * @return void
 	 */
 	public static function parse($content, $parent_key = null) 
 	{
@@ -62,8 +68,13 @@ class Spintax
 		}
 	}
 
+	
 	/**
 	 * Counts available unique texts from spintax.
+	 *
+	 * @param  mixed $spintax
+	 * @param  mixed $level
+	 * @return void
 	 */
 	public static function count($spintax, $level = 0) 
 	{
@@ -86,8 +97,12 @@ class Spintax
 		return $level == 0 && $vars == 0 ? 1 : $vars;
 	}
 
+
 	/**
 	 * Build spintax variables table.
+	 *
+	 * @param  mixed $spintax
+	 * @return void
 	 */
 	public static function build($spintax) 
 	{
@@ -113,7 +128,13 @@ class Spintax
 
 		return $table;
 	}
-
+	
+	/**
+	 * __drop
+	 *
+	 * @param  mixed $table
+	 * @return void
+	 */
 	public static function __drop($table) 
 	{
 		if (!sizeof($table)) return array();
@@ -128,6 +149,14 @@ class Spintax
 		return $table;
 	}
 
+		
+	/**
+	 * __inc
+	 *
+	 * @param  mixed $table
+	 * @param  mixed $next
+	 * @return void
+	 */
 	public static function __inc($table, $next) 
 	{
 		for ($i = $next; $i <= sizeof($table); $i++) {
@@ -152,6 +181,14 @@ class Spintax
 		return $table;
 	}
 
+
+		
+	/**
+	 * __subinc
+	 *
+	 * @param  mixed $table
+	 * @return void
+	 */
 	public static function __subinc($table) 
 	{
 		$result = false;
@@ -179,8 +216,15 @@ class Spintax
 		return $result;
 	}
 
+	 	
 	/**
-	 * Math spintax variables index on table
+	 *  Math spintax variables index on table
+	 *
+	 * @param  mixed $spintax
+	 * @param  mixed $table
+	 * @param  mixed $iteration
+	 * @param  mixed $maxlength
+	 * @return void
 	 */
 	public static function math($spintax, $table, $iteration = 1, $maxlength = null) 
 	{
@@ -214,6 +258,16 @@ class Spintax
 		return $table;
 	}
 
+		
+	/**
+	 * make
+	 *
+	 * @param  mixed $content
+	 * @param  mixed $iteration
+	 * @param  mixed $spintax
+	 * @param  mixed $rand
+	 * @return void
+	 */
 	public static function make($content, $iteration, $spintax = null, $rand = true) 
 	{
 		$spintax = $spintax ? $spintax : self::parse($content);
@@ -224,8 +278,14 @@ class Spintax
 		return self::renderTemplate($spintax['template'], $spintax['vars'], !$rand ? $math : null);
 	}
 
+	
 	/**
-	 * Renders text from template.
+	 * renderTemplate
+	 *
+	 * @param  mixed $template
+	 * @param  mixed $vars
+	 * @param  mixed $math
+	 * @return void
 	 */
 	public static function renderTemplate($template, $vars, $math = null) 
 	{
@@ -247,6 +307,14 @@ class Spintax
 		return $template;
 	}
 
+		
+	/**
+	 * geo
+	 *
+	 * @param  mixed $text
+	 * @param  mixed $geo
+	 * @return void
+	 */
 	public static function geo($text, $geo) 
 	{
 		if (is_array($geo) && sizeof($geo)) {

@@ -18,7 +18,15 @@ class Channel
 	protected $typeName;
 
 	protected $content;
-
+	
+	/**
+	 * __construct
+	 *
+	 * @param  mixed $project_id
+	 * @param  mixed $geoData
+	 * @param  mixed $type
+	 * @return void
+	 */
 	public function __construct($project_id, $geoData, $type) 
 	{
 		$this->project_id = $project_id;
@@ -26,22 +34,44 @@ class Channel
 		$this->type = $type;
 		$this->typeName = $geoData[$type];
 	}
-
+	
+	/**
+	 * getId
+	 *
+	 * @return void
+	 */
 	public function getId() 
 	{
 		return $this->id;
 	}
-
+	
+	/**
+	 * getName
+	 *
+	 * @return void
+	 */
 	public function getName() 
 	{
 		return $this->name;
 	}
-
+	
+	/**
+	 * getContent
+	 *
+	 * @return void
+	 */
 	public function getContent() 
 	{
 		return $this->content;
 	}
-
+	
+	/**
+	 * create
+	 *
+	 * @param  mixed $content
+	 * @param  mixed $parent
+	 * @return void
+	 */
 	public function create($content, $parent = null) 
 	{
 		global $wpdb;
@@ -84,7 +114,12 @@ class Channel
 
 		return $channel_id;
 	}
-
+	
+	/**
+	 * find
+	 *
+	 * @return void
+	 */
 	public function find() 
 	{
 		global $wpdb;
@@ -103,19 +138,38 @@ class Channel
 
 		return true;
 	}
-
+	
+	/**
+	 * getLink
+	 *
+	 * @param  mixed $post_id
+	 * @param  mixed $geoData
+	 * @return void
+	 */
 	public function getLink($post_id, $geoData) 
 	{
 		$name = $this->type == 'state' ? "{$geoData['city']}, {$geoData['state']}" : "{$geoData['zip']}, {$geoData['city']}";
 
 		return '<a href="'. get_permalink($post_id) .'">'. $name .'</a>';
 	}
-
+	
+	/**
+	 * notExists
+	 *
+	 * @param  mixed $link
+	 * @return void
+	 */
 	public function notExists($link) 
 	{
 		return strstr($this->content, $link) === false;
 	}
-
+	
+	/**
+	 * save
+	 *
+	 * @param  mixed $links
+	 * @return void
+	 */
 	public function save($links) 
 	{
 		$tag = $this->type == 'state' ? '@citylist' : '@ziplist';

@@ -2,13 +2,29 @@
 
 namespace ImproveSEO;
 
+/**
+ * Autoloader
+ */
 class Autoloader
 {
+		
+	/**
+	 * __construct
+	 *
+	 * @return void
+	 */
 	public function __construct() 
 	{
 		spl_autoload_register(array($this, 'loader'));
 	}
 
+		
+	/**
+	 * loader
+	 *
+	 * @param  mixed $className
+	 * @return void
+	 */
 	public function loader($className) 
 	{
 		// Corrections
