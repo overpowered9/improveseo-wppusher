@@ -1,4 +1,5 @@
 <?php
+
 use ImproveSEO\Validator;
 use ImproveSEO\Models\Country;
 
@@ -7,11 +8,11 @@ wp_enqueue_script('post');
 
 <input type="hidden" name="post_type" value="<?= isset($task) ? $task->content['post_type'] : $post_type ?>" />
 <?php
-	$word_ai_pass = get_option('improveseo_word_ai_pass');
-	$word_ai_email = get_option('improveseo_word_ai_email');
+$word_ai_pass = get_option('improveseo_word_ai_pass');
+$word_ai_email = get_option('improveseo_word_ai_email');
 
-	$pixabay_key = get_option('improveseo_pixabay_key');
-	$google_api_key = get_option('improveseo_google_api_key');
+$pixabay_key = get_option('improveseo_pixabay_key');
+$google_api_key = get_option('improveseo_google_api_key');
 ?>
 
 
@@ -22,21 +23,21 @@ wp_enqueue_script('post');
 			<div class="PostForm__name-wrap input-group <?php if (Validator::hasError('name')) echo 'PostForm--error' ?>">
 				<label class="form-label">Project name here</label>
 				<input type="text" name="name" class="PostForm__name form-control" placeholder="Project name here" value="<?= Validator::old('name', $task->name) ?>">
-				<?php if (Validator::hasError('name')): ?>
-				<span class="PostForm__error"><?= Validator::get('name') ?></span>
+				<?php if (Validator::hasError('name')) : ?>
+					<span class="PostForm__error"><?= Validator::get('name') ?></span>
 				<?php endif; ?>
 			</div>
 
 			<div class="PostForm__title-wrap input-group <?php if (Validator::hasError('title')) echo ' PostForm--error' ?>">
 				<label class="form-label">Enter title here</label>
 				<input type="text" id="title" name="title" class="PostForm__title form-control" placeholder="Enter title here" value="<?= Validator::old('title', $task->content['title']) ?>">
-				<?php if (Validator::hasError('title')): ?>
-				<span class="PostForm__error"><?= Validator::get('title') ?></span>
+				<?php if (Validator::hasError('title')) : ?>
+					<span class="PostForm__error"><?= Validator::get('title') ?></span>
 				<?php endif; ?>
 
 				<div id="edit-slug-box">
 					<?php
-						$old_permalink = Validator::old('permalink', $task->options['permalink']);
+					$old_permalink = Validator::old('permalink', $task->options['permalink']);
 					?>
 					<input type="hidden" class="form-control" name="permalink" value="<?= $old_permalink ?>">
 					<strong>Permalink:<?php echo improveseo_permalink($old_permalink) ?></strong>
@@ -51,7 +52,7 @@ wp_enqueue_script('post');
 					<p id="too-many-posts" class="notice notice-error" style="display: none;">Your project contains more than 5,000 pages. While Improve SEO can create hundreds of thousands of posts per project, it is recommended to split your project into multiple smaller projects if you are using shared hosting for maximum efficiency. VPS and dedicated server users can ignore this message. </p>
 				</div>
 			</div>
-						
+
 			<div class="PostForm__body-wrap <?php if (Validator::hasError('content')) echo ' PostForm--error' ?>">
 				<?php wp_editor(Validator::old('content', $task->content['content']), 'content', array(
 					'_content_editor_dfw' => '',
@@ -64,18 +65,18 @@ wp_enqueue_script('post');
 						'setup' => 'function (ed) { ed.on("change", function(e) { determineMaxPosts(); }) }'
 					),
 				)); ?>
-				<?php if (Validator::hasError('content')): ?>
-				<span class="PostForm__error"><?= Validator::get('content') ?></span>
+				<?php if (Validator::hasError('content')) : ?>
+					<span class="PostForm__error"><?= Validator::get('content') ?></span>
 				<?php endif; ?>
 			</div>
 
-			<div id ="post_form_buttons" class="PostForm__buttons">
+			<div id="post_form_buttons" class="PostForm__buttons">
 				<button name="create" type="submit" formtarget="_self" class="btn btn-outline-primary">
-				<?php if($_GET['action']=='edit_post'):?>
-					Update project and posts
-				<?php else:?>
-					Create Project
-				<?php endif;?>
+					<?php if ($_GET['action'] == 'edit_post') : ?>
+						Update project and posts
+					<?php else : ?>
+						Create Project
+					<?php endif; ?>
 				</button>
 				<button name="draft" type="submit" formtarget="_self" class="btn btn-outline-primary">Save As Draft</button>
 				<button id="preview_on" type="submit" class="btn btn-outline-primary">Post preview</button>
@@ -88,22 +89,22 @@ wp_enqueue_script('post');
 
 			<!-- HTML modal for preview button -->
 			<div id="preview_popup" class="modal" style="text-align:center">
-				<div id="wh_prev_modal_1"> 					
-					<?php $gif_src = IMPROVESEO_DIR . '/assets/images/loader.gif'?>
+				<div id="wh_prev_modal_1">
+					<?php $gif_src = IMPROVESEO_DIR . '/assets/images/loader.gif' ?>
 					<b style="font-size:20px">Generating preview</b>
 					<br /><br />
-					<img id="preview_rcube" src="<?=$gif_src?>" width="200">
+					<img id="preview_rcube" src="<?= $gif_src ?>" width="200">
 				</div>
-				<div id="wh_prev_modal_2"> 
+				<div id="wh_prev_modal_2">
 					<b style="font-size:18px">Close preview to continue editing the project</b>
 					<br><br>
-					<button id="open_win" class="button button-primary" onclick= "closeWin()" rel="modal:close">Close preview</button>
-					&nbsp; &nbsp; 
-					<button id="close_win" class="button button-primary" onclick= "changeWin()">Switch preview</button>
+					<button id="open_win" class="button button-primary" onclick="closeWin()" rel="modal:close">Close preview</button>
+					&nbsp; &nbsp;
+					<button id="close_win" class="button button-primary" onclick="changeWin()">Switch preview</button>
 				</div>
 			</div>
-			
-			
+
+
 			<div id="shortcode_popup" class="modal shortcode_popup" tabindex="-1" role="dialog" aria-labelledby="shortcode_popup" aria-hidden="true" data-focus="true">
 				<h3>Select ImproveSEO Shortcode</h3>
 				<div class="form-wrap">
@@ -152,48 +153,50 @@ wp_enqueue_script('post');
 					<h3 class="hndle ui-sortable-handle"><span>Categories</span></h3>
 					<div class="inside mt-2">
 						<?php
-							$cat_pre = array();
-						    if(isset($_GET['cat_pre'])){
-								$cat_pre = $_GET['cat_pre'];
-								$cat_pre = explode(",",$cat_pre);
-							}else if($task->cats!=""){
-								$cat_pre = json_decode($task->cats, true);
+						$cat_pre = array();
+						if (isset($_GET['cat_pre'])) {
+							$cat_pre = $_GET['cat_pre'];
+							$cat_pre = explode(",", $cat_pre);
+						} else if ($task->cats != "") {
+							$cat_pre = json_decode($task->cats, true);
+						}
+
+						$args = array(
+							"hide_empty" => 0,
+							"type"      => "post",
+							"orderby"   => "name",
+							"order"     => "ASC"
+						);
+						$cats = get_categories($args);
+						foreach ($cats as $category) {
+							// do not show improve SEO category
+
+							$checked = '';
+						
+							if (!empty($cat_pre)) {
+								if (in_array($category->term_id, $cat_pre)) {
+
+									if ($category->slug == "improve-seo") {
+										$checked = 'checked  onclick="return false"';
+									} else {
+										$checked = 'checked';
+									}
+								} else {
+									$checked = '';
+								}
+							}
+							
+							if ($category->slug == "improve-seo") {
+								$checked = 'checked  onclick="return false"';
 							}
 
-						    $args = array("hide_empty" => 0,
-								"type"      => "post",      
-								"orderby"   => "name",
-								"order"     => "ASC" );
-						    $cats = get_categories($args);
-						    foreach($cats as $category){
-								// do not show improve SEO category
-								
-								$checked = '';	
-								if($category->slug=="improve-seo"){
-									$checked = 'checked  onclick="return false"';
-								}
-							
-								if(!empty($cat_pre)){
-									if(in_array($category->term_id, $cat_pre)){
-
-										if($category->slug=="improve-seo"){
-											$checked = 'checked  onclick="return false"';
-										}else{
-											$checked = 'checked';
-										}
-
-									}else{
-										$checked = '';
-									}
-								}
-						        $select.= "<div class='input-group cta-check m-0'><span><input ".$checked." id='".$category->term_id."' type='checkbox' value='".$category->term_id."' name='cats[]'><label for='".$category->term_id."'>".$category->name."</label></span></div>";
-						 
-						    }
-						    echo $select;
+							$select .= "<div class='input-group cta-check m-0'><span><input " . $checked . " id='" . $category->term_id . "' type='checkbox' value='" . $category->term_id . "' name='cats[]'><label for='" . $category->term_id . "'>" . $category->name . "</label></span></div>";
+						}
+						echo $select;
 						?>
 					</div>
 				</div>
-				
+
 				<!-- Options -->
 				<div class="postbox">
 					<button type="button" class="handlediv button-link" aria-expanded="true">
@@ -206,9 +209,9 @@ wp_enqueue_script('post');
 							<span class="d-block mb-2">
 								Maximum number of posts to generate. Input `0` if you want to generate all available posts from spintax.
 							</span>
-							<div class="input-group">
-								<input type="number" id="max-posts" name="max_posts" class="form-control" value="<?= (Validator::old('max_posts', (int) $task->options['max_posts']) <= 0) ? '1': (Validator::old('max_posts', (int) $task->options['max_posts'])); ?>" min="1" />
-							</div>
+						<div class="input-group">
+							<input type="number" id="max-posts" name="max_posts" class="form-control" value="<?= (Validator::old('max_posts', (int) $task->options['max_posts']) <= 0) ? '1' : (Validator::old('max_posts', (int) $task->options['max_posts'])); ?>" min="1" />
+						</div>
 						</p>
 
 						<p>
@@ -234,7 +237,7 @@ wp_enqueue_script('post');
 					<h3 class="hndle ui-sortable-handle"><span>Improve SEO Dripfeed Property</span></h3>
 					<div class="inside">
 						<?php
-							$old_dripfeed_enabler = Validator::old('dripfeed_enabler', $task->options['dripfeed_type'] ? 1 : 0);
+						$old_dripfeed_enabler = Validator::old('dripfeed_enabler', $task->options['dripfeed_type'] ? 1 : 0);
 						?>
 						<div class="input-group my-3 cta-check">
 							<span>
@@ -248,15 +251,15 @@ wp_enqueue_script('post');
 								<label for="dripfeed-type" class="form-label">Dripfeed Type:</label>
 								<?php $old_dripfeed_type = Validator::old('dripfeed_type', $task->options['dripfeed_type']) ?>
 								<select id="dripfeed-type" name="dripfeed_type" class="form-control">
-									<option value="per-day"<?= $old_dripfeed_type == 'per-day' ? ' selected' : '' ?>>X posts/pages per day</option>
-									<option value="over-days"<?= $old_dripfeed_type == 'over-days' ? ' selected' : '' ?>>Whole project dripped over X days</option>
+									<option value="per-day" <?= $old_dripfeed_type == 'per-day' ? ' selected' : '' ?>>X posts/pages per day</option>
+									<option value="over-days" <?= $old_dripfeed_type == 'over-days' ? ' selected' : '' ?>>Whole project dripped over X days</option>
 								</select>
 							</div>
 							<div class="input-group <?= (Validator::hasError('dripfeed_x')) ? 'PostForm--error' : '' ?>">
 								<label for="dripfeed-x" class="form-label">X Parameter:</label>
 								<input type="text" id="dripfeed-x" name="dripfeed_x" class="form-control" value="<?= Validator::old('dripfeed_x', $task->options['dripfeed_x']) ?>">
-								<?php if (Validator::hasError('dripfeed_x')): ?>
-								<span class="PostForm__error"><?= Validator::get('dripfeed_x') ?></span>
+								<?php if (Validator::hasError('dripfeed_x')) : ?>
+									<span class="PostForm__error"><?= Validator::get('dripfeed_x') ?></span>
 								<?php endif; ?>
 							</div>
 						</div>
@@ -294,19 +297,19 @@ wp_enqueue_script('post');
 					</div>
 				</div> */ ?>
 
-				<?php if ($word_ai_email && $word_ai_pass): ?>
-				<!-- Word AI -->
-				<div class="postbox">
-					<button type="button" class="handlediv button-link" aria-expanded="true">
-						<span class="toggle-indicator" aria-hidden="true"></span>
-					</button>
-					<h3 class="hndle ui-sortable-handle"><span>Word AI Options</span></h3>
-					<div class="inside mt-3">
-						<p>
-							<a href="<?= IMPROVESEO_DIR ?>/wordai.php" onclick="return WordAI.start(this)">Launch Word AI Console</a>
-						</p>
+				<?php if ($word_ai_email && $word_ai_pass) : ?>
+					<!-- Word AI -->
+					<div class="postbox">
+						<button type="button" class="handlediv button-link" aria-expanded="true">
+							<span class="toggle-indicator" aria-hidden="true"></span>
+						</button>
+						<h3 class="hndle ui-sortable-handle"><span>Word AI Options</span></h3>
+						<div class="inside mt-3">
+							<p>
+								<a href="<?= IMPROVESEO_DIR ?>/wordai.php" onclick="return WordAI.start(this)">Launch Word AI Console</a>
+							</p>
+						</div>
 					</div>
-				</div>
 				<?php endif; ?>
 
 				<!-- Categorization -->
@@ -349,20 +352,20 @@ wp_enqueue_script('post');
 					<h3 class="hndle ui-sortable-handle"><span>Improve SEO Images</span></h3>
 					<div class="inside mt-3">
 						<?php
-							if(!empty($task->options['exif_locations']))
-								$old_exif_enabler = Validator::old('exif_enabler', sizeof($task->options['exif_locations']) > 0);
-							else
-								$old_exif_enabler = 0;
+						if (!empty($task->options['exif_locations']))
+							$old_exif_enabler = Validator::old('exif_enabler', sizeof($task->options['exif_locations']) > 0);
+						else
+							$old_exif_enabler = 0;
 
-							if (!empty($google_api_key)):
+						if (!empty($google_api_key)) :
 						?>
-						<div class="input-group cta-check">
-							<span>
-								<input id="exif-enabler" name="exif_enabler" type="checkbox" value="1" <?= $old_exif_enabler == 1 ? 'checked' : ''; ?>>
-								<label for="exif-enabler" class="selectit">Enable Image EXIF</label>
-							</span>
-						</div>
-						<?php else: ?>
+							<div class="input-group cta-check">
+								<span>
+									<input id="exif-enabler" name="exif_enabler" type="checkbox" value="1" <?= $old_exif_enabler == 1 ? 'checked' : ''; ?>>
+									<label for="exif-enabler" class="selectit">Enable Image EXIF</label>
+								</span>
+							</div>
+						<?php else : ?>
 							<div class="PixabayKeyWarning info-sec">
 								Please, enter Google Maps API Key in <a href="<?php echo admin_url('admin.php?page=improveseo_settings'); ?>">Plugin Settings</a>.
 							</div>
@@ -382,18 +385,18 @@ wp_enqueue_script('post');
 
 						<p>
 							<?php
-								$old_local_seo_enabler = Validator::old('local_seo_enabler', !empty($task->options['local_geo_country']));
+							$old_local_seo_enabler = Validator::old('local_seo_enabler', !empty($task->options['local_geo_country']));
 
-								if (!empty($pixabay_key)):
+							if (!empty($pixabay_key)) :
 							?>
-							<input type="hidden" id="pixabay-api-key" value="<?= $pixabay_key ?>">
-							<a href="<?= IMPROVESEO_DIR ?>/imagescraper.php" title="Image Scraper" onclick="return ImageScraper.start(this)">Launch Images Scraper</a>
-							<?php else: ?>
-								<div class="PixabayKeyWarning info-sec">
-									Please, enter Pixabay API Key in <a href="<?php echo admin_url('admin.php?page=improveseo_settings'); ?>">Plugin Settings</a>.
-								</div>
-							<?php endif; ?>
-						</p>
+								<input type="hidden" id="pixabay-api-key" value="<?= $pixabay_key ?>">
+								<a href="<?= IMPROVESEO_DIR ?>/imagescraper.php" title="Image Scraper" onclick="return ImageScraper.start(this)">Launch Images Scraper</a>
+							<?php else : ?>
+						<div class="PixabayKeyWarning info-sec">
+							Please, enter Pixabay API Key in <a href="<?php echo admin_url('admin.php?page=improveseo_settings'); ?>">Plugin Settings</a>.
+						</div>
+					<?php endif; ?>
+					</p>
 					</div>
 				</div>
 
@@ -406,18 +409,18 @@ wp_enqueue_script('post');
 					<div class="inside mt-3">
 						<p>
 							<?php
-								$youtube_key = get_option('improveseo_google_api_key');
+							$youtube_key = get_option('improveseo_google_api_key');
 
-								if (!empty($youtube_key)):
+							if (!empty($youtube_key)) :
 							?>
-							<input type="hidden" id="youtube-api-key" value="<?= $youtube_key ?>">
-							<a href="<?= IMPROVESEO_DIR ?>/videoscraper.php" title="Image Scraper" onclick="return VideoScraper.start(this)">Launch Videos Scraper</a>
-							<?php else: ?>
-								<div class="PixabayKeyWarning">
-									Please, enter YouTube API Key in <a href="<?php echo admin_url('admin.php?page=improveseo_settings'); ?>">Plugin Settings</a>.
-								</div>
-							<?php endif; ?>
-						</p>
+								<input type="hidden" id="youtube-api-key" value="<?= $youtube_key ?>">
+								<a href="<?= IMPROVESEO_DIR ?>/videoscraper.php" title="Image Scraper" onclick="return VideoScraper.start(this)">Launch Videos Scraper</a>
+							<?php else : ?>
+						<div class="PixabayKeyWarning">
+							Please, enter YouTube API Key in <a href="<?php echo admin_url('admin.php?page=improveseo_settings'); ?>">Plugin Settings</a>.
+						</div>
+					<?php endif; ?>
+					</p>
 					</div>
 				</div>
 			</div>
@@ -436,11 +439,11 @@ wp_enqueue_script('post');
 						<div class="inside">
 							<div class="customizer-wrapper seo-post-meta-wrapper">
 								<?php
-									$old_on_page_seo = Validator::old('on_page_seo', !empty($task->options['custom_title']) || !empty($task->options['custom_description']) || !empty($task->options['custom_keywords']));
+								$old_on_page_seo = Validator::old('on_page_seo', !empty($task->options['custom_title']) || !empty($task->options['custom_description']) || !empty($task->options['custom_keywords']));
 								?>
 								<div class="input-group my-4 cta-check">
 									<span>
-										<input id="on-page-seo" name="on_page_seo"  type="checkbox" value="1"<?= $old_on_page_seo == 1 ? ' checked' : '' ?>>
+										<input id="on-page-seo" name="on_page_seo" type="checkbox" value="1" <?= $old_on_page_seo == 1 ? ' checked' : '' ?>>
 										<label for="on-page-seo">Enable Improve SEO On-Page Customizer</label>
 									</span>
 								</div>
@@ -451,14 +454,14 @@ wp_enqueue_script('post');
 										<div class="input-group mt-4 cta-check">
 											<label for="preview-label" class="form-label">Preview As:</label>
 											<span>
-												<input id="mobile-preview" name="preview-type"  type="radio" class="google-preview-type" value="mobile" checked />
+												<input id="mobile-preview" name="preview-type" type="radio" class="google-preview-type" value="mobile" checked />
 												<label for="mobile-preview">Mobile result</label>
 												&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-												<input id="desktop-preview" name="preview-type"  type="radio" class="google-preview-type" value="desktop" />
+												<input id="desktop-preview" name="preview-type" type="radio" class="google-preview-type" value="desktop" />
 												<label for="desktop-preview">Desktop result</label>
 											</span>
 										</div>
-										<div id="google-mobile-preview" class="google-mobile-preview" >
+										<div id="google-mobile-preview" class="google-mobile-preview">
 											<div class="google-preview-content-wrapper">
 												<div class="google-preview-content-wrapper2">
 													<div class="google-preview-logo">
@@ -470,21 +473,21 @@ wp_enqueue_script('post');
 													</div>
 													<div class="google-mobile-preview-pagename">
 														<?php
-														if($task->options['custom_title']=="")
+														if ($task->options['custom_title'] == "")
 															echo '@title';
 														else
 															echo $task->options['custom_title']; ?>
 													</div>
 													<div class="google-mobile-preview-description">
-													<span class="google-mobile-preview-description-date"><?php echo date('M d, Y'); ?> － </span>
-													<span class="google-description-content">
-														<?php 
-															if($task->options['custom_title']==""){
+														<span class="google-mobile-preview-description-date"><?php echo date('M d, Y'); ?> － </span>
+														<span class="google-description-content">
+															<?php
+															if ($task->options['custom_title'] == "") {
 																echo "Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.";
-															}else{
+															} else {
 																echo $task->options['custom_title'];
 															}
-														?>
+															?>
 														</span>
 													</div>
 												</div>
@@ -492,35 +495,35 @@ wp_enqueue_script('post');
 										</div>
 										<div id="google-desktop-preview" class="google-desktop-preview" style="display:none;">
 											<div class="google-preview-content-wrapper">
-													<div class="google-preview-content-wrapper2">
-														<div class="google-preview-logo-desktop">
-															<span class="google-preview-desktop-url">
-																<span class="google-preview-desktop-disabled"><?php echo site_url(); ?></span> › @title
-															</span>
-														</div>
-														<div class="google-desktop-preview-pagename">
-															<?php
-															if($task->options['custom_title']=="")
-																echo '@title';
-															else
-																echo $task->options['custom_title']; ?>
-														</div>
-														<div class="google-desktop-preview-description">
+												<div class="google-preview-content-wrapper2">
+													<div class="google-preview-logo-desktop">
+														<span class="google-preview-desktop-url">
+															<span class="google-preview-desktop-disabled"><?php echo site_url(); ?></span> › @title
+														</span>
+													</div>
+													<div class="google-desktop-preview-pagename">
+														<?php
+														if ($task->options['custom_title'] == "")
+															echo '@title';
+														else
+															echo $task->options['custom_title']; ?>
+													</div>
+													<div class="google-desktop-preview-description">
 														<span class="google-desktop-preview-description-date">
-															<?php echo date('M d, Y'); ?>－ 
+															<?php echo date('M d, Y'); ?>－
 														</span>
 														<span class="google-description-content">
-														<?php 
-														if($task->options['custom_title']==""){
-															echo "Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.";
-														}else{
-															echo $task->options['custom_title'];
-														}
-													 	?>	
+															<?php
+															if ($task->options['custom_title'] == "") {
+																echo "Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.";
+															} else {
+																echo $task->options['custom_title'];
+															}
+															?>
 														</span>
-														</div>
 													</div>
 												</div>
+											</div>
 										</div>
 									</div>
 									<div class="input-group">
@@ -530,7 +533,8 @@ wp_enqueue_script('post');
 											<span>Ex.</span>
 										</div>
 										<div id="custom-title-error" style="display:none; color:red; margin-top:5px;">Your meta title contains more than 60 characters! <br />
-										<b>PRO TIP</b>: the meta title should not contain more than 60 characters for best results on Google.</div>
+											<b>PRO TIP</b>: the meta title should not contain more than 60 characters for best results on Google.
+										</div>
 									</div>
 									<div class="input-group">
 										<label for="custom-description" class="form-label">Description</label>
@@ -539,7 +543,8 @@ wp_enqueue_script('post');
 											<span>Ex.</span>
 										</div>
 										<div id="custom-description-error" style="display:none; color:red; margin-top:5px;">Your meta description contains more than 160 characters! <br />
-										<b>PRO TIP</b>: the meta description should not contain more than 160 characters for best results on Google.</div>
+											<b>PRO TIP</b>: the meta description should not contain more than 160 characters for best results on Google.
+										</div>
 									</div>
 									<div class="input-group">
 										<label for="custom-keywords" class="form-label">Keywords</label>
@@ -567,21 +572,21 @@ wp_enqueue_script('post');
 									<div class="input-group">
 										<label for="local-country" class="form-label">Country</label>
 										<?php
-											$countries = array('us' => 'United States', 'uk' => 'United Kingdom');
-											$countryModel = new Country();
-											$otherCountries = $countryModel->all('name');
+										$countries = array('us' => 'United States', 'uk' => 'United Kingdom');
+										$countryModel = new Country();
+										$otherCountries = $countryModel->all('name');
 										?>
 										<select id="local-country" class="form-control" name="local_country">
 											<option value>- Select Country -</option>
-											<?php foreach ($countries as $short => $name): ?>
-											<option value="<?= $short ?>" <?= Validator::old('local_geo_country', $task->options['local_geo_country']) == $short ? 'selected':'' ?>>
-												<?= $name ?>
-											</option>
+											<?php foreach ($countries as $short => $name) : ?>
+												<option value="<?= $short ?>" <?= Validator::old('local_geo_country', $task->options['local_geo_country']) == $short ? 'selected' : '' ?>>
+													<?= $name ?>
+												</option>
 											<?php endforeach; ?>
-											<?php foreach ($otherCountries as $other): ?>
-											<option value="<?= $other->id ?>">
-												<?= $other->name ?>
-											</option>
+											<?php foreach ($otherCountries as $other) : ?>
+												<option value="<?= $other->id ?>">
+													<?= $other->name ?>
+												</option>
 											<?php endforeach; ?>
 										</select>
 									</div>
@@ -591,21 +596,21 @@ wp_enqueue_script('post');
 											Press 'Shift + Left Mouse' to select all tree nodes
 										</small>
 										<div id="jstree"></div>
-										<?php if ($task->options['local_geo_locations']): ?>
-										<script>
-											var local_geo_locations = <?= json_encode($task->options['local_geo_locations']) ?>;
-										</script>
+										<?php if ($task->options['local_geo_locations']) : ?>
+											<script>
+												var local_geo_locations = <?= json_encode($task->options['local_geo_locations']) ?>;
+											</script>
 										<?php endif; ?>
 									</div>
 								</div>
 							</div>
 							<div class="seo-post-meta-wrapper schema-wrapper">
 								<?php
-									$old_schema = Validator::old('schema', $task->options['schema']);
+								$old_schema = Validator::old('schema', $task->options['schema']);
 								?>
 								<div class="input-group my-4 cta-check">
 									<span>
-										<input id="schema" name="schema" type="checkbox" value="1"<?= $old_schema == 1 ? ' checked' : '' ?>>
+										<input id="schema" name="schema" type="checkbox" value="1" <?= $old_schema == 1 ? ' checked' : '' ?>>
 										<label for="schema" class="form-label">Enable Improve SEO Schema</label>
 									</span>
 								</div>
@@ -644,8 +649,8 @@ wp_enqueue_script('post');
 											<span>Ex.</span>
 										</div>
 									</div>
-									
-										
+
+
 									<div class="input-group">
 										<label for="schema-social" class="form-label">Social pages</label>
 										<div class="input-prefix">

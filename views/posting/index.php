@@ -48,8 +48,14 @@ if(isset($_POST['cat_name'])){
 			"order"     => "ASC" );
 			$cats = get_categories($args);
 			foreach($cats as $category){
+
+			if ($category->slug == "improve-seo") {
+				$checked = 'checked  onclick="return false"';
+			}else{
+				$checked = '';
+			}
 				
-			$select.= "<span><input type='checkbox' value='".$category->term_id."' id='".$category->term_id."' name='cats[]'><label for='".$category->term_id."'>".$category->name."</label></span>";
+			$select.= "<span><input type='checkbox' " . $checked . " value='".$category->term_id."' id='".$category->term_id."' name='cats[]'><label for='".$category->term_id."'>".$category->name."</label></span>";
 				
 			}
 			echo $select;
