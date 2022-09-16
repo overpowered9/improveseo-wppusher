@@ -110,11 +110,6 @@ if (isset($_GET['post_preview'])) {
 										<a href="javascript:void(0)" class="primary"><?= $project->name ?></a>
 									</strong>
 									<div class="row-actions">
-										<span class="edit">
-											<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo_projects&action=export_project&id={$project->id}&name={$project->name}&noheader=true") ?>">
-												Expor Project
-											</a>
-										</span>
 
 										<span class="edit">
 											<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&name={$project->name}&noheader=true") ?>">
@@ -137,6 +132,12 @@ if (isset($_GET['post_preview'])) {
 										<span class="edit">
 											<a class="ct-btn btn btn-outline-primary" href="<?= admin_url('admin.php?page=improveseo_projects&action=stop&id=' . $project->id . '&noheader=true') ?>">
 												Stop process
+											</a>
+										</span>
+
+                                        <span class="edit">
+											<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo_projects&action=export_project&id={$project->id}&name={$project->name}&noheader=true") ?>">
+												Expor Project
 											</a>
 										</span>
 

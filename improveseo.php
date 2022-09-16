@@ -4,9 +4,9 @@ Plugin Name: Improve SEO
 Plugin URI: 
 Description: Creates a large number of pages/posts and customize them to rank in Google.
 Author: Improve SEO Team
-Version: 2.0.10
+Version: 2.0.11
 */
-define("IMPROVESEO_VERSION", "2.0.10");
+define("IMPROVESEO_VERSION", "2.0.11");
 define('IMPROVESEO_ROOT', dirname(__FILE__));
 define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url( __FILE__ )));
 
@@ -328,6 +328,8 @@ class WC_Testimonial {
 	function __construct() {
 		
 		//add_action( 'admin_menu', 'custom_address_option_on_settings_tab' );
+
+        add_action('admin_bar_menu', [ $this, 'improve_seo_admin_top_bar_option' ], 2000);
 		
 		add_action( 'admin_enqueue_scripts', array($this , 'load_admin_files'), 30 );
 
@@ -351,6 +353,22 @@ class WC_Testimonial {
 		add_shortcode('improveseo_video' , array($this , 'video_callback'));
 
 	}
+
+
+
+    /**
+     * admin bar.
+     * @return void.
+     */
+    public function improve_seo_admin_top_bar_option() {
+        global $wp_admin_bar;
+        $menu_id = 'improveseo_dashboard';
+        $wp_admin_bar->add_menu(array(
+            'id' => $menu_id,
+            'title' => __('Improve SEO', 'improve-seo'),
+            'href' => admin_url() .'/admin.php?page=improveseo_dashboard',
+        ));
+    }
 	
 	/****=====Download the data against ID of keyword from admin side====***/	
     function kwdownload_selected_data_for_keyword(){
