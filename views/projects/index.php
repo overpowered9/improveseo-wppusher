@@ -137,7 +137,7 @@ if (isset($_GET['post_preview'])) {
 
                                         <span class="edit">
 											<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo_projects&action=export_project&id={$project->id}&name={$project->name}&noheader=true") ?>">
-												Expor Project
+												Export Project
 											</a>
 										</span>
 
