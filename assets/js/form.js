@@ -1,8 +1,8 @@
 (function($){
-    /* setTimeout(function(){ 
+    /* setTimeout(function(){
         console.log('tinymce', tinymce);
-        
-        
+
+
     },2000);  */
     $(document).ready(function(){
         if(tinymce.activeEditor!=null){
@@ -11,7 +11,7 @@
                     var full_content = tinyMCE.activeEditor.selection.getStart().textContent;
                     var length = full_content.length;
                     if(e.keyCode==50){
-                        
+
                         var last_char = full_content.charAt((length-1));
                         if($.trim(last_char)==""){
                             e.preventDefault();
@@ -27,7 +27,7 @@
                 }
             });
         }
-        
+
         $('#shortcode_popup').on($.modal.OPEN, function(event, modal) {
             $('#improveseo_shortcode_type').focus();
             $('#improveseo_shortcode_type').val('');
@@ -64,14 +64,14 @@
                 }
             });
         });
-        
+
         $('#improveseo_shortcode_add_btn').click(function(e){
             e.preventDefault();
             var text = '';
             var improveseo_shortcode_type = $('#improveseo_shortcode_type').val();
             var improveseo_shortcode_id = $('#improveseo_shortcode').val();
             var name = $('option:selected', $('#improveseo_shortcode')).attr('data-name');
-            
+
 
             if(improveseo_shortcode_type=='testimonial'){
                 text = '[improveseo_testimonial id="'+improveseo_shortcode_id+'" name="'+name+'"]';
@@ -94,7 +94,7 @@
         });
 
     });
-   
+
     $('#preview_on').click(function(e) {
         //e.preventDefault();
 		jQuery("#preview_popup").modal({
@@ -136,27 +136,23 @@
         }
 	});
 
-   
+
 })(jQuery);
 
  /* Preview New Code */
  let myWindow;
  jQuery('#preview_on').click(function(e){
      e.preventDefault();
-     var max_no_posts_old = jQuery('#max-posts').val();
-     if (max_no_posts_old > 50) {
-         alert("Recommended no. of total posts for preiew is less than 50");				
-     }
      jQuery('#wh_prev_modal_1').show();
      jQuery('#wh_prev_modal_2').hide();
-     
+
     //var data = jQuery('#main_form').serialize() + '&action=improveseo_generate_preview';
     var form = jQuery('#main_form')[0];
     var data = new FormData(form);
     data.append("action", "improveseo_generate_preview");
     data.append('content', jQuery.trim(tinymce.get('content') ? tinymce.get('content').getContent() : jQuery('#content').val()));
 
-     var href = form_ajax_vars.admin_url + "?page=improveseo_projects&post_preview=true"; 
+     var href = form_ajax_vars.admin_url + "?page=improveseo_projects&post_preview=true";
      jQuery.ajax({
         url : form_ajax_vars.ajax_url,
         data : data,
@@ -169,12 +165,12 @@
             jQuery('#preview_id').val(response.project_id);
              myWindow = window.open('about:blank','Popup_Window','toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=200,height=200,left = 5000,top = 5000');
              myWindow.location.href= form_ajax_vars.admin_url + "?page=improveseo_projects&post_preview=true";
-             setTimeout(function(){ 
+             setTimeout(function(){
                 jQuery('#wh_prev_modal_1').hide();
                 jQuery('#wh_prev_modal_2').show();
                 myWindow.resizeTo(720, 360);
                 myWindow.moveTo(312, 234);
-                myWindow.focus(); 
+                myWindow.focus();
              }, 5000);
          }
      });
@@ -193,7 +189,7 @@
         }
     }, 500);
  });
- 
+
 function preview_delete_ajax(prev_id){
     jQuery.ajax({
          url : form_ajax_vars.ajax_url,
@@ -217,6 +213,6 @@ function preview_delete_ajax(prev_id){
  }
 
 function changeWin(){
-    myWindow.focus(); 
+    myWindow.focus();
     //myWindow.location.href= form_ajax_vars.admin_url + "?page=improveseo_projects&post_preview=true";
 }
