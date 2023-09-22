@@ -52,15 +52,14 @@ function add_my_media_button() {
 	}
 	
 	}
-
+	// <option value="testimonial">Testimonials</option>
+	// <option value="googlemap">Google Maps</option>
+	// <option value="button">Buttons</option>
+	// <option value="video">Videos</option>
 
     $html = '';
     $html .= '<select class="sw-editor-selector" style="text-align:left !important;">
                     <option value="addshortcode">Add Shortcode</option>
-                    <option value="testimonial">Testimonials</option>
-                    <option value="googlemap">Google Maps</option>
-                    <option value="button">Buttons</option>
-                    <option value="video">Videos</option>
                     <option value="list">Lists</option>
              </select> &nbsp;';
     $saved_rnos =  get_option('get_saved_random_numbers');

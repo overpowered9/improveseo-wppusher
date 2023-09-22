@@ -22,7 +22,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 		<div id="post-body-content">
 			<div class="PostForm__name-wrap input-group <?php if (Validator::hasError('name')) echo 'PostForm--error' ?>">
 				<label class="form-label">Project name here</label>
-				<input type="text" name="name" class="PostForm__name form-control" placeholder="Project name here" value="<?= Validator::old('name', $task->name) ?>">
+				<input type="text" name="name" class="PostForm__name form-control" placeholder="Project name here" value="<?= Validator::old('name', isset($task) ? $task->name : '') ?>">
 				<?php if (Validator::hasError('name')) : ?>
 					<span class="PostForm__error"><?= Validator::get('name') ?></span>
 				<?php endif; ?>
@@ -30,14 +30,14 @@ $google_api_key = get_option('improveseo_google_api_key');
 
 			<div class="PostForm__title-wrap input-group <?php if (Validator::hasError('title')) echo ' PostForm--error' ?>">
 				<label class="form-label">Enter title here</label>
-				<input type="text" id="title" name="title" class="PostForm__title form-control" placeholder="Enter title here" value="<?= Validator::old('title', $task->content['title']) ?>">
+				<input type="text" id="title" name="title" class="PostForm__title form-control" placeholder="Enter title here" value="<?= Validator::old('title', isset($task) ? $task->content['title'] : '') ?>">
 				<?php if (Validator::hasError('title')) : ?>
 					<span class="PostForm__error"><?= Validator::get('title') ?></span>
 				<?php endif; ?>
 
 				<div id="edit-slug-box">
 					<?php
-					$old_permalink = Validator::old('permalink', $task->options['permalink']);
+					$old_permalink = Validator::old('permalink', isset($task) ? $task->options['permalink'] : '');
 					?>
 					<input type="hidden" class="form-control" name="permalink" value="<?= $old_permalink ?>">
 					<strong>Permalink:<?php echo improveseo_permalink($old_permalink) ?></strong>
@@ -54,7 +54,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 			</div>
 
 			<div class="PostForm__body-wrap <?php if (Validator::hasError('content')) echo ' PostForm--error' ?>">
-				<?php wp_editor(Validator::old('content', $task->content['content']), 'content', array(
+				<?php wp_editor(Validator::old('content', isset($task) ? $task->content['content'] : ''), 'content', array(
 					'_content_editor_dfw' => '',
 					'drag_drop_upload' => true,
 					'tabfocus_elements' => 'content-html,save-post',
@@ -84,7 +84,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 				<input type="hidden" name="is_preview_available" id="is_preview_available" value="no" />
 			</div>
 
-			<?php echo $site_link; ?>
+			<?php echo isset($site_link) && $site_link !== NULL ? $site_link : ''; ?>
 
 
 			<!-- HTML modal for preview button -->
@@ -157,7 +157,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 						if (isset($_GET['cat_pre'])) {
 							$cat_pre = $_GET['cat_pre'];
 							$cat_pre = explode(",", $cat_pre);
-						} else if ($task->cats != "") {
+						} else if (isset($task) && $task->cats != "") {
 							$cat_pre = json_decode($task->cats, true);
 						}
 
@@ -189,7 +189,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 							if ($category->slug == "improve-seo") {
 								$checked = 'checked  onclick="return false"';
 							}
-
+							$select = '';
 							$select .= "<div class='input-group cta-check m-0'><span><input " . $checked . " id='" . $category->term_id . "' type='checkbox' value='" . $category->term_id . "' name='cats[]'><label for='" . $category->term_id . "'>" . $category->name . "</label></span></div>";
 						}
 						echo $select;
@@ -210,7 +210,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 								Maximum number of posts to generate. Input `0` if you want to generate all available posts from spintax.
 							</span>
 						<div class="input-group">
-							<input type="number" id="max-posts" name="max_posts" class="form-control" value="<?= (Validator::old('max_posts', (int) $task->options['max_posts']) <= 0) ? '1' : (Validator::old('max_posts', (int) $task->options['max_posts'])); ?>" min="1" />
+						<input type="number" id="max-posts" name="max_posts" class="form-control" value="<?= (Validator::old('max_posts', (int) ($task->options['max_posts'] ?? 1)) <= 0) ? '1' : (Validator::old('max_posts', (int) ($task->options['max_posts'] ?? 1))); ?>" min="1" />
 						</div>
 						</p>
 
@@ -222,7 +222,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 						</p>
 						<div class="input-group m-0 cta-check">
 							<span>
-								<input type="checkbox" id="distribute" name="distribute" value="1" <?= Validator::old('distribute', $task->options['distribute']) == 1 ? 'checked' : ''; ?>>
+							<input type="checkbox" id="distribute" name="distribute" value="1" <?= Validator::old('distribute', ($task->options['distribute'] ?? 0)) == 1 ? 'checked' : ''; ?>>
 								<label for="distribute">Distribute</label>
 							</span>
 						</div>
@@ -236,9 +236,11 @@ $google_api_key = get_option('improveseo_google_api_key');
 					</button>
 					<h3 class="hndle ui-sortable-handle"><span>Improve SEO Dripfeed Property</span></h3>
 					<div class="inside">
-						<?php
-						$old_dripfeed_enabler = Validator::old('dripfeed_enabler', $task->options['dripfeed_type'] ? 1 : 0);
-						?>
+					<?php
+					$task = isset($task) ? $task : null; // Check if $task is set; if not, set it to null
+					$old_dripfeed_enabler = Validator::old('dripfeed_enabler', ($task && $task->options['dripfeed_type']) ? 1 : 0);
+					?>
+
 						<div class="input-group my-3 cta-check">
 							<span>
 								<input id="dripfeed-enabler" name="dripfeed_enabler" type="checkbox" value="1" <?= $old_dripfeed_enabler == 1 ? 'checked' : ''; ?>>
@@ -606,7 +608,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 							</div>
 							<div class="seo-post-meta-wrapper schema-wrapper">
 								<?php
-								$old_schema = Validator::old('schema', $task->options['schema']);
+								$old_schema = Validator::old('schema', isset($task) ? $task->options['schema'] : '');
 								?>
 								<div class="input-group my-4 cta-check">
 									<span>

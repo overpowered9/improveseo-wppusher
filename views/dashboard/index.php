@@ -15,7 +15,7 @@ use ImproveSEO\View;
 				<img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
 				<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION;?></h1>
 				<div class="pro-tag">
-					<span>Pro</span>
+					<span>Lite</span>
 				</div>
 			</div>
 			<div class="project-header-right">
@@ -184,7 +184,7 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-							<a href="<?= admin_url('admin.php?page=improveseo_authors') ?>">
+							<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
 										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
@@ -199,7 +199,7 @@ use ImproveSEO\View;
 							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
-								  	<input type="checkbox" class="custom-control-input" id="customSwitch7">
+								  	<input type="checkbox" disabled class="custom-control-input" id="customSwitch7">
 								  	<label class="custom-control-label" for="customSwitch7"></label>
 								</div>
 							  </div>
@@ -207,7 +207,7 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-							<a href="<?= admin_url('admin.php?page=improveseo_keyword_generator') ?>">
+						<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
 										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
@@ -222,7 +222,7 @@ use ImproveSEO\View;
 							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
-								  	<input type="checkbox" class="custom-control-input" id="customSwitch8">
+								  	<input type="checkbox" disabled class="custom-control-input" id="customSwitch8">
 								  	<label class="custom-control-label" for="customSwitch8"></label>
 								</div>
 							  </div>
@@ -230,7 +230,7 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-							<a href="<?= admin_url('admin.php?page=improveseo_shortcodes') ?>">
+						<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
 										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
@@ -245,7 +245,7 @@ use ImproveSEO\View;
 							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
-								  	<input type="checkbox" class="custom-control-input" id="customSwitch9">
+								  	<input type="checkbox" disabled class="custom-control-input" id="customSwitch9">
 								  	<label class="custom-control-label" for="customSwitch9"></label>
 								</div>
 							  </div>
@@ -253,7 +253,7 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-							<a href="<?= admin_url('admin.php?page=improveseo_shortcodes') ?>">
+						<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
 										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
@@ -268,7 +268,7 @@ use ImproveSEO\View;
 							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
-								  	<input type="checkbox" class="custom-control-input" id="customSwitch10">
+								  	<input type="checkbox" disabled class="custom-control-input" id="customSwitch10">
 								  	<label class="custom-control-label" for="customSwitch10"></label>
 								</div>
 							  </div>
@@ -276,7 +276,7 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-							<a href="<?= admin_url('admin.php?page=improveseo_shortcodes') ?>">
+						<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
 										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
@@ -291,7 +291,7 @@ use ImproveSEO\View;
 							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
-								  	<input type="checkbox" class="custom-control-input" id="customSwitch11">
+								  	<input type="checkbox" disabled class="custom-control-input" id="customSwitch11">
 								  	<label class="custom-control-label" for="customSwitch11"></label>
 								</div>
 							  </div>
@@ -299,6 +299,7 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
+						<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
 							<div class="card-body text-center">
 								<div class="icon-wrap">
 		                        	<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
@@ -310,9 +311,10 @@ use ImproveSEO\View;
 									<span>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</span>
 								</div>
 							</div>
+                            </a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
-								  	<input type="checkbox" class="custom-control-input" id="customSwitch12">
+								  	<input type="checkbox" disabled class="custom-control-input" id="customSwitch12">
 								  	<label class="custom-control-label" for="customSwitch12"></label>
 								</div>
 							  </div>

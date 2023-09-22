@@ -23,15 +23,15 @@ function improveseo_add_menu_items()
     //add_submenu_page('improveseo', 'Shortcodes', 'Shortcodes', 'manage_options', 'improveseo_shortcodes', 'improveseo_shortcodes');
     add_submenu_page('improveseo_dashboard', 'Lists', 'Lists', 'manage_options', 'improveseo_lists', 'improveseo_lists');
     add_submenu_page('improveseo_dashboard', 'Settings', 'Settings', 'manage_options', 'improveseo_settings', 'improveseo_settings');
-    add_submenu_page('improveseo_dashboard', 'Authors', 'Authors', 'manage_options', 'improveseo_authors', 'improveseo_authors');
+    // add_submenu_page('improveseo_dashboard', 'Authors', 'Authors', 'manage_options', 'improveseo_authors', 'improveseo_authors');
     
     //add_submenu_page('improveseo', 'Builder', 'Builder', 'manage_options', 'improveseo_builder', 'improveseo_builder');
     //add_submenu_page('improveseo', 'BuilderUpdate', 'BuilderUpdate', 'manage_options', 'improveseo_update_builder', 'improveseo_update_builder');
 
     
     //add_submenu_page('improveseo', 'Noindex Tags', 'Noindex Tags', 'manage_options', 'improveseo_noindex', 'improveseo_noindex');
-    add_submenu_page('improveseo_dashboard', 'Keyword Generator', 'Keyword Generator', 'manage_options', 'improveseo_keyword_generator', 'improveseo_keyword_generator');
-    add_submenu_page('improveseo_dashboard', 'Shortcodes', 'Shortcodes', 'manage_options','improveseo_shortcodes', 'custom_testimonials_settings');
+    // add_submenu_page('improveseo_dashboard', 'Keyword Generator', 'Keyword Generator', 'manage_options', 'improveseo_keyword_generator', 'improveseo_keyword_generator');
+    // add_submenu_page('improveseo_dashboard', 'Shortcodes', 'Shortcodes', 'manage_options','improveseo_shortcodes', 'custom_testimonials_settings');
 }
 
 add_action('admin_menu', function () {
