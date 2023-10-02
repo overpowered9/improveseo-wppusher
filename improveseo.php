@@ -52,10 +52,7 @@ function add_my_media_button() {
 	}
 	
 	}
-	// <option value="testimonial">Testimonials</option>
-	// <option value="googlemap">Google Maps</option>
-	// <option value="button">Buttons</option>
-	// <option value="video">Videos</option>
+
 
     $html = '';
     $html .= '<select class="sw-editor-selector" style="text-align:left !important;">

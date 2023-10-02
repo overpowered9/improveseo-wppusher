@@ -207,7 +207,7 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-						<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
+							<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
 										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
@@ -230,7 +230,7 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-						<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
+							<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
 										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
@@ -253,7 +253,7 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-						<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
+							<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
 										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
@@ -276,7 +276,7 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-						<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
+							<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
 										<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
@@ -299,7 +299,6 @@ use ImproveSEO\View;
 					</div>
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card pro-tile">
-						<a href="javascript:void(0)" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');">
 							<div class="card-body text-center">
 								<div class="icon-wrap">
 		                        	<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
@@ -311,7 +310,6 @@ use ImproveSEO\View;
 									<span>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</span>
 								</div>
 							</div>
-                            </a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
 								  	<input type="checkbox" disabled class="custom-control-input" id="customSwitch12">
