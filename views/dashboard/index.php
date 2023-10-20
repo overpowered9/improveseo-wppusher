@@ -63,7 +63,7 @@ use ImproveSEO\View;
 
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
-								  	<input type="checkbox" class="custom-control-input" id="customSwitch1">
+								  	<input type="checkbox" checked="checked" class="custom-control-input" id="customSwitch1">
 								  	<label class="custom-control-label" for="customSwitch1"></label>
 								</div>
 							  </div>
@@ -86,7 +86,7 @@ use ImproveSEO\View;
 							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
-								  	<input type="checkbox" class="custom-control-input" id="customSwitch2">
+								  	<input type="checkbox" checked="checked" class="custom-control-input" id="customSwitch2">
 								  	<label class="custom-control-label" for="customSwitch2"></label>
 								</div>
 							  </div>
@@ -109,7 +109,7 @@ use ImproveSEO\View;
 							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
-								  	<input type="checkbox" class="custom-control-input" id="customSwitch3">
+								  	<input type="checkbox" checked="checked" class="custom-control-input" id="customSwitch3">
 								  	<label class="custom-control-label" for="customSwitch3"></label>
 								</div>
 							  </div>
@@ -132,7 +132,7 @@ use ImproveSEO\View;
 							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
-								  	<input type="checkbox" class="custom-control-input" id="customSwitch4">
+								  	<input type="checkbox" checked="checked" class="custom-control-input" id="customSwitch4">
 								  	<label class="custom-control-label" for="customSwitch4"></label>
 								</div>
 							  </div>
@@ -153,7 +153,7 @@ use ImproveSEO\View;
 							</div>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
-								  	<input type="checkbox" class="custom-control-input" id="customSwitch5">
+								  	<input type="checkbox" checked="checked" class="custom-control-input" id="customSwitch5">
 								  	<label class="custom-control-label" for="customSwitch5"></label>
 								</div>
 							  </div>
@@ -176,7 +176,7 @@ use ImproveSEO\View;
 							</a>
 							<div class="card-footer text-right">
 							    <div class="custom-control custom-switch">
-								  	<input type="checkbox" class="custom-control-input" id="customSwitch6">
+								  	<input type="checkbox" checked="checked" class="custom-control-input" id="customSwitch6">
 								  	<label class="custom-control-label" for="customSwitch6"></label>
 								</div>
 							  </div>

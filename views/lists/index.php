@@ -38,8 +38,9 @@ use ImproveSEO\View;
 		</div>
 
 		<div class="action-buttons">
-		<a onclick="return confirm('Are you sure you want to export all item?');" href="<?= admin_url('admin.php?page=improveseo_lists&action=export_all_list&noheader=true') ?>" class="btn btn-outline-primary btn-small" id="exportProject">Export All List</a>
-			<a href="#" class="btn btn-outline-primary btn-small" id="importProject">Import</a>
+		<!-- <a onclick="return confirm('Are you sure you want to export all item?');" href="<?= admin_url('admin.php?page=improveseo_lists&action=export_all_list&noheader=true') ?>" class="btn btn-outline-primary btn-small" id="exportProject">Export All List</a> -->
+		<a onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');" href="javascript:void()" class="btn btn-outline-primary btn-small" id="exportProject">Export All List</a>
+			<a href="javascript:void()" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');" class="btn btn-outline-primary btn-small" id="importProject">Import</a>
 		<a href="<?= admin_url('admin.php?page=improveseo_lists&action=create') ?>"  class="btn btn-outline-primary btn-small py-2 px-3">Create New</a>
 		</div>
 	</section>

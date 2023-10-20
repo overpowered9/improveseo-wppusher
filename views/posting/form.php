@@ -212,15 +212,18 @@ $google_api_key = get_option('improveseo_google_api_key');
 
 						<p>
 							<strong>Distribute among authors randomly:</strong> </br>
+							<p style="color:red">This is part of the Pro version</p>
 							<span>
 								Distribute posts among <a href="<?= admin_url('admin.php?page=improveseo_authors') ?>">Improve SEO authors</a> randomly.
 							</span>
 						</p>
 						<div class="input-group m-0 cta-check">
-							<span>
-								<input type="checkbox" id="distribute" name="distribute" value="1" <?= Validator::old('distribute', $task->options['distribute']) == 1 ? 'checked' : ''; ?>>
-								<label for="distribute">Distribute</label>
-							</span>
+						<span>
+							
+							<input type="checkbox" disabled id="distribute" name="distribute" value="1" <?= Validator::old('distribute', ($task->options['distribute'] ?? 0)) == 1 ? 'checked' : ''; ?>>
+						
+							<label for="distribute">Distribute</label>
+						</span>
 						</div>
 					</div>
 				</div>
@@ -341,7 +344,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 				*/ ?>
 
 				<!-- Images Scraper -->
-				<div class="postbox">
+				<!-- <div class="postbox">
 					<button type="button" class="handlediv button-link" aria-expanded="true">
 						<span class="toggle-indicator" aria-hidden="true"></span>
 					</button>
@@ -394,10 +397,10 @@ $google_api_key = get_option('improveseo_google_api_key');
 					<?php endif; ?>
 					</p>
 					</div>
-				</div>
+				</div> -->
 
 				<!-- Videos Scraper -->
-				<div class="postbox">
+				<!-- <div class="postbox">
 					<button type="button" class="handlediv button-link" aria-expanded="true">
 						<span class="toggle-indicator" aria-hidden="true"></span>
 					</button>
@@ -418,7 +421,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 					<?php endif; ?>
 					</p>
 					</div>
-				</div>
+				</div> -->
 			</div>
 		</div>
 
@@ -552,12 +555,12 @@ $google_api_key = get_option('improveseo_google_api_key');
 								</div>
 							</div>
 							<div class="seo-post-meta-wrapper feature-wrapper">
-								<div class="input-group my-4 cta-check">
+								<!-- <div class="input-group my-4 cta-check">
 									<span>
 										<input id="local-seo-enabler" name="local_seo_enabler" type="checkbox" value="1" <?= $old_local_seo_enabler == 1 ? 'checked' : ''; ?>>
 										<label for="local-seo-enabler">Enable Improve SEO Local SEO Feature</label>
 									</span>
-								</div>
+								</div> -->
 								<div id="local-seo-wrap" style="display: <?= $old_local_seo_enabler == 1 ? 'block' : 'none'; ?>;">
 									<div class="input-group cta-check">
 										<span>
@@ -605,8 +608,9 @@ $google_api_key = get_option('improveseo_google_api_key');
 								$old_schema = Validator::old('schema', $task->options['schema']);
 								?>
 								<div class="input-group my-4 cta-check">
+									<p style="color:red">This is part of the Pro version</p>
 									<span>
-										<input id="schema" name="schema" type="checkbox" value="1" <?= $old_schema == 1 ? ' checked' : '' ?>>
+										<input id="schema" disabled name="schema" type="checkbox" value="1" <?= $old_schema == 1 ? ' checked' : '' ?>>
 										<label for="schema" class="form-label">Enable Improve SEO Schema</label>
 									</span>
 								</div>
