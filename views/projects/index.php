@@ -43,7 +43,7 @@ if (isset($_GET['post_preview'])) {
 			<!-- <a onclick="return confirm('Are you sure you want to export all item?');" href="<?= admin_url('admin.php?page=improveseo_projects&action=export_all_project&noheader=true') ?>" class="btn btn-outline-primary btn-small" id="exportProject">Export All Project</a>
 			<a href="#" class="btn btn-outline-primary btn-small" id="importProject">Import</a> -->
 			<a onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');" href="javascript:void()" class="btn btn-outline-primary btn-small" id="exportProject">Export All Project</a>
-			<a href="javascript:void()" class="btn btn-outline-primary btn-small" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');" id="importProject">Import</a>
+			<a href="javascript:void()" class="btn btn-outline-primary btn-small" onclick="return confirm('Please purcahse the Pro version to access this feature and many more..');git " id="importProject">Import</a>
 			<a href="<?= admin_url('admin.php?page=improveseo_posting') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
 		</div>
 
@@ -57,6 +57,7 @@ if (isset($_GET['post_preview'])) {
 				'base' => admin_url('admin.php?page=improveseo_projects%_%')
 			)) ?>
 		</span>
+		
 	</section>
 	<section class="project-table-wrapper">
 		<form method="get">
