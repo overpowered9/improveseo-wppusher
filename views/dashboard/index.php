@@ -92,7 +92,7 @@ use ImproveSEO\View;
 							  </div>
 						 </div>
 					</div>
-					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
+					<!-- <div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card">
 							<a href="<?= admin_url('admin.php?page=improveseo_shortcodes') ?>">
 								<div class="card-body text-center">
@@ -114,7 +114,7 @@ use ImproveSEO\View;
 								</div>
 							  </div>
 						 </div>
-					</div>
+					</div> -->
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card">
 							<a href="<?= admin_url('admin.php?page=improveseo_lists') ?>">

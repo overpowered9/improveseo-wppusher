@@ -212,9 +212,9 @@ $google_api_key = get_option('improveseo_google_api_key');
 
 						<p>
 							<strong>Distribute among authors randomly:</strong> </br>
-							<p style="color:red">This is part of the Pro version</p>
+							<p style="color:red">Upgrade to Improve SEO Pro version to enable this function</p>
 							<span>
-								Distribute posts among <a href="<?= admin_url('admin.php?page=improveseo_authors') ?>">Improve SEO authors</a> randomly.
+								Distribute posts among Improve SEO authors randomly.
 							</span>
 						</p>
 						<div class="input-group m-0 cta-check">
@@ -608,7 +608,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 								$old_schema = Validator::old('schema', $task->options['schema']);
 								?>
 								<div class="input-group my-4 cta-check">
-									<p style="color:red">This is part of the Pro version</p>
+									<p style="color:red">Upgrade to Improve SEO Pro version to enable this function</p>
 									<span>
 										<input id="schema" disabled name="schema" type="checkbox" value="1" <?= $old_schema == 1 ? ' checked' : '' ?>>
 										<label for="schema" class="form-label">Enable Improve SEO Schema</label>
