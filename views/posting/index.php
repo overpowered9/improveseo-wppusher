@@ -49,7 +49,7 @@ if(isset($_POST['cat_name'])){
 			$cats = get_categories($args);
 			foreach($cats as $category){
 
-			if ($category->slug == "improve-seo") {
+			if ($category->slug == "") {
 				$checked = 'checked  onclick="return false"';
 			}else{
 				$checked = '';
