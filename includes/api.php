@@ -5,6 +5,8 @@ use ImproveSEO\Validator;
 use ImproveSEO\Models\Country;
 use ImproveSEO\Models\GeoData;
 use ImproveSEO\Models\Shortcode;
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
+
 
 if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'improveseo') {
 	$act = $_GET ['action'];
@@ -210,15 +212,23 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'improveseo') {
 	} elseif ($act == 'shortcode') {
 		$shortcodeModel = new Shortcode ();
 		
-		if (! Validator::validate ( $_POST, array (
-				'shortcode' => 'required|unique:' . $shortcodeModel->getTable () . ',shortcode',
-				'media' => 'required' 
-		) )) {
-			header ( $_SERVER ['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500 );
-			echo Validator::get ( 'shortcode' );
-			exit ();
-		}
-		
+		$shortcode = isset($_POST['shortcode']) ? $_POST['shortcode'] : '';
+        $media = isset($_POST['media']) ? $_POST['media'] : '';
+        // Check if required fields are present
+        if (empty($shortcode) || empty($media)) {
+            // Handle missing required fields
+            header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request', true, 400);
+            echo 'Bad Request: Missing required fields.';
+            exit();
+        }
+        if (!Validator::validate(compact('shortcode', 'media'), array(
+            'shortcode' => 'required|unique:' . $shortcodeModel->getTable() . ',shortcode',
+            'media' => 'required'
+        ))) {
+            header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+            echo Validator::get('shortcode');
+            exit();
+        }
 		$shortcode = $_POST ['shortcode'];
 		
 		// Download all media files
@@ -267,34 +277,31 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'improveseo') {
 		
 		exit ();
 	} elseif ($act == 'word-ai') {
-		$text = urlencode ( $_POST ['text'] );
-		$quality = $_POST ['quality'];
-		$email = urlencode ( $_POST ['email'] );
-		$pass = $_POST ['pass'];
-		
-		$query = array (
-				's' => $_POST ['text'],
-				'quality' => $_POST ['quality'],
-				'email' => get_option ( 'improveseo_word_ai_email' ),
-				'pass' => get_option ( 'improveseo_word_ai_pass' ),
-				'nonested' => $_POST ['nonested'],
-				'paragraph' => $_POST ['paragraph'],
-				'nooriginal' => $_POST ['nooriginal'],
-				'protected' => $_POST ['protected'],
-				'output' => 'json' 
-		);
-		
-		$ch = curl_init ( 'http://wordai.com/users/turing-api.php' );
-		curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, 1 );
-		curl_setopt ( $ch, CURLOPT_POST, 1 );
-		curl_setopt ( $ch, CURLOPT_POSTFIELDS, http_build_query ( $query ) );
-		
-		$results = json_decode ( curl_exec ( $ch ), true );
-		curl_close ( $ch );
-	}
-	
-	header ( 'Content-Type: application/json' );
-	
-	echo json_encode ( $results );
-	exit ();
+		$text = urlencode($_POST['text']);
+        $quality = $_POST['quality'];
+        $email = urlencode($_POST['email']);
+        $pass = $_POST['pass'];
+
+        $query = array(
+            's' => $_POST['text'],
+            'quality' => $_POST['quality'],
+            'email' => get_option('improveseo_word_ai_email'),
+            'pass' => get_option('improveseo_word_ai_pass'),
+            'nonested' => $_POST['nonested'],
+            'paragraph' => $_POST['paragraph'],
+            'nooriginal' => $_POST['nooriginal'],
+            'protected' => $_POST['protected'],
+            'output' => 'json'
+        );
+
+        $response = wp_safe_remote_post('http://wordai.com/users/turing-api.php', array(
+            'body' => $query,
+        ));
+
+        if (!is_wp_error($response)) {
+            $results = json_decode(wp_remote_retrieve_body($response), true);
+        } else {
+            // Handle the error, e.g., $response->get_error_message()
+        }
+}
 }

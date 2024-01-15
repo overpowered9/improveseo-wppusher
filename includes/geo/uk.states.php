@@ -1,5 +1,5 @@
 <?php
-
+ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
 $wpdb->query("INSERT INTO `{$wpdb->prefix}improveseo_uk_states` (`id`, `name`, `country`, `country_short`) VALUES
 	(1, 'Aberdeen City', 'Scotland', 'SCT'),
 	(2, 'Aberdeenshire', 'Scotland', 'SCT'),

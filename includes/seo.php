@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
 
 if (!is_admin()) {
 	add_action('init', 'improveseo_seo_buffer_start');

@@ -1,4 +1,6 @@
 <?php
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
 /*
 MySQL Data Transfer
 Source Host: localhost

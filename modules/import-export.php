@@ -3,7 +3,7 @@
 class improveseo_import_export{
 
     public function export($data, $filename = 'improve-seo'){
-        @set_time_limit(0);
+        
 
 		$header_row = [];
 		$data_row = [];

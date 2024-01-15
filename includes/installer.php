@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
 
 global $improveseo_db_version;
 $improveseo_db_version = '0.8';

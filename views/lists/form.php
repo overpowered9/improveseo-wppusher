@@ -1,22 +1,20 @@
-<?php
-use ImproveSEO\Validator;
-?>
+<?php use ImproveSEO\Validator; ?>
 
-<div class="BasicForm__row<?php if (Validator::hasError('name')) echo ' PostForm--error' ?>">
-	<label class="form-label">Shortcode Name</label>
-	<div class="input-prefix">
-		<input type="text" class="form-control" name="name" placeholder="List 1" value="<?= Validator::old('name', $list->name) ?>">
-		<span>Ex.</span>
-	</div>
-	<?php if (Validator::hasError('name')): ?>
-	<span class="PostForm__error"><?= Validator::get('name') ?></span>
-	<?php endif; ?>
+<div class="BasicForm__row<?php echo Validator::hasError('name') ? ' PostForm--error' : ''; ?>">
+    <label class="form-label"><?php esc_html_e('Shortcode Name', 'improve-seo'); ?></label>
+    <div class="input-prefix">
+        <input type="text" class="form-control" name="name" placeholder="<?php esc_attr_e('List 1', 'improve-seo'); ?>" value="<?php echo esc_attr(Validator::old('name', $list->name)); ?>">
+        <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
+    </div>
+    <?php if (Validator::hasError('name')): ?>
+        <span class="PostForm__error"><?php echo esc_html(Validator::get('name')); ?></span>
+    <?php endif; ?>
 </div>
 
-<div class="BasicForm__row<?php if (Validator::hasError('list')) echo ' PostForm--error' ?>">
-	<label class="form-label">List of keywords (one per line)</label>
-	<textarea class="textarea-control" name="list" rows="5" placeholder="Type here..."><?= Validator::old('list', $list->list) ?></textarea>
-	<?php if (Validator::hasError('list')): ?>
-	<span class="PostForm__error"><?= Validator::get('list') ?></span>
-	<?php endif; ?>
+<div class="BasicForm__row<?php echo Validator::hasError('list') ? ' PostForm--error' : ''; ?>">
+    <label class="form-label"><?php esc_html_e('List of keywords (one per line)', 'improve-seo'); ?></label>
+    <textarea class="textarea-control" name="list" rows="5" placeholder="<?php esc_attr_e('Type here...', 'improve-seo'); ?>"><?php echo esc_textarea(Validator::old('list', $list->list)); ?></textarea>
+    <?php if (Validator::hasError('list')): ?>
+        <span class="PostForm__error"><?php echo esc_html(Validator::get('list')); ?></span>
+    <?php endif; ?>
 </div>

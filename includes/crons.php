@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use ImproveSEO\Spintax;
 use ImproveSEO\Models\Task;
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
 
 // Add every minute schedule
 function improveseo_add_every_minute($schedules) {
@@ -126,7 +127,7 @@ function improveseo_parse_tasks() {
 						    $imagedir = 'uploads/'. date('Y') .'/'. date('m') .'/'. $filename;
 							improveseo_check_dir($imagedir);
 
-						    addGpsInfo(
+						    improveseo_addGpsInfo(
 						    	$imageSrc,
 						    	WP_CONTENT_DIR .'/'. $imagedir,
 						    	$exif[2][$idx],

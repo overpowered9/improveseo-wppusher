@@ -1,44 +1,45 @@
 <?php
 use ImproveSEO\View;
+
 ?>
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_dashboard')); ?>"><?php esc_html_e('Improve SEO', 'improve-seo'); ?></a>
 &raquo;
-<span>Keyword Generator</span>
+<span><?php esc_html_e('Keyword Generator', 'improve-seo'); ?></span>
 <?php View::endSection('breadcrumbs') ?>
 <?php View::startSection('content') ?>
-<h2 class="hidden">Keyword Generator</h2>
+<h2 class="hidden"><?php esc_html_e('Keyword Generator', 'improve-seo'); ?></h2>
 <div class="notice notice-success is-dismissible notice-improveseo">
     <p>
-        The Improve SEO Keyword Generator takes a seed keyword and uses the Google autosuggest feature to generate a list of long tail keywords. You can put these long tail keywords into a Improve SEO List and make posts/pages for each keyword in the list!
+        <?php esc_html_e('The Improve SEO Keyword Generator takes a seed keyword and uses the Google autosuggest feature to generate a list of long tail keywords. You can put these long tail keywords into an Improve SEO List and make posts/pages for each keyword in the list!', 'improve-seo'); ?>
     </p>
 </div>
 <div class="keywords improveseo_wrapper p-3 p-lg-4">
     <section class="project-section border-bottom">
         <div class="project-heading d-flex flex-row align-items-center pb-2">
-            <img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
-            <h1>Keyword Generator</h1>
+            <img class="mr-2" src="<?php echo esc_url(IMPROVESEO_WT_URL.'/assets/images/project-list-logo.png'); ?>" alt="<?php esc_attr_e('ImproveSeo', 'improve-seo'); ?>">
+            <h1><?php esc_html_e('Keyword Generator', 'improve-seo'); ?></h1>
         </div>
     </section>
     <section class="form-wrap">
         <div class="PostForm mt-3">
             <div class="BasicForm__row">
                 <div class="input-group">
-                    <label class="form-label">Seed Keyword</label>
+                    <label class="form-label"><?php esc_html_e('Seed Keyword', 'improve-seo'); ?></label>
                     <input type="text" id="input" placeholder="" class="sw-project-name keyword_input form-control" value="" />
                 </div>
             </div>
             <div class="BasicForm__row">
-                <label class="form-label">Results</label>
+                <label class="form-label"><?php esc_html_e('Results', 'improve-seo'); ?></label>
                 <textarea id="output" rows="5" class="textarea-control sw-output-ta keyword_input" placeholder=""></textarea>
             </div>
             <div class="BasicForm__row mb-3">
-                <input id="startjob" onclick="generate();" type="button" class="btn btn-outline-primary mr-2 mb-2 mb-sm-0" value="Generate Keywords!">
-                <input type="button" class="clear-search-results btn btn-outline-primary mr-2 mb-2 mb-sm-0" value="Clear Results">
-                <input type="button" class="sw-save-search-results btn btn-outline-primary" value="Save Results">
+                <input id="startjob" onclick="generate();" type="button" class="btn btn-outline-primary mr-2 mb-2 mb-sm-0" value="<?php esc_attr_e('Generate Keywords!', 'improve-seo'); ?>">
+                <input type="button" class="clear-search-results btn btn-outline-primary mr-2 mb-2 mb-sm-0" value="<?php esc_attr_e('Clear Results', 'improve-seo'); ?>">
+                <input type="button" class="sw-save-search-results btn btn-outline-primary" value="<?php esc_attr_e('Save Results', 'improve-seo'); ?>">
                 <?php
                 
-                wt_load_templates('sw-all-saved-keywords.php')
+                wt_load_templates('sw-all-saved-keywords.php');
                 
                 ?>
                 

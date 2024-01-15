@@ -1,9 +1,11 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
+
 /* This file will handle all ajax requests from plugin */
 add_action('wp_ajax_improveseo_get_shortcodes', 'improveseo_get_shortcodes');
 function improveseo_get_shortcodes(){
     $improveseo_shortcode_type = sanitize_text_field($_POST['improveseo_shortcode_type']);
-    $saved_rnos =  get_option('get_saved_random_numbers');
+    $saved_rnos =  get_option('improveseo_get_saved_random_numbers');
     $allowed_shortcode_types = array('testimonial', 'googlemap', 'button', 'video', 'list');
     $shortcode_html = '';
 
@@ -70,7 +72,7 @@ function improveseo_get_shortcodes(){
                 }
             break;
             case 'list':
-                $seo_list = improve_seo_lits();
+                $seo_list = improveseo_lits();
                 if(!empty($seo_list)){
                     foreach($seo_list as $list){
                         $shortcode_html .= '<option value="'.$list.'">@list: '.$list.'</option>';

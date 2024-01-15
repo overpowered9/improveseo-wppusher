@@ -1,12 +1,15 @@
 <?php
 add_action( 'admin_enqueue_scripts', 'improveseo_enqueue_admin' );
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
+
 function improveseo_enqueue_admin(){
 	$my_current_screen = get_current_screen();
 
 	wp_enqueue_style('improveseo-main', IMPROVESEO_DIR . '/assets/css/main.css', array('wp-admin'));
 
 	wp_enqueue_style('improveseo-tree', IMPROVESEO_DIR . '/assets/css/tree.min.css');
-	wp_enqueue_style('improveseo-fa', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css');
+	wp_enqueue_style('improveseo-fa', IMPROVESEO_DIR.'/assets/css/font-awesome.min.css');
 	wp_enqueue_style('improveseo-modalStyle',IMPROVESEO_DIR . '/assets/js/jquery.modal.min.css');
 
 	//wp_enqueue_script('improveseo-bootstrap', IMPROVESEO_DIR . '/assets/js/bootstrap.min.js', array('jquery'), IMPROVESEO_VERSION, true);
@@ -33,7 +36,7 @@ function improveseo_enqueue_admin(){
 	wp_enqueue_script('improveseo-notify', IMPROVESEO_DIR . '/assets/js/notify.js', array('jquery'), IMPROVESEO_VERSION, true);
 	wp_enqueue_script('improveseo-popup', IMPROVESEO_DIR . '/assets/js/popup.js', array('jquery'), IMPROVESEO_VERSION, true);
 	
-	wp_enqueue_script('improveseo-underscore', 'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js', array('underscore'));
+	wp_enqueue_script('improveseo-underscore', IMPROVESEO_DIR.'/assets/js/underscore.js', array('underscore'));
 	
 	wp_enqueue_script('improveseo-modal',IMPROVESEO_DIR . '/assets/js/jquery.modal.min.js', array('jquery'), IMPROVESEO_VERSION, true);	
 	
@@ -42,7 +45,7 @@ function improveseo_enqueue_admin(){
 		$allowed_bases = array('toplevel_page_improveseo_dashboard', 'improve-seo_page_improveseo_posting');
 		if(in_array($my_current_screen->base, $allowed_bases) && isset($_REQUEST['action'])){
 			wp_enqueue_script( 'jquery-ui-autocomplete' );
-			$saved_rnos =  get_option('get_saved_random_numbers');
+			$saved_rnos =  get_option('improveseo_get_saved_random_numbers');
 			$autocomplete_arr = array();
 			if(!empty($saved_rnos)){
 				foreach($saved_rnos as $id){
@@ -90,7 +93,7 @@ function improveseo_enqueue_admin(){
 					}
 				}
 			}
-			$seo_list = improve_seo_lits();
+			$seo_list = improveseo_lits();
 			if(!empty($seo_list)){
 				foreach($seo_list as $li){
 					$autocomplete = array(

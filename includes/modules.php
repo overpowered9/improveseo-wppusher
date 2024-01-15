@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
 
 include_once IMPROVESEO_ROOT .'/modules/dashboard.php';
 include_once IMPROVESEO_ROOT .'/modules/posting.php';

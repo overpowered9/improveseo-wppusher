@@ -1,5 +1,5 @@
 <?php
-
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 use ImproveSEO\View;
 use ImproveSEO\Spintax;
 use ImproveSEO\Storage;
@@ -10,6 +10,7 @@ use ImproveSEO\ChannelManager;
 use ImproveSEO\Models\Shortcode;
 
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
 
 /**
  * improveseo_builder
@@ -31,13 +32,13 @@ function improveseo_builder()
 
 	ob_start();
 	ignore_user_abort(true);
-	@set_time_limit(0);
+	
 	session_write_close();
 
 	improveseo_debug_start();
 
-	ini_set("pcre.backtrack_limit", "23001337");
-	ini_set("pcre.recursion_limit", "23001337");
+	;
+	;
 
 	$id = $_GET['id'];
 
@@ -133,8 +134,8 @@ function improveseo_builder()
 
 		register_post_type($options['permalink_prefix'], array(
 			'labels' => array(
-				'name' => __(ucfirst($options['permalink_prefix'])),
-				'singular_name' => __(ucfirst($options['permalink_prefix']))
+				'name' => printf(__("%s", 'improve-seo'), ucfirst($options['permalink_prefix'])),
+				'singular_name' => printf(__("%s", 'improve-seo'), ucfirst($options['permalink_prefix']))
 			),
 			'public' => true,
 			'publicly_queryable' => true,
@@ -321,7 +322,7 @@ function improveseo_builder()
 						}
 
 						if ($location) {
-							addGpsInfo($imageSrc, WP_CONTENT_DIR . '/' . $imagedir, $exif[2][$idx], $location->lng, $location->lat, 0, date('Y-m-d H:i:s'));
+							improveseo_addGpsInfo($imageSrc, WP_CONTENT_DIR . '/' . $imagedir, $exif[2][$idx], $location->lng, $location->lat, 0, date('Y-m-d H:i:s'));
 						}
 
 						$savedir = "/wp-content/$imagedir";
@@ -639,7 +640,7 @@ function improveseo_builder()
  *
  * @return void
  */
-function preview_delete_ajax()
+function improveseo_preview_delete_ajax()
 {
 
 	global $wpdb;
@@ -678,13 +679,13 @@ function improveseo_builder_update()
 
 	ob_start();
 	ignore_user_abort(true);
-	@set_time_limit(0);
+	
 	session_write_close();
 
 	improveseo_debug_start();
 
-	ini_set("pcre.backtrack_limit", "23001337");
-	ini_set("pcre.recursion_limit", "23001337");
+	;
+	;
 
 	$id = $_GET['id'];
 
@@ -797,8 +798,9 @@ function improveseo_builder_update()
 
 		register_post_type($options['permalink_prefix'], array(
 			'labels' => array(
-				'name' => __(ucfirst($options['permalink_prefix'])),
-				'singular_name' => __(ucfirst($options['permalink_prefix']))
+				'name' => sprintf(__('%s', 'improve-seo'), ucfirst($options['permalink_prefix'])),
+				'singular_name' => sprintf(__('%s', 'improve-seo'), ucfirst($options['permalink_prefix'])),
+
 			),
 			'public' => true,
 			'publicly_queryable' => true,
@@ -985,7 +987,7 @@ function improveseo_builder_update()
 						}
 
 						if ($location) {
-							addGpsInfo($imageSrc, WP_CONTENT_DIR . '/' . $imagedir, $exif[2][$idx], $location->lng, $location->lat, 0, date('Y-m-d H:i:s'));
+							improveseo_addGpsInfo($imageSrc, WP_CONTENT_DIR . '/' . $imagedir, $exif[2][$idx], $location->lng, $location->lat, 0, date('Y-m-d H:i:s'));
 						}
 
 						$savedir = "/wp-content/$imagedir";

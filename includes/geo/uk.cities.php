@@ -1,4 +1,5 @@
 <?php
+ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
 /*
 $wpdb->query("INSERT INTO `{$wpdb->prefix}improveseo_uk_cities` (`id`, `region_id`, `name`, `postcode`, `latitude`, `longitude`) VALUES
 	(1, 1, 'Aberdeen', 'AB10', 57.13514, -2.11731);");

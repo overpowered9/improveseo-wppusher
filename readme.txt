@@ -8,7 +8,6 @@ Stable tag: 2.0.12
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Creates a large number of pages/posts and customize them to rank in Google.
 
 == Description ==
 
@@ -19,25 +18,46 @@ Creates a large number of pages/posts and customize them to rank in Google.
 * PHP 7.0+
 * WordPress 6.0+
 
-== Installation ==
 
-1. Upload the plugin files to the `/wp-content/plugins/` directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress
+= Installation =
 
-== Frequently Asked Questions ==
+Upload the ImproveSEO plugin to your wordpress, activate it.
 
-= Does this require an SSL certificate? =
+= Third-Party Services =
+= YouTube Embedded Videos =
 
-Yes! An SSL certificate must be installed on your site to use the plugin.
+In the `modules/shortcodes.php` file, we embed YouTube videos using an iframe. The iframe source is set to `http://www.youtube.com`, which is a third-party service.
 
-= Where can I get support or talk to other users? =
 
-If you get stuck, you can ask for help in the [Plugin Forum](https://wordpress.org/support/plugin/improveseo/)
+= Google Maps API =
 
-== Screenshots ==
+In the modules/builder.php and modules/googlemaps.php files, we utilize the Google Maps API to geocode addresses and embed maps.
 
-== Changelog ==
+DOMAIN = https://maps.googleapis.com
 
-== Upgrade Notice ==
+= Google Autocomplete Suggestions =
 
-This release has been tested with the latest version of WordPress and adds blocks that can be used to protect content.
+In the ImproveSEO/views/features/keyword.php file, we make use of the Google Autocomplete API to fetch search suggestions.
+
+DOMAIN = https://suggestqueries.google.com/complete/search
+
+= YouTube Video Scraper =
+
+In the ImproveSEO/assets/js/videoscraper.js file, we scrape YouTube video data using the YouTube Data API.
+
+DOMAIN = https://www.googleapis.com
+
+= Vimeo Video Embedding =
+
+In the ImproveSEO/modules/videos.php file, we embed Vimeo videos using the Vimeo Player API.
+
+DOMAIN = https://player.vimeo.com/api/player.js
+
+
+= Check plugin version =
+
+following domain has been used for update the plugin 
+
+DOMAIN = http://www.dexblog.net.
+
+

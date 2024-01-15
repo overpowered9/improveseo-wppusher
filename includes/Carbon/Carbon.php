@@ -1,5 +1,5 @@
 <?php
-
+ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
 /*
  * This file is part of the Carbon package.
  *

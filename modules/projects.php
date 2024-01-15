@@ -5,14 +5,16 @@ use ImproveSEO\Validator;
 use ImproveSEO\Models\Task;
 use ImproveSEO\FlashMessage;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
 
 function improveseo_projects()
 {
 	global $wpdb;
 
-	$action = isset($_GET['action']) ? $_GET['action'] : 'index';
-	$limit = isset($_GET['limit']) ? $_GET['limit'] : 20;
-	$offset = isset($_GET['paged']) ? $_GET['paged'] * $limit - $limit : 0;
+	$action = isset($_GET['action']) ? sanitize_text_field($_GET['action']) : 'index';
+	$limit = isset($_GET['limit']) ? intval($_GET['limit']) : 20;
+	$offset = isset($_GET['paged']) ? max(0, intval($_GET['paged']) * $limit - $limit) : 0;
+	
 	$model = new Task();
 
 
@@ -174,7 +176,7 @@ function improveseo_projects()
 		$id = $_GET['id'];
 		$project_name = sanitize_title_with_dashes($_GET['name']);
 
-		@set_time_limit(0);
+		
 
 		$urls = "";
 		$posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
@@ -212,7 +214,7 @@ function improveseo_projects()
 		$id = $_GET['id'];
 		$project_name = sanitize_title_with_dashes($_GET['name']);
 
-		@set_time_limit(0);
+		
 
 		$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_tasks where id = %s", $id));
 
@@ -241,7 +243,7 @@ function improveseo_projects()
 
 		$id = $_GET['id'];
 
-		@set_time_limit(0);
+		
 
 		$urls = [];
 		$posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));

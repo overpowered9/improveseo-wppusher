@@ -1,5 +1,7 @@
 <?php
-	$saved_random_nos = get_option('get_saved_random_numbers');
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
+
+	$saved_random_nos = get_option('improveseo_get_saved_random_numbers');
 	
 	$search_shortcode = isset($_GET['search_shortcode']) ? $_GET['search_shortcode'] : '';
 	$search_shortcode_type = isset($_GET['search-shortcode-type']) ? $_GET['search-shortcode-type'] : array();
@@ -73,7 +75,7 @@
 <div class="cm-admin improveseo_wrapper p-3 p-lg-4">
 	<section class="project-section">
 		<div class="project-heading border-bottom d-flex flex-row pb-2">
-			<img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
+			<img class="mr-2" src="<?php echo IMPROVESEO_WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
 			<h1>ImproveSEO</h1>
 		</div>
 	</section>

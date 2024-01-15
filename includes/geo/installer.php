@@ -1,4 +1,5 @@
 <?php
+ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
 use ImproveSEO\Models\Country;
 use ImproveSEO\Models\GeoData;
 
@@ -107,7 +108,7 @@ dbDelta ( $sql );
  */
 $basepath = dirname ( __FILE__ );
 /*
- * @set_time_limit(0);
+ * 
  *
  * // Download all geo files
  *

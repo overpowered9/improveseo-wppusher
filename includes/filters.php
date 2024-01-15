@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
+
 use ImproveSEO\Storage;
 
 add_filter('wp_title', 'improveseo_seo_title');
@@ -102,7 +104,7 @@ function improveseo_the_content_filter($content) {
 	return $content;
 }
 
-function change_blog_links($post_link, $id = 0){
+function improveseo_change_blog_links($post_link, $id = 0){
 	$post = get_post($id);
  
 	$storage = new Storage('improveseo');

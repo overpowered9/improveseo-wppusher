@@ -14,6 +14,10 @@ use lsolesen\pel\PelEntryAscii;
 use lsolesen\pel\PelEntryRational;
 use lsolesen\pel\PelEntryUserComment;
 
+
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
+
 function improveseo_configured() {
 	return defined('DISABLE_WP_CRON');
 }
@@ -395,8 +399,8 @@ function improveseo_check_dir($dir) {
 	}
 }
 
-if (!function_exists('isJSON')) {
-	function isJSON($string){
+if (!function_exists('improveseo_isJSON')) {
+	function improveseo_isJSON($string){
 		return is_string($string) && is_array(json_decode($string, true)) && (json_last_error() == JSON_ERROR_NONE) ? true : false;
 	}
 }
@@ -485,7 +489,7 @@ if (!function_exists('addGpsInfo')) {
 	 * @param
 	 *            string the date and time.
 	 */
-	function addGpsInfo($input, $output, $description, $longitude, $latitude, $altitude, $date_time) {
+	function improveseo_addGpsInfo($input, $output, $description, $longitude, $latitude, $altitude, $date_time) {
 	    /* Load the given image into a PelJpeg object */
 	    $jpeg = new PelJpeg($input);
 
@@ -605,7 +609,7 @@ function improveseo_addHttp($url) {
     return $url;
 }
 
-function test_spintax(){
+function improveseo_test_spintax(){
 	$string = '{Best|Top|Reliable} Brick And Stone Contractor Chimayo, NM | Rakso Construction';
 	//$string = 'The {best|good|amazing} spintax {tool|generator} &#124; test';
 	//$string = 'I {love {PHP|Java|C|C++|JavaScript|Python} | hate {Ruby|PP}}';
@@ -614,4 +618,4 @@ function test_spintax(){
 	echo $text;
 	die;
 }
-//add_action('init', 'test_spintax');
+//add_action('init', 'improveseo_test_spintax');

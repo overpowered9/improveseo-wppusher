@@ -20,6 +20,6 @@
 	$google_api_key = get_option('improveseo_google_api_key');
 	if ($google_api_key):
 ?>
-<script src="//maps.googleapis.com/maps/api/js?key=<?= $google_api_key ?>&callback=ImageEXIF.initMap"
+<script src="//maps.googleapis.com/maps/api/js?key=<?php echo $google_api_key ?>&callback=ImageEXIF.initMap"
     async defer></script>
 <?php endif; ?>

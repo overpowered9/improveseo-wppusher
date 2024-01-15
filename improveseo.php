@@ -1,19 +1,28 @@
 <?php
 /**
  * Plugin Name: ImproveSEO
- * Plugin URI: 
  * Description: Creates a large number of pages/posts and customize them to rank in Google.
  * Author: Improve SEO Team
  * Version: 2.0.12
+ * License: GPLv3
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ * Text Domain: improve-seo
+ * Domain Path: /languages
  */
+
+
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
 
 define("IMPROVESEO_VERSION", "2.0.12");
 define('IMPROVESEO_ROOT', dirname(__FILE__));
 define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url( __FILE__ )));
 
 
-define( 'WT_PATH', untrailingslashit(plugin_dir_path( __FILE__ )) );
-define( 'WT_URL' ,  untrailingslashit(plugin_dir_url( __FILE__ )) );
+define( 'IMPROVESEO_WT_PATH', untrailingslashit(plugin_dir_path( __FILE__ )) );
+define( 'IMPROVESEO_WT_URL' ,  untrailingslashit(plugin_dir_url( __FILE__ )) );
+
+load_plugin_textdomain('improve-seo', false, basename(dirname(__FILE__)) . '/languages/');
 
 /* 
 **========== Files Load =========== 
@@ -41,8 +50,8 @@ add_filter('jpeg_quality', function($arg){return 75;});
 
 
 //adding buttons to content editor
-add_action('media_buttons', 'add_my_media_button');
-function add_my_media_button() {
+add_action('media_buttons', 'improveseo_media_button');
+function improveseo_media_button() {
 
 	if(function_exists('get_current_screen')){ 
 
@@ -60,7 +69,7 @@ function add_my_media_button() {
                     <option value="addshortcode">Add Shortcode</option>
                     <option value="list">Lists</option>
              </select> &nbsp;';
-    $saved_rnos =  get_option('get_saved_random_numbers');
+    $saved_rnos =  get_option('improveseo_get_saved_random_numbers');
     
 	if(!empty($saved_rnos)){
 		foreach($saved_rnos as $id){
@@ -120,7 +129,7 @@ function add_my_media_button() {
 	}
 	
 
-    $seo_list = improve_seo_lits();
+    $seo_list = improveseo_lits();
     if(!empty($seo_list)){
         foreach($seo_list as $li){
             $html .= '<button data-action="list" class="sw-hide-btn add-seolistshortcode button" id='.$li.'>@list:'.$li.'</button>';
@@ -130,7 +139,7 @@ function add_my_media_button() {
     echo $html;
 }
 
-function improve_seo_lits(){
+function improveseo_lits(){
 
     global $wpdb;
     $list_names = array();
@@ -143,11 +152,11 @@ function improve_seo_lits(){
     
 }
 
-add_action('init' , 'updating_post_status_to_publish');
-function updating_post_status_to_publish(){
+add_action('init' , 'improveseo_updating_post_status_to_publish');
+function improveseo_updating_post_status_to_publish(){
     
     // improveseo_project_id
-    wp_enqueue_style('tmm_stlye_css', WT_URL."/assets/css/wt-style.css",  true);
+    wp_enqueue_style('tmm_stlye_css', IMPROVESEO_WT_URL."/assets/css/wt-style.css",  true);
     $args = array(
         'post_status' => array('future')    
     );
@@ -175,14 +184,14 @@ function updating_post_status_to_publish(){
         $date_op    = new DateTime($post_date);
         
         if ($date_now > $date_op) {
-            change_post_status($post_id,$status='publish');
+            improveseo_change_post_status($post_id,$status='publish');
         }
     }
      
 }
 
 //change the post status
-function change_post_status($post_id,$status){
+function improveseo_change_post_status($post_id,$status){
     $current_post = get_post( $post_id, 'ARRAY_A' );
     $current_post['post_status'] = $status;
     wp_update_post($current_post);
@@ -192,10 +201,10 @@ function change_post_status($post_id,$status){
 function workdex_init(){
 	
 	global $wpdb;
-	$time = get_option("work_dex_schedule");
+	$time = get_option("improveseo_work_dex_schedule");
 	if($time<(time()-3600*12)){
 		$wpdb->query ( "UPDATE ".$wpdb->posts." SET post_status='publish' WHERE post_date<=now() and post_date_gmt<=now()" );
-		update_option("work_dex_schedule",time());
+		update_option("improveseo_work_dex_schedule",time());
 	}
 }
 
@@ -231,41 +240,34 @@ function improveseo_check_for_update($transient)
 /**
  * Api handler
  */
-function improveseo_api($action, $arg) {
-	$id_last = get_option ( "dexscan_last_id" );
-	$url = 'http://api-dexsecurity.dexblog.net/api.php?action=' . $action . '&host=' . $_SERVER ["HTTP_HOST"] . "&id_scan=" . $id_last;
+function improveseo_api($action, $arg)
+{
+	$id_last = get_option("dexscan_last_id");
+	$url = 'http://api-dexsecurity.dexblog.net/api.php?action=' . $action . '&host=' . $_SERVER["HTTP_HOST"] . "&id_scan=" . $id_last;
+
 	if ($action == "getdata") {
-		$ids = dexscan_save_file_backup ( $arg );
-		$arg ['id_save'] = $ids;
+		$ids = dexscan_save_file_backup($arg);
+		$arg['id_save'] = $ids;
 	}
-	if (ini_get ( 'allow_url_fopen' )) {
-		$options = array (
-				'http' => array (
-						'header' => "Content-type: application/x-www-form-urlencoded\r\n",
-						'method' => 'POST',
-						'content' => http_build_query ( $arg )
-				)
-		);
-		$context = stream_context_create ( $options );
-		$result = @file_get_contents ( $url, false, $context );
-	} else {
-		if (_is_curl_installed ()) {
-			foreach ( $arg as $key => $value ) {
-				$fields_string .= $key . '=' . $value . '&';
-			}
-			rtrim ( $fields_string, '&' );
-			$ch = curl_init ();
-			curl_setopt ( $ch, CURLOPT_URL, $url );
-			curl_setopt ( $ch, CURLOPT_POST, count ( $fields ) );
-			curl_setopt ( $ch, CURLOPT_POSTFIELDS, $fields_string );
-			curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
-			$result = curl_exec ( $ch );
-			curl_close ( $ch );
-		}
+
+	$response = wp_safe_remote_post($url, array(
+		'body'    => $arg,
+		'headers' => array(
+			'Content-Type' => 'application/x-www-form-urlencoded',
+		),
+	));
+
+	if (is_wp_error($response)) {
+		// Handle error if needed
+		return false;
 	}
-	$da = json_decode ( $result );
+
+	$result = wp_remote_retrieve_body($response);
+	$da = json_decode($result);
+
 	return $da;
 }
+
 function improveseo_check_version() {
 	$lastupdate = get_option ( "improveseo_lastcheck" );
 	if ($lastupdate < (time () - 600)) {
@@ -284,7 +286,7 @@ function improveseo_check_version() {
 }
 
 /*check curl install or not*/
-function _is_curl_installed() {
+function improveseo_curl_installed() {
     if  (in_array  ('curl', get_loaded_extensions())) {
         return true;
     }
@@ -320,7 +322,7 @@ function improveseo_hide_other_notices() {
     }
 }
 
-class WC_Testimonial {
+class Improveseo_Testimonial {
 	
 	function __construct() {
 		
@@ -404,12 +406,12 @@ class WC_Testimonial {
 	    update_option('swsaved_keywords_with_results_'.$rand_no , $save_keyword_data);
 	    
 	    		//saving random numbers too
-		$random_no_arr = get_option('swsaved_random_nosofkeywords');
+		$random_no_arr = get_option('improveseo_swsaved_random_nosofkeywords');
 
 		$random_no_arr[] = $rand_no;
 		$result = array_unique($random_no_arr);
 		
-		update_option('swsaved_random_nosofkeywords' , $result );
+		update_option('improveseo_swsaved_random_nosofkeywords' , $result );
 	    
 	    $args = array(
 	            'status' => 'success',
@@ -606,12 +608,12 @@ class WC_Testimonial {
 			return;
 		}
 
-		$saved_random_nos = get_option('get_saved_random_numbers');
+		$saved_random_nos = get_option('improveseo_get_saved_random_numbers');
 		if (in_array($no_tobe_dlt, $saved_random_nos)) {
 
 			delete_option('get_testimonials_'.$no_tobe_dlt);
 			$result = $this->delete_el_from_array($saved_random_nos , $no_tobe_dlt);
-			update_option('get_saved_random_numbers' , $result);
+			update_option('improveseo_get_saved_random_numbers' , $result);
 			
 			$url_param = array(
 			    'action' => 'deleted'
@@ -633,13 +635,13 @@ class WC_Testimonial {
 			return;
 		}
 
-		$saved_random_nos = get_option('swsaved_random_nosofkeywords');
+		$saved_random_nos = get_option('improveseo_swsaved_random_nosofkeywords');
 		if (in_array($no_tobe_dlt, $saved_random_nos)) {
 
 			delete_option('swsaved_keywords_with_results_'.$no_tobe_dlt);
 			$result = $this->delete_el_from_array($saved_random_nos , $no_tobe_dlt);
 			
-			update_option('swsaved_random_nosofkeywords' , $result);
+			update_option('improveseo_swsaved_random_nosofkeywords' , $result);
 			wp_send_json(array('status'=>'success'));
 		}
 
@@ -656,10 +658,10 @@ class WC_Testimonial {
 
 	/****=====Load Admin JS And CSS files====***/
 	function load_admin_files(){
-		wp_enqueue_style('improveseo_style', WT_URL."/assets/css/improveseo_style.css",  array(), '1.1');
+		wp_enqueue_style('improveseo_style', IMPROVESEO_WT_URL."/assets/css/improveseo_style.css",  array(), '1.1');
 		wp_enqueue_style("poppins_fonts", "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
-		wp_enqueue_script('tmm_script_js', WT_URL."/assets/js/wt-script.js",  array('jquery'), IMPROVESEO_VERSION, true);
-		wp_enqueue_script('tmm_sweeetalertscript_js', WT_URL."/assets/js/wt-sweetalert.js",  array('jquery'));
+		wp_enqueue_script('tmm_script_js', IMPROVESEO_WT_URL."/assets/js/wt-script.js",  array('jquery'), IMPROVESEO_VERSION, true);
+		wp_enqueue_script('tmm_sweeetalertscript_js', IMPROVESEO_WT_URL."/assets/js/wt-sweetalert.js",  array('jquery'));
 
 	    wp_localize_script('tmm_script_js', 'ajax_vars', array(
 	    	'ajax_url'      		=> 	admin_url( 'admin-ajax.php' ),
@@ -710,11 +712,11 @@ class WC_Testimonial {
 		update_option('get_buttons_'.$rand_no , $arr);
 
 		//saving random numbers too
-		$random_no_arr = get_option('get_saved_random_numbers');
+		$random_no_arr = get_option('improveseo_get_saved_random_numbers');
 
 		$random_no_arr[] = $rand_no;
 		$result = array_unique($random_no_arr);
-		update_option('get_saved_random_numbers' , $result );
+		update_option('improveseo_get_saved_random_numbers' , $result );
 		$url = admin_url('admin.php?page=improveseo_shortcodes');
 		wp_send_json(array('status' => 'success' , 'url' => $url));
 		die;
@@ -738,11 +740,11 @@ class WC_Testimonial {
 		update_option('get_googlemaps_'.$rand_no , $arr);
 
 		//saving random numbers too
-		$random_no_arr = get_option('get_saved_random_numbers');
+		$random_no_arr = get_option('improveseo_get_saved_random_numbers');
 
 		$random_no_arr[] = $rand_no;
 		$result = array_unique($random_no_arr);
-		update_option('get_saved_random_numbers' , $result );
+		update_option('improveseo_get_saved_random_numbers' , $result );
 		$url = admin_url('admin.php?page=improveseo_shortcodes');
 		wp_send_json(array('status' => 'success' , 'url' => $url));
 		die;
@@ -780,11 +782,11 @@ class WC_Testimonial {
 		update_option('get_testimonials_'.$rand_no , $arr);
 
 		//saving random numbers too
-		$random_no_arr = get_option('get_saved_random_numbers');
+		$random_no_arr = get_option('improveseo_get_saved_random_numbers');
 
 		$random_no_arr[] = $rand_no;
 		$result = array_unique($random_no_arr);
-		update_option('get_saved_random_numbers' , $result );
+		update_option('improveseo_get_saved_random_numbers' , $result );
 		
 		$url = admin_url('admin.php?page=improveseo_shortcodes');
 		wp_send_json(array('status' => 'success' , 'url' => $url));
@@ -847,11 +849,11 @@ class WC_Testimonial {
 		update_option('get_videos_'.$rand_no , $arr);
 
 		//saving random numbers too
-		$random_no_arr = get_option('get_saved_random_numbers');
+		$random_no_arr = get_option('improveseo_get_saved_random_numbers');
 
 		$random_no_arr[] = $rand_no;
 		$result = array_unique($random_no_arr);
-		update_option('get_saved_random_numbers' , $result );
+		update_option('improveseo_get_saved_random_numbers' , $result );
 
 		$url = admin_url('admin.php?page=improveseo_shortcodes');
 		wp_send_json(array('status' => 'success' , 'url' => $url));
@@ -873,11 +875,11 @@ class WC_Testimonial {
 	/****=======load files on frontend page======****/
 	function load_script_style_files(){
 		
-		wp_enqueue_style('tmm_stlye_css', WT_URL."/css/wt-style.css",  true);
-		wp_enqueue_script('tmm_script_js', WT_URL."/js/wt-script.js",  array('jquery'), IMPROVESEO_VERSION, true);
+		wp_enqueue_style('tmm_stlye_css', IMPROVESEO_WT_URL."/css/wt-style.css",  true);
+		wp_enqueue_script('tmm_script_js', IMPROVESEO_WT_URL."/js/wt-script.js",  array('jquery'), IMPROVESEO_VERSION, true);
 
 		//sweet alert
-		wp_enqueue_script('tmm_sweetalerttt', WT_URL."/js/wt-sweetalert.js",  array('jquery'));
+		wp_enqueue_script('tmm_sweetalerttt', IMPROVESEO_WT_URL."/js/wt-sweetalert.js",  array('jquery'));
 	    wp_localize_script('tmm_script_js', 'ajax_vars', array(
 	    	'ajax_url'      		=> 	admin_url( 'admin-ajax.php' ),
 	    	)
@@ -886,4 +888,4 @@ class WC_Testimonial {
 	}
 
 }
-new WC_Testimonial;
+new Improveseo_Testimonial;
