@@ -119,7 +119,7 @@ function improveseo_shortcodes()
 			exit;
 		}
 
-		$id = $model->create($_POST);
+		$id = $model->create(compact('shortcode','content'));
 
 		FlashMessage::success('Shortcode created.');
 		wp_redirect(admin_url('admin.php?page=improveseo_shortcodes'));
@@ -145,7 +145,7 @@ function improveseo_shortcodes()
 			exit;
 		}
 
-		$model->update($_POST, $id);
+		$model->update(compact('shortcode','content'), $id);
 
 		FlashMessage::success('Shortcode updated.');
 		wp_redirect(admin_url("admin.php?page=improveseo_shortcodes&action=edit&id={$id}"));

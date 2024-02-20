@@ -33,7 +33,8 @@ function improveseo_projects()
 	if (isset($_POST['submit'])) {
 
 
-		if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'import_project_nonce')) {
+	
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['_wpnonce'] ) ) , 'import_project_nonce' ) ){
 			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
 			exit();
 		}
@@ -203,7 +204,7 @@ function improveseo_projects()
 			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
 		}
 
-		wt_load_templates('import-export.php');
+		improveseo_wt_load_templates('import-export.php');
 		$exportRecords = new improveseo_import_export();
 		$exportRecords->export($data, 'all-project');
 

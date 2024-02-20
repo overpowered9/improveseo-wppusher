@@ -1,6 +1,7 @@
 <?php
 
 namespace ImproveSEO;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Spintax
 {

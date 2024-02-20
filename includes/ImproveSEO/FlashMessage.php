@@ -3,6 +3,7 @@
 namespace ImproveSEO;
 
 use ImproveSEO\View;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 class FlashMessage
 {

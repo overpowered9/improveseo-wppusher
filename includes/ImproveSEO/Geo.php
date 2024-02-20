@@ -3,6 +3,7 @@
 namespace ImproveSEO;
 
 use ImproveSEO\Models\GeoData;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Geo
 {

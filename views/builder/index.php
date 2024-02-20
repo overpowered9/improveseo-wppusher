@@ -1,6 +1,8 @@
 <?php
 
 use ImproveSEO\View;
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 ?>
 
 <?php View::startSection('breadcrumbs') ?>

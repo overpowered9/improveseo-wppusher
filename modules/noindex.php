@@ -1,6 +1,7 @@
 <?php
 use ImproveSEO\View;
 use ImproveSEO\FlashMessage;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 function improveseo_noindex() {
     global $wpdb;

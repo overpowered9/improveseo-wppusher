@@ -1,4 +1,7 @@
-<?php use ImproveSEO\Validator; ?>
+<?php use ImproveSEO\Validator; 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
+?>
 
 <div class="BasicForm__row<?php echo Validator::hasError('name') ? ' PostForm--error' : ''; ?>">
     <label class="form-label"><?php esc_html_e('Shortcode Name', 'improve-seo'); ?></label>

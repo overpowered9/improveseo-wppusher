@@ -58,8 +58,16 @@ function improveseo_create_posttypes() {
 			register_post_type($type,
 				array(
 					'labels' => array(
-						'name' => __(ucfirst($type)),
-						'singular_name' => __(ucfirst($type))
+						'name' =>printf(
+							/* translators: %s: Name of a city */
+							esc_html__( '%s.', 'improve-seo' ),
+							esc_html(ucfirst($type))
+					  ),
+						'singular_name' => printf(
+							/* translators: %s: Name of a city */
+							esc_html__( '%s.', 'improve-seo' ),
+							esc_html(ucfirst($type))
+					  )
 					),
 					'public' => true,
 					'publicly_queryable' => true,

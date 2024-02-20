@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 function improveseo_testimonials_settings(){
 	$ob = new Improveseo_Testimonial;
 	$ob->general_admin_notice();
-    wt_load_templates('cm-admin-settings.php');
+    improveseo_wt_load_templates('cm-admin-settings.php');
 }
 
 

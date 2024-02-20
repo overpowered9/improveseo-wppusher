@@ -23,6 +23,7 @@
  * Boston, MA 02110-1301 USA
  */
 namespace lsolesen\pel;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Routines for converting back and forth between bytes and integers.

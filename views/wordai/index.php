@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; ?>
 <div class="PixabayWrap">
 	<div class="Pixabay__body">
 		<p>

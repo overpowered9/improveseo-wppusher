@@ -127,16 +127,16 @@ function improveseo_get_lists_from_text($fields) {
 }
 
 function improveseo_count_list_items($fields) {
-	$lists = improveseo_get_lists_from_text($fields);
+	$sizes = improveseo_get_lists_from_text($fields);
 
-	if (sizeof($lists) == 0) {
+	if (sizeof($sizes) == 0) {
 		return 0;
 	}
 
 	$items = 0;
 
-	foreach ($lists as $list) {
-		$items = max($items, $list->size);
+	foreach ($sizes as $size) {
+		$items = max($items, $size);
 	}
 
 	return $items;
@@ -405,7 +405,7 @@ if (!function_exists('improveseo_isJSON')) {
 	}
 }
 
-if (!function_exists('convertDecimalToDMS')) {
+if (!function_exists('improveseo_convertDecimalToDMS')) {
 	/**
 	 * Convert a decimal degree into degrees, minutes, and seconds.
 	 *
@@ -418,7 +418,7 @@ if (!function_exists('convertDecimalToDMS')) {
 	 *         PelEntryRational. If the degree is outside the allowed interval,
 	 *         null is returned instead.
 	 */
-	function convertDecimalToDMS($degree)
+	function improveseo_convertDecimalToDMS($degree)
 	{
 	    if ($degree > 180 || $degree < - 180) {
 	        return null;
@@ -530,10 +530,10 @@ if (!function_exists('addGpsInfo')) {
 	    $gps_ifd->addEntry(new PelEntryByte(PelTag::GPS_VERSION_ID, 2, 2, 0, 0));
 
 	    /*
-	     * Use the convertDecimalToDMS function to convert the latitude from
+	     * Use the improveseo_convertDecimalToDMS function to convert the latitude from
 	     * something like 12.34пїЅ to 12пїЅ 20' 42"
 	     */
-	    list ($hours, $minutes, $seconds) = convertDecimalToDMS($latitude);
+	    list ($hours, $minutes, $seconds) = improveseo_convertDecimalToDMS($latitude);
 
 	    /* We interpret a negative latitude as being south. */
 	    $latitude_ref = ($latitude < 0) ? 'S' : 'N';
@@ -542,7 +542,7 @@ if (!function_exists('addGpsInfo')) {
 	    $gps_ifd->addEntry(new PelEntryRational(PelTag::GPS_LATITUDE, $hours, $minutes, $seconds));
 
 	    /* The longitude works like the latitude. */
-	    list ($hours, $minutes, $seconds) = convertDecimalToDMS($longitude);
+	    list ($hours, $minutes, $seconds) = improveseo_convertDecimalToDMS($longitude);
 	    $longitude_ref = ($longitude < 0) ? 'W' : 'E';
 
 	    $gps_ifd->addEntry(new PelEntryAscii(PelTag::GPS_LONGITUDE_REF, $longitude_ref));

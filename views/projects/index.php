@@ -1,7 +1,7 @@
 <?php
 
 use ImproveSEO\View;
-
+if ( ! defined( 'ABSPATH' ) ) exit;
 if (isset($_GET['post_preview'])) {
 	if ($_GET['post_preview'] == 'true') {
 		$project = $projects[0];
@@ -16,7 +16,7 @@ if (isset($_GET['post_preview'])) {
 
 ?>
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?= esc_url(admin_url('admin.php?page=improveseo_dashboard')) ?>"><?php esc_html_e('Improve SEO', 'improve-seo') ?></a>
+<a href="<?php echo  esc_url(admin_url('admin.php?page=improveseo_dashboard')) ?>"><?php esc_html_e('Improve SEO', 'improve-seo') ?></a>
 &raquo;
 <span><?php esc_html_e('Projects List', 'improve-seo') ?></span>
 <?php View::endSection('breadcrumbs') ?>
@@ -41,16 +41,16 @@ if (isset($_GET['post_preview'])) {
 			<h1><?php esc_html_e('Projects List', 'improve-seo'); ?></h1>
 		</div>
 		<div class="action-buttons">
-			<a onclick="return confirm('<?php esc_attr_e('Are you sure you want to export all items?', 'improve-seo'); ?>');" href="<?= admin_url('admin.php?page=improveseo_projects&action=export_all_project&noheader=true') ?>" class="btn btn-outline-primary btn-small" id="exportProject"><?php esc_html_e('Export All Project', 'improve-seo'); ?></a>
+			<a onclick="return confirm('<?php esc_attr_e('Are you sure you want to export all items?', 'improve-seo'); ?>');" href="<?php echo  admin_url('admin.php?page=improveseo_projects&action=export_all_project&noheader=true') ?>" class="btn btn-outline-primary btn-small" id="exportProject"><?php esc_html_e('Export All Project', 'improve-seo'); ?></a>
 			<a href="#" class="btn btn-outline-primary btn-small" id="importProject"><?php esc_html_e('Import', 'improve-seo'); ?></a>
 			<a onclick="return confirm('<?php esc_attr_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');" href="javascript:void()" class="btn btn-outline-primary btn-small" id="exportProject"><?php esc_html_e('Export All Project', 'improve-seo'); ?></a>
 			<a href="javascript:void()" class="btn btn-outline-primary btn-small" onclick="return confirm('<?php esc_attr_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');" id="importProject"><?php esc_html_e('Import', 'improve-seo'); ?></a>
-			<a href="<?= admin_url('admin.php?page=improveseo_posting') ?>" class="btn btn-outline-primary btn-small" id="btn-add"><?php esc_html_e('Add New', 'improve-seo'); ?></a>
+			<a href="<?php echo  admin_url('admin.php?page=improveseo_posting') ?>" class="btn btn-outline-primary btn-small" id="btn-add"><?php esc_html_e('Add New', 'improve-seo'); ?></a>
 		</div>
 	</section>
 	<section class="pagination-wrapper text-right py-3">
 		<span class="pagination-links">
-			<?= paginate_links(array(
+			<?php echo  paginate_links(array(
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
@@ -109,50 +109,50 @@ if (isset($_GET['post_preview'])) {
 
 					<tbody>
 						<?php foreach ($projects as $project) : ?>
-							<tr <?= $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
+							<tr <?php echo  $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
 								<td><input id="cb-select-<?php echo $project->id; ?>" type="checkbox" name="project_ids[]" value="<?php echo $project->id; ?>"></td>
 								<td scope="col" class="column-title column-primary has-row-actions">
 									<strong>
-										<a href="javascript:void(0)" class="primary"><?= esc_html($project->name) ?></a>
+										<a href="javascript:void(0)" class="primary"><?php echo  esc_html($project->name) ?></a>
 									</strong>
 									<div class="row-actions">
 										<span class="edit">
-											<a class="ct-btn btn btn-outline-primary" href="<?= esc_url(admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&name={$project->name}&noheader=true")) ?>">
-												<?= esc_html__('Export a list of all posts/pages URLs', 'your-text-domain') ?>
+											<a class="ct-btn btn btn-outline-primary" href="<?php echo  esc_url(admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&name={$project->name}&noheader=true")) ?>">
+												<?php echo  esc_html__('Export a list of all posts/pages URLs', 'your-text-domain') ?>
 											</a>
 										</span>
 										<span class="edit">
-											<a class="ct-btn btn btn-outline-primary" href="<?= esc_url(admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true")) ?>">
-												<?= esc_html__('Update posts', 'your-text-domain') ?>
+											<a class="ct-btn btn btn-outline-primary" href="<?php echo  esc_url(admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true")) ?>">
+												<?php echo  esc_html__('Update posts', 'your-text-domain') ?>
 											</a>
 										</span>
 										<span class="edit">
-											<a class="ct-btn btn btn-outline-primary" href="<?= esc_url(admin_url('admin.php?page=improveseo_projects&action=duplicate&id=' . $project->id . '&noheader=true')) ?>">
-												<?= esc_html__('Duplicate project', 'your-text-domain') ?>
+											<a class="ct-btn btn btn-outline-primary" href="<?php echo  esc_url(admin_url('admin.php?page=improveseo_projects&action=duplicate&id=' . $project->id . '&noheader=true')) ?>">
+												<?php echo  esc_html__('Duplicate project', 'your-text-domain') ?>
 											</a>
 										</span>
 										<span class="edit">
-											<a class="ct-btn btn btn-outline-primary" href="<?= esc_url(admin_url('admin.php?page=improveseo_projects&action=stop&id=' . $project->id . '&noheader=true')) ?>">
-												<?= esc_html__('Stop process', 'your-text-domain') ?>
+											<a class="ct-btn btn btn-outline-primary" href="<?php echo  esc_url(admin_url('admin.php?page=improveseo_projects&action=stop&id=' . $project->id . '&noheader=true')) ?>">
+												<?php echo  esc_html__('Stop process', 'your-text-domain') ?>
 											</a>
 										</span>
 										<span class="edit">
-											<a class="ct-btn btn btn-outline-primary" onclick="return confirm('<?= esc_html__('Please purchase the Pro version to access this feature and many more..', 'your-text-domain') ?>');" href="javascript:void()">
-												<?= esc_html__('Export Project', 'your-text-domain') ?>
+											<a class="ct-btn btn btn-outline-primary" onclick="return confirm('<?php echo  esc_html__('Please purchase the Pro version to access this feature and many more..', 'your-text-domain') ?>');" href="javascript:void()">
+												<?php echo  esc_html__('Export Project', 'your-text-domain') ?>
 											</a>
 										</span>
 										<span class="trash">
-											<a class="del-btn btn btn-outline-danger" class="submitdelete" href="<?= esc_url(admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true')) ?>" onclick="return confirm('<?= esc_html__('This action will delete project and all generated posts/pages', 'your-text-domain') ?>')">
-												<?= esc_html__('Delete project and all posts/pages', 'your-text-domain') ?>
+											<a class="del-btn btn btn-outline-danger" class="submitdelete" href="<?php echo  esc_url(admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true')) ?>" onclick="return confirm('<?php echo  esc_html__('This action will delete project and all generated posts/pages', 'your-text-domain') ?>')">
+												<?php echo  esc_html__('Delete project and all posts/pages', 'your-text-domain') ?>
 											</a>
 										</span>
 										<span class="trash">
-											<a class="del-btn btn btn-outline-danger" class="submitdelete" href="<?= esc_url(admin_url('admin.php?page=improveseo_projects&action=delete_posts&id=' . $project->id . '&noheader=true')) ?>" onclick="return confirm('<?= esc_html__('This action will delete all generated posts/pages', 'your-text-domain') ?>')">
-												<?= esc_html__('Delete only posts/pages', 'your-text-domain') ?>
+											<a class="del-btn btn btn-outline-danger" class="submitdelete" href="<?php echo  esc_url(admin_url('admin.php?page=improveseo_projects&action=delete_posts&id=' . $project->id . '&noheader=true')) ?>" onclick="return confirm('<?php echo  esc_html__('This action will delete all generated posts/pages', 'your-text-domain') ?>')">
+												<?php echo  esc_html__('Delete only posts/pages', 'your-text-domain') ?>
 											</a>
 										</span>
 									</div>
-									<button type="button" class="toggle-row"><span class="screen-reader-text"><?= esc_html__('Show more details', 'your-text-domain') ?></span></button>
+									<button type="button" class="toggle-row"><span class="screen-reader-text"><?php echo  esc_html__('Show more details', 'your-text-domain') ?></span></button>
 								</td>
 
 								<td scope="col" data-colname="<?php esc_attr_e('Created Posts', 'improve-seo'); ?>"><?php echo esc_html($project->iteration); ?></td>
@@ -352,14 +352,14 @@ if (isset($_GET['post_preview'])) {
 	if (isset($_GET['build_posts_id'])) { ?>
 
 		<script type='text/javascript'>
-			update_project(<?= $_GET['build_posts_id'] ?>);
+			update_project(<?php echo  $_GET['build_posts_id'] ?>);
 		</script>
 
 	<?php } ?>
 
 	<section class="pagination-wrapper text-right">
 		<span class="pagination-links">
-			<?= paginate_links(array(
+			<?php echo  paginate_links(array(
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',

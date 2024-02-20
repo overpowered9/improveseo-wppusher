@@ -62,14 +62,14 @@ if (empty($saved_rand_nos_keywords)) {
 
                     $html .= '<td data-colname="Project Name">' . esc_html($kw_proj_name) . '</td>';
                     $html .= '<td class="actions-btn" data-colname="Actions">';
-                    $html .= '<span data-keyword_rand_id=' . esc_attr($keyowrd_id) . ' class="kw-download-kwproject wt-icons ct-btn btn btn-outline-primary mr-2">Save</span>';
-                    $html .= '<span data-keyword_rand_id=' . esc_attr($keyowrd_id) . ' style="color:red" class="kw-dlt-kwproject wt-icons del-btn btn btn-outline-danger">Remove</span>';
+                    $html .= sprintf('<span data-keyword_rand_id="%s" class="kw-download-kwproject wt-icons ct-btn btn btn-outline-primary mr-2">Save</span>', esc_attr($keyowrd_id));
+                    $html .= sprintf('<span data-keyword_rand_id="%s" style="color:red" class="kw-dlt-kwproject wt-icons del-btn btn btn-outline-danger">Remove</span>', esc_attr($keyowrd_id));
                     $html .= '</td>';
                     $html .= '</tr>';
 
                     $no++;
                 }
-                echo $html;
+                echo wp_kses($html);
                 ?>
             </tbody>
         </table>

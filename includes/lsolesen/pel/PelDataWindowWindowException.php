@@ -23,6 +23,7 @@
  * Boston, MA 02110-1301 USA
  */
 namespace lsolesen\pel;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * A container for bytes with a limited window of accessible bytes.

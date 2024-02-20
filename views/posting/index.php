@@ -1,7 +1,7 @@
 <?php
 
 use ImproveSEO\View;
-
+if ( ! defined( 'ABSPATH' ) ) exit;
 if (isset($_POST['cat_name'])) {
 	$cat_slug = sanitize_title($_POST['cat_name']);
 	wp_insert_term(
@@ -12,6 +12,7 @@ if (isset($_POST['cat_name'])) {
 		)
 	);
 }
+
 ?>
 
 <?php View::startSection('breadcrumbs') ?>

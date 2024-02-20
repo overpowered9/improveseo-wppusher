@@ -3,6 +3,9 @@
 use ImproveSEO\Validator;
 use ImproveSEO\Models\Country;
 
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 wp_enqueue_script('post');
 
 $inputProjectType = isset($task) ? $task->content['post_type'] : $post_type;
@@ -78,7 +81,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
 				<input type="hidden" name="is_preview_available" id="is_preview_available" value="no" />
 			</div>
 
-			<?php echo $site_link; ?>
+			<?php echo esc_url($site_link); ?>
 
 			<!-- HTML modal for preview button -->
 			<div id="preview_popup" class="modal" style="text-align:center">
@@ -203,7 +206,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
 								<?php esc_html_e('Maximum number of posts to generate. Input `0` if you want to generate all available posts from spintax.', 'improve-seo'); ?>
 							</span>
 						<div class="input-group">
-							<input type="number" id="max-posts" name="max_posts" class="form-control" value="<?php echo (Validator::old('max_posts', (int) $task->options['max_posts']) <= 0) ? '1' : (Validator::old('max_posts', (int) $task->options['max_posts'])); ?>" min="1" />
+							<input type="number" id="max-posts" name="max_posts" class="form-control" value="<?php echo (Validator::old('max_posts', (int) $task->options['max_posts']) <= 0) ? '1' : esc_attr(Validator::old('max_posts', (int) $task->options['max_posts'])); ?>" min="1" />
 						</div>
 						</p>
 
@@ -253,7 +256,8 @@ $googleApiKey = get_option('improveseo_google_api_key');
 								<label for="dripfeed-x" class="form-label"><?php esc_html_e('X Parameter:', 'improve-seo'); ?></label>
 								<input type="text" id="dripfeed-x" name="dripfeed_x" class="form-control" value="<?php echo Validator::old('dripfeed_x', $task->options['dripfeed_x']) ?>">
 								<?php if (Validator::hasError('dripfeed_x')) : ?>
-									<span class="PostForm__error"><?php echo Validator::get('dripfeed_x') ?></span>
+									<span class="PostForm__error"><?php echo esc_html(Validator::get('dripfeed_x')); ?></span>
+
 								<?php endif; ?>
 							</div>
 						</div>
@@ -531,7 +535,8 @@ $googleApiKey = get_option('improveseo_google_api_key');
 									<div class="input-group">
 										<label for="custom-title" class="form-label">Title</label>
 										<div class="input-prefix">
-											<input id="custom-title" name="custom_title" class="form-control" type="text" class="full-width form-control textarea-control" placeholder="Title" value="<?php echo Validator::old('custom_title', $task->options['custom_title']) ?>">
+											<input id="custom-title" name="custom_title" class="form-control full-width textarea-control" type="text" placeholder="<?php _e('Title', 'your-text-domain'); ?>" value="<?php echo esc_attr(Validator::old('custom_title', $task->options['custom_title'])); ?>">
+
 											<span>Ex.</span>
 										</div>
 										<div id="custom-title-error" style="display:none; color:red; margin-top:5px;">Your meta title contains more than 60 characters! <br />
@@ -579,18 +584,19 @@ $googleApiKey = get_option('improveseo_google_api_key');
 										$otherCountries = $countryModel->all('name');
 										?>
 										<select id="local-country" class="form-control" name="local_country">
-											<option value>- <?php esc_html_e('Select Country', 'improve-seo'); ?> -</option>
+											<option value=""><?php esc_html_e('Select Country', 'improve-seo'); ?></option>
 											<?php foreach ($countries as $short => $name) : ?>
-												<option value="<?php echo $short ?>" <?php echo Validator::old('local_geo_country', $task->options['local_geo_country']) == $short ? 'selected' : '' ?>>
-													<?php echo $name ?>
+												<option value="<?php echo esc_attr($short); ?>" <?php selected(Validator::old('local_geo_country', $task->options['local_geo_country']), $short); ?>>
+													<?php echo esc_html($name); ?>
 												</option>
 											<?php endforeach; ?>
 											<?php foreach ($otherCountries as $other) : ?>
-												<option value="<?php echo $other->id ?>">
-													<?php echo $other->name ?>
+												<option value="<?php echo esc_attr($other->id); ?>">
+													<?php echo esc_html($other->name); ?>
 												</option>
 											<?php endforeach; ?>
 										</select>
+
 									</div>
 									<div class="input-group">
 										<label><?php esc_html_e('Choose locations', 'improve-seo'); ?></label> <br>
@@ -664,8 +670,9 @@ $googleApiKey = get_option('improveseo_google_api_key');
 									<div class="input-group">
 										<label for="schema-rating-object" class="form-label"><?php esc_html_e('Rating Object', 'improve-seo'); ?></label>
 										<div class="input-prefix">
-											<input id="schema-rating-object" placeholder="<?php esc_attr_e('Rating Object', 'improve-seo'); ?>" name="schema_rating_object" type="text" class="full-width form-control" value="<?php echo Validator::old('schema_rating_object', $task->options['schema_rating_object']) ?>">
+											<input id="schema-rating-object" placeholder="<?php esc_attr_e('Rating Object', 'improve-seo'); ?>" name="schema_rating_object" type="text" class="full-width form-control" value="<?php echo esc_attr(Validator::old('schema_rating_object', $task->options['schema_rating_object'])); ?>">
 											<span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
+
 										</div>
 									</div>
 									<div class="input-group">

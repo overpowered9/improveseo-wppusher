@@ -25,6 +25,7 @@
 namespace lsolesen\pel;
 
 use \lsolesen\pel\Pel;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Classes for dealing with JPEG markers.

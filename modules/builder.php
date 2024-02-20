@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use ImproveSEO\View;
 use ImproveSEO\Spintax;
 use ImproveSEO\Storage;
@@ -10,7 +10,7 @@ use ImproveSEO\ChannelManager;
 use ImproveSEO\Models\Shortcode;
 
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
+if (!defined('ABSPATH')) exit; // Exit if accessed directly  
 
 /**
  * improveseo_builder
@@ -32,13 +32,10 @@ function improveseo_builder()
 
 	ob_start();
 	ignore_user_abort(true);
-	
+
 	session_write_close();
 
-	improveseo_debug_start();
-
-	;
-	;
+	improveseo_debug_start();;;
 
 	$id = $_GET['id'];
 
@@ -266,12 +263,13 @@ function improveseo_builder()
 
 		$titleText = Spintax::make($title, $titleIteration, $titleSpintax, false);
 		if ($geo)
-			$titleText = Spintax::geo($titleText, $geoData);
+			$titleText = esc_html(sanitize_text_field(Spintax::geo($titleText, $geoData)));
 
 		$contentText = $lite->process($content);
 
 		if ($geo)
-			$contentText = Spintax::geo($contentText, $geoData);
+			$contentText = esc_html(Spintax::geo(sanitize_text_field($contentText), $geoData));
+
 
 		// Images EXIF
 		if (isset($options['exif_locations'])) {
@@ -626,7 +624,7 @@ function improveseo_builder()
 
 	$model->update($update, $project->id);
 	if ($ajax == 1) {
-		echo $project->iteration;
+		echo esc_html(sanitize_text_field($project->iteration));
 		die();
 	} else {
 		View::render('builder.index');
@@ -679,13 +677,10 @@ function improveseo_builder_update()
 
 	ob_start();
 	ignore_user_abort(true);
-	
+
 	session_write_close();
 
-	improveseo_debug_start();
-
-	;
-	;
+	improveseo_debug_start();;;
 
 	$id = $_GET['id'];
 

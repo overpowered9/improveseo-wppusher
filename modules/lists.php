@@ -5,6 +5,7 @@ use ImproveSEO\Validator;
 use ImproveSEO\FlashMessage;
 use ImproveSEO\Models\Lists;
 use ImproveSEO\Models\Shortcode;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 function improveseo_lists()
 {
@@ -29,54 +30,58 @@ function improveseo_lists()
 	//Upload CSV File
 	if (isset($_POST['submit'])) {
 
-
-		if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'import_project_nonce')) {
+		// Sanitize and verify nonce
+		$nonce = isset($_POST['_wpnonce']) ? sanitize_text_field($_POST['_wpnonce']) : '';
+		if (!wp_verify_nonce($nonce, 'import_project_nonce')) {
 			wp_redirect(admin_url('admin.php?page=improveseo_lists'));
 			exit();
 		}
 
-
+		// Check user capability
 		if (!current_user_can('upload_files')) {
 			FlashMessage::success('Current user can\'t upload file');
 			wp_redirect(admin_url('admin.php?page=improveseo_lists'));
 			exit();
 		}
 
-		if (in_array($_FILES['upload_csv']['type'], $fileMimes) === false) {
+		// Validate uploaded file
+		$fileMimes = ['text/csv', 'application/vnd.ms-excel'];
+		if (empty($_FILES['upload_csv']['tmp_name']) || !in_array($_FILES['upload_csv']['type'], $fileMimes)) {
 			FlashMessage::success('Please Upload a Valid CSV file');
 			wp_redirect(admin_url('admin.php?page=improveseo_lists'));
 			exit();
 		}
 
-
-		//Import uploaded file to Database
+		// Import uploaded file to Database
 		$file = fopen($_FILES['upload_csv']['tmp_name'], "r");
+		if ($file === FALSE) {
+			FlashMessage::success('Error opening uploaded file');
+			wp_redirect(admin_url('admin.php?page=improveseo_lists'));
+			exit();
+		}
 
 		$counter = 0;
-		while (!feof($file)) {
+		while (($file_content = fgetcsv($file)) !== FALSE) {
 
-			$file_content = fgetcsv($file);
-
+			// Escape and insert data into the database
 			if ($counter != 0) {
-
 				$wpdb->insert($wpdb->prefix . "improveseo_lists", array(
-					'id' => $file_content[0],
-					'name' => $file_content[1],
-					'list' => $file_content[2],
-					'size' => $file_content[3],
-					'created_at' => $file_content[4],
+					'id' => intval($file_content[0]),
+					'name' => sanitize_text_field($file_content[1]),
+					'list' => sanitize_text_field($file_content[2]),
+					'size' => intval($file_content[3]),
+					'created_at' => date('Y-m-d H:i:s', strtotime($file_content[4])),
 				));
 			}
 
 			$counter++;
 		}
 
-		$counter = $counter - 2;
-
 		fclose($file);
 
-		FlashMessage::success($counter . ' List Imported Successfully.');
+		FlashMessage::success(($counter - 1) . ' List Imported Successfully.');
 	}
+
 
 
 	if ($action == 'index') :
@@ -144,7 +149,8 @@ function improveseo_lists()
 		}
 		$_POST['list'] = trim(stripslashes($_POST['list']));
 		$_POST['size'] = sizeof(explode("\n", $_POST['list']));
-		$id = $model->create($_POST);
+
+		$id = $model->create(array("name" => $name, "list" => $list));
 
 		FlashMessage::success('
 			<p>
@@ -182,7 +188,8 @@ function improveseo_lists()
 
 		$_POST['list'] = trim(stripslashes($_POST['list']));
 		$_POST['size'] = sizeof(explode("\n", $_POST['list']));
-		$model->update($_POST, $id);
+
+		$model->update($fields, $id);
 
 		FlashMessage::success('List has been updated.');
 		wp_redirect(admin_url("admin.php?page=improveseo_lists&action=edit&id={$id}"));
@@ -206,7 +213,7 @@ function improveseo_lists()
 			wp_redirect(admin_url('admin.php?page=export_all_list'));
 		}
 
-		wt_load_templates('import-export.php');
+		improveseo_wt_load_templates('import-export.php');
 		$exportRecords = new improveseo_import_export();
 		$exportRecords->export($data, 'all-lists');
 

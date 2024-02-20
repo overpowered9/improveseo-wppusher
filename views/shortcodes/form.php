@@ -1,5 +1,6 @@
 <?php
 use ImproveSEO\Validator;
+if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 
 <div class="BasicForm__row<?php echo Validator::hasError('shortcode') ? ' PostForm--error' : ''; ?>">

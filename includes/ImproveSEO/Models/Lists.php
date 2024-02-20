@@ -1,6 +1,7 @@
 <?php
 
 namespace ImproveSEO\Models;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Lists extends AbstractModel
 {

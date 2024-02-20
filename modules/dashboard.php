@@ -258,7 +258,7 @@ function improveseo_dashboard()
 
 		if (isset($_POST['create'])) {
 			FlashMessage::success(
-				'Project successfully created. It will generate <strong>' . esc_html($data['max_iterations']) . '</strong> posts/pages.'
+				'Project successfully created. It will generate (' . esc_html($data['max_iterations']) . ') posts/pages.'
 			);
 		} elseif (isset($_POST['draft'])) {
 			FlashMessage::success('Project successfully saved. You can continue editing by pressing Continue button.');
@@ -354,7 +354,7 @@ function improveseo_dashboard()
 			$options_data['schema_description'] = sanitize_textarea_field(stripslashes($_POST['schema_description']));
 			$options_data['schema_email'] = sanitize_email($_POST['schema_email']);
 			$options_data['schema_telephone'] = sanitize_text_field($_POST['schema_telephone']);
-			$options_data['schema_social'] = esc_url($_POST['schema_social']);
+			$options_data['schema_social'] = esc_url(sanitize_text_field($_POST['schema_social']));
 			$options_data['schema_rating_object'] = sanitize_text_field($_POST['schema_rating_object']);
 			$options_data['schema_rating'] = absint($_POST['schema_rating']);
 			$options_data['schema_rating_count'] = absint($_POST['schema_rating_count']);

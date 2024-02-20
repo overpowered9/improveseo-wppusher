@@ -3,6 +3,7 @@
 namespace ImproveSEO;
 
 use ImproveSEO\Validator\ValidatorException;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Validator
 {

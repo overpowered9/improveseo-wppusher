@@ -14,20 +14,20 @@ function improveseo_authors() {
 
     switch ($action) {
         case 'index':
-            handleIndexAction($offset, $limit);
+            improveseo_handleIndexAction($offset, $limit);
             break;
 
         case 'create':
-            handleCreateAction();
+            improveseo_handleCreateAction();
             break;
 
         case 'do_create':
-            handleDoCreateAction();
+            improveseo_handleDoCreateAction();
             break;
     }
 }
 
-function handleIndexAction($offset, $limit) {
+function improveseo_handleIndexAction($offset, $limit) {
     $results = count_users();
 
     $users = get_users([
@@ -42,11 +42,11 @@ function handleIndexAction($offset, $limit) {
     View::render('authors.index', compact('users', 'results', 'page', 'pages'));
 }
 
-function handleCreateAction() {
+function improveseo_handleCreateAction() {
     View::render('authors.create');
 }
 
-function handleDoCreateAction() {
+function improveseo_handleDoCreateAction() {
     $total = isset($_POST['users']) ? absint($_POST['users']) : 0;
 
     if ($total <= 0) {

@@ -1,6 +1,8 @@
 <?php
 
 use ImproveSEO\View;
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 ?>
 <?php View::startSection('breadcrumbs') ?>
 <a href="<?php echo admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>

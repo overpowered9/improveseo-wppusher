@@ -26,38 +26,46 @@ Upload the ImproveSEO plugin to your wordpress, activate it.
 = Third-Party Services =
 = YouTube Embedded Videos =
 
-In the `modules/shortcodes.php` file, we embed YouTube videos using an iframe. The iframe source is set to `http://www.youtube.com`, which is a third-party service.
-
+REASON = In the `modules/shortcodes.php` file, we embed YouTube videos using an iframe. The iframe source is set to `http://www.youtube.com`, which is a third-party service.
+DOMAIN = http://www.youtube.com
+TERMS AND CONDITION = https://www.youtube.com/static?template=terms
 
 = Google Maps API =
 
-In the modules/builder.php and modules/googlemaps.php files, we utilize the Google Maps API to geocode addresses and embed maps.
-
+REASON = In the modules/builder.php and modules/googlemaps.php files, we utilize the Google Maps API to geocode addresses and embed maps.
 DOMAIN = https://maps.googleapis.com
+TERMS AND CONDITION = https://developers.google.com/maps/terms-20180207
 
 = Google Autocomplete Suggestions =
 
-In the ImproveSEO/views/features/keyword.php file, we make use of the Google Autocomplete API to fetch search suggestions.
-
+REASON = In the ImproveSEO/views/features/keyword.php file, we make use of the Google Autocomplete API to fetch search suggestions.
 DOMAIN = https://suggestqueries.google.com/complete/search
+TERMS AND CONDITION = https://developers.google.com/maps/documentation/javascript/place-autocomplete
 
 = YouTube Video Scraper =
 
-In the ImproveSEO/assets/js/videoscraper.js file, we scrape YouTube video data using the YouTube Data API.
-
+REASON = In the ImproveSEO/assets/js/videoscraper.js file, we scrape YouTube video data using the YouTube Data API.
 DOMAIN = https://www.googleapis.com
+TERMS AND CONDITION = https://policies.google.com/terms?hl=en-US
 
 = Vimeo Video Embedding =
 
-In the ImproveSEO/modules/videos.php file, we embed Vimeo videos using the Vimeo Player API.
-
+REASON = In the ImproveSEO/modules/videos.php file, we embed Vimeo videos using the Vimeo Player API.
 DOMAIN = https://player.vimeo.com/api/player.js
-
+TERMS AND CONDITION = https://vimeo.com/terms
 
 = Check plugin version =
 
-following domain has been used for update the plugin 
-
+REASON = following domain has been used for update the plugin 
 DOMAIN = http://www.dexblog.net.
+TERMS AND CONDITION = https://www.create.net/about/terms-and-conditions
+
+= Pixabay =
+
+REASON = To show external images
+DOMAIN = https://pixabay.com/api/
+TERMS AND CONDITION = https://pixabay.com/service/terms/
+
+
 
 

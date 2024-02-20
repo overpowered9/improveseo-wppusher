@@ -25,6 +25,7 @@
 namespace lsolesen\pel;
 
 use lsolesen\pel\PelException;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Standard PEL exception.

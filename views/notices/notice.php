@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; ?>
+
 <div class="improve_seo_notices_wrapper improveseo_wrapper">
 	<div id="postbox-container-0" class="postbox-container">
 		<div id="normal-sortables" class="meta-box-sortables ui-sortable">

@@ -1,6 +1,7 @@
 <?php
 
 namespace ImproveSEO\Validator;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 interface IValidator
 {

@@ -1,4 +1,5 @@
 <?php 
+    if ( ! defined( 'ABSPATH' ) ) exit;
 
 class improveseo_import_export{
 

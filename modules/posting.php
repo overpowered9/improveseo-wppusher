@@ -7,7 +7,7 @@ use ImproveSEO\LiteSpintax;
 use ImproveSEO\Models\Task;
 use ImproveSEO\FlashMessage;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
+if (!defined('ABSPATH')) exit; // Exit if accessed directly  
 
 function improveseo_posting()
 {
@@ -156,29 +156,29 @@ function improveseo_posting()
 
 		// Dripfeed Feature
 		if (isset($_POST['dripfeed_enabler'])) {
-			$options_data['dripfeed_type'] = $_POST['dripfeed_type'];
-			$options_data['dripfeed_x'] = $_POST['dripfeed_x'];
+			$options_data['dripfeed_type'] = sanitize_text_field($_POST['dripfeed_type']);
+			$options_data['dripfeed_x'] = intval($_POST['dripfeed_x']);
 		}
 
 		// Image EXIF
 		if (isset($_POST['exif_enabler'])) {
-			$options_data['exif_locations'] = $_POST['exif_locations'];
+			$options_data['exif_locations'] = sanitize_text_field($_POST['exif_locations']);
 		}
 		if (isset($_POST['use_post_location'])) {
 			$options_data['use_post_location'] = true;
 		}
 
 		// Permalink
-		if ($_POST['permalink']) {
-			$options_data['permalink'] = $_POST['permalink'];
+		if (!empty($_POST['permalink'])) {
+			$options_data['permalink'] = sanitize_text_field($_POST['permalink']);
 		}
-		if ($_POST['permalink_prefix']) {
+		if (!empty($_POST['permalink_prefix'])) {
 			$options_data['permalink_prefix'] = sanitize_title($_POST['permalink_prefix']);
 		}
 
 		// Tags
-		if ($_POST['tags']) {
-			$options_data['tags'] = $_POST['tags'];
+		if (!empty($_POST['tags'])) {
+			$options_data['tags'] = sanitize_text_field($_POST['tags']);
 		}
 		if (isset($_POST['noindex_tags'])) {
 			$options_data['noindex_tags'] = true;
@@ -192,14 +192,15 @@ function improveseo_posting()
 		// Channel pages
 		if (isset($_POST['state_channel_page'])) {
 			$project_data['state_channel_enabled'] = true;
-			$project_data['state_channel_title'] = $_POST['state_channel_title'];
-			$project_data['state_channel_page'] = $_POST['state_channel_content'];
+			$project_data['state_channel_title'] = sanitize_text_field($_POST['state_channel_title']);
+			$project_data['state_channel_page'] = sanitize_text_field($_POST['state_channel_content']);
 		}
 		if (isset($_POST['city_channel_page'])) {
 			$project_data['city_channel_enabled'] = true;
-			$project_data['city_channel_title'] = $_POST['city_channel_title'];
-			$project_data['city_channel_page'] = $_POST['city_channel_content'];
+			$project_data['city_channel_title'] = sanitize_text_field($_POST['city_channel_title']);
+			$project_data['city_channel_page'] = sanitize_text_field($_POST['city_channel_content']);
 		}
+
 
 		// Math maximum number of posts
 		// Count list items
@@ -228,16 +229,21 @@ function improveseo_posting()
 		);
 		$wpdb->query("SET GLOBAL max_allowed_packet = 268435456");
 
-		$project_id = isset($_GET['id']) ? $model->update($data, $_GET['id']) : $model->create($data);
-		if (isset($_GET['id'])) $project_id = $_GET['id'];
+		$project_id = isset($_GET['id']) ? intval($_GET['id']) : null;
+		if ($project_id) {
+			$project_id = $model->update($data, $project_id);
+		} else {
+			$project_id = $model->create($data);
+		}
 
 		if (isset($_POST['create'])) {
 			FlashMessage::success(
-				'Project successfully created. It will generate <strong>' . $data['max_iterations'] . '</strong> posts/pages.'
+				'Project successfully created. It will generate (' . htmlspecialchars($data['max_iterations']) . ') posts/pages.'
 			);
 		} elseif (isset($_POST['draft'])) {
 			FlashMessage::success('Project successfully saved. You can continue editing by pressing Continue button.');
 		}
+
 		wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$project_id}"));
 		exit;
 
@@ -370,15 +376,15 @@ function improveseo_posting()
 		// Schema SEO
 		if (isset($_POST['schema'])) {
 			$options_data['schema'] = true;
-			$options_data['schema_business'] = stripslashes($_POST['schema_business']);
-			$options_data['schema_description'] = stripslashes($_POST['schema_description']);
-			$options_data['schema_email'] = $_POST['schema_email'];
-			$options_data['schema_telephone'] = $_POST['schema_telephone'];
-			$options_data['schema_social'] = $_POST['schema_social'];
-			$options_data['schema_rating_object'] = $_POST['schema_rating_object'];
-			$options_data['schema_rating'] = $_POST['schema_rating'];
-			$options_data['schema_rating_count'] = $_POST['schema_rating_count'];
-			$options_data['schema_address'] = stripslashes($_POST['schema_address']);
+			$options_data['schema_business'] = sanitize_text_field($_POST['schema_business']);
+			$options_data['schema_description'] = sanitize_text_field($_POST['schema_description']);
+			$options_data['schema_email'] = sanitize_email($_POST['schema_email']);
+			$options_data['schema_telephone'] = sanitize_text_field($_POST['schema_telephone']);
+			$options_data['schema_social'] = sanitize_text_field($_POST['schema_social']);
+			$options_data['schema_rating_object'] = sanitize_text_field($_POST['schema_rating_object']);
+			$options_data['schema_rating'] = sanitize_text_field($_POST['schema_rating']);
+			$options_data['schema_rating_count'] = intval($_POST['schema_rating_count']);
+			$options_data['schema_address'] = sanitize_text_field($_POST['schema_address']);
 
 			if (isset($_POST['hide_schema'])) {
 				$options_data['hide_schema'] = true;
@@ -407,25 +413,15 @@ function improveseo_posting()
 		}
 
 		// Permalink
-		if ($_POST['permalink']) {
-			$options_data['permalink'] = $_POST['permalink'];
-		}
-		if ($_POST['permalink_prefix']) {
-			$options_data['permalink_prefix'] = sanitize_title($_POST['permalink_prefix']);
-		}
+		$options_data['permalink'] = isset($_POST['permalink']) ? $_POST['permalink'] : '';
+		$options_data['permalink_prefix'] = isset($_POST['permalink_prefix']) ? sanitize_title($_POST['permalink_prefix']) : '';
 
 		// Tags
-		if ($_POST['tags']) {
-			$options_data['tags'] = $_POST['tags'];
-		}
-		if (isset($_POST['noindex_tags'])) {
-			$options_data['noindex_tags'] = true;
-		}
+		$options_data['tags'] = isset($_POST['tags']) ? $_POST['tags'] : '';
+		$options_data['noindex_tags'] = isset($_POST['noindex_tags']);
 
 		// Distribute
-		if (isset($_POST['distribute'])) {
-			$options_data['distribute'] = true;
-		}
+		$options_data['distribute'] = isset($_POST['distribute']);
 
 		// Channel pages
 		if (isset($_POST['state_channel_page'])) {
@@ -439,19 +435,19 @@ function improveseo_posting()
 			$project_data['city_channel_page'] = $_POST['city_channel_content'];
 		}
 
-		// Math maximum number of posts
-		// Count list items
-		$items = improveseo_count_list_items($_POST);
 
-		if (isset($_POST['local_seo_enabler'])) {
-			if (!$items) $items = 1;
-			$max = ($_POST['max_posts'] <= 0) ? $geo_iterations * $items : intval($_POST['max_posts']);
-		} else {
-			$max = ($_POST['max_posts'] <= 0) ? ($items ? $items : Spintax::count(Spintax::parse($title))) : intval($_POST['max_posts']);
+		$filteredObjects = array_filter($_POST, function ($obj) {
+			return isset($obj->size);
+		});
+		// Math maximum number of posts
+		$items = improveseo_count_list_items($filteredObjects);
+
+		$max = isset($_POST['max_posts']) ? intval($_POST['max_posts']) : 0;
+		if (isset($_POST['local_seo_enabler']) && !$items) {
+			$items = 1;
 		}
-		if (isset($_POST['max_posts'])) {
-			$options_data['max_posts'] = $_POST['max_posts'];
-		}
+		$max = $max <= 0 ? ($items ? $items : Spintax::count(Spintax::parse($title))) : $max;
+		$options_data['max_posts'] = isset($_POST['max_posts']) ? $_POST['max_posts'] : '';
 
 		$data = array(
 			'name' => $name,
@@ -460,21 +456,18 @@ function improveseo_posting()
 			'state' => 'Updated',
 			'iteration' => 0,
 			'spintax_iterations' => max($iterations),
-			//'max_iterations' => max($iterations) * $geo_iterations
 			'max_iterations' => $max,
 			'cats' => json_encode($_POST['cats'])
 		);
 		$wpdb->query("SET GLOBAL max_allowed_packet = 268435456");
 
-		$project_id = $model->update($data, $_GET['id']);
-		if (isset($_GET['id'])) $project_id = $_GET['id'];
+		$project_id = $model->update($data, isset($_GET['id']) ? $_GET['id'] : null);
 		FlashMessage::success('Project successfully updated. You can update old post by clicking update my posts.');
 		wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$project_id}&build_posts_id={$project_id}"));
 		exit;
 
 	elseif ($action == 'edit_post') :
-		$task = $model->find($_GET['id']);
-
+		$task = $model->find(isset($_GET['id']) ? $_GET['id'] : null);
 		View::render('posting.edit-post', compact('task'));
 	endif;
 }

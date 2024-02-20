@@ -1,6 +1,7 @@
 <?php
 
 namespace ImproveSEO\Validator;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 class PostType extends BaseValidator
 {

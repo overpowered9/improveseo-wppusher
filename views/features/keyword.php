@@ -1,5 +1,6 @@
 <?php
 use ImproveSEO\View;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 ?>
 <?php View::startSection('breadcrumbs') ?>
@@ -39,7 +40,7 @@ use ImproveSEO\View;
                 <input type="button" class="sw-save-search-results btn btn-outline-primary" value="<?php esc_attr_e('Save Results', 'improve-seo'); ?>">
                 <?php
                 
-                wt_load_templates('sw-all-saved-keywords.php');
+                improveseo_wt_load_templates('sw-all-saved-keywords.php');
                 
                 ?>
                 

@@ -23,6 +23,7 @@
  * Boston, MA 02110-1301 USA
  */
 namespace lsolesen\pel;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Classes used to hold bytes, both signed and unsigned.

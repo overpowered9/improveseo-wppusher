@@ -2,6 +2,7 @@
 
 namespace ImproveSEO\Validator;
 
+    if ( ! defined( 'ABSPATH' ) ) exit;
 class RequiredIf extends BaseValidator
 {
 	public static function validate($data, $field, $requiredField)
