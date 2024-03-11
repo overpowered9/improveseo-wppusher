@@ -54,11 +54,6 @@ REASON = In the ImproveSEO/modules/videos.php file, we embed Vimeo videos using 
 DOMAIN = https://player.vimeo.com/api/player.js
 TERMS AND CONDITION = https://vimeo.com/terms
 
-= Check plugin version =
-
-REASON = following domain has been used for update the plugin 
-DOMAIN = http://www.dexblog.net.
-TERMS AND CONDITION = https://www.create.net/about/terms-and-conditions
 
 = Pixabay =
 
