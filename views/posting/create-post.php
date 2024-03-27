@@ -22,6 +22,11 @@ use ImproveSEO\View;
 		</div>
 	</section>
 	
+	<?php
+	    /*******************/
+	    generateAIpopup();
+		/*******************/
+	?>
 	<form id="main_form" action="<?php echo admin_url('admin.php?page=improveseo_dashboard&action=do_create_post&noheader=true'); ?>" class="form-wrap" method="post">
 		<?php 
 			$post_type = 'post';
@@ -29,6 +34,7 @@ use ImproveSEO\View;
 			improveseo\View::render('posting.form', compact('post_type'));
 		?>
 	</form>
+	
 </div>
 <?php View::endSection('content') ?>
 

@@ -409,13 +409,13 @@ jQuery(function($){
                 text = '@list:'+id;
             }
             
-            /* var prev_content = tinymce.activeEditor.setContent(tinyMCE.activeEditor.getContent());
+            var prev_content = tinymce.activeEditor.setContent(tinyMCE.activeEditor.getContent());
             if(prev_content==null||prev_content==''){
                 tinymce.activeEditor.setContent(text);
             }
             else
-            tinymce.activeEditor.setContent(text+prev_content);  */	
-            tinymce.activeEditor.insertContent(text);
+            tinymce.activeEditor.setContent(text+prev_content);  
+            //tinymce.activeEditor.insertContent(text);
     
         });
 

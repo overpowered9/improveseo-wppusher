@@ -176,9 +176,9 @@ function improveseo_generate_preview(){
 			'options' => base64_encode(json_encode($options_data)),
 			'state' => isset($_POST['draft']) ? 'Draft' : 'Published',
 			'iteration' => 0,
-			'spintax_iterations' => 1,
+			'spintax_iterations' => max($iterations),
 			//'max_iterations' => max($iterations) * $geo_iterations
-			'max_iterations' => 1,
+			'max_iterations' => $max,
 			'cats' => json_encode($_POST['cats'])
 		);
 		$wpdb->query("SET GLOBAL max_allowed_packet = 268435456");

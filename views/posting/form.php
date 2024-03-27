@@ -22,7 +22,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 		<div id="post-body-content">
 			<div class="PostForm__name-wrap input-group <?php if (Validator::hasError('name')) echo 'PostForm--error' ?>">
 				<label class="form-label">Project name here</label>
-				<input type="text" name="name" class="PostForm__name form-control" placeholder="Project name here" value="<?= Validator::old('name', $task->name) ?>">
+				<input type="text" name="name" class="PostForm__name form-control" placeholder="Project name here" value="<?= Validator::old('name', $task->name) ?>" required>
 				<?php if (Validator::hasError('name')) : ?>
 					<span class="PostForm__error"><?= Validator::get('name') ?></span>
 				<?php endif; ?>
@@ -71,15 +71,15 @@ $google_api_key = get_option('improveseo_google_api_key');
 			</div>
 
 			<div id="post_form_buttons" class="PostForm__buttons">
-				<button name="create" type="submit" formtarget="_self" class="btn btn-outline-primary">
+				<button name="create" type="submit" formtarget="_self" class="btn btn-outline-primary" onclick="return validateBeforeSubmit()">
 					<?php if ($_GET['action'] == 'edit_post') : ?>
 						Update project and posts
 					<?php else : ?>
 						Create Project
 					<?php endif; ?>
 				</button>
-				<button name="draft" type="submit" formtarget="_self" class="btn btn-outline-primary">Save As Draft</button>
-				<button id="preview_on" type="submit" class="btn btn-outline-primary">Post preview</button>
+				<button name="draft" type="submit" formtarget="_self" class="btn btn-outline-primary" onclick="return validateBeforeSubmit()">Save As Draft</button>
+				<button id="preview_on" type="submit" class="btn btn-outline-primary" onclick="return validateBeforeSubmit()">Post preview</button>
 				<input type="hidden" name="preview_id" id="preview_id" />
 				<input type="hidden" name="is_preview_available" id="is_preview_available" value="no" />
 			</div>

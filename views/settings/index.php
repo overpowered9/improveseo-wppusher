@@ -40,6 +40,14 @@ use ImproveSEO\View;
             </div>
             <div class="BasicForm__row">
                 <div class="input-group">
+                    <label class="form-label">Chat GPT Key</label>
+                    <div class="input-prefix">
+                        <input type="text" name="improveseo_chatgpt_api_key" placeholder="Chat GPT Key" class="form-control mb-2" value="<?php echo get_option('improveseo_chatgpt_api_key'); ?>" />
+                    </div>
+                </div> 
+            </div>
+            <div class="BasicForm__row">
+                <div class="input-group">
                     <label class="form-label">Word AI Email</label>
                     <div class="input-prefix">
                         <input type="text" name="improveseo_word_ai_email" placeholder="Ex." class="form-control mb-2" value="<?php echo get_option('improveseo_word_ai_email'); ?>" />

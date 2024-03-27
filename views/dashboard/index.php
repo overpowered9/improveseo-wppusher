@@ -318,6 +318,29 @@ use ImproveSEO\View;
 							  </div>
 						 </div>
 					</div>
+					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
+						<div class="card pro-tile">
+							<a href="<?= admin_url('admin.php?page=improveseo_posting') ?>">
+								<div class="card-body text-center">
+									<div class="icon-wrap">
+			                        	<img src="<?php echo WT_URL.'/assets/images/posting-icon.png'?>" alt="" class="icon">
+			                    	</div>
+									<div class="title">
+										<h4>Generate AI Content</h4>
+									</div>
+									<div class="text">
+										<span>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</span>
+									</div>
+								</div>
+								<div class="card-footer text-right">
+								    <div class="custom-control custom-switch">
+									  	<input type="checkbox" class="custom-control-input" id="customSwitch13">
+									  	<label class="custom-control-label" for="customSwitch13"></label>
+									</div>
+								  </div>
+							</a>
+						 </div>
+					</div>
 				</div>
 			</div>
 			<div class="tab-pane fade" id="wt_help" role="tabpanel" aria-labelledby="wt_help">
