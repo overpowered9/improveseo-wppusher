@@ -29,6 +29,7 @@ Upload the ImproveSEO plugin to your wordpress, activate it.
 REASON = In the `modules/shortcodes.php` file, we embed YouTube videos using an iframe. The iframe source is set to `http://www.youtube.com`, which is a third-party service.
 DOMAIN = http://www.youtube.com
 TERMS AND CONDITION = https://www.youtube.com/static?template=terms
+PRIVACY AND POLICIES = https://www.youtube.com/howyoutubeworks/policies/community-guidelines/
 
 = Google Maps API =
 
@@ -60,6 +61,21 @@ TERMS AND CONDITION = https://vimeo.com/terms
 REASON = To show external images
 DOMAIN = https://pixabay.com/api/
 TERMS AND CONDITION = https://pixabay.com/service/terms/
+
+
+
+TERMS AND CONDITION =
+== Internal Libraries ==
+1. jsTree - v3.2.1
+2. Notify.js
+3. underscore v6.4.3
+4. jquery.modal.min.js 0.9.1 (http://github.com/kylefox/jquery-modal)
+
+
+
+
+
+
 
 
 

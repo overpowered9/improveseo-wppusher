@@ -36,7 +36,7 @@ function improveseo_enqueue_admin(){
 	wp_enqueue_script('improveseo-notify', IMPROVESEO_DIR . '/assets/js/notify.js', array('jquery'), IMPROVESEO_VERSION, true);
 	wp_enqueue_script('improveseo-popup', IMPROVESEO_DIR . '/assets/js/popup.js', array('jquery'), IMPROVESEO_VERSION, true);
 	
-	wp_enqueue_script('improveseo-underscore', IMPROVESEO_DIR.'/assets/js/underscore.js', array('underscore'));
+	wp_enqueue_script('improveseo-underscore', "/wp-includes/js/underscore.js" , array('underscore'));
 	
 	wp_enqueue_script('improveseo-modal',IMPROVESEO_DIR . '/assets/js/jquery.modal.min.js', array('jquery'), IMPROVESEO_VERSION, true);	
 	

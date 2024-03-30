@@ -222,74 +222,14 @@ add_action('wp_ajax_preview_delete_ajax', 'preview_delete_ajax');
 
 $debug = 0;
 
-//add_filter('pre_set_site_transient_update_plugins', 'improveseo_check_for_update');
 
-function improveseo_check_for_update($transient)
-{
-	if (empty($transient->checked)) {
-		return $transient;
-	}
-	if (improveseo_check_version()) {
-		if (improveseo_check_version() != IMPROVESEO_VERSION) {
-			$plugin_slug = plugin_basename("ImproveSEO/improveseo.php");
-			$transient->response[$plugin_slug] = (object) array(
-				'new_version' => workhorse_check_version(),
-				'package' => "http://www.dexblog.net/workhorse/workhorse-by-dexblog-" . workhorse_check_version() . ".zip",
-				'slug' => $plugin_slug
-			);
-		}
-	}
-	return $transient;
-}
 
 /**
  * Api handler
  */
-function improveseo_api($action, $arg)
-{
-	$id_last = get_option("dexscan_last_id");
-	$url = 'http://api-dexsecurity.dexblog.net/api.php?action=' . $action . '&host=' . $_SERVER["HTTP_HOST"] . "&id_scan=" . $id_last;
 
-	if ($action == "getdata") {
-		$ids = dexscan_save_file_backup($arg);
-		$arg['id_save'] = $ids;
-	}
 
-	$response = wp_safe_remote_post($url, array(
-		'body'    => $arg,
-		'headers' => array(
-			'Content-Type' => 'application/x-www-form-urlencoded',
-		),
-	));
 
-	if (is_wp_error($response)) {
-		// Handle error if needed
-		return false;
-	}
-
-	$result = wp_remote_retrieve_body($response);
-	$da = json_decode($result);
-
-	return $da;
-}
-
-function improveseo_check_version()
-{
-	$lastupdate = get_option("improveseo_lastcheck");
-	if ($lastupdate < (time() - 600)) {
-		$data2 = array(
-			'version' => IMPROVESEO_VERSION
-		);
-		$data = improveseo_api("versionimproveseo", $data2);
-		if ($data->status == 1) {
-			update_option("improveseo_new_version", $data->version);
-		} else {
-			update_option("improveseo_new_version", $data->version);
-		}
-	}
-	update_option("improveseo_lastcheck", time());
-	return get_option("improveseo_new_version");
-}
 
 /*check curl install or not*/
 function improveseo_curl_installed()

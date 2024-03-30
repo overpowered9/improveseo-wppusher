@@ -8,6 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 <a href="<?php echo admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 &raquo;
 <span>Dashboard</span>
+
 <?php View::endSection('breadcrumbs') ?>
 <?php View::startSection('content') ?>
 <h1 class="hidden">Dashboard</h1>
