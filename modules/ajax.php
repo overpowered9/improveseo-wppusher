@@ -51,9 +51,14 @@ function improveseo_generate_preview() {
     if (isset($_POST['local_seo_enabler'])) {
         // Search tags and remove non-used locations
         $tags = improveseo_search_geotags(array(
-            $title, $content, $_POST['custom_title'], $_POST['custom_description'], $_POST['custom_keywords'], $_POST['permalink'], $_POST['tags']
+            $title,
+            $content,
+            sanitize_text_field($_POST['custom_title']),
+            sanitize_text_field($_POST['custom_description']),
+            sanitize_text_field($_POST['custom_keywords']),
+            esc_url($_POST['permalink']),
+            sanitize_text_field($_POST['tags'])
         ));
-
         $options_data['local_geo_country'] = sanitize_text_field($_POST['local_country']);
         $options_data['local_geo_locations'] = json_decode(stripslashes($_POST['local_geo_locations']), true);
 

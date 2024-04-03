@@ -22,8 +22,12 @@ function improveseo_builder()
 	global $wpdb;
 	global $wp_rewrite;
 	// die('aa');
-	$ajax = $_GET['ajax'];
-	$page = $_GET['page'];
+// Sanitize and validate the 'ajax' parameter
+    $ajax = filter_input(INPUT_GET, 'ajax', FILTER_VALIDATE_BOOLEAN);
+
+// Sanitize and validate the 'page' parameter
+    $page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_STRING);
+
 	if (!$page) {
 		$page = 100;
 	}
@@ -37,9 +41,10 @@ function improveseo_builder()
 
 	improveseo_debug_start();;;
 
-	$id = $_GET['id'];
+    $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
 
-	if (!$id) {
+
+    if (!$id) {
 		if ($ajax != 1) {
 			echo 'error';
 		} else {
@@ -66,27 +71,41 @@ function improveseo_builder()
 
 	$post_date = date('Y-m-d H:i:s');
 
-	// Use Dripfeed
-	if (isset($options['dripfeed_type'])) {
-		switch ($options['dripfeed_type']) {
-			case 'per-day':
-				$per_day = $options['dripfeed_x'];
-				break;
-			case 'over-days':
-				$per_day = ceil($project->max_iterations / $options['dripfeed_x']);
-				break;
-		}
-	} else {
-		$per_day = $project->max_iterations;
-	}
+// Define default values
+    $per_day = $project->max_iterations;
 
-	$data = $project->content;
+        // Sanitize and validate the 'dripfeed_type' and 'dripfeed_x' parameters
+            if (isset($options['dripfeed_type'])) {
+                $dripfeed_type = sanitize_text_field($options['dripfeed_type']);
 
-	$title = $data['title'];
-	$content = $data['content'];
-	$post_type = $data['post_type'];
-	$titleSpintax = Spintax::parse($data['title']);
-	$titleMax = Spintax::count($titleSpintax);
+                switch ($dripfeed_type) {
+                    case 'per-day':
+                        if (isset($options['dripfeed_x']) && is_numeric($options['dripfeed_x'])) {
+                            $per_day = absint($options['dripfeed_x']); // Ensure positive integer
+                        }
+                        break;
+                    case 'over-days':
+                        if (isset($options['dripfeed_x']) && is_numeric($options['dripfeed_x']) && $options['dripfeed_x'] > 0) {
+                            $dripfeed_x = absint($options['dripfeed_x']); // Ensure positive integer
+                            $per_day = ceil($project->max_iterations / $dripfeed_x);
+                        }
+                        break;
+                }
+            }
+            $data = $project->content;
+
+// Sanitize and validate input
+    $title = isset($data['title']) ? sanitize_text_field($data['title']) : '';
+    $content = isset($data['content']) ? wp_kses_post($data['content']) : '';
+    $post_type = isset($data['post_type']) ? sanitize_text_field($data['post_type']) : '';
+
+// Escape output
+    $title = esc_html($title);
+
+// Parse Spintax
+    $titleSpintax = isset($data['title']) ? Spintax::parse($data['title']) : '';
+    $titleMax = isset($data['title']) ? Spintax::count($titleSpintax) : 0;
+
 
 	// $contentSpintax = Spintax::parse($content);
 	// $contentMax = Spintax::count($contentSpintax);
@@ -121,42 +140,44 @@ function improveseo_builder()
 	}
 
 	// Permalink prefix
-	if (isset($options['permalink_prefix'])) {
-		$prefixes = $storage->permalink_prefixes;
+    if (isset($options['permalink_prefix'])) {
+        $prefixes = $storage->permalink_prefixes;
 
-		if (!isset($prefixes[$options['permalink_prefix']]))
-			$prefixes[$options['permalink_prefix']] = [];
+        if (!isset($prefixes[sanitize_key($options['permalink_prefix'])])) {
+            $prefixes[sanitize_key($options['permalink_prefix'])] = [];
+        }
 
-		$storage->permalink_prefixes = $prefixes;
+        $storage->permalink_prefixes = $prefixes;
 
-		register_post_type($options['permalink_prefix'], array(
-			'labels' => array(
-				'name' => printf(__("%s", 'improve-seo'), ucfirst($options['permalink_prefix'])),
-				'singular_name' => printf(__("%s", 'improve-seo'), ucfirst($options['permalink_prefix']))
-			),
-			'public' => true,
-			'publicly_queryable' => true,
-			'has_archive' => true,
-			'rewrite' => array(
-				'slug' => $options['permalink_prefix'] . '/%category%',
-				'with_front' => false
-			),
-			'capability_type' => 'post',
-			'show_ui' => true,
-			'query_var' => true,
-			'hierarchical' => false,
-			'taxonomies' => array(
-				'post_tag',
-				'category'
-			)
-		));
+        register_post_type(sanitize_key($options['permalink_prefix']), array(
+            'labels' => array(
+                'name' => sprintf(__("%s", 'improve-seo'), ucfirst($options['permalink_prefix'])),
+                'singular_name' => sprintf(__("%s", 'improve-seo'), ucfirst($options['permalink_prefix']))
+            ),
+            'public' => true,
+            'publicly_queryable' => true,
+            'has_archive' => true,
+            'rewrite' => array(
+                'slug' => sanitize_key($options['permalink_prefix']) . '/%category%',
+                'with_front' => false
+            ),
+            'capability_type' => 'post',
+            'show_ui' => true,
+            'query_var' => true,
+            'hierarchical' => false,
+            'taxonomies' => array(
+                'post_tag',
+                'category'
+            )
+        ));
 
-		improveseo_debug_message('New post type created ' . $options['permalink_prefix']);
+        improveseo_debug_message('New post type created ' . sanitize_key($options['permalink_prefix']));
 
-		$wp_rewrite->flush_rules(false);
+        global $wp_rewrite;
+        $wp_rewrite->flush_rules(false);
 
-		$storage->flush_rules = true;
-	}
+        $storage->flush_rules = true;
+    }
 
 	$wpdb->query('SET autocommit = 0;');
 
@@ -192,17 +213,17 @@ function improveseo_builder()
 
 	// Load lists
 	$listModel = new Lists();
-	$lists = improveseo_get_lists_from_text(array(
-		'title' => $data['title'],
-		'content' => $data['content'],
-		'custom_title' => $options['custom_title'],
-		'custom_description' => $options['custom_description'],
-		'custom_keywords' => $options['custom_keywords'],
-		'permalink' => $options['permalink'],
-		'tags' => $options['tags']
-	));
+    $lists = improveseo_get_lists_from_text(array(
+        'title' => sanitize_text_field($data['title']),
+        'content' => sanitize_textarea_field($data['content']),
+        'custom_title' => sanitize_text_field($options['custom_title']),
+        'custom_description' => sanitize_textarea_field($options['custom_description']),
+        'custom_keywords' => sanitize_text_field($options['custom_keywords']),
+        'permalink' => esc_url_raw($options['permalink']),
+        'tags' => sanitize_text_field($options['tags'])
+    ));
 
-	improveseo_debug_message('Ready for building.. (time ' . improveseo_debug_time() . ' ms)<br>--------------------------<br>');
+    improveseo_debug_message('Ready for building.. (time ' . improveseo_debug_time() . ' ms)<br>--------------------------<br>');
 
 	for ($i = 1; $i <= $page; $i++) {
 		$project->iteration++;
@@ -364,33 +385,32 @@ function improveseo_builder()
 			$author_id = $authors[mt_rand(0, sizeof($authors) - 1)];
 		}
 
-		if (isset($options['dripfeed_type'])) {
-			if ($options['dripfeed_type'] == "per-day") {
-				$days = ceil($project->iteration / $options['dripfeed_x']);
-				$start_date = new DateTime();
-				$start_date->add(new DateInterval('P' . $days . 'D'));
-				$date_start = strtotime($start_date->format('Y-m-d') . ' 00:00:00');
-				// $date_start = time(); 
-				$date_end = strtotime($start_date->format('Y-m-d') . ' 23:59:59');
+        if (isset($options['dripfeed_type']) && in_array($options['dripfeed_type'], array("per-day", "over-days"))) {
+            if ($options['dripfeed_type'] == "per-day") {
+                $days = ceil(intval($project->iteration) / intval($options['dripfeed_x']));
+                $start_date = new DateTime();
+                $start_date->add(new DateInterval('P' . $days . 'D'));
+                $date_start = strtotime($start_date->format('Y-m-d') . ' 00:00:00');
+                $date_end = strtotime($start_date->format('Y-m-d') . ' 23:59:59');
 
-				$post_date = date('Y-m-d H:i:s', rand($date_start, $date_end));
-				// $post_date = date('Y-m-d H:i:s',strtotime('+1 Day'));
-			} else {
-				$date_start1 = new DateTime();
-				$date_start = strtotime($date_start1->format('Y-m-d') . ' 00:00:00');
-				// $date_start = time(); 
-				$date_end1 = $date_start1->add(new DateInterval('P' . $options['dripfeed_x'] . 'D'));
-				$date_end = strtotime($date_end1->format('Y-m-d') . ' 23:59:59');
-				$post_date = date('Y-m-d H:i:s', rand($date_start, $date_end));
-				///echo $post_date."<br>";
-			}
-		}
+                $post_date = date('Y-m-d H:i:s', rand($date_start, $date_end));
+            } else {
+                $date_start1 = new DateTime();
+                $date_start = strtotime($date_start1->format('Y-m-d') . ' 00:00:00');
+                $date_end1 = $date_start1->add(new DateInterval('P' . intval($options['dripfeed_x']) . 'D'));
+                $date_end = strtotime($date_end1->format('Y-m-d') . ' 23:59:59');
+                $post_date = date('Y-m-d H:i:s', rand($date_start, $date_end));
+            }
+        }
+        if (isset($options['categorization']) && is_array($options['categorization']) && count($options['categorization']) > 0) {
+            $lastKey = end(array_keys($options['categorization']));
+            $lastValue = end($options['categorization']);
 
-		if (isset($options['categorization'])) {
-			$last = end($options['categorization']);
+            if (is_numeric($lastKey) && isset($geoData[$lastValue])) {
+                $postName = sanitize_text_field($geoData[$lastValue]);
+            }
+        }
 
-			$postName = $geoData[$last];
-		}
 
 		// Randomize shortcodes
 		foreach ($shorts as $short => $max) {
@@ -640,22 +660,33 @@ function improveseo_builder()
  */
 function improveseo_preview_delete_ajax()
 {
+    global $wpdb;
 
-	global $wpdb;
+    $model = new Task();
 
-	$model = new Task();
+    // Sanitize the prev_id parameter
+    $prev_id = isset($_GET['prev_id']) ? intval($_GET['prev_id']) : 0;
 
-	$prev_id = $_GET['prev_id'];
-	$id = $prev_id;
-	$task = $model->find($id);
+    // Validate the prev_id to ensure it is a valid ID
+    if ($prev_id <= 0) {
+        die('Invalid project ID');
+    }
 
-	// Delete all posts from this project
-	$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));
-	$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
+    // Use prepared statements for database queries
+    $wpdb->query($wpdb->prepare(
+        "DELETE FROM {$wpdb->prefix}posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %d)",
+        $prev_id
+    ));
+    $wpdb->query($wpdb->prepare(
+        "DELETE FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %d",
+        $prev_id
+    ));
 
-	$model->delete($id);
-	die;
+    // Delete the task
+    $model->delete($prev_id);
+    die;
 }
+
 
 /**
  * improveseo_builder_update
@@ -667,8 +698,9 @@ function improveseo_builder_update()
 	global $wpdb;
 	global $wp_rewrite;
 	// die('aa');
-	$ajax = $_GET['ajax'];
-	$page = $_GET['page'];
+    $ajax = isset($_GET['ajax']) ? filter_var($_GET['ajax'], FILTER_VALIDATE_INT) : null;
+    $page = isset($_GET['page']) ? filter_var($_GET['page'], FILTER_SANITIZE_STRING) : null;
+
 	if (!$page) {
 		$page = 100;
 	}
@@ -682,9 +714,10 @@ function improveseo_builder_update()
 
 	improveseo_debug_start();;;
 
-	$id = $_GET['id'];
+    $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
 
-	if (!$id) {
+
+    if (!$id) {
 		if ($ajax != 1) {
 			echo 'error';
 		} else {

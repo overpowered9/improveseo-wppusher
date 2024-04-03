@@ -95,10 +95,12 @@ function improveseo_projects()
 
 	if ($action == 'index') :
 		// Filters
-		$orderBy = isset($_GET['orderBy']) ? $_GET['orderBy'] : 'created_at';
-		$order = isset($_GET['order']) ? $_GET['order'] : 'DESC';
+        $orderBy = isset($_GET['orderBy']) && in_array($_GET['orderBy'], $allowed_order_by) ? $_GET['orderBy'] : 'created_at';
 
-		$highlight = isset($_GET['highlight']) ? $_GET['highlight'] : null;
+        $order = isset($_GET['order']) && in_array($_GET['order'], $allowed_order) ? $_GET['order'] : 'DESC';
+
+
+        $highlight = isset($_GET['highlight']) ? sanitize_text_field($_GET['highlight']) : null;
 
 		$where = array();
 		$params = array();
@@ -135,9 +137,9 @@ function improveseo_projects()
 
 	elseif ($action == 'delete') :
 
-		$id = $_GET['id'];
+        $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
 
-		// Delete all posts from this project
+        // Delete all posts from this project
 		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));
 		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
 
@@ -149,9 +151,10 @@ function improveseo_projects()
 
 	elseif ($action == 'delete_posts') :
 
-		$id = $_GET['id'];
+        $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
 
-		// Delete all posts from this project
+
+        // Delete all posts from this project
 		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE post_id IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s) AND meta_key = 'improveseo_channel'", $id));
 		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));
 		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
@@ -164,9 +167,10 @@ function improveseo_projects()
 
 	elseif ($action == 'stop') :
 
-		$id = $_GET['id'];
+        $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
 
-		$model->update(array('deleted_at' => '1970-01-01 11:11:11'), $id);
+
+        $model->update(array('deleted_at' => '1970-01-01 11:11:11'), $id);
 
 		FlashMessage::success('Project stopped. You can continue process by clicking Build posts');
 		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
@@ -174,8 +178,9 @@ function improveseo_projects()
 
 	elseif ($action == 'export_urls') :
 
-		$id = $_GET['id'];
-		$project_name = sanitize_title_with_dashes($_GET['name']);
+        $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
+
+        $project_name = sanitize_title_with_dashes($_GET['name']);
 
 		
 
@@ -212,8 +217,9 @@ function improveseo_projects()
 
 	elseif ($action == 'export_project') :
 
-		$id = $_GET['id'];
-		$project_name = sanitize_title_with_dashes($_GET['name']);
+        $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
+
+        $project_name = sanitize_title_with_dashes($_GET['name']);
 
 		
 
@@ -242,11 +248,12 @@ function improveseo_projects()
 
 	elseif ($action == 'export_preview_url') :
 
-		$id = $_GET['id'];
+        $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
 
-		
 
-		$urls = [];
+
+
+        $urls = [];
 		$posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
 		foreach ($posts as $post) {
 			$url = get_permalink($post->post_id);
@@ -265,9 +272,10 @@ function improveseo_projects()
 
 	elseif ($action == 'duplicate') :
 
-		$id = $_GET['id'];
+        $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
 
-		$task = $model->find($id);
+
+        $task = $model->find($id);
 
 		$new_id = $model->create(array(
 			'name' => $task->name . ' - Copy',
@@ -284,8 +292,9 @@ function improveseo_projects()
 
 	elseif ($action == 'bulk-delete-all') :
 		if (isset($_GET['project_ids'])) {
-			$project_ids = $_GET['project_ids'];
-			if (!empty($project_ids)) {
+            $project_ids = isset($_GET['project_ids']) ? sanitize_text_field($_GET['project_ids']) : '';
+
+            if (!empty($project_ids)) {
 				foreach ($project_ids as $project_id) {
 					// Delete all posts from this project
 					$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $project_id));
@@ -303,8 +312,9 @@ function improveseo_projects()
 		exit;
 	elseif ($action == 'bulk-delete-posts') :
 		if (isset($_GET['project_ids'])) {
-			$project_ids = $_GET['project_ids'];
-			if (!empty($project_ids)) {
+            $project_ids = isset($_GET['project_ids']) ? sanitize_text_field($_GET['project_ids']) : '';
+
+            if (!empty($project_ids)) {
 				foreach ($project_ids as $project_id) {
 					// Delete all posts from this project
 					$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE post_id IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s) AND meta_key = 'improveseo_channel'", $project_id));

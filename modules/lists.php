@@ -10,9 +10,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function improveseo_lists()
 {
 	global $wpdb;
-	$action = isset($_GET['action']) ? sanitize_text_field($_GET['action']) : 'index';
-	$limit = isset($_GET['limit']) ? $_GET['limit'] : 20;
-	$offset = isset($_GET['paged']) ? $_GET['paged'] * $limit - $limit : 0;
+    $action = isset($_GET['action']) ? sanitize_text_field($_GET['action']) : 'index';
+    $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 20;
+    $offset = isset($_GET['paged']) ? intval($_GET['paged']) * $limit - $limit : 0;
+
 	$model = new Lists();
 
 
@@ -87,11 +88,12 @@ function improveseo_lists()
 	if ($action == 'index') :
 
 		// Filters
-		$orderBy = isset($_GET['orderBy']) ? $_GET['orderBy'] : 'name';
-		$order = isset($_GET['order']) ? $_GET['order'] : 'ASC';
-		$s = isset($_GET['s']) ? $_GET['s'] : '';
+        $orderBy = isset($_GET['orderBy']) ? filter_var($_GET['orderBy'], FILTER_SANITIZE_STRING) : 'name';
+        $order = isset($_GET['order']) ? filter_var($_GET['order'], FILTER_SANITIZE_STRING) : 'ASC';
+        $s = isset($_GET['s']) ? filter_var($_GET['s'], FILTER_SANITIZE_STRING) : '';
 
-		$where = array();
+
+        $where = array();
 		$params = array();
 
 		$sql = 'SELECT * FROM ' . $model->getTable();
@@ -164,16 +166,17 @@ function improveseo_lists()
 		exit;
 
 	elseif ($action == 'edit') :
+        $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
 
-		$id = $_GET['id'];
 		$list = $model->find($id);
 
 		View::render('lists.edit', compact('list'));
 
 	elseif ($action == 'do_edit') :
 
-		$id = $_GET['id'];
-		$list = $model->find($id);
+        $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
+
+        $list = $model->find($id);
 
 		$fields = array("name" => isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '', "list" => isset($_POST['list']) ? sanitize_text_field($_POST['list']) : '');
 
@@ -197,8 +200,9 @@ function improveseo_lists()
 
 	elseif ($action == 'delete') :
 
-		$id = $_GET['id'];
-		$model->delete($id);
+        $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
+
+        $model->delete($id);
 
 		FlashMessage::success('List has been deleted.');
 		wp_redirect(admin_url('admin.php?page=improveseo_lists'));
