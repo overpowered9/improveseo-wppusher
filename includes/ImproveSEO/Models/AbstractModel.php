@@ -63,7 +63,7 @@ abstract class AbstractModel
 				$vars[] = $value;
 			}
 		}
-        implode(", ", $fields)
+
 		$sql = "INSERT INTO ". $this->getTable() ." (". implode(", ", $fields) .", created_at)";
 
 		$sql .= " VALUES (". implode(", ", $values) .", NOW())";
