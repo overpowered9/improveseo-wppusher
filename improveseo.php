@@ -217,7 +217,7 @@ function workdex_init(){
 	}
 }
 
-add_action('wp_ajax_workdex_builder_ajax', 'improveseso_builder');
+add_action('wp_ajax_workdex_builder_ajax', 'improveseo_builder');
 add_action('wp_ajax_workdex_builder_update_ajax', 'improveseo_builder_update');
 
 //AJAX call to check if preview window is open 
@@ -354,7 +354,7 @@ function improveseo_hide_other_notices() {
         'custom-plugin-script', // Script handle
         plugin_dir_url(__FILE__) . 'assets/js/custom-plugin-script.js', // Script URL
         array('jquery'), // Dependencies (optional)
-        '1.40', // Script version (optional)
+        '1.401', // Script version (optional)
         true // Load script in footer
     );
 //}
@@ -538,7 +538,7 @@ function generateAIpopup()
 								<li style="width: 20%;">
 	                                <a href="#step-5" style="text-align: center;">
 	                                    Step 5<br />
-										<small>Meta Title & Descreption</small>
+										<small>Meta Title & Description</small>
 	                                </a>
 	                            </li>
 	                        </ul>
@@ -737,7 +737,6 @@ function generateAIpopup()
 											<div id="ai-image-display"></div>
 											<div class="form-group col-md-12" style="margin: 0 0 0 40%;" id="AIrefreshOption" >
 												<i class="fa fa-refresh" aria-hidden="true" onclick="return refreshAIImage()" style="cursor:pointer;"></i>
-												<p><b>OR</b></p>
 											</div>
 											<input type="hidden" id="AI-Image-uploaded-path" name="AI-Image-uploaded-path">
 										</div>
@@ -870,7 +869,28 @@ function generateAIpopup()
 
 
 		
+		function resetSmartWizard() {
+			// Destroy the existing SmartWizard instance
+			jQuery('#smartwizard').smartWizard('destroy');
 		
+			// Reinitialize the SmartWizard plugin
+			jQuery('#smartwizard').smartWizard({
+				// Configuration options
+				selected: 0,
+				theme: 'default', // theme for the wizard, related CSS need to include for other than default theme
+				transitionEffect: 'fade', // Effect on navigation, none/fade/slide/slideleft
+				enableURLhash: false, // Enable selection of the step based on url hash
+				toolbarSettings: {
+					toolbarPosition: 'bottom', // none, top, bottom, both
+					toolbarButtonPosition: 'right', // left, right
+					showNextButton: true, // show/hide a Next button
+					showPreviousButton: true, // show/hide a Previous button
+				}
+			});
+		
+			// Go to the first step
+			jQuery('#smartwizard').smartWizard('reset');
+		}
 
 	    jQuery(document).ready(function(){
 	    
@@ -932,28 +952,7 @@ function generateAIpopup()
                 }
             });
 
-			function resetSmartWizard() {
-				// Destroy the existing SmartWizard instance
-				$('#smartwizard').smartWizard('destroy');
 			
-				// Reinitialize the SmartWizard plugin
-				$('#smartwizard').smartWizard({
-					// Configuration options
-					selected: 0,
-					theme: 'default', // theme for the wizard, related CSS need to include for other than default theme
-					transitionEffect: 'fade', // Effect on navigation, none/fade/slide/slideleft
-					enableURLhash: false, // Enable selection of the step based on url hash
-					toolbarSettings: {
-						toolbarPosition: 'bottom', // none, top, bottom, both
-						toolbarButtonPosition: 'right', // left, right
-						showNextButton: true, // show/hide a Next button
-						showPreviousButton: true, // show/hide a Previous button
-					}
-				});
-			
-				// Go to the first step
-				$('#smartwizard').smartWizard('reset');
-			}
 
 
 			jQuery('#smartwizard').on('leaveStep', function(e, anchorObject, stepNumber, stepDirection) {
@@ -1099,7 +1098,7 @@ function generateAIpopup()
             }
             
             var seedkeyword = jQuery("#seed_keyword").val();
-            var contenttype = jQuery("#").val();
+            var contenttype = jQuery("#cotnt_type").val();
             
             // When btn is pressed.
             // jQuery("#more_posts").attr("disabled",true);
@@ -1340,17 +1339,19 @@ function generateTitle($seed_type, $seed_keyword, $content_type)
     // The endpoint URL for OpenAI chat completions API (replace with the correct endpoint)
     $apiUrl = 'https://api.openai.com/v1/chat/completions';
 
-    
+		if($content_type!='') {
+			$content_type = 'voice of content must be '.$content_type;
+		}
         if ($seed_type=='seed_option2')
         {
 			//Create a compelling {title/question} to capture attention based on the keyword ‘{seed keyword}’
-            $question = 'Create a compelling seo optimized blog post title based on the keyword `'.$seed_keyword.'` in the form of No Answer. No emojis. No hashtags. Limit characters not including spaces to 80-100.';
+            $question = 'Create a compelling seo optimized blog post title based on the keyword `'.$seed_keyword.'` in the form of No Answer. No emojis. No hashtags. Limit characters not including spaces to 80-100. '.$content_type;
         }
         else if ($seed_type=='seed_option3')
         {
             //$question = 'Create '.$content_type.' question title for '.$seed_keyword.' maximum 30 words limit with sysmbol of "?"';
 
-			$question = 'Create a compelling seo optimized blog post title based on the keyword `'.$seed_keyword.'` in the form of one question only. No Answer. No emojis. No hashtags. Limit characters not including spaces to 80-100.';
+			$question = 'Create a compelling seo optimized blog post title based on the keyword `'.$seed_keyword.'` in the form of one question only. No Answer. No emojis. No hashtags. Limit characters not including spaces to 80-100. '.$content_type;
         }
         else {
             $question = $seed_keyword;
@@ -1476,8 +1477,8 @@ function createAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_
    if($call_to_action == ''){
 	$call_to_actions = '';
    }else{
-	$call_to_actions =  '
-	Call To Action:'.$call_to_action.' ' ;
+	$call_to_actions =
+	$call_to_action ;
    }
 
    
@@ -1508,23 +1509,22 @@ function createAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_
 		
 		The blog post should contain the following:
 		
-		1. **Introduction:**
 		   - Provide a concise preview of the content`s value and insights and write an engaging and informative introduction, incorporating the primary keyword within the first 100-150 words, applying NLP and EI principles for emotional resonance. Don’t create a header for this section, only provide the paragraph.
 		
-		2. **Table of Contents:**
+		2. **Table of Contents:****
 		   - Outline main content areas with H2 section subheaders, non-bolded and in medium gray, for SEO and easy navigation. Please make sure that H2 section subheaders are not bold. Don’t include a header for the following section: ‘Introduction’		
 		
-		3. **Main Content Sections:**
+		3. **Main Content Sections:****
 		   - Create H2 sections with titles using keywords and their variations at a 1-2% usage rate per 100 words to prevent keyword stuffing. Each section should contain 3-5 sentences of detailed content, employing NLP and EI for relatability and actionability. Please make sure that the content for each section is at least 150 words.
 		
-		4. **Conclusion:**
+		4. **Conclusion:****
 		   - Summarize key insights in an H2 header, medium gray, encouraging further exploration or engagement.
 		
-		5.  **FAQ - Frequently Asked Questions**
+		5.  **FAQ - Frequently Asked Questions****
 			-  Answer common questions about '.$seed_keyword.' with clear, informative, non-bolded answers that empathize with the reader`s concerns. Output should just be the questions and answers, don’t write ‘Q’ in front of the questions and ‘A’ in front of the answers.
-		6. **What’s Next?**:
+		6. **What’s Next? ****:
 			-Write a short paragraph inviting the reader to take action in the explained way, including links or phone numbers if provided.
-        '.$call_to_actions.'' ;
+        '.$call_to_actions.' ** must be in the output and do not add # in the output.' ;
 		
         // Your chat messages
         $messages = [
@@ -1634,8 +1634,9 @@ function fetch_AI_image_callback() {
 		if(!empty($_POST['noedit'])) {
 			$imgPrompt = $title;
 		} else {
-			$imgPrompt = "Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. The theme is ".$title;
+			$imgPrompt = "Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. The theme is ‘".$title."’";
 		}
+
 
     	$dateTimeDefault = date('YmdHis');
     	$imagename = 'ai_image_'.$dateTimeDefault;
@@ -1650,7 +1651,7 @@ function fetch_AI_image_callback() {
 			'prompt' => $imgPrompt,//.' '.accordingtoterm($imgdisc, $_REQUEST['wordlimit']),
 			'model'     => 'dall-e-3',
 			'n'         => 1,
-			'size'  => '1024x1024'
+			'size'  => '1792x1024'
 		);
     
 		// Set up cURL

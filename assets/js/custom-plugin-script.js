@@ -57,6 +57,7 @@ jQuery("#generateapivalue").on("click", function() {
     var inputValue = jQuery(".pop_up_form").serialize();
     //  console.log(inputValue);
     
+    
     jQuery.ajax({
    
         type: "POST", // or "GET" depending on your form method
@@ -80,7 +81,36 @@ jQuery("#generateapivalue").on("click", function() {
             
             jQuery("#generateapi").css("display","block");
             jQuery("#generateapivalue").val('Re-Generate AI Post');
-            jQuery("#showmydataindivText").val(content);
+            var imageType = jQuery("input[type='radio'][name='aiImage']").val();
+            var Image_use = '';
+            if(imageType=='AI_image') {
+                Image_use = jQuery("#ai-image-display").html();
+            } else if(imageType=='Manually_image') {
+                Image_use = jQuery("#manually-image-display").html();
+            } else {
+                Image_use = jQuery("#ai-with-prompt-image-display").html();
+            }
+            //alert(Image_use);
+            Image_use = Image_use.replace('style="max-width: 200px;"','');
+            
+
+
+
+          
+
+    // Get the HTML content of the element
+    var htmlContent = content;
+
+    // Use a regular expression to replace ** with <h2> and **** with </h2>
+    var modifiedHtmlContent = htmlContent.replace(/\*\*(.*?)\*\*/g, '<h2 style="margin-top:50px">$1</h2>');
+    modifiedHtmlContent = modifiedHtmlContent.replace(/\*\*\*\*(.*?)\*\*\*\*/g, '</h2>$1<h2 style="margin-top:50px">');
+
+    // Update the HTML content of the element with the modified content
+   
+
+
+
+            jQuery("#showmydataindivText").val(Image_use+modifiedHtmlContent);
             jQuery("#showmydataindivText").css("display","block");
             
             jQuery("#meta_title").val(meta_title);
@@ -98,14 +128,11 @@ jQuery("#generateapivalue").on("click", function() {
             jQuery("#custom-title").val(meta_title);
             jQuery("#custom-description").val(meta_descreption);
 
-            var textarea = document.getElementById('showmydataindivText');
             
-            // Get the plain text content of the textarea
-            var plainTextContent = textarea.value;
 
-            // Convert plain text formatting to HTML equivalents
-            var htmlContent = plainTextContent.replace(/\n/g, '<br>');
-            jQuery("#showmydataindiv").html(htmlContent);
+            // // Convert plain text formatting to HTML equivalents
+            // var htmlContent = plainTextContent.replace(/\n/g, '<br>');
+            // jQuery("#showmydataindiv").html(htmlContent);
             jQuery("#showmydataindiv").css("display","block");
             
 
@@ -114,7 +141,7 @@ jQuery("#generateapivalue").on("click", function() {
             // console.log(htmlContent);
 
             // var htmlContent = convertToHtml(content);
-            tinymce.activeEditor.insertContent(htmlContent);
+            //tinymce.activeEditor.insertContent(htmlContent);
 
             jQuery("#loadingAIData").hide();
         },
@@ -155,11 +182,28 @@ function saveData() {
 }
 
 function saveFinalData() {
+    var textarea = document.getElementById('showmydataindivText');
+            
+            // Get the plain text content of the textarea
+    var plainTextContent = textarea.value;
+    var htmlContent = plainTextContent.replace(/\n/g, '<br>');
+    // jQuery("#showmydataindiv").html(htmlContent);
+    // jQuery("#showmydataindiv").css("display","block");
+    
+
+
+    // Now you have the content of the textarea as HTML
+    // console.log(htmlContent);
+
+    // var htmlContent = convertToHtml(content);
+    tinymce.activeEditor.insertContent('');
+    tinymce.activeEditor.insertContent(htmlContent);
+
     jQuery( "#butn" ).trigger( "click" );
 }
 //
 
-$(document).ready(function() {
+jQuery(document).ready(function() {
     resetSmartWizard();
 });
 
@@ -410,6 +454,7 @@ jQuery(document).ready(function(jQuery) {
         });
     });
 });
+
 
 //
 
