@@ -82,12 +82,15 @@ function improveseo_get_shortcodes(){
 
         }
     }else{
-        echo json_encode(array('status' => 'empty array', 'data' => $improveseo_shortcode_type));
+        echo wp_json_encode(array('status' => 'empty array', 'data' => $improveseo_shortcode_type));
+
     }
     if($shortcode_html!=""){
-        echo json_encode(array('status' => 'success', 'shortcode_html' => $shortcode_html));
+        echo wp_json_encode(array('status' => 'success', 'shortcode_html' => $shortcode_html));
+
     }else{
-        echo json_encode(array('status' => 'failed'));
+        echo wp_json_encode(array('status' => 'failed'));
+
     }
     die;
 }

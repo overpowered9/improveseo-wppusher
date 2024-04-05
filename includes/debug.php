@@ -23,9 +23,10 @@ function improveseo_debug_message($message) {
 	global $debug;
 	
 	if ($debug) {
-		echo $message .'<br>';
+        echo wp_kses_post($message) . '<br>';
 
-		ob_flush();
+
+        ob_flush();
 		flush();
 	}
 }

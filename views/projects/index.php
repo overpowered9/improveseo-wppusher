@@ -1,17 +1,17 @@
 <?php
-
-use ImproveSEO\View;
 if ( ! defined( 'ABSPATH' ) ) exit;
-if (isset($_GET['post_preview'])) {
-	if ($_GET['post_preview'] == 'true') {
-		$project = $projects[0];
-		if ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
-			$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
-			header("Location:" . $export_url);
-			exit;
-		}
-	}
-}
+use ImproveSEO\View;
+
+//if (isset($_GET['post_preview'])) {
+//	if ($_GET['post_preview'] == 'true') {
+//		$project = $projects[0];
+//		if ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
+//			$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
+//			header("Location:" . $export_url);
+//			exit;
+//		}
+//	}
+//}
 
 
 ?>

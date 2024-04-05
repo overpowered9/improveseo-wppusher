@@ -92,7 +92,18 @@ function improveseo_posting()
 
         // Math maximum number of posts
         // Count list items
-        $items = improveseo_count_list_items($_POST);
+// Sanitize and validate the input
+        $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_STRING);
+        $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_STRING);
+        $custom_title = filter_input(INPUT_POST, 'custom_title', FILTER_SANITIZE_STRING);
+        $custom_description = filter_input(INPUT_POST, 'custom_description', FILTER_SANITIZE_STRING);
+        $custom_keywords = filter_input(INPUT_POST, 'custom_keywords', FILTER_SANITIZE_STRING);
+        $permalink = filter_input(INPUT_POST, 'permalink', FILTER_SANITIZE_URL);
+        $tags = filter_input(INPUT_POST, 'tags', FILTER_SANITIZE_STRING);
+
+        $fields = array($title, $content, $custom_title, $custom_description, $custom_keywords, $permalink, $tags);
+
+        $items = improveseo_count_list_items($fields);
 
         if (isset($_POST['local_seo_enabler'])) {
             if (!$items) $items = 1;

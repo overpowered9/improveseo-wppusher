@@ -4,8 +4,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
-	<a href="<?php echo admin_url('admin.php?page=improveseo_dashboard') ?>"><?php _e('Improve SEO', 'improve-seo'); ?></a>
-	&raquo;
+<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_dashboard')); ?>"><?php _e('Improve SEO', 'improve-seo'); ?></a>
+
+&raquo;
 	<span><?php _e('Authors List', 'improve-seo'); ?></span>
 <?php View::endSection('breadcrumbs') ?>
 
@@ -19,14 +20,18 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 <div class="shortcode improveseo_wrapper intro_page  p-3 p-lg-4">
 		<section class="project-section border-bottom d-flex flex-row  justify-content-between align-items-center pb-2">
 		<div class="project-heading d-flex flex-row align-items-center">
-			<img class="mr-2" src="<?php echo IMPROVESEO_WT_URL.'/assets/images/project-list-logo.png'?>" alt="<?php _e('ImproveSeo', 'improve-seo'); ?>">
-			<h1><?php _e('Authors List', 'improve-seo'); ?></h1>
-		</div>
-		<a href="<?php echo admin_url('admin.php?page=improveseo_authors&action=create') ?>" id="btn-add" class="btn btn-outline-primary btn-small"><?php _e('Create Authors', 'improve-seo'); ?></a>
-	</section>
+            <img class="mr-2" src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/project-list-logo.png'); ?>" alt="<?php _e('ImproveSeo', 'improve-seo'); ?>">
+            <h1><?php _e('Authors List', 'improve-seo'); ?></h1>
+
+        </div>
+            <a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_authors&action=create')); ?>" id="btn-add" class="btn btn-outline-primary btn-small"><?php _e('Create Authors', 'improve-seo'); ?></a>
+
+        </section>
 
 <section class="pagination-wrapper text-right d-flex flex-row align-items-center justify-content-between py-3">
-		<span class="displaying-num"><?php echo $results['avail_roles']['improveseo_user'] ?> <?php _e('authors', 'improve-seo'); ?></span>
+		<span class="displaying-num"><?php echo sanitize_text_field($results['avail_roles']['improveseo_user']);
+
+            ?> <?php _e('authors', 'improve-seo'); ?></span>
 		<span class="pagination-links">
 			<?php echo paginate_links(array(
 				'total' => $pages,
@@ -58,7 +63,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									<button type="button" class="toggle-row"><span class="screen-reader-text"><?php _e('Show more details', 'improve-seo'); ?></span></button>
 								</td>
 								<td data-colname="Email">
-									<?php echo $user->user_email ?>
+									<?php echo sanitize_email($user->user_email);
+                                    ?>
 								</td>
 							</tr>
 						<?php endforeach; ?>
@@ -69,8 +75,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 	</section>
 
 	<section class="pagination-wrapper text-right d-flex flex-row align-items-center justify-content-between py-3">
-		<span class="displaying-num"><?php echo $results['avail_roles']['improveseo_user'] ?> <?php _e('authors', 'improve-seo'); ?></span>
-		<span class="pagination-links">
+        <span class="displaying-num"><?php echo esc_html(intval($results['avail_roles']['improveseo_user'])); ?> <?php _e('authors', 'improve-seo'); ?></span>
+        <span class="pagination-links">
 			<?php echo paginate_links(array(
 				'total' => $pages,
 				'current' => $page,

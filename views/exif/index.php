@@ -1,3 +1,8 @@
+<?php
+
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+?>
+
 <div class="PixabayWrap">
 	<div class="PixabaySearch">
 		<input type="text" id="exif-query" placeholder="Address" onkeypress="if (event.keyCode == 13 || event.which == 13) ImageEXIF.find()">

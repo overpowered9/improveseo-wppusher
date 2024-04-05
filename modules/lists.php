@@ -113,7 +113,9 @@ function improveseo_lists()
 
 		$sqlTotal = $wpdb->prepare($sqlTotal, $params);
 
-		$sql .= " ORDER BY $orderBy $order";
+		$sql .= " ORDER BY %s %s";
+        $params[] = $orderBy;
+        $params[] = $order;
 		$sql .= " LIMIT %d, %d";
 
 		$params[] = $offset;

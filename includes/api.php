@@ -233,7 +233,10 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
 		$filteredObjects = array_filter($_POST, function ($obj) {
 			return isset($obj->size);
 		});
+
+
 		$items = improveseo_count_list_items($filteredObjects);
+
 		if ($items == 0) {
 			$items = 1;
 		}
@@ -256,8 +259,8 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
 			'media' => 'required'
 		))) {
 			header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-			echo Validator::get('shortcode');
-			exit();
+            echo esc_html(Validator::get('shortcode'));
+            exit();
 		}
 		$shortcode = $_POST['shortcode'];
 

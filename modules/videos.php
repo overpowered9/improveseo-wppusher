@@ -22,7 +22,7 @@ foreach ($id as $p) {
     }
 
     $video .= '</span>';
-    echo $video;
+    echo esc_html($video);
 }
 
 // Functions to generate HTML for each video type

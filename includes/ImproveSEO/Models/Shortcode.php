@@ -7,7 +7,7 @@ class Shortcode extends AbstractModel
 {
 	public $fillable = array('shortcode', 'type', 'content');
 
-	public function getStatic($limit = 20) 
+	public function getStatic($limit = 20)
 	{
 		global $wpdb;
 
@@ -15,7 +15,7 @@ class Shortcode extends AbstractModel
 		return $wpdb->get_results($sql);
 	}
 
-	public function countStatic() 
+	public function countStatic()
 	{
 		global $wpdb;
 
@@ -23,7 +23,7 @@ class Shortcode extends AbstractModel
 		return $row->total;
 	}
 
-	public function getDynamic($limit = 20) 
+	public function getDynamic($limit = 20)
 	{
 		global $wpdb;
 
@@ -31,7 +31,7 @@ class Shortcode extends AbstractModel
 		return $wpdb->get_results($sql);
 	}
 
-	public function countDynamic() 
+	public function countDynamic()
 	{
 		global $wpdb;
 

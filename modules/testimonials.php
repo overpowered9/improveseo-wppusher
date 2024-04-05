@@ -46,4 +46,5 @@ foreach ($id as $i) {
     </div>';
 }
 
-echo $html;
+echo esc_html($html);
+

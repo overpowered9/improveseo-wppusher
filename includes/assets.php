@@ -1,7 +1,8 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 add_action( 'admin_enqueue_scripts', 'improveseo_enqueue_admin' );
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
+
 
 function improveseo_enqueue_admin(){
 	$my_current_screen = get_current_screen();

@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 ?>
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?php echo admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_dashboard')) ?>">Improve SEO</a>
 &raquo;
 <span>Dashboard</span>
 

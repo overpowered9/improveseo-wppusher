@@ -15,7 +15,7 @@ class Lists extends AbstractModel
 		'size'
 	);
 
-	public function setNameAttribute($value) 
+	public function setNameAttribute($value)
 	{
 		$value = str_replace(' ', '-', strtolower($value));
 		return $value;

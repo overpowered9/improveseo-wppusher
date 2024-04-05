@@ -21,7 +21,9 @@ function improveseo_wt_load_templates($template_name, $vars = null)
 /* ==== print defualt array ==== */
 function improveseo_wt_pa($arr)
 {
-   echo '<pre>';
-   print_r($arr);
-   echo '</pre>';
+    echo '<pre>';
+    print_r(htmlspecialchars($arr));
+    echo '</pre>';
+
+
 }

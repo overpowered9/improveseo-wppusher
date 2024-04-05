@@ -48,8 +48,9 @@ function improveseo_builder()
 		if ($ajax != 1) {
 			echo 'error';
 		} else {
-			echo '<h3>Please, build posts/pages from <a href="' . admin_url('admin.php?page=improveseo_projects') . '">projects list.</a></h3>';
-		}
+            echo '<h3>Please, build posts/pages from <a href="' . esc_url(admin_url('admin.php?page=improveseo_projects')) . '">projects list.</a></h3>';
+
+        }
 		return;
 	}
 
@@ -721,8 +722,9 @@ function improveseo_builder_update()
 		if ($ajax != 1) {
 			echo 'error';
 		} else {
-			echo '<h3>Please, build posts/pages from <a href="' . admin_url('admin.php?page=improveseo_projects') . '">projects list.</a></h3>';
-		}
+            echo '<h3>Please, build posts/pages from <a href="' . esc_url(admin_url('admin.php?page=improveseo_projects')) . '">projects list.</a></h3>';
+
+        }
 		return;
 	}
 
@@ -1321,8 +1323,9 @@ function improveseo_builder_update()
 
 	$model->update($update, $project->id);
 	if ($ajax == 1) {
-		echo $project->iteration;
-		die();
+        echo esc_html($project->iteration);
+
+        die();
 	} else {
 		View::render('builder.index');
 	}

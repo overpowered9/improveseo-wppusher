@@ -53,8 +53,8 @@ foreach ($id as $p) {
 
             $btn .= $tw_tap_btn_text;
             $btn .= '</a>';
-            //echo '<a style="'.$style.'" class="improveseo_btn '.$classes.'" href="'.$link.'">'.$text.'</a>';
       }
       $btn .= '</span>';
-      echo $btn;
+    echo esc_html($btn);
+
 }

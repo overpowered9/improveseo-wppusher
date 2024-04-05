@@ -50,7 +50,7 @@ abstract class AbstractModel
 		$vars = array();
 
 		//$data = stripslashes_deep($data);
-		
+
 		$data = $this->escape($data);
 
 		foreach ($data as $field => $value) {
@@ -63,9 +63,9 @@ abstract class AbstractModel
 				$vars[] = $value;
 			}
 		}
-
+        implode(", ", $fields)
 		$sql = "INSERT INTO ". $this->getTable() ." (". implode(", ", $fields) .", created_at)";
-		
+
 		$sql .= " VALUES (". implode(", ", $values) .", NOW())";
 
 		$sql = $wpdb->prepare($sql, $vars);

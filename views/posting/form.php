@@ -187,7 +187,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
 							$select .= "<div class='input-group cta-check m-0'><span><input " . esc_attr($checked) . " id='" . esc_attr($category->term_id) . "' type='checkbox' value='" . esc_attr($category->term_id) . "' name='cats[]'><label for='" . esc_attr($category->term_id) . "'>" . esc_html($category->name) . "</label></span></div>";
 						}
 
-						echo $select;
+						echo ($select);
 						?>
 					</div>
 				</div>
@@ -238,18 +238,22 @@ $googleApiKey = get_option('improveseo_google_api_key');
 						?>
 						<div class="input-group my-3 cta-check">
 							<span>
-								<input id="dripfeed-enabler" name="dripfeed_enabler" type="checkbox" value="1" <?php echo $old_dripfeed_enabler == 1 ? 'checked' : ''; ?>>
+								<input id="dripfeed-enabler" name="dripfeed_enabler" type="checkbox" value="1" <?php echo esc_attr($old_dripfeed_enabler == 1 ? 'checked' : ''); ?>
+>
 								<label for="dripfeed-enabler" class="selectit"> <?php esc_html_e('Enable Feature', 'improve-seo'); ?></label>
 							</span>
 						</div>
 
-						<div id="dripfeed-wrap" style="display: <?php echo $old_dripfeed_enabler == 1 ? 'block' : 'none'; ?>;">
+						<div id="dripfeed-wrap" style="display: <?php echo esc_attr($old_dripfeed_enabler == 1 ? 'block' : 'none'); ?>
+                                ;">
 							<div class="input-group">
 								<label for="dripfeed-type" class="form-label"><?php esc_html_e('Dripfeed Type:', 'improve-seo'); ?></label>
 								<?php $old_dripfeed_type = Validator::old('dripfeed_type', $task->options['dripfeed_type']) ?>
 								<select id="dripfeed-type" name="dripfeed_type" class="form-control">
-									<option value="per-day" <?php echo $old_dripfeed_type == 'per-day' ? ' selected' : '' ?>><?php esc_html_e('X posts/pages per day', 'improve-seo'); ?></option>
-									<option value="over-days" <?php echo $old_dripfeed_type == 'over-days' ? ' selected' : '' ?>><?php esc_html_e('Whole project dripped over X days', 'improve-seo'); ?></option>
+									<option value="per-day" <?php echo esc_attr($old_dripfeed_type == 'per-day' ? ' selected' : ''); ?>
+                                     ><?php esc_html_e('X posts/pages per day', 'improve-seo'); ?></option>
+									<option value="over-days" <?php echo esc_attr($old_dripfeed_type == 'over-days' ? ' selected' : ''); ?>
+                                    ><?php esc_html_e('Whole project dripped over X days', 'improve-seo'); ?></option>
 								</select>
 							</div>
 							<div class="input-group <?php echo (Validator::hasError('dripfeed_x')) ? 'PostForm--error' : '' ?>">

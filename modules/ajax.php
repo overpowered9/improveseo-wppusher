@@ -1,4 +1,5 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 use ImproveSEO\View;
 use ImproveSEO\Spintax;
 
@@ -9,7 +10,7 @@ use ImproveSEO\Models\Task;
 use ImproveSEO\FlashMessage;
 
 add_action('wp_ajax_improveseo_generate_preview', 'improveseo_generate_preview');
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
+
 
 function improveseo_generate_preview() {
     global $wpdb;
@@ -161,9 +162,19 @@ function improveseo_generate_preview() {
         $project_data['city_channel_page'] = sanitize_text_field($_POST['city_channel_content']);
     }
 
+
+    $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_STRING);
+    $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_STRING);
+    $custom_title = filter_input(INPUT_POST, 'custom_title', FILTER_SANITIZE_STRING);
+    $custom_description = filter_input(INPUT_POST, 'custom_description', FILTER_SANITIZE_STRING);
+    $custom_keywords = filter_input(INPUT_POST, 'custom_keywords', FILTER_SANITIZE_STRING);
+    $permalink = filter_input(INPUT_POST, 'permalink', FILTER_SANITIZE_URL);
+    $tags = filter_input(INPUT_POST, 'tags', FILTER_SANITIZE_STRING);
+
+    $fields = array($title, $content, $custom_title, $custom_description, $custom_keywords, $permalink, $tags);
     // Math maximum number of posts
     // Count list items
-    $items = improveseo_count_list_items($_POST);
+    $items = improveseo_count_list_items($fields);
 
     if (isset($_POST['local_seo_enabler'])) {
         if (!$items) $items = 1;
@@ -189,6 +200,7 @@ function improveseo_generate_preview() {
     $wpdb->query("SET GLOBAL max_allowed_packet = 268435456");
     $project_id = $model->create($data);
 
-    echo json_encode(array('status' => 'success', 'project_id' => $project_id));
+    echo json_encode(array('status' => 'success', 'project_id' => intval($project_id)));
+
     die;
 }
