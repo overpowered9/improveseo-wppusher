@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
-				'base' => admin_url('admin.php?page=improveseo_noindex%_%')
+				'base' => esc_url(admin_url('admin.php?page=improveseo_noindex%_%'))
 			)); ?>
 		</span>
 	</p>
@@ -47,7 +47,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					</strong>
 					<div class="row-actions">
 						<span class="trash">
-							<a href="<?php echo wp_nonce_url(admin_url('admin.php?page=improveseo_noindex&action=remove&id='. $tag->term_id .'&noheader=true'), 'remove_noindex_nonce'); ?>" onclick="return confirm('<?php printf(esc_html__('Are you sure to delete noindex meta tag from %s?', 'improve-seo'), esc_html($tag->name)); ?>')"><?php esc_html_e('Delete noindex key', 'improve-seo'); ?></a>
+							<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_noindex&action=remove&id='. $tag->term_id .'&noheader=true'), 'remove_noindex_nonce'); ?>" onclick="return confirm('<?php printf(esc_html__('Are you sure to delete noindex meta tag from %s?', 'improve-seo'), esc_html($tag->name)); ?>')"><?php esc_html_e('Delete noindex key', 'improve-seo'); ?></a>
 						</span>
 					</div>
 				</td>
@@ -61,14 +61,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 	</form>
 
 	<p>
-		<span class="displaying-num"><?php echo esc_html($results->total); ?> <?php esc_html_e('tags', 'improve-seo'); ?></span>
+		<span class="displaying-num"><?php echo esc_attr($results->total); ?> <?php esc_html_e('tags', 'improve-seo'); ?></span>
 		|
 		<span class="pagination-links">
 			<?php echo paginate_links(array(
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
-				'base' => admin_url('admin.php?page=improveseo_noindex%_%')
+				'base' => esc_url(admin_url('admin.php?page=improveseo_noindex%_%'))
 			)); ?>
 		</span>
 	</p>

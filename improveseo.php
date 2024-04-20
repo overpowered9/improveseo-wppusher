@@ -139,7 +139,8 @@ function improveseo_media_button()
 			$html .= '<button data-action="list" class="sw-hide-btn add-seolistshortcode button" id=' . $li . '>@list:' . $li . '</button>';
 		}
 	}
-	echo $html;
+
+	echo wp_kses($html,"button");
 }
 
 function improveseo_lits()
@@ -550,9 +551,11 @@ class Improveseo_Testimonial
 	/****=====Edit/Updating the selected data====***/
 	function edit_selected_data()
 	{
-		$rand_id = isset($_REQUEST['rand_id']) ? sanitize_text_field($_REQUEST['rand_id']) : '';
-		$page_url = isset($_REQUEST['page_url']) ? esc_url($_REQUEST['page_url']) : '';
-		$btn_action = isset($_REQUEST['btn_action']) ? sanitize_text_field($_REQUEST['btn_action']) : '';
+		$rand_id = isset($_REQUEST['rand_id']) ? filter_var($_REQUEST['rand_id'],FILTER_SANITIZE_NUMBER_INT) : '';
+        $btn_action = isset($_REQUEST['btn_action']) ? wp_kses($_REQUEST['btn_action'], array()) : '';
+        $page_url = isset($_REQUEST['page_url']) ? esc_url_raw(filter_var($_REQUEST['page_url'], FILTER_SANITIZE_URL)) : '';
+
+
 
 		if (empty($rand_id) || empty($page_url)) {
 			return;

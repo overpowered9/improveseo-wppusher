@@ -45,7 +45,7 @@ use ImproveSEO\View;
 			<a href="#" class="btn btn-outline-primary btn-small" id="importProject"><?php esc_html_e('Import', 'improve-seo'); ?></a>
 			<a onclick="return confirm('<?php esc_attr_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');" href="javascript:void()" class="btn btn-outline-primary btn-small" id="exportProject"><?php esc_html_e('Export All Project', 'improve-seo'); ?></a>
 			<a href="javascript:void()" class="btn btn-outline-primary btn-small" onclick="return confirm('<?php esc_attr_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');" id="importProject"><?php esc_html_e('Import', 'improve-seo'); ?></a>
-			<a href="<?php echo  admin_url('admin.php?page=improveseo_posting') ?>" class="btn btn-outline-primary btn-small" id="btn-add"><?php esc_html_e('Add New', 'improve-seo'); ?></a>
+			<a href="<?php echo  esc_url(admin_url('admin.php?page=improveseo_posting')) ?>" class="btn btn-outline-primary btn-small" id="btn-add"><?php esc_html_e('Add New', 'improve-seo'); ?></a>
 		</div>
 	</section>
 	<section class="pagination-wrapper text-right py-3">
@@ -68,7 +68,7 @@ use ImproveSEO\View;
 					$is_preview = 'yes';
 				}
 			} ?>
-			<input type="hidden" name="is_preview_available" id="is_preview_available" value="<?php echo $is_preview; ?>" />
+			<input type="hidden" name="is_preview_available" id="is_preview_available" value="<?php echo esc_attr($is_preview); ?>" />
 
 			<div class="table-responsive-sm">
 				<div class="tablenav top">
@@ -84,7 +84,7 @@ use ImproveSEO\View;
 						<input type="submit" id="doaction" class="del-btn btn btn-outline-danger button action" value="<?php esc_attr_e('Delete Projects', 'improve-seo'); ?>">
 					</div>
 					<div class="tablenav-pages one-page">
-						<span class="displaying-num"><?php echo esc_html(count($projects)); ?> <?php esc_html_e('items', 'improve-seo'); ?></span>
+						<span class="displaying-num"><?php echo esc_attr(count($projects)); ?> <?php esc_html_e('items', 'improve-seo'); ?></span>
 					</div>
 					<br class="clear">
 				</div>
@@ -110,10 +110,10 @@ use ImproveSEO\View;
 					<tbody>
 						<?php foreach ($projects as $project) : ?>
 							<tr <?php echo  $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
-								<td><input id="cb-select-<?php echo $project->id; ?>" type="checkbox" name="project_ids[]" value="<?php echo $project->id; ?>"></td>
+								<td><input id="cb-select-<?php echo esc_attr($project->id); ?>" type="checkbox" name="project_ids[]" value="<?php echo $project->id; ?>"></td>
 								<td scope="col" class="column-title column-primary has-row-actions">
 									<strong>
-										<a href="javascript:void(0)" class="primary"><?php echo  esc_html($project->name) ?></a>
+										<a href="javascript:void(0)" class="primary"><?php echo  esc_attr($project->name) ?></a>
 									</strong>
 									<div class="row-actions">
 										<span class="edit">
@@ -155,18 +155,18 @@ use ImproveSEO\View;
 									<button type="button" class="toggle-row"><span class="screen-reader-text"><?php echo  esc_html__('Show more details', 'your-text-domain') ?></span></button>
 								</td>
 
-								<td scope="col" data-colname="<?php esc_attr_e('Created Posts', 'improve-seo'); ?>"><?php echo esc_html($project->iteration); ?></td>
-								<td scope="col" data-colname="<?php esc_attr_e('Max Posts', 'improve-seo'); ?>"><?php echo esc_html($project->max_iterations); ?></td>
+								<td scope="col" data-colname="<?php esc_attr_e('Created Posts', 'improve-seo'); ?>"><?php echo esc_attr($project->iteration); ?></td>
+								<td scope="col" data-colname="<?php esc_attr_e('Max Posts', 'improve-seo'); ?>"><?php echo esc_attr($project->max_iterations); ?></td>
 								<td scope="col" data-colname="<?php esc_attr_e('Created At', 'improve-seo'); ?>">
 									<?php
 									$date = new DateTime($project->created_at);
-									echo esc_html($date->format('d/m/Y H:i:s'));
+									echo esc_attr($date->format('d/m/Y H:i:s'));
 									?>
 								</td>
 								<td scope="col" data-colname="<?php esc_attr_e('Last Update', 'improve-seo'); ?>">
 									<?php
 									$date = new DateTime($project->updated_at);
-									echo esc_html($date->format('d/m/Y H:i:s'));
+									echo esc_attr($date->format('d/m/Y H:i:s'));
 									?>
 								</td>
 								<td scope="col" data-colname="<?php esc_attr_e('Status', 'improve-seo'); ?>">
@@ -235,10 +235,10 @@ use ImproveSEO\View;
 
 		function start_build(ids) {
 			var max_iterations = parseInt(jQuery('#max-iterations').val());
-			var export_url = "<?php echo admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id="); ?>";
+			var export_url = "<?php echo esc_url(admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id=")); ?>";
 			jQuery
 				.ajax({
-					url: "<?php echo admin_url("admin-ajax.php"); ?>",
+					url: "<?php echo esc_url(admin_url("admin-ajax.php")); ?>",
 					data: ({
 						action: 'workdex_builder_ajax',
 						page: 100,
@@ -289,10 +289,10 @@ use ImproveSEO\View;
 
 		function start_update(ids) {
 
-			var new_location = "<?php echo admin_url('admin.php?page=improveseo_projects'); ?>";
+			var new_location = "<?php echo esc_url(admin_url('admin.php?page=improveseo_projects')); ?>";
 			var max_iterations = parseInt(jQuery('#max-iterations[data-project="' + ids + '"]').val());
 			jQuery.ajax({
-				url: "<?php echo admin_url("admin-ajax.php"); ?>",
+				url: "<?php echo esc_url(admin_url("admin-ajax.php")); ?>",
 				data: ({
 					action: 'workdex_builder_update_ajax',
 					page: 100,
@@ -337,7 +337,7 @@ use ImproveSEO\View;
 			if ($project->state == 'Published' && $project->iteration < $project->max_iterations) { ?>
 
 				<script type="text/javascript">
-					build_project(<?php echo $project->id ?>);
+					build_project(<?php echo esc_attr($project->id) ?>);
 				</script>
 		<?php
 			} elseif ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
@@ -352,7 +352,7 @@ use ImproveSEO\View;
 	if (isset($_GET['build_posts_id'])) { ?>
 
 		<script type='text/javascript'>
-			update_project(<?php echo  $_GET['build_posts_id'] ?>);
+			update_project(<?php echo  esc_attr(sanitize_text_field($_GET['build_posts_id'])) ?>);
 		</script>
 
 	<?php } ?>

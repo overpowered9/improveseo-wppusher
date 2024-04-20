@@ -81,6 +81,7 @@ abstract class AbstractModel
 		$id = (int)$id;
 		$fields = array();
 		$vars = array();
+        $vars[] = $this->getTable();
 
 		$data = $this->escape($data);
 		$data = stripslashes_deep($data);
@@ -98,7 +99,7 @@ abstract class AbstractModel
 
 		if ($this->timestamps) $fields[] = "updated_at = NOW()";
 
-		$sql = "UPDATE ". $this->getTable();
+		$sql = "UPDATE %s";
 		$sql .= " SET ". implode(", ", $fields);
 		$sql .= " WHERE id = $id";
 
@@ -126,8 +127,8 @@ abstract class AbstractModel
 	public function find($id)
 	{
 		global $wpdb;
-
-		$sql = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} WHERE id = %d", [$id]);
+        $table_name = $wpdb->prefix.$this->table;
+		$sql = $wpdb->prepare("SELECT * FROM %s WHERE id = %d", $table_name,[$id]);
 
 		$row = $wpdb->get_row($sql);
 

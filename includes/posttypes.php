@@ -38,8 +38,8 @@ function improveseo_create_posttypes() {
 	register_post_type('channel',
 		array(
 			'labels' => array(
-				'name' => __('Channels'),
-				'singular_name' => __('Channel')
+				'name' => __('Channels','improve-seo'),
+				'singular_name' => __('Channel','improve-seo')
 			),
 			'public' => true,
 			'publicly_queryable' => true,

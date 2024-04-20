@@ -103,29 +103,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						</div>
 					</div>
 
-					<!-- <div class="col-12 col-xl-3 col-sm-6 col-lg-4">
-						<div class="card">
-							<a href="<?php echo admin_url('admin.php?page=improveseo_shortcodes') ?>">
-								<div class="card-body text-center">
-									<div class="icon-wrap">
-										<img src="<?php echo IMPROVESEO_WT_URL . '/assets/images/posting-icon.png' ?>" alt="" class="icon">
-									</div>
-									<div class="title">
-										<h4>Shortcodes</h4>
-									</div>
-									<div class="text">
-										<span>Create shortcodes here manually. Once you've created a shortcode, simply use [name of your shortcode] to implement it within your post!</span>
-									</div>
-								</div>
-							</a>
-							<div class="card-footer text-right">
-							    <div class="custom-control custom-switch">
-								  	<input type="checkbox" checked="checked" class="custom-control-input" id="customSwitch3">
-								  	<label class="custom-control-label" for="customSwitch3"></label>
-								</div>
-							  </div>
-						 </div>
-					</div> -->
 					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
 						<div class="card">
 							<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_lists')); ?>">
@@ -157,7 +134,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
 								</div>
 								<div class="title">
-									<h4><?php esc_html_e('Meta', 'improve-seo'); ?></h4>
+									<h4><?php  esc_html_e('Meta', 'improve-seo'); ?></h4>
 								</div>
 								<div class="text">
 									<span><?php esc_html_e('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', 'improve-seo'); ?></span>

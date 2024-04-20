@@ -70,6 +70,9 @@ TERMS AND CONDITION =
 2. Notify.js
 3. underscore v6.4.3
 4. jquery.modal.min.js 0.9.1 (http://github.com/kylefox/jquery-modal)
+5. bootstrap - v5.3.3
+6. lsolesen Pel  (https://pel.github.io/pel/)
+7. Carbon
 
 
 

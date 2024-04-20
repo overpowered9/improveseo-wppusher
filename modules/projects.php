@@ -95,9 +95,9 @@ function improveseo_projects()
 
 	if ($action == 'index') :
 		// Filters
-        $orderBy = isset($_GET['orderBy']) && in_array($_GET['orderBy'], $allowed_order_by) ? $_GET['orderBy'] : 'created_at';
+        $orderBy = isset($_GET['orderBy']) && in_array($_GET['orderBy'], $allowed_order_by) ? sanitize_text_field($_GET['orderBy']) : 'created_at';
 
-        $order = isset($_GET['order']) && in_array($_GET['order'], $allowed_order) ? $_GET['order'] : 'DESC';
+        $order = isset($_GET['order']) && in_array($_GET['order'], $allowed_order) ? sanitize_text_field($_GET['order']) : 'DESC';
 
 
         $highlight = isset($_GET['highlight']) ? sanitize_text_field($_GET['highlight']) : null;

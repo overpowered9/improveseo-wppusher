@@ -7,7 +7,7 @@ use ImproveSEO\LiteSpintax;
 use ImproveSEO\Models\Task;
 use ImproveSEO\FlashMessage;
 
-if (!defined('ABSPATH')) exit; // Exit if accessed directly  
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 function improveseo_posting()
 {
@@ -340,21 +340,25 @@ function improveseo_posting()
         }
 
 
-        $filteredObjects = array_filter($_POST, function ($obj) {
-            return isset($obj->size);
-        });
+//        $filteredObjects = array_filter($_POST, function ($obj) {
+//            return isset($obj->size);
+//        });
+
+
         // Math maximum number of posts
-        $items = improveseo_count_list_items($filteredObjects);
+        $items = improveseo_count_list_items($_POST['size']);
+
 
         $max = isset($_POST['max_posts']) ? intval($_POST['max_posts']) : 0;
         if (isset($_POST['local_seo_enabler']) && !$items) {
             $items = 1;
         }
+
         $max = $max <= 0 ? ($items ? $items : Spintax::count(Spintax::parse($title))) : $max;
         // Sanitize and validate max_posts
         $options_data['max_posts'] = isset($_POST['max_posts']) ? absint($_POST['max_posts']) : '';
 
-
+        $cats = isset($_POST['cats']) && is_array($_POST['cats']) ? $_POST['cats'] : [];
         $data = array(
             'name' => $name,
             'content' => base64_encode(json_encode($project_data)),
@@ -363,7 +367,7 @@ function improveseo_posting()
             'iteration' => 0,
             'spintax_iterations' => max($iterations),
             'max_iterations' => $max,
-            'cats' => json_encode($_POST['cats'])
+            'cats' => json_encode($cats)
         );
         $wpdb->query("SET GLOBAL max_allowed_packet = 268435456");
 

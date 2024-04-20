@@ -451,7 +451,7 @@ function improveseo_dashboard()
 			'iteration' => 0,
 			'spintax_iterations' => max($iterations),
 			'max_iterations' => $max,
-			'cats' => json_encode($_POST['cats'])
+			'cats' => json_encode(sanitize_text_field($_POST['cats']))
 		);
 		$wpdb->query("SET GLOBAL max_allowed_packet = 268435456");
 
@@ -462,7 +462,7 @@ function improveseo_dashboard()
 		exit;
 
 	elseif ($action == 'edit_post') :
-		$task = $model->find(absint($_GET['id']));
+		$task = $model->find(absint(filter_var($_GET['id'])));
 
 		View::render('posting.edit-post', compact('task'));
 	endif;

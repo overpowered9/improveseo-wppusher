@@ -20,11 +20,11 @@ class FlashMessage
 
 	public static function handle()
 	{
-		$message = isset($_SESSION['improveseo.flashmessage.message'])?$_SESSION['improveseo.flashmessage.message']:'';
-		$type = isset($_SESSION['improveseo.flashmessage.type'])?$_SESSION['improveseo.flashmessage.type']:'';
+		$message = isset($_SESSION['improveseo.flashmessage.message'])?sanitize_text_field($_SESSION['improveseo.flashmessage.message']):'';
+		$type = isset($_SESSION['improveseo.flashmessage.type'])?sanitize_text_field($_SESSION['improveseo.flashmessage.type']):'';
 
-		unset($_SESSION['improveseo.flashmessage.message']);
-		unset($_SESSION['improveseo.flashmessage.type']);
+		unset($message);
+		unset($type);
 
 		View::render('flashmessage.message', compact('message', 'type'));
 	}

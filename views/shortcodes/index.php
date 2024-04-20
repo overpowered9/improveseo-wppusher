@@ -28,26 +28,26 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			<img class="mr-2" src="<?php echo IMPROVESEO_WT_URL . '/assets/images/project-list-logo.png' ?>" alt="ImproveSeo">
 			<h1>Shortcodes List</h1>
 		</div>
-		<a href="<?php echo admin_url('admin.php?page=improveseo_shortcodes&action=create') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
+		<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_shortcodes&action=create')) ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
 	</section>
 	<section class="tabs-wrap clearfix border-bottom mb-4">
 		<ul class="subsubsub m-0">
 			<li class="all">
-				<a href="<?php echo admin_url('admin.php?page=improveseo_shortcodes&type=all') ?>" class="<?php if ($type == 'all') echo 'current' ?>">
+				<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_shortcodes&type=all')) ?>" class="<?php if ($type == 'all') echo 'current' ?>">
 					All
 					<span class="count">(<?php echo $all ?>)</span>
 				</a>
 			</li>
 			<li class="static">
-				<a href="<?php echo admin_url('admin.php?page=improveseo_shortcodes&type=static') ?>" class="<?php if ($type == 'static') echo 'current' ?>">
+				<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_shortcodes&type=static')) ?>" class="<?php if ($type == 'static') echo 'current' ?>">
 					Static
 					<span class="count">(<?php echo $static ?>)</span>
 				</a>
 			</li>
 			<li class="dynamic">
-				<a href="<?php echo admin_url('admin.php?page=improveseo_shortcodes&type=dynamic') ?>" class="<?php if ($type == 'dynamic') echo 'current' ?>">
+				<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_shortcodes&type=dynamic')) ?>" class="<?php if ($type == 'dynamic') echo 'current' ?>">
 					Dynamic
-					<span class="count">(<?php echo $dynamic ?>)</span>
+					<span class="count">(<?php echo esc_attr($dynamic) ?>)</span>
 				</a>
 			</li>
 		</ul>
@@ -71,7 +71,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 										<a class="row-title" href="<?php echo esc_url(admin_url('admin.php?page=improveseo_shortcodes&action=edit&id=' . $code->id)); ?>"><?php echo esc_html($code->shortcode); ?></a>
 									</strong>
 									<p>
-										<?php echo esc_html($code->content); ?>
+										<?php echo esc_attr($code->content); ?>
 									</p>
 									<div class="row-actions">
 										<span class="edit">
@@ -84,11 +84,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									</div>
 									<button type="button" class="toggle-row"><span class="screen-reader-text"><?php esc_html_e('Show more details', 'improve-seo'); ?></span></button>
 								</td>
-								<td data-colname="Type"><?php echo esc_html($code->type); ?></td>
+								<td data-colname="Type"><?php echo esc_attr($code->type); ?></td>
 								<td data-colname="Created At">
 									<?php
 									$date = new DateTime($code->created_at);
-									echo esc_html($date->format('d/m/Y H:i:s'));
+									echo esc_attr($date->format('d/m/Y H:i:s'));
 									?>
 								</td>
 							</tr>

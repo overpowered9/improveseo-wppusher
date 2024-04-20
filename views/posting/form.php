@@ -161,7 +161,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
 							"order"     => "ASC"
 						);
 						$cats = get_categories($args);
-
+                        $select = "";
 						foreach ($cats as $category) {
 							// do not show improve SEO category
 
@@ -187,8 +187,9 @@ $googleApiKey = get_option('improveseo_google_api_key');
 							$select .= "<div class='input-group cta-check m-0'><span><input " . esc_attr($checked) . " id='" . esc_attr($category->term_id) . "' type='checkbox' value='" . esc_attr($category->term_id) . "' name='cats[]'><label for='" . esc_attr($category->term_id) . "'>" . esc_html($category->name) . "</label></span></div>";
 						}
 
-						echo ($select);
+
 						?>
+                        <?php  echo ($select); ?>
 					</div>
 				</div>
 
@@ -441,7 +442,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
 						<button type="button" class="handlediv button-link" aria-expanded="true">
 							<span class="toggle-indicator" aria-hidden="true"></span>
 						</button>
-						<h3 class="hndle"><span><?php echo _e("Improve SEO Options", "improve-seo") ?></span></h3>
+						<h3 class="hndle"><span><?php echo esc_attr_e("Improve SEO Options", "improve-seo") ?></span></h3>
 						<div class="inside">
 							<div class="customizer-wrapper seo-post-meta-wrapper">
 								<?php
@@ -491,7 +492,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
 														<span class="google-description-content">
 															<?php
 															if ($task->options['custom_title'] == "") {
-																echo esc_html__("Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.", 'improve-seo');
+																echo esc_html_e("Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.", 'improve-seo');
 															} else {
 																echo esc_html($task->options['custom_title']);
 															}
@@ -524,7 +525,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
 														<span class="google-description-content">
 															<?php
 															if ($task->options['custom_title'] == "") {
-																echo esc_html__("Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.", 'improve-seo');
+																echo esc_attr_e("Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.", 'improve-seo');
 															} else {
 																echo esc_html($task->options['custom_title']);
 															}
@@ -539,7 +540,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
 									<div class="input-group">
 										<label for="custom-title" class="form-label">Title</label>
 										<div class="input-prefix">
-											<input id="custom-title" name="custom_title" class="form-control full-width textarea-control" type="text" placeholder="<?php _e('Title', 'your-text-domain'); ?>" value="<?php echo esc_attr(Validator::old('custom_title', $task->options['custom_title'])); ?>">
+											<input id="custom-title" name="custom_title" class="form-control full-width textarea-control" type="text" placeholder="<?php esc_html_e('Title', 'your-text-domain'); ?>" value="<?php echo esc_attr(Validator::old('custom_title', $task->options['custom_title'])); ?>">
 
 											<span>Ex.</span>
 										</div>
@@ -550,7 +551,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
 									<div class="input-group">
 										<label for="custom-description" class="form-label">Description</label>
 										<div class="input-prefix">
-											<textarea id="custom-description" placeholder="Description" name="custom_description" class="full-width textarea-control"><?php echo Validator::old('custom_description', $task->options['custom_description']) ?></textarea>
+											<textarea id="custom-description" placeholder="Description" name="custom_description" class="full-width textarea-control"><?php echo esc_attr(Validator::old('custom_description', $task->options['custom_description'])) ?></textarea>
 											<span>Ex.</span>
 										</div>
 										<div id="custom-description-error" style="display:none; color:red; margin-top:5px;">Your meta description contains more than 160 characters! <br />
@@ -560,7 +561,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
 									<div class="input-group">
 										<label for="custom-keywords" class="form-label">Keywords</label>
 										<div class="input-prefix">
-											<textarea id="custom-keywords" placeholder="Keywords" name="custom_keywords" class="full-width textarea-control"><?php echo Validator::old('custom_keywords', $task->options['custom_keywords']) ?></textarea>
+											<textarea id="custom-keywords" placeholder="Keywords" name="custom_keywords" class="full-width textarea-control"><?php echo esc_attr( Validator::old('custom_keywords', $task->options['custom_keywords'])) ?></textarea>
 											<span>Ex.</span>
 										</div>
 									</div>

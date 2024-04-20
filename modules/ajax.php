@@ -57,7 +57,7 @@ function improveseo_generate_preview() {
             sanitize_text_field($_POST['custom_title']),
             sanitize_text_field($_POST['custom_description']),
             sanitize_text_field($_POST['custom_keywords']),
-            esc_url($_POST['permalink']),
+            sanitize_text_field($_POST['permalink']),
             sanitize_text_field($_POST['tags'])
         ));
         $options_data['local_geo_country'] = sanitize_text_field($_POST['local_country']);
