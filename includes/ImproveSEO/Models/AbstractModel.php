@@ -48,7 +48,7 @@ abstract class AbstractModel
 		$fields = array();
 		$values = array();
 		$vars = array();
-
+        $tablename = $this->getTable();
 		//$data = stripslashes_deep($data);
 
 		$data = $this->escape($data);
@@ -64,11 +64,12 @@ abstract class AbstractModel
 			}
 		}
 
-		$sql = "INSERT INTO ". $this->getTable() ." (". implode(", ", $fields) .", created_at)";
+		$sql = "INSERT INTO tablename"." (". implode(", ", $fields) .", created_at)";
 
 		$sql .= " VALUES (". implode(", ", $values) .", NOW())";
-
+        $sql = str_replace("tablename",$tablename,$sql);
 		$sql = $wpdb->prepare($sql, $vars);
+
 		$wpdb->query($sql);
 
 		return $wpdb->insert_id;
@@ -81,12 +82,9 @@ abstract class AbstractModel
 		$id = (int)$id;
 		$fields = array();
 		$vars = array();
-        $vars[] = $this->getTable();
-
 		$data = $this->escape($data);
 		$data = stripslashes_deep($data);
-		//$data = $this->escape($data);
-
+        $tablename = $this->getTable();
 		foreach ($data as $field => $value) {
 			if (in_array($field, $this->fillable)) {
 				$method = 'set'. ucfirst($field) .'Attribute';
@@ -99,11 +97,14 @@ abstract class AbstractModel
 
 		if ($this->timestamps) $fields[] = "updated_at = NOW()";
 
-		$sql = "UPDATE %s";
+		$sql = "UPDATE tablename";
 		$sql .= " SET ". implode(", ", $fields);
-		$sql .= " WHERE id = $id";
+		$sql .= " WHERE id = %d";
+        $vars[] = $id;
+
 
 		$sql = $wpdb->prepare($sql, $vars);
+        $sql = str_replace("tablename",$tablename,$sql);
 		$wpdb->query($sql);
 
 		return true;
@@ -112,13 +113,14 @@ abstract class AbstractModel
 	public function delete($id)
 	{
 		global $wpdb;
-
-		$sql = "DELETE FROM ". $this->getTable();
-		$sql .= " WHERE id = %d";
+        $tablename = $this->getTable();
 
 		$vars[] = $id;
 
-		$sql = $wpdb->prepare($sql, $vars);
+
+        $sql = "DELETE FROM tablename WHERE id = %d";
+        $sql = str_replace("tablename",$tablename,$sql);
+        $sql = $wpdb->prepare($sql, $vars);
 		$wpdb->query($sql);
 
 		return true;
@@ -127,9 +129,9 @@ abstract class AbstractModel
 	public function find($id)
 	{
 		global $wpdb;
-        $table_name = $wpdb->prefix.$this->table;
-		$sql = $wpdb->prepare("SELECT * FROM %s WHERE id = %d", $table_name,[$id]);
-
+        $tablename = $this->getTable();
+		$sql = $wpdb->prepare("SELECT * FROM tablename WHERE id = %d",[$id]);
+        $sql = str_replace("tablename",$tablename,$sql);
 		$row = $wpdb->get_row($sql);
 
 		// Type-cast
@@ -152,25 +154,29 @@ abstract class AbstractModel
 	public function all($orderBy = NULL)
 	{
 		global $wpdb;
-
-		return $wpdb->get_results("SELECT * FROM {$wpdb->prefix}{$this->table}". ($orderBy ? " ORDER BY $orderBy" : ""));
+        $tablename = $this->getTable();
+        $sql = "SELECT * FROM tablename". ($orderBy ? " ORDER BY $orderBy" : "");
+        $sql = str_replace("tablename",$tablename,$sql);
+		return $wpdb->get_results($sql);
 	}
 
 	public function paginate($limit = 20)
 	{
 		global $wpdb;
-
-		$sql = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} LIMIT %d, %d", [$this->offset, $limit]);
-
+        $tablename = $this->getTable();
+		$sql = $wpdb->prepare("SELECT * FROM tablename LIMIT %d, %d", [$this->offset, $limit]);
+        $sql = str_replace("tablename",$tablename,$sql);
 		return $wpdb->get_results($sql);
 	}
 
 	public function count()
 	{
-		global $wpdb;
-
-		$row = $wpdb->get_row("SELECT COUNT(id) AS total FROM {$wpdb->prefix}{$this->table}");
-		return $row->total;
+        global $wpdb;
+        $tablename = $this->getTable();
+        $sql = "SELECT COUNT(id) AS total FROM tablename";
+        $sql = str_replace("tablename",$tablename,$sql);
+        $row = $wpdb->get_row($sql);
+        return $row->total;
 	}
 
 	public function __call($method, $arguments)
@@ -180,8 +186,10 @@ abstract class AbstractModel
 		if (preg_match("/getBy(\w+)/i", $method, $condition)) {
 			if (isset($condition[1])) {
 				$field = strtolower($condition[1]);
-
-				return $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} WHERE `$field` = %s", [$arguments[0]]));
+                $tablename = $this->getTable();
+                $sql = $wpdb->prepare("SELECT * FROM tablename WHERE `$field` = %s", [$arguments[0]]);
+                $sql = str_replace("tablename",$tablename,$sql);
+				return $wpdb->get_row($sql);
 			}
 		}
 	}

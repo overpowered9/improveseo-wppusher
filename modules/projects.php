@@ -103,30 +103,39 @@ function improveseo_projects()
         $highlight = isset($_GET['highlight']) ? sanitize_text_field($_GET['highlight']) : null;
 
 		$where = array();
-		$params = array();
 
-		$sql = 'SELECT * FROM ' . $model->getTable();
+		$params = array();
+        $tablename = $model->getTable();
+		$sql = 'SELECT * FROM tablename';
+        $sql = str_replace("tablename",$tablename,$sql);
+
 		if (sizeof($where)) {
-			$sql .= ' WHERE ' . implode(' AND ', $where);
+            $where = implode(' AND ', $where);
+			$sql .= "WHERE $where";
 		}
 
-		$sqlTotal = 'SELECT COUNT(id) AS total FROM ' . $model->getTable();
+		$sqlTotal = 'SELECT COUNT(id) AS total FROM tablename';
+        $sqlTotal = str_replace("tablename",$tablename,$sqlTotal);
 		if (sizeof($where)) {
-			$sqlTotal .= ' WHERE ' . implode(' AND ', $where);
+            $where = implode(' AND ', $where);
+			$sqlTotal .= "WHERE $where";
 		}
 
 		$sqlTotal = $wpdb->prepare($sqlTotal, $params);
 
-		$sql .= " ORDER BY $orderBy $order";
-		$sql .= " LIMIT %d, %d";
 
+		$sql .= " ORDER BY %s %s";
+
+        $sql .= " LIMIT %d, %d";
+        $params[] = $orderBy;
+        $params[] = $order;
 		$params[] = $offset;
 		$params[] = $limit;
 
 		$sql = $wpdb->prepare($sql, $params);
-
 		// Data
 		$projects = $wpdb->get_results($sql);
+
 		$total_row = $wpdb->get_row($sqlTotal);
 		$total = $total_row->total;
 
@@ -138,10 +147,14 @@ function improveseo_projects()
 	elseif ($action == 'delete') :
 
         $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
-
-        // Delete all posts from this project
-		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));
-		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
+        $post_tablename = $wpdb->prefix . "posts";
+        $postmeta_tablename = $wpdb->prefix."postmeta";
+        $sql = "DELETE FROM post_tablename WHERE ID IN (SELECT post_id FROM postmeta_tablename WHERE meta_key = 'improveseo_project_id' AND meta_value = %d)";
+        // Delete all posts from this project  
+        $sql = str_replace(array("post_tablename","postmeta_tablename"),array($post_tablename,$postmeta_tablename),$sql);
+		$wpdb->query($wpdb->prepare($sql, $id));
+        $sql = "DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s";
+		$wpdb->query($wpdb->prepare($sql, $id));
 
 		$model->delete($id);
 
