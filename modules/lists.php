@@ -151,14 +151,24 @@ function improveseo_lists()
 			wp_redirect(admin_url('admin.php?page=improveseo_lists&action=create'));
 			exit;
 		}
-		$_POST['list'] = trim(stripslashes($_POST['list']));
-		$_POST['size'] = sizeof(explode("\n", $_POST['list']));
+        $_POST['list'] = isset($_POST['list']) ? trim(stripslashes($_POST['list'])) : ''; // Check if $_POST['list'] is set
+        $_POST['size'] = sizeof(explode("\n", $_POST['list'])); // Calculate the number of lines in $_POST['list']
 
-		$id = $model->create(array("name" => $name, "list" => $list));
+
+        $id = $model->create(array("name" => $name, "list" => $list));
+// Assuming $_POST['name'] contains the name attribute value
+        $nameAttribute = $model->setNameAttribute($_POST['name']);
+        $sanitizedAttribute = sanitize_text_field($nameAttribute); // Sanitize the attribute
+
+// Validate the sanitized attribute if needed
+// Example: if (empty($sanitizedAttribute)) { handle validation error }
+
+// Escape the output
+        $escapedAttribute = esc_html($sanitizedAttribute);
 
 		FlashMessage::success('
 			<p>
-				Congratulations! To use your newly created list, call <strong>@list:' . $model->setNameAttribute($_POST['name']) . '</strong>.
+				Congratulations! To use your newly created list, call <strong>@list:' . $escapedAttribute . '</strong>.
 			</p>
 			<p>
 				To activate your list, make sure to use it in the title of the post/page (you can use it everywhere else too, but it must be included in the title).

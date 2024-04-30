@@ -312,11 +312,20 @@ function improveseo_dashboard()
 
 		if (isset($_POST['local_seo_enabler'])) {
 			// Search tags and remove non-used locations
-			$tags = improveseo_search_geotags(array(
-				$title, $content, $_POST['custom_title'], $_POST['custom_description'], $_POST['custom_keywords'], $_POST['permalink'], $_POST['tags']
-			));
+            $title = isset($title) ? sanitize_text_field($title) : '';
+            $content = isset($content) ? sanitize_text_field($content) : '';
+            $custom_title = isset($_POST['custom_title']) ? sanitize_text_field($_POST['custom_title']) : '';
+            $custom_description = isset($_POST['custom_description']) ? sanitize_text_field($_POST['custom_description']) : '';
+            $custom_keywords = isset($_POST['custom_keywords']) ? sanitize_text_field($_POST['custom_keywords']) : '';
+            $permalink = isset($_POST['permalink']) ? sanitize_text_field($_POST['permalink']) : '';
+            $tags = isset($_POST['tags']) ? sanitize_text_field($_POST['tags']) : '';
 
-			$options_data['local_geo_country'] = sanitize_text_field($_POST['local_country']);
+            $tags = improveseo_search_geotags(array(
+                $title, $content, $custom_title, $custom_description, $custom_keywords, $permalink, $tags
+            ));
+
+
+            $options_data['local_geo_country'] = sanitize_text_field($_POST['local_country']);
 			$options_data['local_geo_locations'] = json_decode(wp_kses_post(stripslashes($_POST['local_geo_locations'])), true);
 
 			// Do not expand geo data if saving as draft

@@ -9,7 +9,7 @@ use ImproveSEO\Models\Country;
 use ImproveSEO\Models\GeoData;
 use ImproveSEO\Models\Shortcode;
 
-if (!defined('ABSPATH')) exit; // Exit if accessed directly  
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 
 if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
@@ -253,8 +253,9 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
     elseif ($act == 'shortcode') {
         $shortcodeModel = new Shortcode();
 
-        $shortcode = isset($_POST['shortcode']) ? $_POST['shortcode'] : '';
-        $media = isset($_POST['media']) ? $_POST['media'] : '';
+        $shortcode = isset($_POST['shortcode']) ? sanitize_text_field($_POST['shortcode']) : '';
+        $media = isset($_POST['media']) ? sanitize_text_field($_POST['media']) : '';
+
         // Check if required fields are present
         if (empty($shortcode) || empty($media)) {
             // Handle missing required fields
@@ -270,7 +271,7 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
             echo esc_html(Validator::get('shortcode'));
             exit();
         }
-        $shortcode = $_POST['shortcode'];
+        $shortcode = isset($_POST['shortcode']) ? sanitize_text_field($_POST['shortcode']) : '';
 
         // Download all media files
         foreach ($_POST['media'] as &$media) {
@@ -301,8 +302,9 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
             }
         }
 
-        $medias = $_POST['media'];
-        $media = json_encode($medias);
+        $media = isset($_POST['media']) ? sanitize_text_field($_POST['media']) : '';
+
+        $media = json_encode($media);
 
         $sql = $wpdb->prepare("INSERT INTO {$wpdb->prefix}improveseo_shortcodes (shortcode, type, content) VALUES (%s, %s, %s)", array(
             $shortcode,
@@ -319,7 +321,8 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
         exit();
     } elseif ($act == 'word-ai') {
         $text = sanitize_text_field($_POST['text']);
-        $quality = $_POST['quality'];
+        $quality = isset($_POST['quality']) ? sanitize_text_field($_POST['quality']) : '';
+
         $email = sanitize_email($_POST['email']);
         $pass = $_POST['pass'];
 

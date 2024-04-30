@@ -97,7 +97,7 @@ function improveseo_projects()
 		// Filters
         $orderBy = isset($_GET['orderBy']) && in_array($_GET['orderBy'], $allowed_order_by) ? sanitize_text_field($_GET['orderBy']) : 'created_at';
 
-        $order = isset($_GET['order']) && in_array($_GET['order'], $allowed_order) ? sanitize_text_field($_GET['order']) : 'DESC';
+        $order = isset($_GET['order']) && in_array($_GET['order'], $allowed_order) ? sanitize_text_field($_GET['order']) : 'asce';
 
 
         $highlight = isset($_GET['highlight']) ? sanitize_text_field($_GET['highlight']) : null;
@@ -133,6 +133,8 @@ function improveseo_projects()
 		$params[] = $limit;
 
 		$sql = $wpdb->prepare($sql, $params);
+
+//        die(print_r($sql));
 		// Data
 		$projects = $wpdb->get_results($sql);
 
