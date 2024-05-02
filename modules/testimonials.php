@@ -9,12 +9,12 @@ foreach ($id as $i) {
     $data = get_option('get_testimonials_' . $i);
 
     $testi_img_src = isset($data['testi_img_src']) ? esc_url($data['testi_img_src']) : '';
-    $tw_testi_content = isset($data['tw_testi_content']) ? esc_html($data['tw_testi_content']) : '';
-    $tw_testi_name = isset($data['tw_testi_name']) ? esc_html($data['tw_testi_name']) : '';
-    $tw_testi_position = isset($data['tw_testi_position']) ? esc_html($data['tw_testi_position']) : '';
-    $tw_box_color = isset($data['tw_box_color']) ? esc_html($data['tw_box_color']) : '#fff';
-    $tw_font_color = isset($data['tw_font_color']) ? esc_html($data['tw_font_color']) : '#000';
-    $tw_testi_outline_color = isset($data['tw_testi_outline_color']) ? esc_html($data['tw_testi_outline_color']) : '#ffffff';
+    $tw_testi_content = isset($data['tw_testi_content']) ? esc_attr($data['tw_testi_content']) : '';
+    $tw_testi_name = isset($data['tw_testi_name']) ? esc_attr($data['tw_testi_name']) : '';
+    $tw_testi_position = isset($data['tw_testi_position']) ? esc_attr($data['tw_testi_position']) : '';
+    $tw_box_color = isset($data['tw_box_color']) ? esc_attr($data['tw_box_color']) : '#fff';
+    $tw_font_color = isset($data['tw_font_color']) ? esc_attr($data['tw_font_color']) : '#000';
+    $tw_testi_outline_color = isset($data['tw_testi_outline_color']) ? esc_attr($data['tw_testi_outline_color']) : '#ffffff';
 
     $style = 'border-color:' . $tw_testi_outline_color . '; background-color:' . $tw_box_color . '; color: ' . $tw_font_color . ';';
 
@@ -46,5 +46,5 @@ foreach ($id as $i) {
     </div>';
 }
 
-echo esc_html($html);
+echo wp_kses($html,array('a','div','span','p'));
 

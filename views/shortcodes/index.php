@@ -25,8 +25,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 <div class="shortcode improveseo_wrapper p-3 p-lg-4">
 	<section class="project-section border-bottom d-flex flex-row  justify-content-between align-items-center pb-2">
 		<div class="project-heading d-flex flex-row align-items-center">
-			<img class="mr-2" src="<?php echo IMPROVESEO_WT_URL . '/assets/images/project-list-logo.png' ?>" alt="ImproveSeo">
-			<h1>Shortcodes List</h1>
+            <img class="mr-2" src="<?php echo esc_url( IMPROVESEO_WT_URL . '/assets/images/project-list-logo.png' ); ?>" alt="ImproveSeo">
+            <h1>Shortcodes List</h1>
 		</div>
 		<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_shortcodes&action=create')) ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
 	</section>
@@ -35,13 +35,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			<li class="all">
 				<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_shortcodes&type=all')) ?>" class="<?php if ($type == 'all') echo 'current' ?>">
 					All
-					<span class="count">(<?php echo $all ?>)</span>
+					<span class="count">(<?php echo esc_attr($all) ?>)</span>
 				</a>
 			</li>
 			<li class="static">
 				<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_shortcodes&type=static')) ?>" class="<?php if ($type == 'static') echo 'current' ?>">
 					Static
-					<span class="count">(<?php echo $static ?>)</span>
+					<span class="count">(<?php echo esc_attr($static) ?>)</span>
 				</a>
 			</li>
 			<li class="dynamic">

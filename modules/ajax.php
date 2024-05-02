@@ -188,19 +188,19 @@ function improveseo_generate_preview() {
 
     $data = array(
         'name' => $name,
-        'content' => base64_encode(json_encode($project_data)),
-        'options' => base64_encode(json_encode($options_data)),
+        'content' => base64_encode(wp_json_encode($project_data)),
+        'options' => base64_encode(wp_json_encode($options_data)),
         'state' => isset($_POST['draft']) ? 'Draft' : 'Published',
         'iteration' => 0,
         'spintax_iterations' => 1,
         'max_iterations' => 1,
-        'cats' => json_encode($_POST['cats'])
+        'cats' => wp_json_encode($_POST['cats'])
     );
 
     $wpdb->query("SET GLOBAL max_allowed_packet = 268435456");
     $project_id = $model->create($data);
 
-    echo json_encode(array('status' => 'success', 'project_id' => intval($project_id)));
+    echo wp_json_encode(array('status' => 'success', 'project_id' => intval($project_id)));
 
     die;
 }

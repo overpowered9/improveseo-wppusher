@@ -1,6 +1,5 @@
 <?php
-
-global $wpdb;
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use ImproveSEO\View;
 use ImproveSEO\Spintax;
@@ -9,7 +8,7 @@ use ImproveSEO\Models\Country;
 use ImproveSEO\Models\GeoData;
 use ImproveSEO\Models\Shortcode;
 
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
+global $wpdb;
 
 
 if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {

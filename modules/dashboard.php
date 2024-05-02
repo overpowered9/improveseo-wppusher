@@ -258,7 +258,7 @@ function improveseo_dashboard()
 
 		if (isset($_POST['create'])) {
 			FlashMessage::success(
-				'Project successfully created. It will generate (' . esc_html($data['max_iterations']) . ') posts/pages.'
+				'Project successfully created. It will generate (' . esc_attr($data['max_iterations']) . ') posts/pages.'
 			);
 		} elseif (isset($_POST['draft'])) {
 			FlashMessage::success('Project successfully saved. You can continue editing by pressing Continue button.');

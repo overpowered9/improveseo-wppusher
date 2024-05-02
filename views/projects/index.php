@@ -41,7 +41,7 @@ use ImproveSEO\View;
 			<h1><?php esc_html_e('Projects List', 'improve-seo'); ?></h1>
 		</div>
 		<div class="action-buttons">
-			<a onclick="return confirm('<?php esc_attr_e('Are you sure you want to export all items?', 'improve-seo'); ?>');" href="<?php echo  admin_url('admin.php?page=improveseo_projects&action=export_all_project&noheader=true') ?>" class="btn btn-outline-primary btn-small" id="exportProject"><?php esc_html_e('Export All Project', 'improve-seo'); ?></a>
+			<a onclick="return confirm('<?php esc_attr_e('Are you sure you want to export all items?', 'improve-seo'); ?>');" href="<?php echo  esc_url(admin_url('admin.php?page=improveseo_projects&action=export_all_project&noheader=true')) ?>" class="btn btn-outline-primary btn-small" id="exportProject"><?php esc_html_e('Export All Project', 'improve-seo'); ?></a>
 			<a href="#" class="btn btn-outline-primary btn-small" id="importProject"><?php esc_html_e('Import', 'improve-seo'); ?></a>
 			<a onclick="return confirm('<?php esc_attr_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');" href="javascript:void()" class="btn btn-outline-primary btn-small" id="exportProject"><?php esc_html_e('Export All Project', 'improve-seo'); ?></a>
 			<a href="javascript:void()" class="btn btn-outline-primary btn-small" onclick="return confirm('<?php esc_attr_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');" id="importProject"><?php esc_html_e('Import', 'improve-seo'); ?></a>
@@ -363,7 +363,7 @@ use ImproveSEO\View;
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
-				'base' => admin_url('admin.php?page=improveseo_projects%_%')
+				'base' => esc_url(admin_url('admin.php?page=improveseo_projects%_%'))
 			)) ?>
 		</span>
 	</section>
