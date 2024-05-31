@@ -15,10 +15,10 @@ class Validator
     public static function old($field, $default = null)
     {
         if (isset($_SESSION[self::$oldKey]) && isset($_SESSION[self::$oldKey][$field])) {
-            $value = $_SESSION[self::$oldKey][$field];
+            $value = sanitize_text_field($_SESSION[self::$oldKey][$field]);
             unset($_SESSION[self::$oldKey][$field]);
 
-            return sanitize_text_field($value); // Sanitize the output before returning
+            return $value; // Sanitize the output before returning
         } else {
             return $default;
         }
@@ -46,12 +46,12 @@ class Validator
 
     public static function getErrors()
     {
-        return $_SESSION[self::$errorsKey];
+        return sanitize_text_field($_SESSION[self::$errorsKey]);
     }
 
     public static function get($field)
     {
-        $error = $_SESSION[self::$errorsKey][$field][0];
+        $error = sanitize_text_field($_SESSION[self::$errorsKey][$field][0]);
         unset($_SESSION[self::$errorsKey][$field]);
 
         return $error;

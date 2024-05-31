@@ -31,41 +31,40 @@ class GeoData extends AbstractModel
     {
         global $wpdb;
         $sql = "SELECT id, place FROM tablename WHERE country_id = $country_id AND state_code = %s GROUP BY place";
-        $sql = str_replace("tablename", $this->getTable(), $sql);
         return $wpdb->get_results($wpdb->prepare($sql, $state_code));
     }
 
     public function zippo($country_id, $state_code, $city_id)
     {
         global $wpdb;
+        $tablename = $this->getTable();
         $sql = "SELECT postal FROM tablename
-			WHERE place = (SELECT place FROM tablename WHERE id = $city_id) AND country_id = $country_id AND state_code = %s";
-        $sql = str_replace("tablename", $this->getTable(), $sql);
-        return $wpdb->get_results($wpdb->prepare($sql, $state_code));
+			WHERE place = (SELECT place FROM $tablename WHERE id = %d) AND country_id = %d AND state_code = %s";
+        return $wpdb->get_results($wpdb->prepare($sql, array($city_id,$country_id,$state_code)));
     }
 
     public function getStateName($country_id, $state_code)
     {
         global $wpdb;
-        $sql = "SELECT state FROM tablename WHERE country_id = %d AND state_code = %s";
+        $tablename = $this->getTable();
+        $sql = "SELECT state FROM $tablename WHERE country_id = %d AND state_code = %s";
         $sql = $wpdb->prepare($sql,$country_id,$state_code);
-        $sql = str_replace("tablename",$this->getTable(),$sql);
         return $wpdb->get_row($sql)->state;
     }
 
     public function getStateCitiesAndPostals($country_id, $state_code)
     {
         global $wpdb;
-        $sql = "SELECT id, postal FROM tablename WHERE country_id = $country_id AND state_code = %s";
-        $sql = str_replace("tablename",$this->getTable(),$sql);
-        return $wpdb->get_results($wpdb->prepare($sql, $state_code));
+        $tablename = $this->getTable();
+        $sql = "SELECT id, postal FROM $tablename WHERE country_id = %d  AND state_code = %s";
+        return $wpdb->get_results($wpdb->prepare($sql, array($country_id,$state_code)));
     }
 
     public function deleteByCountryId($country_id)
     {
         global $wpdb;
-        $sql = "DELETE FROM tablename WHERE country_id = %d";
-        $sql = str_replace("tablename",$this->getTable(),$sql);
+        $tablename = $this->getTable();
+        $sql = "DELETE FROM $tablename WHERE country_id = %d";
         $sql = $wpdb->prepare($sql,$country_id);
         $wpdb->query($sql);
     }

@@ -31,7 +31,7 @@ abstract class AbstractModel
 			$this->table = 'improveseo_'. strtolower($class[1]) .'s';
 		}
 
-		$this->offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
+		$this->offset = isset($_GET['offset']) ? sanitize_text_field($_GET['offset']) : 0;
 	}
 
 	public function getTable()
@@ -64,10 +64,11 @@ abstract class AbstractModel
 			}
 		}
 
-		$sql = "INSERT INTO tablename"." (". implode(", ", $fields) .", created_at)";
+		$value_placeholders = implode(", ", $values);
 
-		$sql .= " VALUES (". implode(", ", $values) .", NOW())";
-        $sql = str_replace("tablename",$tablename,$sql);
+		$sql = "INSERT INTO $tablename"." (". implode(", ", $fields) .", created_at)";
+
+		$sql .= " VALUES (". $value_placeholders .", NOW())";
 		$sql = $wpdb->prepare($sql, $vars);
 
 		$wpdb->query($sql);
@@ -95,16 +96,16 @@ abstract class AbstractModel
 			}
 		}
 
+		$fields_placeholder = implode(", ", $fields);
 		if ($this->timestamps) $fields[] = "updated_at = NOW()";
 
-		$sql = "UPDATE tablename";
-		$sql .= " SET ". implode(", ", $fields);
+		$sql = "UPDATE $tablename";
+		$sql .= " SET ". $fields_placeholder;
 		$sql .= " WHERE id = %d";
         $vars[] = $id;
 
 
 		$sql = $wpdb->prepare($sql, $vars);
-        $sql = str_replace("tablename",$tablename,$sql);
 		$wpdb->query($sql);
 
 		return true;
@@ -118,8 +119,7 @@ abstract class AbstractModel
 		$vars[] = $id;
 
 
-        $sql = "DELETE FROM tablename WHERE id = %d";
-        $sql = str_replace("tablename",$tablename,$sql);
+        $sql = "DELETE FROM $tablename WHERE id = %d";
         $sql = $wpdb->prepare($sql, $vars);
 		$wpdb->query($sql);
 
@@ -130,8 +130,7 @@ abstract class AbstractModel
 	{
 		global $wpdb;
         $tablename = $this->getTable();
-		$sql = $wpdb->prepare("SELECT * FROM tablename WHERE id = %d",[$id]);
-        $sql = str_replace("tablename",$tablename,$sql);
+		$sql = $wpdb->prepare("SELECT * FROM $tablename WHERE id = %d",[$id]);
 		$row = $wpdb->get_row($sql);
 
 		// Type-cast
@@ -154,18 +153,17 @@ abstract class AbstractModel
 	public function all($orderBy = NULL)
 	{
 		global $wpdb;
-        $tablename = $this->getTable();
-        $sql = "SELECT * FROM tablename". ($orderBy ? " ORDER BY $orderBy" : "");
-        $sql = str_replace("tablename",$tablename,$sql);
-		return $wpdb->get_results($sql);
+		$tablename = $this->getTable();
+		$sql = "SELECT * FROM $tablename" . ($orderBy ? " ORDER BY %s" : "");
+		$query = $wpdb->prepare($sql, $orderBy);
+		return $wpdb->get_results($query);
 	}
 
 	public function paginate($limit = 20)
 	{
 		global $wpdb;
         $tablename = $this->getTable();
-		$sql = $wpdb->prepare("SELECT * FROM tablename LIMIT %d, %d", [$this->offset, $limit]);
-        $sql = str_replace("tablename",$tablename,$sql);
+		$sql = $wpdb->prepare("SELECT * FROM $tablename LIMIT %d, %d", [$this->offset, $limit]);
 		return $wpdb->get_results($sql);
 	}
 
@@ -173,8 +171,7 @@ abstract class AbstractModel
 	{
         global $wpdb;
         $tablename = $this->getTable();
-        $sql = "SELECT COUNT(id) AS total FROM tablename";
-        $sql = str_replace("tablename",$tablename,$sql);
+        $sql = "SELECT COUNT(id) AS total FROM $tablename";
         $row = $wpdb->get_row($sql);
         return $row->total;
 	}
@@ -187,8 +184,7 @@ abstract class AbstractModel
 			if (isset($condition[1])) {
 				$field = strtolower($condition[1]);
                 $tablename = $this->getTable();
-                $sql = $wpdb->prepare("SELECT * FROM tablename WHERE `$field` = %s", [$arguments[0]]);
-                $sql = str_replace("tablename",$tablename,$sql);
+                $sql = $wpdb->prepare("SELECT * FROM $tablename WHERE `$field` = %s", [$arguments[0]]);
 				return $wpdb->get_row($sql);
 			}
 		}

@@ -25,9 +25,8 @@ class Task extends AbstractModel
 	public function getActive()
 	{
 		global $wpdb;
-
-        $sql = "SELECT * FROM tablename WHERE iteration < max_iterations";
-        $sql = str_replace("tablename",$this->getTable(),$sql);
+		$tablename = $this->getTable();
+        $sql = "SELECT * FROM $tablename WHERE iteration < max_iterations";
 		return $wpdb->get_results($sql);
 	}
 }
