@@ -76,7 +76,8 @@ function improveseo_install() {
 	
 
 	// Updated by Shahid for new Column
-	$sql = "ALTER TABLE ".$table_name." ADD `cats` VARCHAR(255) NOT NULL";
+	$sql = "ALTER TABLE ".$table_name." ADD %s VARCHAR(255) NOT NULL";
+	$sql = $wpdb->prepare($sql,"cats");	
 	$wpdb->query($sql);
 
 	// Shortcodes table

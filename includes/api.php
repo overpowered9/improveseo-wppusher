@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use ImproveSEO\View;
 use ImproveSEO\Spintax;
@@ -26,9 +26,10 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
                 // Show zip codes
                 if (substr_count($id, '/') == 1) {
                     list($state, $city) = explode('/', $id);
-                    $city_obj = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE id = " . $city);
+                    $city_obj = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE id = %s", $city));
 
-                    $codes = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE county = '{$city_obj->county}' AND state_code = '{$city_obj->state_code}' AND city = '{$city_obj->city}' ORDER BY zip");
+
+                    $codes = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE county = %s AND state_code = %s AND city = %s ORDER BY zip", $city_obj->county, $city_obj->state_code, $city_obj->city));
 
                     foreach ($codes as $code) {
                         $results[] = array(
@@ -39,7 +40,11 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
                     }
                 }                // Show cities
                 else {
-                    $cities = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = '$id' GROUP BY county, state_code, city ORDER BY city");
+                    $cities = $wpdb->get_results(
+                        $wpdb->prepare(
+                            "SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = %s GROUP BY county, state_code, city ORDER BY city",$id
+                        )
+                    );
 
                     foreach ($cities as $city) {
                         $results[] = array(
@@ -85,9 +90,22 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
                 // Show zip codes
                 if (substr_count($id, '/')) {
                     list($state, $city) = explode('/', $id);
-                    $city_obj = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE id = $city");
+                    $city_obj = $wpdb->get_row(
+                        $wpdb->prepare(
+                            "SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE id = %d",
+                            $city
+                        )
+                    );
 
-                    $codes = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = '{$city_obj->region_id}' AND name = '{$city_obj->name}' ORDER BY postcode");
+
+                    $codes = $wpdb->get_results(
+                        $wpdb->prepare(
+                            "SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = %d AND name = %s ORDER BY postcode",
+                            $city_obj->region_id,
+                            $city_obj->name
+                        )
+                    );
+
 
                     foreach ($codes as $code) {
                         $results[] = array(
@@ -98,7 +116,12 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
                     }
                 }                // Show cities
                 else {
-                    $cities = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = '" . $id . "' GROUP BY region_id, name ORDER BY name");
+                    $cities = $wpdb->get_results(
+                        $wpdb->prepare(
+                            "SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = %d GROUP BY region_id, name ORDER BY name",
+                            $id
+                        )
+                    );
 
                     foreach ($cities as $city) {
                         $results[] = array(
@@ -184,71 +207,71 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
     }
 
 
-//    elseif ($act == 'count_posts') {
-//        include_once('functions.php');
-//
-//        // Sanitize the data
-//        $title = sanitize_text_field($_POST['title']);
-//        $content = sanitize_text_field($_POST['content']);
-//        $custom_title = sanitize_text_field($_POST['custom_title']);
-//        $custom_description = sanitize_text_field($_POST['custom_description']);
-//        $custom_keywords = sanitize_text_field($_POST['custom_keywords']);
-//        $permalink = sanitize_text_field($_POST['permalink']);
-//        $tags = sanitize_text_field($_POST['tags']);
-//
-//        // Validate the data
-//        if (empty($title) || empty($content) || empty($permalink)) {
-//            // Handle validation errors
-//            // For example, return an error message or redirect back to the form
-//            exit('Error: Missing required fields');
-//        }
-//
-//        $title = esc_html($title);
-//        $content = esc_html($content);
-//        $custom_title = esc_html($custom_title);
-//        $custom_description = esc_html($custom_description);
-//        $custom_keywords = esc_html($custom_keywords);
-//        $permalink = esc_url($permalink);
-//        $tags = esc_html($tags);
-//
-//
-//        $tags = improveseo_search_geotags(array(
-//            $title,
-//            $content,
-//            $custom_title,
-//            $custom_description,
-//            $custom_keywords,
-//            $permalink,
-//            $tags
-//        ));
-//
-//        $geo_iterations = 0;
-//
-//        if ($_POST['locations']) {
-//            $locations = improveseo_expand_geodata($_POST['country'], $_POST['locations'], $tags);
-//            $geo_iterations = sizeof($locations);
-//        }
-//
-//        if ($geo_iterations == 0)
-//            $iterations = max(1, Spintax::count(Spintax::parse($title)));
-//        else
-//            $iterations = $geo_iterations;
-//
-//        // Count list items
-//        $filteredObjects = array_filter($_POST, function ($obj) {
-//            return isset($obj->size);
-//        });
-//
-//
-//        $items = improveseo_count_list_items($filteredObjects);
-//
-//        if ($items == 0) {
-//            $items = 1;
-//        }
-//
-//        $results['posts'] = $geo_iterations ? $geo_iterations * $items : ($items ? $items : $iterations);
-//    }
-//
+    //    elseif ($act == 'count_posts') {
+    //        include_once('functions.php');
+    //
+    //        // Sanitize the data
+    //        $title = sanitize_text_field($_POST['title']);
+    //        $content = sanitize_text_field($_POST['content']);
+    //        $custom_title = sanitize_text_field($_POST['custom_title']);
+    //        $custom_description = sanitize_text_field($_POST['custom_description']);
+    //        $custom_keywords = sanitize_text_field($_POST['custom_keywords']);
+    //        $permalink = sanitize_text_field($_POST['permalink']);
+    //        $tags = sanitize_text_field($_POST['tags']);
+    //
+    //        // Validate the data
+    //        if (empty($title) || empty($content) || empty($permalink)) {
+    //            // Handle validation errors
+    //            // For example, return an error message or redirect back to the form
+    //            exit('Error: Missing required fields');
+    //        }
+    //
+    //        $title = esc_html($title);
+    //        $content = esc_html($content);
+    //        $custom_title = esc_html($custom_title);
+    //        $custom_description = esc_html($custom_description);
+    //        $custom_keywords = esc_html($custom_keywords);
+    //        $permalink = esc_url($permalink);
+    //        $tags = esc_html($tags);
+    //
+    //
+    //        $tags = improveseo_search_geotags(array(
+    //            $title,
+    //            $content,
+    //            $custom_title,
+    //            $custom_description,
+    //            $custom_keywords,
+    //            $permalink,
+    //            $tags
+    //        ));
+    //
+    //        $geo_iterations = 0;
+    //
+    //        if ($_POST['locations']) {
+    //            $locations = improveseo_expand_geodata($_POST['country'], $_POST['locations'], $tags);
+    //            $geo_iterations = sizeof($locations);
+    //        }
+    //
+    //        if ($geo_iterations == 0)
+    //            $iterations = max(1, Spintax::count(Spintax::parse($title)));
+    //        else
+    //            $iterations = $geo_iterations;
+    //
+    //        // Count list items
+    //        $filteredObjects = array_filter($_POST, function ($obj) {
+    //            return isset($obj->size);
+    //        });
+    //
+    //
+    //        $items = improveseo_count_list_items($filteredObjects);
+    //
+    //        if ($items == 0) {
+    //            $items = 1;
+    //        }
+    //
+    //        $results['posts'] = $geo_iterations ? $geo_iterations * $items : ($items ? $items : $iterations);
+    //    }
+    //
     elseif ($act == 'shortcode') {
         $shortcodeModel = new Shortcode();
 
@@ -258,7 +281,7 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
         // Check if required fields are present
         if (empty($shortcode) || empty($media)) {
             // Handle missing required fields
-            header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request', true, 400);
+            header(sanitize_text_field($_SERVER['SERVER_PROTOCOL']) . ' 400 Bad Request', true, 400);
             echo 'Bad Request: Missing required fields.';
             exit();
         }
@@ -266,7 +289,7 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
             'shortcode' => 'required|unique:' . $shortcodeModel->getTable() . ',shortcode',
             'media' => 'required'
         ))) {
-            header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+            header(sanitize_text_field($_SERVER['SERVER_PROTOCOL']) . ' 500 Internal Server Error', true, 500);
             echo esc_html(Validator::get('shortcode'));
             exit();
         }
@@ -275,7 +298,7 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
         // Download all media files
         foreach ($_POST['media'] as &$media) {
             if (isset($media['url'])) {
-                $image = str_replace(':8000', '', $media['url']); // Fix only for local dev
+                $image = str_replace(':8000', '', sanitize_text_field($media['url'])); // Fix only for local dev
                 $filename = sha1($image . '-' . $shortcode) . '.jpg';
 
                 $exploded = explode('.', $image);
@@ -323,7 +346,7 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
         $quality = isset($_POST['quality']) ? sanitize_text_field($_POST['quality']) : '';
 
         $email = sanitize_email($_POST['email']);
-        $pass = $_POST['pass'];
+        $pass = sanitize_text_field($_POST['pass']);
 
         $query = array(
             's' => esc_html($text),

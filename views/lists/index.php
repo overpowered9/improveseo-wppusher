@@ -46,7 +46,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		<div class="action-buttons">
 			<!-- <a onclick="return confirm('<?php esc_attr_e('Are you sure you want to export all items?', 'improve-seo'); ?>');" href="<?php echo esc_url(admin_url('admin.php?page=improveseo_lists&action=export_all_list&noheader=true')); ?>" class="btn btn-outline-primary btn-small" id="exportProject"><?php esc_html_e('Export All List', 'improve-seo'); ?></a> -->
 			<a onclick="return confirm('<?php esc_attr_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');" href="javascript:void()" class="btn btn-outline-primary btn-small" id="exportProject"><?php esc_html_e('Export All List', 'improve-seo'); ?></a>
-			<a href="javascript:void()" onclick="return confirm('<?php esc_attr_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');" class="btn btn-outline-primary btn-small" id="importProject"><?php esc_html_e('Import', 'improve-seo'); ?></a>
+			<a href="javascript:void(0)" onclick="return confirm('<?php esc_attr_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');" class="btn btn-outline-primary btn-small" id=""><?php esc_html_e('Import', 'improve-seo'); ?></a>
 			<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_lists&action=create')); ?>" class="btn btn-outline-primary btn-small py-2 px-3"><?php esc_html_e('Create New', 'improve-seo'); ?></a>
 		</div>
 

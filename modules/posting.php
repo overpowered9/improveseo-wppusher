@@ -124,7 +124,7 @@ function improveseo_posting()
             'spintax_iterations' => max($iterations),
             //'max_iterations' => max($iterations) * $geo_iterations
             'max_iterations' => $max,
-            'cats' => json_encode($_POST['cats'])
+            'cats' => json_encode(sanitize_text_field($_POST['cats']))
         );
         $wpdb->query("SET GLOBAL max_allowed_packet = 268435456");
 
@@ -184,7 +184,7 @@ function improveseo_posting()
             ));
 
             $options_data['local_geo_country'] = isset($_POST['local_country']) ? sanitize_text_field($_POST['local_country']) : '';
-            $local_geo_locations_raw = isset($_POST['local_geo_locations']) ? stripslashes($_POST['local_geo_locations']) : '';
+            $local_geo_locations_raw = isset($_POST['local_geo_locations']) ? stripslashes(sanitize_text_field($_POST['local_geo_locations'])) : '';
             $options_data['local_geo_locations'] = json_decode($local_geo_locations_raw, true);
 
             // Do not expand geo data if saving as draft
@@ -232,7 +232,7 @@ function improveseo_posting()
             ));
 
             $options_data['local_geo_country'] = isset($_POST['local_country']) ? sanitize_text_field($_POST['local_country']) : '';
-            $local_geo_locations_raw = isset($_POST['local_geo_locations']) ? stripslashes($_POST['local_geo_locations']) : '';
+            $local_geo_locations_raw = isset($_POST['local_geo_locations']) ? stripslashes(sanitize_text_field($_POST['local_geo_locations'])) : '';
             $options_data['local_geo_locations'] = json_decode($local_geo_locations_raw, true);
 
             // Do not expand geo data if saving as draft
@@ -346,7 +346,7 @@ function improveseo_posting()
 
 
         // Math maximum number of posts
-        $items = improveseo_count_list_items($_POST['size']);
+        $items = improveseo_count_list_items(sanitize_text_field($_POST['size']));
 
 
         $max = isset($_POST['max_posts']) ? intval($_POST['max_posts']) : 0;
@@ -358,7 +358,7 @@ function improveseo_posting()
         // Sanitize and validate max_posts
         $options_data['max_posts'] = isset($_POST['max_posts']) ? absint($_POST['max_posts']) : '';
 
-        $cats = isset($_POST['cats']) && is_array($_POST['cats']) ? $_POST['cats'] : [];
+        $cats = isset($_POST['cats']) && is_array($_POST['cats']) ? sanitize_text_field($_POST['cats']) : [];
         $data = array(
             'name' => $name,
             'content' => base64_encode(json_encode($project_data)),

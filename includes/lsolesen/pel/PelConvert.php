@@ -22,8 +22,10 @@
  * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
  * Boston, MA 02110-1301 USA
  */
+
 namespace lsolesen\pel;
-if ( ! defined( 'ABSPATH' ) ) exit;
+
+if (!defined('ABSPATH')) exit;
 
 /**
  * Routines for converting back and forth between bytes and integers.
@@ -413,8 +415,9 @@ class PelConvert
         }
         $line = 24;
 
-        for ($i = 0; $i < $s; $i ++) {
-            printf('%02X ', ord($bytes[$i]));
+        for ($i = 0; $i < $s; $i++) {
+            // Escape the byte value before echoing it
+            printf('%02X ', htmlspecialchars(ord($bytes[$i]), ENT_QUOTES, 'UTF-8'));
 
             if (($i + 1) % $line == 0) {
                 print("\n");

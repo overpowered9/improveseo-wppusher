@@ -1,5 +1,6 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
+
 use ImproveSEO\View;
 
 //if (isset($_GET['post_preview'])) {
@@ -50,12 +51,14 @@ use ImproveSEO\View;
 	</section>
 	<section class="pagination-wrapper text-right py-3">
 		<span class="pagination-links">
-			<?php echo  paginate_links(array(
-				'total' => $pages,
-				'current' => $page,
-				'format' => '&paged=%#%',
-				'base' => admin_url('admin.php?page=improveseo_projects%_%')
-			)) ?>
+			<?php echo htmlspecialchars_decode(
+				paginate_links(array(
+					'total' => $pages,
+					'current' => $page,
+					'format' => '&paged=%#%',
+					'base' => admin_url('admin.php?page=improveseo_projects%_%')
+				))
+			); ?>
 		</span>
 	</section>
 
@@ -110,7 +113,7 @@ use ImproveSEO\View;
 					<tbody>
 						<?php foreach ($projects as $project) : ?>
 							<tr <?php echo  $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
-								<td><input id="cb-select-<?php echo esc_attr($project->id); ?>" type="checkbox" name="project_ids[]" value="<?php echo $project->id; ?>"></td>
+								<td><input id="cb-select-<?php echo esc_attr($project->id); ?>" type="checkbox" name="project_ids[]" value="<?php echo esc_attr($project->id); ?>"></td>
 								<td scope="col" class="column-title column-primary has-row-actions">
 									<strong>
 										<a href="javascript:void(0)" class="primary"><?php echo  esc_attr($project->name) ?></a>
@@ -359,12 +362,12 @@ use ImproveSEO\View;
 
 	<section class="pagination-wrapper text-right">
 		<span class="pagination-links">
-			<?php echo  paginate_links(array(
+			<?php echo  htmlspecialchars_decode(paginate_links(array(
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
 				'base' => esc_url(admin_url('admin.php?page=improveseo_projects%_%'))
-			)) ?>
+			))) ?>
 		</span>
 	</section>
 </div>

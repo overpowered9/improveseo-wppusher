@@ -3,12 +3,12 @@
 <div class="wrap improveseo-page">
 
 	<div class="Breadcrumbs">
-		<?php echo ImproveSEO\View::section('breadcrumbs') ?>
+		<?php echo htmlspecialchars_decode(ImproveSEO\View::section('breadcrumbs')) ?>
 	</div>
 
 	<?php
 		ImproveSEO\FlashMessage::handle();
 	?>
 
-	<?php echo ImproveSEO\View::section('content') ?>
+	<?php echo htmlspecialchars_decode(ImproveSEO\View::section('content')) ?>
 </div>

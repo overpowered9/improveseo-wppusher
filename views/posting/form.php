@@ -169,7 +169,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                         <?php
                         $cat_pre = array();
                         if (isset($_GET['cat_pre'])) {
-                            $cat_pre = $_GET['cat_pre'];
+                            $cat_pre = sanitize_text_field($_GET['cat_pre']);
                             $cat_pre = explode(",", $cat_pre);
                         } else if ($task->cats != "") {
                             $cat_pre = json_decode($task->cats, true);
@@ -292,7 +292,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                 <label for="dripfeed-x"
                                        class="form-label"><?php esc_html_e('X Parameter:', 'improve-seo'); ?></label>
                                 <input type="text" id="dripfeed-x" name="dripfeed_x" class="form-control"
-                                       value="<?php echo Validator::old('dripfeed_x', $task->options['dripfeed_x']) ?>">
+                                       value="<?php echo esc_attr(Validator::old('dripfeed_x', $task->options['dripfeed_x'])) ?>">
                                 <?php if (Validator::hasError('dripfeed_x')) : ?>
                                     <span class="PostForm__error"><?php echo esc_html(Validator::get('dripfeed_x')); ?></span>
 
@@ -591,7 +591,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                             <input id="schema-business"
                                                    placeholder="<?php esc_attr_e('Business Name', 'improve-seo'); ?>"
                                                    name="schema_business" type="text" class="full-width form-control"
-                                                   value="<?php echo Validator::old('schema_business', $task->options['schema_business']) ?>">
+                                                   value="<?php echo esc_html(Validator::old('schema_business', $task->options['schema_business'])) ?>">
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>
@@ -602,7 +602,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                             <textarea id="schema-description"
                                                       placeholder="<?php esc_attr_e('Description', 'improve-seo'); ?>"
                                                       name="schema_description"
-                                                      class="full-width textarea-control"><?php echo Validator::old('schema_description', $task->options['schema_description']) ?></textarea>
+                                                      class="full-width textarea-control"><?php echo esc_textarea(Validator::old('schema_description', $task->options['schema_description'])) ?></textarea>
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>
@@ -613,7 +613,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                             <input type="text" id="schema-email"
                                                    placeholder="<?php esc_attr_e('E-mail', 'improve-seo'); ?>"
                                                    name="schema_email" class="full-width form-control"
-                                                   value="<?php echo Validator::old('schema_email', $task->options['schema_email']) ?>">
+                                                   value="<?php echo esc_attr(Validator::old('schema_email', $task->options['schema_email']) )?>">
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>
@@ -624,7 +624,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                             <input type="tel" id="schema-telephone"
                                                    placeholder="<?php esc_attr_e('Telephone', 'improve-seo'); ?>"
                                                    name="schema_telephone" class="full-width form-control"
-                                                   value="<?php echo Validator::old('schema_telephone', $task->options['schema_telephone']) ?>">
+                                                   value="<?php echo esc_attr(Validator::old('schema_telephone', $task->options['schema_telephone'])) ?>">
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>
@@ -635,7 +635,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                             <textarea id="schema-social"
                                                       placeholder="<?php esc_attr_e('Social pages', 'improve-seo'); ?>"
                                                       name="schema_social"
-                                                      class="full-width textarea-control"><?php echo Validator::old('schema_social', $task->options['schema_social']) ?></textarea>
+                                                      class="full-width textarea-control"><?php echo esc_html(Validator::old('schema_social', $task->options['schema_social'])) ?></textarea>
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>
@@ -659,7 +659,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                             <input id="schema-rating"
                                                    placeholder="<?php esc_attr_e('Rating', 'improve-seo'); ?>"
                                                    name="schema_rating" type="text" class="full-width form-control"
-                                                   value="<?php echo Validator::old('schema_rating', $task->options['schema_rating']) ?>">
+                                                   value="<?php echo esc_attr(Validator::old('schema_rating', $task->options['schema_rating'])) ?>">
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>
@@ -671,7 +671,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                                    placeholder="<?php esc_attr_e('Rating Count', 'improve-seo'); ?>"
                                                    name="schema_rating_count" type="text"
                                                    class="full-width form-control"
-                                                   value="<?php echo Validator::old('schema_rating_count', $task->options['schema_rating_count']) ?>">
+                                                   value="<?php echo esc_attr(Validator::old('schema_rating_count', $task->options['schema_rating_count'])) ?>">
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>
@@ -682,7 +682,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                             <textarea id="schema-address"
                                                       placeholder="<?php esc_attr_e('Address', 'improve-seo'); ?>"
                                                       name="schema_address"
-                                                      class="full-width textarea-control"><?php echo Validator::old('schema_address', $task->options['schema_address']) ?></textarea>
+                                                      class="full-width textarea-control"><?php echo esc_attr(Validator::old('schema_address', $task->options['schema_address'])) ?></textarea>
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>

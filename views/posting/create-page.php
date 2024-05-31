@@ -31,4 +31,5 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 </div>
 <?php View::endSection('content') ?>
 
-<?php echo View::make('layouts.main'); ?>
+<?php echo esc_html( View::make('layouts.main') ); ?>
+

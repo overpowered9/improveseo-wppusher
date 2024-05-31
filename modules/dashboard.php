@@ -464,7 +464,7 @@ function improveseo_dashboard()
 		);
 		$wpdb->query("SET GLOBAL max_allowed_packet = 268435456");
 
-		$project_id = $model->update($data, $_GET['id']);
+		$project_id = $model->update($data, absint($_GET['id']));
 		if (isset($_GET['id'])) $project_id = absint($_GET['id']);
 		FlashMessage::success('Project successfully updated. You can update old posts by clicking "Update My Posts".');
 		wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$project_id}&build_posts_id={$project_id}"));

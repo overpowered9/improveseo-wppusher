@@ -5,14 +5,15 @@ use ImproveSEO\Validator;
 use ImproveSEO\FlashMessage;
 use ImproveSEO\Models\Lists;
 use ImproveSEO\Models\Shortcode;
-if ( ! defined( 'ABSPATH' ) ) exit;
+
+if (!defined('ABSPATH')) exit;
 
 function improveseo_lists()
 {
 	global $wpdb;
-    $action = isset($_GET['action']) ? sanitize_text_field($_GET['action']) : 'index';
-    $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 20;
-    $offset = isset($_GET['paged']) ? intval($_GET['paged']) * $limit - $limit : 0;
+	$action = isset($_GET['action']) ? sanitize_text_field($_GET['action']) : 'index';
+	$limit = isset($_GET['limit']) ? intval($_GET['limit']) : 20;
+	$offset = isset($_GET['paged']) ? intval($_GET['paged']) * $limit - $limit : 0;
 
 	$model = new Lists();
 
@@ -28,82 +29,19 @@ function improveseo_lists()
 		'application/vnd.msexcel'
 	);
 
-	//Upload CSV File
-	if (isset($_POST['submit'])) {
-
-		// Sanitize and verify nonce
-		$nonce = isset($_POST['_wpnonce']) ? sanitize_text_field($_POST['_wpnonce']) : '';
-		if (!wp_verify_nonce($nonce, 'import_project_nonce')) {
-			wp_redirect(admin_url('admin.php?page=improveseo_lists'));
-			exit();
-		}
-
-		// Check user capability
-		if (!current_user_can('upload_files')) {
-			FlashMessage::success('Current user can\'t upload file');
-			wp_redirect(admin_url('admin.php?page=improveseo_lists'));
-			exit();
-		}
-
-		// Validate uploaded file
-		$fileMimes = ['text/csv', 'application/vnd.ms-excel'];
-		if (empty($_FILES['upload_csv']['tmp_name']) || !in_array($_FILES['upload_csv']['type'], $fileMimes)) {
-			FlashMessage::success('Please Upload a Valid CSV file');
-			wp_redirect(admin_url('admin.php?page=improveseo_lists'));
-			exit();
-		}
-
-		// Import uploaded file to Database
-		$file = fopen($_FILES['upload_csv']['tmp_name'], "r");
-		if ($file === FALSE) {
-			FlashMessage::success('Error opening uploaded file');
-			wp_redirect(admin_url('admin.php?page=improveseo_lists'));
-			exit();
-		}
-
-		$counter = 0;
-		while (($file_content = fgetcsv($file)) !== FALSE) {
-
-			// Escape and insert data into the database
-			if ($counter != 0) {
-				$wpdb->insert($wpdb->prefix . "improveseo_lists", array(
-					'id' => intval($file_content[0]),
-					'name' => sanitize_text_field($file_content[1]),
-					'list' => sanitize_text_field($file_content[2]),
-					'size' => intval($file_content[3]),
-					'created_at' => date('Y-m-d H:i:s', strtotime($file_content[4])),
-				));
-			}
-
-			$counter++;
-		}
-
-		fclose($file);
-
-		FlashMessage::success(($counter - 1) . ' List Imported Successfully.');
-	}
-
-
-
 	if ($action == 'index') :
 
 		// Filters
-        $orderBy = isset($_GET['orderBy']) ? filter_var($_GET['orderBy'], FILTER_SANITIZE_STRING) : 'name';
-        $order = isset($_GET['order']) ? filter_var($_GET['order'], FILTER_SANITIZE_STRING) : 'ASC';
-        $s = isset($_GET['s']) ? filter_var($_GET['s'], FILTER_SANITIZE_STRING) : '';
+		$orderBy = isset($_GET['orderBy']) ? filter_var($_GET['orderBy'], FILTER_SANITIZE_STRING) : 'created_at';
+		$order = isset($_GET['order']) ? filter_var($_GET['order'], FILTER_SANITIZE_STRING) : 'desc';
+		$s = isset($_GET['s']) ? filter_var($_GET['s'], FILTER_SANITIZE_STRING) : '';
 
 
-        $where = array();
+		$where = array();
 		$params = array();
 
 		$sql = 'SELECT * FROM ' . $model->getTable();
-		/* if (sizeof($where)) {
-			$sql .= ' WHERE '. implode(' AND ', $where);
-		}
 
-		if (sizeof($where)) {
-			$sqlTotal .= ' WHERE '. implode(' AND ', $where);
-		} */
 		$sqlTotal = 'SELECT COUNT(id) AS total FROM ' . $model->getTable();
 		if ($s != "") {
 			$sql .= " WHERE name like '%%%s%%'";
@@ -113,10 +51,9 @@ function improveseo_lists()
 
 		$sqlTotal = $wpdb->prepare($sqlTotal, $params);
 
-		$sql .= " ORDER BY %s %s";
-        $params[] = $orderBy;
-        $params[] = $order;
+		$sql .= " ORDER BY $orderBy $order";
 		$sql .= " LIMIT %d, %d";
+
 
 		$params[] = $offset;
 		$params[] = $limit;
@@ -141,7 +78,11 @@ function improveseo_lists()
 	elseif ($action == 'do_create') :
 
 		$name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
-		$list = isset($_POST['list']) ? sanitize_text_field($_POST['list']) : '';
+		
+		$list = isset($_POST['list']) ? trim(sanitize_text_field($_POST['list'])) : ''; // Check if $_POST['list'] is set
+
+
+
 
 		// Validate the sanitized fields
 		if (!Validator::validate(array("name" => $name, "list" => $list), array(
@@ -151,20 +92,24 @@ function improveseo_lists()
 			wp_redirect(admin_url('admin.php?page=improveseo_lists&action=create'));
 			exit;
 		}
-        $_POST['list'] = isset($_POST['list']) ? trim(stripslashes($_POST['list'])) : ''; // Check if $_POST['list'] is set
-        $_POST['size'] = sizeof(explode("\n", $_POST['list'])); // Calculate the number of lines in $_POST['list']
+		
+		$list = isset($_POST['list']) ? trim(sanitize_text_field($_POST['list'])) : ''; // Check if $_POST['list'] is set
 
+		
+		
+		$lines = explode("\n", $list); // Split the input into lines
+		$size = count($lines); // Calculate the number of lines
 
-        $id = $model->create(array("name" => $name, "list" => $list));
-// Assuming $_POST['name'] contains the name attribute value
-        $nameAttribute = $model->setNameAttribute($_POST['name']);
-        $sanitizedAttribute = sanitize_text_field($nameAttribute); // Sanitize the attribute
+		$id = $model->create(array("name" => $name, "list" => $list));
+		// Assuming $_POST['name'] contains the name attribute value
+		$nameAttribute = $model->setNameAttribute(sanitize_text_field($_POST['name']));
+		$sanitizedAttribute = sanitize_text_field($nameAttribute); // Sanitize the attribute
 
-// Validate the sanitized attribute if needed
-// Example: if (empty($sanitizedAttribute)) { handle validation error }
+		// Validate the sanitized attribute if needed
+		// Example: if (empty($sanitizedAttribute)) { handle validation error }
 
-// Escape the output
-        $escapedAttribute = esc_html($sanitizedAttribute);
+		// Escape the output
+		$escapedAttribute = esc_html($sanitizedAttribute);
 
 		FlashMessage::success('
 			<p>
@@ -178,7 +123,7 @@ function improveseo_lists()
 		exit;
 
 	elseif ($action == 'edit') :
-        $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
+		$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
 
 		$list = $model->find($id);
 
@@ -186,11 +131,11 @@ function improveseo_lists()
 
 	elseif ($action == 'do_edit') :
 
-        $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
+		$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
 
-        $list = $model->find($id);
+		$list = $model->find($id);
 
-		$fields = array("name" => isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '', "list" => isset($_POST['list']) ? sanitize_text_field($_POST['list']) : '');
+		$fields = array("name" => isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '', "list" => isset(($_POST['list'])) ? sanitize_text_field($_POST['list']) : '');
 
 
 		if (!Validator::validate($fields, array(
@@ -201,8 +146,23 @@ function improveseo_lists()
 			exit;
 		}
 
-		$_POST['list'] = trim(stripslashes($_POST['list']));
-		$_POST['size'] = sizeof(explode("\n", $_POST['list']));
+		$list = isset($_POST['list']) ? trim(sanitize_text_field($_POST['list'])) : ''; // Check if $_POST['list'] is set/PelConvert.php
+
+
+		// $list = array_map(function ($item) {
+		// 	$sanitized_item = sanitize_text_field($item); // Sanitize the input
+		// 	if (empty($sanitized_item)) {
+		// 		// Handle the error - the input is invalid (e.g., empty after sanitization)
+		// 		wp_die('Invalid list item.');
+		// 	}
+		// 	return esc_html($sanitized_item); // Escape the input for safe output
+		// }, $list_no_sanitized);
+
+
+		
+		$lines = explode("\n", $list); // Split the input into lines
+		$size = count($lines); // Calculate the number of lines
+
 
 		$model->update($fields, $id);
 
@@ -212,9 +172,9 @@ function improveseo_lists()
 
 	elseif ($action == 'delete') :
 
-        $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
+		$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
 
-        $model->delete($id);
+		$model->delete($id);
 
 		FlashMessage::success('List has been deleted.');
 		wp_redirect(admin_url('admin.php?page=improveseo_lists'));

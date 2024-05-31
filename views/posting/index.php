@@ -51,7 +51,7 @@ if (isset($_POST['cat_name'])) {
 						$checked = ($category->slug == '') ? 'checked onclick="return false"' : '';
 						$select .= "<span><input type='checkbox' " . esc_attr($checked) . " value='" . esc_attr($category->term_id) . "' id='" . esc_attr($category->term_id) . "' name='cats[]'><label for='" . esc_attr($category->term_id) . "'>" . esc_html($category->name) . "</label></span>";
 					}
-					echo $select;
+					echo htmlspecialchars($select);
 					?>
 				</div>
 				<div class="add_cat">
@@ -71,4 +71,4 @@ if (isset($_POST['cat_name'])) {
 
 <?php View::endSection('content') ?>
 
-<?php echo View::make('layouts.main') ?>
+<?php echo htmlspecialchars(View::make('layouts.main')); ?>

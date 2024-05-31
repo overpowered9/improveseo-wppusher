@@ -61,7 +61,7 @@ function improveseo_generate_preview() {
             sanitize_text_field($_POST['tags'])
         ));
         $options_data['local_geo_country'] = sanitize_text_field($_POST['local_country']);
-        $options_data['local_geo_locations'] = json_decode(stripslashes($_POST['local_geo_locations']), true);
+        $options_data['local_geo_locations'] = json_decode(sanitize_text_field(stripslashes($_POST['local_geo_locations'])), true);
 
         // Do not expand geo data if saving as draft
         if (isset($_POST['create'])) {
