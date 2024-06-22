@@ -16,11 +16,11 @@ function improveseo_posting()
     $action = isset($_GET['action']) ? sanitize_text_field($_GET['action']) : 'index';
     $model = new Task();
 
-// Main posting page
+    // Main posting page
     if ($action == 'index') :
         View::render('posting.index');
 
-// Create post page
+    // Create post page
     elseif ($action == 'create_post') :
         View::render('posting.create-post');
 
@@ -92,7 +92,7 @@ function improveseo_posting()
 
         // Math maximum number of posts
         // Count list items
-// Sanitize and validate the input
+        // Sanitize and validate the input
         $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_STRING);
         $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_STRING);
         $custom_title = filter_input(INPUT_POST, 'custom_title', FILTER_SANITIZE_STRING);
@@ -112,7 +112,7 @@ function improveseo_posting()
             $max = ($_POST['max_posts'] <= 0) ? ($items ? $items : Spintax::count(Spintax::parse($title))) : intval($_POST['max_posts']);
         }
         if (isset($_POST['max_posts'])) {
-            $options_data['max_posts'] = $_POST['max_posts'];
+            $options_data['max_posts'] = isset($_POST['max_posts']) ? intval($_POST['max_posts']) : 0;
         }
 
         $data = array(
@@ -216,7 +216,7 @@ function improveseo_posting()
             }
         }
 
-// Local SEO
+        // Local SEO
         $geo_iterations = 1;
 
         if (isset($_POST['local_seo_enabler'])) {
@@ -304,9 +304,9 @@ function improveseo_posting()
         if (isset($_POST['exif_enabler'])) {
             $options_data['exif_locations'] = isset($_POST['exif_locations']) ? sanitize_text_field($_POST['exif_locations']) : '';
 
-// Validate the exif_locations data if needed (e.g., check if it is a valid format)
+            // Validate the exif_locations data if needed (e.g., check if it is a valid format)
 
-// Escape the exif_locations data before using it (e.g., if it is displayed in HTML)
+            // Escape the exif_locations data before using it (e.g., if it is displayed in HTML)
             $options_data['exif_locations'] = esc_html($options_data['exif_locations']);
         }
         if (isset($_POST['use_post_location'])) {
@@ -314,16 +314,17 @@ function improveseo_posting()
         }
 
         // Permalink
-        $options_data['permalink'] = isset($_POST['permalink']) ? $_POST['permalink'] : '';
+        $options_data['permalink'] = isset($_POST['permalink']) ? esc_url_raw(sanitize_text_field($_POST['permalink'])) : '';
+
         $options_data['permalink_prefix'] = isset($_POST['permalink_prefix']) ? sanitize_title($_POST['permalink_prefix']) : '';
 
-// Sanitize and validate tags
+        // Sanitize and validate tags
         $options_data['tags'] = isset($_POST['tags']) ? sanitize_text_field($_POST['tags']) : '';
 
-// Sanitize and validate noindex_tags
+        // Sanitize and validate noindex_tags
         $options_data['noindex_tags'] = isset($_POST['noindex_tags']) ? true : false;
 
-// Sanitize and validate distribute
+        // Sanitize and validate distribute
         $options_data['distribute'] = isset($_POST['distribute']) ? true : false;
 
 
@@ -340,9 +341,9 @@ function improveseo_posting()
         }
 
 
-//        $filteredObjects = array_filter($_POST, function ($obj) {
-//            return isset($obj->size);
-//        });
+        //        $filteredObjects = array_filter($_POST, function ($obj) {
+        //            return isset($obj->size);
+        //        });
 
 
         // Math maximum number of posts

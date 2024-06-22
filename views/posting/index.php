@@ -71,4 +71,4 @@ if (isset($_POST['cat_name'])) {
 
 <?php View::endSection('content') ?>
 
-<?php echo htmlspecialchars(View::make('layouts.main')); ?>
+<?php echo esc_html(View::make('layouts.main')); ?>

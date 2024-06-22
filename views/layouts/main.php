@@ -10,5 +10,5 @@
 		ImproveSEO\FlashMessage::handle();
 	?>
 
-	<?php echo htmlspecialchars_decode(ImproveSEO\View::section('content')) ?>
+	<?php echo (htmlspecialchars_decode(ImproveSEO\View::section('content'))) ?>
 </div>

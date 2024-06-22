@@ -56,7 +56,7 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
                 }
             }            // Show states
             else {
-                $states = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}improveseo_us_states");
+                $states = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_us_states"));
                 foreach ($states as $state) {
                     $results[] = array(
                         'id' => $state->state_code,
@@ -71,7 +71,7 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
 
                     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
                     include_once 'geo/installer.php';
-                    $states = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}improveseo_us_states");
+                    $states = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_us_states"));
                     foreach ($states as $state) {
                         $results[] = array(
                             'id' => $state->state_code,
@@ -133,7 +133,7 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
                 }
             }            // Show states
             else {
-                $states = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}improveseo_uk_states ORDER BY name");
+                $states = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_uk_states ORDER BY name"));
                 foreach ($states as $state) {
                     $results[] = array(
                         'id' => $state->id,
@@ -148,7 +148,7 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
 
                     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
                     include_once 'geo/installer.php';
-                    $states = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}improveseo_uk_states ORDER BY name");
+                    $states = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_uk_states ORDER BY name"));
                     foreach ($states as $state) {
                         $results[] = array(
                             'id' => $state->id,
@@ -298,7 +298,7 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
         // Download all media files
         foreach ($_POST['media'] as &$media) {
             if (isset($media['url'])) {
-                $image = str_replace(':8000', '', sanitize_text_field($media['url'])); // Fix only for local dev
+                $image = str_replace(':8000', '', sanitize_text_field(esc_attr($media['url']))); // Fix only for local dev
                 $filename = sha1($image . '-' . $shortcode) . '.jpg';
 
                 $exploded = explode('.', $image);

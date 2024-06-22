@@ -58,7 +58,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
-				'base' => admin_url('admin.php?page=improveseo_lists%_%')
+				'base' => esc_url(admin_url('admin.php?page=improveseo_lists%_%'))
 			)) ?>
 		</span>
 	</section>

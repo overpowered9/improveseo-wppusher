@@ -16,7 +16,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
 
 ?>
 
-<input type="hidden" name="post_type" value="<?php echo esc_attr($inputProjectType); ?>"/>
+<input type="hidden" name="post_type" value="<?php echo esc_attr($inputProjectType); ?>" />
 
 <div id="poststuff" class="PostForm">
     <div id="post-body" class="metabox-holder columns-2">
@@ -24,9 +24,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
         <div id="post-body-content">
             <div class="PostForm__name-wrap input-group <?php echo Validator::hasError('name') ? 'PostForm--error' : ''; ?>">
                 <label class="form-label"><?php esc_html_e('Project name here', 'improve-seo'); ?></label>
-                <input type="text" name="name" class="PostForm__name form-control"
-                       placeholder="<?php esc_attr_e('Project name here', 'improve-seo'); ?>"
-                       value="<?php echo esc_attr(Validator::old('name', $task->name)); ?>">
+                <input type="text" name="name" class="PostForm__name form-control" placeholder="<?php esc_attr_e('Project name here', 'improve-seo'); ?>" value="<?php echo esc_attr(Validator::old('name', $task->name)); ?>">
                 <?php if (Validator::hasError('name')) : ?>
                     <span class="PostForm__error"><?php echo esc_html(Validator::get('name')); ?></span>
                 <?php endif; ?>
@@ -34,9 +32,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
 
             <div class="PostForm__title-wrap input-group <?php echo Validator::hasError('title') ? ' PostForm--error' : ''; ?>">
                 <label class="form-label"><?php esc_html_e('Enter title here', 'improve-seo'); ?></label>
-                <input type="text" id="title" name="title" class="PostForm__title form-control"
-                       placeholder="<?php esc_attr_e('Enter title here', 'improve-seo'); ?>"
-                       value="<?php echo esc_attr(Validator::old('title', $task->content['title'])); ?>">
+                <input type="text" id="title" name="title" class="PostForm__title form-control" placeholder="<?php esc_attr_e('Enter title here', 'improve-seo'); ?>" value="<?php echo esc_attr(Validator::old('title', $task->content['title'])); ?>">
                 <?php if (Validator::hasError('title')) : ?>
                     <span class="PostForm__error"><?php echo esc_html(Validator::get('title')); ?></span>
                 <?php endif; ?>
@@ -45,23 +41,16 @@ $googleApiKey = get_option('improveseo_google_api_key');
                     <?php
                     $oldPermalink = Validator::old('permalink', $task->options['permalink']);
                     ?>
-                    <input type="hidden" class="form-control" name="permalink"
-                           value="<?php echo esc_attr($oldPermalink); ?>">
+                    <input type="hidden" class="form-control" name="permalink" value="<?php echo esc_attr($oldPermalink); ?>">
                     <strong><?php esc_html_e('Permalink:', 'improve-seo'); ?><?php echo improveseo_permalink($oldPermalink); ?></strong>
-                    <a id="edit-permalink" class="btn btn-outline-primary"
-                       aria-label="<?php esc_attr_e('Edit permalink', 'improve-seo'); ?>"><?php esc_html_e('Edit', 'improve-seo'); ?></a>
-                    <a id="save-permalink" class="btn btn-outline-primary"
-                       style="display: none"><?php esc_html_e('OK', 'improve-seo'); ?></a>
-                    <a id="prefix-permalink" class="btn btn-outline-primary"
-                       style="display: none;"><?php esc_html_e('Add Prefix', 'improve-seo'); ?></a>
-                    <a id="cancel-permalink" class="cancel btn btn-outline-primary"
-                       style="display: none"><?php esc_html_e('Cancel', 'improve-seo'); ?></a><br/>
+                    <a id="edit-permalink" class="btn btn-outline-primary" aria-label="<?php esc_attr_e('Edit permalink', 'improve-seo'); ?>"><?php esc_html_e('Edit', 'improve-seo'); ?></a>
+                    <a id="save-permalink" class="btn btn-outline-primary" style="display: none"><?php esc_html_e('OK', 'improve-seo'); ?></a>
+                    <a id="prefix-permalink" class="btn btn-outline-primary" style="display: none;"><?php esc_html_e('Add Prefix', 'improve-seo'); ?></a>
+                    <a id="cancel-permalink" class="cancel btn btn-outline-primary" style="display: none"><?php esc_html_e('Cancel', 'improve-seo'); ?></a><br />
                     <div class="howto">
-                        <?php esc_html_e('The non-editable URL structure is determined by your', 'improve-seo'); ?> <a
-                                href="<?php echo esc_url(site_url()); ?>/wp-admin/options-permalink.php"><?php esc_html_e('permalink settings', 'improve-seo'); ?></a>.
+                        <?php esc_html_e('The non-editable URL structure is determined by your', 'improve-seo'); ?> <a href="<?php echo esc_url(site_url()); ?>/wp-admin/options-permalink.php"><?php esc_html_e('permalink settings', 'improve-seo'); ?></a>.
                     </div>
-                    <p id="too-many-posts" class="notice notice-error"
-                       style="display: none;"><?php esc_html_e('Your project contains more than 5,000 pages. While Improve SEO can create hundreds of thousands of posts per project, it is recommended to split your project into multiple smaller projects if you are using shared hosting for maximum efficiency. VPS and dedicated server users can ignore this message.', 'improve-seo'); ?></p>
+                    <p id="too-many-posts" class="notice notice-error" style="display: none;"><?php esc_html_e('Your project contains more than 5,000 pages. While Improve SEO can create hundreds of thousands of posts per project, it is recommended to split your project into multiple smaller projects if you are using shared hosting for maximum efficiency. VPS and dedicated server users can ignore this message.', 'improve-seo'); ?></p>
                 </div>
             </div>
 
@@ -86,12 +75,10 @@ $googleApiKey = get_option('improveseo_google_api_key');
                 <button name="create" type="submit" formtarget="_self" class="btn btn-outline-primary">
                     <?php echo ($_GET['action'] == 'edit_post') ? esc_html__('Update project and posts', 'improve-seo') : esc_html__('Create Project', 'improve-seo'); ?>
                 </button>
-                <button name="draft" type="submit" formtarget="_self"
-                        class="btn btn-outline-primary"><?php esc_html_e('Save As Draft', 'improve-seo'); ?></button>
-                <button id="preview_on" type="submit"
-                        class="btn btn-outline-primary"><?php esc_html_e('Post preview', 'improve-seo'); ?></button>
-                <input type="hidden" name="preview_id" id="preview_id"/>
-                <input type="hidden" name="is_preview_available" id="is_preview_available" value="no"/>
+                <button name="draft" type="submit" formtarget="_self" class="btn btn-outline-primary"><?php esc_html_e('Save As Draft', 'improve-seo'); ?></button>
+                <button id="preview_on" type="submit" class="btn btn-outline-primary"><?php esc_html_e('Post preview', 'improve-seo'); ?></button>
+                <input type="hidden" name="preview_id" id="preview_id" />
+                <input type="hidden" name="is_preview_available" id="is_preview_available" value="no" />
             </div>
 
             <?php echo esc_url($site_link); ?>
@@ -99,29 +86,25 @@ $googleApiKey = get_option('improveseo_google_api_key');
             <!-- HTML modal for preview button -->
             <div id="preview_popup" class="modal" style="text-align:center">
                 <div id="wh_prev_modal_1">
-                    <?php $gifSrc = IMPROVESEO_DIR . '/assets/images/loader.gif'; ?>
+                    <?php $gifSrc = esc_url(IMPROVESEO_DIR . '/assets/images/loader.gif'); ?>
                     <b style="font-size:20px"><?php esc_html_e('Generating preview', 'improve-seo'); ?></b>
-                    <br/><br/>
+                    <br /><br />
                     <img id="preview_rcube" src="<?php echo esc_url($gifSrc); ?>" width="200">
                 </div>
                 <div id="wh_prev_modal_2">
                     <b style="font-size:18px"><?php esc_html_e('Close preview to continue editing the project', 'improve-seo'); ?></b>
                     <br><br>
-                    <button id="open_win" class="button button-primary" onclick="closeWin()"
-                            rel="modal:close"><?php esc_html_e('Close preview', 'improve-seo'); ?></button>
+                    <button id="open_win" class="button button-primary" onclick="closeWin()" rel="modal:close"><?php esc_html_e('Close preview', 'improve-seo'); ?></button>
                     &nbsp; &nbsp;
-                    <button id="close_win" class="button button-primary"
-                            onclick="changeWin()"><?php esc_html_e('Switch preview', 'improve-seo'); ?></button>
+                    <button id="close_win" class="button button-primary" onclick="changeWin()"><?php esc_html_e('Switch preview', 'improve-seo'); ?></button>
                 </div>
             </div>
 
-            <div id="shortcode_popup" class="modal shortcode_popup" tabindex="-1" role="dialog"
-                 aria-labelledby="shortcode_popup" aria-hidden="true" data-focus="true">
+            <div id="shortcode_popup" class="modal shortcode_popup" tabindex="-1" role="dialog" aria-labelledby="shortcode_popup" aria-hidden="true" data-focus="true">
                 <h3><?php esc_html_e('Select ImproveSEO Shortcode', 'improve-seo'); ?></h3>
                 <div class="form-wrap">
-                    <input type="hidden" id="is_shortcode_popup_open" value="no"/>
-                    <p class="hidden improveseo_shortcode_error"
-                       id="improveseo_shortcode_error"><?php esc_html_e('No shortcodes available.', 'improve-seo'); ?></p>
+                    <input type="hidden" id="is_shortcode_popup_open" value="no" />
+                    <p class="hidden improveseo_shortcode_error" id="improveseo_shortcode_error"><?php esc_html_e('No shortcodes available.', 'improve-seo'); ?></p>
                     <div class="form-group">
                         <label for="improveseo_shortcode_type"><?php esc_html_e('Select Shortcode Type', 'improve-seo'); ?></label>
                         <select class="form-control" id="improveseo_shortcode_type" name="improveseo_shortcode_type">
@@ -135,21 +118,18 @@ $googleApiKey = get_option('improveseo_google_api_key');
                         </select>
                     </div>
                     <div class="form-group hidden">
-                        <button type="button" class="btn btn-outline-primary"
-                                id="improveseo_shortcode_add_btn"><?php esc_html_e('Add', 'improve-seo'); ?></button>
+                        <button type="button" class="btn btn-outline-primary" id="improveseo_shortcode_add_btn"><?php esc_html_e('Add', 'improve-seo'); ?></button>
                     </div>
                 </div>
             </div>
 
 
-            <div id="all_shortcode_popup" class="modal all_shortcode_popup" tabindex="-1" role="dialog"
-                 aria-labelledby="all_shortcode_popup" aria-hidden="true" data-focus="true">
+            <div id="all_shortcode_popup" class="modal all_shortcode_popup" tabindex="-1" role="dialog" aria-labelledby="all_shortcode_popup" aria-hidden="true" data-focus="true">
                 <h3><?php esc_html_e('Search ImproveSEO Shortcode', 'improve-seo'); ?></h3>
                 <div class="form-wrap">
                     <div class="form-group">
                         <label for="improveseo_shortcode_text"><?php esc_html_e('Search Shortcode', 'improve-seo'); ?></label>
-                        <input type="text" class="form-control" id="improveseo_shortcode_text"
-                               name="improveseo_shortcode_text">
+                        <input type="text" class="form-control" id="improveseo_shortcode_text" name="improveseo_shortcode_text">
                     </div>
                 </div>
             </div>
@@ -171,7 +151,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                         if (isset($_GET['cat_pre'])) {
                             $cat_pre = sanitize_text_field($_GET['cat_pre']);
                             $cat_pre = explode(",", $cat_pre);
-                        } else if ($task->cats != "") {
+                        } else if (!empty($task->cats)) {
                             $cat_pre = json_decode($task->cats, true);
                         }
 
@@ -184,34 +164,29 @@ $googleApiKey = get_option('improveseo_google_api_key');
                         $cats = get_categories($args);
                         $select = "";
                         foreach ($cats as $category) {
-                            // do not show improve SEO category
-
                             $checked = '';
 
-                            if (!empty($cat_pre)) {
-                                if (in_array($category->term_id, $cat_pre)) {
-
-                                    if ($category->slug == "improve-seo") {
-                                        $checked = 'checked  onclick="return false"';
-                                    } else {
-                                        $checked = 'checked';
-                                    }
+                            if (!empty($cat_pre) && in_array($category->term_id, $cat_pre)) {
+                                if ($category->slug == "improve-seo") {
+                                    $checked = 'checked onclick="return false"';
                                 } else {
-                                    $checked = '';
+                                    $checked = 'checked';
                                 }
+                            } elseif ($category->slug == "improve-seo") {
+                                $checked = 'checked onclick="return false"';
                             }
 
-                            if ($category->slug == "improve-seo") {
-                                $checked = 'checked  onclick="return false"';
-                            }
-
-                            $select .= "<div class='input-group cta-check m-0'><span><input " . esc_attr($checked) . " id='" . esc_attr($category->term_id) . "' type='checkbox' value='" . esc_attr($category->term_id) . "' name='cats[]'><label for='" . esc_attr($category->term_id) . "'>" . esc_html($category->name) . "</label></span></div>";
+                            $select .= "<div class='input-group cta-check m-0'>
+                        <span>
+                            <input " . esc_attr($checked) . " id='" . esc_attr($category->term_id) . "' type='checkbox' value='" . esc_attr($category->term_id) . "' name='cats[]'>
+                            <label for='" . esc_attr($category->term_id) . "'>" . esc_html($category->name) . "</label>
+                        </span>
+                    </div>";
                         }
-
-
                         ?>
-                        <?php echo($select); ?>
+                        <?php echo ($select); ?>
                     </div>
+
                 </div>
 
 
@@ -221,17 +196,16 @@ $googleApiKey = get_option('improveseo_google_api_key');
                         <span class="toggle-indicator" aria-hidden="true"></span>
                     </button>
                     <h3 class="hndle ui-sortable-handle">
-                        <span><?php esc_html_e('Improve SEO Options', 'improve-seo'); ?></span></h3>
+                        <span><?php esc_html_e('Improve SEO Options', 'improve-seo'); ?></span>
+                    </h3>
                     <div class="inside mt-3">
                         <p>
                             <strong><?php esc_html_e('Max Posts:', 'improve-seo'); ?></strong> <br>
                             <span class="d-block mb-2">
-								<?php esc_html_e('Maximum number of posts to generate. Input `0` if you want to generate all available posts from spintax.', 'improve-seo'); ?>
-							</span>
+                                <?php esc_html_e('Maximum number of posts to generate. Input `0` if you want to generate all available posts from spintax.', 'improve-seo'); ?>
+                            </span>
                         <div class="input-group">
-                            <input type="number" id="max-posts" name="max_posts" class="form-control"
-                                   value="<?php echo (Validator::old('max_posts', (int)$task->options['max_posts']) <= 0) ? '1' : esc_attr(Validator::old('max_posts', (int)$task->options['max_posts'])); ?>"
-                                   min="1"/>
+                            <input type="number" id="max-posts" name="max_posts" class="form-control" value="<?php echo (Validator::old('max_posts', (int)$task->options['max_posts']) <= 0) ? '1' : esc_attr(Validator::old('max_posts', (int)$task->options['max_posts'])); ?>" min="1" />
                         </div>
                         </p>
 
@@ -240,15 +214,14 @@ $googleApiKey = get_option('improveseo_google_api_key');
                             <br>
                         <p style="color:red"><?php esc_html_e('Upgrade to Improve SEO Pro version to enable this function', 'improve-seo'); ?></p>
                         <span>
-							<?php esc_html_e('Distribute posts among Improve SEO authors randomly.', 'improve-seo'); ?>
-						</span>
+                            <?php esc_html_e('Distribute posts among Improve SEO authors randomly.', 'improve-seo'); ?>
+                        </span>
                         </p>
                         <div class="input-group m-0 cta-check">
-							<span>
-								<input type="checkbox" disabled id="distribute" name="distribute"
-                                       value="1" <?php echo Validator::old('distribute', ($task->options['distribute'] ?? 0)) == 1 ? 'checked' : ''; ?>>
-								<label for="distribute"><?php esc_html_e('Distribute', 'improve-seo'); ?></label>
-							</span>
+                            <span>
+                                <input type="checkbox" disabled id="distribute" name="distribute" value="1" <?php echo Validator::old('distribute', ($task->options['distribute'] ?? 0)) == 1 ? 'checked' : ''; ?>>
+                                <label for="distribute"><?php esc_html_e('Distribute', 'improve-seo'); ?></label>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -259,40 +232,32 @@ $googleApiKey = get_option('improveseo_google_api_key');
                         <span class="toggle-indicator" aria-hidden="true"></span>
                     </button>
                     <h3 class="hndle ui-sortable-handle">
-                        <span><?php esc_html_e('Improve SEO Dripfeed Property', 'improve-seo'); ?></span></h3>
+                        <span><?php esc_html_e('Improve SEO Dripfeed Property', 'improve-seo'); ?></span>
+                    </h3>
                     <div class="inside">
                         <?php
                         $old_dripfeed_enabler = Validator::old('dripfeed_enabler', $task->options['dripfeed_type'] ? 1 : 0);
                         ?>
                         <div class="input-group my-3 cta-check">
-							<span>
-								<input id="dripfeed-enabler" name="dripfeed_enabler" type="checkbox"
-                                       value="1" <?php echo esc_attr($old_dripfeed_enabler == 1 ? 'checked' : ''); ?>
->
-								<label for="dripfeed-enabler"
-                                       class="selectit"> <?php esc_html_e('Enable Feature', 'improve-seo'); ?></label>
-							</span>
+                            <span>
+                                <input id="dripfeed-enabler" name="dripfeed_enabler" type="checkbox" value="1" <?php echo esc_attr($old_dripfeed_enabler == 1 ? 'checked' : ''); ?>>
+                                <label for="dripfeed-enabler" class="selectit"> <?php esc_html_e('Enable Feature', 'improve-seo'); ?></label>
+                            </span>
                         </div>
 
-                        <div id="dripfeed-wrap"
-                             style="display: <?php echo esc_attr($old_dripfeed_enabler == 1 ? 'block' : 'none'); ?>
+                        <div id="dripfeed-wrap" style="display: <?php echo esc_attr($old_dripfeed_enabler == 1 ? 'block' : 'none'); ?>
                                      ;">
                             <div class="input-group">
-                                <label for="dripfeed-type"
-                                       class="form-label"><?php esc_html_e('Dripfeed Type:', 'improve-seo'); ?></label>
+                                <label for="dripfeed-type" class="form-label"><?php esc_html_e('Dripfeed Type:', 'improve-seo'); ?></label>
                                 <?php $old_dripfeed_type = Validator::old('dripfeed_type', $task->options['dripfeed_type']) ?>
                                 <select id="dripfeed-type" name="dripfeed_type" class="form-control">
-                                    <option value="per-day" <?php echo esc_attr($old_dripfeed_type == 'per-day' ? ' selected' : ''); ?>
-                                    ><?php esc_html_e('X posts/pages per day', 'improve-seo'); ?></option>
-                                    <option value="over-days" <?php echo esc_attr($old_dripfeed_type == 'over-days' ? ' selected' : ''); ?>
-                                    ><?php esc_html_e('Whole project dripped over X days', 'improve-seo'); ?></option>
+                                    <option value="per-day" <?php echo esc_attr($old_dripfeed_type == 'per-day' ? ' selected' : ''); ?>><?php esc_html_e('X posts/pages per day', 'improve-seo'); ?></option>
+                                    <option value="over-days" <?php echo esc_attr($old_dripfeed_type == 'over-days' ? ' selected' : ''); ?>><?php esc_html_e('Whole project dripped over X days', 'improve-seo'); ?></option>
                                 </select>
                             </div>
                             <div class="input-group <?php echo (Validator::hasError('dripfeed_x')) ? 'PostForm--error' : '' ?>">
-                                <label for="dripfeed-x"
-                                       class="form-label"><?php esc_html_e('X Parameter:', 'improve-seo'); ?></label>
-                                <input type="text" id="dripfeed-x" name="dripfeed_x" class="form-control"
-                                       value="<?php echo esc_attr(Validator::old('dripfeed_x', $task->options['dripfeed_x'])) ?>">
+                                <label for="dripfeed-x" class="form-label"><?php esc_html_e('X Parameter:', 'improve-seo'); ?></label>
+                                <input type="text" id="dripfeed-x" name="dripfeed_x" class="form-control" value="<?php echo esc_attr(Validator::old('dripfeed_x', $task->options['dripfeed_x'])) ?>">
                                 <?php if (Validator::hasError('dripfeed_x')) : ?>
                                     <span class="PostForm__error"><?php echo esc_html(Validator::get('dripfeed_x')); ?></span>
 
@@ -341,11 +306,11 @@ $googleApiKey = get_option('improveseo_google_api_key');
                             <span class="toggle-indicator" aria-hidden="true"></span>
                         </button>
                         <h3 class="hndle ui-sortable-handle">
-                            <span><?php esc_html_e('Word AI Options', 'improve-seo'); ?></span></h3>
+                            <span><?php esc_html_e('Word AI Options', 'improve-seo'); ?></span>
+                        </h3>
                         <div class="inside mt-3">
                             <p>
-                                <a href="<?php echo esc_url(IMPROVESEO_DIR . '/wordai.php'); ?>"
-                                   onclick="return WordAI.start(this)">
+                                <a href="<?php echo esc_url(IMPROVESEO_DIR . '/wordai.php'); ?>" onclick="return WordAI.start(this)">
                                     <?php esc_html_e('Launch Word AI Console', 'improve-seo'); ?>
                                 </a>
                             </p>
@@ -375,31 +340,26 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                 $old_on_page_seo = Validator::old('on_page_seo', !empty($task->options['custom_title']) || !empty($task->options['custom_description']) || !empty($task->options['custom_keywords']));
                                 ?>
                                 <div class="input-group my-4 cta-check">
-									<span>
-										<input id="on-page-seo" name="on_page_seo" type="checkbox"
-                                               value="1" <?php echo $old_on_page_seo == 1 ? ' checked' : ''; ?>>
-										<label for="on-page-seo"><?php esc_html_e('Enable Improve SEO On-Page Customizer', 'improve-seo'); ?></label>
-									</span>
+                                    <span>
+                                        <input id="on-page-seo" name="on_page_seo" type="checkbox" value="1" <?php echo $old_on_page_seo == 1 ? ' checked' : ''; ?>>
+                                        <label for="on-page-seo"><?php esc_html_e('Enable Improve SEO On-Page Customizer', 'improve-seo'); ?></label>
+                                    </span>
                                 </div>
 
-                                <div id="on-page-seo-wrap"
-                                     style="display: <?php echo $old_on_page_seo == 1 ? 'block' : 'none' ?>;">
+                                <div id="on-page-seo-wrap" style="display: <?php echo $old_on_page_seo == 1 ? 'block' : 'none' ?>;">
 
                                     <div id="google-preview" class="google-preview">
                                         <h4 class=""><span><?php esc_html_e('Google Preview', 'improve-seo'); ?></span>
                                         </h4>
                                         <div class="input-group mt-4 cta-check">
-                                            <label for="preview-label"
-                                                   class="form-label"><?php esc_html_e('Preview As:', 'improve-seo'); ?></label>
+                                            <label for="preview-label" class="form-label"><?php esc_html_e('Preview As:', 'improve-seo'); ?></label>
                                             <span>
-												<input id="mobile-preview" name="preview-type" type="radio"
-                                                       class="google-preview-type" value="mobile" checked/>
-												<label for="mobile-preview"><?php esc_html_e('Mobile result', 'improve-seo'); ?></label>
-												&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-												<input id="desktop-preview" name="preview-type" type="radio"
-                                                       class="google-preview-type" value="desktop"/>
-												<label for="desktop-preview"><?php esc_html_e('Desktop result', 'improve-seo'); ?></label>
-											</span>
+                                                <input id="mobile-preview" name="preview-type" type="radio" class="google-preview-type" value="mobile" checked />
+                                                <label for="mobile-preview"><?php esc_html_e('Mobile result', 'improve-seo'); ?></label>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                <input id="desktop-preview" name="preview-type" type="radio" class="google-preview-type" value="desktop" />
+                                                <label for="desktop-preview"><?php esc_html_e('Desktop result', 'improve-seo'); ?></label>
+                                            </span>
                                         </div>
                                         <div id="google-mobile-preview" class="google-mobile-preview">
                                             <div class="google-preview-content-wrapper">
@@ -407,9 +367,9 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                                     <div class="google-preview-logo">
                                                         <i class="fa fa-globe"></i>
                                                         <span class="google-preview-mobile-url">
-															<span class="google-preview-mobile-disabled">
-																<?php echo esc_url(site_url()); ?></span> › @title
-														</span>
+                                                            <span class="google-preview-mobile-disabled">
+                                                                <?php echo esc_url(site_url()); ?></span> › @title
+                                                        </span>
                                                     </div>
                                                     <div class="google-mobile-preview-pagename">
                                                         <?php
@@ -422,26 +382,25 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                                     <div class="google-mobile-preview-description">
                                                         <span class="google-mobile-preview-description-date"><?php echo esc_html(date('M d, Y')); ?> － </span>
                                                         <span class="google-description-content">
-															<?php
+                                                            <?php
                                                             if ($task->options['custom_title'] == "") {
                                                                 echo esc_html_e("Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.", 'improve-seo');
                                                             } else {
                                                                 echo esc_html($task->options['custom_title']);
                                                             }
                                                             ?>
-														</span>
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div id="google-desktop-preview" class="google-desktop-preview"
-                                             style="display:none;">
+                                        <div id="google-desktop-preview" class="google-desktop-preview" style="display:none;">
                                             <div class="google-preview-content-wrapper">
                                                 <div class="google-preview-content-wrapper2">
                                                     <div class="google-preview-logo-desktop">
-														<span class="google-preview-desktop-url">
-															<span class="google-preview-desktop-disabled"><?php echo esc_url(site_url()); ?></span> › @title
-														</span>
+                                                        <span class="google-preview-desktop-url">
+                                                            <span class="google-preview-desktop-disabled"><?php echo esc_url(site_url()); ?></span> › @title
+                                                        </span>
                                                     </div>
                                                     <div class="google-desktop-preview-pagename">
                                                         <?php
@@ -452,18 +411,18 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                                         ?>
                                                     </div>
                                                     <div class="google-desktop-preview-description">
-														<span class="google-desktop-preview-description-date">
-															<?php echo esc_html(date('M d, Y')); ?>－
-														</span>
+                                                        <span class="google-desktop-preview-description-date">
+                                                            <?php echo esc_html(date('M d, Y')); ?>－
+                                                        </span>
                                                         <span class="google-description-content">
-															<?php
+                                                            <?php
                                                             if ($task->options['custom_title'] == "") {
                                                                 echo esc_attr_e("Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.", 'improve-seo');
                                                             } else {
                                                                 echo esc_html($task->options['custom_title']);
                                                             }
                                                             ?>
-														</span>
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -473,15 +432,12 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                     <div class="input-group">
                                         <label for="custom-title" class="form-label">Title</label>
                                         <div class="input-prefix">
-                                            <input id="custom-title" name="custom_title"
-                                                   class="form-control full-width textarea-control" type="text"
-                                                   placeholder="<?php esc_html_e('Title', 'your-text-domain'); ?>"
-                                                   value="<?php echo esc_attr(Validator::old('custom_title', $task->options['custom_title'])); ?>">
+                                            <input id="custom-title" name="custom_title" class="form-control full-width textarea-control" type="text" placeholder="<?php esc_html_e('Title', 'your-text-domain'); ?>" value="<?php echo esc_attr(Validator::old('custom_title', $task->options['custom_title'])); ?>">
 
                                             <span>Ex.</span>
                                         </div>
                                         <div id="custom-title-error" style="display:none; color:red; margin-top:5px;">
-                                            Your meta title contains more than 60 characters! <br/>
+                                            Your meta title contains more than 60 characters! <br />
                                             <b>PRO TIP</b>: the meta title should not contain more than 60 characters
                                             for best results on Google.
                                         </div>
@@ -489,14 +445,11 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                     <div class="input-group">
                                         <label for="custom-description" class="form-label">Description</label>
                                         <div class="input-prefix">
-                                            <textarea id="custom-description" placeholder="Description"
-                                                      name="custom_description"
-                                                      class="full-width textarea-control"><?php echo esc_attr(Validator::old('custom_description', $task->options['custom_description'])) ?></textarea>
+                                            <textarea id="custom-description" placeholder="Description" name="custom_description" class="full-width textarea-control"><?php echo esc_attr(Validator::old('custom_description', $task->options['custom_description'])) ?></textarea>
                                             <span>Ex.</span>
                                         </div>
-                                        <div id="custom-description-error"
-                                             style="display:none; color:red; margin-top:5px;">Your meta description
-                                            contains more than 160 characters! <br/>
+                                        <div id="custom-description-error" style="display:none; color:red; margin-top:5px;">Your meta description
+                                            contains more than 160 characters! <br />
                                             <b>PRO TIP</b>: the meta description should not contain more than 160
                                             characters for best results on Google.
                                         </div>
@@ -504,27 +457,22 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                     <div class="input-group">
                                         <label for="custom-keywords" class="form-label">Keywords</label>
                                         <div class="input-prefix">
-                                            <textarea id="custom-keywords" placeholder="Keywords" name="custom_keywords"
-                                                      class="full-width textarea-control"><?php echo esc_attr(Validator::old('custom_keywords', $task->options['custom_keywords'])) ?></textarea>
+                                            <textarea id="custom-keywords" placeholder="Keywords" name="custom_keywords" class="full-width textarea-control"><?php echo esc_attr(Validator::old('custom_keywords', $task->options['custom_keywords'])) ?></textarea>
                                             <span>Ex.</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="seo-post-meta-wrapper feature-wrapper">
-                                <div id="local-seo-wrap"
-                                     style="display: <?php echo $old_local_seo_enabler == 1 ? 'block' : 'none'; ?>;">
+                                <div id="local-seo-wrap" style="display: <?php echo $old_local_seo_enabler == 1 ? 'block' : 'none'; ?>;">
                                     <div class="input-group cta-check">
-										<span>
-											<input id="local-randomize" name="local_randomize" type="checkbox"
-                                                   value="1" <?php echo Validator::old('local_randomize', $task->options['local_randomize']) == 1 ? 'checked' : '' ?>>
-											<label for="local-randomize"
-                                                   class="form-label"><?php esc_html_e('Randomize Results', 'improve-seo'); ?></label>
-										</span>
+                                        <span>
+                                            <input id="local-randomize" name="local_randomize" type="checkbox" value="1" <?php echo Validator::old('local_randomize', $task->options['local_randomize']) == 1 ? 'checked' : '' ?>>
+                                            <label for="local-randomize" class="form-label"><?php esc_html_e('Randomize Results', 'improve-seo'); ?></label>
+                                        </span>
                                     </div>
                                     <div class="input-group">
-                                        <label for="local-country"
-                                               class="form-label"><?php esc_html_e('Country', 'improve-seo'); ?></label>
+                                        <label for="local-country" class="form-label"><?php esc_html_e('Country', 'improve-seo'); ?></label>
                                         <?php
                                         $countries = array('us' => esc_html__('United States', 'improve-seo'), 'uk' => esc_html__('United Kingdom', 'improve-seo'));
                                         $countryModel = new Country();
@@ -545,18 +493,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                         </select>
 
                                     </div>
-                                    <div class="input-group">
-                                        <label><?php esc_html_e('Choose locations', 'improve-seo'); ?></label> <br>
-                                        <small class="d-block w-100">
-                                            <?php esc_html_e("Press 'Shift + Left Mouse' to select all tree nodes", 'improve-seo'); ?>
-                                        </small>
-                                        <div id="jstree"></div>
-                                        <?php if ($task->options['local_geo_locations']) : ?>
-                                            <script>
-                                                var local_geo_locations = <?php echo wp_json_encode($task->options['local_geo_locations']) ?>;
-                                            </script>
-                                        <?php endif; ?>
-                                    </div>
+
                                 </div>
                             </div>
 
@@ -567,122 +504,79 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                 <div class="input-group my-4 cta-check">
                                     <p style="color:red"><?php esc_html_e('Upgrade to Improve SEO Pro version to enable this function', 'improve-seo'); ?></p>
                                     <span>
-										<input id="schema" disabled name="schema" type="checkbox"
-                                               value="1" <?php echo $old_schema == 1 ? ' checked' : '' ?>>
-										<label for="schema"
-                                               class="form-label"><?php esc_html_e('Enable Improve SEO Schema', 'improve-seo'); ?></label>
-									</span>
+                                        <input id="schema" disabled name="schema" type="checkbox" value="1" <?php echo $old_schema == 1 ? ' checked' : '' ?>>
+                                        <label for="schema" class="form-label"><?php esc_html_e('Enable Improve SEO Schema', 'improve-seo'); ?></label>
+                                    </span>
                                 </div>
 
-                                <div id="schema-wrap"
-                                     style="display: <?php echo $old_schema == 1 ? 'block' : 'none' ?>;">
+                                <div id="schema-wrap" style="display: <?php echo $old_schema == 1 ? 'block' : 'none' ?>;">
                                     <div class="input-group my-4 cta-check">
-										<span>
-											<input type="checkbox" name="hide_schema" id="hide-schema"
-                                                   value="1" <?php echo Validator::old('hide_schema', $task->options['hide_schema']) ? 'checked' : '' ?>>
-											<label for="hide-schema"
-                                                   class="form-label"><?php esc_html_e('Hide schema from authors', 'improve-seo'); ?></label>
-										</span>
+                                        <span>
+                                            <input type="checkbox" name="hide_schema" id="hide-schema" value="1" <?php echo Validator::old('hide_schema', $task->options['hide_schema']) ? 'checked' : '' ?>>
+                                            <label for="hide-schema" class="form-label"><?php esc_html_e('Hide schema from authors', 'improve-seo'); ?></label>
+                                        </span>
                                     </div>
                                     <div class="input-group">
-                                        <label for="schema-business"
-                                               class="form-label"><?php esc_html_e('Business Name', 'improve-seo'); ?></label>
+                                        <label for="schema-business" class="form-label"><?php esc_html_e('Business Name', 'improve-seo'); ?></label>
                                         <div class="input-prefix">
-                                            <input id="schema-business"
-                                                   placeholder="<?php esc_attr_e('Business Name', 'improve-seo'); ?>"
-                                                   name="schema_business" type="text" class="full-width form-control"
-                                                   value="<?php echo esc_html(Validator::old('schema_business', $task->options['schema_business'])) ?>">
+                                            <input id="schema-business" placeholder="<?php esc_attr_e('Business Name', 'improve-seo'); ?>" name="schema_business" type="text" class="full-width form-control" value="<?php echo esc_html(Validator::old('schema_business', $task->options['schema_business'])) ?>">
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>
                                     <div class="input-group">
-                                        <label for="schema-description"
-                                               class="form-label"><?php esc_html_e('Description', 'improve-seo'); ?></label>
+                                        <label for="schema-description" class="form-label"><?php esc_html_e('Description', 'improve-seo'); ?></label>
                                         <div class="input-prefix">
-                                            <textarea id="schema-description"
-                                                      placeholder="<?php esc_attr_e('Description', 'improve-seo'); ?>"
-                                                      name="schema_description"
-                                                      class="full-width textarea-control"><?php echo esc_textarea(Validator::old('schema_description', $task->options['schema_description'])) ?></textarea>
+                                            <textarea id="schema-description" placeholder="<?php esc_attr_e('Description', 'improve-seo'); ?>" name="schema_description" class="full-width textarea-control"><?php echo esc_textarea(Validator::old('schema_description', $task->options['schema_description'])) ?></textarea>
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>
                                     <div class="input-group">
-                                        <label for="schema-email"
-                                               class="form-label"><?php esc_html_e('E-mail', 'improve-seo'); ?></label>
+                                        <label for="schema-email" class="form-label"><?php esc_html_e('E-mail', 'improve-seo'); ?></label>
                                         <div class="input-prefix">
-                                            <input type="text" id="schema-email"
-                                                   placeholder="<?php esc_attr_e('E-mail', 'improve-seo'); ?>"
-                                                   name="schema_email" class="full-width form-control"
-                                                   value="<?php echo esc_attr(Validator::old('schema_email', $task->options['schema_email']) )?>">
+                                            <input type="text" id="schema-email" placeholder="<?php esc_attr_e('E-mail', 'improve-seo'); ?>" name="schema_email" class="full-width form-control" value="<?php echo esc_attr(Validator::old('schema_email', $task->options['schema_email'])) ?>">
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>
                                     <div class="input-group">
-                                        <label for="schema-telephone"
-                                               class="form-label"><?php esc_html_e('Telephone', 'improve-seo'); ?></label>
+                                        <label for="schema-telephone" class="form-label"><?php esc_html_e('Telephone', 'improve-seo'); ?></label>
                                         <div class="input-prefix">
-                                            <input type="tel" id="schema-telephone"
-                                                   placeholder="<?php esc_attr_e('Telephone', 'improve-seo'); ?>"
-                                                   name="schema_telephone" class="full-width form-control"
-                                                   value="<?php echo esc_attr(Validator::old('schema_telephone', $task->options['schema_telephone'])) ?>">
+                                            <input type="tel" id="schema-telephone" placeholder="<?php esc_attr_e('Telephone', 'improve-seo'); ?>" name="schema_telephone" class="full-width form-control" value="<?php echo esc_attr(Validator::old('schema_telephone', $task->options['schema_telephone'])) ?>">
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>
                                     <div class="input-group">
-                                        <label for="schema-social"
-                                               class="form-label"><?php esc_html_e('Social pages', 'improve-seo'); ?></label>
+                                        <label for="schema-social" class="form-label"><?php esc_html_e('Social pages', 'improve-seo'); ?></label>
                                         <div class="input-prefix">
-                                            <textarea id="schema-social"
-                                                      placeholder="<?php esc_attr_e('Social pages', 'improve-seo'); ?>"
-                                                      name="schema_social"
-                                                      class="full-width textarea-control"><?php echo esc_html(Validator::old('schema_social', $task->options['schema_social'])) ?></textarea>
+                                            <textarea id="schema-social" placeholder="<?php esc_attr_e('Social pages', 'improve-seo'); ?>" name="schema_social" class="full-width textarea-control"><?php echo esc_html(Validator::old('schema_social', $task->options['schema_social'])) ?></textarea>
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>
                                     <div class="input-group">
-                                        <label for="schema-rating-object"
-                                               class="form-label"><?php esc_html_e('Rating Object', 'improve-seo'); ?></label>
+                                        <label for="schema-rating-object" class="form-label"><?php esc_html_e('Rating Object', 'improve-seo'); ?></label>
                                         <div class="input-prefix">
-                                            <input id="schema-rating-object"
-                                                   placeholder="<?php esc_attr_e('Rating Object', 'improve-seo'); ?>"
-                                                   name="schema_rating_object" type="text"
-                                                   class="full-width form-control"
-                                                   value="<?php echo esc_attr(Validator::old('schema_rating_object', $task->options['schema_rating_object'])); ?>">
+                                            <input id="schema-rating-object" placeholder="<?php esc_attr_e('Rating Object', 'improve-seo'); ?>" name="schema_rating_object" type="text" class="full-width form-control" value="<?php echo esc_attr(Validator::old('schema_rating_object', $task->options['schema_rating_object'])); ?>">
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
 
                                         </div>
                                     </div>
                                     <div class="input-group">
-                                        <label for="schema-rating"
-                                               class="form-label"><?php esc_html_e('Rating', 'improve-seo'); ?></label>
+                                        <label for="schema-rating" class="form-label"><?php esc_html_e('Rating', 'improve-seo'); ?></label>
                                         <div class="input-prefix">
-                                            <input id="schema-rating"
-                                                   placeholder="<?php esc_attr_e('Rating', 'improve-seo'); ?>"
-                                                   name="schema_rating" type="text" class="full-width form-control"
-                                                   value="<?php echo esc_attr(Validator::old('schema_rating', $task->options['schema_rating'])) ?>">
+                                            <input id="schema-rating" placeholder="<?php esc_attr_e('Rating', 'improve-seo'); ?>" name="schema_rating" type="text" class="full-width form-control" value="<?php echo esc_attr(Validator::old('schema_rating', $task->options['schema_rating'])) ?>">
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>
                                     <div class="input-group">
-                                        <label for="schema-rating-count"
-                                               class="form-label"><?php esc_html_e('Rating Count', 'improve-seo'); ?></label>
+                                        <label for="schema-rating-count" class="form-label"><?php esc_html_e('Rating Count', 'improve-seo'); ?></label>
                                         <div class="input-prefix">
-                                            <input id="schema-rating-count"
-                                                   placeholder="<?php esc_attr_e('Rating Count', 'improve-seo'); ?>"
-                                                   name="schema_rating_count" type="text"
-                                                   class="full-width form-control"
-                                                   value="<?php echo esc_attr(Validator::old('schema_rating_count', $task->options['schema_rating_count'])) ?>">
+                                            <input id="schema-rating-count" placeholder="<?php esc_attr_e('Rating Count', 'improve-seo'); ?>" name="schema_rating_count" type="text" class="full-width form-control" value="<?php echo esc_attr(Validator::old('schema_rating_count', $task->options['schema_rating_count'])) ?>">
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>
                                     <div class="input-group">
-                                        <label for="schema-address"
-                                               class="form-label"><?php esc_html_e('Address', 'improve-seo'); ?></label>
+                                        <label for="schema-address" class="form-label"><?php esc_html_e('Address', 'improve-seo'); ?></label>
                                         <div class="input-prefix">
-                                            <textarea id="schema-address"
-                                                      placeholder="<?php esc_attr_e('Address', 'improve-seo'); ?>"
-                                                      name="schema_address"
-                                                      class="full-width textarea-control"><?php echo esc_attr(Validator::old('schema_address', $task->options['schema_address'])) ?></textarea>
+                                            <textarea id="schema-address" placeholder="<?php esc_attr_e('Address', 'improve-seo'); ?>" name="schema_address" class="full-width textarea-control"><?php echo esc_attr(Validator::old('schema_address', $task->options['schema_address'])) ?></textarea>
                                             <span><?php esc_html_e('Ex.', 'improve-seo'); ?></span>
                                         </div>
                                     </div>

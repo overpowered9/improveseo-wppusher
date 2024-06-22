@@ -23,8 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		|
 		<span class="pagination-links">
 			<?php echo paginate_links(array(
-				'total' => $pages,
-				'current' => $page,
+				'total' => esc_attr($pages),
+				'current' => esc_attr($page),
 				'format' => '&paged=%#%',
 				'base' => esc_url(admin_url('admin.php?page=improveseo_noindex%_%'))
 			)); ?>

@@ -194,7 +194,7 @@ function improveseo_generate_preview() {
         'iteration' => 0,
         'spintax_iterations' => 1,
         'max_iterations' => 1,
-        'cats' => wp_json_encode($_POST['cats'])
+        'cats' => wp_json_encode(array_map('sanitize_text_field', $_POST['cats']))
     );
 
     $wpdb->query("SET GLOBAL max_allowed_packet = 268435456");
