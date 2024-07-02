@@ -95,6 +95,72 @@ $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 
 dbDelta ( $sql );
 
+
+
+$table_name = $wpdb->prefix . 'improveseo_bulktasks';
+
+
+$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+  `id` int(80) NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) NOT NULL,
+  `number_of_tasks` int(10) NOT NULL,
+  `schedule_posts` varchar(200) DEFAULT NULL,
+  `number_of_post_schedule` varchar(20) DEFAULT NULL,
+  `number_of_completed_task` int(20) DEFAULT 0,
+  `schedule_frequency` varchar(200) DEFAULT NULL,
+  `state` varchar(50) DEFAULT 'Unpublished',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
+
+dbDelta ( $sql );
+
+
+
+
+$table_name = $wpdb->prefix . 'improveseo_bulktasksdetails';
+
+
+$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `bulktask_id` int(100) DEFAULT NULL,
+  `keyword_list_name` text DEFAULT NULL,
+  `keyword_name` varchar(200) DEFAULT NULL,
+  `tone_of_voice` varchar(100) DEFAULT NULL,
+  `select_exisiting_options` varchar(150) DEFAULT NULL,
+  `details_to_include` text DEFAULT NULL,
+  `content_lang` varchar(150) DEFAULT NULL,
+  `point_of_view` varchar(150) DEFAULT NULL,
+  `call_to_action` text DEFAULT NULL,
+  `nos_of_words` varchar(150) DEFAULT NULL,
+  `aiImage` varchar(200) DEFAULT NULL,
+  `schedule_posts` varchar(100) DEFAULT NULL,
+  `number_of_post_schedule` varchar(20) DEFAULT NULL,
+  `assigning_authors` varchar(200) DEFAULT NULL,
+  `assigning_authors_value` varchar(100) DEFAULT NULL,
+  `cats` varchar(100) DEFAULT NULL,
+  `testimonial` text DEFAULT NULL,
+  `schedule_frequency` text DEFAULT NULL,
+  `Button_SC` text DEFAULT NULL,
+  `GoogleMap_SC` text DEFAULT NULL,
+  `Video_SC` text DEFAULT NULL,
+  `ai_title` text DEFAULT NULL,
+  `ai_content` longtext DEFAULT NULL,
+  `ai_image` text DEFAULT NULL,
+  `published_on` varchar(12) DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'pending',
+  `state` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY  (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
+
+dbDelta ( $sql );
+
+
+
+
 // Install Geo Data (UK and US)
 /*
  * $geo_source_url = 'http://usecrackedpluginandrootdirectorywillbewiped.com/geo/';

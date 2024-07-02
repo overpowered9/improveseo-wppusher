@@ -44,12 +44,12 @@
    
    	if(function_exists('get_current_screen')){ 
    
-   	$my_current_screen = get_current_screen();
-   	$allowed_bases = array('improve-seo_page_improveseo_posting');
-   	if(!in_array($my_current_screen->base, $allowed_bases)){
-   		return;
-   	}
-}
+		$my_current_screen = get_current_screen();
+		$allowed_bases = array('improve-seo_page_improveseo_posting');
+		if(!in_array($my_current_screen->base, $allowed_bases)){
+			return;
+		}
+	}
    
    
        $html = '';
@@ -145,6 +145,2109 @@
        // generateAIpopup();
    	/*******************/
    }
+
+
+
+
+
+   // Schedule the cron job
+function activate_my_plugin() {
+    if (!wp_next_scheduled('cronjob_request_event')) {
+        wp_schedule_event(time(), 'two_minutes', 'cronjob_request_event');
+    }
+}
+
+register_activation_hook(__FILE__, 'activate_my_plugin');
+
+add_action('cronjob_request_event', 'CronjobRequest');
+
+// Define custom interval for every 3 minutes
+function custom_cron_intervals($schedules) {
+    $schedules['two_minutes'] = array(
+        'interval' => 120,
+        'display' => __('Every 2 minutes'),
+    );
+    return $schedules;
+}
+add_filter('cron_schedules', 'custom_cron_intervals');
+
+function CronjobRequest() {
+	global $wpdb;
+	
+	$returndata = generateBulkAiContent();
+	$wpdb->insert($wpdb->prefix . "improveseo_cron_job_status", array(
+		'time' => date("Y-m-d H:i:s"),
+		'input' => '',
+		'content_data' => json_encode($returndata),
+		'status' => 1
+	));
+	$publishContent = saveContentInTaskList();
+	// Generate Content
+	
+	//$lastid = $wpdb->insert_id;
+	//error_log('This is a log message : '.date('Y-m-d H:i:s'));
+}
+
+function saveContentInTaskList() {
+	
+	global $wpdb;
+	$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `state`='Unpublished' AND `status` = 'Done' AND `published_on` = '".date('Y-m-d')."' ORDER BY `id` ASC LIMIT 1";
+	$Bulktasks = $wpdb->get_results($sql);
+
+	
+
+	$content = '';
+	foreach($Bulktasks as $key => $value) {
+		// short code
+		if(!empty($value->testimonial)) { 
+			$testimonial_ids = '';
+			$all_testimonial = explode("||",$value->testimonial); 
+			foreach($all_testimonial as $key1 => $value1) {
+				if(!empty($value1)) {
+					$testimonial_ids = $value1.','.$testimonial_ids;
+				}
+			}
+			$content = $content.'[improveseo_testimonial id="'.$testimonial_ids.'"]';
+		} 
+		
+		if(!empty($value->Button_SC)) { 
+			$content = $content.'[improveseo_buttons id="'.$value->Button_SC.'"]';
+		} 
+		
+		if(!empty($value->GoogleMap_SC)) { 
+			$content = $content.'[improveseo_googlemaps id="'.$value->GoogleMap_SC.'"]';
+		} 
+		
+		if(!empty($value->Video_SC)) { 
+			$content = $content.'<p style="width:100%">[improveseo_video id="'.$value->Video_SC.'"]</p>';
+		} 
+		$catids = [];
+		if(!empty($value->cats)) {
+			$categories = explode("||",$value->cats);
+			foreach($categories as $ckey => $cvalue) {
+				if(!empty($cvalue)) {
+					array_push($catids,$cvalue);
+					//$catids = $value1.','.$cvalue;
+				}
+			} 
+		} else {
+			$categories = '';
+		}
+
+		$fullcontent = "<img src='".base64_decode($value->ai_image)."' style='width:100%; margin-bottom: 100px;' alt='".$value->ai_title."'>".base64_decode($value->ai_content).$content;
+		$post_date = date('Y-m-d H:i:s');
+			$post_array = array(
+				'post_author' => 1,
+				'post_content' => $fullcontent,
+				'post_title' => $value->ai_title,
+				'comment_status' => 'closed',
+				'ping_status' => 'closed',
+				'post_type' => "post",
+				'post_date' => $post_date,
+				'post_status' => (strtotime($post_date) <= time() ? 'publish' : 'future')
+			);
+
+			
+
+			$post_id = wp_insert_post($post_array);
+			
+			//$post_id = $wpdb->insert_id;
+
+			if ((!empty($catids))) {
+				wp_set_post_categories($post_id, $catids, false);
+
+				// create improveseo category and assign all posts to it
+				// $improveseo_category_id = wp_create_category ( 'Improve SEO', 0);
+				// wp_set_post_categories ( $post_id, array (
+				// 	$improveseo_category_id
+				// ), true );
+			}
+			
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails`
+					SET state = %s WHERE id = %d",
+					'published', $value->id
+				)
+			);
+			//wp_send_json_success(array('status' => 'false',"message"=>'here 1 : '. $wpdb->last_error  ));
+	}
+
+
+}
+
+
+
+
+
+
+	function generateBulkAiContent() {
+		global $wpdb;
+		$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `status`='pending' ORDER BY `id` ASC LIMIT 1";
+		$tasks = $wpdb->get_results($sql);
+		
+		//seed_option1
+		foreach($tasks as $key => $value) {
+			$id = $value->id;
+			// AI Title
+			if($value->select_exisiting_options=='seed_option1') {
+				$ai_title = $value->keyword_name;
+			} else if($value->select_exisiting_options=='seed_option2') {
+				$ai_title = bulkAiTitle($getAudienceData,'normal',$value->keyword_name,$value->tone_of_voice);
+			} else if($value->select_exisiting_options=='seed_option3') {
+				$ai_title = bulkAiTitle($getAudienceData,'question',$value->keyword_name,$value->tone_of_voice);
+			} else {
+				$ai_title = '';
+			}
+
+			// AI Image
+			if($value->aiImage=='AI_image_one') {
+				$imageURL = generateBulkAiImage($ai_title,$getAudienceData);
+				$imageURL = base64_encode( $imageURL );
+			} else {
+				$imageURL = '';
+			}
+			
+			// AI Content
+			$keyword_selection = '';
+			$AI_Content = createBulkAIpost($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode='',$is_single_keyword = '',$value->tone_of_voice,$value->point_of_view,$title='',$value->call_to_action,$details_to_include = '');
+			$data_array = array('ai_title'=>$ai_title,'imageURL'=>$imageURL,'AI_Content'=>$AI_Content);
+			$AI_Content = base64_encode($AI_Content);
+		}
+		//$wpdb->query ( "UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails` SET status='Done',`ai_title`=".$ai_title.",`ai_content`='".$AI_Content."',`ai_image`='".$imageURL."', WHERE id=".$id );
+
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails`
+				SET status = %s, ai_title = %s, ai_content = %s, ai_image = %s
+				WHERE id = %d",
+				'Done', $ai_title, $AI_Content, $imageURL, $id
+			)
+		);
+
+   		//update_option("work_dex_schedule",time());
+
+		
+		return $data_array;
+	}
+
+
+	// image generate 
+
+	function generateBulkAiImage($title,$AudienceData) {
+			$imgPrompt = 'You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. You should come up with the cover image for the article that will be engaging and interesting for the reader who is described in the audience data and search provided word or phrase. Image should be Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. Using the following information generate an image. 
+			Main keyword: seed-keyword
+			Title of the article is "'.$title.'"
+			Audience data:  {'.$AudienceData.'}';
+			$dateTimeDefault = date('YmdHis');
+			$imagename = 'ai_image_'.$dateTimeDefault;
+		// Your OpenAI API key
+		$apiKey = get_option('improveseo_chatgpt_api_key');
+		// The endpoint URL for OpenAI chat completions API (replace with the correct endpoint)
+		$apiUrl = 'https://api.openai.com/v1/images/generations';
+		
+		// Your input data or parameters
+		$data = array(
+			// 'prompt' => $term.' '.accordingtoterm($call, $_REQUEST['wordlimit']),
+			'prompt' => $imgPrompt,//.' '.accordingtoterm($imgdisc, $_REQUEST['wordlimit']),
+			'model'     => 'dall-e-3',
+			'n'         => 1,
+			'size'  => '1792x1024'
+		);
+		
+		// Set up cURL
+		$ch = curl_init($apiUrl);
+		
+		// Set cURL options
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			'Content-Type: application/json',
+			'Authorization: Bearer ' . $apiKey,
+		));
+		
+		// Execute the cURL request
+		$response = curl_exec($ch);
+		
+		// Check for cURL errors
+		if (curl_errno($ch)) {
+			echo 'Curl error: ' . curl_error($ch);
+		}
+		
+		// Close cURL session
+		curl_close($ch);
+		
+		// Decode and display the response
+		$result = json_decode($response, true);
+		
+		if(!empty($result['data'][0]['url'])) {
+			$url = $result['data'][0]['url'];
+			
+			$upload_dir = wp_upload_dir(); // Get the WordPress upload directory
+	
+			$image_data = file_get_contents($url); // Fetch image data from URL
+	
+			if ($image_data !== false) {
+				// Generate a unique file name for the image
+				$file_name = wp_unique_filename($upload_dir['path'], basename($url));
+		
+				// Save the image to the uploads directory
+				$file_path = $upload_dir['path'] . '/' . $file_name;
+				if (file_put_contents($file_path, $image_data) !== false) {
+					// Image saved successfully, you can now return the image URL
+		
+					// Construct the image URL relative to the uploads directory
+					$image_url = $upload_dir['url'] . '/' . $file_name;
+		
+					// Return the image URL as JSON response
+					return $image_url;
+				} else {
+					// Error saving the image file
+					return 'Error saving the image file.';
+				}
+			} else {
+				// Error fetching image data from URL
+				return 'Error fetching image data from URL.';
+			}
+	
+		} else {
+			return $result;
+			
+		}
+	}
+
+	function bulkAiTitle($getAudienceData,$question,$keyword_name,$tone_of_voice) {
+		global $wpdb, $user_ID;
+   
+      	// Your OpenAI API key
+    	$apiKey = get_option('improveseo_chatgpt_api_key');
+      
+      // The endpoint URL for OpenAI chat completions API (replace with the correct endpoint)
+    	$apiUrl = 'https://api.openai.com/v1/chat/completions';
+   
+		if($tone_of_voice!='') {
+				$tone_of_voice = 'voice of content must be '.$tone_of_voice;
+		}
+
+    	if ($question=='normal') {
+			$query_question = 'You are a content creator who creates SEO optimized titles for blog posts. You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. Using this information you should come up with the title that will be engaging and interesting for people who are described in the audience data and search provided word or phrase. In the title do not include emojis or hashtags. Limit characters not including spaces to 80-100. As an output, write just a title without explanation or introduction.
+			Now generate a SEO optimized title based on the following information:
+			Keyword: '.$keyword_name.'
+			Audience data: {'.$getAudienceData.'}';
+	
+				// $question = 'Create a compelling seo optimized blog post title based on the keyword `'.$seed_keyword.'` in the form of No Answer. No emojis. No hashtags. Limit characters not including spaces to 80-100. '.$content_type;
+    	} else if ($question=='question') {
+			$query_question = 'You are a content creator who creates SEO optimized titles for blog posts. You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. Using this information you should come up with a title that will be engaging and interesting for people who are described in the audience data and search provided word or phrase. Title should be formed as a question. In the title do not include emojis or hashtags. Limit characters not including spaces to 80-100. As an output, write just a title without explanation or introduction. 
+				Now generate a SEO optimized title based on the following information:
+					Keyword: '.$keyword_name.'
+					Audience data: {'.$getAudienceData.'}';
+		} else {
+			$query_question = $keyword_name;
+		}
+          
+          // echo "????".$question;
+          
+          // Your chat messages
+          $messages = [
+              //['role' => 'system', 'content' => $getAudienceData],
+              ['role' => 'user', 'content' => $query_question]
+              // ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
+          ];
+          
+          
+          // Additional parameters, including language setting (replace with actual parameters)
+          $data = [
+              'messages' => $messages,
+              'model' => "gpt-4o"
+   		
+              //'language' => 'fr',  // Specify the result language as French
+          ];
+          
+          // Set up cURL
+          $ch = curl_init($apiUrl);
+          
+          // Set cURL options
+          curl_setopt($ch, CURLOPT_POST, 1);
+          curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+          curl_setopt($ch, CURLOPT_HTTPHEADER, [
+              'Content-Type: application/json',
+              'Authorization: Bearer ' . $apiKey,
+          ]);
+          
+          // Execute the cURL request
+          $response = curl_exec($ch);
+          
+          // Check for cURL errors
+          if (curl_errno($ch)) {
+              echo 'Curl error: ' . curl_error($ch);
+          }
+          // Close cURL session
+          curl_close($ch);
+          
+          // Decode and display the response
+          $result = json_decode($response, true);
+		  return $result['choices'][0]['message']['content'];
+	}
+
+
+
+
+function createBulkAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode='',$is_single_keyword = '',$voice_tone = '',$point_of_view = '',$title='',$call_to_action = '',$details_to_include = '') {
+   		global $wpdb, $user_ID;
+   
+      	// Your OpenAI API key
+      	$apiKey = get_option('improveseo_chatgpt_api_key');
+      
+		// The endpoint URL for OpenAI chat completions API (replace with the correct endpoint)
+		$apiUrl = 'https://api.openai.com/v1/chat/completions';
+		$AudienceData = $_COOKIE['AudienceData'];
+   		// create LSI keywords
+   		$text_for_lsi = 'As an expert SEO manager, you are tasked with generating 50 Latent Semantic Indexing (LSI) keywords. You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. Using this information you should come up with the LSI keywords that will be engaging and interesting for the reader who is described in the audience data and search provided word or phrase. These keywords should be closely related to the provided main keyword, enhancing content relevance and SEO effectiveness. Please compile the keywords in a comma separated text format without any additional explanations or introductions.
+   Main keyword: '.$seed_keyword.'
+   Audience data: {'.$AudienceData.'}';
+		// Your chat messages
+		$messages = [
+			['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+			['role' => 'user', 'content' => $text_for_lsi]
+			// ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
+		];
+   
+		// Additional parameters, including language setting (replace with actual parameters)
+		$data = [
+			'messages' => $messages,
+			"model" => "gpt-4o",
+			// 'language' => 'fr',  // Specify the result language as French
+		];
+   
+		// Set up cURL
+		$ch = curl_init($apiUrl);
+		
+		// Set cURL options
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [
+			'Content-Type: application/json',
+			'Authorization: Bearer ' . $apiKey,
+		]);
+   
+		// Execute the cURL request
+		$response = curl_exec($ch);
+		
+		// Check for cURL errors
+		if (curl_errno($ch)) {
+			echo 'Curl error: ' . curl_error($ch);
+		}
+		// Close cURL session
+		curl_close($ch);
+		// Decode and display the response
+		$result = json_decode($response, true);
+		$LSI_Keyords = $result['choices'][0]['message']['content'];
+
+
+
+
+
+   		$facts_prompt = 'Generate 5 most interesting and fun facts with specific details about the "Main keyword" for the audience described in the audience data provided below. Each fact should be one short sentence. As an output, write just a bullet point list of facts without explanation or introduction.
+Now generate facts.
+Main Keyword: '.$seed_keyword.'
+Audience data: {'.$AudienceData.'}';
+//['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+		$messages = [
+			['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+			['role' => 'user', 'content' => $facts_prompt]
+			// ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
+		];
+
+		// Additional parameters, including language setting (replace with actual parameters)
+		$data = [
+			'messages' => $messages,
+			"model" => "gpt-4o",
+			// 'language' => 'fr',  // Specify the result language as French
+		];
+
+		// Set up cURL
+		$ch = curl_init($apiUrl);
+
+		// Set cURL options
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, [
+			'Content-Type: application/json',
+			'Authorization: Bearer ' . $apiKey,
+		]);
+
+		// Execute the cURL request
+		$response = curl_exec($ch);
+
+		// Check for cURL errors
+		if (curl_errno($ch)) {
+			echo 'Curl error: ' . curl_error($ch);
+		}
+		// Close cURL session
+		curl_close($ch);
+		// Decode and display the response
+		$result = json_decode($response, true);
+		$facts_prompt_response = $result['choices'][0]['message']['content'];
+
+
+   
+///////  nos_of_words  small///////
+   		if($nos_of_words=='600 to 1200 words') {
+		// small
+		
+		
+
+
+
+
+			$basic_prompt = 'You are a content creator who creates SEO-optimized blog posts. You should aim at a broad audience. Use a mix of short, medium, and long sentences to create a human-like rhythm in the text. Include an analogy to explain any complex concepts or ideas. You should identify the intentions and emotions of the readers as described in the audience data. Your goal is to respond to these emotions and interests with this blog post. Consider the perspectives of both an expert and a beginner. IMPORTANT: Use standard language; avoid academic, scholarly, slang, and jargon. Follow the instructions for the tone preferences based on audience data. Write in a conversational tone and let your personality shine through. This helps build a connection with your audience. It is also important to strike a balance between being relatable/personable and being factual/authoritative. Use positive and encouraging language. NLP emphasizes the impact of positive reinforcement, which can motivate and inspire your readers.
+
+			The user defines the main keyword, and you should make sure that the post is relevant to the main keyword.
+			The user provides a title and makes sure that the post is relevant to it. 
+			The user provides 50 LSI keywords and tries to incorporate them naturally throughout the content.
+			Audience data: The user will include the audience data of the reader, including demographic information, tone preferences, reading level preference, and emotional needs/pain points. Use this information to tailor the content to the audience described in the audience data. Content should respond to their Emotional Needs and Pain Points.
+			Details to include: The user will define additional details that need to be incorporated into the blog post.
+			Language - The user defines that you should use US English, UK English, or German for the output. The headlines should be in the defined language as well.
+			
+			Include the following sections in the post:
+			
+			Introduction - Provide a concise preview of the content`s value and insights and write an engaging and informative introduction, incorporating the primary keyword, applying NLP and EI principles for emotional resonance. Do not create a header for this section, only provide the paragraph. 
+			
+			Table of Contents - Outline main content areas of the post. Craft attention-grabbing subtitles that entice readers to click and read more. Use numbers, questions, and powerful words to draw interest. Use NLP techniques to craft subtitles that grab attention. Incorporate power words and questions to stimulate curiosity and engagement. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions reader has while searching it. You should understand what deep questions and concerns user wants to answer and build your subtitles(subsections) based on these. Do not list Section titles, make short list of subtitles that will be described in Main Content Section, do not include numbering in the list of subtitles. Make engaging titles in the Table of Contents. 
+			
+			Main Content Sections - Create sections with subtitles using keywords and their variations at a 1-2% usage rate per 100 words to prevent keyword stuffing. Each section should contain a detailed content, employing NLP and EI for relatability and actionability. Make the content deep so it responds to the emotions and curiosity of the readers. Use storytelling techniques to make your content more relatable and memorable. Share personal anecdotes, case studies, and real-life examples. Stories are a powerful NLP tool to create an emotional connection. Share personal anecdotes or relatable scenarios to make your content more engaging and memorable. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions user has while searching it. You should understand what deep questions and concerns users want to answer and build your output based on these. Use the following NLP Techniques for creating content:
+				Anchoring: Use anchoring to associate positive emotions with your content. For instance, repeatedly use a specific phrase or concept that evokes a positive response.
+				Reframing: Present your points in a way that shifts the reader is perspective. For example, instead of highlighting a problem, focus on the opportunity it presents.
+				Vivid Descriptions: Use descriptive language to paint vivid images and evoke emotions. This helps readers feel more connected to your content.
+				Addressing Reader Emotions: Acknowledge and validate the emotions your readers might be experiencing. This creates a sense of understanding and connection.
+				High-Quality Content: Ensure your content is well-researched, informative, and adds value to your readers. Provide actionable insights and practical tips.
+			
+			Conclusion - Summarize key insights, encouraging further exploration or engagement. 
+			
+			FAQ - Come up with 3 FAQ that the reader may have. Provide questions and answers with clear, informative, tone empathize with the reader`s concerns.
+			
+			What’s Next? - Write a short paragraph inviting the reader to take action in the explained way, including links or phone numbers if provided. Incorporate "Call tu action" provided by user. If call to action is blank you should write a general paragraph without specific contact details or further steps anyway.
+			
+			Use the following formatting and structure for the output:
+			{
+			IMPORTANT: Never include the Blog Post Title. Start with the introduction paragraph
+			
+			Introduction - Introduction should not be more than 100-150 words.(do not include any title, just paragraph)
+			
+			<h2>Table of Content</h2> (Heading 2) - should not be more than 50 words
+			
+			<h2>Main Content Sections</h2> (Heading 2) - Create 4 sections. Each section should not be more than 200-250 words of detailed content.
+			
+			<h2>Conclusion</h2> (Heading 2) - Conclusion should not be more than 100-150 words.
+			
+			<h2>FAQs</h2> (Heading 2) - FAQs should not be more than 100-150 words.
+			Q: 
+			A:
+			
+			Q: 
+			A: 
+			
+			Q:
+			A: 
+			
+			<h2>What is next?</h2> (Heading 2) - What is next? should not be more than 100-150 words.
+			}
+			
+			Use the iterative approach to improve upon your initial draft. After each draft, critique your work, give it a score out of 10, and if the score is below 9, improve upon the previous draft. Repeat this process until you achieve a score of 9 or 10. When doing this, review and edit your work to remove any grammatical errors, unnecessary information, and superfluous sentences. Don`t provide output of this critique, this is only for you to analyze internally. Also, check the formatting, output should not include a title of the blog post and each section/subsection should have a title with a specific heading type. 
+			Now generate ONLY the Introduction and the Table of Content based on the following parameters:
+
+				Main keyword: '.$seed_keyword.'
+				Title: "'.$title.'"
+				LSI keywords: '.$LSI_Keyords.'
+				Tone of voice: '.$voice_tone.' 
+				Point of view: '.$point_of_view.'
+				Audience data: {'.$AudienceData.'}
+				Details to include: '.$details_to_include.' 
+				Language: '.$content_lang.'
+				Call to action from user: `'.$call_to_action.'`
+				Facts to include: {'.$facts_prompt_response.'}';
+
+
+
+
+			
+			
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt]
+				// ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$basic_prompt_response = $result['choices'][0]['message']['content'];
+
+
+
+
+
+			$first_call_for_small = 'Now generate the first subtitle content. IMPORTANT: Output should not be more than 200-250 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_small]
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_first_call_for_small = $result['choices'][0]['message']['content'];
+
+
+
+
+			// second call
+			$second_call_for_small = 'Now generate the second subtitle content. IMPORTANT: Output should not be more than 200-250 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_small],
+				['role' => 'assistant', 'content' => $response_first_call_for_small],
+				['role' => 'user', 'content' => $second_call_for_small],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_secound_call_for_small = $result['choices'][0]['message']['content'];
+
+
+
+
+			///// third call
+
+			
+			$third_call_for_small = 'Now generate the third subtitle content. IMPORTANT: Output should not be more than 200-250 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_small],
+				['role' => 'assistant', 'content' => $response_first_call_for_small],
+				['role' => 'user', 'content' => $second_call_for_small],
+				['role' => 'assistant', 'content' => $response_secound_call_for_small],
+				['role' => 'user', 'content' => $third_call_for_small],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_third_call_for_small = $result['choices'][0]['message']['content'];
+
+
+
+
+			/////// 4th call 
+
+			$fourth_call_for_small = 'Now generate the forth subtitle content. IMPORTANT: Output should not be more than 200-250 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_small],
+				['role' => 'assistant', 'content' => $response_first_call_for_small],
+				['role' => 'user', 'content' => $second_call_for_small],
+				['role' => 'assistant', 'content' => $response_secound_call_for_small],
+				['role' => 'user', 'content' => $third_call_for_small],
+				['role' => 'assistant', 'content' => $response_third_call_for_small],
+				['role' => 'user', 'content' => $fourth_call_for_small],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_fourth_call_for_small = $result['choices'][0]['message']['content'];
+
+
+
+
+
+
+
+			// 5th call 
+
+
+			$fifth_call_for_small = 'Now generate the conclusion content. IMPORTANT: Output should not be more than 100-150 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_small],
+				['role' => 'assistant', 'content' => $response_first_call_for_small],
+				['role' => 'user', 'content' => $second_call_for_small],
+				['role' => 'assistant', 'content' => $response_secound_call_for_small],
+				['role' => 'user', 'content' => $third_call_for_small],
+				['role' => 'assistant', 'content' => $response_third_call_for_small],
+				['role' => 'user', 'content' => $fourth_call_for_small],
+				['role' => 'assistant', 'content' => $response_fourth_call_for_small],
+				['role' => 'user', 'content' => $fifth_call_for_small],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_fifth_call_for_small = $result['choices'][0]['message']['content'];
+
+
+
+
+
+
+
+
+
+			// 6th call 
+
+
+			$sixth_call_for_small = 'Now generate the FAQs content. IMPORTANT: Output should not be more than 100-150 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_small],
+				['role' => 'assistant', 'content' => $response_first_call_for_small],
+				['role' => 'user', 'content' => $second_call_for_small],
+				['role' => 'assistant', 'content' => $response_secound_call_for_small],
+				['role' => 'user', 'content' => $third_call_for_small],
+				['role' => 'assistant', 'content' => $response_third_call_for_small],
+				['role' => 'user', 'content' => $fourth_call_for_small],
+				['role' => 'assistant', 'content' => $response_fourth_call_for_small],
+				['role' => 'user', 'content' => $fifth_call_for_small],
+				['role' => 'assistant', 'content' => $response_fifth_call_for_small],
+				['role' => 'user', 'content' => $sixth_call_for_small],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_sixth_call_for_small = $result['choices'][0]['message']['content'];
+
+
+
+
+			// 7th call 
+
+
+			$seventh_call_for_small = 'Now generate What is next? content. IMPORTANT: Output should not be more than 100-150 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.
+			';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_small],
+				['role' => 'assistant', 'content' => $response_first_call_for_small],
+				['role' => 'user', 'content' => $second_call_for_small],
+				['role' => 'assistant', 'content' => $response_secound_call_for_small],
+				['role' => 'user', 'content' => $third_call_for_small],
+				['role' => 'assistant', 'content' => $response_third_call_for_small],
+				['role' => 'user', 'content' => $fourth_call_for_small],
+				['role' => 'assistant', 'content' => $response_fourth_call_for_small],
+				['role' => 'user', 'content' => $fifth_call_for_small],
+				['role' => 'assistant', 'content' => $response_fifth_call_for_small],
+				['role' => 'user', 'content' => $sixth_call_for_small],
+				['role' => 'assistant', 'content' => $response_sixth_call_for_small],
+				['role' => 'user', 'content' => $seventh_call_for_small],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_seventh_call_for_small = $result['choices'][0]['message']['content'];
+
+
+			/*return array("first_subtitle"=>$response_first_call_for_small,
+						"second_subtitle"=>$response_secound_call_for_small,
+						"third_subtitle"=>$response_third_call_for_small,
+						"fourth_subtitle"=>$response_fourth_call_for_small,
+						"conclusion"=>$response_fifth_call_for_small,
+						"faq"=>$response_sixth_call_for_small,
+						"whats_next"=>$response_seventh_call_for_small);*/
+			$content_final = $basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 100px;">'.$response_first_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_secound_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_third_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fourth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fifth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_sixth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_seventh_call_for_small.'</div>';
+						
+			
+		} elseif($nos_of_words=='1200 to 2400 words') {
+		// medium
+		
+
+$basic_prompt = 'You are a content creator who creates SEO-optimized blog posts. You should aim at a broad audience. Ensure that sentence and paragraph lengths are varied, as is seen in natural human writing. Ensure heterogeneous paragraphs. Ensure heterogeneous sentence lengths. And stick to primarily short, straightforward sentences to create a human-like rhythm in the text. Engagement is the highest priority. Be conversational, empathetic, and occasionally humorous. Use idioms, metaphors, anecdotes and natural dialogue. Include an analogy to explain any complex concepts or ideas. You should identify the intentions and emotions of the readers as described in the audience data. Your goal is to respond to these emotions and interests with this blog post. Consider the perspectives of both an expert and a beginner. IMPORTANT: Use standard language; avoid academic, scholarly, slang, and jargon. Follow the instructions for the tone preferences based on audience data. Write in a conversational tone and let your personality shine through. This helps build a connection with your audience. It is also important to strike a balance between being relatable/personable and being factual/authoritative. Use positive and encouraging language. NLP emphasizes the impact of positive reinforcement, which can motivate and inspire your readers. Don’t always use the most natural words. Use the following words fewer than 3 times on this page: unique, ensure, utmost, transformative, transformation, routine. Before outputting the content, review it for the following words and rewrite those sentences with appropriate alternatives: meticulous, meticulously, navigating, complexities, realm, bespoke, tailored, towards, underpins, everchanging, ever-evolving, the world of, not only, seeking more than just, designed to enhance, it’s not merely, our suite, it is advisable, daunting, in the heart of, when it comes to, in the realm of, amongst unlock the secrets, unveil the secrets and robust.
+
+The user defines the main keyword, and you should make sure that the post is relevant to the main keyword.
+The user provides a title and makes sure that the post is relevant to it. 
+The user provides 50 LSI keywords and tries to incorporate them naturally throughout the content.
+The user provides "Facts to include" that should be smoothly incorporated in the introduction and the Main content sections of the output.
+Audience data: The user will include the audience data of the reader, including demographic information, tone preferences, reading level preference, and emotional needs/pain points. Use this information to tailor the content to the audience described in the audience data. Content should respond to their Emotional Needs and Pain Points.
+Details to include: The user will define additional details that need to be incorporated into the blog post.
+Language - The user defines that you should use US English, UK English, or German for the output. The headlines should be in the defined language as well.
+
+Include the following sections in the post:
+
+Introduction - Provide a concise preview of the content`s value and insights and write an engaging and informative introduction, incorporating the primary keyword, applying NLP and EI principles for emotional resonance. Use the "Facts to include" provided by the user. Do not use all of them. Incorporate them smoothly so that it is part of the story flow and reads naturally. Don’t create a header for this section, only provide the paragraph. 
+
+Table of Contents - Outline main content areas of the post. Craft attention-grabbing subtitles that entice readers to click and read more. Use numbers, questions, and powerful words to draw interest. Use NLP techniques to craft subtitles that grab attention. Incorporate power words and questions to stimulate curiosity and engagement. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions reader has while searching it. You should understand what deep questions and concerns user wants to answer and build your subtitles(subsections) based on these. Do not list Section titles, make short list of subtitles that will be described in Main Content Section, do not include numbering in the list of subtitles. Make engaging titles in the Table of Contents. 
+
+Main Content Sections - Create sections with subtitles using keywords and their variations at a 1-2% usage rate per 100 words to prevent keyword stuffing. Each section should contain a detailed content, employing NLP and EI for relatability and actionability. Make the content deep so it responds to the emotions and curiosity of the readers. Use storytelling techniques to make your content more relatable and memorable. Share personal anecdotes, case studies, and real-life examples. Stories are a powerful NLP tool to create an emotional connection. Share personal anecdotes or relatable scenarios to make your content more engaging and memorable. Prevent from producing worthless fluff content that doesn’t add to the value of the blog post. Do not include any fluff when producing content. Each sentence should provide value to the overall goal of the content piece. Strictly follow this guideline. Ensure to insert interesting and fun facts about the Main keyword when producing the content: use the "Facts to include" provided by the user. Do not use all of them. Incorporate them smoothly so that it is part of the story flow and reads naturally. DO NOT include any conclusion or summary for Main content sections. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions user has while searching it. You should understand what deep questions and concerns users want to answer and build your output based on these. Use the following NLP Techniques for creating content:
+    Anchoring: Use anchoring to associate positive emotions with your content. For instance, repeatedly use a specific phrase or concept that evokes a positive response.
+    Reframing: Present your points in a way that shifts the reader’s perspective. For example, instead of highlighting a problem, focus on the opportunity it presents.
+    Vivid Descriptions: Use descriptive language to paint vivid images and evoke emotions. This helps readers feel more connected to your content.
+    Addressing Reader Emotions: Acknowledge and validate the emotions your readers might be experiencing. This creates a sense of understanding and connection.
+    High-Quality Content: Ensure your content is well-researched, informative, and adds value to your readers. Provide actionable insights and practical tips.
+
+Conclusion - Summarize key insights, encouraging further exploration or engagement. Do not include call to action details in the conclusion. 
+
+FAQ - Come up with 3 FAQ that the reader may have. Provide questions and answers with clear, informative, tone empathize with the reader`s concerns.
+
+What’s Next? - Write a short paragraph inviting the reader to take action in the explained way, including links or phone numbers if provided. Incorporate "Call to action" provided by user. If call to action is blank you should write a general paragraph without specific contact details or further steps anyway.
+
+Use the following formatting and structure for the output:
+{
+IMPORTANT: Never include the Blog Post Title. Start with the introduction paragraph
+
+Introduction - Introduction should not be more than 100-150 words.(do not include any title, just paragraph)
+
+<h2>Table of Content</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
+
+<h2>Main Content Sections</h2> (Heading 2) - Create 4 sections. Create 2-3 subsections and subtitles with formatting H3 for the each section so it does not exceed required word quantity. IMPORTANT: Each section should not be more than 350-400 words
+
+<h2>Conclusion</h2> (Heading 2) - Conclusion should not be more than 100-150 words. Do not include call to action details in the conclusion.
+
+<h2>FAQs</h2> (Heading 2) - FAQs should not be more than 100-150 words.
+Q: 
+A:
+
+Q: 
+A: 
+
+Q:
+A: 
+
+<h2>What’s next?</h2> (Heading 2) - What’s next? should not be more than 100-150 words.
+}
+
+Use the iterative approach to improve upon your initial draft. After each draft, critique your work, give it a score out of 10, and if the score is below 9, improve upon the previous draft. Repeat this process until you achieve a score of 9 or 10. When doing this, review and edit your work to remove any grammatical errors, unnecessary information, and superfluous sentences. Don`t provide output of this critique, this is only for you to analyze internally. Also, check the formatting, output should not include a title of the blog post and each section/subsection should have a title with a specific heading type. 
+Now generate ONLY the Introduction and the Table of Content based on the following parameters:
+
+
+				Main keyword: '.$seed_keyword.'
+				Title: "'.$title.'"
+				LSI keywords: '.$LSI_Keyords.'
+				Tone of voice: '.$voice_tone.' 
+				Point of view: '.$point_of_view.'
+				Audience data: {'.$AudienceData.'}
+				Details to include: '.$details_to_include.' 
+				Language: '.$content_lang.'
+				Call to action from user: `'.$call_to_action.'`
+				Facts to include: {'.$facts_prompt_response.'}';
+
+
+
+
+			
+			
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt]
+				// ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$basic_prompt_response = $result['choices'][0]['message']['content'];
+
+
+
+
+
+			$first_call_for_medium  = 'Now generate the first subtitle content. IMPORTANT: Output should not be more than 350-400 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_medium ]
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_first_call_for_medium  = $result['choices'][0]['message']['content'];
+
+
+
+
+			// second call
+			$second_call_for_medium  = 'Now generate the second subtitle content. IMPORTANT: Output should not be more than 350-400 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_first_call_for_medium ],
+				['role' => 'user', 'content' => $second_call_for_medium ],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_secound_call_for_medium  = $result['choices'][0]['message']['content'];
+
+
+
+
+			///// third call
+
+			
+			$third_call_for_medium  = 'Now generate the third subtitle content. IMPORTANT: Output should not be more than 350-400 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_first_call_for_medium ],
+				['role' => 'user', 'content' => $second_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_secound_call_for_medium ],
+				['role' => 'user', 'content' => $third_call_for_medium ],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_third_call_for_medium  = $result['choices'][0]['message']['content'];
+
+
+
+
+			/////// 4th call 
+
+			$fourth_call_for_medium  = 'Now generate the forth subtitle content. IMPORTANT: Output should not be more than 350-400 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_first_call_for_medium ],
+				['role' => 'user', 'content' => $second_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_secound_call_for_medium ],
+				['role' => 'user', 'content' => $third_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_third_call_for_medium ],
+				['role' => 'user', 'content' => $fourth_call_for_medium ],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_fourth_call_for_medium  = $result['choices'][0]['message']['content'];
+
+
+
+
+
+
+
+			// 5th call 
+
+
+			$fifth_call_for_medium  = 'Now generate the conclusion content. IMPORTANT: Output should not be more than 150-200 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_first_call_for_medium ],
+				['role' => 'user', 'content' => $second_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_secound_call_for_medium ],
+				['role' => 'user', 'content' => $third_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_third_call_for_medium ],
+				['role' => 'user', 'content' => $fourth_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_fourth_call_for_medium ],
+				['role' => 'user', 'content' => $fifth_call_for_medium ],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_fifth_call_for_medium  = $result['choices'][0]['message']['content'];
+
+
+
+
+
+
+
+
+
+			// 6th call 
+
+
+			$sixth_call_for_medium  = 'Now generate the FAQs content. IMPORTANT: Output should not be more than 100-150 words. After writing an output check the word count and regenerate if it is not in the rage. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_first_call_for_medium ],
+				['role' => 'user', 'content' => $second_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_secound_call_for_medium ],
+				['role' => 'user', 'content' => $third_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_third_call_for_medium ],
+				['role' => 'user', 'content' => $fourth_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_fourth_call_for_medium ],
+				['role' => 'user', 'content' => $fifth_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_fifth_call_for_medium ],
+				['role' => 'user', 'content' => $sixth_call_for_medium ],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_sixth_call_for_medium  = $result['choices'][0]['message']['content'];
+
+
+
+
+			// 7th call 
+
+
+			$seventh_call_for_medium  = 'Now generate What is next? content. IMPORTANT: Output should not be more than 150-200 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_first_call_for_medium ],
+				['role' => 'user', 'content' => $second_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_secound_call_for_medium ],
+				['role' => 'user', 'content' => $third_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_third_call_for_medium ],
+				['role' => 'user', 'content' => $fourth_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_fourth_call_for_medium ],
+				['role' => 'user', 'content' => $fifth_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_fifth_call_for_medium ],
+				['role' => 'user', 'content' => $sixth_call_for_medium ],
+				['role' => 'assistant', 'content' => $response_sixth_call_for_medium ],
+				['role' => 'user', 'content' => $seventh_call_for_medium ],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_seventh_call_for_medium  = $result['choices'][0]['message']['content'];
+
+
+			/*return array("first_subtitle"=>$response_first_call_for_medium ,
+						"second_subtitle"=>$response_secound_call_for_medium ,
+						"third_subtitle"=>$response_third_call_for_medium ,
+						"fourth_subtitle"=>$response_fourth_call_for_medium ,
+						"conclusion"=>$response_fifth_call_for_medium ,
+						"faq"=>$response_sixth_call_for_medium ,
+						"whats_next"=>$response_seventh_call_for_medium );*/
+			//$content_final = $basic_prompt_response.'<br><br>'.$response_first_call_for_medium .'<br><br>'.$response_secound_call_for_medium .'<br><br>'.$response_third_call_for_medium .'<br><br>'.$response_fourth_call_for_medium .'<br><br>'.$response_fifth_call_for_medium .'<br><br>'.$response_sixth_call_for_medium .'<br><br>'.$response_seventh_call_for_medium ;
+
+			$content_final = $basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 100px;">'.$response_first_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_secound_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_third_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fourth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fifth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_sixth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_seventh_call_for_medium.'</div>';
+
+
+
+   		} else {
+		//large
+		
+
+
+
+$basic_prompt = 'You are a content creator who creates SEO-optimized blog posts. You should aim at a broad audience. Ensure that sentence and paragraph lengths are varied, as is seen in natural human writing. Ensure heterogeneous paragraphs. Ensure heterogeneous sentence lengths. And stick to primarily short, straightforward sentences to create a human-like rhythm in the text. Engagement is the highest priority. Be conversational, empathetic, and occasionally humorous. Use idioms, metaphors, anecdotes and natural dialogue. Include an analogy to explain any complex concepts or ideas. You should identify the intentions and emotions of the readers as described in the audience data. Your goal is to respond to these emotions and interests with this blog post. Consider the perspectives of both an expert and a beginner. IMPORTANT: Use standard language; avoid academic, scholarly, slang, and jargon. Follow the instructions for the tone preferences based on audience data. Write in a conversational tone and let your personality shine through. This helps build a connection with your audience. It is also important to strike a balance between being relatable/personable and being factual/authoritative. Use positive and encouraging language. NLP emphasizes the impact of positive reinforcement, which can motivate and inspire your readers. Don’t always use the most natural words. Use the following words fewer than 3 times on this page: unique, ensure, utmost, transformative, transformation, routine. Before outputting the content, review it for the following words and rewrite those sentences with appropriate alternatives: meticulous, meticulously, navigating, complexities, realm, bespoke, tailored, towards, underpins, everchanging, ever-evolving, the world of, not only, seeking more than just, designed to enhance, it’s not merely, our suite, it is advisable, daunting, in the heart of, when it comes to, in the realm of, amongst unlock the secrets, unveil the secrets and robust.
+
+The user defines the main keyword, and you should make sure that the post is relevant to the main keyword.
+The user provides a title and makes sure that the post is relevant to it. 
+The user provides 50 LSI keywords and tries to incorporate them naturally throughout the content.
+The user provides "Facts to include" that should be smoothly incorporated in the introduction and the Main content sections of the output.
+Audience data: The user will include the audience data of the reader, including demographic information, tone preferences, reading level preference, and emotional needs/pain points. Use this information to tailor the content to the audience described in the audience data. Content should respond to their Emotional Needs and Pain Points.
+Details to include: The user will define additional details that need to be incorporated into the blog post.
+Language - The user defines that you should use US English, UK English, or German for the output. The headlines should be in the defined language as well.
+
+Include the following sections in the post:
+
+Introduction - Provide a concise preview of the content`s value and insights and write an engaging and informative introduction, incorporating the primary keyword, applying NLP and EI principles for emotional resonance. Use the "Facts to include" provided by the user. Do not use all of them. Incorporate them smoothly so that it is part of the story flow and reads naturally. Don’t create a header for this section, only provide the paragraph. 
+
+Table of Contents - Outline main content areas of the post. Craft attention-grabbing subtitles that entice readers to click and read more. Use numbers, questions, and powerful words to draw interest. Use NLP techniques to craft subtitles that grab attention. Incorporate power words and questions to stimulate curiosity and engagement. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions reader has while searching it. You should understand what deep questions and concerns user wants to answer and build your subtitles(subsections) based on these. Do not list Section titles, make short list of subtitles that will be described in Main Content Section, do not include numbering in the list of subtitles. Make engaging titles in the Table of Contents. 
+
+Main Content Sections - Create sections with subtitles using keywords and their variations at a 1-2% usage rate per 100 words to prevent keyword stuffing. Each section should contain a detailed content, employing NLP and EI for relatability and actionability. Make the content deep so it responds to the emotions and curiosity of the readers. Use storytelling techniques to make your content more relatable and memorable. Share personal anecdotes, case studies, and real-life examples. Stories are a powerful NLP tool to create an emotional connection. Share personal anecdotes or relatable scenarios to make your content more engaging and memorable. Prevent from producing worthless fluff content that doesn’t add to the value of the blog post. Do not include any fluff when producing content. Each sentence should provide value to the overall goal of the content piece. Strictly follow this guideline. Ensure to insert interesting and fun facts about the Main keyword when producing the content: use the "Facts to include" provided by the user. Do not use all of them. Incorporate them smoothly so that it is part of the story flow and reads naturally. DO NOT include any conclusion or summary for Main content sections. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions user has while searching it. You should understand what deep questions and concerns users want to answer and build your output based on these. Use the following NLP Techniques for creating content:
+    Anchoring: Use anchoring to associate positive emotions with your content. For instance, repeatedly use a specific phrase or concept that evokes a positive response.
+    Reframing: Present your points in a way that shifts the reader’s perspective. For example, instead of highlighting a problem, focus on the opportunity it presents.
+    Vivid Descriptions: Use descriptive language to paint vivid images and evoke emotions. This helps readers feel more connected to your content.
+    Addressing Reader Emotions: Acknowledge and validate the emotions your readers might be experiencing. This creates a sense of understanding and connection.
+    High-Quality Content: Ensure your content is well-researched, informative, and adds value to your readers. Provide actionable insights and practical tips.
+
+Conclusion - Summarize key insights, encouraging further exploration or engagement. Do not include call to action details in the conclusion. 
+
+FAQ - Come up with 3 FAQ that the reader may have. Provide questions and answers with clear, informative, tone empathize with the reader`s concerns.
+
+What’s Next? - Write a short paragraph inviting the reader to take action in the explained way, including links or phone numbers if provided. Incorporate "Call to action" provided by user. If call to action is blank you should write a general paragraph without specific contact details or further steps anyway.
+
+Use the following formatting and structure for the output:
+{
+IMPORTANT: Never include the Blog Post Title. Start with the introduction paragraph
+
+Introduction - Introduction should not be more than 100-150 words.(do not include any title, just paragraph)
+
+<h2>Table of Content</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
+
+<h2>Main Content Sections</h2> (Heading 2) - Create 5 sections. Create 2-3 subsections and subtitles with formatting H3 for each section so it does not exceed required word quantity. IMPORTANT: Each section should not be more than 450-600 words.
+
+<h2>Conclusion</h2> (Heading 2) - Conclusion should not be more than 100-150 words. Do not include call to action details in the conclusion.
+
+<h2>FAQs</h2> (Heading 2) - FAQs should not be more than 100-150 words.
+Q: 
+A:
+
+Q: 
+A: 
+
+Q:
+A: 
+
+<h2>What’s next?</h2> (Heading 2) - What’s next? should not be more than 100-150 words.
+}
+
+Use the iterative approach to improve upon your initial draft. After each draft, critique your work, give it a score out of 10, and if the score is below 9, improve upon the previous draft. Repeat this process until you achieve a score of 9 or 10. When doing this, review and edit your work to remove any grammatical errors, unnecessary information, and superfluous sentences. Don`t provide output of this critique, this is only for you to analyze internally. Also, check the formatting, output should not include a title of the blog post and each section/subsection should have a title with a specific heading type. 
+Now generate ONLY the Introduction and the Table of Content based on the following parameters:
+				Main keyword: '.$seed_keyword.'
+				Title: "'.$title.'"
+				LSI keywords: '.$LSI_Keyords.'
+				Tone of voice: '.$voice_tone.' 
+				Point of view: '.$point_of_view.'
+				Audience data: {'.$AudienceData.'}
+				Details to include: '.$details_to_include.' 
+				Language: '.$content_lang.'
+				Call to action from user: `'.$call_to_action.'`
+				Facts to include: {'.$facts_prompt_response.'}';
+
+
+
+
+			
+			
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt]
+				// ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$basic_prompt_response = $result['choices'][0]['message']['content'];
+
+
+
+
+
+			$first_call_for_large = 'Now generate the first subtitle content. IMPORTANT: Output should not be more than 450-600 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_large]
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_first_call_for_large = $result['choices'][0]['message']['content'];
+
+
+
+
+			// second call
+			$second_call_for_large = 'Now generate the second subtitle content. IMPORTANT: Output should not be more than 450-600 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_large],
+				['role' => 'assistant', 'content' => $response_first_call_for_large],
+				['role' => 'user', 'content' => $second_call_for_large],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_secound_call_for_large = $result['choices'][0]['message']['content'];
+
+
+
+
+			///// third call
+
+			
+			$third_call_for_large = 'Now generate the third subtitle content. IMPORTANT: Output should not be more than 450-600 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_large],
+				['role' => 'assistant', 'content' => $response_first_call_for_large],
+				['role' => 'user', 'content' => $second_call_for_large],
+				['role' => 'assistant', 'content' => $response_secound_call_for_large],
+				['role' => 'user', 'content' => $third_call_for_large],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_third_call_for_large = $result['choices'][0]['message']['content'];
+
+
+
+
+			/////// 4th call 
+
+			$fourth_call_for_large = 'Now generate the forth subtitle content. IMPORTANT: Output should not be more than 450-600 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_large],
+				['role' => 'assistant', 'content' => $response_first_call_for_large],
+				['role' => 'user', 'content' => $second_call_for_large],
+				['role' => 'assistant', 'content' => $response_secound_call_for_large],
+				['role' => 'user', 'content' => $third_call_for_large],
+				['role' => 'assistant', 'content' => $response_third_call_for_large],
+				['role' => 'user', 'content' => $fourth_call_for_large],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_fourth_call_for_large = $result['choices'][0]['message']['content'];
+
+
+
+
+
+
+
+			// 5th call 
+
+
+			$fifth_call_for_large = 'Now generate the fifth subtitle content. IMPORTANT: Output should not be more than 450-600 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_large],
+				['role' => 'assistant', 'content' => $response_first_call_for_large],
+				['role' => 'user', 'content' => $second_call_for_large],
+				['role' => 'assistant', 'content' => $response_secound_call_for_large],
+				['role' => 'user', 'content' => $third_call_for_large],
+				['role' => 'assistant', 'content' => $response_third_call_for_large],
+				['role' => 'user', 'content' => $fourth_call_for_large],
+				['role' => 'assistant', 'content' => $response_fourth_call_for_large],
+				['role' => 'user', 'content' => $fifth_call_for_large],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_fifth_call_for_large = $result['choices'][0]['message']['content'];
+
+
+
+
+
+
+
+
+
+			// 6th call 
+
+
+			$sixth_call_for_large = 'Now generate the conclusion content. IMPORTANT: Output should not be more than 150-200 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_large],
+				['role' => 'assistant', 'content' => $response_first_call_for_large],
+				['role' => 'user', 'content' => $second_call_for_large],
+				['role' => 'assistant', 'content' => $response_secound_call_for_large],
+				['role' => 'user', 'content' => $third_call_for_large],
+				['role' => 'assistant', 'content' => $response_third_call_for_large],
+				['role' => 'user', 'content' => $fourth_call_for_large],
+				['role' => 'assistant', 'content' => $response_fourth_call_for_large],
+				['role' => 'user', 'content' => $fifth_call_for_large],
+				['role' => 'assistant', 'content' => $response_fifth_call_for_large],
+				['role' => 'user', 'content' => $sixth_call_for_large],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_sixth_call_for_large = $result['choices'][0]['message']['content'];
+
+
+
+
+			// 7th call 
+
+
+			$seventh_call_for_large = 'Now generate the FAQs content. IMPORTANT: Output should not be more than 100-150 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_large],
+				['role' => 'assistant', 'content' => $response_first_call_for_large],
+				['role' => 'user', 'content' => $second_call_for_large],
+				['role' => 'assistant', 'content' => $response_secound_call_for_large],
+				['role' => 'user', 'content' => $third_call_for_large],
+				['role' => 'assistant', 'content' => $response_third_call_for_large],
+				['role' => 'user', 'content' => $fourth_call_for_large],
+				['role' => 'assistant', 'content' => $response_fourth_call_for_large],
+				['role' => 'user', 'content' => $fifth_call_for_large],
+				['role' => 'assistant', 'content' => $response_fifth_call_for_large],
+				['role' => 'user', 'content' => $sixth_call_for_large],
+				['role' => 'assistant', 'content' => $response_sixth_call_for_large],
+				['role' => 'user', 'content' => $seventh_call_for_large],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_seventh_call_for_large = $result['choices'][0]['message']['content'];
+
+
+
+			//8th call
+
+
+			
+
+
+			$eigth_call_for_large = 'Now generate What is next? content. IMPORTANT: Output should not be more than 150-200 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
+			// Your chat messages
+			$messages = [
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
+				['role' => 'user', 'content' => $basic_prompt],
+				['role' => 'assistant', 'content' => $basic_prompt_response],
+				['role' => 'user', 'content' => $first_call_for_large],
+				['role' => 'assistant', 'content' => $response_first_call_for_large],
+				['role' => 'user', 'content' => $second_call_for_large],
+				['role' => 'assistant', 'content' => $response_secound_call_for_large],
+				['role' => 'user', 'content' => $third_call_for_large],
+				['role' => 'assistant', 'content' => $response_third_call_for_large],
+				['role' => 'user', 'content' => $fourth_call_for_large],
+				['role' => 'assistant', 'content' => $response_fourth_call_for_large],
+				['role' => 'user', 'content' => $fifth_call_for_large],
+				['role' => 'assistant', 'content' => $response_fifth_call_for_large],
+				['role' => 'user', 'content' => $sixth_call_for_large],
+				['role' => 'assistant', 'content' => $response_sixth_call_for_large],
+				['role' => 'user', 'content' => $seventh_call_for_large],
+				['role' => 'assistant', 'content' => $response_seventh_call_for_large],
+				['role' => 'user', 'content' => $eigth_call_for_large],
+			];
+			
+			// Additional parameters, including language setting (replace with actual parameters)
+			$data = [
+				'messages' => $messages,
+				"model" => "gpt-4o",
+				// 'language' => 'fr',  // Specify the result language as French
+			];
+			
+			// Set up cURL
+			$ch = curl_init($apiUrl);
+			
+			// Set cURL options
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Authorization: Bearer ' . $apiKey,
+			]);
+			
+			// Execute the cURL request
+			$response = curl_exec($ch);
+			
+			// Check for cURL errors
+			if (curl_errno($ch)) {
+				echo 'Curl error: ' . curl_error($ch);
+			}
+			// Close cURL session
+			curl_close($ch);
+			// Decode and display the response
+			$result = json_decode($response, true);
+			$response_eigth_call_for_large = $result['choices'][0]['message']['content'];
+
+			$content_final = $basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 100px;">'.$response_first_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_secound_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_third_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fourth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fifth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_sixth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_seventh_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_eigth_call_for_large.'</div>';
+
+
+   }
+     
+ 
+   		return $content_final;
+   	    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
    
    function improve_seo_lits(){
    
@@ -348,7 +2451,7 @@
            'custom-plugin-script', // Script handle
            plugin_dir_url(__FILE__) . 'assets/js/custom-plugin-script.js', // Script URL
            array('jquery'), // Dependencies (optional)
-           '2.8', // Script version (optional)
+           '1.0.0', // Script version (optional)
            true // Load script in footer
        );
    //}
@@ -491,6 +2594,84 @@
 				$select.= "<span><input type='checkbox' " . $checked . " value='".$category->term_id."' id='".$category->term_id."' name='cats[]'><label for='".$category->term_id."'>".$category->name."</label></span>";
 			}
 
+			$saved_rnos =  get_option('get_saved_random_numbers');
+			$shortcode_html = '<h3>Testimonial</h3>';
+			foreach($saved_rnos as $id){
+				$testimonial = get_option('get_testimonials_'.$id);
+				if(!empty($testimonial)){
+					$display_name = 'Testimonial - '.$id;
+					$data_name = '';
+					if(isset($testimonial['tw_testi_shortcode_name'])){
+						if($testimonial['tw_testi_shortcode_name']!=""){
+							$data_name = $display_name = $testimonial['tw_testi_shortcode_name'];
+						}
+					}
+					
+					$shortcode_html .='<label><input type="checkbox" class="radio" value="'.$id.'" name="testimonial_SC[]" />'.$display_name.'</label><br>';
+				}
+			}
+
+			// button
+			$shortcode_html .='<h3>Button</h3>';
+			foreach($saved_rnos as $id){
+				$button = get_option('get_buttons_'.$id);
+				$display_name = 'Button - '.$id;
+				$data_name = '';
+				if(isset($button['tw_button_shortcode_name'])){
+					if($button['tw_button_shortcode_name']!=""){
+						$data_name = $display_name = $button['tw_button_shortcode_name'];
+					}
+				}
+				if(!empty($button)){
+					//$shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
+					$shortcode_html .='<label><input type="radio" class="radio" value="'.$id.'" name="Button_SC" />'.$display_name.'</label><br>';
+				}
+			}
+
+			//Google Map
+			$shortcode_html .='<h3>Google Map</h3>';
+			foreach($saved_rnos as $id){
+				$googlemap = get_option('get_googlemaps_'.$id);
+				if(!empty($googlemap)){
+					$display_name = 'GoogleMap - '.$id;
+					$data_name = '';
+					if(isset($googlemap['tw_maps_shortcode_name'])){
+						if($googlemap['tw_maps_shortcode_name']!=""){
+							$data_name = $display_name = $googlemap['tw_maps_shortcode_name'];
+						}
+					}
+					//$shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
+					$shortcode_html .='<label><input type="radio" class="radio" value="'.$id.'" name="GoogleMap_SC" />'.$display_name.'</label><br>';
+				}
+			}
+
+
+			// video
+
+			$shortcode_html .='<h3>Video</h3>';
+			foreach($saved_rnos as $id){
+				$videos = get_option('get_videos_'.$id);
+				$display_name = 'Video - '.$id;
+				$data_name = '';
+				if(isset($videos['video_shortcode_name'])){
+					if($videos['video_shortcode_name']!=""){
+						$data_name = $display_name = $videos['video_shortcode_name'];
+					}
+				}
+				if(!empty($videos)){
+					//$shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
+					$shortcode_html .='<label><input type="radio" class="radio" value="'.$id.'" name="Video_SC" />'.$display_name.'</label><br>';
+				}
+			}
+
+
+
+
+			$AllShortCode = $shortcode_html;
+
+			
+
+
 	    // categories code end
 ?>
 
@@ -499,7 +2680,7 @@
 		
 
    jQuery(document).ready(function() {
-		jQuery('#project_name').on('change', function() {
+		jQuery('#keyword_list_name').on('change', function() {
 			var selectedOption = jQuery(this).val();
 			if (selectedOption == 'create_new_project' || selectedOption == 'none') {
 				jQuery('#keyword_list_container').hide();
@@ -507,7 +2688,7 @@
 				jQuery('#keyword_list_container').show();				
 				var allKeywords = <?php echo json_encode($all_keywords); ?>;
 				var keywordCount = allKeywords[selectedOption].split('\n').length;
-				var keywordMin = keywordCount * 5;
+				var keywordMin = keywordCount * 3;
 				var keywordTime = (keywordMin / 60).toFixed(2);
 
 				jQuery('#keywordcounts').text(keywordCount);
@@ -872,8 +3053,9 @@
    								<label for="language">Select Language</label>
    								<select class="form-control" name="content_lang" id="language">
    									<option value="">-Select Language-</option>
-   									<option value="english_us">English (US)</option>
-   									<option value="english_uk">English (Uk)</option>
+   									<option value="US English">English (US)</option>
+   									<option value="UK English">English (Uk)</option>
+									<option value="German">German (De)</option>
    									
    								  </select>
    							</div>
@@ -1003,7 +3185,7 @@
 					   <button type="button" class="close" data-dismiss="modal" aria-label="Close" id= "butn"><span aria-hidden="true">&times;</span></button>
 				   </div>
 				   
-				   <form id="pop_up_multi_form" method="post" class="pop_up_multi_form">
+				   <form id="pop_up_multi_form" action="multipost_form_submit" method="post" class="pop_up_multi_form">
 				   <div class="modal-body">
 										  <div id="smartwizard_multi">
 											  <ul style="margin: 0px 30px 5px 30px;">
@@ -1075,12 +3257,12 @@
 										 <div class="form-group col-md-11 desc" id="select_exisiting">
 										 <h2>Keyword List</h2>
 										 <div class="form-group">
-										 <select id="project_name" name="project_name" class="form-control" style="max-width: 84% !important;">
+										 <select id="keyword_list_name" name="keyword_list_name" class="form-control" style="max-width: 84% !important;">
 										 <option value="">Select a project</option>
-										 <option value="create_new_project">create_new_project</option>
+										 <option value="create_new_project">Create New KW List</option>
 												 '. $html_key .'
 											 </select>
-											<span id="error_project_name" style="color: red;"></span>
+											<span id="error_keyword_list_name" style="color: red;"></span>
 										 </div>
 										 <div class="form-group" id="keyword_list_container" style="display: none;">
 											 <h2>Keywords</h2>
@@ -1088,12 +3270,12 @@
 											 <div id="keyword_count"></div>
 										 </div>
 												 <div id="create_keyword_container" style="display: none; padding-bottom:15px;">
-													 <label>Create Keywords Types</label><br>
+													 <label> How do you want to create a new list?</label><br>
 													 <select id="create_keyword" name="create_keyword" class="form-control" style="max-width: 84% !important;">
 														 <option value="none">Select</option>
 														 <option value="copy_paste">Copy & Paste</option>
-														 <option value="google_suggestion">Create Google Suggestion Keyword</option>
-														 <option value="ai_create_keyword">AI Create Keyword</option>
+														 <option value="google_suggestion">Generate Google Suggest KW list</option>
+														 <option value="ai_create_keyword">AI generated KW list</option>
 													 </select>
 													 <div id="copy_paste_container" style="width:84%;"></div>
 													 <div id="google_suggestion_container" style="width:84%;"></div>
@@ -1185,9 +3367,11 @@
 									<div class="form-group col-md-6">
 									<label for="language">Select Language</label>
 									<select class="form-control" name="content_lang" id="language">
+									
 										<option value="">-Select Language-</option>
-										<option value="english_us">English (US)</option>
-										<option value="english_uk">English (Uk)</option>
+										<option value="US English">English (US)</option>
+										<option value="UK English">English (Uk)</option>
+										<option value="German">German (De)</option>
 										
 									  </select>
 								</div>
@@ -1225,16 +3409,12 @@
 	
 								<div id="steps-4" class="">
 									<div class="row" style="padding-left: 50px; padding-right: 50px">
-										<div class="col-md-12" text-align: left; margin-top: 30px; margin-bottom: 30px;">
-											<select class="sw-editor-selector" style="text-align:left !important; width:100%; diplay:block;">
-												<option value="addshortcode">Add Shortcode</option>
-												<option value="testimonial">Testimonials</option>
-												<option value="googlemap">Google Maps</option>
-												<option value="button">Buttons</option>
-												<option value="video">Videos</option>
-											</select> &nbsp;
-											'. $html .'
+										
+
+										<div class="col-md-12" text-align: left; margin-top: 30px; margin-bottom: 30px;" id="insertShortcodeDropdown">
+											'.$AllShortCode.'
 										</div>
+
 									</div>
 								</div>
 
@@ -1260,15 +3440,24 @@
 
 								<div id="steps-7" class="">
 										<div class="row" style="padding-left: 50px; padding-right: 50px">
-											<div class="col-md-6" text-align: left;margin-top: 30px;margin-bottom: 30px;">
-												<input type="radio" name="schedule_posts" value="schedule_posts" id="AI_image">
-												<label> Save all selected posts in draft mode, so you can review them before publishing
-												Publish all selected posts immediately </label> 
+											<div class="col-md-12" text-align: left;margin-top: 30px;margin-bottom: 30px;">
+												
+												<label> <input type="radio" name="schedule_posts" value="draft_posts" id="AI_image"> Save all selected posts in draft mode, so you can review them before publishing</label> 
 											</div>
 
-											<div class="col-md-6" text-align: left; margin-top: 30px; margin-bottom: 30px;">
-												<input type="radio" name="schedule_posts" value="schedule_posts_publish" id="Multiple_images">
-												<label> Create a publishing schedule for the selected posts (if you don’t want to publish them all at once) </label>
+											<div class="col-md-12" text-align: left;margin-top: 30px;margin-bottom: 30px;">
+												
+												<label> <input type="radio" name="schedule_posts" value="schedule_all_posts" id="AI_image"> Publish all selected posts immediately </label> 
+											</div>
+
+											<div class="col-md-12" text-align: left; margin-top: 30px; margin-bottom: 30px;">
+												
+												<label> <input type="radio" name="schedule_posts" value="schedule_posts_input_wise" id="schedule_posts_input_wise"> Create a publishing schedule for the selected posts (if you don’t want to publish them all at once) </label>
+												
+											</div>
+
+											<div class="col-md-12" text-align: left; margin-top: 30px; margin-bottom: 30px;" id="number_of_post_schedule_box" style="display:none;">
+											<span><Input type="text" name="number_of_post_schedule" Placeholder="Number of post"><select name="schedule_frequency"><option value="per_day">Per Day</option><option value="per_week">Per Week</option></select></span>
 											</div>
 										</div>
 								</div>
@@ -1276,18 +3465,19 @@
 								<div id="steps-8" class="">
 									<div class="row" style="padding-left: 50px; padding-right: 50px">
 										<div class="col-md-6" text-align: left;margin-top: 30px;margin-bottom: 30px;">
-											<input type="radio" name="assigning_authors" value="assigning_authors" id="assigning_authors">
-											<label> Assign all posts of this project to one author </label> 
+											
+											<label><input type="radio" name="assigning_authors" value="assigning_authors" id="assigning_authors"> Assign all posts of this project to one author </label> 
 											<div id="author_number" style="display:none">
-												<input type="number" name="author_number" value="1" readonly>
+												<input type="text" name="author_name" value="">
 											</div>
 										</div>
 
 										<div class="col-md-6" text-align: left; margin-top: 30px; margin-bottom: 30px;">
-											<input type="radio" name="assigning_authors" value="assigning_multi_authors" id="assigning_multi_authors">
-											<label> Assign all posts of this project to a number of authors and distribute them evenly </label>
+											
+											<label> <input type="radio" name="assigning_authors" value="assigning_multi_authors" id="assigning_multi_authors"> Assign all posts of this project to a number of authors and distribute them evenly </label>
 											<div id="authors_number" style="display:none">
 												<input type="number" name="authors_number" min="1" max="100">
+												
 											</div>
 										</div>
 									</div>
@@ -1305,7 +3495,7 @@
 												<div class="add_cat">
 													<form  method="post" action="add_category_form" class="form-wrap m-0">
 														<div class="input-group mb-4">
-															<input type="text" class="form-control" name="cat_name" placeholder="Default input" value="" aria-label="default input example" id="add_category" required>
+															<input type="text" class="form-control" name="cat_name_1" placeholder="Default input" value="" aria-label="default input example" id="add_category_1">
 														</div>
 														<div class="input-group">
 															<input type="button" class="btn-trans btn btn-outline-primary btn-lg px-5 mx-auto" onclick="addcategory()" value="Add Category">
@@ -1326,7 +3516,13 @@
 											<label for="sel1">Project Name: </label>
 											<input type="text" class="form-control" id="project_name" name="project_name">
 										</div>
-										<input type="button" value="Submit" onclick="return saveFinalData()">
+
+										<div class="form-group col-md-12">
+											<label for="sel1">Email address for notification: </label>
+											<input type="text" class="form-control" id="notify_email" name="notify_email">
+										</div>
+
+										<input type="submit" value="Submit">
 	
 										</div>
 									</div>
@@ -1437,19 +3633,19 @@
 					'slug' => $_POST['fData'],  
 				)
 			);
-			$result = refreshCategoryData();
-			echo $result;
+			$result = refreshCategoryData($_POST['fData']);
+			
 			if (is_wp_error($result)) {
 				$response = array('success' => false, 'message' => $result->get_error_message());
 			} else {
-				$response = array('success' => true, 'message' => 'Category added successfully.');
+				$response = array('success' => true, 'message' => 'Category added successfully.','result' => $result);
 			}
 			wp_send_json($response);
 		}
 	}
 	add_action('wp_ajax_refreshCategoryData' , 'refreshCategoryData' );
 
-		function refreshCategoryData() {
+		function refreshCategoryData($slug) {
 			$select = '';
 				$args = array("hide_empty" => 0,
 				"type"      => "post",
@@ -1458,14 +3654,14 @@
 				$cats = get_categories($args);
 				foreach($cats as $category){
 
-					if ($category->slug == "improve-seo") {
+					if ($category->slug == $slug) {
 						$checked = 'checked  onclick="return false"';
-					}
-					else{
+						$select.= "<span><input type='checkbox' " . $checked . " value='".$category->term_id."' id='".$category->term_id."' name='cats[]'><label for='".$category->term_id."'>".$category->name."</label></span>";
+						return $select;
+					} else{
 						$checked = '';
 					}								
-				$select.= "<span><input type='checkbox' " . $checked . " value='".$category->term_id."' id='".$category->term_id."' name='cats[]'><label for='".$category->term_id."'>".$category->name."</label></span>";
-				return $select;
+				
 			}
 		}
 
@@ -1490,7 +3686,175 @@
 
 	
 	 // 20-05-24 end Code 
+// bulk posting
 
+
+add_action('wp_ajax_multiPostData','multiPostData');
+
+function multiPostData() {
+
+	global $wpdb;
+	$project_name = sanitize_text_field($_POST['project_name']);
+	if(!empty($_POST['keyword_list'])) {
+		$keyword_lists = explode("\n", $_POST['keyword_list']);
+
+		$notify_email = $_POST['notify_email'];
+		$timeTaken = 3*count($keyword_lists); // one post 3 mint
+		$linkredirect = home_url('/').'wp-admin/admin.php?page=improveseo_bulkprojects';
+		
+
+		// Check if the project name already exists
+		$existing_project = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasks WHERE name = %s",
+				$project_name
+			)
+		);
+
+		// If the project name exists, handle accordingly
+		if ($existing_project > 0) {
+			// Project name already exists, handle the error (e.g., show an error message)
+			wp_send_json_success(array('status' => 'false',"message"=>"Project name already exist."));
+		} else {
+			
+			
+				$schedule_posts = (!empty($_POST['schedule_posts'])) ? $_POST['schedule_posts'] : "";
+				
+				$number_of_post_schedule = (!empty($_POST['number_of_post_schedule'])) ? $_POST['number_of_post_schedule'] : "";
+				
+				$schedule_frequency = (!empty($_POST['schedule_frequency'])) ? $_POST['schedule_frequency'] : "";
+
+				$wpdb->insert($wpdb->prefix . "improveseo_bulktasks", array(
+					'name' => $_POST['project_name'],
+					'number_of_tasks' => count($keyword_lists),
+					'schedule_posts' => $schedule_posts,
+					'number_of_post_schedule' => $number_of_post_schedule,
+					'number_of_completed_task' => 0,
+					'schedule_frequency' => $schedule_frequency,
+					'state' => "Unpublished",
+					'created_at' => date('Y-m-d h:m:s')
+				));
+				
+			
+			$lastid = $wpdb->insert_id;
+			
+			$pdate = date('Y-m-d');
+			$number_of_post_schedule_count = 1;
+			foreach($keyword_lists as $key => $value) {
+				if(!empty($value)) {
+					$keyword_list_name = (!empty($_POST['keyword_list_name'])) ? $_POST['keyword_list_name'] : ""; 
+					$content_type = (!empty($_POST['content_type'])) ? $_POST['content_type'] : ""; 
+					$select_exisiting_options = (!empty($_POST['select_exisiting_options'])) ? $_POST['select_exisiting_options'] : "";
+					$details_to_include = (!empty($_POST['details_to_include'])) ? $_POST['details_to_include'] :  "";
+					$content_lang = (!empty($_POST['content_lang'])) ? $_POST['content_lang'] : ""; 
+					$point_of_view = (!empty($_POST['point_of_view'])) ? $_POST['point_of_view'] : ""; 
+					$call_to_action = (!empty($_POST['call_to_action'])) ? $_POST['call_to_action'] : ""; 
+					$nos_of_words = (!empty($_POST['nos_of_words'])) ? $_POST['nos_of_words'] : "";
+					$aiImage = (!empty($_POST['aiImage'])) ? $_POST['aiImage'] : "";
+					$schedule_posts = (!empty($_POST['schedule_posts'])) ? $_POST['schedule_posts'] : "";
+					$number_of_post_schedule = (!empty($_POST['number_of_post_schedule'])) ? $_POST['number_of_post_schedule'] : "";
+					$schedule_frequency = (!empty($_POST['schedule_frequency'])) ? $_POST['schedule_frequency'] : "";
+					$assigning_authors = (!empty($_POST['assigning_authors'])) ? $_POST['assigning_authors'] : "";
+					$authors_number = (!empty($_POST['authors_number'])) ? $_POST['authors_number'] : "";
+					$category = '';
+					if(!empty($_POST['cats'])) {
+						foreach($_POST['cats'] as $cats) {
+							 $category = $category.'||'.$cats;
+						}
+					} 
+	
+					$testimonial = '';
+					if(!empty($_POST['testimonial_SC'])) {
+						foreach($_POST['testimonial_SC'] as $testimonial_SC) {
+							 $testimonial = $testimonial.'||'.$testimonial_SC;
+						}
+					} 
+
+					if($schedule_posts=='schedule_all_posts') {
+						$published_on = date('Y-m-d');
+					} elseif($schedule_posts=='schedule_posts_input_wise') {
+						if($schedule_frequency=='per_day') {
+							if($number_of_post_schedule>=$number_of_post_schedule_count) {
+								$published_on = $pdate;
+								$number_of_post_schedule_count++;
+							} else {
+								$pdate = date('Y-m-d',date(strtotime("+1 day", strtotime($pdate))));
+								$number_of_post_schedule_count=2;
+								$published_on = $pdate;
+							}
+						} elseif($schedule_frequency=='per_week') {
+							if($number_of_post_schedule>=$number_of_post_schedule_count) {
+								$published_on = $pdate;
+								$number_of_post_schedule_count++;
+							} else {
+								$pdate = date('Y-m-d',date(strtotime("+7 day", strtotime($pdate))));
+								$number_of_post_schedule_count=2;
+								$published_on = $pdate;
+							}
+						}
+					}
+	
+					$Button_SC = (!empty($_POST['Button_SC'])) ? $_POST['Button_SC'] : "";
+					$GoogleMap_SC = (!empty($_POST['GoogleMap_SC'])) ? $_POST['GoogleMap_SC'] : "";
+					$Video_SC = (!empty($_POST['Video_SC'])) ? $_POST['Video_SC'] : "";
+					
+					$insert_bulk_data = array(
+						 'bulktask_id' => $lastid,
+						 'keyword_list_name' => $keyword_list_name,
+						 'keyword_name' => $value,
+						 'tone_of_voice' => $content_type,
+						 'select_exisiting_options' =>  $select_exisiting_options,
+						 'details_to_include' => $details_to_include,
+						 'content_lang' => $content_lang,
+						 'point_of_view' => $point_of_view,
+						 'call_to_action'=>$call_to_action,
+						 'nos_of_words'=>$nos_of_words,
+						 'aiImage'=>$aiImage,
+						 'schedule_posts'=>$schedule_posts,
+						 'number_of_post_schedule'=>$number_of_post_schedule,
+						 'assigning_authors'=>$assigning_authors,
+						 'assigning_authors_value'=>$authors_number,
+						 'cats'=>$category,
+						 'testimonial' => $testimonial,
+						 'schedule_frequency' => $schedule_frequency,
+						 'Button_SC'=>$Button_SC,
+						 'GoogleMap_SC'=>$GoogleMap_SC,
+						 'Video_SC'=>$Video_SC,
+						 'status' => "pending",
+						 'state' => "Unpublished",
+						 'published_on' => $published_on,
+						 'created_at' => date('Y-m-d h:m:s'),
+						 'updated_at' => date('Y-m-d h:m:s'),
+					);
+					$wpdb->insert($wpdb->prefix . "improveseo_bulktasksdetails", $insert_bulk_data);
+					
+				}
+			}
+
+			if (!empty($notify_email)) {
+				$to = $notify_email; // Replace with the recipient's email address
+				$subject = "AI content generation notification";
+				$headers = array('Content-Type: text/plain; charset=UTF-8');
+			
+				// Send the email
+				$email_content = '';
+				$email_content .= "Project successfully added:\n";
+				$email_content .= "Project Name: " . $project_name . "\n";
+				$email_content .= "Number of Keywords: " . count($keyword_lists) . "\n";
+				$email_content .= "Time estimation for complete: " . $timeTaken . "\n";
+				$email_content .= "State: In Process" . "\n";
+				$email_content .= "Created At: " . date('Y-m-d H:i:s') . "\n\n";
+				$email_content .= "<a href='".$linkredirect."' target='_blank'> Check status </a>" . "\n\n";
+	
+				$mail_sent = wp_mail($to, $subject, $email_content, $headers);
+			}
+			//wp_send_json_success(array('status' => 'false',"message"=>'here 1 : '. $wpdb->last_error  ));
+			wp_send_json_success(array('status' => 'success',"linkredirect"=>$linkredirect));
+		}	
+	} else {
+		wp_send_json_success(array('status' => 'success',"message"=>"Keywords should not empty."));
+	}
+}
 
    // include dirname(__FILE__).'improveSEO-2.0.11/views/test.php';
    add_action('wp_ajax_getaaldata','getaaldata');
@@ -1578,7 +3942,7 @@
    // Additional parameters, including language setting (replace with actual parameters)
    $data = [
    	'messages' => $messages,
-   	'model' => "gpt-3.5-turbo"
+   	'model' => "gpt-4o"
    	
    	//'language' => 'fr',  // Specify the result language as French
    ];
@@ -1671,7 +4035,7 @@
           // Additional parameters, including language setting (replace with actual parameters)
           $data = [
               'messages' => $messages,
-              'model' => "gpt-3.5-turbo"
+              'model' => "gpt-4o"
    		
               //'language' => 'fr',  // Specify the result language as French
           ];
@@ -1767,7 +4131,7 @@
 		// Additional parameters, including language setting (replace with actual parameters)
 		$data = [
 			'messages' => $messages,
-			'model' => "gpt-3.5-turbo"
+			'model' => "gpt-4o"
 		
 			//'language' => 'fr',  // Specify the result language as French
 		];
@@ -1816,49 +4180,34 @@
 
 
 
-   function generateTitle($seed_type, $seed_keyword, $content_type,$getAudienceData) {
-   global $wpdb, $user_ID;
+function generateTitle($seed_type, $seed_keyword, $content_type,$getAudienceData) {
+   	global $wpdb, $user_ID;
    
       // Your OpenAI API key
-      $apiKey = get_option('improveseo_chatgpt_api_key');
+    $apiKey = get_option('improveseo_chatgpt_api_key');
       
       // The endpoint URL for OpenAI chat completions API (replace with the correct endpoint)
-      $apiUrl = 'https://api.openai.com/v1/chat/completions';
+    $apiUrl = 'https://api.openai.com/v1/chat/completions';
    
-		if($content_type!='') {
+	if($content_type!='') {
 			$content_type = 'voice of content must be '.$content_type;
-		}
-          if ($seed_type=='seed_option2')
-          {
-   		//Create a compelling {title/question} to capture attention based on the keyword ‘{seed keyword}’
-   
+	}
+
+    if ($seed_type=='seed_option2') {
    		$question = 'You are a content creator who creates SEO optimized titles for blog posts. You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. Using this information you should come up with the title that will be engaging and interesting for people who are described in the audience data and search provided word or phrase. In the title do not include emojis or hashtags. Limit characters not including spaces to 80-100. As an output, write just a title without explanation or introduction.
 		   Now generate a SEO optimized title based on the following information:
 		   Keyword: '.$seed_keyword.'
 		   Audience data: {'.$getAudienceData.'}';
    
              // $question = 'Create a compelling seo optimized blog post title based on the keyword `'.$seed_keyword.'` in the form of No Answer. No emojis. No hashtags. Limit characters not including spaces to 80-100. '.$content_type;
-          }
-          else if ($seed_type=='seed_option3')
-          {
-			// if question
-
-
-			$question = 'You are a content creator who creates SEO optimized titles for blog posts. You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. Using this information you should come up with a title that will be engaging and interesting for people who are described in the audience data and search provided word or phrase. Title should be formed as a question. In the title do not include emojis or hashtags. Limit characters not including spaces to 80-100. As an output, write just a title without explanation or introduction. 
+    } else if ($seed_type=='seed_option3') {
+		$question = 'You are a content creator who creates SEO optimized titles for blog posts. You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. Using this information you should come up with a title that will be engaging and interesting for people who are described in the audience data and search provided word or phrase. Title should be formed as a question. In the title do not include emojis or hashtags. Limit characters not including spaces to 80-100. As an output, write just a title without explanation or introduction. 
 			Now generate a SEO optimized title based on the following information:
 				Keyword: '.$seed_keyword.'
 				Audience data: {'.$getAudienceData.'}';
-
-
-
-
-              //$question = 'Create '.$content_type.' question title for '.$seed_keyword.' maximum 30 words limit with sysmbol of "?"';
-   
-   		//$question = 'Create a compelling seo optimized blog post title based on the keyword `'.$seed_keyword.'` in the form of one question only. do not include emojis or hashtags or answer. Limit characters not including spaces to 80-100. '.$content_type;
-          }
-          else {
-              $question = $seed_keyword;
-          }
+	} else {
+        $question = $seed_keyword;
+    }
           
           // echo "????".$question;
           
@@ -1873,7 +4222,7 @@
           // Additional parameters, including language setting (replace with actual parameters)
           $data = [
               'messages' => $messages,
-              'model' => "gpt-3.5-turbo"
+              'model' => "gpt-4o"
    		
               //'language' => 'fr',  // Specify the result language as French
           ];
@@ -1905,27 +4254,22 @@
           
           // print_r($result);
           // die();
-          if(empty($result['choices'][0]['message']['content'])) {
-   		return $result;
-   	} else {
-   		if ($seed_type=='seed_option2')
-   		{
-   			$content =  preg_replace('~^[\'"]?(.*?)[\'"]?$~', '$1', $result['choices'][0]['message']['content']);
-   			
-   			echo str_replace("'", '`', $content);
-   		}
-   		else if ($seed_type=='seed_option3')
-   		{
-   			$content =  preg_replace('~^[\'"]?(.*?)[\'"]?$~', '$1', $result['choices'][0]['message']['content']);
-   			
-   			echo str_replace("'", '`', $content);
-   		}
-   		else {
-   			echo '';
-   		}
-   	}
-          
-   }
+        if(empty($result['choices'][0]['message']['content'])) {
+   				return $result;
+   		} else {
+			if ($seed_type=='seed_option2') {
+				$content =  preg_replace('~^[\'"]?(.*?)[\'"]?$~', '$1', $result['choices'][0]['message']['content']);
+				
+				echo str_replace("'", '`', $content);
+			} else if ($seed_type=='seed_option3') {
+				$content =  preg_replace('~^[\'"]?(.*?)[\'"]?$~', '$1', $result['choices'][0]['message']['content']);
+				
+				echo str_replace("'", '`', $content);
+			} else {
+				echo '';
+			}
+   		}    
+}
    
    function createAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode='',$is_single_keyword = '',$voice_tone = '',$point_of_view = '',$title='',$call_to_action = '',$details_to_include = '')
    {
@@ -1943,7 +4287,7 @@
    Audience data: {'.$AudienceData.'}';
    // Your chat messages
    $messages = [
-   	// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+   	 ['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
    	['role' => 'user', 'content' => $text_for_lsi]
    	// ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
    ];
@@ -1951,7 +4295,7 @@
    // Additional parameters, including language setting (replace with actual parameters)
    $data = [
    	'messages' => $messages,
-   	"model" => "gpt-3.5-turbo",
+   	"model" => "gpt-4o",
    	// 'language' => 'fr',  // Specify the result language as French
    ];
    
@@ -1988,9 +4332,9 @@
 Now generate facts.
 Main Keyword: '.$seed_keyword.'
 Audience data: {'.$AudienceData.'}';
-
+//['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 		$messages = [
-			// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+			['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 			['role' => 'user', 'content' => $facts_prompt]
 			// ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
 		];
@@ -1998,7 +4342,7 @@ Audience data: {'.$AudienceData.'}';
 		// Additional parameters, including language setting (replace with actual parameters)
 		$data = [
 			'messages' => $messages,
-			"model" => "gpt-3.5-turbo",
+			"model" => "gpt-4o",
 			// 'language' => 'fr',  // Specify the result language as French
 		];
 
@@ -2112,7 +4456,7 @@ Audience data: {'.$AudienceData.'}';
 			
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt]
 				// ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
 			];
@@ -2120,7 +4464,7 @@ Audience data: {'.$AudienceData.'}';
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2156,7 +4500,7 @@ Audience data: {'.$AudienceData.'}';
 			$first_call_for_small = 'Now generate the first subtitle content. IMPORTANT: Output should not be more than 200-250 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_small]
@@ -2165,7 +4509,7 @@ Audience data: {'.$AudienceData.'}';
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2201,7 +4545,7 @@ Audience data: {'.$AudienceData.'}';
 			$second_call_for_small = 'Now generate the second subtitle content. IMPORTANT: Output should not be more than 200-250 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_small],
@@ -2212,7 +4556,7 @@ Audience data: {'.$AudienceData.'}';
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2250,7 +4594,7 @@ Audience data: {'.$AudienceData.'}';
 			$third_call_for_small = 'Now generate the third subtitle content. IMPORTANT: Output should not be more than 200-250 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_small],
@@ -2263,7 +4607,7 @@ Audience data: {'.$AudienceData.'}';
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2300,7 +4644,7 @@ Audience data: {'.$AudienceData.'}';
 			$fourth_call_for_small = 'Now generate the forth subtitle content. IMPORTANT: Output should not be more than 200-250 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_small],
@@ -2315,7 +4659,7 @@ Audience data: {'.$AudienceData.'}';
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2356,7 +4700,7 @@ Audience data: {'.$AudienceData.'}';
 			$fifth_call_for_small = 'Now generate the conclusion content. IMPORTANT: Output should not be more than 100-150 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_small],
@@ -2373,7 +4717,7 @@ Audience data: {'.$AudienceData.'}';
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2416,7 +4760,7 @@ Audience data: {'.$AudienceData.'}';
 			$sixth_call_for_small = 'Now generate the FAQs content. IMPORTANT: Output should not be more than 100-150 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_small],
@@ -2435,7 +4779,7 @@ Audience data: {'.$AudienceData.'}';
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2474,7 +4818,7 @@ Audience data: {'.$AudienceData.'}';
 			';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_small],
@@ -2495,7 +4839,7 @@ Audience data: {'.$AudienceData.'}';
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2532,7 +4876,7 @@ Audience data: {'.$AudienceData.'}';
 						"conclusion"=>$response_fifth_call_for_small,
 						"faq"=>$response_sixth_call_for_small,
 						"whats_next"=>$response_seventh_call_for_small);*/
-			$content_final = $basic_prompt_response.'<div style="margin-bottom: 30px;">'.$response_first_call_for_small.'</div><div style="margin-bottom: 30px;">'.$response_secound_call_for_small.'</div><div style="margin-bottom: 30px;">'.$response_third_call_for_small.'</div><div style="margin-bottom: 30px;">'.$response_fourth_call_for_small.'</div><div style="margin-bottom: 30px;">'.$response_fifth_call_for_small.'</div><div style="margin-bottom: 30px;">'.$response_sixth_call_for_small.'</div><div style="margin-bottom: 30px;">'.$response_seventh_call_for_small.'</div>';
+			$content_final = $basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 100px;">'.$response_first_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_secound_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_third_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fourth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fifth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_sixth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_seventh_call_for_small.'</div>';
 						
 			
 		}
@@ -2577,7 +4921,7 @@ Introduction - Introduction should not be more than 100-150 words.(do not includ
 
 <h2>Table of Content</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
 
-<h2>Main Content Sections</h2> (Heading 2) - Create 4 sections. Each section should not be more than 200-250 words of detailed content.
+<h2>Main Content Sections</h2> (Heading 2) - Create 4 sections. Create 2-3 subsections and subtitles with formatting H3 for the each section so it does not exceed required word quantity. IMPORTANT: Each section should not be more than 350-400 words
 
 <h2>Conclusion</h2> (Heading 2) - Conclusion should not be more than 100-150 words. Do not include call to action details in the conclusion.
 
@@ -2616,7 +4960,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt]
 				// ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
 			];
@@ -2624,7 +4968,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2660,7 +5004,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$first_call_for_medium  = 'Now generate the first subtitle content. IMPORTANT: Output should not be more than 350-400 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_medium ]
@@ -2669,7 +5013,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2705,7 +5049,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$second_call_for_medium  = 'Now generate the second subtitle content. IMPORTANT: Output should not be more than 350-400 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_medium ],
@@ -2716,7 +5060,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2754,7 +5098,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$third_call_for_medium  = 'Now generate the third subtitle content. IMPORTANT: Output should not be more than 350-400 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_medium ],
@@ -2767,7 +5111,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2804,7 +5148,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$fourth_call_for_medium  = 'Now generate the forth subtitle content. IMPORTANT: Output should not be more than 350-400 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_medium ],
@@ -2819,7 +5163,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2860,7 +5204,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$fifth_call_for_medium  = 'Now generate the conclusion content. IMPORTANT: Output should not be more than 150-200 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_medium ],
@@ -2877,7 +5221,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2920,7 +5264,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$sixth_call_for_medium  = 'Now generate the FAQs content. IMPORTANT: Output should not be more than 100-150 words. After writing an output check the word count and regenerate if it is not in the rage. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_medium ],
@@ -2939,7 +5283,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -2977,7 +5321,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$seventh_call_for_medium  = 'Now generate What is next? content. IMPORTANT: Output should not be more than 150-200 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_medium ],
@@ -2998,7 +5342,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -3037,7 +5381,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 						"whats_next"=>$response_seventh_call_for_medium );*/
 			//$content_final = $basic_prompt_response.'<br><br>'.$response_first_call_for_medium .'<br><br>'.$response_secound_call_for_medium .'<br><br>'.$response_third_call_for_medium .'<br><br>'.$response_fourth_call_for_medium .'<br><br>'.$response_fifth_call_for_medium .'<br><br>'.$response_sixth_call_for_medium .'<br><br>'.$response_seventh_call_for_medium ;
 
-			$content_final = $basic_prompt_response.'<div style="margin-bottom: 30px;">'.$response_first_call_for_medium.'</div><div style="margin-bottom: 30px;">'.$response_secound_call_for_medium.'</div><div style="margin-bottom: 30px;">'.$response_third_call_for_medium.'</div><div style="margin-bottom: 30px;">'.$response_fourth_call_for_medium.'</div><div style="margin-bottom: 30px;">'.$response_fifth_call_for_medium.'</div><div style="margin-bottom: 30px;">'.$response_sixth_call_for_medium.'</div><div style="margin-bottom: 30px;">'.$response_seventh_call_for_medium.'</div>';
+			$content_final = $basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 100px;">'.$response_first_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_secound_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_third_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fourth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fifth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_sixth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_seventh_call_for_medium.'</div>';
 
 
 
@@ -3084,7 +5428,7 @@ Introduction - Introduction should not be more than 100-150 words.(do not includ
 
 <h2>Table of Content</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
 
-<h2>Main Content Sections (Heading 2) - Create 4 sections. Each section should not be more than 200-250 words of detailed content.
+<h2>Main Content Sections</h2> (Heading 2) - Create 5 sections. Create 2-3 subsections and subtitles with formatting H3 for each section so it does not exceed required word quantity. IMPORTANT: Each section should not be more than 450-600 words.
 
 <h2>Conclusion</h2> (Heading 2) - Conclusion should not be more than 100-150 words. Do not include call to action details in the conclusion.
 
@@ -3121,7 +5465,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt]
 				// ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
 			];
@@ -3129,7 +5473,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -3165,7 +5509,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$first_call_for_large = 'Now generate the first subtitle content. IMPORTANT: Output should not be more than 450-600 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_large]
@@ -3174,7 +5518,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -3210,7 +5554,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$second_call_for_large = 'Now generate the second subtitle content. IMPORTANT: Output should not be more than 450-600 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_large],
@@ -3221,7 +5565,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -3259,7 +5603,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$third_call_for_large = 'Now generate the third subtitle content. IMPORTANT: Output should not be more than 450-600 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_large],
@@ -3272,7 +5616,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -3309,7 +5653,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$fourth_call_for_large = 'Now generate the forth subtitle content. IMPORTANT: Output should not be more than 450-600 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_large],
@@ -3324,7 +5668,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -3365,7 +5709,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$fifth_call_for_large = 'Now generate the fifth subtitle content. IMPORTANT: Output should not be more than 450-600 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_large],
@@ -3382,7 +5726,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -3425,7 +5769,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$sixth_call_for_large = 'Now generate the conclusion content. IMPORTANT: Output should not be more than 150-200 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_large],
@@ -3444,7 +5788,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -3482,7 +5826,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$seventh_call_for_large = 'Now generate the FAQs content. IMPORTANT: Output should not be more than 100-150 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_large],
@@ -3503,7 +5847,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -3543,7 +5887,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$eigth_call_for_large = 'Now generate What is next? content. IMPORTANT: Output should not be more than 150-200 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 			// Your chat messages
 			$messages = [
-				// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+				['role' => 'system', 'content' => 'You are a helpful assistant. Please respond in '.$content_lang],
 				['role' => 'user', 'content' => $basic_prompt],
 				['role' => 'assistant', 'content' => $basic_prompt_response],
 				['role' => 'user', 'content' => $first_call_for_large],
@@ -3566,7 +5910,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			// Additional parameters, including language setting (replace with actual parameters)
 			$data = [
 				'messages' => $messages,
-				"model" => "gpt-3.5-turbo",
+				"model" => "gpt-4o",
 				// 'language' => 'fr',  // Specify the result language as French
 			];
 			
@@ -3608,7 +5952,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 						"whats_next"=>$response_seventh_call_for_large);*/
 			//$content_final = $basic_prompt_response.'<br><br>'.$response_first_call_for_large.'<br><br>'.$response_secound_call_for_large.'<br><br>'.$response_third_call_for_large.'<br><br>'.$response_fourth_call_for_large.'<br><br>'.$response_fifth_call_for_large.'<br><br>'.$response_sixth_call_for_large.'<br><br>'.$response_seventh_call_for_large.'<br><br>'.$response_eigth_call_for_large;
 
-			$content_final = $basic_prompt_response.'<div style="margin-bottom: 30px;">'.$response_first_call_for_large.'</div><div style="margin-bottom: 30px;">'.$response_secound_call_for_large.'</div><div style="margin-bottom: 30px;">'.$response_third_call_for_large.'</div><div style="margin-bottom: 30px;">'.$response_fourth_call_for_large.'</div><div style="margin-bottom: 30px;">'.$response_fifth_call_for_large.'</div><div style="margin-bottom: 30px;">'.$response_sixth_call_for_large.'</div><div style="margin-bottom: 30px;">'.$response_seventh_call_for_large.'</div><div style="margin-bottom: 30px;">'.$response_eigth_call_for_large.'</div>';
+			$content_final = $basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 100px;">'.$response_first_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_secound_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_third_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fourth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fifth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_sixth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_seventh_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_eigth_call_for_large.'</div>';
 
 
 
@@ -3671,7 +6015,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
           // Additional parameters, including language setting (replace with actual parameters)
           $data = [
               'messages' => $messages,
-              "model" => "gpt-3.5-turbo",
+              "model" => "gpt-4o",
               // 'language' => 'fr',  // Specify the result language as French
           ];
           

@@ -1,4 +1,34 @@
+function getShortCodeDetails(value) {
+alert(value);
 
+//#action: improveseo_get_shortcodes
+//#improveseo_shortcode_type: testimonial
+
+    var formData = new FormData();
+    formData.append("action", "improveseo_get_shortcodes");
+    formData.append("improveseo_shortcode_type", value);
+    jQuery.ajax({
+        url: ajaxurl,
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        dataType : "json",
+        success: function(response) {
+            //alert(response);
+            console.log(response);
+            jQuery("#insertShortcodeDropdown").html(response.shortcode_html);
+            // jQuery("#AI_image_div").html("<img src='"+response.data+"' alt='Uploaded Image' style='max-width: 100%'>");
+            // jQuery("#image-uploaded-path").val(response.data);
+            // jQuery("#loadingImage").hide();
+        },
+        error: function() {
+            alert("Error uploading image.");
+            jQuery("#loadingImage").hide();
+        }
+    });
+
+}
 function GenerateCustomImage() {
     jQuery("#loadingAIImage").show();
     var title = jQuery("#Image_Prompt").val();
@@ -530,6 +560,40 @@ jQuery(document).ready(function(jQuery) {
 });
 
 
+// function saveFinalDataForMultiple() {
+
+// }
+
+jQuery(document).ready(function($) {
+    $('#pop_up_multi_form').submit(function (event) { 
+        event.preventDefault();                 
+        var form = document.getElementById('pop_up_multi_form'); 
+        var formData = new FormData(form);
+        formData.append("action", "multiPostData"); 
+    
+        $.ajax({ 
+            url: ajaxurl, 
+            method: 'POST', 
+            data: formData, 
+            processData: false, 
+            contentType: false, 
+            success: function (response) {  
+                console.log(response);
+                if(response.data.status=='success')  {
+                    alert('Your form has been sent successfully.'); 
+                    window.location.replace(response.data.linkredirect);
+                } else {
+                    alert(response.data.message); 
+                }                  
+            }, 
+            error: function (xhr, status, error) {                        
+                alert(response.data.message); 
+                console.error(error); 
+            } 
+        }); 
+    }); 
+}); 
+
 function resetSmartWizard() {
     // Destroy the existing SmartWizard instance
     jQuery('#smartwizard').smartWizard('destroy');
@@ -955,11 +1019,20 @@ jQuery(document).ready(function(){
 
                 //jQuery('#manually_promt_for_image').val('Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. The theme is `'+aigeneratedtitle_op+'`');
             }
+
+            if(stepNumber==4) {
+                var keywordCount = (jQuery('#keyword_list').val()).split('\n').length;
+				var keywordMin = keywordCount * 3;
+				var keywordTime = (keywordMin / 60).toFixed(2);
+
+				jQuery('#keywordcounts').text(keywordCount);
+				jQuery('#keywordtime').text(keywordTime);
+            }
    
          // Perform actions related to the first step
          // For example:
          //console.log('First step: ' + firstStep);
-            var project_name = jQuery('#project_name').val();
+            var project_name = jQuery('#keyword_list_name').val();
             // var cotnt_type = jQuery('#cotnt_type').val();
             var existing_select = jQuery('#existing_select').val();
             var step1_error = 0;
@@ -1053,33 +1126,34 @@ jQuery(document).ready(function(){
 
 
 
-jQuery(document).ready(function(){
-    jQuery("#language").on("change", function() {
+// jQuery(document).ready(function(){
+//     jQuery("#language").on("change", function() {
         
-        var language = jQuery(this).val();
+//         var language = jQuery(this).val();
         
-        if ((language=="english_us") || (language=="english_uk")) {
-        console.log(language);
-            jQuery("#langerror").html("");
-            jQuery(".sw-btn-next").removeClass("disabled");
-            jQuery(".sw-btn-next").removeAttr("disabled", "disabled");
-            //return false;
-        }
-        else
-        {
-        console.log(language);
-            jQuery("#langerror").html("Application API does not support this language");
-            jQuery(".sw-btn-next").addClass("disabled");
-            jQuery(".sw-btn-next").attr("disabled", "disabled");
-            //return true;
-        }
-    });
-});
+//         if ((language=="english_us") || (language=="english_uk")) {
+//         console.log(language);
+//             jQuery("#langerror").html("");
+//             jQuery(".sw-btn-next").removeClass("disabled");
+//             jQuery(".sw-btn-next").removeAttr("disabled", "disabled");
+//             //return false;
+//         }
+//         else
+//         {
+//         console.log(language);
+//             jQuery("#langerror").html("Application API does not support this language");
+//             jQuery(".sw-btn-next").addClass("disabled");
+//             jQuery(".sw-btn-next").attr("disabled", "disabled");
+//             //return true;
+//         }
+//     });
+// });
+
 
 
 
 function addcategory() {
-    var fData = jQuery("#add_category").val();
+    var fData = jQuery("#add_category_1").val();
     // console.log(fData);
     //add_category_form
     jQuery.ajax({
@@ -1091,6 +1165,8 @@ function addcategory() {
             console.log(response);
             if (response.success) {
                 alert(response.message);
+                jQuery(".cta-check").append(response.result);
+                jQuery("#add_category_1").val('');
             } else {
                 alert('Error: ' + response.message);
             }
@@ -1122,3 +1198,18 @@ jQuery("input[type='radio'][name='assigning_authors']").change(function() {
             jQuery('#author_number').hide();
         }
     });
+
+
+    jQuery("input[type='radio'][name='schedule_posts']").change(function() {
+        var inputValue = jQuery(this).attr("value");
+
+        if(inputValue == 'schedule_posts_input_wise'){
+            jQuery('#number_of_post_schedule_box').show();
+        } else {
+            jQuery('#number_of_post_schedule_box').hide();
+        }
+        
+    });
+
+   
+

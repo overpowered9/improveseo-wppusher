@@ -89,3 +89,7 @@ function improveseo_get_shortcodes(){
     }
     die;
 }
+
+
+
+

@@ -20,6 +20,8 @@ function improveseo_add_menu_items()
     add_submenu_page('improveseo_dashboard', 'Posting', 'Posting', 'manage_options', 'improveseo_posting', 'improveseo_posting');
 
     add_submenu_page('improveseo_dashboard', 'Projects', 'Projects', 'manage_options', 'improveseo_projects', 'improveseo_projects');
+
+    add_submenu_page('improveseo_dashboard', 'Bulk Projects Overview', 'Bulk Projects Overview', 'manage_options', 'improveseo_bulkprojects', 'improveseo_bulkprojects');
     //add_submenu_page('improveseo', 'Shortcodes', 'Shortcodes', 'manage_options', 'improveseo_shortcodes', 'improveseo_shortcodes');
     add_submenu_page('improveseo_dashboard', 'Lists', 'Lists', 'manage_options', 'improveseo_lists', 'improveseo_lists');
     add_submenu_page('improveseo_dashboard', 'Settings', 'Settings', 'manage_options', 'improveseo_settings', 'improveseo_settings');

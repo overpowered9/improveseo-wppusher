@@ -1,0 +1,103 @@
+.sw-theme-dots>ul.step-anchor:before {
+    top:58px !important;
+}
+.selected {
+  background: #b0b0b0 !important;
+color: #fff !important;
+font-weight: 600 !important;
+}
+.content_type { margin-top: 20px; }
+#gettitle span { display: flex; align-items: center; }
+#gettitle { display: flex;
+align-items: center; }
+.resultdata { border: 1px solid #bfbfbf;
+padding: 5px;align-items: center; width: 100%;
+border-radius: 5px;
+background: #d3d3d3;
+margin-right: 10px;
+}
+#reload { border-radius: 50%;
+background: #000; cursor: pointer;
+width: 3.5%; margin: 0;
+text-align: center;
+color: #fff; }
+
+#langerror { color: #f00; }
+
+
+.multi-upload-gallery span {
+height: 100px;
+width: 100px;
+background-size: cover;
+background-position: center;
+display:block;
+}
+ul.multi-upload-gallery.ui-sortable {
+grid-template-columns: repeat(6,1fr);
+display: grid;
+column-gap:5px;
+}
+a.multi-upload-gallery-remove {
+color: black;
+position: relative;
+padding-right: -10px !important;
+right: 20px;
+top: -25px;
+font-size: 30px;
+}
+
+.modal { 
+max-width: unset;
+} 
+/*#exampleModal { 
+z-index: 9999; 
+}*/
+.modal-backdrop { 
+height:unset;
+}
+.input-group > .form-control { 
+width: 100%; 
+}
+#popupcontainer input[type=checkbox] { 
+display:none 
+} 
+#getpopupselected {
+margin: 20px 0;
+}
+
+.overlay{
+/* // margin :54px; */
+display: none;
+position: fixed;
+width: 100%;
+height: 100%;
+/* // top: 209px; */
+left: 0;
+z-index: 999;
+background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loaderr.gif") center no-repeat; 
+}
+
+.overlay_ai_data{
+/* // margin :54px; */
+ display: none;
+ position: fixed;
+ width: 100%;
+ height: 100%;
+ /* // top: 209px; */
+ left: 0;
+ z-index: 999;
+ background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loadingGif.gif") center no-repeat; 
+}
+
+
+.overlay_ai_image{
+ /* // margin :54px; */
+     display: none;
+     position: fixed;
+     width: 100%;
+     height: 100%;
+     /* // top: 209px; */
+     left: 0;
+     z-index: 999;
+     background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loadingImage.gif") center no-repeat; 
+ }

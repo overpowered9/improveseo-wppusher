@@ -1,6 +1,7 @@
 <?php
 
 include_once IMPROVESEO_ROOT .'/modules/dashboard.php';
+include_once IMPROVESEO_ROOT .'/modules/bulkprojects.php';
 include_once IMPROVESEO_ROOT .'/modules/posting.php';
 include_once IMPROVESEO_ROOT .'/modules/projects.php';
 include_once IMPROVESEO_ROOT .'/modules/settings.php';
