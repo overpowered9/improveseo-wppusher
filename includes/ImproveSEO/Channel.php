@@ -125,11 +125,21 @@ class Channel
 	{
 		global $wpdb;
 
-		$channel_check = $wpdb->get_row("
-				SELECT ID, post_content FROM {$wpdb->prefix}posts AS p 
-					INNER JOIN {$wpdb->prefix}postmeta AS pm ON pm.post_id = p.ID 
-				WHERE pm.meta_key = 'improveseo_project_id' AND pm.meta_value = '{$this->project_id}' AND p.post_type = 'channel' AND p.post_name = '{$this->getName()}' AND p.post_status = 'publish'");
-
+		$channel_check = $wpdb->get_row(
+			$wpdb->prepare("
+				SELECT ID, post_content 
+				FROM {$wpdb->prefix}posts AS p 
+				INNER JOIN {$wpdb->prefix}postmeta AS pm ON pm.post_id = p.ID 
+				WHERE pm.meta_key = 'improveseo_project_id' 
+				AND pm.meta_value = %d 
+				AND p.post_type = 'channel' 
+				AND p.post_name = %s 
+				AND p.post_status = 'publish'",
+				$this->project_id,
+				$this->getName()
+			)
+		);
+		
 		if (!$channel_check || ($channel_check && !$channel_check->ID)) {
 			return false;
 		}
