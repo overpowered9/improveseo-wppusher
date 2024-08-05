@@ -417,7 +417,7 @@ class PelConvert
 
         for ($i = 0; $i < $s; $i++) {
             // Escape the byte value before echoing it
-            printf('%02X ', htmlspecialchars(ord($bytes[$i]), ENT_QUOTES, 'UTF-8'));
+            printf('%02X ', ord($bytes[$i]), ENT_QUOTES, 'UTF-8');
 
             if (($i + 1) % $line == 0) {
                 print("\n");

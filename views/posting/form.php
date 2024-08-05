@@ -41,8 +41,8 @@ $googleApiKey = get_option('improveseo_google_api_key');
                     <?php
                     $oldPermalink = Validator::old('permalink', $task->options['permalink']);
                     ?>
-                    <input type="hidden" class="form-control" name="permalink" value="<?php echo esc_attr($oldPermalink); ?>">
-                    <strong><?php esc_html_e('Permalink:', 'improve-seo'); ?><?php echo improveseo_permalink($oldPermalink); ?></strong>
+                    <input type="hidden" class="form-control" name="permalink" value="<?php echo esc_url($oldPermalink); ?>">
+                        <strong><?php esc_html_e('Permalink:', 'improve-seo'); ?><?php echo esc_url(improveseo_permalink($oldPermalink)); ?></strong>
                     <a id="edit-permalink" class="btn btn-outline-primary" aria-label="<?php esc_attr_e('Edit permalink', 'improve-seo'); ?>"><?php esc_html_e('Edit', 'improve-seo'); ?></a>
                     <a id="save-permalink" class="btn btn-outline-primary" style="display: none"><?php esc_html_e('OK', 'improve-seo'); ?></a>
                     <a id="prefix-permalink" class="btn btn-outline-primary" style="display: none;"><?php esc_html_e('Add Prefix', 'improve-seo'); ?></a>
@@ -184,7 +184,18 @@ $googleApiKey = get_option('improveseo_google_api_key');
                     </div>";
                         }
                         ?>
-                        <?php echo ($select); ?>
+                        <?php
+                        $allowedhtml = array('label' => array('for' => array()), 'div' => array('class' => array()), 'span' => array(), 'lable' => array(), 'input' => array(
+                            'id' => array(),
+                            'type' => array(),
+                            'value' => array(),
+                            'name' => array(),
+                            'checked' => array(), // Any dynamically added attributes
+                        ));
+
+                        echo wp_kses($select, $allowedhtml);
+
+                        ?>
                     </div>
 
                 </div>

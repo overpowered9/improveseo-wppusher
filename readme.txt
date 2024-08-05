@@ -2,7 +2,7 @@
 Contributors: Nateg108, rahilwazir
 Tags: seo, schema, analysis, keyword
 Requires at least: 6.0
-Tested up to: 6.4.1
+Tested up to: 6.6.1
 Requires PHP: 7.0
 Stable tag: 2.0.12
 License: GPLv3

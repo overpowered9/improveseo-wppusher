@@ -54,12 +54,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 	<section class="pagination-wrapper text-right py-3">
 		<span class="pagination-links">
-			<?php echo paginate_links(array(
+			<?php echo wp_kses_post(paginate_links(array(
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
 				'base' => esc_url(admin_url('admin.php?page=improveseo_lists%_%'))
-			)) ?>
+			))) ?>
 		</span>
 	</section>
 	<section class="project-table-wrapper">
@@ -129,12 +129,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 	<section class="pagination-wrapper text-right py-3">
 		<span class="pagination-links">
-			<?php echo paginate_links(array(
+			<?php echo wp_kses_post(paginate_links(array(
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
 				'base' => admin_url('admin.php?page=improveseo_lists%_%')
-			)) ?>
+			))) ?>
 		</span>
 	</section>
 </div>
