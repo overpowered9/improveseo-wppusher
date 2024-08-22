@@ -172,7 +172,7 @@ abstract class AbstractModel
         global $wpdb;
         $tablename = $this->getTable();
         $sql = "SELECT COUNT(id) AS total FROM $tablename";
-        $row = $wpdb->get_row($sql);
+        $row = $wpdb->get_row($wpdb->prepare($sql));
         return $row->total;
 	}
 

@@ -1,18 +1,18 @@
 <?php
 
 use ImproveSEO\Spintax;
-use lsolesen\pel\PelIfd;
-use lsolesen\pel\PelTag;
-use lsolesen\pel\PelExif;
-use lsolesen\pel\PelJpeg;
-use lsolesen\pel\PelTiff;
+use ImproveSEO\lsolesen\pel\PelIfd;
+use ImproveSEO\lsolesen\pel\PelTag;
+use ImproveSEO\lsolesen\pel\PelExif;
+use ImproveSEO\lsolesen\pel\PelJpeg;
+use ImproveSEO\lsolesen\pel\PelTiff;
 use ImproveSEO\Models\Lists;
 use ImproveSEO\Models\Country;
 use ImproveSEO\Models\GeoData;
-use lsolesen\pel\PelEntryByte;
-use lsolesen\pel\PelEntryAscii;
-use lsolesen\pel\PelEntryRational;
-use lsolesen\pel\PelEntryUserComment;
+use ImproveSEO\lsolesen\pel\PelEntryByte;
+use ImproveSEO\lsolesen\pel\PelEntryAscii;
+use ImproveSEO\lsolesen\pel\PelEntryRational;
+use ImproveSEO\lsolesen\pel\PelEntryUserComment;
 
 
 

@@ -49,7 +49,7 @@ if (empty($saved_rand_nos_keywords)) {
                 $html = '';
                 $no = 1;
                 foreach ($saved_rand_nos_keywords as $keyowrd_id) {
-                    $get_keyworddata = get_option('swsaved_keywords_with_results_' . $keyowrd_id);
+                    $get_keyworddata = get_option('improveseo_swsaved_keywords_with_results_' . $keyowrd_id);
 
                     if (empty($get_keyworddata)) {
                         continue;

@@ -62,6 +62,11 @@ REASON = To show external images
 DOMAIN = https://pixabay.com/api/
 TERMS AND CONDITION = https://pixabay.com/service/terms/
 
+= Wordai =
+REASON = used to rewrite the content
+DOMAIN = http://wordai.com
+TERMS AND CONDITION = https://wordai.com/terms-of-service
+
 
 
 TERMS AND CONDITION =

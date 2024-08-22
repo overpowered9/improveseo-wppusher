@@ -48,10 +48,10 @@ function improveseo_enqueue_admin(){
 			$autocomplete_arr = array();
 			if(!empty($saved_rnos)){
 				foreach($saved_rnos as $id){
-					$testimonial = get_option('get_testimonials_'.$id);
-					$buttons = get_option('get_buttons_'.$id);
-					$google_map = get_option('get_googlemaps_'.$id);
-					$videos = get_option('get_videos_'.$id);
+					$testimonial = get_option('improveseo_get_testimonials_'.$id);
+					$buttons = get_option('improveseo_get_buttons_'.$id);
+					$google_map = get_option('improveseo_get_googlemaps_'.$id);
+					$videos = get_option('improveseo_get_videos_'.$id);
 
 					if(!empty($testimonial)){
 						$autocomplete = array(

@@ -2,7 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
 
 foreach ($id as $p) {
-      $data_btn = get_option('get_buttons_'.$p);
+      $data_btn = get_option('improveseo_get_buttons_'.$p);
       
       $link = isset($data_btn['tw_btn_link']) ? $data_btn['tw_btn_link'] : '';
       $text = isset($data_btn['tw_btn_text']) ? $data_btn['tw_btn_text'] : '';

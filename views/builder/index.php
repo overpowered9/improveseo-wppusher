@@ -1,7 +1,8 @@
 <?php
 
 use ImproveSEO\View;
-if ( ! defined( 'ABSPATH' ) ) exit;
+
+if (! defined('ABSPATH')) exit;
 
 ?>
 

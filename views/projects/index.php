@@ -47,7 +47,7 @@ define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url(__FILE__)));
 					'total' => esc_attr($pages),
 					'current' => esc_attr($page),
 					'format' => '&paged=%#%',
-					'base' => admin_url('admin.php?page=improveseo_projects%_%')
+					'base' => esc_url(sanitize_url(admin_url('admin.php?page=improveseo_projects%_%')))
 				))
 			); ?>
 		</span>

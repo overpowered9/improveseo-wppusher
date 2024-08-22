@@ -24,7 +24,7 @@ function improveseo_custom_post_permalink($permalink, $post, $leavename, $sample
 	
     // only do our stuff if we're using pretty permalinks
     // and if it's our target post type
-    if (isset($prefixes[$post->post_type]) && get_option('permalink_structure')) {
+    if (isset($prefixes[$post->post_type]) && get_option('improveseo_permalink_structure')) {
         $struct = "/{$post->post_type}/%category%/%postname%/";
 
         $rewritecodes = array(
@@ -49,7 +49,7 @@ function improveseo_custom_post_permalink($permalink, $post, $leavename, $sample
             // show default category in permalinks, without
             // having to assign it explicitly
             if ( empty($category) ) {
-                $default_category = get_category( get_option( 'default_category' ) );
+                $default_category = get_category( get_option( 'improveseo_default_category' ) );
                 $category = is_wp_error( $default_category ) ? '' : $default_category->slug;
             }
         }
@@ -65,7 +65,7 @@ function improveseo_custom_post_permalink($permalink, $post, $leavename, $sample
     }
 
     // for channel pages
-    if ($post->post_type == 'channel' && get_option('permalink_structure')) {
+    if ($post->post_type == 'channel' && get_option('improveseo_permalink_structure')) {
         preg_match("/^(state|city)\-(.*)\-(\d+)$/", $post->post_name, $matches);
         $type = $matches[1];
         $place = $matches[2];
@@ -114,7 +114,7 @@ function improveseo_change_blog_links($post_link, $id = 0){
 		foreach ($prefixes as $prefix => $void) {
 			if ($prefix != $post->post_type) continue;
 
-			$siteurl = get_option('siteurl');
+			$siteurl = get_option('improveseo_siteurl');
 
 			return str_replace($siteurl, "{$siteurl}/{$prefix}", $post_link);
 		}

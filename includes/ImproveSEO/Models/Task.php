@@ -27,6 +27,6 @@ class Task extends AbstractModel
 		global $wpdb;
 		$tablename = $this->getTable();
         $sql = "SELECT * FROM $tablename WHERE iteration < max_iterations";
-		return $wpdb->get_results($sql);
+		return $wpdb->get_results($wpdb->prepare($sql));
 	}
 }

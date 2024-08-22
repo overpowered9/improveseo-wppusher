@@ -13,7 +13,7 @@ function improveseo_get_shortcodes(){
         switch($improveseo_shortcode_type){
             case 'testimonial':
                 foreach($saved_rnos as $id){
-                    $testimonial = get_option('get_testimonials_'.$id);
+                    $testimonial = get_option('improveseo_get_testimonials_'.$id);
                     if(!empty($testimonial)){
                         $display_name = 'Testimonial - '.$id;
 				        $data_name = '';
@@ -28,7 +28,7 @@ function improveseo_get_shortcodes(){
             break;
             case 'button':
                 foreach($saved_rnos as $id){
-                    $button = get_option('get_buttons_'.$id);
+                    $button = get_option('improveseo_get_buttons_'.$id);
                     $display_name = 'Button - '.$id;
                     $data_name = '';
                     if(isset($button['tw_button_shortcode_name'])){
@@ -43,7 +43,7 @@ function improveseo_get_shortcodes(){
             break;
             case 'googlemap':
                 foreach($saved_rnos as $id){
-                    $googlemap = get_option('get_googlemaps_'.$id);
+                    $googlemap = get_option('improveseo_get_googlemaps_'.$id);
                     if(!empty($googlemap)){
                         $display_name = 'GoogleMap - '.$id;
                         $data_name = '';
@@ -58,7 +58,7 @@ function improveseo_get_shortcodes(){
             break;
             case 'video':
                 foreach($saved_rnos as $id){
-                    $videos = get_option('get_videos_'.$id);
+                    $videos = get_option('improveseo_get_videos_'.$id);
                     $display_name = 'Video - '.$id;
                     $data_name = '';
                     if(isset($videos['video_shortcode_name'])){

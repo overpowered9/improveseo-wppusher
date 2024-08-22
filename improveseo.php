@@ -79,7 +79,7 @@ function improveseo_media_button()
 		foreach ($saved_rnos as $id) {
 
 			//testimonials        
-			$testimonial = get_option('get_testimonials_' . $id);
+			$testimonial = get_option('improveseo_get_testimonials_' . $id);
 			if (!empty($testimonial)) {
 				$display_name = $id;
 				$data_name = '';
@@ -92,7 +92,7 @@ function improveseo_media_button()
 			}
 
 			//buttons        
-			$buttons = get_option('get_buttons_' . $id);
+			$buttons = get_option('improveseo_get_buttons_' . $id);
 			if (!empty($buttons)) {
 				$display_name = $id;
 				$data_name = '';
@@ -105,7 +105,7 @@ function improveseo_media_button()
 			}
 
 			//googlemaps        
-			$google_map = get_option('get_googlemaps_' . $id);
+			$google_map = get_option('improveseo_get_googlemaps_' . $id);
 			if (!empty($google_map)) {
 				$display_name = $id;
 				$data_name = '';
@@ -118,7 +118,7 @@ function improveseo_media_button()
 			}
 
 			//videos
-			$videos = get_option('get_videos_' . $id);
+			$videos = get_option('improveseo_get_videos_' . $id);
 			if (!empty($videos)) {
 				$display_name = $id;
 				$data_name = '';
@@ -326,7 +326,7 @@ class Improveseo_Testimonial
 			return;
 		}
 
-		$keyword_data = get_option('swsaved_keywords_with_results_' . $keywordproj_id);
+		$keyword_data = get_option('improveseo_swsaved_keywords_with_results_' . $keywordproj_id);
 		if (!$keyword_data) {
 			return;
 		}
@@ -363,7 +363,7 @@ class Improveseo_Testimonial
 			'proj_name' => $proj_name,
 			'search_results' => $search_results,
 		);
-		update_option('swsaved_keywords_with_results_' . $rand_no, $save_keyword_data);
+		update_option('improveseo_swsaved_keywords_with_results_' . $rand_no, $save_keyword_data);
 
 		$random_no_arr = get_option('improveseo_swsaved_random_nosofkeywords', array());
 		$random_no_arr[] = $rand_no;
@@ -578,7 +578,7 @@ class Improveseo_Testimonial
 
 		$saved_random_nos = get_option('improveseo_get_saved_random_numbers', array());
 		if (in_array($no_tobe_dlt, $saved_random_nos)) {
-			delete_option('get_testimonials_' . $no_tobe_dlt);
+			delete_option('improveseo_get_testimonials_' . $no_tobe_dlt);
 			$result = $this->delete_el_from_array($saved_random_nos, $no_tobe_dlt);
 			update_option('improveseo_get_saved_random_numbers', $result);
 
@@ -602,7 +602,7 @@ class Improveseo_Testimonial
 
 		$saved_random_nos = get_option('improveseo_swsaved_random_nosofkeywords', array());
 		if (in_array($no_tobe_dlt, $saved_random_nos)) {
-			delete_option('swsaved_keywords_with_results_' . $no_tobe_dlt);
+			delete_option('improveseo_swsaved_keywords_with_results_' . $no_tobe_dlt);
 			$result = $this->delete_el_from_array($saved_random_nos, $no_tobe_dlt);
 			update_option('improveseo_swsaved_random_nosofkeywords', $result);
 			wp_send_json(array('status' => 'success'));
@@ -673,7 +673,7 @@ class Improveseo_Testimonial
 		if (empty($rand_no)) {
 			$rand_no = $this->create_random_number();
 		}
-		update_option('get_buttons_' . $rand_no, $arr);
+		update_option('improveseo_get_buttons_' . $rand_no, $arr);
 
 		//saving random numbers too
 		$random_no_arr = get_option('improveseo_get_saved_random_numbers');
@@ -699,7 +699,7 @@ class Improveseo_Testimonial
 		if (empty($rand_no)) {
 			$rand_no = $this->create_random_number();
 		}
-		update_option('get_googlemaps_' . $rand_no, $arr);
+		update_option('improveseo_get_googlemaps_' . $rand_no, $arr);
 
 		//saving random numbers too
 		$random_no_arr = get_option('improveseo_get_saved_random_numbers');
@@ -739,7 +739,7 @@ class Improveseo_Testimonial
 		if (empty($rand_no)) {
 			$rand_no = $this->create_random_number();
 		}
-		update_option('get_testimonials_' . $rand_no, $arr);
+		update_option('improveseo_get_testimonials_' . $rand_no, $arr);
 
 		//saving random numbers too
 		$random_no_arr = get_option('improveseo_get_saved_random_numbers');
@@ -807,7 +807,7 @@ class Improveseo_Testimonial
 		if (empty($rand_no)) {
 			$rand_no = $this->create_random_number();
 		}
-		update_option('get_videos_' . $rand_no, $arr);
+		update_option('improveseo_get_videos_' . $rand_no, $arr);
 
 		//saving random numbers too
 		$random_no_arr = get_option('improveseo_get_saved_random_numbers');

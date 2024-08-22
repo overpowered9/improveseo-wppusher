@@ -296,9 +296,9 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
         $shortcode = isset($_POST['shortcode']) ? sanitize_text_field($_POST['shortcode']) : '';
 
         // Download all media files
-        foreach ($_POST['media'] as &$media) {
+        foreach (sanitize_text_field($_POST['media']) as &$media) {
             if (isset($media['url'])) {
-                $image = str_replace(':8000', '', sanitize_text_field(esc_attr($media['url']))); // Fix only for local dev
+                $image = str_replace(':8000', '', esc_attr(sanitize_text_field($media['url']))); // Fix only for local dev
                 $filename = sha1($image . '-' . $shortcode) . '.jpg';
 
                 $exploded = explode('.', $image);

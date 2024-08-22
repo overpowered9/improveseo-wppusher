@@ -6,7 +6,7 @@ if (empty($id)) {
 
 $html = '';
 foreach ($id as $i) {
-    $data = get_option('get_testimonials_' . $i);
+    $data = get_option('improveseo_get_testimonials_' . $i);
 
     $testi_img_src = isset($data['testi_img_src']) ? esc_url($data['testi_img_src']) : '';
     $tw_testi_content = isset($data['tw_testi_content']) ? esc_attr($data['tw_testi_content']) : '';
