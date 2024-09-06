@@ -140,7 +140,7 @@ function improveseo_media_button()
 		}
 	}
 
-	echo wp_kses($html,"button");
+	echo ($html);
 }
 
 function improveseo_lits()

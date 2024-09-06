@@ -1,12 +1,13 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
+if (! defined('ABSPATH')) exit; // Exit if accessed directly  
 
 use ImproveSEO\Storage;
 
 add_action('init', 'improveseo_create_posttypes');
 //add_action('pre_get_posts', 'improveseo_post_types_to_query');
 
-function improveseo_post_types_to_query($query) {
+function improveseo_post_types_to_query($query)
+{
 	$storage = new Storage('improveseo');
 	$types = $storage->permalink_prefixes;
 	$post_types = array('post', 'page', 'channel');
@@ -20,26 +21,29 @@ function improveseo_post_types_to_query($query) {
 			$query->set('post_type', $post_types);
 		}
 
-		if(is_category() || is_tag()) {
-		    $post_type = get_query_var('post_type');
+		if (is_category() || is_tag()) {
+			$post_type = get_query_var('post_type');
 
-		    $query->set('post_type', $post_types);
+			$query->set('post_type', $post_types);
 		}
 	}
 	return $query;
 }
 
-function improveseo_create_posttypes() {
+function improveseo_create_posttypes()
+{
 	global $wp_rewrite;
 
 	$storage = new Storage('improveseo');
 	$types = $storage->permalink_prefixes;
 
-	register_post_type('channel',
+	register_post_type(
+		
+		'improveseo_channel',
 		array(
 			'labels' => array(
-				'name' => __('Channels','improve-seo'),
-				'singular_name' => __('Channel','improve-seo')
+				'name' => __('Channels', 'improve-seo'),
+				'singular_name' => __('Channel', 'improve-seo')
 			),
 			'public' => true,
 			'publicly_queryable' => true,
@@ -55,29 +59,30 @@ function improveseo_create_posttypes() {
 
 	if (sizeof($types)) {
 		foreach ($types as $type => $config) {
-			register_post_type($type,
+			register_post_type(
+				$type,
 				array(
 					'labels' => array(
-						'name' =>printf(
+						'name' => printf(
 							/* translators: %s: Name of a city */
-							esc_html__( '%s.', 'improve-seo' ),
+							esc_html__('%s.', 'improve-seo'),
 							esc_html(ucfirst($type))
-					  ),
+						),
 						'singular_name' => printf(
 							/* translators: %s: Name of a city */
-							esc_html__( '%s.', 'improve-seo' ),
+							esc_html__('%s.', 'improve-seo'),
 							esc_html(ucfirst($type))
-					  )
+						)
 					),
 					'public' => true,
 					'publicly_queryable' => true,
 					'has_archive' => true,
 					'rewrite' => array('slug' => "$type/%category%", 'with_front' => false),
-	    			'capability_type' => 'post',
-	    			'show_ui' => true,
-	    			'query_var' => true,
-	    			'hierarchical' => false,
-	    			'taxonomies' => array('post_tag', 'category'),
+					'capability_type' => 'post',
+					'show_ui' => true,
+					'query_var' => true,
+					'hierarchical' => false,
+					'taxonomies' => array('post_tag', 'category'),
 				)
 			);
 
@@ -85,39 +90,38 @@ function improveseo_create_posttypes() {
 			if ($config['deep'] == 2) {
 				add_rewrite_rule(
 					"^{$type}/([^/]+)/([^/]+)/?$",
-					'index.php?name=city-$matches[2]-'. $config['project_id'] .'&post_type=channel',
+					'index.php?name=city-$matches[2]-' . $config['project_id'] . '&post_type=channel',
 					'top'
 				);
 
 				add_rewrite_rule(
 					"^{$type}/([^/]+)/?$",
-					'index.php?name=state-$matches[1]-'. $config['project_id'] .'&post_type=channel',
+					'index.php?name=state-$matches[1]-' . $config['project_id'] . '&post_type=channel',
 					'top'
 				);
-			}
-			elseif ($config['deep'] == 1) {
+			} elseif ($config['deep'] == 1) {
 				add_rewrite_rule(
 					"^{$type}/([^/]+)/?$",
-					'index.php?name='. $config['type'] .'-$matches[1]-'. $config['project_id'] .'&post_type=channel',
+					'index.php?name=' . $config['type'] . '-$matches[1]-' . $config['project_id'] . '&post_type=channel',
 					'top'
 				);
 			}
 
 			add_rewrite_rule(
 				"^{$type}/([^/]+)/(\d+)/?$",
-				'index.php?name=$matches[2]&post_type='. $type,
+				'index.php?name=$matches[2]&post_type=' . $type,
 				'top'
 			);
 
 			add_rewrite_rule(
 				"^{$type}/([^/]+)/([^/]+)/(\d+)/?$",
-				'index.php?name=$matches[3]&post_type='. $type,
+				'index.php?name=$matches[3]&post_type=' . $type,
 				'top'
 			);
 
 			add_rewrite_rule(
 				"^{$type}/([^/]+)/([^/]+)/([^/]+)/(\d+)/?$",
-				'index.php?name=$matches[4]&post_type='. $type,
+				'index.php?name=$matches[4]&post_type=' . $type,
 				'top'
 			);
 		}

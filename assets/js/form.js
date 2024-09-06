@@ -142,6 +142,7 @@
  /* Preview New Code */
  let myWindow;
  jQuery('#preview_on').click(function(e){
+    alert("Working");   
      e.preventDefault();
      jQuery('#wh_prev_modal_1').show();
      jQuery('#wh_prev_modal_2').hide();

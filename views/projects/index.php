@@ -42,7 +42,7 @@ define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url(__FILE__)));
 	</section>
 	<section class="pagination-wrapper text-right py-3">
 		<span class="pagination-links">
-			<?php echo htmlspecialchars_decode(
+			<?php echo wp_kses_post(
 				paginate_links(array(
 					'total' => esc_attr($pages),
 					'current' => esc_attr($page),
@@ -372,14 +372,15 @@ define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url(__FILE__)));
 
 	<section class="pagination-wrapper text-right">
 		<span class="pagination-links">
-			<?php echo  htmlspecialchars_decode(paginate_links(array(
-				'total' => $pages,
-				'current' => $page,
+			<?php echo wp_kses_post(paginate_links(array(
+				'total' => esc_attr($pages),
+				'current' => esc_attr($page),
 				'format' => '&paged=%#%',
 				'base' => esc_url(admin_url('admin.php?page=improveseo_projects%_%'))
-			))) ?>
+			))); ?>
 		</span>
 	</section>
+
 </div>
 <?php View::endSection('content') ?>
 <?php View::make('layouts.main') ?>

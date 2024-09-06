@@ -30,8 +30,8 @@ class GeoData extends AbstractModel
     public function cities($country_id, $state_code)
     {
         global $wpdb;
-        $sql = "SELECT id, place FROM tablename WHERE country_id = $country_id AND state_code = %s GROUP BY place";
-        return $wpdb->get_results($wpdb->prepare($sql, $state_code));
+        $sql = "SELECT id, place FROM tablename WHERE country_id = %d AND state_code = %s GROUP BY place";
+        return $wpdb->get_results($wpdb->prepare($sql,$country_id,$state_code));
     }
 
     public function zippo($country_id, $state_code, $city_id)
@@ -39,7 +39,7 @@ class GeoData extends AbstractModel
         global $wpdb;
         $tablename = $this->getTable();
         $sql = "SELECT postal FROM tablename
-			WHERE place = (SELECT place FROM $tablename WHERE id = %d) AND country_id = %d AND state_code = %s";
+			WHERE place = (SELECT place FROM tablename WHERE id = %d) AND country_id = %d AND state_code = %s";
         return $wpdb->get_results($wpdb->prepare($sql, array($city_id,$country_id,$state_code)));
     }
 
@@ -47,7 +47,7 @@ class GeoData extends AbstractModel
     {
         global $wpdb;
         $tablename = $this->getTable();
-        $sql = "SELECT state FROM $tablename WHERE country_id = %d AND state_code = %s";
+        $sql = "SELECT state FROM tablename WHERE country_id = %d AND state_code = %s";
         $sql = $wpdb->prepare($sql,$country_id,$state_code);
         return $wpdb->get_row($sql)->state;
     }
@@ -56,7 +56,7 @@ class GeoData extends AbstractModel
     {
         global $wpdb;
         $tablename = $this->getTable();
-        $sql = "SELECT id, postal FROM $tablename WHERE country_id = %d  AND state_code = %s";
+        $sql = "SELECT id, postal FROM tablename WHERE country_id = %d  AND state_code = %s";
         return $wpdb->get_results($wpdb->prepare($sql, array($country_id,$state_code)));
     }
 
@@ -64,7 +64,7 @@ class GeoData extends AbstractModel
     {
         global $wpdb;
         $tablename = $this->getTable();
-        $sql = "DELETE FROM $tablename WHERE country_id = %d";
+        $sql = "DELETE FROM tablename WHERE country_id = %d";
         $sql = $wpdb->prepare($sql,$country_id);
         $wpdb->query($sql);
     }

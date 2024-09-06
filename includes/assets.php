@@ -32,6 +32,7 @@ function improveseo_enqueue_admin(){
 	wp_enqueue_script('improveseo-videoscraper', esc_url(IMPROVESEO_DIR . '/assets/js/videoscraper.js'), array('jquery'), IMPROVESEO_VERSION, true);
 	wp_enqueue_script('improveseo-exif', esc_url(IMPROVESEO_DIR . '/assets/js/exif.js'), array('jquery'), IMPROVESEO_VERSION, true);
 	wp_enqueue_script('improveseo-wordai', esc_url(IMPROVESEO_DIR . '/assets/js/wordai.js', array('jquery')), IMPROVESEO_VERSION, true);
+	wp_enqueue_script('improveseo-modal', esc_url(IMPROVESEO_DIR . '/assets/js/jquery.modal.min.js', array('jquery')), IMPROVESEO_VERSION, true);
 	
 	wp_enqueue_script('improveseo-notify', esc_url(IMPROVESEO_DIR . '/assets/js/notify.js', array('jquery')), IMPROVESEO_VERSION, true);
 	wp_enqueue_script('improveseo-popup', esc_url(IMPROVESEO_DIR . '/assets/js/popup.js'), array('jquery'), IMPROVESEO_VERSION, true);

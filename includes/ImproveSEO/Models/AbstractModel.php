@@ -1,7 +1,8 @@
 <?php
 
 namespace ImproveSEO\Models;
-if ( ! defined( 'ABSPATH' ) ) exit;
+
+if (! defined('ABSPATH')) exit;
 
 abstract class AbstractModel
 {
@@ -28,7 +29,7 @@ abstract class AbstractModel
 		if (!$this->table) {
 			preg_match("/([^\\\]+)$/i", get_class($this), $class);
 			$class[1] = preg_replace("/y$/", "ie", $class[1]);
-			$this->table = 'improveseo_'. strtolower($class[1]) .'s';
+			$this->table = 'improveseo_' . strtolower($class[1]) . 's';
 		}
 
 		$this->offset = isset($_GET['offset']) ? sanitize_text_field($_GET['offset']) : 0;
@@ -48,14 +49,14 @@ abstract class AbstractModel
 		$fields = array();
 		$values = array();
 		$vars = array();
-        $tablename = $this->getTable();
+		$tablename = $this->getTable();
 		//$data = stripslashes_deep($data);
 
 		$data = $this->escape($data);
 
 		foreach ($data as $field => $value) {
 			if (in_array($field, $this->fillable)) {
-				$method = 'set'. ucfirst($field) .'Attribute';
+				$method = 'set' . ucfirst($field) . 'Attribute';
 				if (method_exists($this, $method)) $value = $this->$method($value);
 
 				$fields[] = $field;
@@ -66,9 +67,9 @@ abstract class AbstractModel
 
 		$value_placeholders = implode(", ", $values);
 
-		$sql = "INSERT INTO $tablename"." (". implode(", ", $fields) .", created_at)";
+		$sql = "INSERT INTO $tablename" . " (" . implode(", ", $fields) . ", created_at)";
 
-		$sql .= " VALUES (". $value_placeholders .", NOW())";
+		$sql .= " VALUES (" . $value_placeholders . ", NOW())";
 		$sql = $wpdb->prepare($sql, $vars);
 
 		$wpdb->query($sql);
@@ -85,42 +86,46 @@ abstract class AbstractModel
 		$vars = array();
 		$data = $this->escape($data);
 		$data = stripslashes_deep($data);
-        $tablename = $this->getTable();
+		$tablename = $this->getTable();
+
 		foreach ($data as $field => $value) {
 			if (in_array($field, $this->fillable)) {
-				$method = 'set'. ucfirst($field) .'Attribute';
-				if (method_exists($this, $method)) $value = $this->$method($value);
+				$method = 'set' . ucfirst($field) . 'Attribute';
+				if (method_exists($this, $method)) {
+					$value = $this->$method($value);
+				}
 
 				$fields[] = "`$field` = %s";
 				$vars[] = $value;
 			}
 		}
 
+		if ($this->timestamps) {
+			$fields[] = "`updated_at` = NOW()";
+		}
+
 		$fields_placeholder = implode(", ", $fields);
-		if ($this->timestamps) $fields[] = "updated_at = NOW()";
 
-		$sql = "UPDATE $tablename";
-		$sql .= " SET ". $fields_placeholder;
-		$sql .= " WHERE id = %d";
-        $vars[] = $id;
+		$sql = "UPDATE `$tablename` SET $fields_placeholder WHERE `id` = %d";
+		$vars[] = $id;
 
-
-		$sql = $wpdb->prepare($sql, $vars);
-		$wpdb->query($sql);
+		// Prepare and execute the query
+		$wpdb->query($wpdb->prepare($sql, $vars));
 
 		return true;
 	}
 
+
 	public function delete($id)
 	{
 		global $wpdb;
-        $tablename = $this->getTable();
+		$tablename = $this->getTable();
 
 		$vars[] = $id;
 
 
-        $sql = "DELETE FROM $tablename WHERE id = %d";
-        $sql = $wpdb->prepare($sql, $vars);
+		$sql = "DELETE FROM $tablename WHERE id = %d";
+		$sql = $wpdb->prepare($sql, $vars);
 		$wpdb->query($sql);
 
 		return true;
@@ -129,18 +134,17 @@ abstract class AbstractModel
 	public function find($id)
 	{
 		global $wpdb;
-        $tablename = $this->getTable();
-		$sql = $wpdb->prepare("SELECT * FROM $tablename WHERE id = %d",[$id]);
+		$tablename = $this->getTable();
+		$sql = $wpdb->prepare("SELECT * FROM $tablename WHERE id = %d", [$id]);
 		$row = $wpdb->get_row($sql);
 
 		// Type-cast
-		if(!empty($this->casts)){
+		if (!empty($this->casts)) {
 			if (sizeof($this->casts)) {
 				foreach ($this->casts as $field => $type) {
 					if ($type == 'array') {
 						$row->$field = json_decode($row->$field, true);
-					}
-					elseif ($type == 'array|b64') {
+					} elseif ($type == 'array|b64') {
 						$row->$field = json_decode(base64_decode($row->$field), true);
 					}
 				}
@@ -162,18 +166,18 @@ abstract class AbstractModel
 	public function paginate($limit = 20)
 	{
 		global $wpdb;
-        $tablename = $this->getTable();
+		$tablename = $this->getTable();
 		$sql = $wpdb->prepare("SELECT * FROM $tablename LIMIT %d, %d", [$this->offset, $limit]);
 		return $wpdb->get_results($sql);
 	}
 
 	public function count()
 	{
-        global $wpdb;
-        $tablename = $this->getTable();
-        $sql = "SELECT COUNT(id) AS total FROM $tablename";
-        $row = $wpdb->get_row($wpdb->prepare($sql));
-        return $row->total;
+		global $wpdb;
+		$tablename = $this->getTable();
+		$sql = "SELECT COUNT(id) AS total FROM $tablename";
+		$row = $wpdb->get_row($wpdb->prepare($sql));
+		return $row->total;
 	}
 
 	public function __call($method, $arguments)
@@ -183,8 +187,8 @@ abstract class AbstractModel
 		if (preg_match("/getBy(\w+)/i", $method, $condition)) {
 			if (isset($condition[1])) {
 				$field = strtolower($condition[1]);
-                $tablename = $this->getTable();
-                $sql = $wpdb->prepare("SELECT * FROM $tablename WHERE `$field` = %s", [$arguments[0]]);
+				$tablename = $this->getTable();
+				$sql = $wpdb->prepare("SELECT * FROM $tablename WHERE `$field` = %s", [$arguments[0]]);
 				return $wpdb->get_row($sql);
 			}
 		}

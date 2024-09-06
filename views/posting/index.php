@@ -1,7 +1,8 @@
 <?php
 
 use ImproveSEO\View;
-if ( ! defined( 'ABSPATH' ) ) exit;
+
+if (! defined('ABSPATH')) exit;
 if (isset($_POST['cat_name'])) {
 	$cat_slug = sanitize_title($_POST['cat_name']);
 	wp_insert_term(
@@ -16,7 +17,7 @@ if (isset($_POST['cat_name'])) {
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
-<!-- <span><?php esc_html_e('Improve SEO', 'your-text-domain'); ?></span> -->
+
 <?php View::endSection('breadcrumbs') ?>
 
 <?php View::startSection('content'); ?>
@@ -48,12 +49,20 @@ if (isset($_POST['cat_name'])) {
 					);
 					$cats = get_categories($args);
 					foreach ($cats as $category) {
-						$checked = ($category->slug == '') ? 'checked onclick="return false"' : '';
-						$select .= "<span><input type='checkbox' " . esc_attr($checked) . " value='" . esc_attr($category->term_id) . "' id='" . esc_attr($category->term_id) . "' name='cats[]'><label for='" . esc_attr($category->term_id) . "'>" . esc_html($category->name) . "</label></span>";
+						$checked = ($category->slug === '') ? 'checked onclick="return false"' : '';
+						$select .= sprintf(
+							'<span><input type="checkbox" %s value="%s" id="%s" name="cats[]"><label for="%s">%s</label></span>',
+							esc_attr($checked),
+							esc_attr($category->term_id),
+							esc_attr($category->term_id),
+							esc_attr($category->term_id),
+							esc_html($category->name)
+						);
 					}
-					echo htmlspecialchars($select);
+					echo $select;
 					?>
 				</div>
+
 				<div class="add_cat">
 					<form method="post" class="form-wrap m-0">
 						<div class="input-group mb-4">

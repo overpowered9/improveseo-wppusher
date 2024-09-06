@@ -76,12 +76,12 @@ $googleApiKey = get_option('improveseo_google_api_key');
                     <?php echo ($_GET['action'] == 'edit_post') ? esc_html__('Update project and posts', 'improve-seo') : esc_html__('Create Project', 'improve-seo'); ?>
                 </button>
                 <button name="draft" type="submit" formtarget="_self" class="btn btn-outline-primary"><?php esc_html_e('Save As Draft', 'improve-seo'); ?></button>
-                <button id="preview_on" type="submit" class="btn btn-outline-primary"><?php esc_html_e('Post preview', 'improve-seo'); ?></button>
+                <button id="preview_on" type="button"  class="btn btn-outline-primary"><?php esc_html_e('Post preview', 'improve-seo'); ?></button>
                 <input type="hidden" name="preview_id" id="preview_id" />
                 <input type="hidden" name="is_preview_available" id="is_preview_available" value="no" />
             </div>
 
-            <?php echo esc_url($site_link); ?>
+            <?php echo ($site_link); ?>
 
             <!-- HTML modal for preview button -->
             <div id="preview_popup" class="modal" style="text-align:center">

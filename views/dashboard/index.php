@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 <?php View::startSection('content') ?>
 <h1 class="hidden">Dashboard</h1>
 <div class="modulePage improveseo_wrapper p-4">
-	<section class="project-section ">
+		<section class="project-section ">
 		<div class="project-heading border-bottom justify-content-between d-flex flex-row align-items-center pb-2">
 			<div class="project-header-left d-flex">
 				<img class="mr-2" src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/project-list-logo.png'); ?>" alt="<?php esc_attr_e('ImproveSeo', 'improve-seo'); ?>">
@@ -24,10 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			</div>
 
 			<div class="project-header-right">
-				<!--<div class="mode-selector">
-					<a href="#" class="active" data-mode="easy">Easy Mode</a>
-					<a href="#" class="ml-2" data-mode="advanced">Advanced Mode</a>
-				</div>-->
+		
 			</div>
 		</div>
 		<div class="Breadcrumbs custom-breadcrumbs border-0 m-0 pt-3 pb-0 px-0">
@@ -43,13 +40,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					<?php esc_html_e('Modules', 'improve-seo'); ?>
 				</a>
 			</li>
-
-			<!--<li class="nav-item">
-				<a class="nav-link" data-toggle="tab" href="#wt_help" role="tab" aria-controls="Help" aria-selected="false">Help</a>
-			</li>
-			<li class="nav-item">
-				<a class="nav-link" data-toggle="tab" href="#setup_wizard" role="tab" aria-controls="Setup Wizard" aria-selected="false">Setup Wizard</a>
-			</li>-->
 		</ul>
 		<div class="tab-content dashboard-tabpanel">
 			<div class="tab-pane fade show active" id="wt_modules" role="tabpanel" aria-labelledby="wt_modules">

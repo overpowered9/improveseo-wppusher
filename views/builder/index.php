@@ -2,7 +2,7 @@
 
 use ImproveSEO\View;
 
-if (! defined('ABSPATH')) exit;
+if (! defined('ABSPATH')) exit; // No escaping needed here
 
 ?>
 
@@ -16,4 +16,4 @@ if (! defined('ABSPATH')) exit;
 </div>
 <?php View::endSection('content') ?>
 
-<?php echo View::make('layouts.main') ?>
+<?php echo wp_kses(View::make('layouts.main')) ?>
