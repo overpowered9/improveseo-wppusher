@@ -76,9 +76,19 @@ function improveseo_lists()
 		View::render('lists.create');
 
 	elseif ($action == 'do_create') :
+		// Verify the nonce
+		if (!isset($_POST['create_list_nonce']) || !wp_verify_nonce($_POST['create_list_nonce'], 'create_list_nonce')) {
+			wp_die(print_r($_POST));  // If the nonce is invalid, terminate the script
+		}
+
+		// Check if the user has the right permissions
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error('Unauthorized', 403);
+			return;
+		}
 
 		$name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
-		
+
 		$list = isset($_POST['list']) ? trim(sanitize_text_field($_POST['list'])) : ''; // Check if $_POST['list'] is set
 
 
@@ -92,11 +102,11 @@ function improveseo_lists()
 			wp_redirect(admin_url('admin.php?page=improveseo_lists&action=create'));
 			exit;
 		}
-		
+
 		$list = isset($_POST['list']) ? trim(sanitize_text_field($_POST['list'])) : ''; // Check if $_POST['list'] is set
 
-		
-		
+
+
 		$lines = explode("\n", $list); // Split the input into lines
 		$size = count($lines); // Calculate the number of lines
 
@@ -131,6 +141,19 @@ function improveseo_lists()
 
 	elseif ($action == 'do_edit') :
 
+		// Verify the nonce
+		if (!isset($_POST['improveseo_edit_list_nonce']) || !wp_verify_nonce($_POST['improveseo_edit_list_nonce'], 'improveseo_edit_list_action')) {	
+			wp_die('Nonce verification failed.');  // If the nonce is invalid, terminate the script
+		};
+
+		// Check if the user has the right permissions
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error('Unauthorized', 403);
+			return;
+		};
+
+
+
 		$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
 
 		$list = $model->find($id);
@@ -159,7 +182,7 @@ function improveseo_lists()
 		// }, $list_no_sanitized);
 
 
-		
+
 		$lines = explode("\n", $list); // Split the input into lines
 		$size = count($lines); // Calculate the number of lines
 

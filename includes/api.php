@@ -42,7 +42,8 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
                 else {
                     $cities = $wpdb->get_results(
                         $wpdb->prepare(
-                            "SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = %s GROUP BY county, state_code, city ORDER BY city",$id
+                            "SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = %s GROUP BY county, state_code, city ORDER BY city",
+                            $id
                         )
                     );
 
@@ -273,6 +274,15 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
     //    }
     //
     elseif ($act == 'shortcode') {
+
+        // Check for nonce and user permissions
+        check_ajax_referer('_wpnonce', 'security');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Unauthorized', 403);
+            return;
+        }
+
         $shortcodeModel = new Shortcode();
 
         $shortcode = isset($_POST['shortcode']) ? sanitize_text_field($_POST['shortcode']) : '';

@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		$form_id_preview = 'create_post';
 		improveseo\View::render('posting.form', compact('post_type'));
 		?>
-		<?php wp_nonce_field('improveseo_create_post_nonce', 'improveseo_create_post_nonce'); ?>
+		<?php wp_nonce_field('improveseo_do_create_post_nonce', 'improveseo_do_create_post_nonce'); ?>
 	</form>
 </div>
 <?php View::endSection('content') ?>

@@ -11,6 +11,11 @@ use ImproveSEO\FlashMessage;
 
 function improveseo_dashboard()
 {
+
+
+
+
+
 	global $wpdb;
 
 	$action = isset($_GET['action']) ? sanitize_text_field($_GET['action']) : 'index';
@@ -19,6 +24,19 @@ function improveseo_dashboard()
 	if ($action == 'index') :
 		View::render('dashboard.index');
 	elseif ($action == 'do_create_post') :
+
+
+		// Verify the nonce
+		if (!isset($_POST['improveseo_do_create_post_nonce']) || !wp_verify_nonce($_POST['improveseo_do_create_post_nonce'], 'improveseo_do_create_post_nonce')) {
+			wp_die(print_r($_POST));  // If the nonce is invalid, terminate the script
+		}
+
+		// Check if the user has the right permissions
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error($_POST, 403);
+			return;
+		}
+
 
 		if (isset($_POST['create'])) {
 			// Sanitize and validate user input
@@ -107,7 +125,13 @@ function improveseo_dashboard()
 		if (isset($_POST['local_seo_enabler'])) {
 			// Search tags and remove non-used locations
 			$tags = improveseo_search_geotags(array(
-				$title, $content, $options_data['custom_title'], $options_data['custom_description'], $options_data['custom_keywords'], sanitize_text_field($_POST['permalink']), sanitize_text_field($_POST['tags'])
+				$title,
+				$content,
+				$options_data['custom_title'],
+				$options_data['custom_description'],
+				$options_data['custom_keywords'],
+				sanitize_text_field($_POST['permalink']),
+				sanitize_text_field($_POST['tags'])
 			));
 
 			$options_data['local_geo_country'] = sanitize_text_field($_POST['local_country']);
@@ -268,6 +292,18 @@ function improveseo_dashboard()
 
 	elseif ($action == 'do_update_post') :
 
+
+		// Verify the nonce
+		if (!isset($_POST['improveseo_do_update_post_nonce']) || !wp_verify_nonce($_POST['improveseo_do_update_post_nonce'], 'improveseo_do_update_post_nonce')) {
+			wp_die('Nonce verification failed.');  // If the nonce is invalid, terminate the script
+		}
+
+		// Check if the user has the right permissions
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error('Unauthorized', 403);
+			return;
+		}
+
 		$name = sanitize_text_field($_POST['name']);
 		$title = sanitize_text_field($_POST['title']);
 		$content = wp_kses_post($_POST['content']);
@@ -312,20 +348,26 @@ function improveseo_dashboard()
 
 		if (isset($_POST['local_seo_enabler'])) {
 			// Search tags and remove non-used locations
-            $title = isset($title) ? sanitize_text_field($title) : '';
-            $content = isset($content) ? sanitize_text_field($content) : '';
-            $custom_title = isset($_POST['custom_title']) ? sanitize_text_field($_POST['custom_title']) : '';
-            $custom_description = isset($_POST['custom_description']) ? sanitize_text_field($_POST['custom_description']) : '';
-            $custom_keywords = isset($_POST['custom_keywords']) ? sanitize_text_field($_POST['custom_keywords']) : '';
-            $permalink = isset($_POST['permalink']) ? sanitize_text_field($_POST['permalink']) : '';
-            $tags = isset($_POST['tags']) ? sanitize_text_field($_POST['tags']) : '';
+			$title = isset($title) ? sanitize_text_field($title) : '';
+			$content = isset($content) ? sanitize_text_field($content) : '';
+			$custom_title = isset($_POST['custom_title']) ? sanitize_text_field($_POST['custom_title']) : '';
+			$custom_description = isset($_POST['custom_description']) ? sanitize_text_field($_POST['custom_description']) : '';
+			$custom_keywords = isset($_POST['custom_keywords']) ? sanitize_text_field($_POST['custom_keywords']) : '';
+			$permalink = isset($_POST['permalink']) ? sanitize_text_field($_POST['permalink']) : '';
+			$tags = isset($_POST['tags']) ? sanitize_text_field($_POST['tags']) : '';
 
-            $tags = improveseo_search_geotags(array(
-                $title, $content, $custom_title, $custom_description, $custom_keywords, $permalink, $tags
-            ));
+			$tags = improveseo_search_geotags(array(
+				$title,
+				$content,
+				$custom_title,
+				$custom_description,
+				$custom_keywords,
+				$permalink,
+				$tags
+			));
 
 
-            $options_data['local_geo_country'] = sanitize_text_field($_POST['local_country']);
+			$options_data['local_geo_country'] = sanitize_text_field($_POST['local_country']);
 			$options_data['local_geo_locations'] = json_decode(wp_kses_post(stripslashes($_POST['local_geo_locations'])), true);
 
 			// Do not expand geo data if saving as draft

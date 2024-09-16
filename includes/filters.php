@@ -152,7 +152,13 @@ function improveseo_exclude_category_posts($query) {
 function improveseo_hide_improveseo_category(){
     $improveseo_category = get_category_by_slug('improve-seo');
     $category_id = $improveseo_category->term_id;
-    echo '<style type="text/css">.cat-item-' . esc_attr($category_id) . ' { display:none; }</style>';
+    $allowed_html = array(
+        'style' => array(
+            'type' => true,  // Allow the 'type' attribute
+        ),
+    );
+    
+    echo wp_kses('<style type="text/css">.cat-item-' . esc_attr($category_id) . ' { display:none; }</style>',$allowed_html);
 
 }
 add_action('wp_head', 'improveseo_hide_improveseo_category');

@@ -20,7 +20,9 @@ function improveseo_enqueue_admin(){
 		)
 	);
 
+	wp_enqueue_script('improveseo-jquery', esc_url(IMPROVESEO_DIR . '/assets/js/jquery.min.js'), array('jquery'), IMPROVESEO_VERSION, true);
 	wp_enqueue_script('improveseo-dialog', esc_url(IMPROVESEO_DIR . '/assets/js/dialog.js'), array('jquery'), IMPROVESEO_VERSION, true);
+	wp_enqueue_script('improveseo-jstree', esc_url(IMPROVESEO_DIR . '/assets/js/jstree.min.js', array('jquery')), IMPROVESEO_VERSION, true);
 
 	wp_enqueue_script('improveseo-posting', esc_url(IMPROVESEO_DIR . '/assets/js/posting.js'), array('jquery'), IMPROVESEO_VERSION, true);
 	wp_localize_script('improveseo-posting', 'posting_ajax_vars', array(
@@ -33,6 +35,7 @@ function improveseo_enqueue_admin(){
 	wp_enqueue_script('improveseo-exif', esc_url(IMPROVESEO_DIR . '/assets/js/exif.js'), array('jquery'), IMPROVESEO_VERSION, true);
 	wp_enqueue_script('improveseo-wordai', esc_url(IMPROVESEO_DIR . '/assets/js/wordai.js', array('jquery')), IMPROVESEO_VERSION, true);
 	wp_enqueue_script('improveseo-modal', esc_url(IMPROVESEO_DIR . '/assets/js/jquery.modal.min.js', array('jquery')), IMPROVESEO_VERSION, true);
+
 	
 	wp_enqueue_script('improveseo-notify', esc_url(IMPROVESEO_DIR . '/assets/js/notify.js', array('jquery')), IMPROVESEO_VERSION, true);
 	wp_enqueue_script('improveseo-popup', esc_url(IMPROVESEO_DIR . '/assets/js/popup.js'), array('jquery'), IMPROVESEO_VERSION, true);

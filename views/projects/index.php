@@ -228,6 +228,7 @@ define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url(__FILE__)));
     var numm;
 
     function start_build(ids) {
+	console.log('sdfsd');
         var max_iterations = parseInt(jQuery('#max-iterations').val());
         var export_url = '" . esc_url(admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id=")) . "';
         jQuery.ajax({

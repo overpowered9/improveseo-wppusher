@@ -31,6 +31,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 	<section class="form-wrap">
 		<form action="<?php echo esc_url(admin_url('admin.php?page=improveseo_lists&action=do_create&noheader=true')); ?>" method="post">
 			<?php View::render('lists.form'); ?>
+            <?php wp_nonce_field('create_list_nonce', 'create_list_nonce'); ?> 
+
 			<div class="Posting__buttons shortcode-form-btn my-0 text-center">
 				<button class="btn btn-outline-primary"><?php esc_html_e('Create', 'improve-seo'); ?></button>
 			</div>

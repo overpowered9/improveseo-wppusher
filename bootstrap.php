@@ -11,7 +11,7 @@ include_once 'includes/api.php';
 include_once 'includes/debug.php';
 
 include_once 'includes/assets.php';
-include_once 'includes/ajax.php';
+// include_once 'includes/ajax.php';
 include_once 'includes/crons.php';
 include_once 'includes/filters.php';
 include_once 'includes/functions.php';

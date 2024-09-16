@@ -81,7 +81,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                 <input type="hidden" name="is_preview_available" id="is_preview_available" value="no" />
             </div>
 
-            <?php echo ($site_link); ?>
+            <?php echo esc_url($site_link); ?>
 
             <!-- HTML modal for preview button -->
             <div id="preview_popup" class="modal" style="text-align:center">
