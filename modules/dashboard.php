@@ -27,13 +27,13 @@ function improveseo_dashboard()
 
 
 		// Verify the nonce
-		if (!isset($_POST['improveseo_do_create_post_nonce']) || !wp_verify_nonce($_POST['improveseo_do_create_post_nonce'], 'improveseo_do_create_post_nonce')) {
-			wp_die(print_r($_POST));  // If the nonce is invalid, terminate the script
+		if (!isset(($_POST['improveseo_do_create_post_nonce'])) || !wp_verify_nonce(sanitize_text_field($_POST['improveseo_do_create_post_nonce']), 'improveseo_do_create_post_nonce')) {
+			wp_die("Nonce verification failed");  // If the nonce is invalid, terminate the script
 		}
 
 		// Check if the user has the right permissions
 		if (!current_user_can('manage_options')) {
-			wp_send_json_error($_POST, 403);
+			wp_send_json_error("Unauthorized", 403);
 			return;
 		}
 
@@ -294,7 +294,7 @@ function improveseo_dashboard()
 
 
 		// Verify the nonce
-		if (!isset($_POST['improveseo_do_update_post_nonce']) || !wp_verify_nonce($_POST['improveseo_do_update_post_nonce'], 'improveseo_do_update_post_nonce')) {
+		if (!isset(($_POST['improveseo_do_update_post_nonce'])) || !wp_verify_nonce(sanitize_text_field($_POST['improveseo_do_update_post_nonce']), 'improveseo_do_update_post_nonce')) {
 			wp_die('Nonce verification failed.');  // If the nonce is invalid, terminate the script
 		}
 

@@ -44,6 +44,7 @@ abstract class AbstractModel
 
 	public function create($data)
 	{
+	
 		global $wpdb;
 
 		$fields = array();
@@ -66,8 +67,10 @@ abstract class AbstractModel
 		}
 
 		$value_placeholders = implode(", ", $values);
+		$fields_placeholders = implode(", ", $fields);
 
-		$sql = "INSERT INTO $tablename" . " (" . implode(", ", $fields) . ", created_at)";
+		$sql = "INSERT INTO $tablename" . " (" . $fields_placeholders . ", created_at)";
+		
 
 		$sql .= " VALUES (" . $value_placeholders . ", NOW())";
 		$sql = $wpdb->prepare($sql, $vars);

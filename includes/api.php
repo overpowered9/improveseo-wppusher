@@ -283,6 +283,10 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
             return;
         }
 
+        // Verify the nonce
+
+
+
         $shortcodeModel = new Shortcode();
 
         $shortcode = isset($_POST['shortcode']) ? sanitize_text_field($_POST['shortcode']) : '';

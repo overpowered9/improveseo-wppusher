@@ -77,7 +77,7 @@ function improveseo_lists()
 
 	elseif ($action == 'do_create') :
 		// Verify the nonce
-		if (!isset($_POST['create_list_nonce']) || !wp_verify_nonce($_POST['create_list_nonce'], 'create_list_nonce')) {
+		if (!isset(($_POST['create_list_nonce'])) || !wp_verify_nonce(sanitize_text_field($_POST['create_list_nonce']), 'create_list_nonce')) {
 			wp_die(print_r($_POST));  // If the nonce is invalid, terminate the script
 		}
 
@@ -142,7 +142,7 @@ function improveseo_lists()
 	elseif ($action == 'do_edit') :
 
 		// Verify the nonce
-		if (!isset($_POST['improveseo_edit_list_nonce']) || !wp_verify_nonce($_POST['improveseo_edit_list_nonce'], 'improveseo_edit_list_action')) {	
+		if (!isset(($_POST['improveseo_edit_list_nonce'])) || !wp_verify_nonce(sanitize_text_field($_POST['improveseo_edit_list_nonce']), 'improveseo_edit_list_action')) {	
 			wp_die('Nonce verification failed.');  // If the nonce is invalid, terminate the script
 		};
 
