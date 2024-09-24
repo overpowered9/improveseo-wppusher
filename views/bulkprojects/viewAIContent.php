@@ -36,7 +36,7 @@ use ImproveSEO\View;
             <div class="leftcolumn">
                 <h2><?php echo $value->ai_title; ?></h2>
                     <div style="margin: 50px 0px 50px 0;"><img src="<?php echo base64_decode($value->ai_image); ?>" style="width:100%"></div>
-                <p><?php echo base64_decode($value->ai_content); ?></p>
+                <p><?php echo nl2br(base64_decode($value->ai_content)); ?></p>
                 <p>
                 <?php if(!empty($value->testimonial)) { 
                     $testimonial_ids = '';
@@ -88,7 +88,7 @@ function process_content($content) {
     //$content = html_entity_decode($content);
 
     // Convert newlines to <br> tags
-    //$content = nl2br($content);
+    //$content = nl2br($content); 
 
     // Allow only safe HTML
     $content = base64_decode($content);

@@ -52,7 +52,7 @@ function improveseo_create_posttypes() {
 		)
 	);
 
-	if (sizeof($types)) {
+	if ((is_array($types))&&(sizeof($types))) {
 		foreach ($types as $type => $config) {
 			register_post_type($type,
 				array(

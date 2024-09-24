@@ -98,6 +98,7 @@ if (isset($_GET['post_preview'])) {
 							<th scope="col" class="manage-column">Created At</th>
 							<th scope="col" class="manage-column">Last Update</th>
 							<th scope="col" class="manage-column">Status</th>
+							<th scope="col" class="manage-column">Publish Option</th>
 							<th scope="col" class="manage-column"></th>
 						</tr>
 					</thead>
@@ -178,6 +179,21 @@ if (isset($_GET['post_preview'])) {
 										?>
 									</strong>
 								</td>
+
+
+								<td scope="col" data-colname="State">
+									<strong>
+										<?php
+										if ($project->schedule_posts == 'draft_posts') { echo 'Draft'; }
+										else if($project->schedule_posts == 'schedule_all_posts') {
+											echo 'Publish All';
+										} else {
+											echo 'Publish : '.$project->number_of_post_schedule.' Post / '.$project->schedule_frequency;
+										}
+										?>
+									</strong>
+								</td>
+
 								<td scope="col" data-colname="Actions" class="actions-btn">
 									<?php if ($project->state == 'Published' && $project->number_of_completed_task == $project->number_of_tasks) : ?>
 										<a href="javascript:build_project(<?= $project->id ?>)" class="btn btn-primary" target="_self">Build posts</a>
@@ -209,7 +225,7 @@ if (isset($_GET['post_preview'])) {
 
 		function start_build(ids) {
 			var max_iterations = parseInt(jQuery('#max-iterations').val());
-			var export_url = "<?php echo admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id="); ?>";
+			var export_url = "<?php echo admin_url("admin.php?page=improveseo_bulkprojects&action=export_preview_url&id="); ?>";
 			jQuery
 				.ajax({
 					url: "<?php echo admin_url("admin-ajax.php"); ?>",
@@ -337,7 +353,10 @@ if (isset($_GET['post_preview'])) {
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
-				'base' => admin_url('admin.php?page=improveseo_projects%_%')
+				'base' => admin_url('admin.php?page=improveseo_bulkprojects%_%')
+
+	
+
 			)) ?>
 		</span>
 	</section>

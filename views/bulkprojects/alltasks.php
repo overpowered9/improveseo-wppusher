@@ -319,7 +319,7 @@ if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
-				'base' => admin_url('admin.php?page=improveseo_projects%_%')
+				'base' => admin_url('admin.php?page=improveseo_bulkprojects%_%')
 			)) ?>
 		</span>
 	</section>

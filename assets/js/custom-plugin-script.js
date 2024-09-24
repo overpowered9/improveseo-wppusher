@@ -1,3 +1,6 @@
+var $ = jQuery;
+
+
 function getShortCodeDetails(value) {
 alert(value);
 
@@ -294,6 +297,7 @@ function insertContent(content) {
 //
 
 jQuery(document).ready(function() {
+
     resetSmartWizard();
 });
 
@@ -475,13 +479,43 @@ jQuery(document).ready(function(jQuery) {
             jQuery("#Prompt_to_create_Dalle_Image").css("display","block");
             jQuery("#Manually_image_div").css("display","none");
 
-           // var aigeneratedtitle_op = jQuery("#aigeneratedtitle").val();
             var maintitlearea = jQuery('#maintitlearea').val();
+            if(maintitlearea=='') {
+                var title = jQuery('#seed_keyword').val();
+            } else {
+                var title = maintitlearea;
+            }
+
+            var formData = new FormData();
+            formData.append("action", "getPromptForImages");
+            formData.append("title", title);
+            jQuery.ajax({
+                url: ajaxurl,
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    
+                    //var aigeneratedtitle_op = jQuery('#aigeneratedtitle').val();
+                jQuery("#manually_promt_for_image").val("You should come up with the cover image for an article. The image should be a very high quality shooting from a distance, high detail, photorealistic, image resolution is  2146 pixels, cinematic. Don't include any text on the image. Using the following information generate an image. "+response.data+"");
+
+
+                },
+                error: function() {
+                    alert("Error uploading image.");
+                    jQuery("#loadingAIImage").hide();
+                }
+            });
+
+
+           // var aigeneratedtitle_op = jQuery("#aigeneratedtitle").val();
+           /* var maintitlearea = jQuery('#maintitlearea').val();
             if(maintitlearea=='') {
                 var AudienceData = getCookie('AudienceData');
                 var aigeneratedtitle_op = jQuery('#aigeneratedtitle').val();
                 jQuery("#manually_promt_for_image").val("You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. You should come up with the cover image for the article that will be engaging and interesting for the reader who is described in the audience data and search provided word or phrase. Image should be Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. Using the following information generate an image.<br> Main keyword: seed-keyword Title of the article is '"+aigeneratedtitle_op+"' <br> Audience data:  '"+AudienceData+"'");
-            }
+            }*/
             
             jQuery("#manually_promt_for_image").css("display","block");
             jQuery("#AI_image_div").css("display","none");
@@ -665,7 +699,7 @@ jQuery("#seed_select").on("change", function() {
         
         jQuery("#loader").hide();
 
-        jQuery("#maintitle").html(" <div class=\'resultdata\'><textarea id=\'maintitlearea\' class=\'form-control\' rows=\'3\' cols=\'70\'>"+data+"</textarea></div>");
+        jQuery("#maintitle").html(" <div class=\'resultdata\'><textarea id=\'maintitlearea\' name=\'maintitlearea\' class=\'form-control\' rows=\'3\' cols=\'70\'>"+data+"</textarea></div>");
         jQuery("#aigeneratedtitle").val(data);
 
 
@@ -714,11 +748,25 @@ jQuery("#seed_select").on("change", function() {
             success: function(response) {
                 // console.log(response);
                 if (response.data.status == 'success') {
-                    var newOption = jQuery('<option></option>')
-                        .attr('value', response.data.id)
-                        .text(response.data.proj_name);
-                    jQuery('#project_name').append(newOption);
-                    jQuery('#project_name').val(response.data.id);
+
+                    var select = document.getElementById('keyword_list_name');
+
+                    // Create a new option element
+                    var newOption = document.createElement("option");
+                    newOption.value = response.data.id;
+                    newOption.text = response.data.proj_name;
+
+                    // Prepend the new option to the select element
+                    select.insertBefore(newOption, select.firstChild);
+
+
+
+
+                    // var newOption = jQuery('<option></option>')
+                    //     .attr('value', response.data.id)
+                    //     .text(response.data.proj_name);
+                    // jQuery('#keyword_list_name').append(newOption);
+                    jQuery('#keyword_list_name').val(response.data.id);
                     jQuery('#keyword_list').val(response.data.search_results);
                     jQuery('#keyword_list_container').show();
                     jQuery('#create_keyword_container').hide();
@@ -761,7 +809,10 @@ jQuery("#seed_select").on("change", function() {
                 jQuery('.multi-upload-gallery').sortable('refresh');
                 hiddenField.val(hiddenFieldValue.join(','));
             }).open();
+  
         });
+
+     
     
         jQuery(document).on('click', '.multi-upload-gallery-remove', function(event) {
             event.preventDefault();
@@ -1021,12 +1072,52 @@ jQuery(document).ready(function(){
             }
 
             if(stepNumber==4) {
-                var keywordCount = (jQuery('#keyword_list').val()).split('\n').length;
-				var keywordMin = keywordCount * 3;
-				var keywordTime = (keywordMin / 60).toFixed(2);
+                // var keywordCount = (jQuery('#keyword_list').val()).split('\n').length;
+				// var keywordMin = keywordCount * 3;
+				// var keywordTime = (keywordMin / 60).toFixed(2);
 
-				jQuery('#keywordcounts').text(keywordCount);
-				jQuery('#keywordtime').text(keywordTime);
+				// jQuery('#keywordcounts').text(keywordCount);
+				// jQuery('#keywordtime').text(keywordTime);
+
+                // Get the value of the textarea
+                var text = jQuery('#keyword_list').val();
+
+                // Split the text into lines
+                var lines = text.split('\n');
+
+                // Filter out empty lines
+                var nonEmptyLines = lines.filter(function(line) {
+                    return line.trim().length > 0;
+                });
+
+                // Count the non-empty lines
+                var keywordCount = nonEmptyLines.length;
+
+                // Calculate the minimum time and format it in minutes
+                var keywordMin = keywordCount * 3;
+
+                // Convert the time to hours and format to two decimal places
+                var keywordTime = (keywordMin / 60).toFixed(2);
+
+                // Update the text in the elements
+                jQuery('#keywordcounts').text(keywordCount);
+                jQuery('#keywordtime').text(keywordTime);
+
+            }
+
+            if(stepNumber==6) {
+                if ($('#schedule_posts_input_wise').is(':checked')) {
+                    var numberOfPosts = $('#number_of_post_schedule').val();
+                   // var frequency = $('#schedule_frequency').val();
+
+                    if (numberOfPosts=='') {
+                       
+                        document.getElementById('error_number_of_post_schedule').innerText = 'Please enter the number of post.';
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
             }
    
          // Perform actions related to the first step
@@ -1183,6 +1274,15 @@ jQuery("#post_size").on("change", function() {
 
  // Display the selected option in the h2 element
  jQuery("#post_size_select").val(selectedOption);
+});
+
+
+jQuery("#post_size_bulk").on("change", function() {
+    // Get the selected option value
+    var selectedOption = jQuery(this).val();
+   
+    // Display the selected option in the h2 element
+    jQuery("#post_size_select_bulk").val(selectedOption);
 });
 // file js end 02-06-24
 
