@@ -15,6 +15,7 @@ function improveseo_lists()
 	$limit = isset($_GET['limit']) ? intval($_GET['limit']) : 20;
 	$offset = isset($_GET['paged']) ? intval($_GET['paged']) * $limit - $limit : 0;
 
+
 	$model = new Lists();
 
 
@@ -78,7 +79,7 @@ function improveseo_lists()
 	elseif ($action == 'do_create') :
 		// Verify the nonce
 		if (!isset(($_POST['create_list_nonce'])) || !wp_verify_nonce(sanitize_text_field($_POST['create_list_nonce']), 'create_list_nonce')) {
-			wp_die(print_r($_POST));  // If the nonce is invalid, terminate the script
+			wp_die("Unauthorized");  // If the nonce is invalid, terminate the script
 		}
 
 		// Check if the user has the right permissions

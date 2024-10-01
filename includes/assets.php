@@ -118,11 +118,6 @@ function improveseo_enqueue_admin(){
 		}
 	}
 }
-// add_action( 'after_wp_tiny_mce', 'improveseo_after_wp_tiny_mce' );
-
-// function improveseo_after_wp_tiny_mce() {
-// 	printf( '<script type="text/javascript" src="%s"></script>',  IMPROVESEO_DIR.'/assets/js/shortcode-popup-button.js' );
-// }
 
 add_action( 'wp_enqueue_scripts', 'improveseo_enqueue_front' );
 function improveseo_enqueue_front(){

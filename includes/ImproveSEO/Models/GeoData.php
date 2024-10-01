@@ -20,12 +20,7 @@ class GeoData extends AbstractModel
         'accuracy'
     );
 
-    public function states($country_id)
-    {
-        global $wpdb;
 
-        return $wpdb->get_results("SELECT state, state_code FROM tablename WHERE country_id = $country_id GROUP BY state");
-    }
 
     public function cities($country_id, $state_code)
     {
