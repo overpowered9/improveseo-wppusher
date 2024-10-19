@@ -44,41 +44,50 @@ abstract class AbstractModel
 
 	public function create($data)
 	{
-	
 		global $wpdb;
-
+	
 		$fields = array();
 		$values = array();
+		$placeholders = array();
 		$vars = array();
-		$tablename = $this->getTable();
-		//$data = stripslashes_deep($data);
-
+	
+		// Escape the data
 		$data = $this->escape($data);
-
+	
 		foreach ($data as $field => $value) {
 			if (in_array($field, $this->fillable)) {
+				// Handle attribute mutator if it exists
 				$method = 'set' . ucfirst($field) . 'Attribute';
-				if (method_exists($this, $method)) $value = $this->$method($value);
-
-				$fields[] = $field;
-				$values[] = '%s';
+				if (method_exists($this, $method)) {
+					$value = $this->$method($value);
+				}
+	
+				// Escape the field name
+				$fields[] = esc_sql($field);
+	
+				// Add value placeholder and store the value
+				$placeholders[] = '%s'; // Or '%d' if the field expects integers
 				$vars[] = $value;
 			}
 		}
-
-		$value_placeholders = implode(", ", $values);
-		$fields_placeholders = implode(", ", $fields);
-
-		$sql = "INSERT INTO $tablename" . " (" . $fields_placeholders . ", created_at)";
-		
-
-		$sql .= " VALUES (" . $value_placeholders . ", NOW())";
-		$sql = $wpdb->prepare($sql, $vars);
-
-		$wpdb->query($sql);
-
+	
+		// Implode the fields and placeholders
+		$fields_list = implode(", ", $fields); // Field names don't need placeholders
+		$placeholders_list = implode(", ", $placeholders); // These are for values
+	
+		// Build the SQL query for insert
+		$sql = "INSERT INTO " . esc_sql($this->getTable()) . " ($fields_list, created_at)";
+		$sql .= " VALUES ($placeholders_list, NOW())";
+	
+		// Prepare and execute the query
+		$prepared_sql = $wpdb->prepare($sql, $vars);
+		$wpdb->query($prepared_sql);
+	
+		// Return the inserted record's ID
 		return $wpdb->insert_id;
 	}
+
+
 
 	public function update($data, $id)
 	{

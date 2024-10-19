@@ -2,27 +2,27 @@
 
 namespace ImproveSEO\Validator;
 
-if (! defined('ABSPATH')) exit;
-
 class Unique extends BaseValidator
 {
 	public static function validate($data, $field, $table, $column = null, $except = null)
 	{
 		global $wpdb;
 
-		// Default to using the field as the column if not specified
-		$column = $column ?: $field;
+		// Default column to field if not provided
+		if (!$column) $column = $field;
 
-		// Prepare the SQL statement to avoid SQL injection
+		// Sanitize field name to prevent SQL injection
+		$field = esc_sql($field);
+
+		// Prepare the SQL query with proper escaping
 		$sql = $wpdb->prepare("SELECT id, $field FROM $table WHERE $field = %s", $data[$field]);
 		$result = $wpdb->get_row($sql);
 
-		// If a matching record is found and it doesn't match the exception, return an error message
-		if ($result && $result->$field && (!$except || $result->id != $except)) {
-			return __(self::fieldName($field) . " already exists.");
+		// Return error message if value exists and not the exception, otherwise true
+		if ($result && $result->$field && (!$except || ($except && $result->id != $except))) {
+			return sprintf(__("%s already exists.", "improve-seo"), self::fieldName($field));
 		}
 
-		// Return true if the validation passes
 		return true;
 	}
 }
