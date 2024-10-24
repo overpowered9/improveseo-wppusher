@@ -6,6 +6,7 @@
    Author: Improve SEO Team
    Version: 2.0.11
    */
+  
    define("IMPROVESEO_VERSION", "2.0.11");
    define('IMPROVESEO_ROOT', dirname(__FILE__));
    define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url( __FILE__ )));
