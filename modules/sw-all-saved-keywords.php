@@ -1,28 +1,4 @@
-<!-- <style type="text/css">
-    table {
-        font-family: arial, sans-serif;
-        border-collapse: collapse;
-        width: 100%;
-    }
-    
-    .wt-icons {
-        cursor: pointer;
-    }
-    
-    #connection-key {
-        display: none;
-    }
-    
-    td, th {
-        border: 1px solid #dddddd;
-        text-align: center !important;
-        padding: 8px;
-    }
-    
-    tr:nth-child(even) {
-        background-color: #dddddd;
-    }
-</style> -->
+
 <?php
 
 
