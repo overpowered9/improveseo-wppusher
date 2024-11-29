@@ -1,5 +1,7 @@
 <?php
- if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly  
+
+namespace ImproveSEO\Carbon;
+ 
 /*
  * This file is part of the Carbon package.
  *
@@ -9,7 +11,7 @@
  * file that was distributed with this source code.
  */
 
-namespace ImproveSEO\Carbon;
+
 
 use Closure;
 use DateTime;
@@ -20,6 +22,8 @@ use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
 /**
  * A simple API extension for DateTime
  *

@@ -1,5 +1,6 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH'))
+    exit; // Exit if accessed directly
 use ImproveSEO\View;
 use ImproveSEO\Spintax;
 
@@ -12,13 +13,30 @@ use ImproveSEO\FlashMessage;
 add_action('wp_ajax_improveseo_generate_preview', 'improveseo_generate_preview');
 
 
-function improveseo_generate_preview() {
+function improveseo_generate_preview()
+{
+
+
+    // Verify the nonce
+    if (!isset(($_POST['improveseo_do_create_post_nonce'])) || !wp_verify_nonce(sanitize_text_field($_POST['improveseo_do_create_post_nonce']), 'improveseo_do_create_post_nonce')) {
+        wp_die("Nonce verification failed");  // If the nonce is invalid, terminate the script
+    }
+
+    // Check if the user has the right permissions
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error("Unauthorized", 403);
+        return;
+    }
+
+
     global $wpdb;
     $model = new Task();
     $name = sanitize_text_field($_POST['name']);
     $title = wp_kses_post($_POST['title']);
     $content = wp_kses_post($_POST['content']);
     $post_type = sanitize_text_field($_POST['post_type']);
+
+
 
     $project_data = array(
         'title' => $title,
@@ -69,7 +87,8 @@ function improveseo_generate_preview() {
         }
 
         $geo_iterations = count($options_data['local_geo_locations']);
-        if ($geo_iterations == 0) $geo_iterations = 1;
+        if ($geo_iterations == 0)
+            $geo_iterations = 1;
 
         if (isset($_POST['local_randomize'])) {
             shuffle($options_data['local_geo_locations']);
@@ -83,7 +102,8 @@ function improveseo_generate_preview() {
             $tags_order = array('country', 'state', 'city', 'zip');
 
             foreach ($tags_order as $tag) {
-                if (!in_array($tag, $tags)) continue;
+                if (!in_array($tag, $tags))
+                    continue;
 
                 $options_data['categorization'][] = $tag;
             }
@@ -177,7 +197,8 @@ function improveseo_generate_preview() {
     $items = improveseo_count_list_items($fields);
 
     if (isset($_POST['local_seo_enabler'])) {
-        if (!$items) $items = 1;
+        if (!$items)
+            $items = 1;
         $max = ($_POST['max_posts'] <= 0) ? $geo_iterations * $items : intval($_POST['max_posts']);
     } else {
         $max = ($_POST['max_posts'] <= 0) ? ($items ? $items : Spintax::count(Spintax::parse($title))) : intval($_POST['max_posts']);

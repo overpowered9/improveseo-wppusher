@@ -7,27 +7,48 @@ use ImproveSEO\LiteSpintax;
 use ImproveSEO\Models\Task;
 use ImproveSEO\FlashMessage;
 
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
+if (!defined('ABSPATH'))
+    exit; // Exit if accessed directly
 
 function improveseo_posting()
 {
+
+  
+
+
     global $wpdb;
 
     $action = isset($_GET['action']) ? sanitize_text_field($_GET['action']) : 'index';
     $model = new Task();
 
     // Main posting page
-    if ($action == 'index') :
+    if ($action == 'index'):
         View::render('posting.index');
 
-    // Create post page
-    elseif ($action == 'create_post') :
+        // Create post page
+    elseif ($action == 'create_post'):
         View::render('posting.create-post');
 
-    elseif ($action == 'create_page') :
+    elseif ($action == 'create_page'):
         View::render('posting.create-page');
 
-    elseif ($action == 'do_create_post') :
+    elseif ($action == 'do_create_post'):
+<<<<<<< Updated upstream
+        // Verify the nonce
+        if (!isset(($_POST['improveseo_do_create_post_nonce'])) || !wp_verify_nonce(sanitize_text_field($_POST['improveseo_do_create_post_nonce']), 'improveseo_do_create_post_nonce')) {
+            wp_die("Nonce verification failed");  // If the nonce is invalid, terminate the script
+        }
+
+        // Check if the user has the right permissions
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error("Unauthorized", 403);
+            return;
+        }
+=======
+
+            
+>>>>>>> Stashed changes
+
         if (isset($_POST['create'])) {
             $validation_rules = array(
                 'name' => 'required',
@@ -106,7 +127,8 @@ function improveseo_posting()
         $items = improveseo_count_list_items($fields);
 
         if (isset($_POST['local_seo_enabler'])) {
-            if (!$items) $items = 1;
+            if (!$items)
+                $items = 1;
             $max = ($_POST['max_posts'] <= 0) ? $geo_iterations * $items : intval($_POST['max_posts']);
         } else {
             $max = ($_POST['max_posts'] <= 0) ? ($items ? $items : Spintax::count(Spintax::parse($title))) : intval($_POST['max_posts']);
@@ -146,7 +168,7 @@ function improveseo_posting()
         wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$project_id}"));
         exit;
 
-    elseif ($action == 'do_update_post') :
+    elseif ($action == 'do_update_post'):
 
         $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
         $title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
@@ -379,7 +401,7 @@ function improveseo_posting()
         wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$project_id}&build_posts_id={$project_id}"));
         exit;
 
-    elseif ($action == 'edit_post') :
+    elseif ($action == 'edit_post'):
         $id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
         $task = $model->find($id);
 
