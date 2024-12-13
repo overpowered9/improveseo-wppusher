@@ -129,7 +129,7 @@ function improveseo_parse_tasks() {
 
 						    improveseo_addGpsInfo(
 						    	$imageSrc,
-						    	WP_CONTENT_DIR .'/'. $imagedir,
+						    	ABSPATH . 'wp-content'.'/'. $imagedir,
 						    	$exif[2][$idx],
 						    	'Work Horse Comment',
 						    	'Work Horse',

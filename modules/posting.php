@@ -33,7 +33,6 @@ function improveseo_posting()
         View::render('posting.create-page');
 
     elseif ($action == 'do_create_post'):
-<<<<<<< Updated upstream
         // Verify the nonce
         if (!isset(($_POST['improveseo_do_create_post_nonce'])) || !wp_verify_nonce(sanitize_text_field($_POST['improveseo_do_create_post_nonce']), 'improveseo_do_create_post_nonce')) {
             wp_die("Nonce verification failed");  // If the nonce is invalid, terminate the script
@@ -44,10 +43,6 @@ function improveseo_posting()
             wp_send_json_error("Unauthorized", 403);
             return;
         }
-=======
-
-            
->>>>>>> Stashed changes
 
         if (isset($_POST['create'])) {
             $validation_rules = array(

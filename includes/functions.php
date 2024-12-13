@@ -447,17 +447,7 @@ function improveseo_spintax_the_field($value, $project, $spintaxIteration, $geo 
 }
 
 function improveseo_check_dir($dir) {
-	$dirs = explode("/", $dir);
-	$check = WP_CONTENT_DIR;
-
-	foreach ($dirs as $dir) {
-		if (strstr($dir, '.')) continue;
-
-		if (!$check) $check = $dir;
-		else $check .= "/". $dir;
-
-		if (!is_dir($check)) mkdir($check);
-	}
+	
 }
 
 if (!function_exists('improveseo_isJSON')) {
