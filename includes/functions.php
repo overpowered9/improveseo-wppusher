@@ -93,13 +93,24 @@ function improveseo_set_list_item($text, $lists, $iteration) {
 	foreach ($lists as $name => $list) {
 		$index = improveseo_get_current_subiteration($iteration, $list->size);
 		$values = explode("\n", $list->list);
-
 		$text = str_replace("@list:$name", trim($values[$index - 1]), $text);
 	}
 
 	return $text;
 }
+function improveseo_set_new_list_item($text, $lists, $iteration) {
+    static $counter = 1;
 
+    error_log("Lists in function => ". json_encode($lists));
+    foreach ($lists as $name => $list) {
+        $index = improveseo_get_current_subiteration($counter++, $list->size);
+        $values = preg_split('/\r\n|\r|\n/', $list->list);
+//        $text = str_replace("@list:$name", trim($values[$index - 1]), $text);
+        $text = $list->list;
+    }
+
+    return $text;
+}
 function improveseo_get_lists_from_text($fields) {
 	$allowed = array('title', 'content', 'custom_title', 'custom_description', 'custom_keywords', 'permalink', 'tags');
 

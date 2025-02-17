@@ -21,7 +21,6 @@ function improveseo_builder()
 {
 	global $wpdb;
 	global $wp_rewrite;
-	// die('aa');
 	// Sanitize and validate the 'ajax' parameter
 	$ajax = filter_input(INPUT_GET, 'ajax', FILTER_VALIDATE_BOOLEAN);
 
@@ -59,7 +58,6 @@ function improveseo_builder()
 	), $id);
 
 	$project = $model->find($id);
-
 	$options = $project->options;
 	$categories = $project->cats;
 
@@ -98,7 +96,6 @@ function improveseo_builder()
 	$title = isset($data['title']) ? sanitize_text_field($data['title']) : '';
 	$content = isset($data['content']) ? wp_kses_post($data['content']) : '';
 	$post_type = isset($data['post_type']) ? sanitize_text_field($data['post_type']) : '';
-
 	// Escape output
 	$title = esc_html($title);
 

@@ -50,8 +50,24 @@ function improve_seo_enqueue_scripts($hook) {
     $script_url = plugin_dir_url(__FILE__) . 'assets/js/improveSeo-inline.js';
 
     wp_enqueue_script('improveSeo-inline-script', $script_url, array('jquery'), time(), true);
+    $post_preview = isset($_GET['post_preview']) && $_GET['post_preview'] == 'true';
+    if ($post_preview && isset($projects[0])) {
+        $project_id = esc_attr($projects[0]->id);
+    } else {
+        $project_id = 96;
+    }
+
+    wp_localize_script('improveSeo-inline-script', 'improveSeoData', [
+        'post_preview' => $post_preview,
+        'project_id'   => $project_id
+    ]);
 
     $improve_seo_inline_script_3 = "
+        if (improveSeoData.post_preview && improveSeoData.project_id) {
+            console.log('🚀 Running build_project automatically for preview:', improveSeoData.project_id);
+            build_project(improveSeoData.project_id);
+        }
+    
         jQuery('.build-project').on('click', function(event) {
             event.preventDefault(); // Prevent default link behavior
             var projectId = jQuery(this).data('id');
@@ -69,7 +85,7 @@ function improve_seo_enqueue_scripts($hook) {
         function start_build(ids) {
             console.log('⚙️ start_build() called for ID:', ids);
             var max_iterations = parseInt(jQuery('#max-iterations').val());
-            var export_url = '" . esc_url(admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id=")) . "';
+            var export_url = '" . (admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id=")) . "';
 
             jQuery.ajax({
                 url: '" . esc_url(admin_url("admin-ajax.php")) . "',
@@ -92,6 +108,9 @@ function improve_seo_enqueue_scripts($hook) {
                         }
                         location.reload(true);
                     } else {
+                    console.log(export_url);
+                    console.log(export_url + ids);
+                    console.log(export_url + ids + '&noheader=true')
                         if (is_preview_available == 'yes') {
                             jQuery('.show_loading h1').html('Exporting posts. Please wait');
                             jQuery('.show_loading h2').html('');
@@ -298,7 +317,7 @@ add_action('wp_ajax_workdex_builder_ajax', 'improveseo_builder');
 add_action('wp_ajax_workdex_builder_update_ajax', 'improveseo_builder_update');
 
 //AJAX call to check if preview window is open 
-add_action('wp_ajax_preview_delete_ajax', 'preview_delete_ajax');
+add_action('wp_ajax_preview_delete_ajax', 'improveseo_preview_delete_ajax');
 
 
 $debug = 0;

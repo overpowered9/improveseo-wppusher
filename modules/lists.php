@@ -77,12 +77,10 @@ function improveseo_lists()
 		View::render('lists.create');
 
 	elseif ($action == 'do_create') :
-		// Verify the nonce
 		if (!isset(($_POST['create_list_nonce'])) || !wp_verify_nonce(sanitize_text_field($_POST['create_list_nonce']), 'create_list_nonce')) {
-			wp_die("Unauthorized");  // If the nonce is invalid, terminate the script
+			wp_die("Unauthorized");
 		}
 
-		// Check if the user has the right permissions
 		if (!current_user_can('manage_options')) {
 			wp_send_json_error('Unauthorized', 403);
 			return;
@@ -90,10 +88,7 @@ function improveseo_lists()
 
 		$name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
 
-		$list = isset($_POST['list']) ? trim(sanitize_text_field($_POST['list'])) : ''; // Check if $_POST['list'] is set
-
-
-
+		$list = isset($_POST['list']) ? trim(sanitize_textarea_field($_POST['list'])) : ''; // Check if $_POST['list'] is set
 
 		// Validate the sanitized fields
 		if (!Validator::validate(array("name" => $name, "list" => $list), array(
@@ -104,20 +99,14 @@ function improveseo_lists()
 			exit;
 		}
 
-		$list = isset($_POST['list']) ? trim(sanitize_text_field($_POST['list'])) : ''; // Check if $_POST['list'] is set
+		$list = isset($_POST['list']) ? trim(sanitize_textarea_field($_POST['list'])) : ''; // Check if $_POST['list'] is set
 
+		$lines = explode("\n", $list);
+		$size = count($lines);
 
-
-		$lines = explode("\n", $list); // Split the input into lines
-		$size = count($lines); // Calculate the number of lines
-
-		$id = $model->create(array("name" => $name, "list" => $list));
-		// Assuming $_POST['name'] contains the name attribute value
+		$id = $model->create(array("name" => $name, "list" => $list, 'size' => $size));
 		$nameAttribute = $model->setNameAttribute(sanitize_text_field($_POST['name']));
-		$sanitizedAttribute = sanitize_text_field($nameAttribute); // Sanitize the attribute
-
-		// Validate the sanitized attribute if needed
-		// Example: if (empty($sanitizedAttribute)) { handle validation error }
+		$sanitizedAttribute = sanitize_text_field($nameAttribute);
 
 		// Escape the output
 		$escapedAttribute = esc_html($sanitizedAttribute);
@@ -159,7 +148,7 @@ function improveseo_lists()
 
 		$list = $model->find($id);
 
-		$fields = array("name" => isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '', "list" => isset(($_POST['list'])) ? sanitize_text_field($_POST['list']) : '');
+		$fields = array("name" => isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '', "list" => isset(($_POST['list'])) ? sanitize_textarea_field($_POST['list']) : '');
 
 
 		if (!Validator::validate($fields, array(
@@ -170,7 +159,7 @@ function improveseo_lists()
 			exit;
 		}
 
-		$list = isset($_POST['list']) ? trim(sanitize_text_field($_POST['list'])) : ''; // Check if $_POST['list'] is set/PelConvert.php
+		$list = isset($_POST['list']) ? trim(sanitize_textarea_field($_POST['list'])) : ''; // Check if $_POST['list'] is set/PelConvert.php
 
 
 		// $list = array_map(function ($item) {

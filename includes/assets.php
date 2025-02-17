@@ -29,15 +29,15 @@ function improveseo_enqueue_admin()
         )
     );
 
-    wp_enqueue_script('improveseo-imagescraper', esc_url(IMPROVESEO_DIR . '/assets/js/imagescraper.js'), array('jQuery'), IMPROVESEO_VERSION, true);
-    wp_enqueue_script('improveseo-videoscraper', esc_url(IMPROVESEO_DIR . '/assets/js/videoscraper.js'), array('jQuery'), IMPROVESEO_VERSION, true);
-    wp_enqueue_script('improveseo-exif', esc_url(IMPROVESEO_DIR . '/assets/js/exif.js'), array('jQuery'), IMPROVESEO_VERSION, true);
-    wp_enqueue_script('improveseo-wordai', esc_url(IMPROVESEO_DIR . '/assets/js/wordai.js', array('jQuery')), IMPROVESEO_VERSION, true);
-    wp_enqueue_script('improveseo-modal', esc_url(IMPROVESEO_DIR . '/assets/js/jquery.modal.min.js', array('jQuery')), IMPROVESEO_VERSION, true);
+//    wp_enqueue_script('improveseo-imagescraper', esc_url(IMPROVESEO_DIR . '/assets/js/imagescraper.js'), array('jquery'), IMPROVESEO_VERSION, true);
+//    wp_enqueue_script('improveseo-videoscraper', esc_url(IMPROVESEO_DIR . '/assets/js/videoscraper.js'), array('jquery'), IMPROVESEO_VERSION, true);
+    wp_enqueue_script('improveseo-exif', esc_url(IMPROVESEO_DIR . '/assets/js/exif.js'), array('jquery'), IMPROVESEO_VERSION, true);
+    wp_enqueue_script('improveseo-wordai', esc_url(IMPROVESEO_DIR . '/assets/js/wordai.js'), array('jquery'), IMPROVESEO_VERSION, true);
+    wp_enqueue_script('improveseo-modal', esc_url(IMPROVESEO_DIR . '/assets/js/jquery.modal.min.js'), array('jquery'), IMPROVESEO_VERSION, true);
 
 
-    wp_enqueue_script('improveseo-notify', esc_url(IMPROVESEO_DIR . '/assets/js/notify.js', array('jQuery')), IMPROVESEO_VERSION, true);
-    wp_enqueue_script('improveseo-popup', esc_url(IMPROVESEO_DIR . '/assets/js/popup.js'), array('jQuery'), IMPROVESEO_VERSION, true);
+    wp_enqueue_script('improveseo-notify', esc_url(IMPROVESEO_DIR . '/assets/js/notify.js', array('jquery')), IMPROVESEO_VERSION, true);
+    wp_enqueue_script('improveseo-popup', esc_url(IMPROVESEO_DIR . '/assets/js/popup.js'), array('jquery'), IMPROVESEO_VERSION, true);
 
     wp_enqueue_script('improveseo-underscore', "/wp-includes/js/underscore.js", array('underscore'));
 
@@ -105,11 +105,11 @@ function improveseo_enqueue_admin()
                 }
             }
 
-            wp_enqueue_script('improveseo-caret-form', IMPROVESEO_DIR . '/assets/js/jquery.caret.js', array('jQuery'), IMPROVESEO_VERSION, true);
-            wp_enqueue_script('improveseo-form', IMPROVESEO_DIR . '/assets/js/form.js', array('jQuery'), IMPROVESEO_VERSION, true);
+            wp_enqueue_script('improveseo-caret-form', IMPROVESEO_DIR . '/assets/js/jquery.caret.js', array('jquery'), IMPROVESEO_VERSION, true);
+            wp_enqueue_script('improveseo-form', IMPROVESEO_DIR.'/assets/js/form.js', array('jquery'), IMPROVESEO_VERSION, true);
             wp_localize_script('improveseo-form', 'form_ajax_vars', array(
-                    'ajax_url' => admin_url('admin-ajax.php'),
-                    'admin_url' => admin_url('admin.php'),
+                    'ajax_url'      		=> 	admin_url( 'admin-ajax.php' ),
+                    'admin_url'      		=> 	admin_url( 'admin.php' ),
                     //'autocomplete_src'		=> $autocomplete_arr
                 )
             );

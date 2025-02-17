@@ -25,7 +25,6 @@ function improveseo_dashboard()
 		View::render('dashboard.index');
 	elseif ($action == 'do_create_post') :
 
-
 		// Verify the nonce
 		if (!isset(($_POST['improveseo_do_create_post_nonce'])) || !wp_verify_nonce(sanitize_text_field($_POST['improveseo_do_create_post_nonce']), 'improveseo_do_create_post_nonce')) {
 			wp_die("Nonce verification failed");  // If the nonce is invalid, terminate the script

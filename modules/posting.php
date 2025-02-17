@@ -60,7 +60,7 @@ function improveseo_posting()
             $fields_to_validate = array(
                 'name' => filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING),
                 'title' => filter_input(INPUT_POST, 'title', FILTER_SANITIZE_STRING),
-                'content' => filter_input(INPUT_POST, 'content', FILTER_SANITIZE_STRING),
+                'content' => filter_input(INPUT_POST, 'content', FILTER_UNSAFE_RAW),
                 'post_type' => filter_input(INPUT_POST, 'post_type', FILTER_SANITIZE_STRING),
                 'max_posts' => filter_input(INPUT_POST, 'max_posts', FILTER_VALIDATE_INT),
                 'dripfeed_x' => filter_input(INPUT_POST, 'dripfeed_x', FILTER_VALIDATE_INT),
@@ -110,7 +110,7 @@ function improveseo_posting()
         // Count list items
         // Sanitize and validate the input
         $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_STRING);
-        $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_STRING);
+        $content = filter_input(INPUT_POST, 'content', FILTER_UNSAFE_RAW);
         $custom_title = filter_input(INPUT_POST, 'custom_title', FILTER_SANITIZE_STRING);
         $custom_description = filter_input(INPUT_POST, 'custom_description', FILTER_SANITIZE_STRING);
         $custom_keywords = filter_input(INPUT_POST, 'custom_keywords', FILTER_SANITIZE_STRING);

@@ -10,11 +10,11 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 function improveseo_projects()
 {
 	global $wpdb;
-
 	$action = isset($_GET['action']) ? sanitize_text_field($_GET['action']) : 'index';
 	$limit = isset($_GET['limit']) ? intval($_GET['limit']) : 20;
 	$offset = isset($_GET['paged']) ? max(0, intval($_GET['paged']) * $limit - $limit) : 0;
 
+    error_log("ACTION => ". $action);
 	$model = new Task();
 
 
@@ -245,18 +245,16 @@ function improveseo_projects()
 	elseif ($action == 'export_preview_url') :
 
 		$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
-
-
-
-
+        error_log("ID => ". $id);
 		$urls = [];
 		$posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
-		foreach ($posts as $post) {
+		error_log("POSTS => ". json_encode($posts));
+        foreach ($posts as $post) {
 			$url = get_permalink($post->post_id);
 			$url .= "?id=" . $id;
 			array_push($urls, $url);
 		}
-
+        error_log("URLS => ". json_encode($urls));
 		$preview_url_key = array_rand($urls, 1);
 		$preview_url = $urls[$preview_url_key];
 
