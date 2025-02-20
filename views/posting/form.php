@@ -13,7 +13,6 @@ $wordAiPass = get_option('improveseo_word_ai_pass');
 $wordAiEmail = get_option('improveseo_word_ai_email');
 $pixabayKey = get_option('improveseo_pixabay_key');
 $googleApiKey = get_option('improveseo_google_api_key');
-
 ?>
 
 <input type="hidden" name="post_type" value="<?php echo esc_attr($inputProjectType); ?>" />

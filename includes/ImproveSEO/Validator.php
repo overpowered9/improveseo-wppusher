@@ -111,7 +111,7 @@ class Validator
                 $data[$key] = self::sanitizeData($value);
             }
         } else {
-            $data = filter_var($data, FILTER_SANITIZE_STRING);
+            $data = filter_var($data, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         }
 
         return $data;

@@ -58,16 +58,16 @@ function improveseo_posting()
                 'state_channel_content' => 'required_if:state_channel_page'
             );
             $fields_to_validate = array(
-                'name' => filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING),
-                'title' => filter_input(INPUT_POST, 'title', FILTER_SANITIZE_STRING),
+                'name' => filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                'title' => filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
                 'content' => filter_input(INPUT_POST, 'content', FILTER_UNSAFE_RAW),
-                'post_type' => filter_input(INPUT_POST, 'post_type', FILTER_SANITIZE_STRING),
+                'post_type' => filter_input(INPUT_POST, 'post_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
                 'max_posts' => filter_input(INPUT_POST, 'max_posts', FILTER_VALIDATE_INT),
                 'dripfeed_x' => filter_input(INPUT_POST, 'dripfeed_x', FILTER_VALIDATE_INT),
-                'city_channel_title' => filter_input(INPUT_POST, 'city_channel_title', FILTER_SANITIZE_STRING),
-                'city_channel_content' => filter_input(INPUT_POST, 'city_channel_content', FILTER_SANITIZE_STRING),
-                'state_channel_title' => filter_input(INPUT_POST, 'state_channel_title', FILTER_SANITIZE_STRING),
-                'state_channel_content' => filter_input(INPUT_POST, 'state_channel_content', FILTER_SANITIZE_STRING)
+                'city_channel_title' => filter_input(INPUT_POST, 'city_channel_title', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                'city_channel_content' => filter_input(INPUT_POST, 'city_channel_content', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                'state_channel_title' => filter_input(INPUT_POST, 'state_channel_title', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                'state_channel_content' => filter_input(INPUT_POST, 'state_channel_content', FILTER_SANITIZE_FULL_SPECIAL_CHARS)
             );
 
             if (!Validator::validate($fields_to_validate, $validation_rules) && !isset($_POST['draft'])) {
@@ -109,13 +109,13 @@ function improveseo_posting()
         // Math maximum number of posts
         // Count list items
         // Sanitize and validate the input
-        $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_STRING);
+        $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $content = filter_input(INPUT_POST, 'content', FILTER_UNSAFE_RAW);
-        $custom_title = filter_input(INPUT_POST, 'custom_title', FILTER_SANITIZE_STRING);
-        $custom_description = filter_input(INPUT_POST, 'custom_description', FILTER_SANITIZE_STRING);
-        $custom_keywords = filter_input(INPUT_POST, 'custom_keywords', FILTER_SANITIZE_STRING);
+        $custom_title = filter_input(INPUT_POST, 'custom_title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $custom_description = filter_input(INPUT_POST, 'custom_description', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $custom_keywords = filter_input(INPUT_POST, 'custom_keywords', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $permalink = filter_input(INPUT_POST, 'permalink', FILTER_SANITIZE_URL);
-        $tags = filter_input(INPUT_POST, 'tags', FILTER_SANITIZE_STRING);
+        $tags = filter_input(INPUT_POST, 'tags', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
         $fields = array($title, $content, $custom_title, $custom_description, $custom_keywords, $permalink, $tags);
 
@@ -307,7 +307,7 @@ function improveseo_posting()
 
         // Dripfeed Feature
         if (isset($_POST['dripfeed_enabler'])) {
-            $dripfeed_type = filter_input(INPUT_POST, 'dripfeed_type', FILTER_SANITIZE_STRING);
+            $dripfeed_type = filter_input(INPUT_POST, 'dripfeed_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             if ($dripfeed_type !== false && ($dripfeed_type === 'per-day' || $dripfeed_type === 'over-days')) {
                 $options_data['dripfeed_type'] = $dripfeed_type;
             }

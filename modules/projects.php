@@ -92,239 +92,160 @@ function improveseo_projects()
 
 
 	if ($action == 'index') :
+
 		// Filters
 		$orderBy = isset($_GET['orderBy']) && in_array($_GET['orderBy'], $allowed_order_by) ? sanitize_text_field($_GET['orderBy']) : 'created_at';
-
 		$order = isset($_GET['order']) && in_array($_GET['order'], $allowed_order) ? sanitize_text_field($_GET['order']) : 'desc';
-
-
 		$highlight = isset($_GET['highlight']) ? sanitize_text_field($_GET['highlight']) : null;
-
-		$where = array();
-
-		$params = array();
-		$tablename = $model->getTable();
-		$sql = "SELECT * FROM $tablename";
-		$sqlTotal = 'SELECT COUNT(id) AS total FROM tablename';
-		$sqlTotal = $wpdb->prepare($sqlTotal, $params);
-		$params[] = $offset;
-		$params[] = $limit;
-		$sql .= " ORDER BY $orderBy $order";
-
-		$sql .= " LIMIT %d, %d";
-
-
-
-		$sql = $wpdb->prepare($sql, $params);
-
-
-		$projects = $wpdb->get_results($sql);
-
+	
+		$tablename = $wpdb->prefix . "improveseo_tasks"; // Ensure correct table name
+	
+		// Fetch total count
+		$sqlTotal = "SELECT COUNT(id) AS total FROM $tablename";
 		$total_row = $wpdb->get_row($sqlTotal);
-		$total = $total_row->total;
-
-		$pages = ceil($total / $limit);
+		$total = isset($total_row->total) ? $total_row->total : 0;
+	
+		// Fetch paginated data
+		$sql = $wpdb->prepare(
+			"SELECT * FROM $tablename ORDER BY $orderBy $order LIMIT %d, %d",
+			$offset,
+			$limit
+		);
+	
+		$projects = $wpdb->get_results($sql);
+		$pages = ($limit > 0) ? ceil($total / $limit) : 1;
 		$page = floor($offset / $limit) + 1;
-
+	
 		View::render('projects.index', compact('projects', 'page', 'pages', 'order', 'orderBy', 'highlight'));
-
+	
 	elseif ($action == 'delete') :
-
+	
 		$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
-		$post_tablename = $wpdb->prefix . "posts";
-		$postmeta_tablename = $wpdb->prefix . "postmeta";
-		$sql = "DELETE FROM $post_tablename WHERE ID IN (SELECT post_id FROM $postmeta_tablename WHERE meta_key = 'improveseo_project_id' AND meta_value = %d)";
-		// Delete all posts from this project  
-		$wpdb->query($wpdb->prepare($sql, $id));
-		$sql = "DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s";
-		$wpdb->query($wpdb->prepare($sql, $id));
-
-		$model->delete($id);
-
-		FlashMessage::success('Project and all posts/pages deleted.');
+		if ($id) {
+			$post_table = $wpdb->prefix . "posts";
+			$postmeta_table = $wpdb->prefix . "postmeta";
+	
+			// Delete all posts from this project
+			$wpdb->query($wpdb->prepare("DELETE FROM $post_table WHERE ID IN (SELECT post_id FROM $postmeta_table WHERE meta_key = 'improveseo_project_id' AND meta_value = %d)", $id));
+			$wpdb->query($wpdb->prepare("DELETE FROM $postmeta_table WHERE meta_key = 'improveseo_project_id' AND meta_value = %d", $id));
+	
+			$model->delete($id);
+			FlashMessage::success('Project and all posts/pages deleted.');
+		}
+		
 		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
 		exit;
-
-	elseif ($action == 'delete_posts') :
-
-		$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
-
-
-		// Delete all posts from this project
-		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE post_id IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s) AND meta_key = 'improveseo_channel'", $id));
-		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));
-		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
-
-		$model->update(array('iteration' => 0), $id);
-
-		FlashMessage::success('All posts/pages deleted.');
-		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
-		exit;
-
-	elseif ($action == 'stop') :
-
-		$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
-
-
-		$model->update(array('deleted_at' => '1970-01-01 11:11:11'), $id);
-
-		FlashMessage::success('Project stopped. You can continue process by clicking Build posts');
-		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
-		exit;
-
-	elseif ($action == 'export_urls') :
-
-		$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
-
-		$project_name = sanitize_title_with_dashes($_GET['name']);
-
-
-
-		$urls = "";
-		$posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
-		foreach ($posts as $post) {
-			$urls .= get_permalink($post->post_id) . "\r\n";
-		}
-
-		file_put_contents("$project_name.txt", $urls);
-
-		header('Content-Type: application/octet-stream');
-		header('Content-Disposition: attachment; filename=' . basename("$project_name.txt"));
-		header('Expires: 0');
-		header('Cache-Control: must-revalidate');
-		header('Pragma: public');
-		header('Content-Length: ' . filesize("$project_name.txt"));
-		readfile("$project_name.txt");
-		exit;
-
-	elseif ($action == 'export_all_project') :
-
-		$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_tasks"));
-
-		if (empty($data)) {
-			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
-		}
-
-		improveseo_wt_load_templates('import-export.php');
-		$exportRecords = new improveseo_import_export();
-		$exportRecords->export($data, 'all-project');
-
-		exit;
-
-	elseif ($action == 'export_project') :
-
-		$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
-
-		$project_name = sanitize_title_with_dashes($_GET['name']);
-
-
-
-		$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_tasks where id = %s", $id));
-
-		$header_row = [];
-		$data_row = [];
-		foreach ($data[0] as $key => $value) {
-			$header_row[] = $key;
-			$data_row[] = $value;
-		}
-
-		header('Content-type: text/csv');
-		header('Content-Disposition: attachment; filename=' . basename("$project_name.csv"));
-		header('Expires: 0');
-		header('Pragma: public');
-
-		$fh = @fopen('php://output', 'w');
-
-		fprintf($fh, chr(0xEF) . chr(0xBB) . chr(0xBF));
-		fputcsv($fh, $header_row);
-		fputcsv($fh, $data_row);
-		fclose($fh);
-
-		exit;
-
 	elseif ($action == 'export_preview_url') :
+	
+		$id = $_GET['id'];
+		@set_time_limit(0);
 
-		$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
-        error_log("ID => ". $id);
 		$urls = [];
 		$posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
-		error_log("POSTS => ". json_encode($posts));
-        foreach ($posts as $post) {
+		error_log(print_r($posts, true));
+		foreach ($posts as $post) {
 			$url = get_permalink($post->post_id);
 			$url .= "?id=" . $id;
 			array_push($urls, $url);
 		}
-        error_log("URLS => ". json_encode($urls));
+
 		$preview_url_key = array_rand($urls, 1);
 		$preview_url = $urls[$preview_url_key];
 
 		header("location: $preview_url");
 		exit;
-
-
-
-
-	elseif ($action == 'duplicate') :
-
+	
+	elseif ($action == 'export_urls') :
+	
 		$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
-
-
-		$task = $model->find($id);
-
-		$new_id = $model->create(array(
-			'name' => $task->name . ' - Copy',
-			'content' => base64_encode(json_encode($task->content)),
-			'options' => base64_encode(json_encode($task->options)),
-			'spintax_iterations' => $task->spintax_iterations,
-			'max_iterations' => $task->max_iterations,
-			'state' => 'Draft'
-		));
-
-		FlashMessage::success('Project duplicated.');
-		wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$new_id}"));
-		exit;
-
-	elseif ($action == 'bulk-delete-all') :
-		if (isset($_GET['project_ids'])) {
-			$project_ids = isset($_GET['project_ids']) ? sanitize_text_field($_GET['project_ids']) : '';
-
-			if (!empty($project_ids)) {
-				foreach ($project_ids as $project_id) {
-					// Delete all posts from this project
-					$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $project_id));
-
-					$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $project_id));
-
-					$model->delete($project_id);
-				}
-				FlashMessage::success('All posts/pages deleted.');
+		$project_name = isset($_GET['name']) ? sanitize_file_name($_GET['name']) : 'exported_urls';
+	
+		if ($id) {
+			$urls = [];
+			$posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %d", $id));
+			
+			foreach ($posts as $post) {
+				$urls[] = get_permalink($post->post_id);
 			}
+	
+			$file_path = WP_CONTENT_DIR . "/uploads/$project_name.txt";
+			file_put_contents($file_path, implode("\r\n", $urls));
+	
+			header('Content-Type: application/octet-stream');
+			header('Content-Disposition: attachment; filename=' . basename($file_path));
+			header('Content-Length: ' . filesize($file_path));
+			readfile($file_path);
+			exit;
+		}
+	
+	elseif ($action == 'export_project') 
+	
+		$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
+		$project_name = isset($_GET['name']) ? sanitize_file_name($_GET['name']) : 'exported_project';
+	
+		if ($id) {
+			$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_tasks WHERE id = %d", $id));
+	
+			if (!empty($data)) {
+				$header_row = array_keys((array) $data[0]);
+				$data_row = array_values((array) $data[0]);
+	
+				header('Content-type: text/csv');
+				header('Content-Disposition: attachment; filename=' . $project_name . '.csv');
+	
+				$fh = fopen('php://output', 'w');
+				fputcsv($fh, $header_row);
+				fputcsv($fh, $data_row);
+				fclose($fh);
+	
+				exit;
+			}
+		}
+	
+		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+		exit;
+	
+	elseif ($action == 'bulk-delete-all') :
+	
+		if (!empty($_GET['project_ids']) && is_array($_GET['project_ids'])) {
+			$project_ids = array_map('intval', $_GET['project_ids']);
+	
+			foreach ($project_ids as $project_id) {
+				$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %d)", $project_id));
+				$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %d", $project_id));
+				$model->delete($project_id);
+			}
+	
+			FlashMessage::success('All selected projects and their posts deleted.');
 		} else {
 			FlashMessage::message('Please select projects', 'error');
 		}
+	
 		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
 		exit;
+	
 	elseif ($action == 'bulk-delete-posts') :
-		if (isset($_GET['project_ids'])) {
-			$project_ids = isset($_GET['project_ids']) ? sanitize_text_field($_GET['project_ids']) : '';
-
-			if (!empty($project_ids)) {
-				foreach ($project_ids as $project_id) {
-					// Delete all posts from this project
-					$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE post_id IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s) AND meta_key = 'improveseo_channel'", $project_id));
-					$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $project_id));
-					$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $project_id));
-
-					$model->update(array('iteration' => 0), $project_id);
-				}
-				FlashMessage::success('All posts/pages deleted.');
+	
+		if (!empty($_GET['project_ids']) && is_array($_GET['project_ids'])) {
+			$project_ids = array_map('intval', $_GET['project_ids']);
+	
+			foreach ($project_ids as $project_id) {
+				$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}postmeta WHERE post_id IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %d) AND meta_key = 'improveseo_channel'", $project_id));
+				$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %d)", $project_id));
+				$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %d", $project_id));
+				$model->update(['iteration' => 0], $project_id);
 			}
+	
+			FlashMessage::success('All selected posts/pages deleted.');
 		}
+	
 		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
 		exit;
+	
 	elseif ($action == 'bulk-empty') :
 		FlashMessage::message('Please select an option from bulk actions', 'error');
 		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
 		exit;
 	endif;
+	
 }

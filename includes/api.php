@@ -12,7 +12,7 @@ global $wpdb;
 
 
 if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
-    $act = isset($_GET['action']) ? filter_var($_GET['action'], FILTER_SANITIZE_STRING) : '';
+    $act = isset($_GET['action']) ? filter_var($_GET['action'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
     $results = array();
 
     // Generate JSON data for GEO Tree
@@ -22,7 +22,7 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
         // Show US Data
         if ($country == 'us') {
             if (isset($_GET['id']) && $_GET['id'] != '#') {
-                $id = isset($_GET['id']) ? urldecode(filter_var($_GET['id'], FILTER_SANITIZE_STRING)) : '';
+                $id = isset($_GET['id']) ? urldecode(filter_var($_GET['id'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)) : '';
                 // Show zip codes
                 if (substr_count($id, '/') == 1) {
                     list($state, $city) = explode('/', $id);
@@ -85,7 +85,7 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
         }        // Show UK Data
         elseif ($country == 'uk') {
             if (isset($_GET['id']) && $_GET['id'] != '#') {
-                $id = isset($_GET['id']) ? urldecode(filter_var($_GET['id'], FILTER_SANITIZE_STRING)) : '';
+                $id = isset($_GET['id']) ? urldecode(filter_var($_GET['id'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)) : '';
 
 
                 // Show zip codes
@@ -164,7 +164,7 @@ if (isset($_GET['api']) && $_GET['api'] == 'improveseo') {
             $model = new GeoData();
 
             if (isset($_GET['id']) && $_GET['id'] != '#') {
-                $id = isset($_GET['id']) ? urldecode(filter_var($_GET['id'], FILTER_SANITIZE_STRING)) : '';
+                $id = isset($_GET['id']) ? urldecode(filter_var($_GET['id'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)) : '';
 
 
                 // Show zip codes

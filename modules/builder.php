@@ -25,7 +25,7 @@ function improveseo_builder()
 	$ajax = filter_input(INPUT_GET, 'ajax', FILTER_VALIDATE_BOOLEAN);
 
 	// Sanitize and validate the 'page' parameter
-	$page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_STRING);
+	$page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 	if (!$page) {
 		$page = 100;
@@ -40,7 +40,7 @@ function improveseo_builder()
 
 	improveseo_debug_start();;;
 
-	$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
+	$id = $_GET['id'];
 
 
 	if (!$id) {
@@ -58,8 +58,13 @@ function improveseo_builder()
 	), $id);
 
 	$project = $model->find($id);
-	$options = $project->options;
-	$categories = $project->cats;
+
+	if (!$project) {
+		error_log("⚠️ No project found for ID: " . $id);
+		return; // Stop execution if the project is null
+	}
+	$options = $project->options ?? [];
+	$categories = $project->cats ?? [];
 
 	$posts = 1;
 	$geo = isset($options['local_geo_country']);
@@ -222,11 +227,14 @@ function improveseo_builder()
 
 	improveseo_debug_message('Ready for building.. (time ' . improveseo_debug_time() . ' ms)<br>--------------------------<br>');
 
+	if (!isset($project->iteration) || is_null($project->iteration)) {
+		$project->iteration = 0;
+	}
 	for ($i = 1; $i <= $page; $i++) {
 		$project->iteration++;
 		$current_per_day++;
 		$current_post++;
-
+	
 		if ($project->iteration == $project->max_iterations + 1) {
 			$project->iteration = $project->max_iterations;
 			break;

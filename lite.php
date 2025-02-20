@@ -40,36 +40,29 @@ register_activation_hook(__FILE__, 'improveseo_install_data');
 
 register_deactivation_hook(__FILE__, 'improveseo_uninstall');
 
-function improve_seo_enqueue_scripts($hook)
-{
-	global $wpdb;
+function improve_seo_enqueue_scripts($hook) {
 
-	if ($hook !== 'improve-seo_page_improveseo_projects') {
-		return;
-	}
+    if ($hook !== 'improve-seo_page_improveseo_projects') {
+        return;
+    }
 
 
-	$script_url = plugin_dir_url(__FILE__) . 'assets/js/improveSeo-inline.js';
+    $script_url = plugin_dir_url(__FILE__) . 'assets/js/improveSeo-inline.js';
 
-	wp_enqueue_script('improveSeo-inline-script', $script_url, array('jquery'), time(), true);
-	$projects = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}improveseo_tasks ORDER BY id DESC");
+    wp_enqueue_script('improveSeo-inline-script', $script_url, array('jquery'), time(), true);
+    $post_preview = isset($_GET['post_preview']) && $_GET['post_preview'] == 'true';
+    if ($post_preview && isset($projects[0])) {
+        $project_id = esc_attr($projects[0]->id);
+    } else {
+        $project_id = 96;
+    }
 
-	$post_preview = isset($_GET['post_preview']) && $_GET['post_preview'] == 'true';
+    wp_localize_script('improveSeo-inline-script', 'improveSeoData', [
+        'post_preview' => $post_preview,
+        'project_id'   => $project_id
+    ]);
 
-	// Check if projects exist before accessing it
-	if ($post_preview && !empty($projects) && isset($projects[0])) {
-		$project_id = esc_attr($projects[0]->id);
-	} else {
-		$project_id = 96; // Default project ID
-	}
-
-
-	wp_localize_script('improveSeo-inline-script', 'improveSeoData', [
-		'post_preview' => $post_preview,
-		'project_id'   => $project_id
-	]);
-
-	$improve_seo_inline_script_3 = "
+    $improve_seo_inline_script_3 = "
         if (improveSeoData.post_preview && improveSeoData.project_id) {
             console.log('🚀 Running build_project automatically for preview:', improveSeoData.project_id);
             build_project(improveSeoData.project_id);
@@ -141,7 +134,7 @@ function improve_seo_enqueue_scripts($hook)
         });
     ";
 
-	wp_add_inline_script('improveSeo-inline-script', $improve_seo_inline_script_3);
+    wp_add_inline_script('improveSeo-inline-script', $improve_seo_inline_script_3);
 }
 
 add_action('admin_enqueue_scripts', 'improve_seo_enqueue_scripts');
@@ -161,75 +154,74 @@ add_filter('jpeg_quality', function ($arg) {
 
 //adding buttons to content editor
 add_action('media_buttons', 'improveseo_media_button');
-function improveseo_media_button()
-{
+function improveseo_media_button() {
 
-	if (function_exists('get_current_screen')) {
-		$my_current_screen = get_current_screen();
-		$allowed_bases = array('improve-seo_page_improveseo_posting');
-		if (!in_array($my_current_screen->base, $allowed_bases)) {
-			return;
-		}
-	}
+    if (function_exists('get_current_screen')) {
+        $my_current_screen = get_current_screen();
+        $allowed_bases = array('improve-seo_page_improveseo_posting');
+        if (!in_array($my_current_screen->base, $allowed_bases)) {
+            return;
+        }
+    }
 
-	$html = '';
-	$html .= '<select class="sw-editor-selector" style="text-align:left !important;">
+    $html = '';
+    $html .= '<select class="sw-editor-selector" style="text-align:left !important;">
                 <option value="addshortcode">Add Shortcode</option>
                 <option value="list">Lists</option>
              </select> &nbsp;';
-	$saved_rnos =  get_option('improveseo_get_saved_random_numbers');
+    $saved_rnos =  get_option('improveseo_get_saved_random_numbers');
 
-	if (!empty($saved_rnos)) {
-		foreach ($saved_rnos as $id) {
+    if (!empty($saved_rnos)) {
+        foreach ($saved_rnos as $id) {
 
-			$testimonial = get_option('improveseo_get_testimonials_' . $id);
-			if (!empty($testimonial)) {
-				$display_name = $id;
-				$data_name = '';
-				if (isset($testimonial['tw_testi_shortcode_name']) && $testimonial['tw_testi_shortcode_name'] != "") {
-					$data_name = $display_name = $testimonial['tw_testi_shortcode_name'];
-				}
-				$html .= '<button data-action="testimonial" data-name="' . esc_attr($data_name) . '" id="' . esc_attr($id) . '" class="sw-hide-btn button">Add Testimonial - ' . esc_html($display_name) . '</button>';
-			}
+            $testimonial = get_option('improveseo_get_testimonials_' . $id);
+            if (!empty($testimonial)) {
+                $display_name = $id;
+                $data_name = '';
+                if (isset($testimonial['tw_testi_shortcode_name']) && $testimonial['tw_testi_shortcode_name'] != "") {
+                    $data_name = $display_name = $testimonial['tw_testi_shortcode_name'];
+                }
+                $html .= '<button data-action="testimonial" data-name="' . esc_attr($data_name) . '" id="' . esc_attr($id) . '" class="sw-hide-btn button">Add Testimonial - ' . esc_html($display_name) . '</button>';
+            }
 
-			$buttons = get_option('improveseo_get_buttons_' . $id);
-			if (!empty($buttons)) {
-				$display_name = $id;
-				$data_name = '';
-				if (isset($buttons['tw_button_shortcode_name']) && $buttons['tw_button_shortcode_name'] != "") {
-					$data_name = $display_name = $buttons['tw_button_shortcode_name'];
-				}
-				$html .= '<button data-action="button" data-name="' . esc_attr($data_name) . '" id="' . esc_attr($id) . '" class="sw-hide-btn button">Add Button - ' . esc_html($display_name) . '</button>';
-			}
+            $buttons = get_option('improveseo_get_buttons_' . $id);
+            if (!empty($buttons)) {
+                $display_name = $id;
+                $data_name = '';
+                if (isset($buttons['tw_button_shortcode_name']) && $buttons['tw_button_shortcode_name'] != "") {
+                    $data_name = $display_name = $buttons['tw_button_shortcode_name'];
+                }
+                $html .= '<button data-action="button" data-name="' . esc_attr($data_name) . '" id="' . esc_attr($id) . '" class="sw-hide-btn button">Add Button - ' . esc_html($display_name) . '</button>';
+            }
 
-			$google_map = get_option('improveseo_get_googlemaps_' . $id);
-			if (!empty($google_map)) {
-				$display_name = $id;
-				$data_name = '';
-				if (isset($google_map['tw_maps_shortcode_name']) && $google_map['tw_maps_shortcode_name'] != "") {
-					$data_name = $display_name = $google_map['tw_maps_shortcode_name'];
-				}
-				$html .= '<button data-action="googlemap" data-name="' . esc_attr($data_name) . '" id="' . esc_attr($id) . '" class="sw-hide-btn button">Add GoogleMap - ' . esc_html($display_name) . '</button>';
-			}
+            $google_map = get_option('improveseo_get_googlemaps_' . $id);
+            if (!empty($google_map)) {
+                $display_name = $id;
+                $data_name = '';
+                if (isset($google_map['tw_maps_shortcode_name']) && $google_map['tw_maps_shortcode_name'] != "") {
+                    $data_name = $display_name = $google_map['tw_maps_shortcode_name'];
+                }
+                $html .= '<button data-action="googlemap" data-name="' . esc_attr($data_name) . '" id="' . esc_attr($id) . '" class="sw-hide-btn button">Add GoogleMap - ' . esc_html($display_name) . '</button>';
+            }
 
-			$videos = get_option('improveseo_get_videos_' . $id);
-			if (!empty($videos)) {
-				$display_name = $id;
-				$data_name = '';
-				if (isset($videos['video_shortcode_name']) && $videos['video_shortcode_name'] != "") {
-					$data_name = $display_name = $videos['video_shortcode_name'];
-				}
-				$html .= '<button data-action="video" data-name="' . esc_attr($data_name) . '" id="' . esc_attr($id) . '" class="sw-hide-btn button">Add Video - ' . esc_html($display_name) . '</button>';
-			}
-		}
-	}
+            $videos = get_option('improveseo_get_videos_' . $id);
+            if (!empty($videos)) {
+                $display_name = $id;
+                $data_name = '';
+                if (isset($videos['video_shortcode_name']) && $videos['video_shortcode_name'] != "") {
+                    $data_name = $display_name = $videos['video_shortcode_name'];
+                }
+                $html .= '<button data-action="video" data-name="' . esc_attr($data_name) . '" id="' . esc_attr($id) . '" class="sw-hide-btn button">Add Video - ' . esc_html($display_name) . '</button>';
+            }
+        }
+    }
 
-	$seo_list = improveseo_lits();
-	if (!empty($seo_list)) {
-		foreach ($seo_list as $li) {
-			$html .= '<button data-action="list" class="sw-hide-btn add-seolistshortcode button" id="' . esc_attr($li) . '">@list:' . esc_html($li) . '</button>';
-		}
-	}
+    $seo_list = improveseo_lits();
+    if (!empty($seo_list)) {
+        foreach ($seo_list as $li) {
+            $html .= '<button data-action="list" class="sw-hide-btn add-seolistshortcode button" id="' . esc_attr($li) . '">@list:' . esc_html($li) . '</button>';
+        }
+    }
 
 	$allowed_html = array(
 		'select' => array(   // Allow <select> tag with these attributes
@@ -247,7 +239,7 @@ function improveseo_media_button()
 		),
 	);
 
-	echo wp_kses($html, $allowed_html);
+    echo wp_kses($html, $allowed_html);
 }
 
 function improveseo_lits()
@@ -354,7 +346,7 @@ add_action('admin_enqueue_scripts', 'improveseo_hide_other_notices');
 function improveseo_hide_other_notices()
 {
 
-
+	
 
 
 	if (is_admin()) {
@@ -379,7 +371,7 @@ function improveseo_hide_other_notices()
 						'type' => true,  // Allow the 'type' attribute
 					),
 				);
-
+				
 				echo wp_kses('<style>.notice{ display:none !important;}</style>', $allowed_html);
 			}
 		}
@@ -969,5 +961,6 @@ class Improveseo_Testimonial
 			)
 		);
 	}
+
 }
 new Improveseo_Testimonial;

@@ -33,9 +33,9 @@ function improveseo_lists()
 	if ($action == 'index') :
 
 		// Filters
-		$orderBy = isset($_GET['orderBy']) ? filter_var($_GET['orderBy'], FILTER_SANITIZE_STRING) : 'created_at';
-		$order = isset($_GET['order']) ? filter_var($_GET['order'], FILTER_SANITIZE_STRING) : 'desc';
-		$s = isset($_GET['s']) ? filter_var($_GET['s'], FILTER_SANITIZE_STRING) : '';
+		$orderBy = isset($_GET['orderBy']) ? filter_var($_GET['orderBy'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : 'created_at';
+		$order = isset($_GET['order']) ? filter_var($_GET['order'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : 'desc';
+		$s = isset($_GET['s']) ? filter_var($_GET['s'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
 
 
 		$where = array();

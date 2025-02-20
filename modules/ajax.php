@@ -183,13 +183,13 @@ function improveseo_generate_preview()
     }
 
 
-    $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_STRING);
-    $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_STRING);
-    $custom_title = filter_input(INPUT_POST, 'custom_title', FILTER_SANITIZE_STRING);
-    $custom_description = filter_input(INPUT_POST, 'custom_description', FILTER_SANITIZE_STRING);
-    $custom_keywords = filter_input(INPUT_POST, 'custom_keywords', FILTER_SANITIZE_STRING);
+    $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $content = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $custom_title = filter_input(INPUT_POST, 'custom_title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $custom_description = filter_input(INPUT_POST, 'custom_description', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $custom_keywords = filter_input(INPUT_POST, 'custom_keywords', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $permalink = filter_input(INPUT_POST, 'permalink', FILTER_SANITIZE_URL);
-    $tags = filter_input(INPUT_POST, 'tags', FILTER_SANITIZE_STRING);
+    $tags = filter_input(INPUT_POST, 'tags', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     $fields = array($title, $content, $custom_title, $custom_description, $custom_keywords, $permalink, $tags);
     // Math maximum number of posts
@@ -215,7 +215,7 @@ function improveseo_generate_preview()
         'iteration' => 0,
         'spintax_iterations' => 1,
         'max_iterations' => 1,
-        'cats' => wp_json_encode(array_map('sanitize_text_field', $_POST['cats']))
+        'cats' => isset($_POST['cats']) ? wp_json_encode(array_map('sanitize_text_field', $_POST['cats'])) : json_encode([])
     );
 
     $wpdb->query("SET GLOBAL max_allowed_packet = 268435456");

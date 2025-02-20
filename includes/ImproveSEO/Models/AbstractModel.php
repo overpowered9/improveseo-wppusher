@@ -45,15 +45,15 @@ abstract class AbstractModel
 	public function create($data)
 	{
 		global $wpdb;
-	
+
 		$fields = array();
 		$values = array();
 		$placeholders = array();
 		$vars = array();
-	
+
 		// Escape the data
 		$data = $this->escape($data);
-	
+
 		foreach ($data as $field => $value) {
 			if (in_array($field, $this->fillable)) {
 				// Handle attribute mutator if it exists
@@ -61,28 +61,28 @@ abstract class AbstractModel
 				if (method_exists($this, $method)) {
 					$value = $this->$method($value);
 				}
-	
+
 				// Escape the field name
 				$fields[] = esc_sql($field);
-	
+
 				// Add value placeholder and store the value
 				$placeholders[] = '%s'; // Or '%d' if the field expects integers
 				$vars[] = $value;
 			}
 		}
-	
+
 		// Implode the fields and placeholders
 		$fields_list = implode(", ", $fields); // Field names don't need placeholders
 		$placeholders_list = implode(", ", $placeholders); // These are for values
-	
+
 		// Build the SQL query for insert
 		$sql = "INSERT INTO " . esc_sql($this->getTable()) . " ($fields_list, created_at)";
 		$sql .= " VALUES ($placeholders_list, NOW())";
-	
+
 		// Prepare and execute the query
 		$prepared_sql = $wpdb->prepare($sql, $vars);
 		$wpdb->query($prepared_sql);
-	
+
 		// Return the inserted record's ID
 		return $wpdb->insert_id;
 	}
@@ -147,16 +147,21 @@ abstract class AbstractModel
 	{
 		global $wpdb;
 		$tablename = $this->getTable();
-		$sql = $wpdb->prepare("SELECT * FROM $tablename WHERE id = %d", [$id]);
+		$sql = $wpdb->prepare("SELECT * FROM $tablename WHERE id = %d", $id); // Remove unnecessary array brackets
 		$row = $wpdb->get_row($sql);
+
+		// If no record is found, return NULL early
+		if (!$row) {
+			return null;
+		}
 
 		// Type-cast
 		if (!empty($this->casts)) {
-			if (sizeof($this->casts)) {
-				foreach ($this->casts as $field => $type) {
-					if ($type == 'array') {
+			foreach ($this->casts as $field => $type) {
+				if (isset($row->$field)) { // Ensure field exists before modifying it
+					if ($type === 'array') {
 						$row->$field = json_decode($row->$field, true);
-					} elseif ($type == 'array|b64') {
+					} elseif ($type === 'array|b64') {
 						$row->$field = json_decode(base64_decode($row->$field), true);
 					}
 				}
@@ -165,6 +170,7 @@ abstract class AbstractModel
 
 		return $row;
 	}
+
 
 	public function all($orderBy = NULL)
 	{

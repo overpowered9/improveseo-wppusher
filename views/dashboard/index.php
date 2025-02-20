@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		<section class="project-section ">
 		<div class="project-heading border-bottom justify-content-between d-flex flex-row align-items-center pb-2">
 			<div class="project-header-left d-flex">
-				<img class="mr-2" src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/project-list-logo.png'); ?>" alt="<?php esc_attr_e('ImproveSeo', 'improve-seo'); ?>">
+				<img class="mr-2" src="<?php echo esc_url(WT_URL . '/assets/images/project-list-logo.png'); ?>" alt="<?php esc_attr_e('ImproveSeo', 'improve-seo'); ?>">
 				<h1><?php printf(esc_html_e('ImproveSEO |', 'improve-seo'), esc_html(IMPROVESEO_VERSION)); ?></h1>
 				<div class="pro-tag">
 					<span><?php esc_html_e('Lite', 'improve-seo'); ?></span>
@@ -49,7 +49,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_posting')); ?>">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
+										<img src="<?php echo esc_url(WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
 									</div>
 									<div class="title">
 										<h4><?php esc_html_e('Posting', 'improve-seo'); ?></h4>
@@ -74,7 +74,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_projects')); ?>">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
+										<img src="<?php echo esc_url(WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
 									</div>
 									<div class="title">
 										<h4><?php esc_html_e('Projects', 'improve-seo'); ?></h4>
@@ -98,7 +98,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_lists')); ?>">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
+										<img src="<?php echo esc_url(WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
 									</div>
 									<div class="title">
 										<h4><?php esc_html_e('Lists', 'improve-seo'); ?></h4>
@@ -121,7 +121,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						<div class="card">
 							<div class="card-body text-center">
 								<div class="icon-wrap">
-									<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
+									<img src="<?php echo esc_url(WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
 								</div>
 								<div class="title">
 									<h4><?php  esc_html_e('Meta', 'improve-seo'); ?></h4>
@@ -144,7 +144,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							<a href="http://bit.ly/improveseofaq" target="_blank">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
+										<img src="<?php echo esc_url(WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
 									</div>
 									<div class="title">
 										<h4><?php esc_html_e('FAQ', 'improve-seo'); ?></h4>
@@ -168,7 +168,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							<a href="javascript:void(0)" onclick="return confirm('<?php esc_html_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
+										<img src="<?php echo esc_url(WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
 									</div>
 									<div class="title">
 										<h4><?php esc_html_e('Author List', 'improve-seo'); ?> <span class="module-pro-tab"><?php esc_html_e('Pro', 'improve-seo'); ?></span></h4>
@@ -191,7 +191,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							<a href="javascript:void(0)" onclick="return confirm('<?php esc_html_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
+										<img src="<?php echo esc_url(WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
 									</div>
 									<div class="title">
 										<h4><?php esc_html_e('Keyword Generator', 'improve-seo'); ?> <span class="module-pro-tab"><?php esc_html_e('Pro', 'improve-seo'); ?></span></h4>
@@ -215,7 +215,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							<a href="javascript:void(0)" onclick="return confirm('<?php esc_html_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
+										<img src="<?php echo esc_url(WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
 									</div>
 									<div class="title">
 										<h4><?php esc_html_e('Testimonials', 'improve-seo'); ?> <span class="module-pro-tab"><?php esc_html_e('Pro', 'improve-seo'); ?></span></h4>
@@ -239,7 +239,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							<a href="javascript:void(0)" onclick="return confirm('<?php esc_html_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
+										<img src="<?php echo esc_url(WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
 									</div>
 									<div class="title">
 										<h4><?php esc_html_e('Buttons', 'improve-seo'); ?> <span class="module-pro-tab"><?php esc_html_e('Pro', 'improve-seo'); ?></span></h4>
@@ -263,7 +263,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							<a href="javascript:void(0)" onclick="return confirm('<?php esc_html_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');">
 								<div class="card-body text-center">
 									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
+										<img src="<?php echo esc_url(WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
 									</div>
 									<div class="title">
 										<h4><?php esc_html_e('Maps', 'improve-seo'); ?> <span class="module-pro-tab"><?php esc_html_e('Pro', 'improve-seo'); ?></span></h4>
@@ -286,7 +286,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						<div class="card pro-tile">
 							<div class="card-body text-center">
 								<div class="icon-wrap">
-									<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
+									<img src="<?php echo esc_url(WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
 								</div>
 								<div class="title">
 									<h4><?php esc_html_e('Schema', 'improve-seo'); ?> <span class="module-pro-tab"><?php esc_html_e('Pro', 'improve-seo'); ?></span></h4>

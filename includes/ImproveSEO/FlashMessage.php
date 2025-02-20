@@ -3,7 +3,8 @@
 namespace ImproveSEO;
 
 use ImproveSEO\View;
-if ( ! defined( 'ABSPATH' ) ) exit;
+
+if (! defined('ABSPATH')) exit;
 
 class FlashMessage
 {
@@ -20,12 +21,16 @@ class FlashMessage
 
 	public static function handle()
 	{
-		$message = isset($_SESSION['improveseo.flashmessage.message'])?sanitize_text_field($_SESSION['improveseo.flashmessage.message']):'';
-		$type = isset($_SESSION['improveseo.flashmessage.type'])?sanitize_text_field($_SESSION['improveseo.flashmessage.type']):'';
+		$message = isset($_SESSION['improveseo.flashmessage.message']) ? sanitize_text_field($_SESSION['improveseo.flashmessage.message']) : '';
+		$type = isset($_SESSION['improveseo.flashmessage.type']) ? sanitize_text_field($_SESSION['improveseo.flashmessage.type']) : '';
 
-		unset($message);
-		unset($type);
+		// Store compacted variables before unsetting
+		$viewData = compact('message', 'type');
 
-		View::render('flashmessage.message', compact('message', 'type'));
+		// Unset session values to clear flash message
+		unset($_SESSION['improveseo.flashmessage.message'], $_SESSION['improveseo.flashmessage.type']);
+
+		// Render view with the message and type
+		View::render('flashmessage.message', $viewData);
 	}
-}
+	}
