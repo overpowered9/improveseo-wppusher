@@ -182,7 +182,7 @@ if (isset($_GET['post_preview'])) {
 								</td>
 								<td scope="col" data-colname="Actions" class="actions-btn">
 									<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations) : ?>
-										<a href="javascript:build_project(<?= $project->id ?>)" class="btn btn-primary" target="_self">Build posts</a>
+										<a href="#" class="btn btn-primary build-project" data-id="<?php echo esc_attr($project->id); ?>" target="_self">Build posts</a>
 									<?php endif; ?>
 									<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations) : ?>
 										<a href="javascript:update_project(<?= $project->id ?>)" class="btn btn-outline-primary" target="_self">Update posts</a>

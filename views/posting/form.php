@@ -23,7 +23,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
         <div id="post-body-content">
             <div class="PostForm__name-wrap input-group <?php echo Validator::hasError('name') ? 'PostForm--error' : ''; ?>">
                 <label class="form-label"><?php esc_html_e('Project name here', 'improve-seo'); ?></label>
-                <input type="text" name="name" class="PostForm__name form-control" placeholder="<?php esc_attr_e('Project name here', 'improve-seo'); ?>" value="<?php echo esc_attr(Validator::old('name', $task->name)); ?>">
+                <input type="text" required name="name" class="PostForm__name form-control" placeholder="<?php esc_attr_e('Project name here', 'improve-seo'); ?>" value="<?php echo esc_attr(Validator::old('name', $task->name)); ?>" >
                 <?php if (Validator::hasError('name')) : ?>
                     <span class="PostForm__error"><?php echo esc_html(Validator::get('name')); ?></span>
                 <?php endif; ?>
@@ -31,7 +31,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
 
             <div class="PostForm__title-wrap input-group <?php echo Validator::hasError('title') ? ' PostForm--error' : ''; ?>">
                 <label class="form-label"><?php esc_html_e('Enter title here', 'improve-seo'); ?></label>
-                <input type="text" id="title" name="title" class="PostForm__title form-control" placeholder="<?php esc_attr_e('Enter title here', 'improve-seo'); ?>" value="<?php echo esc_attr(Validator::old('title', $task->content['title'])); ?>">
+                <input type="text" id="title" name="title" class="PostForm__title form-control" placeholder="<?php esc_attr_e('Enter title here', 'improve-seo'); ?>" value="<?php echo esc_attr(Validator::old('title', $task->content['title'])); ?>" required>
                 <?php if (Validator::hasError('title')) : ?>
                     <span class="PostForm__error"><?php echo esc_html(Validator::get('title')); ?></span>
                 <?php endif; ?>

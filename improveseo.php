@@ -43,7 +43,7 @@ register_deactivation_hook(__FILE__, 'improveseo_uninstall');
 function improve_seo_enqueue_scripts($hook)
 {
 	global $wpdb;
-
+    error_log("Hook: ".$hook);
 	if ($hook !== 'improve-seo_page_improveseo_projects') {
 		return;
 	}
