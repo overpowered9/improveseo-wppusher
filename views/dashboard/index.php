@@ -1,7 +1,8 @@
 <?php
 
 use ImproveSEO\View;
-if ( ! defined( 'ABSPATH' ) ) exit;
+
+if (! defined('ABSPATH')) exit;
 
 ?>
 <?php View::startSection('breadcrumbs') ?>
@@ -13,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 <?php View::startSection('content') ?>
 <h1 class="hidden">Dashboard</h1>
 <div class="modulePage improveseo_wrapper p-4">
-		<section class="project-section ">
+	<section class="project-section ">
 		<div class="project-heading border-bottom justify-content-between d-flex flex-row align-items-center pb-2">
 			<div class="project-header-left d-flex">
 				<img class="mr-2" src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/project-list-logo.png'); ?>" alt="<?php esc_attr_e('ImproveSeo', 'improve-seo'); ?>">
@@ -24,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			</div>
 
 			<div class="project-header-right">
-		
+
 			</div>
 		</div>
 		<div class="Breadcrumbs custom-breadcrumbs border-0 m-0 pt-3 pb-0 px-0">
@@ -112,193 +113,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 								<div class="custom-control custom-switch">
 									<input type="checkbox" checked="checked" class="custom-control-input" id="customSwitch4">
 									<label class="custom-control-label" for="customSwitch4"></label>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
-						<div class="card">
-							<div class="card-body text-center">
-								<div class="icon-wrap">
-									<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
-								</div>
-								<div class="title">
-									<h4><?php  esc_html_e('Meta', 'improve-seo'); ?></h4>
-								</div>
-								<div class="text">
-									<span><?php esc_html_e('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', 'improve-seo'); ?></span>
-								</div>
-							</div>
-							<div class="card-footer text-right">
-								<div class="custom-control custom-switch">
-									<input type="checkbox" checked="checked" class="custom-control-input" id="customSwitch5">
-									<label class="custom-control-label" for="customSwitch5"></label>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
-						<div class="card">
-							<a href="http://bit.ly/improveseofaq" target="_blank">
-								<div class="card-body text-center">
-									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
-									</div>
-									<div class="title">
-										<h4><?php esc_html_e('FAQ', 'improve-seo'); ?></h4>
-									</div>
-									<div class="text">
-										<span><?php esc_html_e('User guide: Latest Updates - Improve SEO FAQ & Common Problems (and Workarounds)', 'improve-seo'); ?></span>
-									</div>
-								</div>
-							</a>
-							<div class="card-footer text-right">
-								<div class="custom-control custom-switch">
-									<input type="checkbox" checked="checked" class="custom-control-input" id="customSwitch6">
-									<label class="custom-control-label" for="customSwitch6"></label>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
-						<div class="card pro-tile">
-							<a href="javascript:void(0)" onclick="return confirm('<?php esc_html_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');">
-								<div class="card-body text-center">
-									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
-									</div>
-									<div class="title">
-										<h4><?php esc_html_e('Author List', 'improve-seo'); ?> <span class="module-pro-tab"><?php esc_html_e('Pro', 'improve-seo'); ?></span></h4>
-									</div>
-									<div class="text">
-										<span><?php esc_html_e('Create authors that are only for use within Improve SEO. The authors you make will be distributed among these multiple posts to make your site look more authoritative and natural.', 'improve-seo'); ?></span>
-									</div>
-								</div>
-							</a>
-							<div class="card-footer text-right">
-								<div class="custom-control custom-switch">
-									<input type="checkbox" disabled class="custom-control-input" id="customSwitch7">
-									<label class="custom-control-label" for="customSwitch7"></label>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
-						<div class="card pro-tile">
-							<a href="javascript:void(0)" onclick="return confirm('<?php esc_html_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');">
-								<div class="card-body text-center">
-									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
-									</div>
-									<div class="title">
-										<h4><?php esc_html_e('Keyword Generator', 'improve-seo'); ?> <span class="module-pro-tab"><?php esc_html_e('Pro', 'improve-seo'); ?></span></h4>
-									</div>
-									<div class="text">
-										<span><?php esc_html_e('Add seed keyword and use the Google autosuggest feature to generate a list of keywords. Save projects and put these keywords into your list projects.', 'improve-seo'); ?></span>
-									</div>
-								</div>
-							</a>
-							<div class="card-footer text-right">
-								<div class="custom-control custom-switch">
-									<input type="checkbox" disabled class="custom-control-input" id="customSwitch8">
-									<label class="custom-control-label" for="customSwitch8"></label>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
-						<div class="card pro-tile">
-							<a href="javascript:void(0)" onclick="return confirm('<?php esc_html_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');">
-								<div class="card-body text-center">
-									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
-									</div>
-									<div class="title">
-										<h4><?php esc_html_e('Testimonials', 'improve-seo'); ?> <span class="module-pro-tab"><?php esc_html_e('Pro', 'improve-seo'); ?></span></h4>
-									</div>
-									<div class="text">
-										<span><?php esc_html_e('Create one or multiple testimonial shortcodes to add to your posts for social proof of your products and services', 'improve-seo'); ?></span>
-									</div>
-								</div>
-							</a>
-							<div class="card-footer text-right">
-								<div class="custom-control custom-switch">
-									<input type="checkbox" disabled class="custom-control-input" id="customSwitch9">
-									<label class="custom-control-label" for="customSwitch9"></label>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
-						<div class="card pro-tile">
-							<a href="javascript:void(0)" onclick="return confirm('<?php esc_html_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');">
-								<div class="card-body text-center">
-									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
-									</div>
-									<div class="title">
-										<h4><?php esc_html_e('Buttons', 'improve-seo'); ?> <span class="module-pro-tab"><?php esc_html_e('Pro', 'improve-seo'); ?></span></h4>
-									</div>
-									<div class="text">
-										<span><?php esc_html_e('Create one or multiple buy/book button shortcodes with hyperlinks to your calendar or shopping cart to add to your posts.', 'improve-seo'); ?></span>
-									</div>
-								</div>
-							</a>
-							<div class="card-footer text-right">
-								<div class="custom-control custom-switch">
-									<input type="checkbox" disabled class="custom-control-input" id="customSwitch10">
-									<label class="custom-control-label" for="customSwitch10"></label>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
-						<div class="card pro-tile">
-							<a href="javascript:void(0)" onclick="return confirm('<?php esc_html_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');">
-								<div class="card-body text-center">
-									<div class="icon-wrap">
-										<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
-									</div>
-									<div class="title">
-										<h4><?php esc_html_e('Maps', 'improve-seo'); ?> <span class="module-pro-tab"><?php esc_html_e('Pro', 'improve-seo'); ?></span></h4>
-									</div>
-									<div class="text">
-										<span><?php esc_html_e('Create map shortcodes to add to your posts adding your Google API [great for local SEO]', 'improve-seo'); ?></span>
-									</div>
-								</div>
-							</a>
-							<div class="card-footer text-right">
-								<div class="custom-control custom-switch">
-									<input type="checkbox" disabled class="custom-control-input" id="customSwitch11">
-									<label class="custom-control-label" for="customSwitch11"></label>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-12 col-xl-3 col-sm-6 col-lg-4">
-						<div class="card pro-tile">
-							<div class="card-body text-center">
-								<div class="icon-wrap">
-									<img src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/posting-icon.png'); ?>" alt="" class="icon">
-								</div>
-								<div class="title">
-									<h4><?php esc_html_e('Schema', 'improve-seo'); ?> <span class="module-pro-tab"><?php esc_html_e('Pro', 'improve-seo'); ?></span></h4>
-								</div>
-								<div class="text">
-									<span><?php esc_html_e('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', 'improve-seo'); ?></span>
-								</div>
-							</div>
-							<div class="card-footer text-right">
-								<div class="custom-control custom-switch">
-									<input type="checkbox" disabled class="custom-control-input" id="customSwitch12">
-									<label class="custom-control-label" for="customSwitch12"></label>
 								</div>
 							</div>
 						</div>

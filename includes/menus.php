@@ -31,9 +31,3 @@ function improveseo_add_menu_items()
     
     //add_submenu_page('improveseo', 'Noindex Tags', 'Noindex Tags', 'manage_options', 'improveseo_noindex', 'improveseo_noindex');
 }
-
-add_action('admin_menu', function () {
-    global $submenu;
-
-    $submenu['improveseo_dashboard'][] = array('FAQ', 'manage_options', 'http://bit.ly/improveseofaq');
-});
