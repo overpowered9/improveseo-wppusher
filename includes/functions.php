@@ -122,7 +122,7 @@ function improveseo_get_lists_from_text($fields) {
 	$lists = array();
 
 	foreach ($allowed as $field) {
-		preg_match_all("/\@list:([^\s]+)/ms", $fields[$field] ?? "", $matches);
+		preg_match_all('/@list:([a-zA-Z0-9_-]+)/', $fields[$field], $matches);
 		if (!empty($matches[1])) {
 			$lists = array_merge($lists, $matches[1]);
 		}
