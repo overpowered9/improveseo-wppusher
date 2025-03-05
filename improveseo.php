@@ -972,14 +972,9 @@ class Improveseo_Testimonial
 }
 new Improveseo_Testimonial;
 
-function my_plugin_enqueue_scripts() {
-    wp_enqueue_script(
-        'my-plugin-main', 
-        plugin_dir_url(__FILE__) . 'assets/js/main.js', 
-        array('jquery'), 
-        '1.0', 
-        true 
-    );
-}
-add_action('wp_enqueue_scripts', 'my_plugin_enqueue_scripts');
-add_action('admin_enqueue_scripts', 'my_plugin_enqueue_scripts'); 
+wp_enqueue_script('improveseo-main-js', plugin_dir_url(__FILE__) . 'assets/js/main.js', array('jquery'), null, true);
+
+wp_localize_script('improveseo-main-js', 'improveSeoData', array(
+    'site_url' => site_url() 
+));
+
