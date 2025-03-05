@@ -3,7 +3,7 @@
 use ImproveSEO\View;
 
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (! defined('ABSPATH')) exit;
 
 ?>
 <?php View::startSection('breadcrumbs') ?>
@@ -39,16 +39,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 <div class="listing improveseo_wrapper p-3 p-lg-4">
 	<section class="project-section border-bottom d-flex flex-row  justify-content-between align-items-center pb-2 mb-3">
 		<div class="project-heading d-flex flex-row">
-			<img class="mr-2" src="<?php echo esc_url(WT_URL . '/assets/images/project-list-logo.png'); ?>" alt="<?php esc_attr_e('ImproveSeo', 'improve-seo'); ?>">
-			<h1><?php esc_html_e('Improve SEO Lists', 'improve-seo'); ?></h1>
+			<img class="mr-2" src="<?php echo IMPROVESEO_WT_URL . '/assets/images/project-list-logo.png' ?>" alt="ImproveSeo">
+			<h1>Improve SEO Lists</h1>
 		</div>
 
 		<div class="action-buttons">
-			<a onclick="return confirm('<?php esc_attr_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');" href="javascript:void()" class="btn btn-outline-primary btn-small" id="exportProject"><?php esc_html_e('Export All List', 'improve-seo'); ?></a>
-			<a href="javascript:void(0)" onclick="return confirm('<?php esc_attr_e('Please purchase the Pro version to access this feature and many more..', 'improve-seo'); ?>');" class="btn btn-outline-primary btn-small" id=""><?php esc_html_e('Import', 'improve-seo'); ?></a>
-			<a href="<?php echo esc_url(admin_url('admin.php?page=improveseo_lists&action=create')); ?>" class="btn btn-outline-primary btn-small py-2 px-3"><?php esc_html_e('Create New', 'improve-seo'); ?></a>
+			<a onclick="return confirm('Are you sure you want to export all item?');" href="<?= admin_url('admin.php?page=improveseo_lists&action=export_all_list&noheader=true') ?>" class="btn btn-outline-primary btn-small" id="exportProject">Export All List</a>
+			<a href="#" class="btn btn-outline-primary btn-small" id="importProject">Import</a>
+			<a href="<?= admin_url('admin.php?page=improveseo_lists&action=create') ?>" class="btn btn-outline-primary btn-small py-2 px-3">Create New</a>
 		</div>
-
 	</section>
 
 	<section class="pagination-wrapper text-right py-3">
