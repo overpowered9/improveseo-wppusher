@@ -497,7 +497,7 @@ function improveseo_dashboard()
 			'name' => sanitize_text_field($name),
 			'content' => base64_encode(json_encode($project_data)),
 			'options' => base64_encode(json_encode($options_data)),
-			'state' => 'Update_started',
+			'state' => 'Updated',
 			'iteration' => 0,
 			'spintax_iterations' => max($iterations),
 			'max_iterations' => $max,

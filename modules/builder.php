@@ -392,7 +392,9 @@ function improveseo_builder()
 
 		if (isset($options['dripfeed_type']) && in_array($options['dripfeed_type'], array("per-day", "over-days"))) {
 			if ($options['dripfeed_type'] == "per-day") {
-				$days = ceil(intval($project->iteration) / intval($options['dripfeed_x']));
+				$dripfeed_x = isset($options['dripfeed_x']) ? intval($options['dripfeed_x']) : 1; // Default to 1
+				$iteration = isset($project->iteration) ? intval($project->iteration) : 0; // Default to 0
+				$days = ($dripfeed_x > 0) ? ceil($iteration / $dripfeed_x) : 0;
 				$start_date = new DateTime();
 				$start_date->add(new DateInterval('P' . $days . 'D'));
 				$date_start = strtotime($start_date->format('Y-m-d') . ' 00:00:00');

@@ -1,4 +1,5 @@
 <?php
+
 use ImproveSEO\View;
 
 if (isset($_GET['post_preview'])) {
@@ -134,7 +135,7 @@ if (isset($_GET['post_preview'])) {
 											</a>
 										</span>
 
-                                        <span class="edit">
+										<span class="edit">
 											<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo_projects&action=export_project&id={$project->id}&name={$project->name}&noheader=true") ?>">
 												Export Project
 											</a>
@@ -182,10 +183,10 @@ if (isset($_GET['post_preview'])) {
 								</td>
 								<td scope="col" data-colname="Actions" class="actions-btn">
 									<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations) : ?>
-										<button class="btn btn-primary build-project" data-id="<?=$project->id?>">Build posts</button>
+										<button class="btn btn-primary build-project" data-id="<?= $project->id ?>">Build posts</button>
 									<?php endif; ?>
 									<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations) : ?>
-										<a href="javascript:update_project(<?= $project->id ?>)" class="btn btn-outline-primary" target="_self">Update posts</a>
+										<button class="btn btn-primary update-project" data-id="<?= $project->id ?>">Update posts</button>
 									<?php endif; ?>
 									<input type="hidden" name="max-iterations" id="max-iterations" data-project="<?php echo $project->id; ?>" value="<?php echo $project->max_iterations; ?>" />
 									<?php if ($project->state == 'Draft') : ?>
@@ -212,23 +213,15 @@ if (isset($_GET['post_preview'])) {
 				<script type="text/javascript">
 					build_project(<?php echo $project->id ?>);
 				</script>
-		<?php
+	<?php
 			} elseif ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
 				$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
-				header("Location:".$export_url);
-				exit; 
+				header("Location:" . $export_url);
+				exit;
 			}
 		}
 	}
-
-
-	if (isset($_GET['build_posts_id'])) { ?>
-
-		<script type='text/javascript'>
-			update_project(<?= $_GET['build_posts_id'] ?>);
-		</script>
-
-	<?php } ?>
+	?>
 
 	<section class="pagination-wrapper text-right">
 		<span class="pagination-links">
