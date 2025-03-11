@@ -37,10 +37,13 @@ use ImproveSEO\View;
 			</li>
 			<!--<li class="nav-item">
 				<a class="nav-link" data-toggle="tab" href="#wt_help" role="tab" aria-controls="Help" aria-selected="false">Help</a>
-			</li>
-			<li class="nav-item">
-				<a class="nav-link" data-toggle="tab" href="#setup_wizard" role="tab" aria-controls="Setup Wizard" aria-selected="false">Setup Wizard</a>
 			</li>-->
+			<li class="nav-item">
+				<?php if (defined('DISABLE_WP_CRON') && DISABLE_WP_CRON) { ?>
+					<a class="nav-link" data-toggle="tab" href="#setup_wizard" role="tab" aria-controls="Setup Wizard" aria-selected="false">Cron Job is disabled.</a>
+				<?php } ?>
+				
+			</li>
 		</ul>
 		<div class="tab-content dashboard-tabpanel">
 			<div class="tab-pane fade show active" id="wt_modules" role="tabpanel" aria-labelledby="wt_modules">

@@ -34,7 +34,20 @@ alert(value);
 }
 function GenerateCustomImage() {
     jQuery("#loadingAIImage").show();
-    var title = jQuery("#Image_Prompt").val();
+
+    var seed_select = jQuery("#seed_select").val();
+    if(seed_select=='seed_option1') {
+        var title = jQuery('#seed_keyword').val();
+    } else {
+        var maintitlearea = jQuery('#maintitlearea').val();
+        if(maintitlearea=='') {
+            var title = jQuery('#aigeneratedtitle').val();
+        } else {
+            var title = maintitlearea;
+        }
+    }
+
+   // var title = jQuery("#Image_Prompt").val();
     var formData = new FormData();
     formData.append("action", "fetch_AI_image");
     formData.append("title", title);
@@ -45,7 +58,7 @@ function GenerateCustomImage() {
         contentType: false,
         processData: false,
         success: function(response) {
-            jQuery("#AI_image_div").html("<img src='"+response.data+"' alt='Uploaded Image' style='max-width: 100%'>");
+            jQuery("#AI_image_div").html("<img src='"+response.data+"' alt='Uploaded Image' style='max-width: 100%; margin-bottom: 45px;'>");
             jQuery("#image-uploaded-path").val(response.data);
             jQuery("#loadingImage").hide();
         },
@@ -57,10 +70,25 @@ function GenerateCustomImage() {
 }
 jQuery("#generate_i_image").on("click", function() {
     jQuery("#loadingAIImage").show();
+    var seed_select = jQuery("#seed_select").val();
+    if(seed_select=='seed_option1') {
+        var seed_title = jQuery('#seed_keyword').val();
+    } else {
+        var maintitlearea = jQuery('#maintitlearea').val();
+        if(maintitlearea=='') {
+            var seed_title = jQuery('#aigeneratedtitle').val();
+        } else {
+            var seed_title = maintitlearea;
+        }
+    }
+
+
+
     var title = jQuery("#manually_promt_for_image").val();
     var formData = new FormData();
     formData.append("action", "fetch_AI_image");
     formData.append("title", title);
+    formData.append("seed_title", seed_title);
     formData.append("noedit", 1);
     jQuery.ajax({
         url: ajaxurl,
@@ -69,7 +97,7 @@ jQuery("#generate_i_image").on("click", function() {
         contentType: false,
         processData: false,
         success: function(response) {
-            jQuery("#ai-with-prompt-image-display").html("<img src='"+response.data+"' alt='Uploaded Image' style='max-width: 100%'>");
+            jQuery("#ai-with-prompt-image-display").html("<img src='"+response.data+"' alt='Uploaded Image' style='max-width: 100%; margin-bottom: 45px;'>");
             jQuery("#AI-Prompt-Image-uploaded-path").val(response.data);
             jQuery("#prompt_image_div").css("display","block");
             jQuery("#loadingAIImage").hide();
@@ -84,6 +112,8 @@ jQuery("#generate_i_image").on("click", function() {
 
 jQuery("#generateapivalue").on("click", function() {
     jQuery("#loadingAIData").show();
+    jQuery("#for_testing_only").css("display","none");
+
     var AItitle= jQuery(".resultdata").text();
     jQuery("#ai_title").val(AItitle);
     console.log(AItitle);
@@ -247,6 +277,12 @@ var pendingContent = '';
 function saveFinalData() {
     var textarea = document.getElementById('showmydataindivText');
     var plainTextContent = textarea.value;
+    var metatitle = jQuery('#meta_title').val();
+    var meta_descreption = jQuery('#meta_descreption').val();
+    $('#on-page-seo').prop('checked', true);
+    jQuery("#custom-title").val(metatitle);
+    jQuery("#custom-description").val(meta_descreption);
+
     jQuery('#exampleModal').hide();
     jQuery('#exampleModal1').hide();
     jQuery("#butn").trigger("click");
@@ -327,7 +363,7 @@ function generateAIMetaJs() {
 }
 
 function countContent() {
-    var val = document.getElementById('exampleFormControlTextarea1').value;
+    var val = document.getElementById('exampleFormControlTextarea').value;
     var wordCounterwithoutSpace = 0;
     for (var i = 0; i < val.length; i++) {
         if (val[i] == ' ') {
@@ -336,8 +372,27 @@ function countContent() {
             wordCounterwithoutSpace++;
         }
     }
-    jQuery('#countContent').html(500-wordCounterwithoutSpace+' characters remaining.');
-    if(wordCounterwithoutSpace>=500) {
+    jQuery('#countContent').html(1500-wordCounterwithoutSpace+' characters remaining.');
+    if(wordCounterwithoutSpace>=1500) {
+        return false;
+    }
+}
+
+
+function countContent1() {
+    var val = document.getElementById('exampleFormControlTextarea1').value;
+
+   
+    var wordCounterwithoutSpace = 0;
+    for (var i = 0; i < val.length; i++) {
+        if (val[i] == ' ') {
+            continue;
+        } else {
+            wordCounterwithoutSpace++;
+        }
+    }
+    jQuery('#countContent1').html(1500-wordCounterwithoutSpace+' characters remaining.');
+    if(wordCounterwithoutSpace>=1500) {
         return false;
     }
 }
@@ -353,8 +408,8 @@ function countContentCallToAction() {
             wordCounterwithoutSpace++;
         }
     }
-    jQuery('#countContentCallToAction').html(500-wordCounterwithoutSpace+' characters remaining.');
-    if(wordCounterwithoutSpace>=500) {
+    jQuery('#countContentCallToAction').html(1000-wordCounterwithoutSpace+' characters remaining.');
+    if(wordCounterwithoutSpace>=1000) {
         return false;
     }
 }
@@ -381,42 +436,25 @@ function LimitText(ref,iLength,textareaid) {
 }
 
 
-function GenerateCustomImage() {
-    jQuery("#loadingAIImage").show();
-            // create AI image
-        var title = jQuery("#Image_Prompt").val();
-        var formData = new FormData();
-        formData.append("action", "fetch_AI_image");
-        formData.append("title", title);
-        jQuery.ajax({
-            url: ajaxurl,
-            type: "POST",
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function(response) {
-                jQuery("#AI_image_div").html("<img src='"+response.data+"' alt='Uploaded Image' style='max-width: 100%'>");
-                jQuery("#image-uploaded-path").val(response.data);
-                jQuery("#loadingImage").hide();
-            },
-            error: function() {
-                alert("Error uploading image.");
-                jQuery("#loadingImage").hide();
-            }
-        });
-}
+
 
 
 function refreshAIImage() {
     jQuery("#loadingAIImage").show();
     // create AI image
     //var title = jQuery("#aigeneratedtitle").val();
-    var maintitlearea = jQuery('#maintitlearea').val();
-    if(maintitlearea=='') {
-        var title = jQuery('#aigeneratedtitle').val();
+    var seed_select = jQuery("#seed_select").val();
+    if(seed_select=='seed_option1') {
+        var title = jQuery('#seed_keyword').val();
     } else {
-        var title = maintitlearea;
+        var maintitlearea = jQuery('#maintitlearea').val();
+        if(maintitlearea=='') {
+            var title = jQuery('#aigeneratedtitle').val();
+        } else {
+            var title = maintitlearea;
+        }
     }
+    
 
     var formData = new FormData();
     formData.append("action", "fetch_AI_image");
@@ -428,7 +466,7 @@ function refreshAIImage() {
         contentType: false,
         processData: false,
         success: function(response) {
-            jQuery("#ai-image-display").html("<img src='"+response.data+"' alt='Uploaded Image' style='max-width: 100%'>");
+            jQuery("#ai-image-display").html("<img src='"+response.data+"' alt='Uploaded Image' style='max-width: 100%; margin-bottom: 45px;'>");
             jQuery("#image-uploaded-path").val(response.data);
             jQuery("#loadingAIImage").hide();
         },
@@ -458,6 +496,7 @@ function getCookie(cname) {
 jQuery(document).ready(function(jQuery) {
 
     jQuery("input[type='radio'][name='aiImage']").change(function() {
+        jQuery("#loadingImage").show();
         if (this.value == 'Manually_image') {
             /* 2 section display none */
             jQuery("#AI_image_div").css("display","none");
@@ -479,12 +518,18 @@ jQuery(document).ready(function(jQuery) {
             jQuery("#Prompt_to_create_Dalle_Image").css("display","block");
             jQuery("#Manually_image_div").css("display","none");
 
-            var maintitlearea = jQuery('#maintitlearea').val();
-            if(maintitlearea=='') {
+            var seed_select = jQuery("#seed_select").val();
+            if(seed_select=='seed_option1') {
                 var title = jQuery('#seed_keyword').val();
             } else {
-                var title = maintitlearea;
+                var maintitlearea = jQuery('#maintitlearea').val();
+                if(maintitlearea=='') {
+                    var title = jQuery('#aigeneratedtitle').val();
+                } else {
+                    var title = maintitlearea;
+                }
             }
+            jQuery("#manually_promt_for_image").val("Please wait while we prepare the prompts for you....");
 
             var formData = new FormData();
             formData.append("action", "getPromptForImages");
@@ -498,7 +543,7 @@ jQuery(document).ready(function(jQuery) {
                 success: function(response) {
                     
                     //var aigeneratedtitle_op = jQuery('#aigeneratedtitle').val();
-                jQuery("#manually_promt_for_image").val("You should come up with the cover image for an article. The image should be a very high quality shooting from a distance, high detail, photorealistic, image resolution is  2146 pixels, cinematic. Don't include any text on the image. Using the following information generate an image. "+response.data+"");
+                jQuery("#manually_promt_for_image").val("You should come up with the cover image for an article. The image should be a very high quality shooting from a distance, high detail, photorealistic, image resolution is  800 pixels, cinematic. Do not include any text on the image. Using the following information generate an image. "+response.data+"");
 
 
                 },
@@ -535,11 +580,16 @@ jQuery(document).ready(function(jQuery) {
                 jQuery("#loadingAIImage").show();
                 // create AI image
                 //var title = jQuery("#aigeneratedtitle").val();
-                var maintitlearea = jQuery('#maintitlearea').val();
-                if(maintitlearea=='') {
-                    var title = jQuery('#aigeneratedtitle').val();
+                var seed_select = jQuery("#seed_select").val();
+                if(seed_select=='seed_option1') {
+                    var title = jQuery('#seed_keyword').val();
                 } else {
-                    var title = maintitlearea;
+                    var maintitlearea = jQuery('#maintitlearea').val();
+                    if(maintitlearea=='') {
+                        var title = jQuery('#aigeneratedtitle').val();
+                    } else {
+                        var title = maintitlearea;
+                    }
                 }
 
                 var formData = new FormData();
@@ -552,7 +602,7 @@ jQuery(document).ready(function(jQuery) {
                     contentType: false,
                     processData: false,
                     success: function(response) {
-                        jQuery("#ai-image-display").html("<img src='"+response.data+"' alt='Uploaded Image' style='max-width: 100%'>");
+                        jQuery("#ai-image-display").html("<img src='"+response.data+"' alt='Uploaded Image' style='max-width: 100%; margin-bottom: 45px;'>");
                         jQuery("#AI-Image-uploaded-path").val(response.data);
                         jQuery("#loadingAIImage").hide();
                     },
@@ -563,6 +613,7 @@ jQuery(document).ready(function(jQuery) {
                 });
             }
         }
+        jQuery("#loadingImage").hide();
     });
 });
 
@@ -581,7 +632,7 @@ jQuery(document).ready(function(jQuery) {
             contentType: false,
             processData: false,
             success: function(response) {
-                jQuery("#manually-image-display").html("<img src='"+response+"' alt='Uploaded Image' style='max-width: 100%'>");
+                jQuery("#manually-image-display").html("<img src='"+response+"' alt='Uploaded Image' style='max-width: 100%; margin-bottom: 100px'>");
                 jQuery("#manually-image-uploaded-path").val(response);
                 jQuery("#loadingImage").hide();
             },
@@ -705,7 +756,7 @@ jQuery("#seed_select").on("change", function() {
 
         var AudienceData = getCookie('AudienceData');
                 //var aigeneratedtitle_op = jQuery('#aigeneratedtitle').val();
-                jQuery("#manually_promt_for_image").val("You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. You should come up with the cover image for the article that will be engaging and interesting for the reader who is described in the audience data and search provided word or phrase. Image should be Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. Using the following information generate an image.<br> Main keyword: seed-keyword Title of the article is '"+data+"' <br> Audience data:  '"+AudienceData+"'");
+                //jQuery("#manually_promt_for_image").val("You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. You should come up with the cover image for the article that will be engaging and interesting for the reader who is described in the audience data and search provided word or phrase. Image should be Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. Using the following information generate an image.<br> Main keyword: seed-keyword Title of the article is '"+data+"' <br> Audience data:  '"+AudienceData+"'");
 
 
         //jQuery("#manually_promt_for_image").val("Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. The theme is `"+data+"`");
@@ -726,6 +777,7 @@ jQuery("#seed_select").on("change", function() {
         })
         .success(function(data) {   
             jQuery("#exampleFormControlTextarea1").text( data );
+            jQuery("#exampleFormControlTextarea1").val( data );
             // alert(data);
         });
     };
@@ -1106,8 +1158,8 @@ jQuery(document).ready(function(){
             }
 
             if(stepNumber==6) {
-                if ($('#schedule_posts_input_wise').is(':checked')) {
-                    var numberOfPosts = $('#number_of_post_schedule').val();
+                if (jQuery('#schedule_posts_input_wise').is(':checked')) {
+                    var numberOfPosts = jQuery('#number_of_post_schedule').val();
                    // var frequency = $('#schedule_frequency').val();
 
                     if (numberOfPosts=='') {
@@ -1118,6 +1170,18 @@ jQuery(document).ready(function(){
                         return true;
                     }
                 }
+            }
+
+
+            if(stepNumber==8) {
+
+                jQuery(".category_improveseo input[type='checkbox']").each(function () {
+                    var checkboxValue = $(this).val(); // Get the value of the checkbox
+                    var isChecked = $(this).prop("checked"); // Check if it's checked
+        
+                    // Find the corresponding checkbox in .category_improveseo_bulk and set its checked state
+                    jQuery(".category_improveseo_bulk input[type='checkbox'][value='" + checkboxValue + "']").prop("checked", isChecked);
+                });
             }
    
          // Perform actions related to the first step
@@ -1310,6 +1374,58 @@ jQuery("input[type='radio'][name='assigning_authors']").change(function() {
         }
         
     });
+
+
+    // upload.js
+jQuery(document).ready(function($) {
+    jQuery('#uploadBtn').on('click', function(e) {
+        e.preventDefault();
+
+        let formData = new FormData();
+        let files = $('#images')[0].files;
+
+        for (let i = 0; i < files.length; i++) {
+            formData.append('images[]', files[i]);
+        }
+        formData.append('action', 'my_plugin_upload');
+       
+
+        jQuery.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                $('#response').html(response);
+                $('#hiddenInputs').empty();
+                // Append hidden input fields for each URL
+                response.data.forEach(function(url) {
+                    $('#hiddenInputs').append(
+                        '<input type="hidden" name="uploaded_images[]" value="' + url + '">'
+                    );
+                });
+            },
+            error: function(err) {
+                $('#response').html('<p>An error occurred!</p>');
+            }
+        });
+    });
+
+    jQuery('#images').on('change', function() {
+        let files = this.files;
+        jQuery('#preview').html('');
+        for (let i = 0; i < files.length; i++) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                $('#preview').append('<img src="' + e.target.result + '" width="100" style="margin:5px;">');
+            };
+            reader.readAsDataURL(files[i]);
+        }
+    });
+});
+
+
 
    
 

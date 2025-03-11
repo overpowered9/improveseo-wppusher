@@ -152,6 +152,7 @@ $sql = "CREATE TABLE IF NOT EXISTS $table_name (
   `post_id` int(11) DEFAULT NULL,
   `status` varchar(20) DEFAULT 'pending',
   `state` varchar(50) DEFAULT NULL,
+  `is_published_by_plugin` int(11) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY  (id)

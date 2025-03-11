@@ -306,10 +306,221 @@ function improveseo_bulkprojects()
 				'Stoped', $id)
 		);
 		$wpdb->last_error;
-exit('here');
+//exit('here');
 		FlashMessage::success('Project stopped. You can continue process by clicking Build posts');
 		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id='.$mainid));
 		exit;
+
+	elseif($action == 'publish') : 
+
+		$id = $_GET['id'];
+		$mainid = sanitize_title_with_dashes($_GET['mainid']);
+
+
+		global $wpdb;
+	$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `id`=".$id;
+	
+	$Bulktasks = $wpdb->get_results($sql);
+
+	
+
+	$content = '';
+	foreach($Bulktasks as $key => $value) {
+		// short code
+		if(!empty($value->testimonial)) { 
+			$testimonial_ids = '';
+			$all_testimonial = explode("||",$value->testimonial); 
+			foreach($all_testimonial as $key1 => $value1) {
+				if(!empty($value1)) {
+					$testimonial_ids = $value1.','.$testimonial_ids;
+				}
+			}
+			$content = $content.'<p>[improveseo_testimonial id="'.$testimonial_ids.'"]</p>';
+		} 
+		
+		if(!empty($value->Button_SC)) { 
+			$content = $content.'<p>[improveseo_buttons id="'.$value->Button_SC.'"]</p>';
+		} 
+		
+		if(!empty($value->GoogleMap_SC)) { 
+			$content = $content.'<p>[improveseo_googlemaps id="'.$value->GoogleMap_SC.'"]</p>';
+		} 
+		
+		if(!empty($value->Video_SC)) { 
+			$content = $content.'<p style="width:100%">[improveseo_video id="'.$value->Video_SC.'"]</p>';
+		} 
+		$catids = [];
+		if(!empty($value->cats)) {
+			$categories = explode("||",$value->cats);
+			foreach($categories as $ckey => $cvalue) {
+				if(!empty($cvalue)) {
+					array_push($catids,$cvalue);
+					//$catids = $value1.','.$cvalue;
+				}
+			} 
+		} else {
+			$categories = '';
+		}
+		$tags = array('-');
+		$fullcontent = "<img src='".base64_decode($value->ai_image)."' style='width:100%; margin-bottom: 100px;' alt='".$value->ai_title."'>".base64_decode($value->ai_content).$content;
+		$post_date = date('Y-m-d H:i:s');
+		$post_status = 'publish';
+	
+
+
+		
+
+
+		
+		if($value->assigning_authors=='assigning_authors') {
+			$post_author = $value->assigning_authors_value;
+		} 
+
+		if($value->assigning_authors=='assigning_multi_authors') {
+			
+
+
+		
+			$first_names = array(
+				'John', 'Jane', 'Michael', 'Emily', 'David', 'Sarah', 'James', 'Linda', 'Robert', 'Jessica',
+				'Daniel', 'Laura', 'Chris', 'Amy', 'Mark', 'Angela', 'Steven', 'Megan', 'Paul', 'Rachel',
+				'Peter', 'Hannah', 'Kevin', 'Sophia', 'Edward', 'Emma', 'Jason', 'Grace', 'Tom', 'Alice'
+				// Add more names as needed to increase uniqueness
+			);
+			
+			$last_names = array(
+				'Smith', 'Johnson', 'Brown', 'Williams', 'Jones', 'Miller', 'Davis', 'Garcia', 'Martinez', 'Taylor',
+				'Wilson', 'Moore', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Lopez',
+				'Gonzalez', 'Clark', 'Lewis', 'Walker', 'Hall', 'Allen', 'Young', 'King', 'Wright', 'Scott'
+				// Add more names as needed
+			);
+		
+			// Pick a random first and last name
+			$first_name = $first_names[array_rand($first_names)];
+			$last_name = $last_names[array_rand($last_names)];
+		
+			// Combine to create a full name
+			$fullname = array('first_name'=>$first_name,'Last_name'=> $last_name);
+		
+		
+		
+			$first_name =  $fullname['first_name'];
+			$last_name = $fullname['Last_name'];
+			$username = str_replace(" ", "", $fullname);
+		
+			// Check if the username already exists
+			if ( username_exists( $username ) || email_exists( $first_name.'@example.com' ) ) {
+				my_plugin_log('author recreate : '.$username);
+				
+				$first_name = $first_names[array_rand($first_names)];
+				$last_name = $last_names[array_rand($last_names)];
+				$username = str_replace(" ", "", $first_name.$last_name);
+		
+			}
+		
+			// Define user information
+			$user_data = array(
+				'user_login'    => $username,        // Username
+				'user_pass'     => 'PASssword123@4jkkhk$qwrfg123',                // User password
+				'user_email'    => $first_name.'@example.com', // User email
+				'first_name'    => $first_name,
+				'last_name'     => $last_name,
+				'role'          => 'author',                     // Assign 'author' role
+			);
+		
+			my_plugin_log('author created : '.$username);
+		
+			// Create the user
+			$post_author  = wp_insert_user( $user_data );
+			//$post_author = 10;
+		
+			
+		}
+
+
+
+
+
+
+
+
+
+
+
+			
+		if(!empty($value->post_id)) {
+			$post_array = array(
+				'ID' =>  $value->post_id,
+				'post_author' => $post_author ,
+				'post_content' => $fullcontent,
+				'post_title' => $value->ai_title,
+				'comment_status' => 'closed',
+				'ping_status' => 'closed',
+				'post_type' => "post",
+				'post_date' => $post_date,
+				'post_status' => $post_status
+			);
+			wp_update_post( $post_array );
+			$post_id =$value->post_id;
+		} else {
+			$post_array = array(
+				'post_author' => $post_author,
+				'post_content' => $fullcontent,
+				'post_title' => $value->ai_title,
+				'comment_status' => 'closed',
+				'ping_status' => 'closed',
+				'post_type' => "post",
+				'post_date' => $post_date,
+				'post_status' => $post_status
+			);
+			$post_id = wp_insert_post($post_array);
+		}
+			
+			  // Replace with your desired tags
+			//if(!empty($tags)) {
+			wp_set_post_tags($post_id, '-');
+			//}
+    		
+			//$post_id = $wpdb->insert_id;
+
+			if ((!empty($catids))) {
+				wp_set_post_categories($post_id, $catids, false);
+			}
+
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails`
+					SET state = %s, post_id = %d WHERE id = %d",
+					$post_status, $post_id, $value->id
+				)
+			);
+			my_plugin_log('This is a log message : '.$value->id);
+
+			FlashMessage::success('Post hasb been published successfully.');
+			
+		wp_redirect(admin_url("admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id={$mainid}"));
+		//wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$new_id}"));
+		//exit;
+
+			//wp_send_json_success(array('status' => 'true',"message"=>'Post has been published successfully.'));
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	elseif ($action == 'export_urls') :
 
@@ -463,3 +674,5 @@ exit('here');
 		exit;
 	endif;
 }
+
+

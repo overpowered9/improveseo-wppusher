@@ -90,7 +90,16 @@ if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
 					<div class="tablenav-pages one-page"><span class="displaying-num"><?php echo count($projects); ?> items</span></div>
 					<br class="clear">
 				</div>
-
+<?php function generate_slug_replace_quotes($title) {
+    $slug = strtolower($title); // Convert to lowercase
+    $slug = str_replace('"', '-', $slug); // Replace double quotes with "-"
+    $slug = preg_replace('/[^a-z0-9\s-]/', '', $slug); // Remove other special characters
+    $slug = preg_replace('/[\s-]+/', ' ', $slug); // Replace multiple spaces or hyphens
+    $slug = trim($slug); // Trim leading/trailing spaces
+    $slug = str_replace(' ', '-', $slug); // Replace spaces with hyphens
+    return $slug;
+}
+?>
 				<table class="table widefat fixed wp-list-table widefat fixed striped table-view-list posts">
 					<thead>
 						<tr>
@@ -126,17 +135,43 @@ if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
 										<span class="edit">
 											<?php $task_id = $_GET['id']; ?>
 											<a class="ct-btn btn btn-outline-primary" href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=stop&mainid='.$task_id.'&id=' . $project->id) ?>">
-												Stop process
+												Stop process 
 											</a>
 										</span>
-									<?php } ?>
-
+									<?php }  if ($project->state == 'draft') { 
+                                            $task_id = $_GET['id']; ?>
+											<a class="ct-btn btn btn-outline-primary" href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=publish&mainid='.$task_id.'&id=' . $project->id) ?>">
+												Publish
+											</a> 
+                                    <?php } ?>
+									
                                        
-
-                                        <span class="trash">
-											<a class="del-btn btn btn-outline-success" class="submitdelete" target="_blank" href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAiContent&id=' . $project->id ) ?>">View AI content</a>
+										<?php if(!empty($project->post_id)) { ?>
+											<?php //$posturl =   get_post($project->post_id); 
+											$preview_link = add_query_arg('preview', 'true', get_permalink($project->post_id)); ?>
+											<span class="primary">
+											<a class="del-btn btn btn-outline-success" class="submitdelete" target="_blank" href="<?php echo $preview_link; ?>">View AI content</a>
+											</span>
+										<?php } else { ?>
+											<span class="primary">
+											<a class="del-btn btn btn-outline-success" class="submitdelete" target="_blank" href="#" onclick="alert('Post is not generated yet. Please wait'); return false;">View AI content</a>
 										</span>
+										<?php } ?>
 
+										<?php if(!empty($project->post_id)) { $edit_link = admin_url('post.php?action=edit&post=' . $project->post_id); ?>
+											<span class="primary">
+											<a class="del-btn btn btn-outline-success" class="submitdelete" target="_blank" href="<?php echo $edit_link; ?>"  onclick="return confirm('Are you sure you want to edit this post directly in wordpress post? Only post content will edit.');">Edit Post Content</a>
+										</span>
+										<?php } else { ?>
+											<span class="primary">
+											<a class="del-btn btn btn-outline-success" class="submitdelete" target="_blank" href="#" onclick="alert('Post is not generated yet. Please wait'); return false;">Edit Post Content</a>
+										</span>
+										<?php } ?>
+                                        <?php if(($project->state!='Published')&&($project->status!='Pending')) { ?>
+											<span class="trash">
+												<a href="javascript:re_generatepost(<?= $project->id ?>)" class="btn btn-primary" target="_self">Re-Generate Post</a>
+											</span>
+										<?php } ?>
 
 										
 									</div>
@@ -155,7 +190,7 @@ if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
                                             echo 'Done';
                                         }else if($project->status == 'Stoped'){
                                             echo 'Stoped';
-                                        } else {  echo 'Processing'; }
+                                        } else {  echo $project->status; }
 										?>
 									</strong></td>
 
@@ -168,7 +203,13 @@ if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
 									
 									<td><strong>
 										<?php
-										echo $project->state; 
+										if($project->state=='publish') {
+											echo "Published";
+										} else if($project->state=='draft') {
+											echo 'Draft';
+										}else {
+											echo $project->state;
+										}
 										?>
 									</strong></td>
 								
@@ -181,6 +222,46 @@ if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
 	</section>
 
 	<script type="text/javascript">
+
+
+function re_generatepost(id) {
+			jQuery('.show_loading').css("display", "block");
+			jQuery(".show_loading h2").html("Post is re-generating............ Please wait........");
+			re_generate(id);
+		}
+
+		function re_generate(ids) {
+			jQuery
+				.ajax({
+					url: "<?php echo admin_url("admin-ajax.php"); ?>",
+					data: ({
+						action: 're_generate_post',
+						id: ids
+					}),
+					success: function(data) {
+						console.log(data);
+						alert("Content has been Re-Generated successfully.");
+						location.reload(true);
+						//var is_preview_available = jQuery('#is_preview_available').val();
+						
+					}
+				});
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		function build_project(id) {
 			jQuery('.show_loading').css("display", "block");
 			jQuery(".show_loading h1")

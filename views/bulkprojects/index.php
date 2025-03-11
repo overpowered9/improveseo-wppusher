@@ -135,7 +135,7 @@ if (isset($_GET['post_preview'])) {
 										</span>*/ ?>
 
 										<span class="trash">
-											<a class="del-btn btn btn-outline-danger" class="submitdelete" href="<?php/* admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') */?>" onclick="return confirm('This action will delete project and all generated posts/pages')">Delete project and all posts/pages</a>
+											<a class="del-btn btn btn-outline-danger" class="submitdelete" href="<?php /* admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') */ ?>" onclick="return confirm('This action will delete project and all generated posts/pages')">Delete project and all posts/pages</a>
 										</span>
 
                                         <span class="edit">
@@ -171,7 +171,7 @@ if (isset($_GET['post_preview'])) {
 											if ($project->number_of_tasks == $project->number_of_completed_task) echo '<p class="post-fd">Finished</p>';
 											else {
 												$updated = strtotime($project->updated_at);
-												if ($project->deleted_at == '1970-01-01 11:11:11') echo '<p class="post-st">Stopped</p>';
+												if (!empty($project->deleted_at)&&($project->deleted_at == '1970-01-01 11:11:11')) echo '<p class="post-st">Stopped</p>';
 												//elseif (time() - $updated > 1200) echo '<p class="post-pd">Paused</p>';
 												else echo 'Processing';
 											}
@@ -205,6 +205,11 @@ if (isset($_GET['post_preview'])) {
 									<?php if ($project->state == 'Draft') : ?>
 										<a href="<?= admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ?>" class="btn btn-outline-primary">Continue</a>
 									<?php endif; ?>
+
+									
+									
+									
+
 								</td>
 							</tr>
 						<?php endforeach; ?>
@@ -222,6 +227,10 @@ if (isset($_GET['post_preview'])) {
 			start_build(id);
 		}
 		var numm;
+
+
+		
+		
 
 		function start_build(ids) {
 			var max_iterations = parseInt(jQuery('#max-iterations').val());

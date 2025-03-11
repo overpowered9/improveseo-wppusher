@@ -6,7 +6,6 @@
    Author: Improve SEO Team
    Version: 2.0.11
    */
-  
    define("IMPROVESEO_VERSION", "2.0.11");
    define('IMPROVESEO_ROOT', dirname(__FILE__));
    define('IMPROVESEO_DIR', untrailingslashit(plugin_dir_url( __FILE__ )));
@@ -150,6 +149,25 @@
 
 
 
+   function crop_image_programmatically($image_path, $crop_width, $crop_height, $crop_x = 0, $crop_y = 0) {
+		// Load the image editor
+		$image_editor = wp_get_image_editor($image_path);
+
+		// Check if the image editor was loaded successfully
+		if (is_wp_error($image_editor)) {
+			return $image_editor; // Returns the error if there was an issue loading the editor
+		}
+
+		// Crop the image
+		$image_editor->crop($crop_x, $crop_y, $crop_width, $crop_height);
+
+		// Save the cropped image
+		$saved = $image_editor->save($image_path);
+
+		// Return the result
+		return !is_wp_error($saved) ? $saved : $saved->get_error_message();
+	}
+
 
    // Schedule the cron job
 function activate_my_plugin() {
@@ -180,6 +198,42 @@ function custom_cron_intervals($schedules) {
 }
 add_filter('cron_schedules', 'custom_cron_intervals');
 
+
+function convert_emails_to_links($content) {
+   // Convert any email address to a mailto link
+    $content = preg_replace(
+        '/\b([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\b/',
+        '<a href="mailto:$1">$1</a>',
+        $content
+    );
+     return $content;
+}
+
+function convert_urls_to_links($content) {
+    // Regex to match URLs that are not inside HTML tags
+    $content = preg_replace_callback(
+        '/(<a\b[^>]*>.*?<\/a>)|((https?:\/\/|www\.)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}([\/\w.-]*)?)/',
+        function ($matches) {
+            // If it's an existing link, return it as is
+            if (!empty($matches[1])) {
+                return $matches[1];
+            }
+
+            // If it's a plain URL, convert it to a clickable link
+            $url = $matches[2];
+            $href = preg_match('/^https?:\/\//', $url) ? $url : "http://$url";
+            return "<a href=\"$href\" target=\"_blank\" rel=\"noopener\">$url</a>";
+        },
+        $content
+    );
+
+    return $content;
+}
+
+
+
+
+
 function CronjobRequest() {
 	my_plugin_log("cron calling working...");
 	global $wpdb;
@@ -198,114 +252,317 @@ function CronjobRequest() {
 	//error_log('This is a log message : '.date('Y-m-d H:i:s'));
 }
 
+
+
+
+
 function saveContentInTaskList() {
 	
 	global $wpdb;
-	$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `state`='Unpublished' AND `status` = 'Done' ORDER BY `id` ASC LIMIT 1";
+	$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `state` IN ('Scheduled','Published') AND `post_id` IS NULL  AND `status` = 'Done' ORDER BY `id` ASC";
 	
 	$Bulktasks = $wpdb->get_results($sql);
 
-	
+	//
 
 	$content = '';
-	foreach($Bulktasks as $key => $value) {
-		// short code
-		if(!empty($value->testimonial)) { 
-			$testimonial_ids = '';
-			$all_testimonial = explode("||",$value->testimonial); 
-			foreach($all_testimonial as $key1 => $value1) {
-				if(!empty($value1)) {
-					$testimonial_ids = $value1.','.$testimonial_ids;
+	if(!empty($Bulktasks)) {
+		foreach($Bulktasks as $key => $value) {
+			my_plugin_log('task number : '.json_encode($value->id));
+			// short code
+			if(!empty($value->testimonial)) { 
+				$testimonial_ids = '';
+				$all_testimonial = explode("||",$value->testimonial); 
+				foreach($all_testimonial as $key1 => $value1) {
+					if(!empty($value1)) {
+						$testimonial_ids = $value1.','.$testimonial_ids;
+					}
 				}
-			}
-			$content = $content.'<p>[improveseo_testimonial id="'.$testimonial_ids.'"]</p>';
-		} 
-		
-		if(!empty($value->Button_SC)) { 
-			$content = $content.'<p>[improveseo_buttons id="'.$value->Button_SC.'"]</p>';
-		} 
-		
-		if(!empty($value->GoogleMap_SC)) { 
-			$content = $content.'<p>[improveseo_googlemaps id="'.$value->GoogleMap_SC.'"]</p>';
-		} 
-		
-		if(!empty($value->Video_SC)) { 
-			$content = $content.'<p style="width:100%">[improveseo_video id="'.$value->Video_SC.'"]</p>';
-		} 
-		$catids = [];
-		if(!empty($value->cats)) {
-			$categories = explode("||",$value->cats);
-			foreach($categories as $ckey => $cvalue) {
-				if(!empty($cvalue)) {
-					array_push($catids,$cvalue);
-					//$catids = $value1.','.$cvalue;
-				}
+				$content = $content.'<p>[improveseo_testimonial id="'.$testimonial_ids.'"]</p>';
 			} 
-		} else {
-			$categories = '';
-		}
-		$tags = array();
-		$fullcontent = "<img src='".base64_decode($value->ai_image)."' style='width:100%; margin-bottom: 100px;' alt='".$value->ai_title."'>".base64_decode($value->ai_content).$content;
-		$post_date = date('Y-m-d H:i:s');
-		$post_status = 'publish';
-		if($value->schedule_posts=='draft_posts') {
-			$post_status = 'draft';
-		} elseif($value->schedule_posts=='schedule_posts_input_wise') {
-			$post_status = 'draft';
-			$tags = array('This post will published on '.$value->published_on.' automatically.');
-		}
+			
+			if(!empty($value->Button_SC)) { 
+				$content = $content.'<p>[improveseo_buttons id="'.$value->Button_SC.'"]</p>';
+			} 
+			
+			if(!empty($value->GoogleMap_SC)) { 
+				$content = $content.'<p>[improveseo_googlemaps id="'.$value->GoogleMap_SC.'"]</p>';
+			} 
+			
+			if(!empty($value->Video_SC)) { 
+				$content = $content.'<p style="width:100%">[improveseo_video id="'.$value->Video_SC.'"]</p>';
+			} 
+			$catids = [];
+			if(!empty($value->cats)) {
+				$categories = explode("||",$value->cats);
+				foreach($categories as $ckey => $cvalue) {
+					if(!empty($cvalue)) {
+						array_push($catids,$cvalue);
+						//$catids = $value1.','.$cvalue;
+					}
+				} 
+			} else {
+				$categories = '';
+			}
+			$tags = array();
+			//$clean_text = str_replace(['“', '”'], '', $text);
 
+			$fullcontent = "<img src='".base64_decode($value->ai_image)."' style='width:100%; margin-bottom: 45px;' alt='".$value->ai_title."'>".base64_decode($value->ai_content).$content;
+			$post_date = date('Y-m-d H:i:s');
+			$post_status = 'Published';
+			$pstatus="publish";
+			if($value->schedule_posts=='draft_posts') {
+				$post_status = 'Draft';
+				$pstatus="draft";
+			} elseif($value->schedule_posts=='schedule_posts_input_wise') {
+				$post_status = 'Draft';
+				$pstatus="draft";
+				$tags = array('This post will published on '.$value->published_on.' automatically.');
+			}
 
-		
-
-
-		$post_array = array(
-			'post_author' => 1,
-			'post_content' => $fullcontent,
-			'post_title' => $value->ai_title,
-			'comment_status' => 'closed',
-			'ping_status' => 'closed',
-			'post_type' => "post",
-			'post_date' => $post_date,
-			'post_status' => $post_status
-		);
 
 			
 
-			$post_id = wp_insert_post($post_array);
-			  // Replace with your desired tags
-			if(!empty($tags)) {
-				wp_set_post_tags($post_id, $tags);
-			}
-    		
-			//$post_id = $wpdb->insert_id;
+			if($value->assigning_authors=='assigning_authors') {
+				$post_author = $value->assigning_authors_value;
+			} 
 
-			if ((!empty($catids))) {
-				wp_set_post_categories($post_id, $catids, false);
+			if($value->assigning_authors=='assigning_multi_authors') {
+				
+
+
+			
+				$first_names = array(
+					'John', 'Jane', 'Michael', 'Emily', 'David', 'Sarah', 'James', 'Linda', 'Robert', 'Jessica',
+					'Daniel', 'Laura', 'Chris', 'Amy', 'Mark', 'Angela', 'Steven', 'Megan', 'Paul', 'Rachel',
+					'Peter', 'Hannah', 'Kevin', 'Sophia', 'Edward', 'Emma', 'Jason', 'Grace', 'Tom', 'Alice'
+					// Add more names as needed to increase uniqueness
+				);
+				
+				$last_names = array(
+					'Smith', 'Johnson', 'Brown', 'Williams', 'Jones', 'Miller', 'Davis', 'Garcia', 'Martinez', 'Taylor',
+					'Wilson', 'Moore', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Lopez',
+					'Gonzalez', 'Clark', 'Lewis', 'Walker', 'Hall', 'Allen', 'Young', 'King', 'Wright', 'Scott'
+					// Add more names as needed
+				);
+			
+				// Pick a random first and last name
+				$first_name = $first_names[array_rand($first_names)];
+				$last_name = $last_names[array_rand($last_names)];
+				$first_name = $first_name."_".rand(5);
+				$username = str_replace(" ", "", $first_name.$last_name);
+			
+				// Check if the username already exists
+				if ( username_exists( $username ) || email_exists( $first_name.'@example.com' ) ) {
+					my_plugin_log('author recreate : '.$username);
+					$first_name = $first_names[array_rand($first_names)];
+					$last_name = $last_names[array_rand($last_names)];
+					$username = str_replace(" ", "", $first_name.$last_name);
+				}
+			
+				// Define user information
+				$user_data = array(
+					'user_login'    => $username,        // Username
+					'user_pass'     => 'hdfdg5456ghj',                // User password
+					'user_email'    => $first_name.'@example.com', // User email
+					'first_name'    => $first_name,
+					'last_name'     => $last_name,
+					'role'          => 'author',                     // Assign 'author' role
+				);
+			
+				my_plugin_log('author created : '.$username);
+			
+				// Create the user
+				$post_author  = wp_insert_user( $user_data );
+			
+				
 			}
 
-			$wpdb->query(
-				$wpdb->prepare(
-					"UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails`
-					SET state = %s, post_id = %d WHERE id = %d",
-					$post_status, $post_id, $value->id
-				)
+			my_plugin_log('author added : '.$post_author);
+			$post_array = array(
+				'post_author' => $post_author,
+				'post_content' => $fullcontent,
+				'post_title' => $value->ai_title,
+				'comment_status' => 'closed',
+				'ping_status' => 'closed',
+				'post_type' => "post",
+				'post_date' => $post_date,
+				'post_status' => $pstatus
 			);
-			my_plugin_log('This is a log message : '.$value->id);
-			//wp_send_json_success(array('status' => 'false',"message"=>'here 1 : '. $wpdb->last_error  ));
+
+				
+
+				$post_id = wp_insert_post($post_array);
+				//$post_id = wp_insert_post($post_array);
+
+				if (is_wp_error($post_id)) {
+					// If there's an error, get the error message
+					$error_message = $post_id->get_error_message();
+					my_plugin_log("Error : Post creation failed: " . $error_message);
+					
+				} elseif ($post_id) {
+					// Success
+					my_plugin_log("Error : Post created successfully! ID: " . $post_id);
+					
+				} else {
+					// If the function returns 0 (which is unusual)
+					my_plugin_log("Error : Post creation failed: Unknown error");
+					
+				}
+
+
+
+				my_plugin_log('This is a post id : '.$post_id);
+				//set_post_featured_image($post_id, $value->ai_image);
+				// Replace with your desired tags
+				if(!empty($tags)) {
+					wp_set_post_tags($post_id, $tags);
+				}
+				
+				//$post_id = $wpdb->insert_id;
+
+				if ((!empty($catids))) {
+					wp_set_post_categories($post_id, $catids, false);
+				}
+
+				// if (!empty($post_id)) {
+				// 	set_featured_image_from_url($post_id,$value->ai_image);
+				// }
+
+
+				$wpdb->query(
+					$wpdb->prepare(
+						"UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails`
+						SET  post_id = %d WHERE id = %d",
+						 $post_id, $value->id
+					)
+				);
+				my_plugin_log('This is a post id : '.$post_id);
+				$emsg = 'update `'.$wpdb->prefix.'improveseo_bulktasksdetails` SET  post_id = %d WHERE id = %d, '.$post_id.','.$value->id;
+				my_plugin_log('if error in query : '.$emsg."<br>".json_encode($wpdb->last_error));
+				//wp_send_json_success(array('status' => 'false',"message"=>'here 1 : '. $wpdb->last_error  ));
+		}
 	}
 
 
+
+	/*  Update post status on scheduled date*/ 
+	$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `published_on`<='".date('Y-m-d')."' AND `post_id` IS NOT NULL AND `is_published_by_plugin` = '0' AND `state`='Scheduled' ORDER BY `id` ASC";
+
+	$Bulktasks = $wpdb->get_results($sql);
+
+	my_plugin_log("update status : ".json_encode($Bulktasks));
+
+	//my_plugin_log('This is a post id : '.$post_id);
+
+	$content = '';
+	foreach($Bulktasks as $key => $value) {
+		if(!empty($value->post_id)) {
+			$post_data = array(
+				'ID'           => $value->post_id, // The ID of the post being updated
+				'post_status'  => 'publish'  // or any other status
+			);
+
+			wp_update_post($post_data);
+
+			// tag 
+			$tags = array($value->keyword_name);
+			if(!empty($tags)) {
+				wp_set_post_tags($value->post_id, $tags);
+			}
+
+			$post_status = 'Published';
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails`
+					SET state = %s WHERE id = %d",
+					$post_status, $value->id
+				)
+			);
+		}
+	}
 }
 
 
 
+function set_featured_image_from_url($post_id, $image_url) {
+	//return true;
+    // Get WordPress upload directory
+	my_plugin_log("update status : ".json_encode(array("post_id"=>$post_id,"image_url"=>$image_url)));
+    $upload_dir = wp_upload_dir();
+    
+    // Get image file name from URL
+    $filename = basename($image_url);
+    $file_path = $upload_dir['path'] . '/' . $filename;
+
+    // Download the image and save it to the uploads directory
+    $image_data = file_get_contents($image_url);
+    if ($image_data === false) {
+        return false; // Image download failed
+    }
+    my_plugin_log("update status : ".json_encode(array("file_path"=>$file_path)));
+    file_put_contents($file_path, $image_data);
+
+    // Get file type
+    $filetype = wp_check_filetype($filename, null);
+	my_plugin_log("update status : ".json_encode(array("file_path"=>$filetype)));
+    // Prepare attachment data
+    $attachment = array(
+        'post_mime_type' => $filetype['type'],
+        'post_title'     => sanitize_file_name($filename),
+        'post_content'   => '',
+        'post_status'    => 'inherit'
+    );
+
+	my_plugin_log("update status : ".json_encode(array("attachment"=>$attachment)));
+
+    // Insert the image into the media library
+    $attach_id = wp_insert_attachment($attachment, $file_path, $post_id);
+	my_plugin_log("update status : ".json_encode(array("attachment"=>$attach_id)));
+    // Generate attachment metadata
+    require_once(ABSPATH . 'wp-admin/includes/image.php');
+    $attach_data = wp_generate_attachment_metadata($attach_id, $file_path);
+    wp_update_attachment_metadata($attach_id, $attach_data);
+	my_plugin_log("update status : ".json_encode(array("attach_id"=>$attach_id)));
+    // Set the image as the post thumbnail
+    set_post_thumbnail($post_id, $attach_id);
+	my_plugin_log("update status : ".json_encode(array("Done"=>$attach_id)));
+	return true;
+	
+}
 
 
 
-	function generateBulkAiContent() {
+add_action('wp_ajax_re_generate_post', 're_generate_post');
+//add_action('wp_ajax_workdex_builder_update_ajax', 'improveseo_builder_update');
+
+function re_generate_post() {
+	global $wpdb;
+	$id = $_REQUEST['id'];
+	$regenerate = 1;
+	generateBulkAiContent($id,$regenerate);
+	// update content in post as well......
+
+
+	
+	// $wpdb->query(
+	// 	$wpdb->prepare(
+	// 		"UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails`
+	// 		SET state = %s WHERE id = %d",
+	// 		'draft', $id
+	// 	)
+	// );
+	wp_send_json_success(array('status' => 'true',"message"=>"Post regenerated successfully."));
+}
+
+	function generateBulkAiContent($id='',$regenerate='') {
 		global $wpdb;
-		$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `status`='pending' ORDER BY `id` ASC LIMIT 1";
+		if($id!='') {
+			$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `id` = ".$id;
+		} else {
+			$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `status`='Pending' ORDER BY `id` ASC LIMIT 1";
+		}
+		
 		$tasks = $wpdb->get_results($sql);
 		$json_d = json_encode($tasks);
 		if(empty($json_d)) {
@@ -319,6 +576,8 @@ function saveContentInTaskList() {
 			$id = $value->id;
 			my_plugin_log('This is a log message : '.$id);
 			// AI Title
+
+			$getAudienceData = getAudienceData($value->keyword_name);
 			if($value->select_exisiting_options=='seed_option1') {
 				$ai_title = $value->keyword_name;
 			} else if($value->select_exisiting_options=='seed_option2') {
@@ -329,6 +588,8 @@ function saveContentInTaskList() {
 				$ai_title = '';
 			}
 
+		
+
 			
 
 			// AI Image
@@ -336,27 +597,46 @@ function saveContentInTaskList() {
 				$imageURL = generateBulkAiImage($ai_title,$getAudienceData);
 				$imageURL = base64_encode( $imageURL );
 			} else {
-				$imageURL = '';
+				$imageURL = $value->ai_image;
 			}
 			
 			// AI Content
 			$keyword_selection = '';
-			my_plugin_log('arrays : '.$basic_prompt);
+			//my_plugin_log('arrays : '.$basic_prompt);
 			$AI_Content = createBulkAIpost($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode='',$is_single_keyword = '',$value->tone_of_voice,$value->point_of_view,$value->details_to_include,$value->call_to_action,$value->details_to_include);
+
+
+			$ai_title = str_replace(['“', '”','"'], '', $ai_title);
+
 			$data_array = array('ai_title'=>$ai_title,'imageURL'=>$imageURL,'AI_Content'=>$AI_Content);
 			$AI_Content = base64_encode($AI_Content);
 			my_plugin_log('This is a log message content : '.$AI_Content);
+
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails`
+					SET status = %s, ai_title = %s, ai_content = %s, ai_image = %s
+					WHERE id = %d",
+					'Done', $ai_title, $AI_Content, $imageURL, $id
+				)
+			);
+
 		}
 		//$wpdb->query ( "UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails` SET status='Done',`ai_title`=".$ai_title.",`ai_content`='".$AI_Content."',`ai_image`='".$imageURL."', WHERE id=".$id );
 
-		$wpdb->query(
-			$wpdb->prepare(
-				"UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails`
-				SET status = %s, ai_title = %s, ai_content = %s, ai_image = %s
-				WHERE id = %d",
-				'Done', $ai_title, $AI_Content, $imageURL, $id
-			)
-		);
+		// if($regenerate==1) {
+			
+		// } else {
+		// 	$wpdb->query(
+		// 		$wpdb->prepare(
+		// 			"UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails`
+		// 			SET ai_title = %s, ai_content = %s, ai_image = %s
+		// 			WHERE id = %d",
+		// 			 $ai_title, $AI_Content, $imageURL, $id
+		// 		)
+		// 	);
+		// }
+		
 
    		//update_option("work_dex_schedule",time());
 
@@ -365,7 +645,8 @@ function saveContentInTaskList() {
 	}
 
 
-	// image generate 
+
+
 
 	function generateBulkAiImage($title,$AudienceData) {
 
@@ -376,86 +657,164 @@ function saveContentInTaskList() {
 
 
 
-			/*$imgPrompt = 'You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. You should come up with the cover image for the article that will be engaging and interesting for the reader who is described in the audience data and search provided word or phrase. Image should be Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. Using the following information generate an image. 
-			Main keyword: seed-keyword
-			Title of the article is "'.$title.'"
-			Audience data:  {'.$AudienceData.'}';*/
-			$dateTimeDefault = date('YmdHis');
-			$imagename = 'ai_image_'.$dateTimeDefault;
-		// Your OpenAI API key
-		$apiKey = get_option('improveseo_chatgpt_api_key');
-		// The endpoint URL for OpenAI chat completions API (replace with the correct endpoint)
-		$apiUrl = 'https://api.openai.com/v1/images/generations';
-		
-		// Your input data or parameters
-		$data = array(
-			// 'prompt' => $term.' '.accordingtoterm($call, $_REQUEST['wordlimit']),
-			'prompt' => $imgPrompt,//.' '.accordingtoterm($imgdisc, $_REQUEST['wordlimit']),
-			'model'     => 'dall-e-3',
-			'n'         => 1,
-			'size'  => '1792x1024'
-		);
-		
-		// Set up cURL
-		$ch = curl_init($apiUrl);
-		
-		// Set cURL options
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-			'Content-Type: application/json',
-			'Authorization: Bearer ' . $apiKey,
-		));
-		
-		// Execute the cURL request
-		$response = curl_exec($ch);
-		
-		// Check for cURL errors
-		if (curl_errno($ch)) {
-			echo 'Curl error: ' . curl_error($ch);
-		}
-		
-		// Close cURL session
-		curl_close($ch);
-		
-		// Decode and display the response
-		$result = json_decode($response, true);
-		
-		if(!empty($result['data'][0]['url'])) {
-			$url = $result['data'][0]['url'];
+		$dateTimeDefault = date('YmdHis');
+		$imagename = 'ai_image_'.$dateTimeDefault;
+		$seed_title = $imagename;
+	 // Your OpenAI API key
+	 //$apiKey = get_option('improveseo_chatgpt_api_key');
+	 // The endpoint URL for OpenAI chat completions API (replace with the correct endpoint)
+	 //$apiUrl = 'https://api.openai.com/v1/images/generations';
+
+	 $apiKey = 'c0a5519b-922b-4ba9-8a32-0ba118286265';//replace with above function when you have added the flux_ai_api_key to the options, also do not forget to remove this hardcoeded api key as it can lead to api key leak
+  
+	 // Flux AI API endpoint
+	 $apiUrl = 'https://api.us1.bfl.ai/v1/flux-pro-1.1';
+	
+	 // Your input data or parameters
+	 $data = array(
+		 // 'prompt' => $term.' '.accordingtoterm($call, $_REQUEST['wordlimit']),
+		 'prompt' => $imgPrompt,//.' '.accordingtoterm($imgdisc, $_REQUEST['wordlimit']),
+	  'width' => 1024,  // use your desired dimensions Width of the generated image in pixels. Must be a multiple of 32. min 256 max 1440
+	  'height' => 768,  // use your desired dimensions height of the generated image in pixels. Must be a multiple of 32.min 256 max 1440
+	  'prompt_upsampling' => false,//Whether to perform upsampling on the prompt. If true, automatically modifies the prompt for more creative generation.
+	  'safety_tolerance' => 2,//Tolerance level for input and output moderation. Between 0 and 6, 0 being most strict, 6 being least strict.
+	  'output_format' => 'jpeg'//Output format for the generated image. Can be 'jpeg' or 'png'.
+		 // 'model'     => 'dall-e-3',
+		 // 'n'         => 1,
+		 // 'size'  => '1792x1024'
+	 );
+	
+	 // Set up cURL
+	 $ch = curl_init($apiUrl);
+	 
+	 // Set cURL options
+	 curl_setopt($ch, CURLOPT_POST, 1);
+	 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+	 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		 'Content-Type: application/json',
+	  'X-Key: ' . $apiKey
+		 //'Authorization: Bearer ' . $apiKey,
+	 ));
+	
+	 // Execute the cURL request
+	 $response = curl_exec($ch);
+	 
+	 // Check for cURL errors
+	 if (curl_errno($ch)) {
+		 echo 'Curl error: ' . curl_error($ch);
+	 }
+	 
+	 // Close cURL session
+	 curl_close($ch);
+	 
+	 // Decode and display the response
+	 $result = json_decode($response, true);
+	 
+
+
+	 if (!empty($result['id'])) {
+	  // Get the task ID and poll for results
+	  $taskId = $result['id'];
+	  $maxAttempts = 10;
+	  $attempt = 0;
+	  
+	  do {
+		  if ($attempt > 0) {
+			  sleep(4); // Wait before checking again
+		  }
+		  
+		  // Check result
+		  $ch = curl_init("https://api.us1.bfl.ai/v1/get_result?id=" . $taskId);
+		  curl_setopt_array($ch, [
+			  CURLOPT_RETURNTRANSFER => true,
+			  CURLOPT_SSL_VERIFYPEER => false, // For development only, Change/remove both if the SSL certificate is valid on Wordpress
+			  CURLOPT_SSL_VERIFYHOST => 0,     // For development only, 
+			  CURLOPT_HTTPHEADER => [
+				  'X-Key: ' . $apiKey
+			  ]
+		  ]);
+		  
+		  $resultResponse = curl_exec($ch);
+		  curl_close($ch);
+		  
+		  $resultData = json_decode($resultResponse, true);
+		 
+		  if ($resultData['status'] === 'Ready') {
+
+			  
+
+			  $url = $resultData['result']['sample'];
+			  
+			  // Get WordPress upload directory
+			  $upload_dir = wp_upload_dir();
+			  
+
+			  $ch = curl_init($url);
+			  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+			  $image_data = curl_exec($ch);
+			  curl_close($ch);
+
+			  if (!$image_data) {
+				  die('Error fetching image.');
+			  }
+
+
+			  // Fetch image data from URL
+			 // $image_data = file_get_contents($url);
+			  
+			  if ($image_data !== false) {
+				  // Generate unique filename
+
+				  $file_name = wp_unique_filename($upload_dir['path'], str_replace(" ", "_", str_replace(".", "", $seed_title)));
+				  $file_name = $file_name.'_'.rand();
+				  $file_path = $upload_dir['path'] . '/' . $file_name;
+				  //exit();
+				  if (file_put_contents($file_path, $image_data) !== false) {
+					  //Convert to WebP if GD is available
+					  if (extension_loaded('gd')) {
+						  $original_image = imagecreatefromstring($image_data);
+						  
+						  // Path for the WebP image
+						  $webp_file_name = pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
+						  $webp_file_path = $upload_dir['path'] . '/' . $webp_file_name;
+						  
+						  // Convert and save as WebP
+						  imagewebp($original_image, $webp_file_path, 90);
+						  
+						  // Free memory
+						  imagedestroy($original_image);
+						  
+						  // Delete the original file
+						  unlink($file_path);
+						  
+						   $image_url = $upload_dir['url'] . '/' . $webp_file_name;
+						  //exit('here');
+					  } else {
+						  $image_url = $upload_dir['url'] . '/' . $file_name;
+						  //exit();
+					  }
+					  
+					 return $image_url;
+					 // exit();
+				  } else {
+					//   echo 'Error saving the image file.';
+					//   exit();
+				  }
+			  } else {
+				  //return 'Error fetching image data from URL.';
+			  }
+		  }
+		  
+		  $attempt++;
+	  } while ($attempt < $maxAttempts);
+	  
+	  return 'Timeout waiting for image generation.';
+  } else {
+	  return $result;
+  }
 			
-			$upload_dir = wp_upload_dir(); // Get the WordPress upload directory
-	
-			$image_data = file_get_contents($url); // Fetch image data from URL
-	
-			if ($image_data !== false) {
-				// Generate a unique file name for the image
-				$file_name = wp_unique_filename($upload_dir['path'], basename($url));
-		
-				// Save the image to the uploads directory
-				$file_path = $upload_dir['path'] . '/' . $file_name;
-				if (file_put_contents($file_path, $image_data) !== false) {
-					// Image saved successfully, you can now return the image URL
-		
-					// Construct the image URL relative to the uploads directory
-					$image_url = $upload_dir['url'] . '/' . $file_name;
-		
-					// Return the image URL as JSON response
-					return $image_url;
-				} else {
-					// Error saving the image file
-					return 'Error saving the image file.';
-				}
-			} else {
-				// Error fetching image data from URL
-				return 'Error fetching image data from URL.';
-			}
-	
-		} else {
-			return $result;
-			
-		}
 	}
 
 	function bulkAiTitle($getAudienceData,$question,$keyword_name,$tone_of_voice) {
@@ -679,7 +1038,7 @@ Audience data: {'.$AudienceData.'}';
 			
 			Introduction - Introduction should not be more than 100-150 words.(do not include any title, just paragraph)
 			
-			<h2>Table of Content</h2> (Heading 2) - should not be more than 50 words
+			<h2>Table of Contents</h2> (Heading 2) - should not be more than 50 words
 			
 			<h2>Main Content Sections</h2> (Heading 2) - Create 4 sections. Each section should not be more than 200-250 words of detailed content.
 			
@@ -699,7 +1058,7 @@ Audience data: {'.$AudienceData.'}';
 			}
 			
 			Use the iterative approach to improve upon your initial draft. After each draft, critique your work, give it a score out of 10, and if the score is below 9, improve upon the previous draft. Repeat this process until you achieve a score of 9 or 10. When doing this, review and edit your work to remove any grammatical errors, unnecessary information, and superfluous sentences. Don`t provide output of this critique, this is only for you to analyze internally. Also, check the formatting, output should not include a title of the blog post and each section/subsection should have a title with a specific heading type. 
-			Now generate ONLY the Introduction and the Table of Content based on the following parameters:
+			Now generate ONLY the Introduction and the Table of Contents based on the following parameters:
 
 				Main keyword: '.$seed_keyword.'
 				Title: "'.$title.'"
@@ -710,7 +1069,7 @@ Audience data: {'.$AudienceData.'}';
 				Details to include: '.$details_to_include.' 
 				Language: '.$content_lang.'
 				Call to action from user: `'.$call_to_action.'`
-				Facts to include: {'.$facts_prompt_response.'}';
+				Facts to include: {'.$facts_prompt_response.'} . Do not print "Main Content Sections" text in output. Do not print "#" text in output. ';
 
 
 
@@ -1140,7 +1499,7 @@ Audience data: {'.$AudienceData.'}';
 						"conclusion"=>$response_fifth_call_for_small,
 						"faq"=>$response_sixth_call_for_small,
 						"whats_next"=>$response_seventh_call_for_small);*/
-			$content_final = $basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 50px;">'.$response_first_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_secound_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_third_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fourth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fifth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_sixth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_seventh_call_for_small.'</div>';
+			$content_final = '<div class="main-content-section-improveseo">'.$basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 50px;">'.$response_first_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_secound_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_third_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fourth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fifth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_sixth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_seventh_call_for_small.'</div></div>';
 						
 			
 		} elseif($nos_of_words=='1200 to 2400 words') {
@@ -1182,7 +1541,7 @@ IMPORTANT: Never include the Blog Post Title. Start with the introduction paragr
 
 Introduction - Introduction should not be more than 100-150 words.(do not include any title, just paragraph)
 
-<h2>Table of Content</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
+<h2>Table of Contents</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
 
 <h2>Main Content Sections</h2> (Heading 2) - Create 4 sections. Create 2-3 subsections and subtitles with formatting H3 for the each section so it does not exceed required word quantity. IMPORTANT: Each section should not be more than 350-400 words
 
@@ -1202,7 +1561,7 @@ A:
 }
 
 Use the iterative approach to improve upon your initial draft. After each draft, critique your work, give it a score out of 10, and if the score is below 9, improve upon the previous draft. Repeat this process until you achieve a score of 9 or 10. When doing this, review and edit your work to remove any grammatical errors, unnecessary information, and superfluous sentences. Don`t provide output of this critique, this is only for you to analyze internally. Also, check the formatting, output should not include a title of the blog post and each section/subsection should have a title with a specific heading type. 
-Now generate ONLY the Introduction and the Table of Content based on the following parameters:
+Now generate ONLY the Introduction and the Table of Contents based on the following parameters:
 
 
 				Main keyword: '.$seed_keyword.'
@@ -1214,7 +1573,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 				Details to include: '.$details_to_include.' 
 				Language: '.$content_lang.'
 				Call to action from user: `'.$call_to_action.'`
-				Facts to include: {'.$facts_prompt_response.'}';
+				Facts to include: {'.$facts_prompt_response.'} Do not print "Main Content Sections" text in output. Do not print "#" text in output. ';
 
 
 
@@ -1644,7 +2003,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 						"whats_next"=>$response_seventh_call_for_medium );*/
 			//$content_final = $basic_prompt_response.'<br><br>'.$response_first_call_for_medium .'<br><br>'.$response_secound_call_for_medium .'<br><br>'.$response_third_call_for_medium .'<br><br>'.$response_fourth_call_for_medium .'<br><br>'.$response_fifth_call_for_medium .'<br><br>'.$response_sixth_call_for_medium .'<br><br>'.$response_seventh_call_for_medium ;
 
-			$content_final = $basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 50px;">'.$response_first_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_secound_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_third_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fourth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fifth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_sixth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_seventh_call_for_medium.'</div>';
+			$content_final = '<div class="main-content-section-improveseo">'.$basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 50px;">'.$response_first_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_secound_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_third_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fourth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fifth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_sixth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_seventh_call_for_medium.'</div></div>';
 
 
 
@@ -1689,7 +2048,7 @@ IMPORTANT: Never include the Blog Post Title. Start with the introduction paragr
 
 Introduction - Introduction should not be more than 100-150 words.(do not include any title, just paragraph)
 
-<h2>Table of Content</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
+<h2>Table of Contents</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
 
 <h2>Main Content Sections</h2> (Heading 2) - Create 5 sections. Create 2-3 subsections and subtitles with formatting H3 for each section so it does not exceed required word quantity. IMPORTANT: Each section should not be more than 450-600 words. (Do not include the header ‘Main Content Sections’)
 
@@ -1710,7 +2069,7 @@ A:
 }
 
 Use the iterative approach to improve upon your initial draft. After each draft, critique your work, give it a score out of 10, and if the score is below 9, improve upon the previous draft. Repeat this process until you achieve a score of 9 or 10. When doing this, review and edit your work to remove any grammatical errors, unnecessary information, and superfluous sentences. Don`t provide output of this critique, this is only for you to analyze internally. Also, check the formatting, output should not include a title of the blog post and each section/subsection should have a title with a specific heading type. 
-Now generate ONLY the Introduction and the Table of Content based on the following parameters:
+Now generate ONLY the Introduction and the Table of Contents based on the following parameters:
 				Main keyword: '.$seed_keyword.'
 				Title: "'.$title.'"
 				LSI keywords: '.$LSI_Keyords.'
@@ -1720,7 +2079,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 				Details to include: '.$details_to_include.' 
 				Language: '.$content_lang.'
 				Call to action from user: `'.$call_to_action.'`
-				Facts to include: {'.$facts_prompt_response.'}';
+				Facts to include: {'.$facts_prompt_response.'} Do not print "Main Content Sections" text in output. Do not print "#" text in output. ';
 
 
 
@@ -2203,13 +2562,29 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			$result = json_decode($response, true);
 			$response_eigth_call_for_large = $result['choices'][0]['message']['content'];
 
-			$content_final = $basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 50px;">'.$response_first_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_secound_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_third_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fourth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fifth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_sixth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_seventh_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_eigth_call_for_large.'</div>';
+			$content_final = '<div class="main-content-section-improveseo">'.$basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 50px;">'.$response_first_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_secound_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_third_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fourth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fifth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_sixth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_seventh_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_eigth_call_for_large.'</div></div>';
 
 
    }
-     
- 
+   $content_final = convert_emails_to_links($content_final);
+   $content_final = convert_urls_to_links($content_final);
+   
+ $content_final = htmlentities($content_final, null, 'utf-8');
+$content_final = str_replace("&nbsp;", "", $content_final);
+$content_final = str_replace("<p>&nbsp;</p>", "", $content_final);
+$content_final = str_replace("<p> </p>", "", $content_final);
+$content_final = str_replace("<p></p>", "", $content_final);
+
+
+$content_final = html_entity_decode($content_final);
+
+$content_final = replace_content($content_final,'<h2>Main Content Sections</h2>');
+$content_final = replace_content($content_final,'<p>—</p>');
+
+$content_final = removePTags($content_final);
+
    		return $content_final;
+   		
    	    
 }
 
@@ -2504,7 +2879,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
            'custom-plugin-script', // Script handle
            plugin_dir_url(__FILE__) . 'assets/js/custom-plugin-script.js', // Script URL
            array('jquery'), // Dependencies (optional)
-           '1.3.2', // Script version (optional)
+           '1.3.7', // Script version (optional)
            true // Load script in footer
        );
    //}
@@ -2518,7 +2893,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
    	$output ='';
    
    	$saved_rnos =  get_option('get_saved_random_numbers');
-       
+       $html = '';
    	if(!empty($saved_rnos)){
    		foreach($saved_rnos as $id){
    			
@@ -2614,45 +2989,61 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 
 
 		// Generate the HTML output for the image gallery
-		$image_ids = get_post_meta( $post_id, 'my_field', true );
-		$image_ids = is_array($image_ids) ? $image_ids : array();
-		
-		$html_output = '<ul class="multi-upload-gallery">';
-		foreach( $image_ids as $i => $id ) {
-			$url = wp_get_attachment_image_url( $id, array( 80, 80 ) );
-			if( $url ) {
-				$html_output .= '<li data-id="' . $id . '">
-									<img src="' . $url . '" alt="Image ' . ($i + 1) . '" width="80" height="80">
-									<a href="#" class="multi-upload-gallery-remove" style="display: inline;">&#215;</a>
-								</li>';
-			} else {
-				unset( $image_ids[ $i ] );
+		if(!empty($post_id)) {
+			$image_ids = get_post_meta( $post_id, 'my_field', true );
+			$image_ids = is_array($image_ids) ? $image_ids : array();
+			
+			$html_output = '<ul class="multi-upload-gallery">';
+			foreach( $image_ids as $i => $id ) {
+				$url = wp_get_attachment_image_url( $id, array( 80, 80 ) );
+				if( $url ) {
+					$html_output .= '<li data-id="' . $id . '">
+										<img src="' . $url . '" alt="Image ' . ($i + 1) . '" width="80" height="80">
+										<a href="#" class="multi-upload-gallery-remove" style="display: inline;">&#215;</a>
+									</li>';
+				} else {
+					unset( $image_ids[ $i ] );
+				}
 			}
+		
+		
+			$html_output .= '</ul>
+			<input type="hidden" name="my_field" value="' . join( ',', $image_ids ) . '" />
+			<a href="#" class="button multi-upload-button">Add Images</a>';
 		}
-		$html_output .= '</ul>
-		<input type="hidden" name="my_field" value="' . join( ',', $image_ids ) . '" />
-		<a href="#" class="button multi-upload-button">Add Images</a>';
 
 
 		// categories code start
 
 				$select = '';
+				if(!empty($_GET['cat_pre'])) {
+					$cat_pres = $_GET['cat_pre'];
+					$cat_pres = explode(',', $cat_pres );
+				}
+				
 				$args = array("hide_empty" => 0,
 				"type"      => "post",
 				"orderby"   => "name",
 				"order"     => "ASC" );
 				$cats = get_categories($args);
 				foreach($cats as $category){
-
-					if ($category->slug == "improve-seo") {
-						$checked = 'checked  onclick="return false"';
+					$checked = '';
+					if(!empty($cat_pres)) {
+						foreach($cat_pres as $cat_pres_key => $cat_pres_value) { 
+							if ($category->term_id == $cat_pres_value) {
+								$checked = 'checked';
+							}
+						}
+						
+					} else {
+						if ($category->slug == "improve-seo") {
+							$checked = 'checked  onclick="return false"';
+						}
 					}
-					else{
-						$checked = '';
-					}
+					
 													
-				$select.= "<span><input type='checkbox' " . $checked . " value='".$category->term_id."' id='".$category->term_id."' name='cats[]'><label for='".$category->term_id."'>".$category->name."</label></span>";
-			}
+					$select.= "<span><input type='checkbox' " . $checked . " value='".$category->term_id."' id='".$category->term_id."' name='cats[]'><label for='".$category->term_id."'>".$category->name."</label></span>";
+				}
 
 			$saved_rnos =  get_option('get_saved_random_numbers');
 			$shortcode_html = '<h3>Testimonial</h3>';
@@ -2894,6 +3285,23 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 
 </script>
 <?php
+$all_auths = '';
+$authors = get_users( array(
+    'roles' => 'author'
+) );
+
+if ( ! empty( $authors ) ) {
+    $all_auths =  '<select name="author_name">';
+    foreach ( $authors as $author ) {
+        $all_auths = $all_auths.'<option value="' . esc_attr( $author->ID ) . '">' . esc_html( $author->data->display_name ) . '</option>';
+    }
+    $all_auths = $all_auths. '</select>';
+} else {
+    $all_auths = $all_auths. '<option value="0">No author found</option>';
+}
+
+
+
 
 // 20-05-24 End Code 
 	$output = ' <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
@@ -3123,7 +3531,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
                                    <div class="row">
 										<div class="form-group col-md-12">
 											<label for="sel1">Details to Include <a href="#" data-toggle="Please ensure the information you input aligns with the Main Keyword and Title. For example, information about dogs should not be added if you are writing about roofing." title="Please ensure the information you input aligns with the Main Keyword and Title. For example, information about dogs should not be added if you are writing about roofing."><div class="dashicons dashicons-info-outline" aria-hidden="true"><br></div></a></label>
-											<textarea class="form-control" id="exampleFormControlTextarea" rows="3" name="details_to_include" onkeypress="return countContent()" OnBlur="LimitText(this,500,1)"></textarea>
+											<textarea class="form-control" id="exampleFormControlTextarea" rows="3" name="details_to_include" onkeypress="return countContent()" OnBlur="LimitText(this,1500,1)"></textarea>
 											<span id="countContent"></span>
 										</div>
                                    </div>
@@ -3131,7 +3539,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
    								<div class="row">
    								<div class="form-group col-md-12">
    									<label for="sel1">Call to action <a href="#" data-toggle="Information" title="Information"><div class="dashicons dashicons-info-outline" aria-hidden="true"><br></div></a></label>
-   									<textarea class="form-control" id="call_to_action" rows="3" name="call_to_action" onkeypress="return countContentCallToAction()" OnBlur="LimitText(this,500,2)"></textarea><span id="countContentCallToAction"></span>	
+   									<textarea class="form-control" id="call_to_action" rows="3" name="call_to_action" onkeypress="return countContentCallToAction()" OnBlur="LimitText(this,1000,2)"></textarea><span id="countContentCallToAction"></span>	
    								</div>
                                       
                                    </div>
@@ -3176,7 +3584,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
    									<div class="form-group col-md-12" id="Prompt_to_create_Dalle_Image" style="margin: 0 0 0 0; display: none;">
 
    										<div id="manually_promt" style="margin: 0px 40px 0px 40px;">
-   											<textarea class="form-control" id="manually_promt_for_image" rows="15" name="manually_promt_for_image" onkeypress="return countContent()" OnBlur="LimitText(this,500,3)"></textarea>
+   											<textarea class="form-control" id="manually_promt_for_image" rows="15" name="manually_promt_for_image" onkeypress="return countContent()" OnBlur="LimitText(this,1000,3)"></textarea>
    											<span id="error_manually_promt_for_image"></span>
    											<input type="button" name="generate_i_image" class="btn btn-primary pull-right"  id="generate_i_image" value="Generate Image" style="margin: 10px 0px 0px 0px;" />
    										</div>
@@ -3195,7 +3603,11 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
    									<input type="hidden" name="ai_tittle" id="ai_title" />
    										<div style="text-align: center; display: flex; justify-content: center; gap: 10px; margin: 20px;">
    											<input type="button" value="Approve Content" class="btn btn-primary" onclick="return saveData()" id="generateapi" style="display:none;" style="margin: 0px 0px -37px 0px;">
-   											<input type="button" name="genaipost" class="btn btn-primary" id="generateapivalue" value="Generate AI Post" />
+   											
+											<span><input type="checkbox" value="1" id="for_testing_only" name="for_testing_only">
+											<label for="for_testing_only">For Testing Only</label></span><br>
+						
+											<input type="button" name="genaipost" class="btn btn-primary" id="generateapivalue" value="Generate AI Post" />
    											<input type="hidden" name="AI_Title" id="AI_Title">
    											<input type="hidden" name="AI_descreption" id="AI_descreption">
    										</div>
@@ -3369,10 +3781,10 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 													 <span id="error_existing_select" style="color: red;"></span>
 													 <div class="form-group col-md-12" style="padding: 0px !important;">
 														 <label for="sel1">Details to Include <a href="#" data-toggle="Please ensure the information you input aligns with the Main Keyword and Title. For example, information about dogs should not be added if you are writing about roofing." title="Please ensure the information you input aligns with the Main Keyword and Title. For example, information about dogs should not be added if you are writing about roofing."><div class="dashicons dashicons-info-outline" aria-hidden="true"><br></div></a></label>
-															 <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="details_to_include" style=" max-width: 84% !important;" onkeypress="return countContent()" OnBlur="LimitText(this,500,1)"></textarea>
+															 <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="details_to_include" style=" max-width: 84% !important;" onkeypress="return countContent1()" OnBlur="LimitText1(this,1500,1)"></textarea>
 															 <div class="BasicForm__row mb-3" style="max-width:84%; text-align:end; padding:15px 0px;">
 															 <input type="button" onclick="return SaveResultsButton();" class="btn btn-outline-primary" value="AI Generate Context Based On Keyword List">
-														 <span id="countContent"></span>
+														 <span id="countContent1" class="pull-left"></span>
 													</div>
 													
 													 </div>
@@ -3440,7 +3852,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 									<div class="row">
 									<div class="form-group col-md-12">
 										<label for="sel1">Call to action <a href="#" data-toggle="Information" title="Information"><div class="dashicons dashicons-info-outline" aria-hidden="true"><br></div></a></label>
-										<textarea class="form-control" id="call_to_action" rows="3" name="call_to_action" onkeypress="return countContentCallToAction()" OnBlur="LimitText(this,500,2)"></textarea><span id="countContentCallToAction"></span>	
+										<textarea class="form-control" id="call_to_action" rows="3" name="call_to_action" onkeypress="return countContentCallToAction()" OnBlur="LimitText(this,1000,2)"></textarea><span id="countContentCallToAction"></span>	
 									</div>
 									   
 									</div>
@@ -3461,7 +3873,14 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 									   
 								 <div class="form-group col-md-12" style="margin: 0 0 0 0;">
 												 <div id="multiple_image_div" style="display:none;" >
-												 '. $html_output .'
+												 <form id="uploadForm">
+													<label for="images">Choose Images:</label>
+													<input type="file" id="images" name="images[]" multiple>
+													<button type="button" id="uploadBtn">Upload</button>
+													<div id="preview"></div>
+													<div id="response"></div>
+													<div id="hiddenInputs"></div>
+												</form>
 											 </div>
 										 </div>
 										</div>
@@ -3534,7 +3953,11 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 											
 											<label><input type="radio" name="assigning_authors" value="assigning_authors" id="assigning_authors"> Assign all posts of this project to one author </label> 
 											<div id="author_number" style="display:none">
-												<input type="text" name="author_name" value="">
+												'.$all_auths.'
+												
+
+												
+
 											</div>
 										</div>
 
@@ -3552,9 +3975,9 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 								<div id="steps-9" class="">
 									 <div class="row">
 										 <div class="col-md-12" style="text-align: left; margin-top: 30px; margin-bottom: 30px;">
-										 <h3 class="Posting__subheader h1">Chose Or Create Category</h3>
+										 <h3 class="Posting__subheader h1">Chouse Or Create Category</h3>
 										 <div class="card mx-auto p-3 p-sm-4">
-											<div class="category_improveseo clearfix card-body text-center p-0">
+											<div class="category_improveseo category_improveseo_bulk clearfix card-body text-center p-0">
 												<div class="cta-check clearfix d-flex justify-content-center flex-column flex-sm-row  align-items-start align-items-sm-center"> 
 												'. $select.'
 												</div>
@@ -3687,8 +4110,8 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 
 		if(isset($_POST['fData'])){
 			$cat_slug = $_POST['fData'];
-			$cat_slug = preg_replace('/\s*/', '-', $cat_slug);
-			$cat_slug = strtolower($cat_slug);
+			//$cat_slug = preg_replace('/\s*/', '-', $cat_slug);
+			//$cat_slug = strtolower($cat_slug);
 			wp_insert_term(
 				// the name of the category
 				$_POST['fData'], 
@@ -3718,17 +4141,19 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 				"orderby"   => "name",
 				"order"     => "ASC" );
 				$cats = get_categories($args);
+				// echo "<pre>";
+				// print_r($cats);
+				// echo "slug : ".$slug;
+				// exit();
 				foreach($cats as $category){
-
-					if ($category->slug == $slug) {
+					if ($category->name == $slug) {
 						$checked = 'checked  onclick="return false"';
 						$select.= "<span><input type='checkbox' " . $checked . " value='".$category->term_id."' id='".$category->term_id."' name='cats[]'><label for='".$category->term_id."'>".$category->name."</label></span>";
 						return $select;
 					} else{
 						$checked = '';
 					}								
-				
-			}
+				}
 		}
 
 		 // multiple Image Gallery
@@ -3756,12 +4181,25 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 
 
 
+
+
 add_action('wp_ajax_multiPostData','multiPostData');
 
 function multiPostData() {
-
+	
+	
 	global $wpdb;
+	$uploaded_images_count = 0;
+	$sequence_manually_images = 0;
+	if($_POST['aiImage']=='Multiple_images') {
+		$uploaded_images_count = count($_POST['uploaded_images']);
+		
+	}
+	
+
 	$project_name = sanitize_text_field($_POST['project_name']);
+	//$number_of_post_schedule = sanitize_text_field($_POST['number_of_post_schedule']);
+	$number_of_post_schedule = (!empty($_POST['number_of_post_schedule'])) ? $_POST['number_of_post_schedule'] : "1";
 	if($project_name=='') {
 		wp_send_json_success(array('status' => 'false',"message"=>"Project name is required."));
 	}
@@ -3769,7 +4207,7 @@ function multiPostData() {
 		$keyword_lists = explode("\n", $_POST['keyword_list']);
 
 		$notify_email = $_POST['notify_email'];
-		$timeTaken = 3*count($keyword_lists); // one post 3 mint
+		$timeTaken = 2*count($keyword_lists); // one post 3 mint
 		$linkredirect = home_url('/').'wp-admin/admin.php?page=improveseo_bulkprojects';
 		
 
@@ -3789,8 +4227,10 @@ function multiPostData() {
 			
 			
 				$schedule_posts = (!empty($_POST['schedule_posts'])) ? $_POST['schedule_posts'] : "";
-				
-				$number_of_post_schedule = (!empty($_POST['number_of_post_schedule'])) ? $_POST['number_of_post_schedule'] : "";
+				if($schedule_posts=='') {
+					wp_send_json_success(array('status' => 'false',"message"=>"Publish - Schedule Posts required. Please check step 7."));
+				}
+				$number_of_post_schedule = (!empty($_POST['number_of_post_schedule'])) ? $_POST['number_of_post_schedule'] : "1";
 				
 				$schedule_frequency = (!empty($_POST['schedule_frequency'])) ? $_POST['schedule_frequency'] : "";
 
@@ -3809,9 +4249,12 @@ function multiPostData() {
 			$lastid = $wpdb->insert_id;
 			
 			$pdate = date('Y-m-d');
-			$number_of_post_schedule_count = 1;
+			$number_of_post_schedule_count = $number_of_post_schedule;
 			foreach($keyword_lists as $key => $value) {
 				if(!empty($value)) {
+					
+					
+					
 					$keyword_list_name = (!empty($_POST['keyword_list_name'])) ? $_POST['keyword_list_name'] : ""; 
 					$content_type = (!empty($_POST['content_type'])) ? $_POST['content_type'] : ""; 
 					$select_exisiting_options = (!empty($_POST['select_exisiting_options'])) ? $_POST['select_exisiting_options'] : "";
@@ -3826,6 +4269,8 @@ function multiPostData() {
 					$schedule_frequency = (!empty($_POST['schedule_frequency'])) ? $_POST['schedule_frequency'] : "";
 					$assigning_authors = (!empty($_POST['assigning_authors'])) ? $_POST['assigning_authors'] : "";
 					$authors_number = (!empty($_POST['authors_number'])) ? $_POST['authors_number'] : "";
+					$author_name = (!empty($_POST['author_name'])) ? $_POST['author_name'] : "";
+					
 					$category = '';
 					if(!empty($_POST['cats'])) {
 						foreach($_POST['cats'] as $cats) {
@@ -3840,7 +4285,7 @@ function multiPostData() {
 						}
 					} 
 
-					if(($schedule_posts=='schedule_all_posts')||($schedule_posts=='draft_posts')) {
+					if(($schedule_posts=='schedule_all_posts')) {
 						$published_on = date('Y-m-d');
 					} elseif($schedule_posts=='schedule_posts_input_wise') {
 						if($schedule_frequency=='per_day') {
@@ -3862,12 +4307,39 @@ function multiPostData() {
 								$published_on = $pdate;
 							}
 						}
+					} else {
+						$published_on = '';
 					}
 	
 					$Button_SC = (!empty($_POST['Button_SC'])) ? $_POST['Button_SC'] : "";
 					$GoogleMap_SC = (!empty($_POST['GoogleMap_SC'])) ? $_POST['GoogleMap_SC'] : "";
-					$Video_SC = (!empty($_POST['Video_SC'])) ? $_POST['Video_SC'] : "";
+					if($authors_number=='') {
+						$authors_number = $author_name;
+					}
+// manuually images
+					if($uploaded_images_count>0) {
+						if(($uploaded_images_count)==$sequence_manually_images) {
+							$sequence_manually_images = 0;
+						}
+						$ai_image = base64_encode($_POST['uploaded_images'][$sequence_manually_images]);
+						
+					} else {
+						$ai_image = '';
+					} 
+
 					
+					 if($schedule_posts=='schedule_posts_input_wise') {
+						$status = 'Scheduled';
+					 } else if($schedule_posts=='draft_posts') {
+						$status = 'Draft';
+					 } else {
+						$status = 'Published';
+					 }
+
+					 
+					
+					
+
 					$insert_bulk_data = array(
 						 'bulktask_id' => $lastid,
 						 'keyword_list_name' => $keyword_list_name,
@@ -3885,18 +4357,26 @@ function multiPostData() {
 						 'assigning_authors'=>$assigning_authors,
 						 'assigning_authors_value'=>$authors_number,
 						 'cats'=>$category,
+						 'ai_image'=>$ai_image,
 						 'testimonial' => $testimonial,
 						 'schedule_frequency' => $schedule_frequency,
 						 'Button_SC'=>$Button_SC,
 						 'GoogleMap_SC'=>$GoogleMap_SC,
 						 'Video_SC'=>$Video_SC,
-						 'status' => "pending",
-						 'state' => "Unpublished",
+						 'status' => 'Pending',
+						 'state' => $status,
 						 'published_on' => $published_on,
 						 'created_at' => date('Y-m-d h:m:s'),
 						 'updated_at' => date('Y-m-d h:m:s'),
 					);
 					$wpdb->insert($wpdb->prefix . "improveseo_bulktasksdetails", $insert_bulk_data);
+
+					$json_d = json_encode($insert_bulk_data);
+					if(empty($json_d)) {
+						my_plugin_log('Post created --> '.$json_d);
+						return true;
+					}
+					$sequence_manually_images++;
 					
 				}
 			}
@@ -3938,6 +4418,8 @@ function multiPostData() {
 		$voice_tone = $arr['content_type'];
 		$point_of_view = $arr['point_of_view'];
 		$call_to_action = $arr['call_to_action'];
+		$for_testing_only = $arr['for_testing_only'];
+
 		$details_to_include = $arr['details_to_include'];
    		$content_lang = $arr['content_lang'];
 		if(!empty($arr['maintitlearea'])) {
@@ -3952,7 +4434,12 @@ function multiPostData() {
 			$search_data = $ai_title ;
 		}
    		$content = createAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, 										 
-    	$shortcode='',1,$voice_tone,$point_of_view,$search_data,$call_to_action,$details_to_include);	
+    	$shortcode='',1,$voice_tone,$point_of_view,$search_data,$call_to_action,$details_to_include,$for_testing_only);	
+		
+
+		//$content = convert_emails_to_links($content);
+		//$content = convert_urls_to_links($content);
+
    
 		$meta_title = generateMetaTitle($arr['ai_tittle'], $arr['seed_keyword']);
 		$meta_descreption = generateMetaDescreption($arr['ai_tittle'], $arr['seed_keyword'],$content);
@@ -3975,6 +4462,10 @@ function multiPostData() {
 	return ChatGPTCall($question);
    }
    
+   function replace_content($content, $remove) {
+		// Use preg_replace if you want more complex pattern matching
+		return preg_replace('/'.preg_quote($remove, '/').'/', '', $content);
+	}
    function generateMetaDescreption($aigeneratedtitle, $seed_keyword,$content='') {
   	 $question = "Create an SEO optimized meta description. max length of description should be 70-80 characters including spaces. Meta description is based on the blog post title `".$aigeneratedtitle."`, the keyword `".$seed_keyword."` and the blog post content i.e. ".$content.".";
   	 return ChatGPTCall($question);
@@ -4324,7 +4815,39 @@ function generateTitle($seed_type, $seed_keyword, $content_type,$getAudienceData
    		}    
 }
    
-   function createAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode='',$is_single_keyword = '',$voice_tone = '',$point_of_view = '',$title='',$call_to_action = '',$details_to_include = '')
+function removePTags($html) {
+	$html = preg_replace('/<p>(\s|&nbsp;)*<\/p>/', '', $html);
+	$html = str_replace("\n", '<br>', $html);
+
+	$html = str_replace('<h2>Table of Contents</h2>','<h2 style="margin-top: 35px;">Table of Contents</h2>', $html);
+	// Remove any text inside square brackets [example]
+    $html = preg_replace('/\[[^\]]*\]/', '', $html);
+
+
+	$lines = explode("\n", $html);
+
+    foreach ($lines as &$line) {
+        // Convert #, ##, ###, #### to H3 (only at the start of the line)
+        $line = preg_replace('/^(#{1,4})\s*(.*)/', '<h3>$2</h3>', $line);
+
+        // Convert *, **, ***, **** around words to bold
+        $line = preg_replace('/\*{1,4}(.*?)\*{1,4}/', '<strong>$1</strong>', $line);
+    }
+
+	// remove () or []
+
+    return implode("<br>", $lines);
+
+	//return lines.join("<br>");
+
+    
+    // Remove parentheses but keep the text inside
+   // $html = preg_replace('/\(([^)]+)\)/', '$1', $html);
+	//return $html;
+}
+
+
+   function createAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode='',$is_single_keyword = '',$voice_tone = '',$point_of_view = '',$title='',$call_to_action = '',$details_to_include = '',$for_testing_only='')
    {
    global $wpdb, $user_ID;
    $prompt_collection = '<b>LSI_Keyords Prompt : <b><br>';
@@ -4469,7 +4992,7 @@ $prompt_collection = '';
 			
 			Introduction - Introduction should not be more than 100-150 words.(do not include any title, just paragraph)
 			
-			<h2>Table of Content</h2> (Heading 2) - should not be more than 50 words
+			<h2>Table of Contents</h2> (Heading 2) - should not be more than 50 words
 			
 			<h2>Main Content Sections</h2> (Heading 2) - Create 4 sections. Each section should not be more than 200-250 words of detailed content.
 			
@@ -4489,7 +5012,7 @@ $prompt_collection = '';
 			}
 			
 			Use the iterative approach to improve upon your initial draft. After each draft, critique your work, give it a score out of 10, and if the score is below 9, improve upon the previous draft. Repeat this process until you achieve a score of 9 or 10. When doing this, review and edit your work to remove any grammatical errors, unnecessary information, and superfluous sentences. Don`t provide output of this critique, this is only for you to analyze internally. Also, check the formatting, output should not include a title of the blog post and each section/subsection should have a title with a specific heading type. 
-			Now generate ONLY the Introduction and the Table of Content based on the following parameters:
+			Now generate ONLY the Introduction and the Table of Contents based on the following parameters:
 
 				Main keyword: '.$seed_keyword.'
 				Title: "'.$title.'"
@@ -4500,7 +5023,7 @@ $prompt_collection = '';
 				Details to include: '.$details_to_include.' 
 				Language: '.$content_lang.'
 				Call to action from user: `'.$call_to_action.'`
-				Facts to include: {'.$facts_prompt_response.'}';
+				Facts to include: {'.$facts_prompt_response.'} Do not print "Main Content Sections" text in output.';
 
 
 
@@ -4977,23 +5500,25 @@ $prompt_collection = '';
 			} else {
 				$title_type = 'Regular';
 			}
-			$test_prupose = "<h1>For Testing purposes - Checklist</h1>";
-			$test_prupose = $test_prupose."Main keyword: <b>".$seed_keyword."</b></br>
-		 Title: <b>".$title."</b></br>
-		 Title type: <b>".$title_type."</b></br>
-		 Article size/number of words: <b>".$nos_of_words."</b></br>
-		 LSI keywords: <b>".$LSI_Keyords."</b></br>
-		 Tone of voice: <b>".$voice_tone."</b></br>
-		 Point of view: <b>".$point_of_view."</b></br>
-		 Audience data: {<b>".$AudienceData."</b>}</br>
-		 Details to include: <b>".$details_to_include."</b></br>
-		 Language: <b>".$content_lang."</b></br>
-		 Call to action from user: <b>".$call_to_action."</b></br>
-		 Facts to include: {<b>".$facts_prompt_response."</b> }</br>
-		 Words to exclude:  meticulous, meticulously, navigating, complexities, realm, bespoke, tailored, towards, underpins, everchanging, ever-evolving, the world of, not only, seeking more than just, designed to enhance, it’s not merely, our suite, it is advisable, daunting, in the heart of, when it comes to, in the realm of, amongst unlock the secrets, unveil the secrets and robust";
+			if($for_testing_only==1) {
+				$test_prupose = "<h1>For Testing purposes - Checklist</h1>";
+				$test_prupose = $test_prupose."Main keyword: <b>".$seed_keyword."</b></br>
+			Title: <b>".$title."</b></br>
+			Title type: <b>".$title_type."</b></br>
+			Article size/number of words: <b>".$nos_of_words."</b></br>
+			LSI keywords: <b>".$LSI_Keyords."</b></br>
+			Tone of voice: <b>".$voice_tone."</b></br>
+			Point of view: <b>".$point_of_view."</b></br>
+			Audience data: {<b>".$AudienceData."</b>}</br>
+			Details to include: <b>".$details_to_include."</b></br>
+			Language: <b>".$content_lang."</b></br>
+			Call to action from user: <b>".$call_to_action."</b></br>
+			Facts to include: {<b>".$facts_prompt_response."</b> }</br>
+			Words to exclude:  meticulous, meticulously, navigating, complexities, realm, bespoke, tailored, towards, underpins, everchanging, ever-evolving, the world of, not only, seeking more than just, designed to enhance, it’s not merely, our suite, it is advisable, daunting, in the heart of, when it comes to, in the realm of, amongst unlock the secrets, unveil the secrets and robust";
+			}
 
-
-			$content_final = $basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 100px;">'.$response_first_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_secound_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_third_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fourth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fifth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_sixth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_seventh_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$test_prupose.'</div>';
+			
+			$content_final = '<div class="main-content-section-improveseo">'.$basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 50px;">'.$response_first_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_secound_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_third_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fourth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fifth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_sixth_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_seventh_call_for_small.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$test_prupose.'</div></div>';
 						
 			
 		}
@@ -5036,7 +5561,7 @@ IMPORTANT: Never include the Blog Post Title. Start with the introduction paragr
 
 Introduction - Introduction should not be more than 100-150 words.(do not include any title, just paragraph)
 
-<h2>Table of Content</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
+<h2>Table of Contents</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
 
 <h2>Main Content Sections</h2> (Heading 2) - Create 4 sections. Create 2-3 subsections and subtitles with formatting H3 for the each section so it does not exceed required word quantity. IMPORTANT: Each section should not be more than 350-400 words
 
@@ -5056,7 +5581,7 @@ A:
 }
 
 Use the iterative approach to improve upon your initial draft. After each draft, critique your work, give it a score out of 10, and if the score is below 9, improve upon the previous draft. Repeat this process until you achieve a score of 9 or 10. When doing this, review and edit your work to remove any grammatical errors, unnecessary information, and superfluous sentences. Don`t provide output of this critique, this is only for you to analyze internally. Also, check the formatting, output should not include a title of the blog post and each section/subsection should have a title with a specific heading type. 
-Now generate ONLY the Introduction and the Table of Content based on the following parameters:
+Now generate ONLY the Introduction and the Table of Contents based on the following parameters:
 
 
 				Main keyword: '.$seed_keyword.'
@@ -5068,7 +5593,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 				Details to include: '.$details_to_include.' 
 				Language: '.$content_lang.'
 				Call to action from user: `'.$call_to_action.'`
-				Facts to include: {'.$facts_prompt_response.'}';
+				Facts to include: {'.$facts_prompt_response.'} Do not print "Main Content Sections" text in output.';
 
 
 
@@ -5507,23 +6032,26 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			} else {
 				$title_type = 'Regular';
 			}
-			$test_prupose = "<h1>For Testing purposes - Checklist</h1>";
-			$test_prupose = $test_prupose."Main keyword: <b>".$seed_keyword."</b></br>
-		 Title: <b>".$title."</b></br>
-		 Title type: <b>".$title_type."</b></br>
-		 Article size/number of words: <b>".$nos_of_words."</b></br>
-		 LSI keywords: <b>".$LSI_Keyords."</b></br>
-		 Tone of voice: <b>".$voice_tone."</b></br>
-		 Point of view: <b>".$point_of_view."</b></br>
-		 Audience data: {<b>".$AudienceData."</b>}</br>
-		 Details to include: <b>".$details_to_include."</b></br>
-		 Language: <b>".$content_lang."</b></br>
-		 Call to action from user: <b>".$call_to_action."</b></br>
-		 Facts to include: {<b>".$facts_prompt_response."</b> }</br>
-		 Words to exclude:  meticulous, meticulously, navigating, complexities, realm, bespoke, tailored, towards, underpins, everchanging, ever-evolving, the world of, not only, seeking more than just, designed to enhance, it’s not merely, our suite, it is advisable, daunting, in the heart of, when it comes to, in the realm of, amongst unlock the secrets, unveil the secrets and robust";
+
+			if($for_testing_only==1) {
+				$test_prupose = "<h1>For Testing purposes - Checklist</h1>";
+				$test_prupose = $test_prupose."Main keyword: <b>".$seed_keyword."</b></br>
+			Title: <b>".$title."</b></br>
+			Title type: <b>".$title_type."</b></br>
+			Article size/number of words: <b>".$nos_of_words."</b></br>
+			LSI keywords: <b>".$LSI_Keyords."</b></br>
+			Tone of voice: <b>".$voice_tone."</b></br>
+			Point of view: <b>".$point_of_view."</b></br>
+			Audience data: {<b>".$AudienceData."</b>}</br>
+			Details to include: <b>".$details_to_include."</b></br>
+			Language: <b>".$content_lang."</b></br>
+			Call to action from user: <b>".$call_to_action."</b></br>
+			Facts to include: {<b>".$facts_prompt_response."</b> }</br>
+			Words to exclude:  meticulous, meticulously, navigating, complexities, realm, bespoke, tailored, towards, underpins, everchanging, ever-evolving, the world of, not only, seeking more than just, designed to enhance, it’s not merely, our suite, it is advisable, daunting, in the heart of, when it comes to, in the realm of, amongst unlock the secrets, unveil the secrets and robust";
+			}
 
 
-			$content_final = $basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 100px;">'.$response_first_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_secound_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_third_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fourth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fifth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_sixth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_seventh_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$test_prupose.'</div>';
+			$content_final = '<div class="main-content-section-improveseo">'.$basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 50px;">'.$response_first_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_secound_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_third_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fourth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fifth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_sixth_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_seventh_call_for_medium.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$test_prupose.'</div></div>';
 
 
 
@@ -5568,7 +6096,7 @@ IMPORTANT: Never include the Blog Post Title. Start with the introduction paragr
 
 Introduction - Introduction should not be more than 100-150 words.(do not include any title, just paragraph)
 
-<h2>Table of Content</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
+<h2>Table of Contents</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
 
 <h2>Main Content Sections</h2> (Heading 2) - Create 5 sections. Create 2-3 subsections and subtitles with formatting H3 for each section so it does not exceed required word quantity. IMPORTANT: Each section should not be more than 450-600 words. (Do not include the header ‘Main Content Sections’)
 
@@ -5589,7 +6117,7 @@ A:
 }
 
 Use the iterative approach to improve upon your initial draft. After each draft, critique your work, give it a score out of 10, and if the score is below 9, improve upon the previous draft. Repeat this process until you achieve a score of 9 or 10. When doing this, review and edit your work to remove any grammatical errors, unnecessary information, and superfluous sentences. Don`t provide output of this critique, this is only for you to analyze internally. Also, check the formatting, output should not include a title of the blog post and each section/subsection should have a title with a specific heading type. 
-Now generate ONLY the Introduction and the Table of Content based on the following parameters:
+Now generate ONLY the Introduction and the Table of Contents based on the following parameters:
 				Main keyword: '.$seed_keyword.'
 				Title: "'.$title.'"
 				LSI keywords: '.$LSI_Keyords.'
@@ -5599,7 +6127,7 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 				Details to include: '.$details_to_include.' 
 				Language: '.$content_lang.'
 				Call to action from user: `'.$call_to_action.'`
-				Facts to include: {'.$facts_prompt_response.'}';
+				Facts to include: {'.$facts_prompt_response.'} Do not print "Main Content Sections" text in output.';
 
 
 
@@ -6104,24 +6632,26 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 			} else {
 				$title_type = 'Regular';
 			}
-			$test_prupose = "<h1>For Testing purposes - Checklist</h1>";
-			$test_prupose = $test_prupose."Main keyword: <b>".$seed_keyword."</b></br>
-		 Title: <b>".$title."</b></br>
-		 Title type: <b>".$title_type."</b></br>
-		 Article size/number of words: <b>".$nos_of_words."</b></br>
-		 LSI keywords: <b>".$LSI_Keyords."</b></br>
-		 Tone of voice: <b>".$voice_tone."</b></br>
-		 Point of view: <b>".$point_of_view."</b></br>
-		 Audience data: {<b>".$AudienceData."</b>}</br>
-		 Details to include: <b>".$details_to_include."</b></br>
-		 Language: <b>".$content_lang."</b></br>
-		 Call to action from user: <b>".$call_to_action."</b></br>
-		 Facts to include: {<b>".$facts_prompt_response."</b> }</br>
-		 Words to exclude:  meticulous, meticulously, navigating, complexities, realm, bespoke, tailored, towards, underpins, everchanging, ever-evolving, the world of, not only, seeking more than just, designed to enhance, it’s not merely, our suite, it is advisable, daunting, in the heart of, when it comes to, in the realm of, amongst unlock the secrets, unveil the secrets and robust";
+			if($for_testing_only==1) {
+				$test_prupose = "<h1>For Testing purposes - Checklist</h1>";
+				$test_prupose = $test_prupose."Main keyword: <b>".$seed_keyword."</b></br>
+			Title: <b>".$title."</b></br>
+			Title type: <b>".$title_type."</b></br>
+			Article size/number of words: <b>".$nos_of_words."</b></br>
+			LSI keywords: <b>".$LSI_Keyords."</b></br>
+			Tone of voice: <b>".$voice_tone."</b></br>
+			Point of view: <b>".$point_of_view."</b></br>
+			Audience data: {<b>".$AudienceData."</b>}</br>
+			Details to include: <b>".$details_to_include."</b></br>
+			Language: <b>".$content_lang."</b></br>
+			Call to action from user: <b>".$call_to_action."</b></br>
+			Facts to include: {<b>".$facts_prompt_response."</b> }</br>
+			Words to exclude:  meticulous, meticulously, navigating, complexities, realm, bespoke, tailored, towards, underpins, everchanging, ever-evolving, the world of, not only, seeking more than just, designed to enhance, it’s not merely, our suite, it is advisable, daunting, in the heart of, when it comes to, in the realm of, amongst unlock the secrets, unveil the secrets and robust"; 
+			}
 
 
 
-			$content_final = $basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 100px;">'.$response_first_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_secound_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_third_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fourth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_fifth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_sixth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_seventh_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$response_eigth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 100px;">'.$test_prupose.'</div>';
+			$content_final = '<div class="main-content-section-improveseo">'.$basic_prompt_response.'<div style="margin-bottom: 15px;margin-top: 50px;">'.$response_first_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_secound_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_third_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fourth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_fifth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_sixth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_seventh_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$response_eigth_call_for_large.'</div><div style="margin-bottom: 15px;margin-top: 50px;">'.$test_prupose.'</div></div>';
 
 			$prompt_collection = $prompt_collection.'<br><b>6th call request</b><br>'.$sixth_call_for_large.'<br><b>response for 6th response</b>'.$response_sixth_call_for_large;
 
@@ -6241,9 +6771,10 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 
 
           //if($is_single_keyword=='') {
+		  $content_final = $content_final.'<style> p {padding-bottom: 2px !important;} </style>';
    		$content = array('title'=>$seed_keyword, 'content'=>$content_final, 'post_type'=>'post');
           $options = array("max_posts"=>"1");
-   		$wpdb->insert($wpdb->prefix . "improveseo_tasks", array(
+   		/*$wpdb->insert($wpdb->prefix . "improveseo_tasks", array(
       				
    			'name' => $seed_keyword,
    			'content' => base64_encode(json_encode($content)),
@@ -6255,8 +6786,8 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
    			'options' => base64_encode(json_encode($options)),
 			//'prompt_collection' => base64_encode($prompt_collection),
    			'created_at' => date('Y-m-d h:m:s')
-   		));
-		   $inserted_id = $wpdb->insert_id;
+   		));*/
+		   $inserted_id = 2;//$wpdb->insert_id;
 
 		   
 	   
@@ -6299,10 +6830,36 @@ Now generate ONLY the Introduction and the Table of Content based on the followi
 
 
    //	} else {
+
+
+
+  
+
+
+	$content_final = convert_emails_to_links($content_final);
+	$content_final = convert_urls_to_links($content_final);
+
+    $content_final = htmlentities($content_final, null, 'utf-8');
+	$content_final = str_replace("&nbsp;", "", $content_final);
+	$content_final = str_replace("<p>&nbsp;</p>", "", $content_final);
+	$content_final = str_replace("<p> </p>", "", $content_final);
+	$content_final = str_replace("<p></p>", "", $content_final);
+	
+$content_final = html_entity_decode($content_final);
+
+$content_final = replace_content($content_final,'<h2>Main Content Sections</h2>');
+
+$content_final = replace_content($content_final,'<p>—</p>');
+
+$content_final = removePTags($content_final);
    		return $content_final;
    	//}
          
 }
+
+
+
+
           // 	$linkredirect = home_url('/').'wp-admin/admin.php?page=improveseo_projects';
           // 	wp_redirect( $linkredirect, 301 );
 
@@ -6377,6 +6934,49 @@ function ImageBasicPrompt($title) {
 
 
 
+
+// multiple images
+function my_plugin_handle_upload() {
+    //check_ajax_referer('my-plugin-nonce', '_wpnonce');
+
+    if (!empty($_FILES['images']['name'][0])) {
+        $uploadDir = wp_upload_dir();
+        $uploadPath = $uploadDir['path'];
+        $uploadedFiles = [];
+        $errors = [];
+
+        foreach ($_FILES['images']['name'] as $key => $name) {
+            $tmpName = $_FILES['images']['tmp_name'][$key];
+            $fileType = mime_content_type($tmpName);
+
+            if (in_array($fileType, ['image/jpeg', 'image/png', 'image/gif'])) {
+                $filename = uniqid() . '_' . sanitize_file_name($name);
+                $filePath = $uploadPath . '/' . $filename;
+
+                if (move_uploaded_file($tmpName, $filePath)) {
+                    $uploadedFiles[] = $uploadDir['url'] . '/' . $filename;
+                } else {
+                    $errors[] = "Failed to upload $name.";
+                }
+            } else {
+                $errors[] = "$name is not a valid image type.";
+            }
+        }
+
+        if (!empty($uploadedFiles)) {
+            wp_send_json_success($uploadedFiles);
+        } else {
+            wp_send_json_error($errors);
+        }
+    } else {
+        wp_send_json_error(['No files selected.']);
+    }
+}
+add_action('wp_ajax_my_plugin_upload', 'my_plugin_handle_upload');
+add_action('wp_ajax_nopriv_my_plugin_upload', 'my_plugin_handle_upload');
+
+
+
 		
    
    // AJAX handler for image upload
@@ -6413,12 +7013,14 @@ function ImageBasicPrompt($title) {
    	$title = $_POST['title'];
    	if(!empty($_POST['noedit'])) {
    		$imgPrompt = $title;
+		$seed_title = $_POST['seed_title'];
    	} else {
+		$seed_title = $title;
 		//fetch_AI_image
 		$basicImagePromptResponse = ImageBasicPrompt($title);
 		
 		/*$AudienceData = $_COOKIE['AudienceData'];*/
-		$imgPrompt = 'You should come up with the cover image for an article. The image should be a very high quality shooting from a distance, high detail, photorealistic, image resolution is  2146 pixels, cinematic. Do not include any text on the image. Using the following information generate an image.  '.$basicImagePromptResponse;
+		$imgPrompt = 'You should come up with the cover image for an article. The image should be a very high quality shooting from a distance, high detail, photorealistic, image resolution is  800 pixels, cinematic. Do not include any text on the image. Using the following information generate an image.  '.$basicImagePromptResponse;
    		//$imgPrompt = "Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. The theme is ‘".$title."’";
    	}
 
@@ -6428,17 +7030,27 @@ function ImageBasicPrompt($title) {
       	$dateTimeDefault = date('YmdHis');
       	$imagename = 'ai_image_'.$dateTimeDefault;
    	// Your OpenAI API key
-   	$apiKey = get_option('improveseo_chatgpt_api_key');
+   	//$apiKey = get_option('improveseo_chatgpt_api_key');
    	// The endpoint URL for OpenAI chat completions API (replace with the correct endpoint)
-   	$apiUrl = 'https://api.openai.com/v1/images/generations';
+   	//$apiUrl = 'https://api.openai.com/v1/images/generations';
+
+	   $apiKey = 'c0a5519b-922b-4ba9-8a32-0ba118286265';//replace with above function when you have added the flux_ai_api_key to the options, also do not forget to remove this hardcoeded api key as it can lead to api key leak
+    
+	   // Flux AI API endpoint
+	   $apiUrl = 'https://api.us1.bfl.ai/v1/flux-pro-1.1';
       
    	// Your input data or parameters
    	$data = array(
    		// 'prompt' => $term.' '.accordingtoterm($call, $_REQUEST['wordlimit']),
    		'prompt' => $imgPrompt,//.' '.accordingtoterm($imgdisc, $_REQUEST['wordlimit']),
-   		'model'     => 'dall-e-3',
-   		'n'         => 1,
-   		'size'  => '1792x1024'
+		'width' => 1024,  // use your desired dimensions Width of the generated image in pixels. Must be a multiple of 32. min 256 max 1440
+        'height' => 768,  // use your desired dimensions height of the generated image in pixels. Must be a multiple of 32.min 256 max 1440
+        'prompt_upsampling' => false,//Whether to perform upsampling on the prompt. If true, automatically modifies the prompt for more creative generation.
+        'safety_tolerance' => 2,//Tolerance level for input and output moderation. Between 0 and 6, 0 being most strict, 6 being least strict.
+        'output_format' => 'jpeg'//Output format for the generated image. Can be 'jpeg' or 'png'.
+   		// 'model'     => 'dall-e-3',
+   		// 'n'         => 1,
+   		// 'size'  => '1792x1024'
    	);
       
    	// Set up cURL
@@ -6450,7 +7062,8 @@ function ImageBasicPrompt($title) {
    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
    	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
    		'Content-Type: application/json',
-   		'Authorization: Bearer ' . $apiKey,
+		'X-Key: ' . $apiKey
+   		//'Authorization: Bearer ' . $apiKey,
    	));
       
    	// Execute the cURL request
@@ -6467,7 +7080,112 @@ function ImageBasicPrompt($title) {
    	// Decode and display the response
    	$result = json_decode($response, true);
    	
-   	if(!empty($result['data'][0]['url'])) {
+
+
+	   if (!empty($result['id'])) {
+        // Get the task ID and poll for results
+        $taskId = $result['id'];
+        $maxAttempts = 10;
+        $attempt = 0;
+        
+        do {
+            if ($attempt > 0) {
+                sleep(4); // Wait before checking again
+            }
+            
+            // Check result
+            $ch = curl_init("https://api.us1.bfl.ai/v1/get_result?id=" . $taskId);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_SSL_VERIFYPEER => false, // For development only, Change/remove both if the SSL certificate is valid on Wordpress
+                CURLOPT_SSL_VERIFYHOST => 0,     // For development only, 
+                CURLOPT_HTTPHEADER => [
+                    'X-Key: ' . $apiKey
+                ]
+            ]);
+            
+            $resultResponse = curl_exec($ch);
+            curl_close($ch);
+            
+            $resultData = json_decode($resultResponse, true);
+           
+            if ($resultData['status'] === 'Ready') {
+
+				
+
+                $url = $resultData['result']['sample'];
+                
+                // Get WordPress upload directory
+                $upload_dir = wp_upload_dir();
+                
+
+				$ch = curl_init($url);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+				$image_data = curl_exec($ch);
+				curl_close($ch);
+
+				if (!$image_data) {
+					die('Error fetching image.');
+				}
+
+
+                // Fetch image data from URL
+               // $image_data = file_get_contents($url);
+                
+                if ($image_data !== false) {
+                    // Generate unique filename
+
+                    $file_name = wp_unique_filename($upload_dir['path'], str_replace(" ", "_", str_replace(".", "", $seed_title)));
+                    $file_name = $file_name.'_'.rand();
+					$file_path = $upload_dir['path'] . '/' . $file_name;
+                    //exit();
+                    if (file_put_contents($file_path, $image_data) !== false) {
+                        //Convert to WebP if GD is available
+                        if (extension_loaded('gd')) {
+                            $original_image = imagecreatefromstring($image_data);
+                            
+                            // Path for the WebP image
+                            $webp_file_name = pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
+                            $webp_file_path = $upload_dir['path'] . '/' . $webp_file_name;
+                            
+                            // Convert and save as WebP
+                            imagewebp($original_image, $webp_file_path, 90);
+                            
+                            // Free memory
+                            imagedestroy($original_image);
+                            
+                            // Delete the original file
+                            unlink($file_path);
+                            
+                             $image_url = $upload_dir['url'] . '/' . $webp_file_name;
+							//exit('here');
+                        } else {
+                            $image_url = $upload_dir['url'] . '/' . $file_name;
+							//exit();
+                        }
+                        
+                        wp_send_json_success(array($image_url));
+						exit();
+                    } else {
+                        echo 'Error saving the image file.';
+						exit();
+                    }
+                } else {
+                    return 'Error fetching image data from URL.';
+                }
+            }
+            
+            $attempt++;
+        } while ($attempt < $maxAttempts);
+        
+        return 'Timeout waiting for image generation.';
+    } else {
+        return $result;
+    }
+
+
+   /*	if(!empty($result['data'][0]['url'])) {
    		$url = $result['data'][0]['url'];
    		
    	
@@ -6482,18 +7200,40 @@ function ImageBasicPrompt($title) {
    
    		if ($image_data !== false) {
    			// Generate a unique file name for the image
-   			$file_name = wp_unique_filename($upload_dir['path'], basename($url));
+			$firstSixChars = substr($title, 0, 10);
+			$firstSixChars = substr($title, 0, 10);
+			$firstSixChars = $firstSixChars .'_'. wp_rand(1,76000);
+   			$file_name = wp_unique_filename($upload_dir['path'],str_replace(" ","_",$firstSixChars));
    	
    			// Save the image to the uploads directory
    			$file_path = $upload_dir['path'] . '/' . $file_name;
    			if (file_put_contents($file_path, $image_data) !== false) {
    				// Image saved successfully, you can now return the image URL
-   	
-   				// Construct the image URL relative to the uploads directory
-   				$image_url = $upload_dir['url'] . '/' . $file_name;
-   	
-   				// Return the image URL as JSON response
-   				wp_send_json_success($image_url);
+				
+
+				// Construct the image URL relative to the uploads directory
+				$image_url = $upload_dir['url'] . '/' . $file_name;
+				if (extension_loaded('gd')) {
+					$png_image = imagecreatefrompng($file_path);
+            
+					// Path for the JPEG image
+					$jpeg_file_name = pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
+					$jpeg_file_path = $upload_dir['path'] . '/' . $jpeg_file_name;
+
+					// Convert and save as JPEG
+					imagejpeg($png_image, $jpeg_file_path, 90); // 90 = Quality (Adjust if needed)
+
+					// Free memory
+					imagedestroy($png_image);
+
+					// Delete the original PNG file
+					unlink($file_path);
+					$image_url = $upload_dir['url'] . '/' . $jpeg_file_name;
+				} 
+				
+				//return $image_url;
+				wp_send_json_success(array($image_url));
+				
    			} else {
    				// Error saving the image file
    				wp_send_json_error('Error saving the image file.');
@@ -6516,7 +7256,7 @@ function ImageBasicPrompt($title) {
    	} else {
    		wp_send_json_error($result);
    		//fetch_AI_image_callback($title);
-   	}
+   	}*/
    }
    wp_die();
    }
@@ -6525,6 +7265,15 @@ function ImageBasicPrompt($title) {
    /*********************** END ***********************/
    /***************************************************/
    
+
+   
+
+
+
+
+
+
+
    
    class WC_Testimonial {
    
