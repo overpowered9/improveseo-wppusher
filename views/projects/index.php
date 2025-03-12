@@ -39,9 +39,6 @@ if (isset($_GET['post_preview'])) {
 			<h1>Projects List</h1>
 		</div>
 		<div class="action-buttons">
-
-			<a onclick="return confirm('Are you sure you want to export all item?');" href="<?= admin_url('admin.php?page=improveseo_projects&action=export_all_project&noheader=true') ?>" class="btn btn-outline-primary btn-small" id="exportProject">Export All Project</a>
-			<a href="#" class="btn btn-outline-primary btn-small" id="importProject">Import</a>
 			<a href="<?= admin_url('admin.php?page=improveseo_posting') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
 		</div>
 

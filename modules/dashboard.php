@@ -86,11 +86,11 @@ function improveseo_dashboard()
 			}
 		}
 
-		$name = $sanitized_data['name'];
-		$title = $sanitized_data['title'];
-		$content = $sanitized_data['content'];
+		$name = $_POST['name'];
+		$title = $_POST['title'];
+		$content = $_POST['content'];
 
-		$post_type = $sanitized_data['post_type'];
+		$post_type = $_POST['post_type'];
 
 		$project_data = array(
 			'title' => stripslashes($title),
