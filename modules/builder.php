@@ -1361,6 +1361,6 @@ function improveseo_wp_exist_post_by_title($title)
 	if (empty($return)) {
 		return false;
 	} else {
-		return true;
+		return false;
 	}
 }
