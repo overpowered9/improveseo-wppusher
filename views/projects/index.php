@@ -13,7 +13,6 @@ if (isset($_GET['post_preview'])) {
 	}
 }
 
-
 ?>
 <?php View::startSection('breadcrumbs') ?>
 <a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
@@ -35,7 +34,7 @@ if (isset($_GET['post_preview'])) {
 <div class="projectes improveseo_wrapper intro_page  p-3 p-lg-4">
 	<section class="project-section border-bottom d-flex flex-row  justify-content-between align-items-center pb-2">
 		<div class="project-heading d-flex flex-row">
-			<img class="mr-2" src="<?php echo IMPROVESEO_WT_URL . '/assets/images/project-list-logo.png' ?>" alt="ImproveSeo">
+			<img class="mr-2" src="<?= IMPROVESEO_WT_URL . '/assets/images/project-list-logo.png' ?>" alt="ImproveSeo">
 			<h1>Projects List</h1>
 		</div>
 		<div class="action-buttons">
@@ -62,14 +61,14 @@ if (isset($_GET['post_preview'])) {
 					$is_preview = 'yes';
 				}
 			} ?>
-			<input type="hidden" name="is_preview_available" id="is_preview_available" value="<?php echo $is_preview; ?>" />
+			<input type="hidden" name="is_preview_available" id="is_preview_available" value="<?= $is_preview; ?>" />
 
 			<div class="table-responsive-sm">
 				<div class="tablenav top">
 					<div class="alignleft actions bulkactions">
 						<label for="bulk-action-selector-top" class="screen-reader-text">Select bulk action</label>
 						<select name="action" id="bulk-action-selector-top">
-							<option value="bulk-empty">Bulk actions</option>
+							<option value="">Bulk actions</option>
 							<option value="bulk-delete-all" class="hide-if-no-js">Delete project and all posts/pages</option>
 							<option value="bulk-delete-posts">Delete only posts/pages</option>
 
@@ -78,10 +77,9 @@ if (isset($_GET['post_preview'])) {
 						<input type="hidden" name="noheader" value="true" />
 						<input type="submit" id="doaction" class="del-btn btn btn-outline-danger button action" value="Delete Projects">
 					</div>
-					<div class="tablenav-pages one-page"><span class="displaying-num"><?php echo count($projects); ?> items</span></div>
+					<div class="tablenav-pages one-page"><span class="displaying-num"><?= count($projects); ?> items</span></div>
 					<br class="clear">
 				</div>
-
 				<table class="table widefat fixed wp-list-table widefat fixed striped table-view-list posts">
 					<thead>
 						<tr>
@@ -100,8 +98,14 @@ if (isset($_GET['post_preview'])) {
 					</thead>
 					<tbody>
 						<?php foreach ($projects as $project) : ?>
+							<!-- extract categories  -->
+							<?php
+								$cateJson = $project->cats; 
+								$cateArray = json_decode($cateJson, true); 
+								$categories = implode(",", $cateArray) ?? '';
+							?>
 							<tr <?= $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
-								<td><input id="cb-select-<?php echo $project->id; ?>" type="checkbox" name="project_ids[]" value="<?php echo $project->id; ?>"></td>
+								<td><input id="cb-select-<?= $project->id; ?>" type="checkbox" name="project_ids[]" value="<?= $project->id; ?>"></td>
 								<td scope="col" class="column-title column-primary has-row-actions">
 									<strong>
 										<a href="javascript:void(0)" class="primary"><?= $project->name ?></a>
@@ -115,7 +119,7 @@ if (isset($_GET['post_preview'])) {
 										</span>
 
 										<span class="edit">
-											<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true") ?>">
+											<a class="ct-btn btn btn-outline-primary" href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true&cat_pre=").$categories ?>">
 												Update posts
 											</a>
 										</span>
@@ -180,12 +184,12 @@ if (isset($_GET['post_preview'])) {
 								</td>
 								<td scope="col" data-colname="Actions" class="actions-btn">
 									<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations) : ?>
-										<button class="btn btn-primary build-project" data-id="<?= $project->id ?>">Build posts</button>
+										<button class="btn btn-primary build-project" data-id="<?=$project->id?>">Build posts</button>
 									<?php endif; ?>
 									<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations) : ?>
-										<button class="btn btn-primary update-project" data-id="<?= $project->id ?>">Update posts</button>
+										<button class="btn btn-primary update-project" data-id="<?=$project->id?>">Update posts</button>
 									<?php endif; ?>
-									<input type="hidden" name="max-iterations" id="max-iterations" data-project="<?php echo $project->id; ?>" value="<?php echo $project->max_iterations; ?>" />
+									<input type="hidden" name="max-iterations" id="max-iterations" data-project="<?= $project->id; ?>" value="<?= $project->max_iterations; ?>" />
 									<?php if ($project->state == 'Draft') : ?>
 										<a href="<?= admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ?>" class="btn btn-outline-primary">Continue</a>
 									<?php endif; ?>
@@ -198,6 +202,8 @@ if (isset($_GET['post_preview'])) {
 		</form>
 	</section>
 
+
+	<!-- Building Post Preview -->
 	<?php
 
 	if (isset($_GET['post_preview'])) {
@@ -208,9 +214,9 @@ if (isset($_GET['post_preview'])) {
 			if ($project->state == 'Published' && $project->iteration < $project->max_iterations) { ?>
 
 				<script type="text/javascript">
-					build_project(<?php echo $project->id ?>);
+					build_project(<?= $project->id ?>);
 				</script>
-	<?php
+		<?php
 			} elseif ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
 				$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
 				header("Location:" . $export_url);
@@ -218,8 +224,8 @@ if (isset($_GET['post_preview'])) {
 			}
 		}
 	}
-	?>
 
+	?>
 	<section class="pagination-wrapper text-right">
 		<span class="pagination-links">
 			<?= paginate_links(array(
@@ -231,5 +237,6 @@ if (isset($_GET['post_preview'])) {
 		</span>
 	</section>
 </div>
+
 <?php View::endSection('content') ?>
 <?php View::make('layouts.main') ?>
