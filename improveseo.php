@@ -972,8 +972,45 @@ class Improveseo_Testimonial
 }
 new Improveseo_Testimonial;
 
-wp_enqueue_script('improveseo-main-js', plugin_dir_url(__FILE__) . 'assets/js/main.js', array('jquery'), null, true);
+function improveseo_admin_enqueue_scripts($hook)
+{
+	// Enqueue the script
+	wp_enqueue_script('improveseo-main-js', plugin_dir_url(__FILE__) . 'assets/js/main.js', array('jquery'), null, true);
+	wp_enqueue_script('improveseo-category-js', plugin_dir_url(__FILE__) . 'assets/js/custom-category.js', array('jquery'), null, true);
 
-wp_localize_script('improveseo-main-js', 'improveSeoData', array(
-	'site_url' => site_url()
-));
+	// Localize script to pass PHP data to JavaScript
+	wp_localize_script('improveseo-main-js', 'improveSeoData', array(
+		'site_url' => site_url(),
+	));
+	wp_localize_script('improveseo-category-js', 'ajax_object', array(
+		'ajax_url' => admin_url('admin-ajax.php'),
+	));
+}
+add_action('admin_enqueue_scripts', 'improveseo_admin_enqueue_scripts');
+
+
+add_action('wp_ajax_add_category', 'ccp_add_category_ajax');
+add_action('wp_ajax_nopriv_add_category', 'ccp_add_category_ajax');
+
+function ccp_add_category_ajax()
+{
+	if (!isset($_POST['cat_name']) || empty($_POST['cat_name'])) {
+		wp_send_json_error(['message' => 'Category name is required']);
+	}
+
+	$cat_name = sanitize_text_field($_POST['cat_name']);
+	$cat_slug = sanitize_title($cat_name);
+
+	$result = wp_insert_term($cat_name, 'category', ['slug' => $cat_slug]);
+
+	if (is_wp_error($result)) {
+		wp_send_json_error(['message' => $result->get_error_message()]);
+	} else {
+		wp_send_json_success([
+			'id' => $result['term_id'],
+			'name' => $cat_name
+		]);
+	}
+
+	wp_die();
+}
