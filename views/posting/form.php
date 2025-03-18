@@ -218,7 +218,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                             <input type="number" id="max-posts" name="max_posts" class="form-control" value="<?php echo (Validator::old('max_posts', (int)$task->options['max_posts']) <= 0) ? '1' : esc_attr(Validator::old('max_posts', (int)$task->options['max_posts'])); ?>" min="1" />
                         </div>
                         </p>
-
+                        <?php if($_GET['action'] == "create_post"){ ?>
                         <p>
                             <strong><?php esc_html_e('Distribute among authors randomly:', 'improve-seo'); ?></strong>
                             <br>
@@ -233,6 +233,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                 <label for="distribute"><?php esc_html_e('Distribute', 'improve-seo'); ?></label>
                             </span>
                         </div>
+                        <?php } ?>
                     </div>
                 </div>
 

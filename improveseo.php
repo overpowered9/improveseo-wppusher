@@ -60,7 +60,7 @@ function improve_seo_enqueue_scripts($hook)
 	if ($post_preview && !empty($projects) && isset($projects[0])) {
 		$project_id = esc_attr($projects[0]->id);
 	} else {
-		$project_id = 96; // Default project ID
+		$project_id = 1; // Default project ID
 	}
 
 

@@ -16,7 +16,7 @@ if (! defined('ABSPATH')) exit;
 <div class="listing improveseo_wrapper p-3 p-lg-4">
     <section class="project-section">
         <div class="project-heading d-flex flex-row align-items-center border-bottom pb-2">
-            <img class="mr-2" src="<?php echo esc_url(WT_URL . '/assets/images/project-list-logo.png'); ?>" alt="<?php esc_attr_e('ImproveSeo', 'improve-seo'); ?>">
+            <img class="mr-2" src="<?php echo esc_url(IMPROVESEO_WT_URL . '/assets/images/project-list-logo.png'); ?>" alt="<?php esc_attr_e('ImproveSeo', 'improve-seo'); ?>">
             <h1><?php esc_html_e('Edit List', 'improve-seo'); ?></h1>
         </div>
         <div class="Breadcrumbs custom-breadcrumbs border-top-0 border-left-0 border-right-0 border-bottom rounded-0 m-0 py-3 px-0 mb-3">
