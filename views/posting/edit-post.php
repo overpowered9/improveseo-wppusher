@@ -35,3 +35,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 <?php View::endSection('content') ?>
 
 <?php echo esc_html( View::make('layouts.main') ); ?>
+
+<script>
+	if (!sessionStorage.getItem('reloaded')) {
+        sessionStorage.setItem('reloaded', 'true');
+        location.reload();
+    } else {
+        sessionStorage.removeItem('reloaded');
+    }
+</script>

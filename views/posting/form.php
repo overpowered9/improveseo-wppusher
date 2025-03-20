@@ -353,7 +353,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                                 <div class="input-group my-4 cta-check">
                                     <span>
                                         <input id="on-page-seo" name="on_page_seo" type="checkbox" value="1" <?php echo $old_on_page_seo == 1 ? ' checked' : ''; ?>>
-                                        <label for="on-page-seo"><?php esc_html_e('Enable Improve SEO On-Page Customizer', 'improve-seo'); ?></label>
+                                        <label for="on-page-seo"><?php esc_html_e('Enable Improve SEO Meta Title and Meta Description', 'improve-seo'); ?></label>
                                     </span>
                                 </div>
 
@@ -481,3 +481,4 @@ $googleApiKey = get_option('improveseo_google_api_key');
         </div>
     </div>
 </div>
+
