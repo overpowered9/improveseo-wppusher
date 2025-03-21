@@ -24,12 +24,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 	<?php
 	$form_action = isset($_GET['update']) ? 'do_update_post' : 'do_create_post';
 	?>
-	<form id="main_form" class="form-wrap" action="<?php echo esc_url(admin_url("admin.php?page=improveseo_dashboard&action={$form_action}&id={$task->id}&noheader=true")); ?>" method="post">
+	<form id="main_form" class="form-wrap" action="<?php echo esc_url(admin_url("admin.php?page=improveseo_dashboard&action=do_update_post&id={$task->id}&noheader=true")); ?>" method="post">
 		<?php
 		$post_type = $task->content['post_type'];
 		improveseo\View::render('posting.form', compact('post_type', 'task'));
 		?>
-		<?php wp_nonce_field("improveseo_{$form_action}_nonce", "improveseo_{$form_action}_nonce"); ?>
+		<?php wp_nonce_field("improveseo_do_update_post_nonce", "improveseo_do_update_post_nonce"); ?>
 	</form>
 </div>
 <?php View::endSection('content') ?>

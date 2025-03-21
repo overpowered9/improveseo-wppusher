@@ -17,7 +17,7 @@ abstract class AbstractModel
 	protected function escape($values)
 	{
 		foreach ($values as $key => $value) {
-			$values[$key] = str_replace("\\r\\n", "\r\n", $value);
+			$values[$key] = str_replace("\\r\\n", "\r\n", $value ?? '');
 		}
 
 		return $values;
@@ -124,7 +124,7 @@ abstract class AbstractModel
 		// Prepare and execute the query
 		$wpdb->query($wpdb->prepare($sql, $vars));
 
-		return true;
+		return $id;
 	}
 
 

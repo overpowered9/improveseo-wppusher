@@ -218,22 +218,6 @@ $googleApiKey = get_option('improveseo_google_api_key');
                             <input type="number" id="max-posts" name="max_posts" class="form-control" value="<?php echo (Validator::old('max_posts', (int)$task->options['max_posts']) <= 0) ? '1' : esc_attr(Validator::old('max_posts', (int)$task->options['max_posts'])); ?>" min="1" />
                         </div>
                         </p>
-                        <?php if($_GET['action'] == "create_post"){ ?>
-                        <p>
-                            <strong><?php esc_html_e('Distribute among authors randomly:', 'improve-seo'); ?></strong>
-                            <br>
-                        <p style="color:red"><?php esc_html_e('Upgrade to Improve SEO Pro version to enable this function', 'improve-seo'); ?></p>
-                        <span>
-                            <?php esc_html_e('Distribute posts among Improve SEO authors randomly.', 'improve-seo'); ?>
-                        </span>
-                        </p>
-                        <div class="input-group m-0 cta-check">
-                            <span>
-                                <input type="checkbox" disabled id="distribute" name="distribute" value="1" <?php echo Validator::old('distribute', ($task->options['distribute'] ?? 0)) == 1 ? 'checked' : ''; ?>>
-                                <label for="distribute"><?php esc_html_e('Distribute', 'improve-seo'); ?></label>
-                            </span>
-                        </div>
-                        <?php } ?>
                     </div>
                 </div>
 

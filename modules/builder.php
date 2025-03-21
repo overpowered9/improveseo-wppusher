@@ -234,7 +234,7 @@ function improveseo_builder()
 		$project->iteration++;
 		$current_per_day++;
 		$current_post++;
-	
+
 		if ($project->iteration == $project->max_iterations + 1) {
 			$project->iteration = $project->max_iterations;
 			break;
@@ -705,9 +705,8 @@ function improveseo_builder_update()
 	global $wpdb;
 	global $wp_rewrite;
 	// die('aa');
-	$ajax = isset($_GET['ajax']) ? filter_var($_GET['ajax'], FILTER_VALIDATE_INT) : null;
-	$page = isset($_GET['page']) ? filter_var($_GET['page'], FILTER_SANITIZE_STRING) : null;
-
+	$ajax = $_GET['ajax'];
+	$page = $_GET['page'];
 	if (!$page) {
 		$page = 100;
 	}
@@ -716,19 +715,21 @@ function improveseo_builder_update()
 
 	ob_start();
 	ignore_user_abort(true);
-
+	@set_time_limit(0);
 	session_write_close();
 
-	improveseo_debug_start();;;
+	improveseo_debug_start();
 
-	$id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : null;
+	ini_set("pcre.backtrack_limit", "23001337");
+	ini_set("pcre.recursion_limit", "23001337");
 
+	$id = $_GET['id'];
 
 	if (!$id) {
 		if ($ajax != 1) {
 			echo 'error';
 		} else {
-			echo '<h3>Please, build posts/pages from <a href="' . esc_url(admin_url('admin.php?page=improveseo_projects')) . '">projects list.</a></h3>';
+			echo '<h3>Please, build posts/pages from <a href="' . admin_url('admin.php?page=improveseo_projects') . '">projects list.</a></h3>';
 		}
 		return;
 	}
@@ -769,18 +770,19 @@ function improveseo_builder_update()
 	$post_date = date('Y-m-d H:i:s');
 
 	// Use Dripfeed
-	if (isset($options['dripfeed_type'])) {
+	if (isset($options['dripfeed_type']) && isset($options['dripfeed_x']) && $options['dripfeed_x'] > 0) {
 		switch ($options['dripfeed_type']) {
 			case 'per-day':
 				$per_day = $options['dripfeed_x'];
 				break;
 			case 'over-days':
-				$per_day = ceil($project->max_iterations / $options['dripfeed_x']);
+				$per_day = ceil($project->max_iterations / max(1, $options['dripfeed_x'])); // Prevent division by zero
 				break;
 		}
 	} else {
 		$per_day = $project->max_iterations;
 	}
+	
 
 	$data = $project->content;
 
@@ -833,9 +835,8 @@ function improveseo_builder_update()
 
 		register_post_type($options['permalink_prefix'], array(
 			'labels' => array(
-				'name' => sprintf(__('%s', 'improve-seo'), ucfirst($options['permalink_prefix'])),
-				'singular_name' => sprintf(__('%s', 'improve-seo'), ucfirst($options['permalink_prefix'])),
-
+				'name' => __(ucfirst($options['permalink_prefix'])),
+				'singular_name' => __(ucfirst($options['permalink_prefix']))
 			),
 			'public' => true,
 			'publicly_queryable' => true,
@@ -1022,7 +1023,7 @@ function improveseo_builder_update()
 						}
 
 						if ($location) {
-							improveseo_addGpsInfo($imageSrc, WP_CONTENT_DIR . '/' . $imagedir, $exif[2][$idx], $location->lng, $location->lat, 0, date('Y-m-d H:i:s'));
+							addGpsInfo($imageSrc, WP_CONTENT_DIR . '/' . $imagedir, $exif[2][$idx], $location->lng, $location->lat, 0, date('Y-m-d H:i:s'));
 						}
 
 						$savedir = "/wp-content/$imagedir";
@@ -1107,13 +1108,11 @@ function improveseo_builder_update()
 
 		if (!improveseo_wp_exist_post_by_title($titleText)) {
 
-
-			$postdate_gmt = gmdate('Y-m-d H:i:s', strtotime($post_date));
-
-			/* $wpdb->query ( $wpdb->prepare ( "INSERT IGNORE INTO `" . $wpdb->prefix . "posts`
-			(post_author, post_content, post_title, comment_status, ping_status, post_name, post_type,
-			 post_date, post_date_gmt, post_status)
-			VALUES (%s, %s, %s, 'closed', 'closed', %s, %s, %s, %s, %s)", $author_id, $contentText, $titleText, sanitize_title ( $postName ), $data ['post_type'], $post_date, $post_date, strtotime ( $post_date ) <= time () ? 'publish' : 'future' ) ); */
+			// Check if a post with this project ID already exists
+			$existing_post = $wpdb->get_var($wpdb->prepare(
+				"SELECT ID FROM {$wpdb->prefix}posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)",
+				$id
+			));
 
 			$post_array = array(
 				'post_author' => $author_id,
@@ -1125,20 +1124,39 @@ function improveseo_builder_update()
 				'post_date' => $post_date,
 				'post_status' => (strtotime($post_date) <= time() ? 'publish' : 'future')
 			);
-			$post_id = wp_insert_post($post_array);
 
-			//$post_id = $wpdb->insert_id;
-			if ($data['post_type'] == 'post') {
-				$res = wp_set_post_categories($post_id, json_decode($categories, true), false);
-
-				// create improveseo category and assign all posts to it
-				// $improveseo_category_id = wp_create_category ( 'Improve SEO', 0);
-				// wp_set_post_categories ( $post_id, array (
-				// 	$improveseo_category_id
-				// ), true );
+			// If post exists, update it; otherwise, insert a new one
+			if ($existing_post) {
+				$post_array['ID'] = $existing_post; // Set the post ID for update
+				$post_id = wp_update_post($post_array);
+			} else {
+				$post_id = wp_insert_post($post_array);
 			}
 
-			improveseo_debug_message('Post created (time ' . improveseo_debug_time() . ' ms)');
+			// Ensure the post update/insert was successful
+			if ($post_id) {
+				update_post_meta($post_id, 'improveseo_project_id', $project->id);
+
+				if (isset($options['custom_title'])) {
+					update_post_meta($post_id, 'improveseo_custom_title', improveseo_spintax_the_field($options['custom_title'], $project, $spintaxIteration, $geo, $geoData, $lists));
+				}
+				if (isset($options['custom_description'])) {
+					update_post_meta($post_id, 'improveseo_custom_description', improveseo_spintax_the_field($options['custom_description'], $project, $spintaxIteration, $geo, $geoData, $lists));
+				}
+				if (isset($options['custom_keywords'])) {
+					update_post_meta($post_id, 'improveseo_custom_keywords', improveseo_spintax_the_field($options['custom_keywords'], $project, $spintaxIteration, $geo, $geoData, $lists));
+				}
+
+				// Categories and tags
+				if ($data['post_type'] == 'post') {
+					wp_set_post_categories($post_id, json_decode($categories, true), false);
+				}
+
+				improveseo_debug_message('Post ' . ($existing_post ? 'updated' : 'created') . ' successfully (time ' . improveseo_debug_time() . ' ms)');
+			} else {
+				improveseo_debug_message('Failed to create/update post.');
+			}
+
 
 			// Categorization
 			if (isset($options['categorization'])) {
@@ -1328,14 +1346,14 @@ function improveseo_builder_update()
 
 	$model->update($update, $project->id);
 	if ($ajax == 1) {
-		echo esc_html($project->iteration);
-
+		echo $project->iteration;
 		die();
 	} else {
 		View::render('builder.index');
 	}
 	return;
 }
+
 
 
 /**

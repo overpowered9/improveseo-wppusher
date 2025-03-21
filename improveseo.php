@@ -66,7 +66,9 @@ function improve_seo_enqueue_scripts($hook)
 
 	wp_localize_script('improveSeo-inline-script', 'improveSeoData', [
 		'post_preview' => $post_preview,
-		'project_id'   => $project_id
+		'project_id'   => $project_id,
+		'admin_url' => admin_url(),
+		'site_url' => site_url(),
 	]);
 
 	$improve_seo_inline_script_3 = "
@@ -978,10 +980,6 @@ function improveseo_admin_enqueue_scripts($hook)
 	wp_enqueue_script('improveseo-main-js', plugin_dir_url(__FILE__) . 'assets/js/main.js', array('jquery'), null, true);
 	wp_enqueue_script('improveseo-category-js', plugin_dir_url(__FILE__) . 'assets/js/custom-category.js', array('jquery'), null, true);
 
-	// Localize script to pass PHP data to JavaScript
-	wp_localize_script('improveseo-main-js', 'improveSeoData', array(
-		'site_url' => site_url(),
-	));
 	wp_localize_script('improveseo-category-js', 'ajax_object', array(
 		'ajax_url' => admin_url('admin-ajax.php'),
 	));

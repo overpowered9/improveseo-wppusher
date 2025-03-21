@@ -23,7 +23,7 @@ class Validator
             return $default;
         }
     }
-    public function saveOld($field, $value)
+    public static function saveOld($field, $value)
     {
         $_SESSION[self::$oldKey][$field] = sanitize_text_field($value); // Sanitize the value before saving
     }
