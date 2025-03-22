@@ -751,7 +751,8 @@ class Improveseo_Testimonial
 			'tmm_script_js',
 			'ajax_vars',
 			array(
-				'ajax_url'      		=> 	admin_url('admin-ajax.php'),
+				'ajax_url'=> 	admin_url('admin-ajax.php'),
+				'nonce'    => wp_create_nonce('improveseo_do_create_post_nonce')
 			)
 		);
 	}

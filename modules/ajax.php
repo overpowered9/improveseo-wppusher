@@ -17,9 +17,11 @@ function improveseo_generate_preview()
 {
 
 
-    // Verify the nonce
-    if (!isset(($_POST['improveseo_do_create_post_nonce'])) || !wp_verify_nonce(sanitize_text_field($_POST['improveseo_do_create_post_nonce']), 'improveseo_do_create_post_nonce')) {
-        wp_die("Nonce verification failed");  // If the nonce is invalid, terminate the script
+    if (
+        !isset($_POST['improveseo_do_create_post_nonce']) ||
+        !wp_verify_nonce(sanitize_text_field($_POST['improveseo_do_create_post_nonce']), 'improveseo_do_create_post_nonce')
+    ) {
+        wp_die(json_encode(array('e rror' => 'Nonce verification failed')));
     }
 
     // Check if the user has the right permissions

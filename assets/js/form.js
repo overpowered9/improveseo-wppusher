@@ -151,6 +151,7 @@
     var form = jQuery('#main_form')[0];
     var data = new FormData(form);
     data.append("action", "improveseo_generate_preview");
+    data.append("improveseo_do_create_post_nonce", ajax_vars.nonce); // Add the nonce
     data.append('content', jQuery.trim(tinymce.get('content') ? tinymce.get('content').getContent() : jQuery('#content').val()));
 
      var href = form_ajax_vars.admin_url + "?page=improveseo_projects&post_preview=true";
