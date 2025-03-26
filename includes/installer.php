@@ -65,20 +65,21 @@ function improveseo_install() {
 		`spintax_iterations` INT UNSIGNED NOT NULL,
 		`max_iterations` INT UNSIGNED NOT NULL,
 		`state` VARCHAR(30) NOT NULL DEFAULT 'Draft',
-		`created_at` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
+		`cats` LONGTEXT NOT NULL,
+		`created_at` TIMESTAMP NOT NULL DEFAULT 'CURRENT_TIMESTAMP',
 		`updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-		`finished_at` TIMESTAMP NOT NULL,
-		`deleted_at` TIMESTAMP NOT NULL,
+		`finished_at` TIMESTAMP NOT NULL DEFAULT 'CURRENT_TIMESTAMP',
+		`deleted_at` TIMESTAMP NOT NULL DEFAULT 'CURRENT_TIMESTAMP',
 		UNIQUE KEY id (id)
 	) $charset_collate;";
 
 	dbDelta($sql);
 	
 
-	// Updated by Shahid for new Column
-	$sql = "ALTER TABLE ".$table_name." ADD %s VARCHAR(255) NOT NULL";
-	$sql = $wpdb->prepare($sql,"cats");	
-	$wpdb->query($sql);
+	// // Updated by Shahid for new Column
+	// $sql = "ALTER TABLE ".$table_name." ADD %s VARCHAR(255) NOT NULL";
+	// $sql = $wpdb->prepare($sql,"cats");	
+	// $wpdb->query($sql);
 
 	// Shortcodes table
 	$table_name = $wpdb->prefix . 'improveseo_shortcodes';

@@ -983,6 +983,8 @@ function improveseo_admin_enqueue_scripts($hook)
 
 	wp_localize_script('improveseo-category-js', 'ajax_object', array(
 		'ajax_url' => admin_url('admin-ajax.php'),
+        'admin_url'    => admin_url(),
+        'site_url'     => site_url(),
 	));
 }
 add_action('admin_enqueue_scripts', 'improveseo_admin_enqueue_scripts');

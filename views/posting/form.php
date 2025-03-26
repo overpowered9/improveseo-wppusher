@@ -252,7 +252,7 @@ $googleApiKey = get_option('improveseo_google_api_key');
                             </div>
                             <div class="input-group <?php echo (Validator::hasError('dripfeed_x')) ? 'PostForm--error' : '' ?>">
                                 <label for="dripfeed-x" class="form-label"><?php esc_html_e('X Parameter:', 'improve-seo'); ?></label>
-                                <input type="text" id="dripfeed-x" name="dripfeed_x" class="form-control" value="<?php echo esc_attr(Validator::old('dripfeed_x', $task->options['dripfeed_x'])) ?>">
+                                <input type="number" id="dripfeed-x" name="dripfeed_x" class="form-control" value="<?php echo esc_attr(Validator::old('dripfeed_x', $task->options['dripfeed_x'])) ?>">
                                 <?php if (Validator::hasError('dripfeed_x')) : ?>
                                     <span class="PostForm__error"><?php echo esc_html(Validator::get('dripfeed_x')); ?></span>
 

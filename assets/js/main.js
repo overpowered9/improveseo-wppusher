@@ -1,12 +1,10 @@
 (function($) {
     $(document).on("click", '.category_improveseo input[type="checkbox"]', function() {
         var vals = $('input[type="checkbox"]:checked').map(function() { return this.value; }).get();
-        var mainDomain = improveSeoData.site_url; 
+        var mainDomain = ajax_object.site_url; 
 
         $('.Posting__post-button').attr('href', mainDomain + '/wp-admin/admin.php?page=improveseo_posting&action=create_post&cat_pre=' + vals.join(","));
         $('.Posting__page-button').attr('href', mainDomain + '/wp-admin/admin.php?page=improveseo_posting&action=create_page&cat_pre=' + vals.join(","));
-
-        console.log(vals);
     });
 
     $(document).on("click", '.improveseo_wrapper .nav-tabs .nav-link', function(e) {

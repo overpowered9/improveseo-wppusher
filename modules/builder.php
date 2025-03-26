@@ -390,25 +390,31 @@ function improveseo_builder()
 			$author_id = $authors[mt_rand(0, sizeof($authors) - 1)];
 		}
 
-		if (isset($options['dripfeed_type']) && in_array($options['dripfeed_type'], array("per-day", "over-days"))) {
+		if (isset($options['dripfeed_type']) && in_array($options['dripfeed_type'], ["per-day", "over-days"])) {
+			$dripfeed_x = isset($options['dripfeed_x']) ? intval($options['dripfeed_x']) : 1;
+
 			if ($options['dripfeed_type'] == "per-day") {
-				$dripfeed_x = isset($options['dripfeed_x']) ? intval($options['dripfeed_x']) : 1; // Default to 1
-				$iteration = isset($project->iteration) ? intval($project->iteration) : 0; // Default to 0
-				$days = ($dripfeed_x > 0) ? ceil($iteration / $dripfeed_x) : 0;
+				$iteration = isset($project->iteration) ? intval($project->iteration) : 0;
+				$days = max(1, ceil($iteration / $dripfeed_x)); // Ensure at least 1 day
 				$start_date = new DateTime();
 				$start_date->add(new DateInterval('P' . $days . 'D'));
+
 				$date_start = strtotime($start_date->format('Y-m-d') . ' 00:00:00');
 				$date_end = strtotime($start_date->format('Y-m-d') . ' 23:59:59');
-
-				$post_date = date('Y-m-d H:i:s', rand($date_start, $date_end));
 			} else {
 				$date_start1 = new DateTime();
 				$date_start = strtotime($date_start1->format('Y-m-d') . ' 00:00:00');
-				$date_end1 = $date_start1->add(new DateInterval('P' . intval($options['dripfeed_x']) . 'D'));
+
+				$date_end1 = clone $date_start1; // Clone before modifying
+				$date_end1->add(new DateInterval('P' . $dripfeed_x . 'D'));
 				$date_end = strtotime($date_end1->format('Y-m-d') . ' 23:59:59');
-				$post_date = date('Y-m-d H:i:s', rand($date_start, $date_end));
 			}
+
+			$post_date = date('Y-m-d H:i:s', rand($date_start, $date_end));
 		}
+
+		error_log("Post $iteration Date: $post_date");
+
 		if (isset($options['categorization']) && is_array($options['categorization']) && count($options['categorization']) > 0) {
 			$lastKey = end(array_keys($options['categorization']));
 			$lastValue = end($options['categorization']);
@@ -782,7 +788,7 @@ function improveseo_builder_update()
 	} else {
 		$per_day = $project->max_iterations;
 	}
-	
+
 
 	$data = $project->content;
 
