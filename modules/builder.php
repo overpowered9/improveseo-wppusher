@@ -914,6 +914,16 @@ function improveseo_builder_update()
 
 	improveseo_debug_message('Ready for building.. (time ' . improveseo_debug_time() . ' ms)<br>--------------------------<br>');
 
+	$existing_posts = $wpdb->get_results($wpdb->prepare(
+		"SELECT ID FROM {$wpdb->prefix}posts 
+		 WHERE ID IN (
+			 SELECT post_id FROM {$wpdb->prefix}postmeta 
+			 WHERE meta_key = 'improveseo_project_id' 
+			 AND meta_value = %s
+		 )",
+		$id
+	));
+
 	for ($i = 1; $i <= $page; $i++) {
 		$project->iteration++;
 		$current_per_day++;
@@ -1114,11 +1124,11 @@ function improveseo_builder_update()
 
 		if (!improveseo_wp_exist_post_by_title($titleText)) {
 
-			// Check if a post with this project ID already exists
-			$existing_post = $wpdb->get_var($wpdb->prepare(
-				"SELECT ID FROM {$wpdb->prefix}posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)",
-				$id
-			));
+			if (isset($existing_posts[$i])) {
+				$existing_post = $existing_posts[$i]->ID;
+			} else {
+				$existing_post = null;
+			}
 
 			$post_array = array(
 				'post_author' => $author_id,
@@ -1130,7 +1140,6 @@ function improveseo_builder_update()
 				'post_date' => $post_date,
 				'post_status' => (strtotime($post_date) <= time() ? 'publish' : 'future')
 			);
-
 			// If post exists, update it; otherwise, insert a new one
 			if ($existing_post) {
 				$post_array['ID'] = $existing_post; // Set the post ID for update

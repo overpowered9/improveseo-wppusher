@@ -53,11 +53,10 @@ function improveseo_install() {
 	
 	// Tasks table
 	$table_name = $wpdb->prefix . 'improveseo_tasks';
-	
 	$charset_collate = $wpdb->get_charset_collate();
 
 	$sql = "CREATE TABLE $table_name (
-		`id` mediumint(9) NOT NULL AUTO_INCREMENT,
+		`id` MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
 		`name` VARCHAR(255) NOT NULL,
 		`content` MEDIUMTEXT NOT NULL,
 		`options` LONGTEXT NOT NULL,
@@ -65,12 +64,12 @@ function improveseo_install() {
 		`spintax_iterations` INT UNSIGNED NOT NULL,
 		`max_iterations` INT UNSIGNED NOT NULL,
 		`state` VARCHAR(30) NOT NULL DEFAULT 'Draft',
-		`cats` LONGTEXT NOT NULL,
-		`created_at` TIMESTAMP NOT NULL DEFAULT 'CURRENT_TIMESTAMP',
+		`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		`updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-		`finished_at` TIMESTAMP NOT NULL DEFAULT 'CURRENT_TIMESTAMP',
-		`deleted_at` TIMESTAMP NOT NULL DEFAULT 'CURRENT_TIMESTAMP',
-		UNIQUE KEY id (id)
+		`finished_at` TIMESTAMP NULL DEFAULT NULL,
+		`deleted_at` TIMESTAMP NULL DEFAULT NULL,
+		`cats` TEXT NULL,
+		PRIMARY KEY (`id`)
 	) $charset_collate;";
 
 	dbDelta($sql);
