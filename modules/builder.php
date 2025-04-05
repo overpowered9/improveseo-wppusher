@@ -923,8 +923,9 @@ function improveseo_builder_update()
 		 )",
 		$id
 	));
-
-	for ($i = 1; $i <= $page; $i++) {
+	error_log(json_encode($existing_posts));
+	// exit;
+	for ($i = 0; $i <= $page; $i++) {
 		$project->iteration++;
 		$current_per_day++;
 		$current_post++;
@@ -1140,12 +1141,14 @@ function improveseo_builder_update()
 				'post_date' => $post_date,
 				'post_status' => (strtotime($post_date) <= time() ? 'publish' : 'future')
 			);
+			error_log(json_encode($existing_post));
 			// If post exists, update it; otherwise, insert a new one
 			if ($existing_post) {
 				$post_array['ID'] = $existing_post; // Set the post ID for update
 				$post_id = wp_update_post($post_array);
 			} else {
 				$post_id = wp_insert_post($post_array);
+				// wp_delete_post( $existing_posts[0], true );
 			}
 
 			// Ensure the post update/insert was successful
