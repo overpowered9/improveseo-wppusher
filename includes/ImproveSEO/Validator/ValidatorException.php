@@ -1,5 +1,5 @@
-<?php
-
-namespace ImproveSEO\Validator;
-
+<?php
+
+namespace ImproveSEO\Validator;
+
 class ValidatorException extends \Exception {}

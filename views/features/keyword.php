@@ -1,51 +1,107 @@
 <?php
+
 use ImproveSEO\View;
+
 ?>
+
 <?php View::startSection('breadcrumbs') ?>
+
 <a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+
 &raquo;
+
 <span>Keyword Generator</span>
+
 <?php View::endSection('breadcrumbs') ?>
+
 <?php View::startSection('content') ?>
+
 <h2 class="hidden">Keyword Generator</h2>
-<div class="notice notice-success is-dismissible notice-improveseo">
-    <p>
-        The Improve SEO Keyword Generator takes a seed keyword and uses the Google autosuggest feature to generate a list of long tail keywords. You can put these long tail keywords into a Improve SEO List and make posts/pages for each keyword in the list!
-    </p>
-</div>
-<div class="keywords improveseo_wrapper p-3 p-lg-4">
-    <section class="project-section border-bottom">
-        <div class="project-heading d-flex flex-row align-items-center pb-2">
-            <img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
-            <h1>Keyword Generator</h1>
+
+<div class="seo-breadcumb">
+        <div class="seo-text">
+           <p> The Improve SEO Keyword Generator takes a seed keyword and uses the Google autosuggest feature to generate a list of long tail keywords. You can put these long tail keywords into a Improve SEO List and make posts/pages for each keyword in the list!</p>          
         </div>
-    </section>
-    <section class="form-wrap">
-        <div class="PostForm mt-3">
-            <div class="BasicForm__row">
-                <div class="input-group">
-                    <label class="form-label">Seed Keyword</label>
-                    <input type="text" id="input" placeholder="" class="sw-project-name keyword_input form-control" value="" />
+    </div>
+    <div class="global-wrap">
+        <div class="head-bar">
+            <img src="<?php echo WT_URL . '/assets/images/latest-images/seo-latest-logo.svg' ?>" alt="project-list-logo">
+            <h1> ImproveSEO | 2.0.11 </h1>
+            <span>Pro</span>
+        </div>
+        <div class="box-top">
+            <ul class="breadcrumb-seo">
+                <li><a href="#">Improve SEO</a></li>
+                <li> Keyword Generator</li>
+            </ul>
+        </div>
+        <div class="improve-seo-form-box" style="padding-bottom: 0;">
+            <form class="improve-seo-form-global">
+                <div class="seo-form-field">
+                    <label> Seed Keyword </label>
+                    <input type="text" id="input" class="sw-project-name keyword_input" placeholder="Write your Seed Keywords here"> 
+                </div> 
+                <div class="seo-form-field">
+                    <label> Results </label>
+                    <textarea type="text" id="output" rows="5" class="textarea-control sw-output-ta keyword_input" placeholder="" style="height: 140px;"></textarea>
                 </div>
+                <div class="seo-form-field">
+                    <div class="improve-submit-box"> 
+                        <input id="startjob" onclick="generate();" type="button" value="Generate Keywords!">
+                        <div class="improve-submit-box-btns">
+                            <input type="button" class="clear-search-results keyword_clear_btn" value="Clear Results"></input>
+                            <input type="button" class="sw-save-search-results keyword_save_result_btn" value="Save Results"></input>
+                        </div>
+                    </div>
+                    
+                </div>          
+            </form>     
+        </div>  
+    </div>
+
+    <div class="global-wrap seo-mt-30">
+        <div class="improve-seo-container">
+            <div class="project-lists">
+                <table>
+                    <thead>
+                      <tr>
+                        <th> No </th>
+                        <th>Project Name</th>
+                        <th> </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td data-label="Name"> 1 </td>
+                        <td data-label="Project Name"> <strong> Cricket </strong> </td>
+                        <td data-label="Last Update"> 
+                          <div>
+                            <a href="#"> <img src="<?php echo WT_URL . '/assets/images/latest-images/write.svg' ?>" alt="write"> </a> 
+                            <a href="#"> <img src="<?php echo WT_URL . '/assets/images/latest-images/delete.svg' ?>" alt="delete"> </a>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td data-label="Name"> 2 </td>
+                        <td data-label="Project Name"> <strong> Shoes </strong> </td>
+                        <td data-label="Last Update"> 
+                          <div>
+                            <a href="#"> <img src="<?php echo WT_URL . '/assets/images/latest-images/write.svg' ?>"  alt="write"> </a> 
+                            <a href="#"> <img src="<?php echo WT_URL . '/assets/images/latest-images/delete.svg' ?>" alt="delete"> </a>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="BasicForm__row">
-                <label class="form-label">Results</label>
-                <textarea id="output" rows="5" class="textarea-control sw-output-ta keyword_input" placeholder=""></textarea>
-            </div>
-            <div class="BasicForm__row mb-3">
-                <input id="startjob" onclick="generate();" type="button" class="btn btn-outline-primary mr-2 mb-2 mb-sm-0" value="Generate Keywords!">
-                <input type="button" class="clear-search-results btn btn-outline-primary mr-2 mb-2 mb-sm-0" value="Clear Results">
-                <input type="button" class="sw-save-search-results btn btn-outline-primary" value="Save Results">
-                <?php
+        </div>
+    </div>
+    <?php
                 
                 wt_load_templates('sw-all-saved-keywords.php')
                 
                 ?>
-                
-            </div>
-        </div>
-    </section>
-    <script>
+                <script>
     var displayKeywords = [];
     var results = {};
     var initialKeywords = 0;
@@ -170,6 +226,6 @@ use ImproveSEO\View;
     }
     window.setInterval(tick, 750);
     </script>
-</div>
 <?php View::endSection('content') ?>
+
 <?php View::make('layouts.main') ?>

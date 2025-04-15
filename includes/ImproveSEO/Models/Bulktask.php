@@ -1,8 +1,8 @@
-<?php
-
-namespace ImproveSEO\Models;
-
-class Bulktask extends AbstractModel
-{
-	//protected $fillable = array('name', 'short');
+<?php
+
+namespace ImproveSEO\Models;
+
+class Bulktask extends AbstractModel
+{
+	//protected $fillable = array('name', 'short');
 }
