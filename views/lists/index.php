@@ -95,55 +95,57 @@ use ImproveSEO\View;
 	</div>
 	<div class="improve-seo-container">
 		<div class="project-lists">
-			<table>
-				<thead>
-					<tr>
-						<th> Name </th>
-						<th>Content</th>
-						<th> </th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php if (!empty($lists)): ?>
-						<?php foreach ($lists as $item): ?>
-							<tr>
-								<td data-label="Name"
-									onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ?>'"
-									style="cursor: pointer; width:23%; padding-top: 20px; vertical-align: text-top;">
-									<strong><?= $item->name ?> </strong>
-								</td>
-								<td data-label="Created At"> <?php
-								if (str_word_count($item->list) > 50):
-									echo "<span class='list-content-overflow'>" . $item->list . "</span>";
-								else:
-									echo $item->list;
-								endif;
-								?></td>
-								<td data-label="Last Update">
-									<div style="display: flex;justify-content: center;">
-										<a
-											href="<?= admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ?>">
-											<img src="<?php echo WT_URL . '/assets/images/latest-images/write.svg' ?>"
-												alt="write"> </a>
-										<a class="submitdelete"
-											href="<?= admin_url('admin.php?page=improveseo_lists&action=delete&id=' . $item->id . '&noheader=true') ?>"
-											onclick="return confirm('Are you sure you want to delete the list?')"> <img
-												src="<?php echo WT_URL . '/assets/images/latest-images/delete.svg' ?>"
-												alt="delete"> </a>
-									</div>
-								</td>
-							</tr>
-						<?php endforeach; ?>
-
-						<?php
-					else: ?>
+			<div class="table-responsive">
+				<table class="table project_table_listing">
+					<thead>
 						<tr>
-							<td colspan="3">No Lists Available.</td>
+							<th> Name </th>
+							<th>Content</th>
+							<th> </th>
 						</tr>
-					<?php endif; ?>
+					</thead>
+					<tbody>
+						<?php if (!empty($lists)): ?>
+							<?php foreach ($lists as $item): ?>
+								<tr>
+									<td data-label="Name"
+										onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ?>'"
+										style="cursor: pointer;  padding-top: 20px; vertical-align: text-top;">
+										<strong><?= $item->name ?> </strong>
+									</td>
+									<td data-label="Content"> <?php
+									if (str_word_count($item->list) > 50):
+										echo "<span class='list-content-overflow'>" . $item->list . "</span>";
+									else:
+										echo $item->list;
+									endif;
+									?></td>
+									<td data-label="Action">
+										<div style="display: flex;justify-content: center;">
+											<a
+												href="<?= admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ?>">
+												<img src="<?php echo WT_URL . '/assets/images/latest-images/write.svg' ?>"
+													alt="write"> </a>
+											<a class="submitdelete"
+												href="<?= admin_url('admin.php?page=improveseo_lists&action=delete&id=' . $item->id . '&noheader=true') ?>"
+												onclick="return confirm('Are you sure you want to delete the list?')"> <img
+													src="<?php echo WT_URL . '/assets/images/latest-images/delete.svg' ?>"
+													alt="delete"> </a>
+										</div>
+									</td>
+								</tr>
+							<?php endforeach; ?>
 
-				</tbody>
-			</table>
+							<?php
+						else: ?>
+							<tr>
+								<td colspan="3">No Lists Available.</td>
+							</tr>
+						<?php endif; ?>
+
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
 </div>

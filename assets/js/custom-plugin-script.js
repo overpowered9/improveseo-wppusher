@@ -234,8 +234,8 @@ jQuery("#generateapivalue").on("click", function () {
 
     console.log(AItitle);
 
-    var inputValue = jQuery(".pop_up_form").serialize();
-
+    var form_inputValue = jQuery("#popup_form").serialize();
+    console.log(form_inputValue);
     //  console.log(inputValue);
 
 
@@ -250,7 +250,7 @@ jQuery("#generateapivalue").on("click", function () {
 
         dataType: "json",
 
-        data: { value: inputValue, action: "getaaldata" }, // Send the captured value to the server
+        data: { value: form_inputValue, action: "getaaldata" }, // Send the captured value to the server
 
         success: function (response) {
 
@@ -1718,7 +1718,7 @@ function SeedShow() {
     jQuery('#multiple_image_div').hide();
 
 }
-function SeedHide(){
+function SeedHide() {
     jQuery('#manually_image_div').hide();
     jQuery('#multiple_image_div').hide();
 }
@@ -2670,9 +2670,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
-document.addEventListener("DOMContentLoaded", function() {
-    document.querySelectorAll(".category input[type='checkbox']").forEach(function(checkbox) {
-        checkbox.addEventListener("change", function() {
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".category input[type='checkbox']").forEach(function (checkbox) {
+        checkbox.addEventListener("change", function () {
             const span = this.closest(".category"); // Get the parent <span>
 
             if (this.checked) {

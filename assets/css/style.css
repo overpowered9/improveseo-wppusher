@@ -438,7 +438,7 @@ input:checked+.switch:before {
 }
 
 .category-box .add-category .input-box {
-  padding: 10px 35px ;
+  padding: 10px 35px;
   width: 100%;
   /* border: 1px solid transparent; */
   border-radius: 50px;
@@ -460,7 +460,7 @@ input:checked+.switch:before {
   font-size: 24px;
   outline: none;
   transition: background 0.3s ease;
-  position: absolute ;
+  position: absolute;
   top: 6px;
   right: 5px;
   background: linear-gradient(181deg, #2891EE 0%, #1E70B8 48%, #0061B6 100%);
@@ -806,7 +806,7 @@ select.selected {
 
 form.improve-seo-form-global input[type=button] {
   background: linear-gradient(181deg, #2891EE 0%, #1E70B8 48%, #0061B6 100%);
-  color: #fff;
+  color: #fff !important;
   max-width: 263px;
   width: 100%;
   padding: 9px 26px;
@@ -1990,7 +1990,7 @@ table tbody td .linmit-text {
   -webkit-background-clip: text;
   background-image: linear-gradient(90deg, #70EA8F, #469C5C);
   -webkit-text-fill-color: transparent;
-  
+
 }
 
 .yes-btn-td::before {
@@ -2015,9 +2015,11 @@ form.improve-seo-form-global select {
   -moz-appearance: none;
   font-family: "Poppins", serif;
 }
+
 input#seed_keyword::-webkit-input-placeholder {
   color: #b2b5b9;
 }
+
 option {
   color: rgba(80, 87, 94, 0.8);
   font-family: "Poppins", serif;
@@ -2229,10 +2231,11 @@ div#ai-image-display {
 .textarea_in_image_genration_center textarea {
   width: 70% !important;
   background-color: white !important;
-  border:2px solid #e0e0e0 !important;
+  border: 2px solid #e0e0e0 !important;
   border-radius: 20px !important;
 }
-#error_manually_promt_for_image{
+
+#error_manually_promt_for_image {
   padding-top: 20px;
 }
 
@@ -2485,7 +2488,7 @@ div#ai-image-display {
   }
 
   .setting-toggle-group label {
-    font-size: 16px;
+    font-size: 13px;
   }
 
   .setting-toggle-group.fullwidth {
@@ -2616,6 +2619,9 @@ div#ai-image-display {
   .project-lists table th:last-child {
     padding: 0 15px 0 0;
   }
+
+
+
 
   .project-lists table tbody td:first-child,
   .project-lists table th:first-child {
@@ -2873,5 +2879,49 @@ div#ai-image-display {
 @media (max-width: 374px) {
   .module-box h3 {
     font-size: 18px;
+  }
+}
+
+.project_table_listing td[data-label="Name"] {
+  width: 35%;
+}
+
+.project_table_listing td[data-label="Loop"],
+.project_table_listing td[data-label="Controls"],
+.project_table_listing td[data-label="Mute"],
+.project_table_listing td[data-label="Auto play"] {
+  width: 10%;
+}
+
+.style_video_controller {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.styling_projects_name_td {
+  display: flex;
+  width: 90%;
+  flex-wrap: nowrap;
+}
+
+
+@media (min-width: 320px) and (max-width: 400px) {
+  .improve-submit-box-btns {
+    display: flex !important;
+    /* flex-direction: column; */
+    
+  }
+ 
+  .keyword_clear_btn, .keyword_save_result_btn{
+ padding: 5px 15px !important;
+    font-size: 14px !important;
+  }
+  body.mobile.modal-open #wpwrap{
+    overflow: scroll !important;
+  }
+  iframe#content_ifr{
+    min-width: 100% !important;
+    width: 100% !important;
   }
 }

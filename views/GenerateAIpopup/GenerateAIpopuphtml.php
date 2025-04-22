@@ -7,6 +7,12 @@
     type="text/css" />
 <link href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/smart_wizard_theme_dots.min.css" rel="stylesheet"
     type="text/css" />
+<?php
+$plugin_url = plugin_dir_url(dirname(__FILE__, 2)); // Go up 2 levels to the root of the plugin
+$image_url = $plugin_url . 'assets/images/AI-generated.gif';
+$image_url1 = $plugin_url . 'assets/images/Writing-Optimization.gif';
+$image_url2 = $plugin_url . 'assets/images/loaderr.gif';
+?>
 <style>
     .modal {
         max-width: unset;
@@ -38,8 +44,10 @@
         // top: 209px;
         left: 0;
         z-index: 999;
-        background: rgb(255, 255, 255) url("<?php echo home_url('/'); ?>wp-content/plugins/ImproveSEO-2.0.11/assets/images/Writing-Optimization.gif") center no-repeat;
+        background: rgb(255, 255, 255) url("<?php echo $image_url1; ?>") center no-repeat;
+
     }
+
     .overlay2 {
         // margin :54px;
         display: none;
@@ -49,8 +57,10 @@
         // top: 209px;
         left: 0;
         z-index: 999;
-        background: rgb(255, 255, 255) url("<?php echo home_url('/'); ?>wp-content/plugins/ImproveSEO-2.0.11/assets/images/loaderr.gif") center no-repeat;
+        background: rgb(255, 255, 255) url("<?php echo $image_url2; ?>") center no-repeat;
+
     }
+
     .overlay_ai_data {
         // margin :54px;
         display: none;
@@ -60,7 +70,8 @@
         // top: 209px;
         left: 0;
         z-index: 999;
-        background: rgb(255, 255, 255) url("<?php echo home_url('/'); ?>wp-content/plugins/ImproveSEO-2.0.11/assets/images/Writing-Optimization.gif") center no-repeat;
+        background: rgb(255, 255, 255) url("<?php echo $image_url1; ?>") center no-repeat;
+
     }
 
 
@@ -71,7 +82,7 @@
         height: 100%;
         left: 0;
         z-index: 999;
-        background: rgb(255, 255, 255) url("<?php echo home_url('/'); ?>wp-content/plugins/ImproveSEO-2.0.11/assets/images/AI-generated.gif") center no-repeat;
+        background: rgb(255, 255, 255) url("<?php echo $image_url; ?>") center no-repeat;
     }
 
     .sw-theme-dots>ul.step-anchor:before {
@@ -135,6 +146,9 @@
         font-size: 30px;
     }
 </style>
+
+
+
 
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="false" aria-modal="false">
@@ -237,12 +251,13 @@
             </div>
         </div>
 
+        <form id="popup_form" method="post" class="pop_up_form improve-seo-form-global">
 
-        <div class="improveseo-sections">
+            <div class="improveseo-sections">
 
-            <!-- option 1  -->
-            <div class="data dataJS">
-                <form class="improve-seo-form-global">
+                <!-- option 1  -->
+                <div class="data dataJS">
+                    <!-- <form class="improve-seo-form-global"> -->
                     <input type="hidden" name="step_value" id="step_value" value="1">
                     <div class="seo-form-field">
                         <label class="data-label" for="seed_keyword">Seed keyword</label>
@@ -329,30 +344,34 @@
                         </div>
                     </div>
 
-                </form>
-            </div>
 
-            <!-- option 1  -->
+                </div>
 
+                <!-- option 1  -->
 
-
-            <!-- option 2 -->
-
-            <div class="data">
-
-                <form class="improve-seo-form-global">
-
+                <!-- option 2 -->
+                <div class="data">
                     <div class="step-opton2-content-box">
                         <div class="step-opton-col">
                             <div class="seo-form-field">
                                 <label for="sel1">Article Size</label>
-                                <select class="content-opt custom-selcected" name="nos_of_words" required
+                                <!-- <select class="content-opt custom-selcected" name="nos_of_words" required
                                     id="post_size">
                                     <option value="600 to 1200 words">Small (600-1200 words)</option>
                                     <option value="1200 to 2400 words">Medium (1200 to 2400 words)</option>
                                     <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
+                                </select> -->
+                                <select class="form-control" name="nos_of_words" required
+                                    style="max-width: 100% !important;" id="post_size">
+                                    <option value="600 to 1200 words">Small </option>
+                                    <option value="1200 to 2400 words">Medium </option>
+                                    <option value="2400 to 3600 words">Large</option>
+
                                 </select>
+                                <input type="text" id="post_size_select" readonly style="width: 100% !important; display: none !important;"
+                                    value="600-1200 words">
                             </div>
+
                         </div>
 
                         <div class="step-opton-col">
@@ -395,8 +414,8 @@
                             onkeypress="return countContent()" OnBlur="LimitText(this,1000,1)"
                             placeholder="Any details you want to include in the content? Example: 'focus on the services that my nail salon 'Goddess Nail Bar' offers : manicures, pedicures, and nail enhancements like acrylics or gel nails, also consider local and cultural details about Brooklyn, NY, where my nail salon is located"></textarea> -->
                         <textarea class="form-control" id="exampleFormControlTextarea" rows="3"
-                            name="details_to_include" onkeypress="return countContent()"
-                            onblur="LimitText(this,1500,1)" placeholder="Any details you want to include in the content? Example: 'focus on the services that my nail salon 'Goddess Nail Bar' offers : manicures, pedicures, and nail enhancements like acrylics or gel nails, also consider local and cultural details about Brooklyn, NY, where my nail salon is located"></textarea>
+                            name="details_to_include" onkeypress="return countContent()" onblur="LimitText(this,1500,1)"
+                            placeholder="Any details you want to include in the content? Example: 'focus on the services that my nail salon 'Goddess Nail Bar' offers : manicures, pedicures, and nail enhancements like acrylics or gel nails, also consider local and cultural details about Brooklyn, NY, where my nail salon is located"></textarea>
                         <span id="countContent"></span>
                     </div>
                     <div class="seo-form-field">
@@ -408,32 +427,32 @@
                             onkeypress="return countContentCallToAction()" OnBlur="LimitText(this,1000,2)"
                             placeholder="What action would you like the reader of your content to take?"></textarea> -->
                         <textarea class="form-control" id="call_to_action" rows="3" name="call_to_action"
-                            onkeypress="return countContentCallToAction()" onblur="LimitText(this,1000,2)"placeholder="What action would you like the reader of your content to take?"></textarea>
+                            onkeypress="return countContentCallToAction()" onblur="LimitText(this,1000,2)"
+                            placeholder="What action would you like the reader of your content to take?"></textarea>
                         <span id="countContentCallToAction"></span>
                     </div>
-                </form>
-            </div>
+                </div>
 
-            <!-- option 2 -->
-
+                <!-- option 2 -->
 
 
-            <!-- option 3 -->
-            <div class="data">
-                <div class="seo-slide-steps-fours">
 
-                    <div class="radio-container">
-                        <input type="radio" name="aiImage" onclick="SeedHide()" value="AI_image" id="AI_image">
-                        <label for="AI_image">Generate AI Image Based on Title</label>
+                <!-- option 3 -->
+                <div class="data">
+                    <div class="seo-slide-steps-fours">
 
-                        <input type="radio" name="aiImage" value="manually_promt_image" id="manually_promt_image">
-                        <label for="manually_promt_image">Generate AI Image - Edit Prompt</label>
+                        <div class="radio-container">
+                            <input type="radio" name="aiImage" onclick="SeedHide()" value="AI_image" id="AI_image">
+                            <label for="AI_image">Generate AI Image Based on Title</label>
 
-                        <input type="radio" name="aiImage" onclick="SeedShow()" value="Manually_image"
-                            id="Manually_image">
-                        <label for="Manually_image">Manually Upload Image</label>
-                    </div>
-                    <!-- <div class="flex_imgae_gereater_radio">
+                            <input type="radio" name="aiImage" value="manually_promt_image" id="manually_promt_image">
+                            <label for="manually_promt_image">Generate AI Image - Edit Prompt</label>
+
+                            <input type="radio" name="aiImage" onclick="SeedShow()" value="Manually_image"
+                                id="Manually_image">
+                            <label for="Manually_image">Manually Upload Image</label>
+                        </div>
+                        <!-- <div class="flex_imgae_gereater_radio">
                             <div class="col" style="text-align: left; margin-top: 30px;">
                                 <label for="AI_image" class="style_imgae_gereater_radio">
                                     <input class="for_styling_generate_image_radio_buttons" type="radio" name="aiImage"
@@ -460,97 +479,97 @@
                             </div>
                         </div> -->
 
-                    <div id="AI_image_div" class="col-md-12" style="display:none;">
-                        <div id="ai-image-display"></div>
-                        <div class="form-group col-md-12" style="margin: 0 0 0 40%;" id="AIrefreshOption">
-                            <button class="styling_post_page_action_buttons " onclick="return refreshAIImage()"
-                                style="cursor:pointer;">Regenerate AI Image</button>
-                            <!-- <i class="fa fa-refresh" aria-hidden="true" onclick="return refreshAIImage()"
+                        <div id="AI_image_div" class="col-md-12" style="display:none;">
+                            <div id="ai-image-display"></div>
+                            <div class="form-group col-md-12" style="margin: 0 0 0 40%;" id="AIrefreshOption">
+                                <button class="styling_post_page_action_buttons " onclick="return refreshAIImage()"
+                                    style="cursor:pointer;">Regenerate AI Image</button>
+                                <!-- <i class="fa fa-refresh" aria-hidden="true" onclick="return refreshAIImage()"
                                 style="cursor:pointer;"></i> -->
-                        </div>
-                        <input type="hidden" id="AI-Image-uploaded-path" name="AI-Image-uploaded-path">
-                    </div>
-
-                    <div id="manually_image_div" class="col-md-12" style="display:none;">
-                        <div class="improve-seo-upload-box">
-                            <h2 class="frg-drp">Drag & Drop Your File here <br> <span> or </span></h2>
-                            <label for="upload-image-button">Choose a File</label>
-                            <p style="font-size: 14px; color: #adb5bd;">from your Storage</p>
-                            <input type="file" id="upload-image-button" name="Manually_image">
-                            <div id="manually-image-display"></div>
-                            <input type="hidden" id="manually-image-uploaded-path" name="manually-image-uploaded-path">
-
-
-                            
-                        </div>
-                    </div>
-
-
-
-                    <div class="form-group col-md-12" id="Prompt_to_create_Dalle_Image"
-                        style="margin: 0 0 40px 0px; display: none;">
-
-                        <div id="manually_promt" style="margin: 40px 40px 40px 40px;">
-                            <div class="textarea_in_image_genration_center">
-                                <textarea class="form-control" id="manually_promt_for_image" rows="7"
-                                    style="background-color:white !important; padding: 20px 20px 0px 20px; width: 100% !important;"
-                                    name="manually_promt_for_image" onkeypress="return countContent()"
-                                    OnBlur="LimitText(this,1000,3)"></textarea>
-                                <span id="error_manually_promt_for_image"></span>
                             </div>
-                            <div class="generate-data-widt-ai">
-                                <!-- <h3> Retrieving Article Size... </h3>-->
-                                <!-- <img id="hide_older_genrated_image_on_step3"
+                            <input type="hidden" id="AI-Image-uploaded-path" name="AI-Image-uploaded-path">
+                        </div>
+
+                        <div id="manually_image_div" class="col-md-12" style="display:none;">
+                            <div class="improve-seo-upload-box">
+                                <h2 class="frg-drp">Drag & Drop Your File here <br> <span> or </span></h2>
+                                <label for="upload-image-button">Choose a File</label>
+                                <p style="font-size: 14px; color: #adb5bd;">from your Storage</p>
+                                <input type="file" id="upload-image-button" name="Manually_image">
+                                <div id="manually-image-display"></div>
+                                <input type="hidden" id="manually-image-uploaded-path"
+                                    name="manually-image-uploaded-path">
+
+
+
+                            </div>
+                        </div>
+
+
+
+                        <div class="form-group col-md-12" id="Prompt_to_create_Dalle_Image"
+                            style="margin: 0 0 40px 0px; display: none;">
+
+                            <div id="manually_promt" style="margin: 40px 40px 40px 40px;">
+                                <div class="textarea_in_image_genration_center">
+                                    <textarea class="form-control" id="manually_promt_for_image" rows="7"
+                                        style="background-color:white !important; padding: 20px 20px 0px 20px; width: 100% !important;"
+                                        name="manually_promt_for_image" onkeypress="return countContent()"
+                                        OnBlur="LimitText(this,1000,3)"></textarea>
+                                    <span id="error_manually_promt_for_image"></span>
+                                </div>
+                                <div class="generate-data-widt-ai">
+                                    <!-- <h3> Retrieving Article Size... </h3>-->
+                                    <!-- <img id="hide_older_genrated_image_on_step3"
                                     src="<?php echo WT_URL . '/assets/images/83d0e43cd6c5b0bd5633c1a8567f877a.jpeg' ?>"
                                     alt="ep_arrow-rights"> -->
-                                <div id="prompt_image_div" class="col-md-12" style="display:none;">
-                                    <div id="ai-with-prompt-image-display" style="margin-bottom: 10px;"></div>
+                                    <div id="prompt_image_div" class="col-md-12" style="display:none;">
+                                        <div id="ai-with-prompt-image-display" style="margin-bottom: 10px;"></div>
 
-                                    <input type="hidden" id="AI-Prompt-Image-uploaded-path"
-                                        name="AI-Prompt-Image-uploaded-path">
+                                        <input type="hidden" id="AI-Prompt-Image-uploaded-path"
+                                            name="AI-Prompt-Image-uploaded-path">
+                                    </div>
                                 </div>
-                            </div>
 
-                            <input type="button" name="generate_i_image" class="styling_post_page_action_buttons "
-                                id="generate_i_image" value="Generate AI Image" style="margin: 10px auto;" />
+                                <input type="button" name="generate_i_image" class="styling_post_page_action_buttons "
+                                    id="generate_i_image" value="Generate AI Image" style="margin: 10px auto;" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- option 3 -->
+
+
+                <!-- option 4 -->
+                <div class="data">
+                    <div class="generate-data">
+
+                        <textarea class="form-control" id="showmydataindivText" rows="1" style="opacity: 0;"></textarea>
+
+                        <div id="showmydataindiv1" name="showmydataindiv1"
+                            style="display: block;max-width: 100%;overflow-y: scroll; "></div>
+                        <input type="hidden" name="ai_tittle" id="ai_title" />
+                        <div
+                            style="text-align: center; display: flex; justify-content: center; align-items: center; gap: 10px; margin: 20px;">
+                            <!-- <input type="button" value="Approve Content" class="btn btn-primary" onclick="return saveData()"
+                            id="generateapi" style="display:none;" style="margin: 0px 0px -37px 0px;"> -->
+
+                            <span><input type="checkbox" value="1" id="for_testing_only" name="for_testing_only">
+                                <!-- <label for="for_testing_only">For Testing Only</label> -->
+                            </span><br>
+
+
+                            <input type="button" name="genaipost" class="styling_post_page_action_buttons"
+                                id="generateapivalue" value="Generate AI Post" />
+                            <input type="hidden" name="AI_Title" id="AI_Title">
+                            <input type="hidden" name="AI_descreption" id="AI_descreption">
                         </div>
                     </div>
                 </div>
-
-            </div>
-
-            <!-- option 3 -->
-
-
-            <!-- option 4 -->
-            <div class="data">
-                <div class="generate-data">
-
-                    <textarea class="form-control" id="showmydataindivText" rows="1" style="opacity: 0;"></textarea>
-
-                    <div id="showmydataindiv1" name="showmydataindiv1"
-                        style="display: block;max-width: 100%;overflow-y: scroll; "></div>
-                    <input type="hidden" name="ai_tittle" id="ai_title" />
-                    <div
-                        style="text-align: center; display: flex; justify-content: center; align-items: center; gap: 10px; margin: 20px;">
-                        <!-- <input type="button" value="Approve Content" class="btn btn-primary" onclick="return saveData()"
-                            id="generateapi" style="display:none;" style="margin: 0px 0px -37px 0px;"> -->
-
-                        <span><input type="checkbox" value="1" id="for_testing_only" name="for_testing_only">
-                            <!-- <label for="for_testing_only">For Testing Only</label> -->
-                        </span><br>
-
-
-                        <input type="hidden" name="AI_Title" id="AI_Title">
-                        <input type="hidden" name="AI_descreption" id="AI_descreption">
-                    </div>
-                </div>
-                <input type="button" name="genaipost" class="styling_post_page_action_buttons" id="generateapivalue"
-                    value="Generate AI Post" />
-            </div>
-            <!-- option 5 -->
-            <div class="data meta-data">
-                <form class="improve-seo-form-global">
+                <!-- option 5 -->
+                <div class="data meta-data">
                     <div class="seo-form-field">
                         <label for="meta_title">Meta Title</label>
                         <input type="text" id="meta_title" name="meta_title" placeholder="Enter title..." />
@@ -561,10 +580,11 @@
                             placeholder="Enter description...."></textarea>
                     </div>
                     <!-- <input type="button" value="Submit" onclick="return saveFinalData()"> -->
-                </form>
 
+
+                </div>
             </div>
-        </div>
+        </form>
         <div class="btn-dev">
             <button id="prevStepButton"> <img
                     src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-left.svg' ?>" alt="ep_arrow-left">
@@ -737,7 +757,7 @@
                                 <div class="BasicForm__row mb-3"
                                     style="max-width:100%; text-align:end; justify-content: end;  padding:15px 0px;">
                                     <input type="button" style="margin-top:20px;" onclick="return SaveResultsButton();"
-                                        class="styling_post_page_action_buttons "
+                                        class="styling_post_page_action_buttons only_for_mobile_style"
                                         value="AI Generate Context Based On Keyword List">
                                     <span id="countContent"></span>
                                 </div>
@@ -780,7 +800,7 @@
 
                                 </div>
                             </div>
-                            <div class="row">
+                            <div class="row only_for_multi_mobile">
                                 <div class="form-group col">
                                     <label style="padding-left:20px;" for="sel1">Point of View</label>
                                     <select class="form-control" name="point_of_view"
@@ -993,8 +1013,8 @@
                                 <div class="col-md-12" id="number_of_post_schedule_box"
                                     style="display:none; padding: 0px !important;">
                                     <span>
-                                        <Input type="number" name="number_of_post_schedule" id="number_of_post_schedule" style=" padding: 8px 23px !important;"
-                                            Placeholder="Number of post">
+                                        <Input type="number" name="number_of_post_schedule" id="number_of_post_schedule"
+                                            style=" padding: 8px 23px !important;" Placeholder="Number of post">
                                         <select class="schedule_frequency" name="schedule_frequency"
                                             style="padding: 8px 20px !important;">
                                             <option value="per_day" selected>Per Day</option>
@@ -1032,15 +1052,16 @@
                                     </div>
                                 </div>
                                 <div class="improve-seo-form-global_multi">
-                                    <div class="seo-form-field_multi"
+                                    <div class="seo-form-field_multi only_for_step_6_radio"
                                         style="min-width: 100% !important; display: flex !important; column-gap: 20px;">
-                                        <label style=" max-width: 70% !important; "> <input type="radio"
-                                                name="assigning_authors" value="assigning_multi_authors"
-                                                id="assigning_multi_authors"> &nbsp;&nbsp;Assign all
+                                        <label class=" max_width_70%_ "> <input type="radio" name="assigning_authors"
+                                                value="assigning_multi_authors" id="assigning_multi_authors">
+                                            &nbsp;&nbsp;Assign all
                                             posts of this project to a number of authors and distribute them evenly
                                         </label>
                                         <div id="authors_number" style="display:none">
-                                            <input type="number" style="border: 1px solid #D2D2D2 !important;  padding: 8px 23px !important;"
+                                            <input type="number"
+                                                style="border: 1px solid #D2D2D2 !important;  padding: 8px 23px !important;"
                                                 name="authors_number" min="1" max="100" placeholder="Number of Authors">
 
                                         </div>

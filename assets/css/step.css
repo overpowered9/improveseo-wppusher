@@ -823,7 +823,10 @@
    .improveseo-bulk-ai .improveseo-sections {
      padding: 20px 15px 40px;
    }
-
+   .improveseo-bulk-ai_multi, .improveseo-bulk-ai {
+    position: relative;
+    left: 0px !important;
+}
    .fourth_ttepss-rgt .category-box .category-list {
      justify-content: flex-start;
    }

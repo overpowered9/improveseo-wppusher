@@ -97,94 +97,99 @@ if (isset($_GET['post_preview'])) {
 		</div>
 	</div>
 	<div class="improve-seo-container">
-		<div class="project-lists">
-			<table>
-				<thead>
-					<tr>
-						<th>
-						<label class="checkbox style-c" for="cb-select-all">
-                            <input type="checkbox" id="cb-select-all">
-                            <div class="checkbox__checkmark"></div>
-                          </label>
-							<!-- <label class="screen-reader-text" for="cb-select-all">Select All</label>
-							<input id="cb-select-all" type="checkbox"> -->
-							<h4> Name </h4>
-						</th>
-						<th>Created At</th>
-						<th>Last Update</th>
-						<th>Status</th>
-						<th> </th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach ($projects as $project): ?>
-
-
-
+		<div class="project-lists ">
+			<div class="table-responsive">
+				<table class="table project_table_listing">
+					<thead>
 						<tr>
-							<td data-label="Name" style="width: 35%;">
-								<div style="display: flex; width: 90%; flex-wrap: nowrap;">
-								<label class="checkbox style-c">
-									<input id="cb-select-<?php echo $project->id; ?>" type="checkbox" name="project_ids[]"
-									value="<?php echo $project->id; ?>">
+							<th>
+								<label class="checkbox style-c" for="cb-select-all">
+									<input type="checkbox" id="cb-select-all">
 									<div class="checkbox__checkmark"></div>
 								</label>
-								<!-- <input id="cb-select-all" type="checkbox"> -->
-								
-								<h4><?= $project->name ?></h4>
-								</div>
-							</td>
-							<td data-label="Created At"><?php
-							$date = new DateTime($project->created_at);
-							echo $date->format('d/m/Y H:i:s');
-							?></td>
-							<td data-label="Last Update"><?php
-							$date = new DateTime($project->updated_at);
-							echo $date->format('d/m/Y H:i:s');
-							?></td>
-							<td data-label="Status" class="status finished">
+								<!-- <label class="screen-reader-text" for="cb-select-all">Select All</label>
+							<input id="cb-select-all" type="checkbox"> -->
+								<h4> Name </h4>
+							</th>
+							<th>Created At</th>
+							<th>Last Update</th>
+							<th>Status</th>
+							<td></td>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach ($projects as $project): ?>
 
-								<?php
-								if ($project->state == 'Draft')
-									echo 'Draft';
-								else {
-									if ($project->iteration >= $project->max_iterations)
-										echo '<p class="post-fd">Finished</p>';
+
+
+							<tr>
+								<td data-label="Name" >
+									<div class="styling_projects_name_td" >
+										<label class="checkbox style-c">
+											<input id="cb-select-<?php echo $project->id; ?>" type="checkbox"
+												name="project_ids[]" value="<?php echo $project->id; ?>">
+											<div class="checkbox__checkmark"></div>
+										</label>
+										<!-- <input id="cb-select-all" type="checkbox"> -->
+
+										<h4><?= $project->name ?></h4>
+									</div>
+								</td>
+								<td data-label="Created At"><?php
+								$date = new DateTime($project->created_at);
+								echo $date->format('d/m/Y H:i:s');
+								?></td>
+								<td data-label="Last Update"><?php
+								$date = new DateTime($project->updated_at);
+								echo $date->format('d/m/Y H:i:s');
+								?></td>
+								<td data-label="Status" class="status finished">
+
+									<?php
+									if ($project->state == 'Draft')
+										echo 'Draft';
 									else {
-										$updated = strtotime($project->updated_at);
-										if ($project->deleted_at == '1970-01-01 11:11:11')
-											echo '<p class="post-st">Stopped</p>';
-										elseif (time() - $updated > 1200)
-											echo '<p class="post-pd">Paused</p>';
-										else
-											echo 'Processing';
+										if ($project->iteration >= $project->max_iterations)
+											echo '<p class="post-fd">Finished</p>';
+										else {
+											$updated = strtotime($project->updated_at);
+											if ($project->deleted_at == '1970-01-01 11:11:11')
+												echo '<p class="post-fd">Stopped</p>';
+											elseif (time() - $updated > 1200)
+												echo '<p class="post-fd">Paused</p>';
+											else
+												echo 'Processing';
+										}
 									}
-								}
-								?>
-							</td>
-							<td>
-								<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations): ?>
-									<a href="javascript:build_project(<?= $project->id ?>)" style="width: 160px !important;"
-										class="styling_post_page_action_buttons" target="_self">Build posts</a>
-								<?php endif; ?>
-								<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations): ?>
-									<a href="javascript:update_project(<?= $project->id ?>)" style="width: 160px !important;"
-										class="styling_post_page_action_buttonsy" target="_self">Update posts</a>
-								<?php endif; ?>
-								<input type="hidden" name="max-iterations" id="max-iterations"
-									data-project="<?php echo $project->id; ?>"
-									value="<?php echo $project->max_iterations; ?>" />
-								<?php if ($project->state == 'Draft'): ?>
-									<a href="<?= admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ?>"
-										style="width: 160px !important;" class="styling_post_page_action_buttons">Continue</a>
-								<?php endif; ?>
-							</td>
-							<td style="width: 4%;" scope="col" data-colname="Actions" class="actions-btn">
+									?>
+								</td>
+								<td>
+									<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations): ?>
+										<a href="javascript:build_project(<?= $project->id ?>)"
+											class="styling_post_page_action_buttons for_width_only_" target="_self">Build
+											posts</a>
+									<?php endif; ?>
+									<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations): ?>
+										<a href="javascript:update_project(<?= $project->id ?>)"
+											style="width: 160px !important;" class="styling_post_page_action_buttons"
+											target="_self">Update posts</a>
+									<?php endif; ?>
+									<input type="hidden" name="max-iterations" id="max-iterations"
+										data-project="<?php echo $project->id; ?>"
+										value="<?php echo $project->max_iterations; ?>" />
+									<?php if ($project->state == 'Draft'): ?>
+										<a href="<?= admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ?>"
+											style="width: 160px !important;"
+											class="styling_post_page_action_buttons">Continue</a>
+									<?php endif; ?>
+								</td>
+								<td style="width: 4%;" scope="col" data-label="Action" class="actions-btn">
 
-								<a href="#" class="action-btn-pop"> <img
-										src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
-										alt="ri_more-2-fill"> </a>
-								<!-- <div class="actionpopup">
+									<a href="#" class="action-btn-pop"> <img
+											src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
+											alt="ri_more-2-fill"> </a>
+									<!-- <div class="actionpopup">
 									<div class="popup-arrow"></div>
 									<ul class="popup-menu">
 										<div class="row-actions">
@@ -242,27 +247,32 @@ if (isset($_GET['post_preview'])) {
 									</ul>
 								</div> -->
 
-								<div class="actionpopup">
-									<div class="popup-arrow"></div>
-									<ul class="popup-menu">
-										<li><a href="#" target="_blank" style="max-width: max-content !important;" class="popup-link">View
-												Post</a></li>
-										<li><a href="#" target="_blank" style="max-width: max-content !important;"
-												class="popup-link">Project Details</a></li>
-										<li><a target="_blank" href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true") ?>"
-												style="max-width: max-content !important;" class="popup-link">Edit Post</a>
-										</li>
-										<li style="margin: 0px !important;"><a target="_blank" href="<?= admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ?>"
-												style="max-width: max-content !important;"
-												class="popup-link delete-link">Delete Post</a></li>
-									</ul>
-								</div>
+									<div class="actionpopup">
+										<div class="popup-arrow"></div>
+										<ul class="popup-menu">
+											<li><a href="#" target="_blank" style="max-width: max-content !important;"
+													class="popup-link">View
+													Post</a></li>
+											<li><a href="#" target="_blank" style="max-width: max-content !important;"
+													class="popup-link">Project Details</a></li>
+											<li><a target="_blank"
+													href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true") ?>"
+													style="max-width: max-content !important;" class="popup-link">Edit
+													Post</a>
+											</li>
+											<li style="margin: 0px !important;"><a target="_blank"
+													href="<?= admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ?>"
+													style="max-width: max-content !important;"
+													class="popup-link delete-link">Delete Post</a></li>
+										</ul>
+									</div>
 
-							</td>
-						</tr>
-					<?php endforeach; ?>
-				</tbody>
-			</table>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
 			<div class="pagination">
 				<button class="prev pagination-btn">
 					< Prev </button>
@@ -426,7 +436,7 @@ if (isset($_GET['post_preview'])) {
 		} elseif ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
 			$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
 			/* header("Location:".$export_url);
-																					   exit; */
+																								exit; */
 		}
 	}
 }

@@ -480,7 +480,13 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 						<div class="seo-form-field">
 						<label style="padding: 10px 20px;"> Upload video preview image </label>
 							<div class="setting-upload-box video-poster-image-js">
-							<div class="BasicForm__row col-lg-4 video-poster-img-wrapper"></div>
+							<!-- <div class="BasicForm__row col-lg-4 video-poster-img-wrapper"> -->
+							<span id="file-name" class="file-name"><?php
+								if ($video_poster_img_source != ""): ?>
+										<img class="video-poster-img" style="width: auto; height:100px;"
+											src="<?php echo $video_poster_img_source; ?>" />
+									<?php endif; ?></span>
+							<!-- </div> -->
 								Drag & Drop Your File here <span> OR </span>
 								<input type="hidden" class="video-poster-img-source " name="video_poster_img_source"
 									value="<?php echo $video_poster_img_source; ?>" />
@@ -489,11 +495,7 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 
 								<label for="file-upload" class="custom-file-upload">Upload Preview Image</label>
 								<input id="file-upload" type="file" class="file-input" onchange="updateFileName()">
-								<span id="file-name" class="file-name"><?php
-								if ($video_poster_img_source != ""): ?>
-										<img class="video-poster-img" style="width: auto; height:100px;"
-											src="<?php echo $video_poster_img_source; ?>" />
-									<?php endif; ?></span>
+								
 							</div>
 							</div>
 						<div class="seo-form-field upload_video_wrapper" style="margin-bottom: 40px;"

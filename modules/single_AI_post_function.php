@@ -103,11 +103,11 @@ function getaaldata()
 
 
 
-	$meta_title = generateMetaTitle($arr['ai_tittle'], $arr['seed_keyword'], $content);
+	$meta_title = generateMetaTitle($arr['ai_tittle'], $arr['seed_keyword']);
 
 	$meta_descreption = generateMetaDescreption($arr['ai_tittle'], $arr['seed_keyword'], $content);
 
-	wp_send_json_success(array("search_data" => $meta_title, "content" => $content, "meta_title" => $meta_title, "meta_descreption" => $meta_descreption));
+	wp_send_json_success(array("search_data" => $search_data, "content" => $content, "meta_title" => $meta_title, "meta_descreption" => $meta_descreption));
 
 }
 
@@ -121,10 +121,10 @@ function generateMetaDescreption($aigeneratedtitle, $seed_keyword, $content = ''
 	return ChatGPTCall($question);
 
 }
-function generateMetaTitle($aigeneratedtitle, $seed_keyword, $content = '')
+function generateMetaTitle($aigeneratedtitle, $seed_keyword)
 {
-	$question = "Create an SEO-optimized meta title based on the blog post title `" . $aigeneratedtitle . "`, the keyword `" . $seed_keyword . "`, and the blog post content `" . $content . "`. The title must be engaging, click-worthy, and between 50-60 characters, including spaces. Avoid special symbols (e.g., », |, []), quotation marks, and unnecessary words. Output only the meta title text with no explanations or extra content.";
-
+	$question = "Create an SEO optimized meta title based on the blog post title `" . $aigeneratedtitle . "` and the keyword `" . $seed_keyword . "`. max length of title should be 50-60 characters including spaces.
+	";
 	return ChatGPTCall($question);
 }
 

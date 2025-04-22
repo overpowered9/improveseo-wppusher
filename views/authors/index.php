@@ -43,7 +43,8 @@ use ImproveSEO\View;
 			<li>Authors List</li>
 		</ul>
 		<div class="import-export-btn">
-			<button class="active" id="btn-add" onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_authors&action=create') ?>'">
+			<button class="active" id="btn-add"
+				onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_authors&action=create') ?>'">
 				Create Authors
 			</button>
 
@@ -66,29 +67,31 @@ use ImproveSEO\View;
 	</div>
 	<div class="improve-seo-container">
 		<div class="project-lists">
-			<table>
-				<thead>
-					<tr>
-						<th> Name </th>
-						<th>E-Mail</th>
-						<th> </th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach ($users as $user): ?>
+			<div class="table-responsive">
+				<table class="table">
+					<thead>
 						<tr>
-							<td data-label="Name"> <strong>
-									<div class="improve-seo-letter">A</div> <?= $user->display_name ?>
-								</strong> </td>
-							<td data-label="E-Mail"> <?= $user->user_email ?> </td>
-							<td data-label="Actions"> <a href="#"> <img
-										src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
-										alt="ri_more-2-fill"> </a> </td>
-							</td>
+							<th> Name </th>
+							<th>E-Mail</th>
+							<th> </th>
 						</tr>
-					<?php endforeach; ?>
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						<?php foreach ($users as $user): ?>
+							<tr>
+								<td data-label="Name"> <strong>
+										<div class="improve-seo-letter">A</div> <?= $user->display_name ?>
+									</strong> </td>
+								<td data-label="E-Mail"> <?= $user->user_email ?> </td>
+								<td data-label="Actions" class="Actions_td"> <a href="#"> <img
+											src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
+											alt="ri_more-2-fill"> </a> </td>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
 			<div class="actions">
 				<div class="pagination">
 					<button class="prev pagination-btn">

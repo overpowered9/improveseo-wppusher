@@ -49,8 +49,8 @@ use ImproveSEO\View;
                     <div class="improve-submit-box"> 
                         <input id="startjob" onclick="generate();" type="button" value="Generate Keywords!">
                         <div class="improve-submit-box-btns">
-                            <input type="button" class="clear-search-results keyword_clear_btn" value="Clear Results"></input>
-                            <input type="button" class="sw-save-search-results keyword_save_result_btn" value="Save Results"></input>
+                            <input type="button" style="color:#ff4d4f !important" class="clear-search-results keyword_clear_btn" value="Clear Results"></input>
+                            <input type="button" style="color:#59c174 !important" class="sw-save-search-results keyword_save_result_btn" value="Save Results"></input>
                         </div>
                     </div>
                     
