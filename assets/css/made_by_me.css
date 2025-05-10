@@ -1415,7 +1415,7 @@ div#wp-content-media-buttons {
 }
 
 div#post-body-content {
-  width: 70%;
+  width: 100%;
 }
 
 #poststuff .postbox-container {
@@ -1589,19 +1589,54 @@ div#post-body-content {
   }
 }
 
+
+.style_create_page_form {
+  display: flex;
+  width: 100%;
+  gap: 30px;
+  flex-direction: row;
+
+}
+
+.create_page_cont_1 {
+  width: 70%;
+}
+
+.create_page_cont_2 {
+  max-width: 28%;
+  padding-top: 20px;
+}
+
 @media only screen and (max-width: 760px) {
+
+  .style_create_page_form {
+    flex-direction: column !important;
+  }
+  .create_page_cont_1 {
+    width: 100%;
+  }
+  
+  .create_page_cont_2 {
+    max-width: 100%;
+    padding-top: 20px;
+  }
+
+
   .step-opton2-content-box .step-opton-col {
     min-width: 100%;
   }
-  iframe#content_ifr{
+
+  iframe#content_ifr {
     min-width: 100% !important;
     width: 100% !important;
   }
+
   .sw-editor-selector.styling_post_page_action_buttons {
     font-size: 14px !important;
     padding: 7px 20px !important;
 
-}
+  }
+
   .max_width_70 {
     max-width: 100% !important;
     min-width: 100% !important;
@@ -1743,22 +1778,36 @@ div#post-body-content {
     font-size: 12px !important;
     padding: 0px 19px !important;
   }
-  .styling_post_page_action_buttons2{
+
+  .styling_post_page_action_buttons2 {
     font-size: 14px !important;
   }
-  body.mobile.modal-open #wpwrap{
+
+  body.mobile.modal-open #wpwrap {
     overflow: scroll !important;
   }
 }
 
 @media only screen and (min-width: 768px) and (max-width: 991px) {
+  .style_create_page_form {
+    flex-direction: column !important;
+  }
+  .create_page_cont_1 {
+    width: 100%;
+  }
+  
+  .create_page_cont_2 {
+    max-width: 100%;
+    padding-top: 20px;
+  }
   .styling_post_page_action_buttons {
     font-size: 12px !important;
     padding: 8px 10px !important;
   }
+
   .sw-editor-selector.styling_post_page_action_buttons {
     font-size: 14px !important;
-}
+  }
 
 
   .step-opton2-content-box {
@@ -2034,6 +2083,7 @@ form#pop_up_multi_form input[type=radio]:checked::before {
   margin-bottom: 1rem !important;
   background-color: transparent !important;
 }
-.setting-upload-box span#file-name{
+
+.setting-upload-box span#file-name {
   position: relative !important;
 }

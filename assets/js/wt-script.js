@@ -722,7 +722,7 @@ jQuery(function($){
 
     
 
-    hide_oninit();
+ 
 
     function onchange_show_btns(action){
 
@@ -762,7 +762,7 @@ jQuery(function($){
 
     $(document).ready(function(){
 
-        
+        hide_oninit();
 
         $(document).on('change', '.sw-editor-selector', function() {
 

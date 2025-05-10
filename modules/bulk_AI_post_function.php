@@ -236,8 +236,9 @@ function saveContentInTaskList()
 
 
 	global $wpdb;
-
-	$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `state` IN('Scheduled','Published') AND `status` = 'Done' ORDER BY `id` ASC LIMIT 1";
+//SELECT * FROM `wpdb_improveseo_bulktasksdetails` WHERE `state` IN('Scheduled','Published') AND `status` = 'Done' AND `post_id` IS NULL ORDER BY `id` ASC LIMIT 1
+	$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `state` IN('Scheduled','Published') AND `status` = 'Done' AND `post_id` IS NULL 
+	 ORDER BY `id` ASC LIMIT 1";
 
 
 
@@ -362,77 +363,37 @@ function saveContentInTaskList()
 
 
 			if ($value->assigning_authors == 'assigning_multi_authors') {
-
-
-
-
-
-
-
-
-
 				$first_names = array(
-
 					'John',
-
 					'Jane',
-
 					'Michael',
-
 					'Emily',
-
 					'David',
-
 					'Sarah',
-
 					'James',
-
 					'Linda',
-
 					'Robert',
-
 					'Jessica',
-
 					'Daniel',
-
 					'Laura',
-
 					'Chris',
-
 					'Amy',
-
 					'Mark',
-
 					'Angela',
-
 					'Steven',
-
 					'Megan',
-
 					'Paul',
-
 					'Rachel',
-
 					'Peter',
-
 					'Hannah',
-
 					'Kevin',
-
 					'Sophia',
-
 					'Edward',
-
 					'Emma',
-
 					'Jason',
-
 					'Grace',
-
 					'Tom',
-
 					'Alice'
-
 					// Add more names as needed to increase uniqueness
 
 				);
@@ -440,69 +401,37 @@ function saveContentInTaskList()
 
 
 				$last_names = array(
-
 					'Smith',
-
 					'Johnson',
-
 					'Brown',
-
 					'Williams',
-
 					'Jones',
-
 					'Miller',
-
 					'Davis',
-
 					'Garcia',
-
 					'Martinez',
-
 					'Taylor',
-
 					'Wilson',
-
 					'Moore',
-
 					'Anderson',
-
 					'Thomas',
-
 					'Jackson',
-
 					'White',
-
 					'Harris',
-
 					'Martin',
-
 					'Thompson',
-
 					'Lopez',
-
 					'Gonzalez',
-
 					'Clark',
-
 					'Lewis',
-
 					'Walker',
-
 					'Hall',
-
 					'Allen',
-
 					'Young',
-
 					'King',
-
 					'Wright',
-
 					'Scott'
-
 					// Add more names as needed
-
 				);
 
 
@@ -521,8 +450,12 @@ function saveContentInTaskList()
 
 				// Check if the username already exists
 
-				if (username_exists($username) || email_exists($first_name . '@example.com')) {
+				if (username_exists($username)) {
 
+					$post_author = username_exists($username);
+
+				} else {
+					// Define user information
 					my_plugin_log('author recreate : ' . $username);
 
 					$first_name = $first_names[array_rand($first_names)];
@@ -531,37 +464,37 @@ function saveContentInTaskList()
 
 					$username = str_replace(" ", "", $first_name . $last_name);
 
+					$user_data = array(
+
+						'user_login' => $username,        // Username
+
+						'user_pass' => 'hdfdg5456ghj',                // User password
+
+						'user_email' => $first_name . '@example.com', // User email
+
+						'first_name' => $first_name,
+
+						'last_name' => $last_name,
+
+						'role' => 'author',                     // Assign 'author' role
+
+					);
+
+
+
+					my_plugin_log('author created : ' . $username);
+
+
+
+					// Create the user
+
+					$post_author = wp_insert_user($user_data);
+
 				}
 
 
 
-				// Define user information
-
-				$user_data = array(
-
-					'user_login' => $username,        // Username
-
-					'user_pass' => 'hdfdg5456ghj',                // User password
-
-					'user_email' => $first_name . '@example.com', // User email
-
-					'first_name' => $first_name,
-
-					'last_name' => $last_name,
-
-					'role' => 'author',                     // Assign 'author' role
-
-				);
-
-
-
-				my_plugin_log('author created : ' . $username);
-
-
-
-				// Create the user
-
-				$post_author = wp_insert_user($user_data);
+				
 
 
 
@@ -599,7 +532,17 @@ function saveContentInTaskList()
 
 
 
-			$post_id = wp_insert_post($post_array);
+			$post_id = wp_insert_post($post_array, true); // 'true' enables WP_Error return
+
+			if (is_wp_error($post_id)) {
+				$error_message = $post_id->get_error_message();
+				//echo 'Error inserting post: ' . esc_html($error_message);
+				my_plugin_log('Error inserting post: ' . $error_message);
+			} else {
+				$smsg = 'Post inserted successfully with ID: ' . intval($post_id);
+				my_plugin_log('Post id insert: ' . $smsg);
+			}
+
 
 			// Replace with your desired tags
 
@@ -657,14 +600,14 @@ function saveContentInTaskList()
 
 	/*  Update post status on scheduled date*/
 
-	$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `published_on`='" . date('Y-m-d') . "' AND `post_id` != '' AND `is_published_by_plugin` = '0' AND `state`='draft' ORDER BY `id` ASC";
+	$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `published_on`<='" . date('Y-m-d') . "' AND `post_id` IS NOT NULL AND `is_published_by_plugin` = '0' AND `status`='Done' ORDER BY `id` ASC";
 
 
 
 	$Bulktasks = $wpdb->get_results($sql);
 
 
-
+	my_plugin_log('Bulktasks : ' . json_encode($Bulktasks));
 
 
 
@@ -686,7 +629,7 @@ function saveContentInTaskList()
 
 
 			wp_update_post($post_data);
-
+			my_plugin_log('updated post info ' . json_encode($post_data));
 
 
 			// tag 
@@ -701,18 +644,16 @@ function saveContentInTaskList()
 
 
 
-			$post_status = 'publish';
+			// $post_status = 'publish';
 
 			$wpdb->query(
 
 				$wpdb->prepare(
 
 					"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
-
-					SET state = %s WHERE id = %d",
-
-					$post_status,
-
+					SET `is_published_by_plugin` = %d, `state` = %s WHERE id = %d",
+					1,
+					'Published',
 					$value->id
 
 				)

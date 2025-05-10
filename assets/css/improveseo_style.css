@@ -746,6 +746,13 @@ select.select-control {
 
     padding: 5px 15px;
 
+    gap: 10px;
+
+}
+
+.cta-check span label {
+    margin-bottom: 0px !important;
+    padding-bottom: 0px !important;
 }
 
 
@@ -1418,13 +1425,13 @@ select.select-control {
 
 
 
-#wp-content-editor-tools .add_media{
+#wp-content-editor-tools .add_media {
     color: #1E70B8 !important;
     border: 1px solid #1E70B8 !important;
     border-radius: 50px !important;
     font-weight: lighter !important;
     cursor: pointer !important;
-    font-size: 20px ;
+    font-size: 20px;
     padding: 1px 30px !important;
     background-color: transparent !important;
     display: flex !important;
@@ -1492,7 +1499,7 @@ select.select-control {
 
 
 
-.improveseo_wrapper .meta-box-sortables .postbox {
+.postbox {
 
     border: 1px solid rgba(0, 0, 0, 0.2);
 
@@ -1506,7 +1513,7 @@ select.select-control {
 
 
 
-.improveseo_wrapper .meta-box-sortables .handlediv {
+.meta-box-sortables .handlediv {
 
     position: absolute;
 
@@ -1524,15 +1531,14 @@ select.select-control {
 
 
 
-.improveseo_wrapper .meta-box-sortables .closed .handlediv {
+.meta-box-sortables .closed .handlediv {
 
     top: 20px;
 
 }
 
 
-
-.improveseo_wrapper .meta-box-sortables .handlediv:focus {
+.meta-box-sortables .handlediv:focus {
 
     box-shadow: none !important;
 
@@ -1542,7 +1548,7 @@ select.select-control {
 
 
 
-.improveseo_wrapper .meta-box-sortables .handlediv .toggle-indicator:before {
+.handlediv .toggle-indicator:before {
 
     font-family: "fontawesome";
 
@@ -1560,7 +1566,7 @@ select.select-control {
 
 
 
-.improveseo_wrapper .postbox.closed .handlediv .toggle-indicator:before {
+.postbox.closed .handlediv .toggle-indicator:before {
 
     content: "\f0dd";
 
@@ -1578,7 +1584,7 @@ select.select-control {
 
 
 
-.improveseo_wrapper #poststuff .postbox h3 {
+.postbox h3 {
 
     font-size: 16px !important;
 
@@ -1592,7 +1598,7 @@ select.select-control {
 
 
 
-.improveseo_wrapper .postbox .cta-check input[type="checkbox"] {
+.postbox .cta-check input[type="checkbox"] {
 
     margin: 0;
 
@@ -1615,7 +1621,7 @@ select.select-control {
 
 
 
-.improveseo_wrapper .postbox p {
+.postbox p {
 
     font-family: 'Poppins', sans-serif;
 
@@ -1633,7 +1639,7 @@ select.select-control {
 
 
 
-.improveseo_wrapper .postbox a {
+.postbox a {
 
     color: #1E70B9;
 
