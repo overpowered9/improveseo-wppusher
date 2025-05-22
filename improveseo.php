@@ -4,13 +4,21 @@
 
 Plugin Name: Improve SEO
 
-Plugin URI: 
+Plugin URI: https://github.com/overpowered9/ImproveSEO
 
 Description: Creates a large number of pages/posts and customize them to rank in Google.
 
+Version: 2.0.11
+
 Author: Improve SEO Team
 
-Version: 2.0.11
+Author URI: https://yourwebsite.com
+
+License: GPL2
+
+GitHub Plugin URI: https://github.com/overpowered9/ImproveSEO
+
+Primary Branch: Scheduling--Feature--Update
 
 */
 
