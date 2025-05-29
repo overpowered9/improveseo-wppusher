@@ -1,125 +1,125 @@
-.improveseo_row{
-	padding: 10px 0;
-}
-
-.improveseo_btn {
-	font-style: normal;
-	font-weight: 500;
-	border: 1px solid;
-	text-decoration: none;
-	transition: all 0.3s;
-	display: inline-block;
-	cursor: pointer;
-}
-.improveseo_btn.btn_sm{
-    font-size: 14px;
-    padding: 0.250rem 0.55rem;
-}
-.improveseo_btn.btn_md{
-    font-size: 16px;
-    padding: 0.375rem 0.75rem;
-}
-.improveseo_btn.btn_lg{
-    font-size: 18px;
-    padding: 0.5rem 1rem;
-}
-.improveseo_btn.btn_round{
-	border-radius: 10px;
-}
-
-.improveseo_row .improveseo_btn.btn_sm img {
-	height: 30px;
-	width: 30px;
-	margin-right: 10px;
-	vertical-align: middle;
-	position: relative;
-}
-.improveseo_row .improveseo_btn.btn_md img {
-	height: 40px;
-	width: 40px;
-	margin-right: 10px;
-	vertical-align: middle;
-	position: relative;
-}
-
-.improveseo_row .improveseo_btn.btn_lg img {
-	height: 50px;
-	width: 50px;
-	margin-right: 10px;
-	vertical-align: middle;
-	position: relative;
-}
-
-
-
-
-.improveseo_testimonial_wrapper::before {
-	content: url(../images/quote.png);
-	height: auto;
-	left: 50%;
-	position: absolute;
-	top: -20px;
-	background: #f5f5f5;
-	margin-left: -16px;
-	border-radius: 50%;
-	z-index: 2;
-	border: 1px solid #fff;
-	padding: 4px 8px;
-}
-.improveseo_testimonial_wrapper{
-	text-align: left;
-	position: relative;
-	padding: 30px;
-	line-height: 1.5;
-	border: 1px solid;
-	clear: both;
-}
-.improveseo_testimonial_portrait::before {
-	content: "";
-	height: 100%;
-	left: 0;
-	position: absolute;
-	top: 0;
-	width: 100%;
-	-webkit-box-shadow: inset 0 0 3px rgba(0,0,0,.3);
-	box-shadow: inset 0 0 3px rgba(0,0,0,.3);
-	border-radius: 90px; 
-}
-
-.improveseo_testimonial_portrait{
-	background-image: url(../images/user.png);
-	padding-bottom: 0px;
-	width: 90px;
-	height: 90px;
-	float: left;
-	position: relative;
-	display: block;
-	margin-right: 30px;
-	background-repeat: no-repeat;
-	background-position: 50%;
-	background-size: cover;
-	-webkit-box-sizing: content-box;
-	box-sizing: content-box;
-	border-radius: 90px; 
-}
-.improveseo_testimonial_description{
-	display: block;
-	position: relative;
-	margin-left: 120px;
-}
-.improveseo_testimonial_description_inner{
-	display: block;
-	position: relative;
-	word-wrap: break-word;
-}
-.improveseo_testimonial .improveseo_testimonial_content p{
-	padding-bottom: 1em;
-}
-.improveseo_testimonial_author {
-	margin-top: 32px;
-	font-weight: 700;
-	display: block;
-}
-.improveseo_testimonial_meta{
-	padding-bottom: 0;
+.improveseo_row{
+	padding: 10px 0;
+}
+
+.improveseo_btn {
+	font-style: normal;
+	font-weight: 500;
+	border: 1px solid;
+	text-decoration: none;
+	transition: all 0.3s;
+	display: inline-block;
+	cursor: pointer;
+}
+.improveseo_btn.btn_sm{
+    font-size: 14px;
+    padding: 0.250rem 0.55rem;
+}
+.improveseo_btn.btn_md{
+    font-size: 16px;
+    padding: 0.375rem 0.75rem;
+}
+.improveseo_btn.btn_lg{
+    font-size: 18px;
+    padding: 0.5rem 1rem;
+}
+.improveseo_btn.btn_round{
+	border-radius: 10px;
+}
+
+.improveseo_row .improveseo_btn.btn_sm img {
+	height: 30px;
+	width: 30px;
+	margin-right: 10px;
+	vertical-align: middle;
+	position: relative;
+}
+.improveseo_row .improveseo_btn.btn_md img {
+	height: 40px;
+	width: 40px;
+	margin-right: 10px;
+	vertical-align: middle;
+	position: relative;
+}
+
+.improveseo_row .improveseo_btn.btn_lg img {
+	height: 50px;
+	width: 50px;
+	margin-right: 10px;
+	vertical-align: middle;
+	position: relative;
+}
+
+
+
+
+.improveseo_testimonial_wrapper::before {
+	content: url(../images/quote.png);
+	height: auto;
+	left: 50%;
+	position: absolute;
+	top: -20px;
+	background: #f5f5f5;
+	margin-left: -16px;
+	border-radius: 50%;
+	z-index: 2;
+	border: 1px solid #fff;
+	padding: 4px 8px;
+}
+.improveseo_testimonial_wrapper{
+	text-align: left;
+	position: relative;
+	padding: 30px;
+	line-height: 1.5;
+	border: 1px solid;
+	clear: both;
+}
+.improveseo_testimonial_portrait::before {
+	content: "";
+	height: 100%;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	-webkit-box-shadow: inset 0 0 3px rgba(0,0,0,.3);
+	box-shadow: inset 0 0 3px rgba(0,0,0,.3);
+	border-radius: 90px; 
+}
+
+.improveseo_testimonial_portrait{
+	background-image: url(../images/user.png);
+	padding-bottom: 0px;
+	width: 90px;
+	height: 90px;
+	float: left;
+	position: relative;
+	display: block;
+	margin-right: 30px;
+	background-repeat: no-repeat;
+	background-position: 50%;
+	background-size: cover;
+	-webkit-box-sizing: content-box;
+	box-sizing: content-box;
+	border-radius: 90px; 
+}
+.improveseo_testimonial_description{
+	display: block;
+	position: relative;
+	margin-left: 120px;
+}
+.improveseo_testimonial_description_inner{
+	display: block;
+	position: relative;
+	word-wrap: break-word;
+}
+.improveseo_testimonial .improveseo_testimonial_content p{
+	padding-bottom: 1em;
+}
+.improveseo_testimonial_author {
+	margin-top: 32px;
+	font-weight: 700;
+	display: block;
+}
+.improveseo_testimonial_meta{
+	padding-bottom: 0;
 }
