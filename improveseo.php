@@ -2,7 +2,7 @@
 
 /*
 
-Plugin Name: Improve SEObyz
+Plugin Name: Improve SEOfn
 
 Plugin URI: 
 
