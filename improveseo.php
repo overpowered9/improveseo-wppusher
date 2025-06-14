@@ -10,7 +10,7 @@ Description: Creates a large number of pages/posts and customize them to rank in
 
 Author: Improve SEO Team
 
-Version: 2.0.11
+Version: 2.0.12
 
 */
 
