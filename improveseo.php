@@ -688,7 +688,7 @@ function improveseo_api($action, $arg)
 
 			curl_setopt($ch, CURLOPT_URL, $url);
 
-			curl_setopt($ch, CURLOPT_POST, count($fields));
+			curl_setopt($ch, CURLOPT_POST, count($arg));
 
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
 
@@ -1283,7 +1283,7 @@ class WC_Testimonial
 
 		));
 
-		wp_send_json($args);
+		// wp_send_json($args);
 
 		die(0);
 
@@ -1917,7 +1917,7 @@ class WC_Testimonial
 
 			'tw_button_shortcode_name' => $tw_button_shortcode_name,
 
-			'tw_maps_apikey' => $tw_maps_apikey,
+			
 
 			'tw_btn_text' => $tw_btn_text,
 
