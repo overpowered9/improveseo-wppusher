@@ -917,7 +917,7 @@ function generateAIpopup()
     ob_start();
 
     $html_key_to_send = $html_key;
-
+//check list error
     $list_to_send = $list;
 
     $AllShortCode_to_send = $AllShortCode;
