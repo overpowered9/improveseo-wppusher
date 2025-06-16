@@ -2,7 +2,7 @@
 
 /*
 
-Plugin Name: Improve SEO
+Plugin Name: Improve SEO - single mode test
 
 Plugin URI: 
 
@@ -10,7 +10,7 @@ Description: Creates a large number of pages/posts and customize them to rank in
 
 Author: Improve SEO Team
 
-Version: 2.0.12
+Version: 2.0.13
 
 */
 
