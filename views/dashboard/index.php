@@ -66,7 +66,7 @@ use ImproveSEO\View;
 					</div>
 				</div>
 				<div class="line"></div>
-				<h3>Meta2</h3>
+				<h3>Meta</h3>
 				<p>Create keyword-rich metadata for posts or pages. Customize with ease.</p>
 				</a>
 			</div>
