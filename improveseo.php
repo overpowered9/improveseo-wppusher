@@ -2,7 +2,7 @@
 
 /*
 
-Plugin Name: Improve SEO
+Plugin Name: Improve SEO2
 
 Plugin URI: 
 
