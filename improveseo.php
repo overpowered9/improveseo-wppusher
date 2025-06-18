@@ -14,7 +14,7 @@ Version: 2.0.13
 
 */
 
-define("IMPROVESEO_VERSION", "2.0.12");
+define("IMPROVESEO_VERSION", "2.0.13");
 
 define('IMPROVESEO_ROOT', dirname(__FILE__));
 
