@@ -2,7 +2,7 @@
 
 /*
 
-Plugin Name: Improve SEO - single mode test
+Plugin Name: Improve SEO
 
 Plugin URI: 
 
