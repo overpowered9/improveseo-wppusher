@@ -273,7 +273,60 @@ function improveseo_projects()
 
 
 
-
+  if (isset($_POST['action']) && $_POST['action'] === 'bulk_delete') {
+      if (!isset($_POST['bulk_delete_nonce']) || !wp_verify_nonce($_POST['bulk_delete_nonce'], 'bulk_delete_projects')) {
+          FlashMessage::error('Security check failed.');
+          wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+          exit();
+      }
+      
+      if (!current_user_can('delete_posts')) {
+          FlashMessage::error('You do not have permission to delete projects.');
+          wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+          exit();
+      }
+      
+      if (empty($_POST['project_ids']) || !is_array($_POST['project_ids'])) {
+          FlashMessage::error('No projects selected for deletion.');
+          wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+          exit();
+      }
+      
+      $project_ids = array_map('intval', $_POST['project_ids']);
+      $deleted_count = 0;
+      
+      foreach ($project_ids as $project_id) {
+          $result = $wpdb->delete(
+              $wpdb->prefix . 'improveseo_tasks',
+              array('id' => $project_id),
+              array('%d')
+          );
+          
+          if ($result !== false) {
+              $deleted_count++;
+              
+              $post_id = $wpdb->get_var($wpdb->prepare(
+                  "SELECT post_id FROM {$wpdb->postmeta} 
+                  WHERE meta_key = 'improveseo_project_id' 
+                  AND meta_value = %s",
+                  $project_id
+              ));
+              
+              if ($post_id) {
+                  wp_delete_post($post_id, true);
+              }
+          }
+      }
+      
+      if ($deleted_count > 0) {
+          FlashMessage::success("{$deleted_count} project(s) deleted successfully.");
+      } else {
+          FlashMessage::error('Failed to delete projects.');
+      }
+      
+      wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+      exit();
+  }
 
 	if ($action == 'index') :
 
