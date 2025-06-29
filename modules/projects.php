@@ -389,7 +389,7 @@ function improveseo_projects()
 
 
 
-		View::render('projects.index', compact('projects', 'page', 'pages', 'order', 'orderBy', 'highlight'));
+		View::render('projects.index', compact('projects', 'page', 'pages', 'order', 'orderBy', 'highlight', 'total', 'limit'));
 
 
 
