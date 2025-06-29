@@ -323,9 +323,9 @@ function improveseo_projects()
       } else {
           FlashMessage::error('Failed to delete projects.');
       }
-      
-      wp_redirect(admin_url('admin.php?page=improveseo_projects'));
-      exit();
+
+		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+		exit;
   }
 
 	if ($action == 'index') :
