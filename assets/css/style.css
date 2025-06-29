@@ -581,6 +581,12 @@ input:checked+.switch:before {
   color: #1E70B8;
 }
 
+.pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 .pagination button.prev {
   opacity: 0.5;
   cursor: not-allowed;

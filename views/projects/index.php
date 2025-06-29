@@ -74,17 +74,55 @@ if (isset($_GET['post_preview'])) {
 			<button class="btn_delete">Delete Selected Projects</button>
 		</div>
 		<div class="pagination">
-			<button class="prev pagination-btn">
-				< Prev </button>
-					<button class="active">1</button>
-					<button>2</button>
-					<button>3</button>
-					<button>4</button>
-					<button>5</button>
-					<button class="next pagination-btn"> Next ></button>
+			<?php if ($page > 1): ?>
+				<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=' . ($page - 1)) ?>" 
+				class="prev pagination-btn">< Prev</a>
+			<?php else: ?>
+				<span class="prev pagination-btn disabled">< Prev</span>
+			<?php endif; ?>
+
+			<?php
+			// Calculate pagination range
+			$start_page = max(1, $page - 2);
+			$end_page = min($pages, $page + 2);
+			
+			// Show first page if we're not showing it
+			if ($start_page > 1): ?>
+				<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=1') ?>" 
+				class="pagination-btn">1</a>
+				<?php if ($start_page > 2): ?>
+					<span class="pagination-btn">...</span>
+				<?php endif; ?>
+			<?php endif; ?>
+
+			<?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+				<?php if ($i == $page): ?>
+					<button class="pagination-btn active"><?= $i ?></button>
+				<?php else: ?>
+					<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=' . $i) ?>" 
+					class="pagination-btn"><?= $i ?></a>
+				<?php endif; ?>
+			<?php endfor; ?>
+
+			<?php
+			// Show last page if we're not showing it
+			if ($end_page < $pages): ?>
+				<?php if ($end_page < $pages - 1): ?>
+					<span class="pagination-btn">...</span>
+				<?php endif; ?>
+				<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=' . $pages) ?>" 
+				class="pagination-btn"><?= $pages ?></a>
+			<?php endif; ?>
+
+			<?php if ($page < $pages): ?>
+				<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=' . ($page + 1)) ?>" 
+				class="next pagination-btn">Next ></a>
+			<?php else: ?>
+				<span class="next pagination-btn disabled">Next ></span>
+			<?php endif; ?>
 		</div>
 		<div class="import-export">
-			<p><?php echo count($projects); ?> Items</p>
+			<p>Showing <?= (($page - 1) * $limit) + 1 ?> to <?= min($page * $limit, $total) ?> of <?= $total ?> Items</p>
 		</div>
 	</div>
 	<div class="improve-seo-container">
