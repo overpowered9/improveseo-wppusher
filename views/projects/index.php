@@ -1,34 +1,39 @@
 <?php
 
-
-
 use ImproveSEO\View;
 
+function get_post_by_project_id($project_id)
+{
+	global $wpdb;
 
+	$post_id = $wpdb->get_var($wpdb->prepare(
+		"SELECT post_id FROM {$wpdb->postmeta} 
+         WHERE meta_key = 'improveseo_project_id' 
+         AND meta_value = %s 
+         LIMIT 1",
+		$project_id
+	));
 
-if (isset($_GET['post_preview'])) {
-
-	if ($_GET['post_preview'] == 'true') {
-
-		$project = $projects[0];
-
-		if ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
-
-			$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
-
-			header("Location:" . $export_url);
-
-			exit;
-
+	if ($post_id) {
+		$post = get_post($post_id);
+		if ($post && $post->post_status !== 'trash') {
+			return $post;
 		}
-
 	}
 
+	return null;
 }
 
-
-
-
+if (isset($_GET['post_preview'])) {
+	if ($_GET['post_preview'] == 'true') {
+		$project = $projects[0];
+		if ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
+			$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
+			header("Location:" . $export_url);
+			exit;
+		}
+	}
+}
 
 ?>
 
@@ -42,19 +47,9 @@ if (isset($_GET['post_preview'])) {
 
 <?php View::endSection('breadcrumbs') ?>
 
-
-
-
-
 <?php View::startSection('content') ?>
 
-
-
 <?php View::render('import/import') ?>
-
-
-
-
 
 <h1 class="hidden">Product Listing</h1>
 
@@ -70,10 +65,6 @@ if (isset($_GET['post_preview'])) {
 			<li>Projects List</li>
 		</ul>
 		<div class="import-export-btn">
-			<!-- <button
-				onclick="if(confirm('Are you sure you want to export all items?')) { window.location.href = '<?= admin_url('admin.php?page=improveseo_projects&action=export_all_project&noheader=true') ?>'; }">Export
-				all Projects</button>
-			<button id="importProject">Import</button> -->
 			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_posting') ?>';"
 				class="active">Add New</button>
 		</div>
@@ -107,8 +98,6 @@ if (isset($_GET['post_preview'])) {
 									<input type="checkbox" id="cb-select-all">
 									<div class="checkbox__checkmark"></div>
 								</label>
-								<!-- <label class="screen-reader-text" for="cb-select-all">Select All</label>
-							<input id="cb-select-all" type="checkbox"> -->
 								<h4> Name </h4>
 							</th>
 							<th>Created At</th>
@@ -120,19 +109,14 @@ if (isset($_GET['post_preview'])) {
 					</thead>
 					<tbody>
 						<?php foreach ($projects as $project): ?>
-
-
-
 							<tr>
-								<td data-label="Name" >
-									<div class="styling_projects_name_td" >
+								<td data-label="Name">
+									<div class="styling_projects_name_td">
 										<label class="checkbox style-c">
 											<input id="cb-select-<?php echo $project->id; ?>" type="checkbox"
 												name="project_ids[]" value="<?php echo $project->id; ?>">
 											<div class="checkbox__checkmark"></div>
 										</label>
-										<!-- <input id="cb-select-all" type="checkbox"> -->
-
 										<h4><?= $project->name ?></h4>
 									</div>
 								</td>
@@ -189,70 +173,26 @@ if (isset($_GET['post_preview'])) {
 									<a href="#" class="action-btn-pop"> <img
 											src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
 											alt="ri_more-2-fill"> </a>
-									<!-- <div class="actionpopup">
-									<div class="popup-arrow"></div>
-									<ul class="popup-menu">
-										<div class="row-actions">
-
-											<span class="edit">
-												<a class="ct-btn btn btn-outline-primary"
-													href="<?= admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&name={$project->name}&noheader=true") ?>">
-													Export a list of all posts/pages URLs
-												</a>
-											</span>
-
-											<span class="edit">
-												<a class="ct-btn btn btn-outline-primary"
-													href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true") ?>">
-													Update posts
-												</a>
-											</span>
-
-											<span class="edit">
-												<a class="ct-btn btn btn-outline-primary"
-													href="<?= admin_url('admin.php?page=improveseo_projects&action=duplicate&id=' . $project->id . '&noheader=true') ?>">
-													Duplicate project
-												</a>
-											</span>
-
-											<span class="edit">
-												<a class="ct-btn btn btn-outline-primary"
-													href="<?= admin_url('admin.php?page=improveseo_projects&action=stop&id=' . $project->id . '&noheader=true') ?>">
-													Stop process
-												</a>
-											</span>
-
-											<span class="edit">
-												<a class="ct-btn btn btn-outline-primary"
-													href="<?= admin_url("admin.php?page=improveseo_projects&action=export_project&id={$project->id}&name={$project->name}&noheader=true") ?>">
-													Expor Project
-												</a>
-											</span>
-
-											<span class="trash">
-												<a class="del-btn btn btn-outline-danger" class="submitdelete"
-													href="<?= admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ?>"
-													onclick="return confirm('This action will delete project and all generated posts/pages')">Delete
-													project and all posts/pages</a>
-											</span>
-
-											<span class="trash">
-												<a class="del-btn btn btn-outline-danger" class="submitdelete"
-													href="<?= admin_url('admin.php?page=improveseo_projects&action=delete_posts&id=' . $project->id . '&noheader=true') ?>"
-													onclick="return confirm('This action will delete all generated posts/pages')">Delete
-													only posts/pages</a>
-											</span>
-										</div>
-
-									</ul>
-								</div> -->
 
 									<div class="actionpopup">
 										<div class="popup-arrow"></div>
 										<ul class="popup-menu">
-											<li><a href="#" target="_blank" style="max-width: max-content !important;"
-													class="popup-link">View
-													Post</a></li>
+											<li>
+												<?php
+												$associated_post = get_post_by_project_id($project->id);
+												if ($associated_post): ?>
+													<a href="<?= get_permalink($associated_post->ID) ?>" target="_blank"
+														style="max-width: max-content !important;" class="popup-link">
+														View Post
+													</a>
+												<?php else: ?>
+													<span
+														style="max-width: max-content !important; color: #999; cursor: not-allowed;"
+														class="popup-link disabled">
+														No Post Created
+													</span>
+												<?php endif; ?>
+											</li>
 											<li><a href="#" target="_blank" style="max-width: max-content !important;"
 													class="popup-link">Project Details</a></li>
 											<li><a target="_blank"
@@ -286,36 +226,6 @@ if (isset($_GET['post_preview'])) {
 		</div>
 	</div>
 </div>
-
-<!-- <script>
-	document.addEventListener("DOMContentLoaded", function () {
-		document.querySelectorAll(".action-btn-pop").forEach(button => {
-			button.addEventListener("click", function (event) {
-				event.preventDefault();
-
-				let popup = this.closest("td").querySelector(".actionpopup"); // Correctly selecting the popup
-
-				// Close any other open popups
-				document.querySelectorAll(".actionpopup").forEach(p => {
-					if (p !== popup) {
-						p.style.display = "none";
-					}
-				});
-
-				// Toggle current popup
-				popup.style.display = (popup.style.display === "block") ? "none" : "block";
-			});
-		});
-
-		// Close popup when clicking outside
-		document.addEventListener("click", function (event) {
-			if (!event.target.closest("td.actions-btn")) { // Correct selector
-				document.querySelectorAll(".actionpopup").forEach(popup => popup.style.display = "none");
-			}
-		});
-	});
-
-</script> -->
 
 <script type="text/javascript">
 	function build_project(id) {
@@ -435,8 +345,6 @@ if (isset($_GET['post_preview'])) {
 			<?php
 		} elseif ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
 			$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
-			/* header("Location:".$export_url);
-																								exit; */
 		}
 	}
 }
@@ -450,5 +358,4 @@ if (isset($_GET['build_posts_id'])) { ?>
 
 <?php } ?>
 <?php View::endSection('content') ?>
-
 <?php View::make('layouts.main') ?>
