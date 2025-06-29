@@ -272,11 +272,7 @@ function improveseo_projects()
 
 
 
-  print_r($_POST['action']);
-  print_r($action);
-
   if (isset($_POST['action']) && $_POST['action'] === 'bulk_delete') {
-    echo "Bulk delete action triggered";
     if (!isset($_POST['bulk_delete_nonce']) || !wp_verify_nonce($_POST['bulk_delete_nonce'], 'bulk_delete_projects')) {
       FlashMessage::error('Security check failed.');
       wp_redirect(admin_url('admin.php?page=improveseo_projects'));
@@ -328,11 +324,10 @@ function improveseo_projects()
     }
 
     wp_redirect(admin_url('admin.php?page=improveseo_projects'));
-    exit;
+    exit();
   }
 
   if ($action == 'index'):
-    echo "Index action triggered";
 
     // Filters
 
@@ -488,8 +483,6 @@ function improveseo_projects()
 
 
     exit;
-
-
 
 
 
