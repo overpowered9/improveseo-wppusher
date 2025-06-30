@@ -115,8 +115,8 @@ function improveseo_projects()
 
         $post_id = $wpdb->get_var($wpdb->prepare(
           "SELECT post_id FROM {$wpdb->postmeta} 
-                  WHERE meta_key = 'improveseo_project_id' 
-                  AND meta_value = %s",
+                 WHERE meta_key = 'improveseo_project_id' 
+                 AND meta_value = %s",
           $project_id
         ));
 
@@ -131,9 +131,9 @@ function improveseo_projects()
     } else {
       FlashMessage::error('Failed to delete projects.');
     }
-    
-    wp_redirect(admin_url('admin.php?page=improveseo_projects'));
-    exit;
+
+    $_GET['action'] = 'index';
+    $action = 'index';
   }
 
   if ($action == 'index'):
