@@ -55,7 +55,7 @@ function improveseo_add_menu_items()
     
 
 
-    add_submenu_page('improveseo_dashboard', 'Posting', 'Posting', 'manage_options', 'improveseo_posting', 'improveseo_posting');
+    // add_submenu_page('improveseo_dashboard', 'Posting', 'Posting', 'manage_options', 'improveseo_posting', 'improveseo_posting');
 add_submenu_page(
         'improveseo_dashboard',
         'Create Single Post',         // Page title
@@ -63,7 +63,7 @@ add_submenu_page(
         'manage_options',
         'improveseo_create_single',   // Unique slug
         function() {
-            include_once WT_PATH . '/views/posting/index_single_post.php';
+            include_once WT_PATH . '/views/posting/index_single.php';
         }
     );
     add_submenu_page(
