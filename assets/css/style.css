@@ -337,24 +337,21 @@ input:checked + .switch:before {
 .create-ai-post {
   padding: 50px;
 }
-
+.Single_Bulk_href_index {
+  border-color: red;
+}
 .create-ai {
   display: flex;
-  /* background-color: #f6f8fa; */
-  background-color: #0080ff;
+  background-color: #f6f8fa;
   border-radius: 20px;
-  border-color: #ce1e14;
-  /* padding: 35px 50px 50px;
-
-  gap: 35px 50px; */
-  align-items: center;
-  justify-content: center;
+  padding: 35px 50px 50px;
+  gap: 35px 50px;
   flex-wrap: wrap;
 }
 
 .create-ai-col h3 {
   font-size: 34px;
-  color: rgba(0, 0, 0, 0.6);
+  color: rgba(32, 32, 32, 0.6);
 }
 
 .create-ai-col {
