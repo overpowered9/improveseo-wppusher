@@ -56,7 +56,26 @@ function improveseo_add_menu_items()
 
 
     add_submenu_page('improveseo_dashboard', 'Posting', 'Posting', 'manage_options', 'improveseo_posting', 'improveseo_posting');
-
+add_submenu_page(
+        'improveseo_dashboard',
+        'Create Single Post',         // Page title
+        'Create Single Post',         // Menu title
+        'manage_options',
+        'improveseo_create_single',   // Unique slug
+        function() {
+            include_once WT_PATH . '/views/posting/index_single_post.php';
+        }
+    );
+    add_submenu_page(
+        'improveseo_dashboard',
+        'Create Bulk Post',           // Page title
+        'Create Bulk Post',           // Menu title
+        'manage_options',
+        'improveseo_create_bulk',     // Unique slug
+        function() {
+            include_once WT_PATH . '/views/posting/index_multipost.php';
+        }
+    );
 
 
 
@@ -105,26 +124,7 @@ function improveseo_add_menu_items()
 
     add_submenu_page('improveseo_dashboard', 'Shortcodes', 'Shortcodes', 'manage_options','improveseo_shortcodes', 'custom_testimonials_settings');
 
-    add_submenu_page(
-        'improveseo_dashboard',
-        'Create Single Post',         // Page title
-        'Create Single Post',         // Menu title
-        'manage_options',
-        'improveseo_create_single',   // Unique slug
-        function() {
-            include_once WT_PATH . '/views/posting/index_single_post.php';
-        }
-    );
-    add_submenu_page(
-        'improveseo_dashboard',
-        'Create Bulk Post',           // Page title
-        'Create Bulk Post',           // Menu title
-        'manage_options',
-        'improveseo_create_bulk',     // Unique slug
-        function() {
-            include_once WT_PATH . '/views/posting/index_multipost.php';
-        }
-    );
+    
 
 }
 
