@@ -55,7 +55,7 @@ function improveseo_add_menu_items()
     
 
 
-    // add_submenu_page('improveseo_dashboard', 'Posting', 'Posting', 'manage_options', 'improveseo_posting', 'improveseo_posting');
+    add_submenu_page('improveseo_dashboard', 'Posting', 'Posting', 'manage_options', 'improveseo_posting', 'improveseo_posting');
 add_submenu_page(
         'improveseo_dashboard',
         'Create Single Post',         // Page title
