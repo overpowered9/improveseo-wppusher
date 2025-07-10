@@ -107,7 +107,7 @@ if (isset($_POST['cat_name'])) {
 		<div class="create-ai-post">
 			<div class="create-ai">
 				
-				<div class="Single_Bulk_href_index">
+				<div class="create-ai-col">
 					<a class="Posting__post-button" href="<?php echo admin_url("admin.php?page=improveseo_posting&action=create_post"); ?>">
 						<img src="<?php echo WT_URL . '/assets/images/latest-images/Mobile-UX-rafiki.png'; ?>"
 							alt="Create Single AI Post">
