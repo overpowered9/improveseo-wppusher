@@ -341,7 +341,6 @@ input:checked + .switch:before {
 .create-ai {
   display: flex;
   /* background-color: #f6f8fa; */
-  background-color: #0080ff;
   border-radius: 20px;
   border-color: #ce1e14;
   /* padding: 35px 50px 50px;
