@@ -7,7 +7,7 @@
    /*
 
 
-   Plugin Name: Improve SEO2
+   Plugin Name: Improve SEO
 
 
    Plugin URI: 
@@ -25,7 +25,7 @@
    */
 
 
-   define("IMPROVESEO_VERSION", "2.0.12");
+   define("IMPROVESEO_VERSION", "2.0.11");
 
 
    define('IMPROVESEO_ROOT', dirname(__FILE__));
