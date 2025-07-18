@@ -108,7 +108,7 @@ if (isset($_POST['cat_name'])) {
 
 
 				<div class="create-ai-col">
-					<a class="Posting__page-button" href="<?php echo admin_url("admin.php?page=improveseo_posting&action=create_page"); ?>">
+					<a class="Posting__page-button" href="<?php echo admin_url("admin.php?page=improveseo_posting&action=create_post_bulk"); ?>">
 						<img src="<?php echo WT_URL . '/assets/images/latest-images/Multi-device.png' ?>"
 							alt="Multi-device">
 						<h3>Bulk Create AI Posts</h3>
