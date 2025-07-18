@@ -193,7 +193,7 @@
                 </select> &nbsp;';
 
 
-       $html .= '<a type="button" class="btn btn-primary btn-outline-primary" data-toggle="modal" data-target="#exampleModal" >Generate AI Content</a> ';
+       $html .= '<a type="button" class="btn btn-primary btn-outline-primary" data-toggle="modal" data-target="' . (isset($_GET['action']) && $_GET['action'] == 'create_post_single' ? '#exampleModalSingle' : (isset($_GET['action']) && $_GET['action'] == 'create_post_bulk' ? '#exampleModalBulk' : '#exampleModal')) . '" >Generate AI Content</a> ';
 
 
    
