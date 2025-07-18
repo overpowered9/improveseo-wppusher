@@ -193,7 +193,7 @@
                 </select> &nbsp;';
 
 
-       $html .= '<a type="button" class="btn btn-primary btn-outline-primary" data-toggle="modal" data-target="#exampleModal" >Generate AI Content</a> ';
+       $html .= '<a type="button" class="btn btn-primary btn-outline-primary" data-toggle="modal" data-target="' . (isset($_GET['action']) && $_GET['action'] == 'create_post_single' ? '#exampleModalSingle' : (isset($_GET['action']) && $_GET['action'] == 'create_post_bulk' ? '#exampleModalBulk' : '#exampleModal')) . '" >Generate AI Content</a> ';
 
 
    
@@ -3637,6 +3637,7 @@ jQuery(document).ready(function() {
    }
    //generateaisinglepopup
 function generateAISinglePopup() {
+	// Include the original generateAIpopup() function content but with single post form
 	$output = '';
 	$saved_rnos = get_option('get_saved_random_numbers');
 	
@@ -3703,115 +3704,21 @@ function generateAISinglePopup() {
 		}   
 	}
 
-	// Include content from ai_single_post_form.php
+	// Include content from ai_single_post_form.php with correct path
 	ob_start();
-	include(dirname(__FILE__) . '/ai_single_post_form.php');
+	include(WT_PATH . '/views/posting/ai_single_post_form.php');
 	$single_form_content = ob_get_clean();
 
-	$output .= '<div class="modal fade" id="exampleModalSingle" tabindex="-1" role="dialog" aria-labelledby="exampleModalSingleLabel" aria-hidden="true">';
-	$output .= '<div class="modal-dialog modal-lg modal-dialog-centered" role="document">';
-	$output .= '<div class="modal-content">';
-	$output .= '<div class="modal-header">';
-	$output .= '<h5 class="modal-title" id="exampleModalSingleLabel">Generate Single AI Post</h5>';
-	$output .= '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
-	$output .= '</div>';
-	$output .= '<div class="modal-body">';
-	$output .= $single_form_content;
-	$output .= '</div>';
-	$output .= '</div>';
-	$output .= '</div>';
-	$output .= '</div>';
-
-	echo $output;
+	echo $single_form_content;
 }
 //generateaibulkpopup
 function generateAIBulkPopup() {
-	$output = '';
-	$saved_rnos = get_option('get_saved_random_numbers');
-	
-	if(!empty($saved_rnos)){
-		foreach($saved_rnos as $id){
-			// testimonials        
-			$testimonial = get_option('get_testimonials_'.$id);
-			if(!empty($testimonial)){
-				$display_name = $id;
-				$data_name = '';
-				if(isset($testimonial['tw_testi_shortcode_name'])){
-					if($testimonial['tw_testi_shortcode_name']!=""){
-						$data_name = $display_name = $testimonial['tw_testi_shortcode_name'];
-					}
-				}
-				$html .= '<input type="checkbox" class="option_'.$id.'" id="testimonial_'.$id.'" value="[improveseo_testimonial id=\''.$id.'\' name=\''.$data_name.'\']" name="shortcodeoption[]" /><button data-action="testimonial" data-name="'.$data_name.'" id="'.$id.'" class="sw-hide-btn button">Add Testimonial - '.$display_name.'</button>';   
-			}
-			
-			// buttons        
-			$buttons = get_option('get_buttons_'.$id);
-			if(!empty($buttons)){
-				$display_name = $id;
-				$data_name = '';
-				if(isset($buttons['tw_button_shortcode_name'])){
-					if($buttons['tw_button_shortcode_name']!=""){
-						$data_name = $display_name = $buttons['tw_button_shortcode_name'];
-					}
-				}
-				$html .= '<input type="checkbox" class="option_'.$id.'" id="button_'.$id.'" value="[improveseo_buttons id=\''.$id.'\' name=\''.$data_name.'\']" name="shortcodeoption[]" /><button data-action="button" data-name="'.$data_name.'" id="'.$id.'" class="sw-hide-btn button">Add Button - '.$display_name.'</button>';   
-			}
-			
-			// googlemaps        
-			$google_map = get_option('get_googlemaps_'.$id);
-			if(!empty($google_map)){
-				$display_name = $id;
-				$data_name = '';
-				if(isset($google_map['tw_maps_shortcode_name'])){
-					if($google_map['tw_maps_shortcode_name']!=""){
-						$data_name = $display_name = $google_map['tw_maps_shortcode_name'];
-					}
-				}
-				$html .= '<input type="checkbox" class="option_'.$id.'" id="map_'.$id.'" value="[improveseo_googlemaps id=\''.$id.'\' name=\''.$data_name.'\']" name="shortcodeoption[]" /><button data-action="googlemap" data-name="'.$data_name.'" id="'.$id.'" class="sw-hide-btn button">Add GoogleMap - '.$display_name.'</button>';   
-			}
-
-			// videos
-			$videos = get_option('get_videos_'.$id);
-			if(!empty($videos)){
-				$display_name = $id;
-				$data_name = '';
-				if(isset($videos['video_shortcode_name'])){
-					if($videos['video_shortcode_name']!=""){
-						$data_name = $display_name = $videos['video_shortcode_name'];
-					}
-				}
-				$html .= '<input type="checkbox" class="option_'.$id.'" id="video_'.$id.'" value="[improveseo_video id=\''.$id.'\' name=\''.$data_name.'\']" name="shortcodeoption[]" /><button data-action="video" data-name="'.$data_name.'" id="'.$id.'" class="sw-hide-btn button">Add Video - '.$display_name.'</button>';   
-			}
-		}
-	}
-
-	$seo_list = improve_seo_lits();
-	if(!empty($seo_list)){
-		foreach($seo_list as $li){
-			$html .= '<input type="checkbox" class="option_'.$li.'" id="list_'.$li.'" value="@list:'.$li.'" name="shortcodeoption[]" /><button data-action="list" class="sw-hide-btn add-seolistshortcode button" id='.$li.'>@list:'.$li.'</button>';
-		}   
-	}
-
-	// Include content from ai_multi_post_form.php
+	// Include content from ai_multi_post_form.php with correct path
 	ob_start();
-	include(dirname(__FILE__) . '/ai_multi_post_form.php');
-	$multi_form_content = ob_get_clean();
+	include(WT_PATH . '/views/posting/ai_multi_post_form.php');
+	$bulk_form_content = ob_get_clean();
 
-	$output .= '<div class="modal fade" id="exampleModalBulk" tabindex="-1" role="dialog" aria-labelledby="exampleModalBulkLabel" aria-hidden="true">';
-	$output .= '<div class="modal-dialog modal-lg modal-dialog-centered" role="document">';
-	$output .= '<div class="modal-content">';
-	$output .= '<div class="modal-header">';
-	$output .= '<h5 class="modal-title" id="exampleModalBulkLabel">Generate Bulk AI Posts</h5>';
-	$output .= '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
-	$output .= '</div>';
-	$output .= '<div class="modal-body">';
-	$output .= $multi_form_content;
-	$output .= '</div>';
-	$output .= '</div>';
-	$output .= '</div>';
-	$output .= '</div>';
-
-	echo $output;
+	echo $bulk_form_content;
 }
 // include dirname(__FILE__).'improveSEO-2.0.11/views/test.php';
 
