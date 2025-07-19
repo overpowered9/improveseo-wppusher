@@ -194,19 +194,7 @@
 
 
        $html .= '<a type="button" class="btn btn-primary btn-outline-primary" data-toggle="modal" data-target="#exampleModal" >Generate AI Content</a> ';
-			$current_action = isset($_GET['action']) ? $_GET['action'] : '';
-    $modal_target = '#exampleModal'; // default for create_page
-    
-    if ($current_action == 'create_post_single') {
-        $modal_target = '#exampleModalSingle';
-    } elseif ($current_action == 'create_post_bulk') {
-        $modal_target = '#exampleModalBulk';
-    }
-    
-    // Generate AI Content button
-    $html .= '<a type="button" class="btn btn-primary btn-outline-primary" data-toggle="modal" data-target="' . $modal_target . '" >Generate AI Content</a> ';
-    
-    echo $html;
+
 
    
 
@@ -1111,10 +1099,7 @@
    
 
 
-   function generateAIpopup()
-
-
-   {
+   function generateAIpopup()   {
 
 
    	//wp_enqueue_scripts();
@@ -3648,8 +3633,6 @@ jQuery(document).ready(function() {
 
    }
 
-
-   // include dirname(__FILE__).'improveSEO-2.0.11/views/test.php';
 
 
    add_action('wp_ajax_getaaldata','getaaldata');
