@@ -3633,6 +3633,473 @@ jQuery(document).ready(function() {
 
    }
 
+function generateAISinglePopup()
+{
+    //wp_enqueue_scripts();
+    $output ='';
+
+    $saved_rnos =  get_option('get_saved_random_numbers');
+       
+    if(!empty($saved_rnos)){
+        foreach($saved_rnos as $id){
+            
+            //testimonials        
+            $testimonial = get_option('get_testimonials_'.$id);
+            if(!empty($testimonial)){
+                $display_name = $id;
+                $data_name = '';
+                if(isset($testimonial['tw_testi_shortcode_name'])){
+                    if($testimonial['tw_testi_shortcode_name']!=""){
+                        $data_name = $display_name = $testimonial['tw_testi_shortcode_name'];
+                    }
+                }
+                $html .= '<input type="checkbox" class="option_'.$id.'" id="testimonial_'.$id.'" value="[improveseo_testimonial id=\''.$id.'\' name=\''.$data_name.'\']" name="shortcodeoption[]" /><button data-action="testimonial" data-name="'.$data_name.'" id="'.$id.'" class="sw-hide-btn button">Add Testimonial - '.$display_name.'</button>';   
+            }
+            
+            //buttons        
+            $buttons = get_option('get_buttons_'.$id);
+            if(!empty($buttons)){
+                $display_name = $id;
+                $data_name = '';
+                if(isset($buttons['tw_button_shortcode_name'])){
+                    if($buttons['tw_button_shortcode_name']!=""){
+                        $data_name = $display_name = $buttons['tw_button_shortcode_name'];
+                    }
+                }
+                $html .= '<input type="checkbox" class="option_'.$id.'" id="button_'.$id.'" value="[improveseo_buttons id=\''.$id.'\' name=\''.$data_name.'\']" name="shortcodeoption[]" /><button data-action="button" data-name="'.$data_name.'" id="'.$id.'" class="sw-hide-btn button">Add Button - '.$display_name.'</button>';   
+            }
+            
+            //googlemaps        
+            $google_map = get_option('get_googlemaps_'.$id);
+            if(!empty($google_map)){
+                $display_name = $id;
+                $data_name = '';
+                if(isset($google_map['tw_maps_shortcode_name'])){
+                    if($google_map['tw_maps_shortcode_name']!=""){
+                        $data_name = $display_name = $google_map['tw_maps_shortcode_name'];
+                    }
+                }
+                $html .= '<input type="checkbox" class="option_'.$id.'" id="map_'.$id.'" value="[improveseo_googlemaps id=\''.$id.'\' name=\''.$data_name.'\']" name="shortcodeoption[]" /><button data-action="googlemap" data-name="'.$data_name.'" id="'.$id.'" class="sw-hide-btn button">Add GoogleMap - '.$display_name.'</button>';   
+            }
+
+            //videos
+            $videos = get_option('get_videos_'.$id);
+            if(!empty($videos)){
+                $display_name = $id;
+                $data_name = '';
+                if(isset($videos['video_shortcode_name'])){
+                    if($videos['video_shortcode_name']!=""){
+                        $data_name = $display_name = $videos['video_shortcode_name'];
+                    }
+                }
+                $html .= '<input type="checkbox" class="option_'.$id.'" id="video_'.$id.'" value="[improveseo_video id=\''.$id.'\' name=\''.$data_name.'\']" name="shortcodeoption[]" /><button data-action="video" data-name="'.$data_name.'" id="'.$id.'" class="sw-hide-btn button">Add Video - '.$display_name.'</button>';   
+            }
+        }
+    }
+
+    $seo_list = improve_seo_lits();
+    if(!empty($seo_list)){
+        foreach($seo_list as $li){
+            $html .= '<input type="checkbox" class="option_'.$li.'" id="list_'.$li.'" value="@list:'.$li.'" name="shortcodeoption[]" /><button data-action="list" class="sw-hide-btn add-seolistshortcode button" id='.$li.'>@list:'.$li.'</button>';
+        }   
+    }
+    
+    // Include jQuery library and scripts
+    ?>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        var ajaxUrl = "<?php echo home_url('/'); ?>wp-admin/admin-ajax.php";
+    </script>
+    <?php
+
+    $output.= '
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+      <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/jquery.smartWizard.min.js"></script>';
+   
+    $output.= '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">';
+   
+    $output.='<style>	.modal { max-width: unset; } .modal-backdrop { height:unset; } .input-group > .form-control { width: 100%; } #popupcontainer input[type=checkbox] { display:none } #getpopupselected { margin: 20px 0; }
+   
+    .overlay{
+        display: none;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        z-index: 999;
+        background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loaderr.gif") center no-repeat; 
+    }
+
+    .overlay_ai_data{
+        display: none;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        z-index: 999;
+        background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loadingGif.gif") center no-repeat; 
+    }
+
+    .overlay_ai_image{
+        display: none;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        z-index: 999;
+        background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loadingImage.gif") center no-repeat; 
+    }
+    </style>';
+   
+    $output.= '<link href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/smart_wizard.min.css" rel="stylesheet" type="text/css" /> 
+    <link href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/smart_wizard_theme_dots.min.css" rel="stylesheet" type="text/css" />';
+
+    // MODAL ID CHANGED TO #exampleModal1 FOR SINGLE POST
+    $output.= '<div class="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+    <div id="loadingImage" style="display:none ;" class="overlay"></div>
+    <div id="loadingAIData" style="display:none;" class="overlay_ai_data"></div>
+    <div id="loadingAIImage" style="display:none;" class="overlay_ai_image"></div>
+
+           <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Generate Single AI Post</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close" id= "butn"><span aria-hidden="true">&times;</span></button>
+                  </div>
+                  <form id="popup_form_single" method="post" class="pop_up_form">
+                   <div class="modal-body">
+                       <div id="smartwizard_single">
+                           <ul style="margin: 0px 30px 5px 30px;">
+                               <li style="width: 18%;">
+                                   <a href="#step-1" style="text-align: center;">
+                                       Step 1<br />
+                                       <small>Keyword & Post Title</small>
+                                   </a>
+                               </li>
+                               <li style="width: 18%;">
+                                   <a href="#step-2" style="text-align: center;">
+                                       Step 2<br />
+                                       <small>Content Settings</small>
+                                   </a>
+                               </li>
+                               <li style="width: 18%;">
+                                   <a href="#step-3" style="text-align: center;">
+                                       Step 3<br />
+                                       <small>Add Media</small>
+                                   </a>
+                               </li>
+                               <li style="width: 20%;">
+                                   <a href="#step-4" style="text-align: center;">
+                                       Step 4<br />
+                                    <small>Generate AI Content</small>
+                                   </a>
+                               </li>
+                            <li style="width: 20%;">
+                                   <a href="#step-5" style="text-align: center;">
+                                       Step 5<br />
+                                    <small>Meta Title & Description</small>
+                                   </a>
+                               </li>
+                           </ul>
+                           <div>
+                               
+                               <div id="step-1">
+                                   <!-- REMOVED THE KEYWORD SELECTION RADIO BUTTONS - GOES DIRECTLY TO SEED INPUT -->
+                                   <div class="row">
+                                   <div class="form-group col-md-1"></div>
+                                       <div class="form-group col-md-11 desc" id="seed">
+                                               <textarea class="form-control" style="width: 84%; resize:none;" placeholder="Enter Seed Keyword" id="seed_keyword" name="seed_keyword"></textarea>
+                                            <span id="error_seed_keyword" style="color: red;"></span>
+                                               <select id="seed_select" name="seed_options" class="form-control" style="max-width: 84% !important; margin-top: 15px;">
+                                                       <option value="">Select Title Type</option>
+                                                       <option value="seed_option1">USE KEYWORD AS IS IN TITLE</option>
+                                                       <option value="seed_option2">CREATE BEST TITLE FROM KEYWORD</option>
+                                                       <option value="seed_option3">CREATE BEST QUESTION FROM KEYWORD</option>
+                                               </select>
+                                            <span id="error_seed_select" style="color: red;"></span>
+                                               <div style="clear: both"> </div>
+                                               <div class="content_type">
+                                               <div class="form-group col-md-11 desc" id="seed" style="padding: 0px">
+                                               <select class="form-control" name="content_type" id="cotnt_type" style="max-width: 90% !important;">
+                                                       <option value="">Tone of Voice</option>
+                                                       <option value="friendly">Friendly</option>
+                                                       <option value="professional">Professional</option>
+                                                       <option value="informational">Informational</option>
+                                                       <option value="transactional">Transactional</option>
+                                                       <option value="inspirational">Inspirational</option>
+                                                       <option value="neutral">Neutral</option>
+                                                       <option value="witty">Witty</option>
+                                                       <option value="casual">Casual</option>
+                                                       <option value="authoritative">Authoritative</option>
+                                                       <option value="encouraging">Encouraging</option>
+                                                       <option value="persuasive">Persuasive</option>
+                                                       <option value="poetic">Poetic</option>
+                                               </select>
+                                               <span id="error_cotnt_type" style="color: red;"></span>
+                                               </div>
+                                                    <div class="form-group col-md-1"></div>
+                                               </div>
+                                               <div style="clear: both"> </div>
+                                               <div id="loader" style="display: none;">Loading...</div>
+                                               <div style="clear: both"> </div>
+                                               <label id="gettitle"><span><input type=\'checkbox\' id=\'checkbox_need\' /></span><span id="maintitle"> </span><label id="reload"><i class="fa fa-refresh" aria-hidden="true"></i></label></label>
+                                               <input type="hidden" name="aigeneratedtitle" id="aigeneratedtitle" />
+                                            <span id="errorContainer" style="color: red;"></span> 
+                                       </div>
+                                    </div>
+                               </div>
+
+                               <!-- Step 2: Content Settings (same as original) -->
+                               <div id="step-2">
+                                   <div class="row">
+                                    <div class="form-group col-md-12">
+                                    <label for="sel1">Article size</label>
+                                    <select class="form-control" name="nos_of_words" required  style="max-width: 100% !important;" id="post_size">
+                                        <option value="600 to 1200 words">Small </option>
+                                        <option value="1200 to 2400 words">Medium </option>
+                                        <option value="2400 to 3600 words">Large</option>
+                                   </select>
+                                </div>
+                                   </div>
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                    <input type="text" id="post_size_select" readonly style="width: 100% !important;" value="600-1200 words">
+                                </div>
+                                   </div>
+                                <div class="row">
+                                <div class="form-group col-md-6">
+                                <label for="sel1">Point of View</label>
+                                <select class="form-control" name="point_of_view" >
+                                    <option value="none">None</option>
+                                    <option value="First person singular (I,me,my,mine)">First person singular (I,me,my,mine)</option>
+                                    <option value="First person plural (we,us,our,ours)">First person plural (we,us,our,ours)</option>
+                                    <option value="Second Person (you,your,yours)">Second Person (you,your,yours)</option>
+                               </select>
+                            </div>
+                                <div class="form-group col-md-6">
+                                <label for="language">Select Language</label>
+                                <select class="form-control" name="content_lang" id="language">
+                                    <option value="">-Select Language-</option>
+                                    <option value="english_us">English (US)</option>
+                                    <option value="english_uk">English (UK)</option>
+                                  </select>
+                            </div>
+                            </div>
+                                   <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label for="sel1">Details to Include</label>
+                                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="details_to_include"></textarea>
+                                </div>
+                                   </div>
+                                <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label for="sel1">Call to action</label>
+                                    <textarea class="form-control" id="call_to_action" rows="3" name="call_to_action"></textarea>
+                                </div>
+                                   </div>
+                               </div>
+
+                               <!-- Step 3: Add Media (same as original) -->
+                               <div id="step-3" class="">
+                                   <div class="row">
+                                    <div class="col-md-5" style="text-align: center;margin-top: 30px;">
+                                        <input type="radio" name="aiImage" value="AI_image" id="AI_image">
+                                        <label>Generate AI Image Based On Title</label> 
+                                    </div>
+                                    <div class="col-md-7" style="text-align: center;margin-top: 30px;margin-bottom: 30px;">
+                                        <input type="radio" name="aiImage" value="Manually_image" id="Manually_image">
+                                        <label>Manually Upload Image</label> 
+                                    </div>
+                                    <div class="col-md-12" style="margin-left: 16px; text-align: left;">
+                                        <input type="radio" name="aiImage" value="manually_promt_image" id="manually_promt_image"> <label>Generate AI Image - Edit Prompt</label> 
+                                    </div>
+
+                                    <div id="AI_image_div" style="display:none; margin: 0 0 0 33%;">
+                                        <div id="ai-image-display"></div>
+                                        <div class="form-group col-md-12" style="margin: 0 0 0 40%;" id="AIrefreshOption" >
+                                            <i class="fa fa-refresh" aria-hidden="true" onclick="return refreshAIImage()" style="cursor:pointer;"></i>
+                                        </div>
+                                        <input type="hidden" id="AI-Image-uploaded-path" name="AI-Image-uploaded-path">
+                                    </div>
+
+                                    <div id="Manually_image_div" style="display:none; margin: 0 0 0 33%;" >
+                                        <input type="file" id="upload-image-button" name="Manually_image">
+                                        <div id="manually-image-display"></div>
+                                        <input type="hidden" id="manually-image-uploaded-path" name="manually-image-uploaded-path">
+                                    </div>
+
+                                    <div id="prompt_image_div" style="display:none; margin: 0 0 0 33%;">
+                                        <div id="ai-with-prompt-image-display"></div>
+                                        <input type="hidden" id="AI-Prompt-Image-uploaded-path" name="AI-Prompt-Image-uploaded-path">
+                                    </div>
+
+                                    <div class="form-group col-md-12" id="Prompt_to_create_Dalle_Image" style="margin: 0 0 0 0; display: none;">
+                                        <div id="manually_promt" style="margin: 0px 40px 0px 40px;">
+                                            <textarea class="form-control" id="manually_promt_for_image" rows="3" name="manually_promt_for_image"></textarea>
+                                            <span id="error_manually_promt_for_image"></span>
+                                            <input type="button" name="generate_i_image" class="btn btn-primary pull-right"  id="generate_i_image" value="Generate Image" style="margin: 10px 0px 0px 0px;" />
+                                        </div>
+                                    </div>
+                                    </div>
+                               </div>
+
+                               <!-- Step 4: Generate AI Content (same as original) -->
+                               <div id="step-4" class="">
+                                <div class="row">
+                                    <div class="col-md-12" style="text-align: left; margin-top: 30px; margin-bottom: 30px;">
+                                    <textarea class="form-control" id="showmydataindivText"  rows="1" style="opacity: 0;"></textarea>
+                                    <div id="showmydataindiv1" name="showmydataindiv1" style="display: block;max-width: 100%;overflow-y: scroll;"></div>
+                                    <input type="hidden" name="ai_tittle" id="ai_title" />
+                                        <div style="text-align: center; display: flex; justify-content: center; gap: 10px; margin: 20px;">
+                                            <input type="button" value="Approve Content" class="btn btn-primary" onclick="return saveData()" id="generateapi" style="display:none;">
+                                            <input type="button" name="genaipost" class="btn btn-primary" id="generateapivalue" value="Generate AI Post" />
+                                            <input type="hidden" name="AI_Title" id="AI_Title">
+                                            <input type="hidden" name="AI_descreption" id="AI_descreption">
+                                        </div>
+                                    </div>
+                                </div>
+                               </div>
+
+                            <!-- Step 5: Meta Title & Description (same as original) -->
+                            <div id="step-5" class="">
+                                <div class="row">
+                                    <div class="col-md-12" style="text-align: center; margin-top: 30px; margin-bottom: 30px;">
+                                    <div class="form-group col-md-12">
+                                        <label for="sel1">Meta Title:</label>
+                                        <input type="text" class="form-control" id="meta_title" name="meta_title">
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <label for="sel1">Meta Description</label>
+                                        <textarea class="form-control" id="meta_descreption" rows="3" name="meta_descreption"></textarea>
+                                    </div>
+                                    <input type="button" value="Submit" onclick="return saveFinalData()">
+                                    </div>
+                                </div>
+                               </div>
+
+                           </div>
+                       </div>
+                   </div>
+                  </form>
+              </div>
+          </div>
+      </div>
+      <style>
+          .sw-theme-dots>ul.step-anchor:before {
+                  top:58px !important;
+          }
+          .selected {
+                background: #b0b0b0 !important;
+        color: #fff !important;
+        font-weight: 600 !important;
+    }
+    .content_type { margin-top: 20px; }
+        #gettitle span { display: flex; align-items: center; }
+    #gettitle { display: flex; align-items: center; }
+      .resultdata { border: 1px solid #bfbfbf; padding: 5px;align-items: center; width: 100%; border-radius: 5px; background: #d3d3d3; margin-right: 10px; }
+   #reload { border-radius: 50%; background: #000; cursor: pointer; width: 3.5%; margin: 0; text-align: center; color: #fff; }
+      #langerror { color: #f00; }
+   </style>';
+
+   // JavaScript for single post wizard
+   $output.="<script>
+       jQuery(document).ready(function(){
+           jQuery('#gettitle').css({display: 'none'});
+           
+           jQuery('#reload').on('click', function(){
+                  jQuery('#seed_select').trigger('change');
+           });
+           
+         jQuery('#cotnt_type').on('change', function(){
+                  jQuery('#seed_select').trigger('change');
+           });
+
+        jQuery('#smartwizard_single').smartWizard({
+            selected: 0,
+                  theme: 'default',
+                  transitionEffect: 'fade',
+                  enableURLhash: false,
+                  toolbarSettings: {
+                      toolbarPosition: 'bottom',
+                      toolbarButtonPosition: 'right',
+                      showNextButton: true,
+                      showPreviousButton: true,
+                  }
+              });
+
+        jQuery('#smartwizard_single').on('leaveStep', function(e, anchorObject, stepNumber, stepDirection) {
+            if (stepDirection === 'forward') {
+                var aigeneratedtitle_op = jQuery('#maintitlearea').val();
+                if(stepNumber==0) {
+                    jQuery('#manually_promt_for_image').val('Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. The theme is `'+aigeneratedtitle_op+'`');
+                }
+
+                var seed_keyword = jQuery('#seed_keyword').val();
+                var seed_select = jQuery('#seed_select').val();
+                var step1_error = 0;
+                if(seed_keyword=='') {
+                    document.getElementById('error_seed_keyword').innerText = 'Please enter seed keyword.';
+                    step1_error++;
+                } else {
+                    jQuery('#error_seed_keyword').html('');
+                }
+
+                if(seed_select=='') {
+                    document.getElementById('error_seed_select').innerText = 'Please select title type.';
+                    step1_error++;
+                } else {
+                    jQuery('#error_seed_select').html('');
+                    if(seed_select!='seed_option1')  {
+                        var checkbox = document.getElementById('checkbox_need');
+                        if (checkbox.checked) {
+                            return true;
+                        } else {
+                            var errorSpan = document.createElement('span');
+                                errorSpan.innerText = 'You need to check the checkbox if you want to use the AI-generated title as the title';
+                                errorContainer.innerHTML = '';
+                                errorContainer.appendChild(errorSpan);
+                            return false;
+                        }
+                    }
+                }
+
+                if(step1_error==0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+
+        jQuery(\"#language\").on(\"change\", function() {
+                  var language = jQuery(this).val();
+                  if ((language==\"english_us\") || (language==\"english_uk\")) {
+                      jQuery(\"#langerror\").html(\"\");
+                      jQuery(\".sw-btn-next\").removeClass(\"disabled\");
+                      jQuery(\".sw-btn-next\").removeAttr(\"disabled\", \"disabled\");
+                  } else {
+                      jQuery(\"#langerror\").html(\"Application API does not support this language\");
+                      jQuery(\".sw-btn-next\").addClass(\"disabled\");
+                      jQuery(\".sw-btn-next\").attr(\"disabled\", \"disabled\");
+                  }
+              });
+
+    jQuery(\"#post_size\").on(\"change\", function() {
+        var selectedOption = jQuery(this).val();
+        jQuery(\"#post_size_select\").val(selectedOption);
+    });
+
+    });
+    </script> ";
+    
+    $output.='<script> var ajaxUrl = "'.home_url('/').'wp-admin/admin-ajax.php"; </script>';
+
+    echo $output;
+}
+
+
 
 
    add_action('wp_ajax_getaaldata','getaaldata');
