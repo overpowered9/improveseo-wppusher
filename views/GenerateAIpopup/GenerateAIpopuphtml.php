@@ -1189,10 +1189,10 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
 
         }else if(postType=="bulk"){
             generate_ai_popup_open.addEventListener('click', () => {
-                document.getElementById("exampleModal1").classList.remove("hide_and_show_ai_popup");
+                document.getElementById("exampleModal2").classList.remove("hide_and_show_ai_popup");
             });
         }
-       else{ 
+       else if(postType=="default"||postType){ 
             generate_ai_popup_open.addEventListener('click', () => {
                 document.getElementById("exampleModal").classList.remove("hide_and_show_ai_popup");
             });

@@ -67,7 +67,7 @@ if (isset($_POST['cat_name'])) {
 					<a class="Posting__post-button" href="<?php echo admin_url("admin.php?page=improveseo_posting&action=create_post"); ?>">
 						<img src="<?php echo WT_URL . '/assets/images/latest-images/Mobile-UX-rafiki.png'; ?>"
 							alt="Create Single AI Post">
-						<h3>Create Single AI Post</h3>
+						<h3>Create AI Post</h3>
 					</a>
 				</div>
 
@@ -76,7 +76,7 @@ if (isset($_POST['cat_name'])) {
 					<a class="Posting__page-button" href="<?php echo admin_url("admin.php?page=improveseo_posting&action=create_page"); ?>">
 						<img src="<?php echo WT_URL . '/assets/images/latest-images/Multi-device.png' ?>"
 							alt="Multi-device">
-						<h3>Bulk Create AI Posts</h3>
+						<h3>Create Pages</h3>
 					</a>
 				</div>
 			</div>
