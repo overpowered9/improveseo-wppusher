@@ -2061,19 +2061,20 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
 
 </script>
 
-<?php if (isset($auto_single_to_send) && $auto_single_to_send): ?>
 <script>
-// Auto-trigger single AI post modal by mimicking button click
+// Auto-trigger single AI post modal based on button data attribute
 document.addEventListener("DOMContentLoaded", function() {
-    setTimeout(function() {
-        // First show the selection modal
-        // $('#exampleModal').modal('show');
+    // Listen for modal show event
+    $('#exampleModal').on('shown.bs.modal', function() {
+        // Find the button that triggered this modal
+        const triggerButton = document.querySelector('[data-target="#exampleModal"][data-auto-single="true"]');
         
-        // Then automatically click the "Create Single AI Post" button
-        setTimeout(function() {
-            $('.open_single_AI_Post_popup').first().trigger('click');
-        }, 200);
-    }, 100);
+        if (triggerButton) {
+            // Auto-click the single post button after a short delay
+            setTimeout(function() {
+                $('.open_single_AI_Post_popup').first().trigger('click');
+            }, 200);
+        }
+    });
 });
 </script>
-<?php endif; ?>

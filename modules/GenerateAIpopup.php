@@ -926,7 +926,7 @@ function generateAIpopup($auto_single = false)
 
     $select_to_send = $select;
 
-    $auto_single_to_send = $auto_single;
+    
 
     $file_path = dirname(__DIR__) . '/views/GenerateAIpopup/GenerateAIpopuphtml.php';
 
