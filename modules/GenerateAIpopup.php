@@ -50,7 +50,7 @@ function improve_lits_data()
 
 }
 
-function generateAIpopup()
+function generateAIpopup($auto_single = false)
 
 {
 
@@ -926,6 +926,8 @@ function generateAIpopup()
 
     $select_to_send = $select;
 
+    $auto_single_to_send = $auto_single;
+
     $file_path = dirname(__DIR__) . '/views/GenerateAIpopup/GenerateAIpopuphtml.php';
 
     if (file_exists($file_path)) {
@@ -942,162 +944,6 @@ function generateAIpopup()
 
     echo $output;
 
-}
-
-// New function that directly shows single AI post form without the initial selection
-function generateAISinglePostPopup()
-{
-    // Reuse most of the logic from generateAIpopup() but skip the initial modal
-    $saved_rnos = get_option('get_saved_random_numbers');
-    $html = '';
-    if (!empty($saved_rnos)) {
-        foreach ($saved_rnos as $id) {
-            //testimonials        
-            $testimonial = get_option('get_testimonials_' . $id);
-            if (!empty($testimonial)) {
-                $display_name = $id;
-                $data_name = '';
-                if (isset($testimonial['tw_testi_shortcode_name'])) {
-                    if ($testimonial['tw_testi_shortcode_name'] != "") {
-                        $data_name = $display_name = $testimonial['tw_testi_shortcode_name'];
-                    }
-                }
-                $html .= '<input type="hidden" class="option_' . $id . '" id="testimonial_' . $id . '" value="[improveseo_testimonial id=\'' . $id . '\' name=\'' . $data_name . '\']" name="shortcodeoption[]" /><button data-action="testimonial" data-name="' . $data_name . '" id="' . $id . '" class="sw-hide-btn button">Add Testimonial - ' . $display_name . '</button>';
-            }
-
-            //buttons        
-            $buttons = get_option('get_buttons_' . $id);
-            if (!empty($buttons)) {
-                $display_name = $id;
-                $data_name = '';
-                if (isset($buttons['tw_button_shortcode_name'])) {
-                    if ($buttons['tw_button_shortcode_name'] != "") {
-                        $data_name = $display_name = $buttons['tw_button_shortcode_name'];
-                    }
-                }
-                $html .= '<input type="hidden" class="option_' . $id . '" id="button_' . $id . '" value="[improveseo_buttons id=\'' . $id . '\' name=\'' . $data_name . '\']" name="shortcodeoption[]" /><button data-action="button" data-name="' . $data_name . '" id="' . $id . '" class="sw-hide-btn button">Add Button - ' . $display_name . '</button>';
-            }
-
-            //googlemaps        
-            $google_map = get_option('get_googlemaps_' . $id);
-            if (!empty($google_map)) {
-                $display_name = $id;
-                $data_name = '';
-                if (isset($google_map['tw_maps_shortcode_name'])) {
-                    if ($google_map['tw_maps_shortcode_name'] != "") {
-                        $data_name = $display_name = $google_map['tw_maps_shortcode_name'];
-                    }
-                }
-                $html .= '<input type="hidden" class="option_' . $id . '" id="map_' . $id . '" value="[improveseo_googlemaps id=\'' . $id . '\' name=\'' . $data_name . '\']" name="shortcodeoption[]" /><button data-action="googlemap" data-name="' . $data_name . '" id="' . $id . '" class="sw-hide-btn button">Add GoogleMap - ' . $display_name . '</button>';
-            }
-
-            //videos
-            $videos = get_option('get_videos_' . $id);
-            if (!empty($videos)) {
-                $display_name = $id;
-                $data_name = '';
-                if (isset($videos['video_shortcode_name'])) {
-                    if ($videos['video_shortcode_name'] != "") {
-                        $data_name = $display_name = $videos['video_shortcode_name'];
-                    }
-                }
-                $html .= '<input type="hidden" class="option_' . $id . '" id="video_' . $id . '" value="[improveseo_video id=\'' . $id . '\' name=\'' . $data_name . '\']" name="shortcodeoption[]" /><button data-action="video" data-name="' . $data_name . '" id="' . $id . '" class="sw-hide-btn button">Add Video - ' . $display_name . '</button>';
-            }
-        }
-    }
-
-    $seo_list = improve_seo_lits();
-    if (!empty($seo_list)) {
-        foreach ($seo_list as $li) {
-            $html .= '<input type="hidden" class="option_' . $li . '" id="list_' . $li . '" value="@list:' . $li . '" name="shortcodeoption[]" /><button data-action="list" class="sw-hide-btn add-seolistshortcode button" id=' . $li . '>@list:' . $li . '</button>';
-        }
-    }
-
-    // Keywords list
-    $listdata = improve_lits_data();
-    $html_key = '';
-    $all_keywords = [];
-    foreach ($listdata as $list_key => $list_value) {
-        $html_key .= '<option value="' . esc_attr($list_value->id) . '">' . esc_html($list_value->name) . '</option>';
-        $all_keywords[$list_value->id] = $list_value->list;
-    }
-
-    // Categories
-    $select = '';
-    if (!empty($_GET['cat_pre'])) {
-        $cat_pres = $_GET['cat_pre'];
-        $cat_pres = explode(',', $cat_pres);
-    }
-
-    $args = array(
-        "hide_empty" => 0,
-        "type" => "post",
-        "orderby" => "name",
-        "order" => "ASC"
-    );
-    $cats = get_categories($args);
-    foreach ($cats as $category) {
-        $checked = '';
-        if (!empty($cat_pres)) {
-            foreach ($cat_pres as $cat_pres_key => $cat_pres_value) {
-                if ($category->term_id == $cat_pres_value) {
-                    $checked = 'checked';
-                }
-            }
-        } else {
-            if ($category->slug == "improve-seo") {
-                $checked = 'checked  onclick="return false"';
-            }
-        }
-        $select .= "<span class='category'><input type='checkbox' " . $checked . " value='" . $category->term_id . "' id='" . $category->term_id . "' name='cats[]'><label style='margin:0px;' for='" . $category->term_id . "'>" . $category->name . "</label></span>";
-    }
-
-    // Authors
-    $all_auths = '';
-    $authors = get_users(array('roles' => 'author'));
-    if (!empty($authors)) {
-        $all_auths = '<select style="padding:10px 20px !important;" name="author_name">';
-        foreach ($authors as $author) {
-            $all_auths = $all_auths . '<option value="' . esc_attr($author->ID) . '">' . esc_html($author->data->display_name) . '</option>';
-        }
-        $all_auths = $all_auths . '</select>';
-    } else {
-        $all_auths = $all_auths . '<option value="0">No author found</option>';
-    }
-
-    // Handle form submission
-    if ((isset($_REQUEST['genaipost'])) && ($_REQUEST['genaipost'] == 'Generate AI Post')) {
-        $aigeneratedtitle = $_REQUEST['aigeneratedtitle'];
-        if (empty($aigeneratedtitle)) {
-            $seed_keyword = $_REQUEST['seed_keyword'];
-        } else {
-            $seed_keyword = $_REQUEST['aigeneratedtitle'];
-        }
-        
-        $keyword_selection = $_REQUEST['keyword_selection'];
-        $seed_options = $_REQUEST['seed_options'];
-        $nos_of_words = $_REQUEST['nos_of_words'];
-        $content_lang = $_REQUEST['content_lang'];
-        
-        createAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '');
-    }
-    
-    ob_start();
-    $html_key_to_send = $html_key;
-    $list_to_send = isset($list) ? $list : '';
-    $AllShortCode_to_send = isset($AllShortCode) ? $AllShortCode : '';
-    $all_auths_to_send = $all_auths;
-    $select_to_send = $select;
-    
-    // Use a custom view file that only shows the single post form
-    $file_path = dirname(__DIR__) . '/views/GenerateAIpopup/GenerateAISinglePopuphtml.php';
-    if (file_exists($file_path)) {
-        require $file_path;
-    } else {
-        die("File not found: $file_path");
-    }
-    $output = ob_get_clean();
-    echo $output;
 }
 
 
