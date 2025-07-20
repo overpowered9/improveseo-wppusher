@@ -50,7 +50,7 @@ function improve_lits_data()
 
 }
 
-function generateAIpopup($auto_single = false)
+function generateAIpopup()
 
 {
 
