@@ -2058,23 +2058,22 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
             }
         });
     });
-
-</script>
-
-<script>
-// Auto-trigger single AI post modal based on button data attribute
-document.addEventListener("DOMContentLoaded", function() {
-    // Listen for modal show event
-    $('#exampleModal').on('shown.bs.modal', function() {
-        // Find the button that triggered this modal
-        const triggerButton = document.querySelector('[data-target="#exampleModal"][data-auto-single="true"]');
-        
-        if (triggerButton) {
-            // Auto-click the single post button after a short delay
+    // Add this to your GenerateAIpopuphtml.php or in a script tag
+jQuery(document).ready(function($) {
+    // Auto-trigger single post when specific button is clicked
+    $('.auto-single-trigger').on('click', function() {
+        // Wait for the selection modal to open
+        $('#exampleModal').on('shown.bs.modal', function() {
+            // Auto-click the single post button
             setTimeout(function() {
                 $('.open_single_AI_Post_popup').first().trigger('click');
-            }, 200);
-        }
+            }, 300);
+            
+            // Unbind this event so it only happens once
+            $('#exampleModal').off('shown.bs.modal');
+        });
     });
 });
+
 </script>
+
