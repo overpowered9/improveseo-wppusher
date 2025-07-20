@@ -2060,3 +2060,14 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
     });
 
 </script>
+
+<?php if (isset($auto_open_single_to_send) && $auto_open_single_to_send): ?>
+<script>
+jQuery(document).ready(function() {
+    // Auto-open the single AI post modal when called from create_post_single
+    setTimeout(function() {
+        jQuery('.open_single_AI_Post_popup').first().trigger('click');
+    }, 100);
+});
+</script>
+<?php endif; ?>
