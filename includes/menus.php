@@ -65,7 +65,7 @@ add_submenu_page(
         include_once WT_PATH . '/views/posting/create-page.php';
     }
 );
-    // add_submenu_page('improveseo_dashboard', 'Posting', 'Create and Manage', 'manage_options', 'improveseo_posting', 'improveseo_posting');
+add_submenu_page('improveseo_dashboard', 'Posting', 'Create and Manage', 'manage_options', 'improveseo_posting', 'improveseo_posting');
 add_submenu_page(
         'improveseo_dashboard',
         'Create Single Post',         // Page title
