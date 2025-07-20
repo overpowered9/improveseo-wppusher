@@ -184,28 +184,8 @@ function add_my_media_button()
 	$html .= '
 				<div style=" display:flex; justify-content:end;">
 					
-					<a type="button" style="margin-left:10px;" id="generate_ai_popup_open" class="styling_post_page_action_buttons2 styling_post_page_action_buttons" data-toggle="modal" data-target="#exampleModal"><img src="' . WT_URL . '/assets/images/latest-images/iconoir_sparks.svg" alt="iconoir_sparks">Generate AI Content</a>
+					<a type="button" style="margin-left:10px;" id="generate_ai_popup_open" class="styling_post_page_action_buttons2 styling_post_page_action_buttons" data-toggle="modal" data-target="#exampleModal" data-context="media-button"><img src="' . WT_URL . '/assets/images/latest-images/iconoir_sparks.svg" alt="iconoir_sparks">Generate AI Content</a>
 				</div>';
-
-	// Add JavaScript to handle context-aware modal opening
-	$html .= '<script>
-	jQuery(document).ready(function() {
-		jQuery("#generate_ai_popup_open").on("click", function(e) {
-			// Check if we are on a single post creation page
-			var currentUrl = window.location.href;
-			if (currentUrl.indexOf("action=create_post_single") !== -1) {
-				// Prevent the default modal opening
-				e.preventDefault();
-				// Open the modal first, then auto-click single post option
-				jQuery("#exampleModal").modal("show");
-				setTimeout(function() {
-					jQuery(".open_single_AI_Post_popup").first().trigger("click");
-				}, 200);
-			}
-			// For other contexts, let the default behavior happen (opens selection modal)
-		});
-	});
-	</script>';
 
 
 
@@ -367,7 +347,9 @@ function add_my_media_button()
 
 	/*******************/
 
-	generateAIpopup();
+	// Only render the modal HTML structure, no auto-opening
+
+	generateAIpopupHTML();
 
 	/*******************/
 
