@@ -2071,3 +2071,29 @@ jQuery(document).ready(function() {
 });
 </script>
 <?php endif; ?>
+
+<script>
+jQuery(document).ready(function() {
+    // Handle context-aware behavior for media button clicks
+    jQuery('#generate_ai_popup_open').on('click', function(e) {
+        var context = jQuery(this).data('context');
+        
+        if (context === 'media-button') {
+            // Check if we're on the single post creation page
+            var currentUrl = window.location.href;
+            var isCreatePostSingle = currentUrl.indexOf('action=create_post_single') !== -1;
+            var isCreatePostSinglePage = currentUrl.indexOf('improveseo_posting') !== -1;
+            
+            if (isCreatePostSinglePage) {
+                // We're on a post creation context, auto-open single post modal
+                e.preventDefault(); // Prevent default modal from opening
+                setTimeout(function() {
+                    jQuery('.open_single_AI_Post_popup').first().trigger('click');
+                }, 50);
+                return false;
+            }
+        }
+        // Otherwise, let the default modal behavior proceed
+    });
+});
+</script>

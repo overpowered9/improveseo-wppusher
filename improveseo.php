@@ -184,7 +184,7 @@ function add_my_media_button()
 	$html .= '
 				<div style=" display:flex; justify-content:end;">
 					
-					<a type="button" style="margin-left:10px;" id="generate_ai_popup_open" class="styling_post_page_action_buttons2 styling_post_page_action_buttons" data-toggle="modal" data-target="#exampleModal"><img src="' . WT_URL . '/assets/images/latest-images/iconoir_sparks.svg" alt="iconoir_sparks">Generate AI Content</a>
+					<a type="button" style="margin-left:10px;" id="generate_ai_popup_open" class="styling_post_page_action_buttons2 styling_post_page_action_buttons" data-toggle="modal" data-target="#exampleModal" data-context="media-button"><img src="' . WT_URL . '/assets/images/latest-images/iconoir_sparks.svg" alt="iconoir_sparks">Generate AI Content</a>
 				</div>';
 
 
@@ -347,7 +347,9 @@ function add_my_media_button()
 
 	/*******************/
 
-	generateAIpopup();
+	// Only render the modal HTML structure, no auto-opening
+
+	generateAIpopupHTML();
 
 	/*******************/
 
