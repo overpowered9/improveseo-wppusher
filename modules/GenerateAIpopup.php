@@ -57,12 +57,6 @@ function generateAIpopup()
     //wp_enqueue_scripts();
 
     $output = '';
-    
-    // Check if we should auto-open single post modal
-    $auto_open_single = false;
-    if (isset($_GET['action']) && $_GET['action'] === 'create_post_single') {
-        $auto_open_single = true;
-    }
 
 
 
@@ -931,7 +925,6 @@ function generateAIpopup()
     $all_auths_to_send = $all_auths;
 
     $select_to_send = $select;
-    $auto_open_single_to_send = $auto_open_single;
 
     $file_path = dirname(__DIR__) . '/views/GenerateAIpopup/GenerateAIpopuphtml.php';
 
