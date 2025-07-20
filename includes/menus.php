@@ -54,8 +54,18 @@ function improveseo_add_menu_items()
 
     
 
-
-    add_submenu_page('improveseo_dashboard', 'Posting', 'Posting', 'manage_options', 'improveseo_posting', 'improveseo_posting');
+// Add Create Pages submenu
+add_submenu_page(
+    'improveseo_dashboard',
+    'Create Pages',               // Page title
+    'Create Pages',               // Menu title
+    'manage_options',
+    'improveseo_create_pages',    // Unique slug
+    function() {
+        include_once WT_PATH . '/views/posting/create-page.php';
+    }
+);
+    // add_submenu_page('improveseo_dashboard', 'Posting', 'Create and Manage', 'manage_options', 'improveseo_posting', 'improveseo_posting');
 add_submenu_page(
         'improveseo_dashboard',
         'Create Single Post',         // Page title
