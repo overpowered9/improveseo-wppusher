@@ -2058,22 +2058,7 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
             }
         });
     });
-    // Add this to your GenerateAIpopuphtml.php or in a script tag
-jQuery(document).ready(function($) {
-    // Auto-trigger single post when specific button is clicked
-    $('.auto-single-trigger').on('click', function() {
-        // Wait for the selection modal to open
-        $('#exampleModal').on('shown.bs.modal', function() {
-            // Auto-click the single post button
-            setTimeout(function() {
-                $('.open_single_AI_Post_popup').first().trigger('click');
-            }, 300);
-            
-            // Unbind this event so it only happens once
-            $('#exampleModal').off('shown.bs.modal');
-        });
-    });
-});
+    
 
 </script>
 
