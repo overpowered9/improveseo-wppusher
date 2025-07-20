@@ -280,7 +280,7 @@ use ImproveSEO\Validator;
 	</div>
 </form>
 <?php
-generateAIpopup(); 
+generateAIpopup("single"); 
 ?>
 <?php View::endSection('content') ?>
 

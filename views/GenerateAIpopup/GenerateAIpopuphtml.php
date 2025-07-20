@@ -1177,13 +1177,27 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
                 document.getElementById("exampleModal").classList.add("hide_and_show_ai_popup");
             });
         }
-
+         const postType = "<?php echo $post_type; ?>";
+         console.log(postType);
+        
         // Open Generate AI Popup Modal
         if (generate_ai_popup_open) {
+        if(postType=="single"){
+            generate_ai_popup_open.addEventListener('click', () => {
+                document.getElementById("exampleModal1").classList.remove("hide_and_show_ai_popup");
+            });
+
+        }else if(postType=="bulk"){
+            generate_ai_popup_open.addEventListener('click', () => {
+                document.getElementById("exampleModal1").classList.remove("hide_and_show_ai_popup");
+            });
+        }
+       else{ 
             generate_ai_popup_open.addEventListener('click', () => {
                 document.getElementById("exampleModal").classList.remove("hide_and_show_ai_popup");
             });
         }
+    }
 
         // Open Single AI Post Popup Modal
         open_single_AI_Post_popup.forEach(element => {

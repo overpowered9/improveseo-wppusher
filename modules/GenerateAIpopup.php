@@ -50,7 +50,7 @@ function improve_lits_data()
 
 }
 
-function generateAIpopup()
+function generateAIpopup($type = "default")
 
 {
 
@@ -926,7 +926,7 @@ function generateAIpopup()
 
     $select_to_send = $select;
 
-    
+    $post_type = $type;
 
     $file_path = dirname(__DIR__) . '/views/GenerateAIpopup/GenerateAIpopuphtml.php';
 
