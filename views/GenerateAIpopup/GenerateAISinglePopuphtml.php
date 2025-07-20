@@ -110,7 +110,7 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
 </style>
 
 <!-- Direct Single AI Post Modal (Skip the initial selection) -->
-<div class="modal fade" id="exampleModalDirectSingle" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
 
     <div id="loadingImage" style="display:none ;" class="overlay2">
@@ -573,7 +573,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Close button
     document.getElementById('close_single_post_direct')?.addEventListener('click', () => {
-        document.getElementById('exampleModalDirectSingle').style.display = 'none';
+        document.getElementById('exampleModal').style.display = 'none';
         document.querySelector('.modal-backdrop')?.remove();
     });
 });
