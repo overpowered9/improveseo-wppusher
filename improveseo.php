@@ -347,7 +347,7 @@ function add_my_media_button()
 
 	/*******************/
 
-	// generateAIpopup();
+	generateAIpopup();
 
 	/*******************/
 
