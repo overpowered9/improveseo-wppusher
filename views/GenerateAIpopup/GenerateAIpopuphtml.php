@@ -1185,7 +1185,7 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
 if (generate_ai_popup_open) {
     generate_ai_popup_open.addEventListener('click', () => {
         if(postType == "single"){
-            document.getElementById("exampleModal1").classList.remove("hide_and_show_ai_popup");
+            document.getElementById("exampleModal2").classList.remove("hide_and_show_ai_popup");
         } else if(postType == "bulk"){
             console.log("reached bulk");
             document.getElementById("exampleModal2").classList.remove("hide_and_show_ai_popup");
