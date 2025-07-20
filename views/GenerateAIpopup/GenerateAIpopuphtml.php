@@ -1181,23 +1181,23 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
          console.log(postType);
         
         // Open Generate AI Popup Modal
-        if (generate_ai_popup_open) {
-        if(postType=="single"){
-            generate_ai_popup_open.addEventListener('click', () => {
-                document.getElementById("exampleModal1").classList.remove("hide_and_show_ai_popup");
-            });
-
-        } if(postType=="bulk"){
-            generate_ai_popup_open.addEventListener('click', () => {
-                document.getElementById("exampleModal2").classList.remove("hide_and_show_ai_popup");
-            });
-        }
-        if(postType=="default"||postType){ 
-            generate_ai_popup_open.addEventListener('click', () => {
-                document.getElementById("exampleModal").classList.remove("hide_and_show_ai_popup");
-            });
-        }
+       if (generate_ai_popup_open) {
+    if(postType == "single"){
+        generate_ai_popup_open.addEventListener('click', () => {
+            document.getElementById("exampleModal1").classList.remove("hide_and_show_ai_popup");
+        });
+    } else if(postType == "bulk"){
+        console.log("reached bulk");
+        generate_ai_popup_open.addEventListener('click', () => {
+            document.getElementById("exampleModal2").classList.remove("hide_and_show_ai_popup");
+        });
+    } else if(postType == "default"){  // Remove ||postType condition
+        console.log("reached default");
+        generate_ai_popup_open.addEventListener('click', () => {
+            document.getElementById("exampleModal").classList.remove("hide_and_show_ai_popup");
+        });
     }
+}
 
         // Open Single AI Post Popup Modal
         open_single_AI_Post_popup.forEach(element => {
