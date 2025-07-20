@@ -1180,7 +1180,7 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
          const postType = "<?php echo $post_type; ?>";
          console.log(postType);
         
-        // Open Generate AI Popup Modal
+        
       // Open Generate AI Popup Modal
 if (generate_ai_popup_open) {
     generate_ai_popup_open.addEventListener('click', () => {
