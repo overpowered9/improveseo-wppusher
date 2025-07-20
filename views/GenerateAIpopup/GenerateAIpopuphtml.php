@@ -2060,3 +2060,17 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
     });
 
 </script>
+
+<?php if (isset($auto_single_to_send) && $auto_single_to_send): ?>
+<script>
+// Auto-trigger single AI post modal when called from create-post-single.php
+document.addEventListener("DOMContentLoaded", function() {
+    // Hide the initial selection modal
+    setTimeout(function() {
+        $('#exampleModal').modal('hide');
+        // Automatically trigger the single post modal
+        $('#exampleModal1').modal('show');
+    }, 100);
+});
+</script>
+<?php endif; ?>
