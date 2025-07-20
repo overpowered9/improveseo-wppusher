@@ -60,12 +60,7 @@ function generateAIpopup()
     
     // Check if we should auto-open single post modal
     $auto_open_single = false;
-    
-    // Check if auto-opening should be prevented (e.g., when called from media buttons)
-    $prevent_auto_open = isset($GLOBALS['prevent_auto_open']) ? $GLOBALS['prevent_auto_open'] : false;
-    $is_single_post_context = isset($GLOBALS['is_single_post_context']) ? $GLOBALS['is_single_post_context'] : false;
-    
-    if (!$prevent_auto_open && isset($_GET['action']) && $_GET['action'] === 'create_post_single') {
+    if (isset($_GET['action']) && $_GET['action'] === 'create_post_single') {
         $auto_open_single = true;
     }
 
@@ -937,7 +932,6 @@ function generateAIpopup()
 
     $select_to_send = $select;
     $auto_open_single_to_send = $auto_open_single;
-    $is_single_post_context_to_send = $is_single_post_context;
 
     $file_path = dirname(__DIR__) . '/views/GenerateAIpopup/GenerateAIpopuphtml.php';
 
@@ -955,26 +949,6 @@ function generateAIpopup()
 
     echo $output;
 
-}
-
-/**
- * Render just the modal HTML structure without auto-opening
- * This is used for media buttons where we want the modal available but not auto-opened
- */
-function generateAIpopupHTML()
-{
-    // Check the current page context to determine default behavior
-    $is_single_post_context = false;
-    if (isset($_GET['action']) && $_GET['action'] === 'create_post_single') {
-        $is_single_post_context = true;
-    }
-    
-    // Call the main function but with a flag to prevent auto-opening
-    $GLOBALS['prevent_auto_open'] = true;
-    $GLOBALS['is_single_post_context'] = $is_single_post_context;
-    generateAIpopup();
-    unset($GLOBALS['prevent_auto_open']);
-    unset($GLOBALS['is_single_post_context']);
 }
 
 ?>
