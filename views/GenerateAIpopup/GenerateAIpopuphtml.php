@@ -1185,24 +1185,23 @@ global $ai_modal_type;
         
         // Open Generate AI Popup Modal
         if (generate_ai_popup_open) {
+            
             generate_ai_popup_open.addEventListener('click', () => {
-                document.getElementById("exampleModal").classList.remove("hide_and_show_ai_popup");
+                switch (aiModalType) {
+                    case 'bulk':
+                        document.getElementById("exampleModal2").classList.remove("hide_and_show_ai_popup");
+                        break;
+                    case 'single':
+                        document.getElementById("exampleModal1").classList.remove("hide_and_show_ai_popup");
+                        break;
+                    default:
+                        document.getElementById("exampleModal").classList.remove("hide_and_show_ai_popup");
+                        break;
+                }
             });
         }
 
-        // // Open Single AI Post Popup Modal
-        // open_single_AI_Post_popup.forEach(element => {
-        //     element.addEventListener('click', () => {
-        //         document.getElementById("exampleModal1").classList.remove("hide_and_show_ai_popup");
-        //     });
-        // });
-
-        // // Open Bulk AI Post Popup Modal
-        // open_bulk_AI_Post_popup.forEach(element => {
-        //     element.addEventListener('click', () => {
-        //         document.getElementById("exampleModal2").classList.remove("hide_and_show_ai_popup");
-        //     });
-        // });
+      
 
 
 
