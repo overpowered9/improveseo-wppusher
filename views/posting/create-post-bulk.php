@@ -69,10 +69,11 @@ use ImproveSEO\Validator;
 			<?php
 
 			$post_type = 'post';
-
+			$ai_modal_type = 'bulk';
 			$form_id_preview = 'create_post';
 
-			improveseo\View::render('posting.form', compact('post_type'));
+
+			improveseo\View::render('posting.form', compact('post_type','ai_modal_type'));
 
 			?>
 

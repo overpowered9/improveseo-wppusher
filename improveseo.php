@@ -141,7 +141,8 @@ add_action('media_buttons', 'add_my_media_button');
 
 function add_my_media_button()
 {
-
+	global $ai_modal_type;
+    $modal_id = 'exampleModal'; // default
 
 
 	if (function_exists('get_current_screen')) {
@@ -181,11 +182,16 @@ function add_my_media_button()
                        <option value="list">Lists</option>
 
                 </select> &nbsp;';
+	if ($ai_modal_type === 'single') {
+        $modal_id = 'exampleModal1';
+    } elseif ($ai_modal_type === 'bulk') {
+        $modal_id = 'exampleModal2';
+    }
 				
 	$html .= '
 				<div style=" display:flex; justify-content:end;">
 					
-					<a type="button" style="margin-left:10px;" id="generate_ai_popup_open" class="styling_post_page_action_buttons2 styling_post_page_action_buttons" data-toggle="modal" data-target="#exampleModal"><img src="' . WT_URL . '/assets/images/latest-images/iconoir_sparks.svg" alt="iconoir_sparks">Generate AI Content</a>
+					<a type="button" style="margin-left:10px;" id="generate_ai_popup_open" class="styling_post_page_action_buttons2 styling_post_page_action_buttons" data-toggle="modal" data-target="#' . $modal_id . '"><img src="' . WT_URL . '/assets/images/latest-images/iconoir_sparks.svg" alt="iconoir_sparks">Generate AI Content</a>
 				</div>';
 	
 

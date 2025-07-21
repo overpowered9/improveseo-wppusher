@@ -71,8 +71,9 @@ use ImproveSEO\Validator;
 			$post_type = 'post';
 
 			$form_id_preview = 'create_post';
+			$ai_modal_type = 'single';
 
-			improveseo\View::render('posting.form', compact('post_type'));
+			improveseo\View::render('posting.form', compact('post_type','ai_modal_type'));
 
 			?>
 
