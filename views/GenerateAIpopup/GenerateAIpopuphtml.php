@@ -12,6 +12,7 @@ $plugin_url = plugin_dir_url(dirname(__FILE__, 2)); // Go up 2 levels to the roo
 $image_url = $plugin_url . 'assets/images/AI-generated.gif';
 $image_url1 = $plugin_url . 'assets/images/Writing-Optimization.gif';
 $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
+global $ai_modal_type;
 ?>
 <style>
     .modal {
