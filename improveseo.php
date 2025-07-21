@@ -181,12 +181,37 @@ function add_my_media_button()
                        <option value="list">Lists</option>
 
                 </select> &nbsp;';
-	$html .= '
-				<div style=" display:flex; justify-content:end;">
+	// $html .= '
+	// 			<div style=" display:flex; justify-content:end;">
 					
-					<a type="button" style="margin-left:10px;" id="generate_ai_popup_open" class="styling_post_page_action_buttons2 styling_post_page_action_buttons" data-toggle="modal" data-target="#exampleModal1"><img src="' . WT_URL . '/assets/images/latest-images/iconoir_sparks.svg" alt="iconoir_sparks">Generate AI Content</a>
-				</div>';
-
+	// 				<a type="button" style="margin-left:10px;" id="generate_ai_popup_open" class="styling_post_page_action_buttons2 styling_post_page_action_buttons" data-toggle="modal" data-target="#exampleModal1"><img src="' . WT_URL . '/assets/images/latest-images/iconoir_sparks.svg" alt="iconoir_sparks">Generate AI Content</a>
+	// 			</div>';
+	global $ai_modal_type;
+switch ($ai_modal_type) {
+    case 'single':
+        $html .= '
+        <div style="display:flex; justify-content:end;">
+            <a type="button" style="margin-left:10px;" id="generate_ai_popup_open" class="styling_post_page_action_buttons2 styling_post_page_action_buttons" data-toggle="modal" data-target="#exampleModal1">
+                <img src="' . WT_URL . '/assets/images/latest-images/iconoir_sparks.svg" alt="iconoir_sparks">Generate AI Content
+            </a>
+        </div>';
+        break;
+    case 'bulk':
+        $html .= '
+        <div style="display:flex; justify-content:end;">
+            <a type="button" style="margin-left:10px;" id="generate_ai_popup_open" class="styling_post_page_action_buttons2 styling_post_page_action_buttons" data-toggle="modal" data-target="#exampleModal2">
+                <img src="' . WT_URL . '/assets/images/latest-images/iconoir_sparks.svg" alt="iconoir_sparks">Generate AI Content
+            </a>
+        </div>';
+        break;
+    default:
+        $html .= '
+        <div style="display:flex; justify-content:end;">
+            <a type="button" style="margin-left:10px;" id="generate_ai_popup_open" class="styling_post_page_action_buttons2 styling_post_page_action_buttons" data-toggle="modal" data-target="#exampleModal">
+                <img src="' . WT_URL . '/assets/images/latest-images/iconoir_sparks.svg" alt="iconoir_sparks">Generate AI Content
+            </a>
+        </div>';
+}
 
 
 	$seo_list = improve_seo_lits();
