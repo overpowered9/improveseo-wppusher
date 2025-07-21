@@ -606,13 +606,18 @@ input:checked + .switch:before {
 }
 
 .btn_delete {
-  color: rgba(255, 59, 48, 0.2);
+  opacity: 1;
+  color: rgb(169, 28, 21);
   padding: 9px 27px;
-  border: 1px solid rgba(255, 59, 48, 0.2);
+  border: 1px solid rgb(118, 24, 19);
   font-size: 20px;
   border-radius: 25px;
   cursor: pointer;
   background-color: transparent;
+}
+.btn_delete:disabled {
+  opacity: 0.5;
+  cursor: none;
 }
 
 .import-export {
