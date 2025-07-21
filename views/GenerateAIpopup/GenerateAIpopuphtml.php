@@ -1178,8 +1178,9 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
             });
         }
         
-            var aiModalType = "single";
-            console.log("modal type in generate ai popup",aiModalType); 
+    var aiModalType = "<?php echo isset($ai_modal_type) ? esc_js($ai_modal_type) : 'default'; ?>";
+    console.log("modal type in generate ai popup", aiModalType);
+   
         
         // Open Generate AI Popup Modal
         if (generate_ai_popup_open) {
