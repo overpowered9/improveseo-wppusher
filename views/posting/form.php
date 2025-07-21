@@ -4,9 +4,6 @@ use ImproveSEO\Validator;
 use ImproveSEO\Models\Country;
 
 wp_enqueue_script('post');
-global $ai_modal_type;
-$ai_modal_type = isset($ai_modal_type) ? $ai_modal_type : 'default';
-
 ?>
 
 <input type="hidden" name="post_type" value="<?= isset($task) ? $task->content['post_type'] : $post_type ?>" />
