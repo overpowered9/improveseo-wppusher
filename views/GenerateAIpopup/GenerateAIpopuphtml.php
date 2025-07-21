@@ -1179,7 +1179,7 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
         }
         
             var aiModalType = "<?php echo esc_js($ai_modal_type); ?>";
-            console.log(aiModalType);
+            console.log("modal type in generate ai popup",aiModalType);
         
         // Open Generate AI Popup Modal
         if (generate_ai_popup_open) {
