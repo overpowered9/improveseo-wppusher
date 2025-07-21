@@ -5,7 +5,7 @@
 use ImproveSEO\View;
 use ImproveSEO\Validator;
 global $ai_modal_type;
-$ai_modal_type = 'bulk';
+$ai_modal_type = 'single';
 
 
 ?>
