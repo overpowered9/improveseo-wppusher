@@ -71,9 +71,8 @@ use ImproveSEO\Validator;
 			$post_type = 'post';
 
 			$form_id_preview = 'create_post';
-			$ai_modal_type = 'single';
 
-			improveseo\View::render('posting.form', compact('post_type','ai_modal_type'));
+			improveseo\View::render('posting.form', compact('post_type'));
 
 			?>
 
@@ -281,7 +280,7 @@ use ImproveSEO\Validator;
 	</div>
 </form>
 <?php
-generateAIpopup(); 
+	generateAIpopup();
 ?>
 <?php View::endSection('content') ?>
 
