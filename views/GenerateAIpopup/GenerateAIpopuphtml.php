@@ -1182,19 +1182,10 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
         
         
       // Open Generate AI Popup Modal
-if (generate_ai_popup_open) {
-    generate_ai_popup_open.addEventListener('click', () => {
-        if(postType == "single"){
-            document.getElementById("exampleModal1").classList.remove("hide_and_show_ai_popup");
-        } else if(postType == "bulk"){
-            console.log("reached bulk");
-            document.getElementById("exampleModal2").classList.remove("hide_and_show_ai_popup");
-        } else if(postType == "default"){
-            console.log("reached default");
-            document.getElementById("exampleModal").classList.remove("hide_and_show_ai_popup");
+        generate_ai_popup_open.addEventListener('click', () => {
+                document.getElementById("exampleModal").classList.remove("hide_and_show_ai_popup");
+            });
         }
-    });
-}
 
         // Open Single AI Post Popup Modal
         open_single_AI_Post_popup.forEach(element => {
