@@ -1177,11 +1177,14 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
                 document.getElementById("exampleModal").classList.add("hide_and_show_ai_popup");
             });
         }
-
+        
+            var aiModalType = "<?php echo esc_js($ai_modal_type); ?>";
+            console.log(aiModalType);
+        
         // Open Generate AI Popup Modal
         if (generate_ai_popup_open) {
             generate_ai_popup_open.addEventListener('click', () => {
-                document.getElementById("exampleModal1").classList.remove("hide_and_show_ai_popup");
+                document.getElementById("exampleModal").classList.remove("hide_and_show_ai_popup");
             });
         }
 
