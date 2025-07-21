@@ -1178,8 +1178,8 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
             });
         }
         
-            var aiModalType = "<?php echo esc_js($ai_modal_type); ?>";
-            console.log("modal type in generate ai popup",aiModalType);
+            var aiModalType = "single";
+            console.log("modal type in generate ai popup",aiModalType); 
         
         // Open Generate AI Popup Modal
         if (generate_ai_popup_open) {
@@ -1188,19 +1188,19 @@ $image_url2 = $plugin_url . 'assets/images/loaderr.gif';
             });
         }
 
-        // Open Single AI Post Popup Modal
-        open_single_AI_Post_popup.forEach(element => {
-            element.addEventListener('click', () => {
-                document.getElementById("exampleModal1").classList.remove("hide_and_show_ai_popup");
-            });
-        });
+        // // Open Single AI Post Popup Modal
+        // open_single_AI_Post_popup.forEach(element => {
+        //     element.addEventListener('click', () => {
+        //         document.getElementById("exampleModal1").classList.remove("hide_and_show_ai_popup");
+        //     });
+        // });
 
-        // Open Bulk AI Post Popup Modal
-        open_bulk_AI_Post_popup.forEach(element => {
-            element.addEventListener('click', () => {
-                document.getElementById("exampleModal2").classList.remove("hide_and_show_ai_popup");
-            });
-        });
+        // // Open Bulk AI Post Popup Modal
+        // open_bulk_AI_Post_popup.forEach(element => {
+        //     element.addEventListener('click', () => {
+        //         document.getElementById("exampleModal2").classList.remove("hide_and_show_ai_popup");
+        //     });
+        // });
 
 
 
