@@ -1,34 +1,39 @@
 <?php
 
-
-
 use ImproveSEO\View;
 
+function get_post_by_project_id($project_id)
+{
+	global $wpdb;
 
+	$post_id = $wpdb->get_var($wpdb->prepare(
+		"SELECT post_id FROM {$wpdb->postmeta} 
+         WHERE meta_key = 'improveseo_project_id' 
+         AND meta_value = %s 
+         LIMIT 1",
+		$project_id
+	));
 
-if (isset($_GET['post_preview'])) {
-
-	if ($_GET['post_preview'] == 'true') {
-
-		$project = $projects[0];
-
-		if ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
-
-			$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
-
-			header("Location:" . $export_url);
-
-			exit;
-
+	if ($post_id) {
+		$post = get_post($post_id);
+		if ($post && $post->post_status !== 'trash') {
+			return $post;
 		}
-
 	}
 
+	return null;
 }
 
-
-
-
+if (isset($_GET['post_preview'])) {
+	if ($_GET['post_preview'] == 'true') {
+		$project = $projects[0];
+		if ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
+			$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
+			header("Location:" . $export_url);
+			exit;
+		}
+	}
+}
 
 ?>
 
@@ -42,19 +47,9 @@ if (isset($_GET['post_preview'])) {
 
 <?php View::endSection('breadcrumbs') ?>
 
-
-
-
-
 <?php View::startSection('content') ?>
 
-
-
 <?php View::render('import/import') ?>
-
-
-
-
 
 <h1 class="hidden">Product Listing</h1>
 
@@ -70,252 +65,203 @@ if (isset($_GET['post_preview'])) {
 			<li>Projects List</li>
 		</ul>
 		<div class="import-export-btn">
-			<!-- <button
-				onclick="if(confirm('Are you sure you want to export all items?')) { window.location.href = '<?= admin_url('admin.php?page=improveseo_projects&action=export_all_project&noheader=true') ?>'; }">Export
-				all Projects</button>
-			<button id="importProject">Import</button> -->
 			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_posting') ?>';"
 				class="active">Add New</button>
 		</div>
 	</div>
 	<div class="actions">
 		<div>
-			<button class="btn_delete">Delete Selected Projects</button>
+			<button type="button" class="btn_delete" id="bulk-delete-btn">Delete Selected Projects</button>
 		</div>
 		<div class="pagination">
-			<button class="prev pagination-btn">
-				< Prev </button>
-					<button class="active">1</button>
-					<button>2</button>
-					<button>3</button>
-					<button>4</button>
-					<button>5</button>
-					<button class="next pagination-btn"> Next ></button>
+			<?php if ($page > 1): ?>
+				<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=' . ($page - 1)) ?>"
+					class="prev pagination-btn">
+					< Prev</a>
+					<?php else: ?>
+						<span class="prev pagination-btn disabled">
+							< Prev</span>
+							<?php endif; ?>
+
+							<?php
+							// Calculate pagination range
+							$start_page = max(1, $page - 2);
+							$end_page = min($pages, $page + 2);
+
+							// Show first page if we're not showing it
+							if ($start_page > 1): ?>
+								<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=1') ?>"
+									class="pagination-btn">1</a>
+								<?php if ($start_page > 2): ?>
+									<span class="pagination-btn">...</span>
+								<?php endif; ?>
+							<?php endif; ?>
+
+							<?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+								<?php if ($i == $page): ?>
+									<button class="pagination-btn active"><?= $i ?></button>
+								<?php else: ?>
+									<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=' . $i) ?>"
+										class="pagination-btn"><?= $i ?></a>
+								<?php endif; ?>
+							<?php endfor; ?>
+
+							<?php
+							// Show last page if we're not showing it
+							if ($end_page < $pages): ?>
+								<?php if ($end_page < $pages - 1): ?>
+									<span class="pagination-btn">...</span>
+								<?php endif; ?>
+								<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=' . $pages) ?>"
+									class="pagination-btn"><?= $pages ?></a>
+							<?php endif; ?>
+
+							<?php if ($page < $pages): ?>
+								<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=' . ($page + 1)) ?>"
+									class="next pagination-btn">Next ></a>
+							<?php else: ?>
+								<span class="next pagination-btn disabled">Next ></span>
+							<?php endif; ?>
 		</div>
 		<div class="import-export">
-			<p><?php echo count($projects); ?> Items</p>
+			<p>Showing <?= (($page - 1) * $limit) + 1 ?> to <?= min($page * $limit, $total) ?> of <?= $total ?> Items
+			</p>
 		</div>
 	</div>
 	<div class="improve-seo-container">
-		<div class="project-lists ">
-			<div class="table-responsive">
-				<table class="table project_table_listing">
-					<thead>
-						<tr>
-							<th>
-								<label class="checkbox style-c" for="cb-select-all">
-									<input type="checkbox" id="cb-select-all">
-									<div class="checkbox__checkmark"></div>
-								</label>
-								<!-- <label class="screen-reader-text" for="cb-select-all">Select All</label>
-							<input id="cb-select-all" type="checkbox"> -->
-								<h4> Name </h4>
-							</th>
-							<th>Created At</th>
-							<th>Last Update</th>
-							<th>Status</th>
-							<td></td>
-							<th>Action</th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php foreach ($projects as $project): ?>
+		<div class="project-lists">
+			<form id="bulk-delete-form" method="POST" action="<?= admin_url('admin.php?page=improveseo_projects') ?>">
+				<?php wp_nonce_field('bulk_delete_projects', 'bulk_delete_nonce'); ?>
+				<input type="hidden" name="action" value="bulk_delete">
 
-
-
+				<div class="table-responsive">
+					<table class="table project_table_listing">
+						<thead>
 							<tr>
-								<td data-label="Name" >
-									<div class="styling_projects_name_td" >
-										<label class="checkbox style-c">
-											<input id="cb-select-<?php echo $project->id; ?>" type="checkbox"
-												name="project_ids[]" value="<?php echo $project->id; ?>">
-											<div class="checkbox__checkmark"></div>
-										</label>
-										<!-- <input id="cb-select-all" type="checkbox"> -->
+								<th>
+									<label class="checkbox style-c" for="cb-select-all">
+										<input type="checkbox" id="cb-select-all">
+										<div class="checkbox__checkmark"></div>
+									</label>
+									<h4> Name </h4>
+								</th>
+								<th>Created At</th>
+								<th>Last Update</th>
+								<th>Status</th>
+								<td></td>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ($projects as $project): ?>
+								<tr>
+									<td data-label="Name">
+										<div class="styling_projects_name_td">
+											<label class="checkbox style-c">
+												<input id="cb-select-<?php echo $project->id; ?>" type="checkbox"
+													name="project_ids[]" value="<?php echo $project->id; ?>"
+													class="project-checkbox">
+												<div class="checkbox__checkmark"></div>
+											</label>
+											<h4><?= $project->name ?></h4>
+										</div>
+									</td>
+									<td data-label="Created At"><?php
+									$date = new DateTime($project->created_at);
+									echo $date->format('d/m/Y H:i:s');
+									?></td>
+									<td data-label="Last Update"><?php
+									$date = new DateTime($project->updated_at);
+									echo $date->format('d/m/Y H:i:s');
+									?></td>
+									<td data-label="Status" class="status finished">
 
-										<h4><?= $project->name ?></h4>
-									</div>
-								</td>
-								<td data-label="Created At"><?php
-								$date = new DateTime($project->created_at);
-								echo $date->format('d/m/Y H:i:s');
-								?></td>
-								<td data-label="Last Update"><?php
-								$date = new DateTime($project->updated_at);
-								echo $date->format('d/m/Y H:i:s');
-								?></td>
-								<td data-label="Status" class="status finished">
-
-									<?php
-									if ($project->state == 'Draft')
-										echo 'Draft';
-									else {
-										if ($project->iteration >= $project->max_iterations)
-											echo '<p class="post-fd">Finished</p>';
+										<?php
+										if ($project->state == 'Draft')
+											echo 'Draft';
 										else {
-											$updated = strtotime($project->updated_at);
-											if ($project->deleted_at == '1970-01-01 11:11:11')
-												echo '<p class="post-fd">Stopped</p>';
-											elseif (time() - $updated > 1200)
-												echo '<p class="post-fd">Paused</p>';
-											else
-												echo 'Processing';
+											if ($project->iteration >= $project->max_iterations)
+												echo '<p class="post-fd">Finished</p>';
+											else {
+												$updated = strtotime($project->updated_at);
+												if ($project->deleted_at == '1970-01-01 11:11:11')
+													echo '<p class="post-fd">Stopped</p>';
+												elseif (time() - $updated > 1200)
+													echo '<p class="post-fd">Paused</p>';
+												else
+													echo 'Processing';
+											}
 										}
-									}
-									?>
-								</td>
-								<td>
-									<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations): ?>
-										<a href="javascript:build_project(<?= $project->id ?>)"
-											class="styling_post_page_action_buttons for_width_only_" target="_self">Build
-											posts</a>
-									<?php endif; ?>
-									<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations): ?>
-										<a href="javascript:update_project(<?= $project->id ?>)"
-											style="width: 160px !important;" class="styling_post_page_action_buttons"
-											target="_self">Update posts</a>
-									<?php endif; ?>
-									<input type="hidden" name="max-iterations" id="max-iterations"
-										data-project="<?php echo $project->id; ?>"
-										value="<?php echo $project->max_iterations; ?>" />
-									<?php if ($project->state == 'Draft'): ?>
-										<a href="<?= admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ?>"
-											style="width: 160px !important;"
-											class="styling_post_page_action_buttons">Continue</a>
-									<?php endif; ?>
-								</td>
-								<td style="width: 4%;" scope="col" data-label="Action" class="actions-btn">
-
-									<a href="#" class="action-btn-pop"> <img
-											src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
-											alt="ri_more-2-fill"> </a>
-									<!-- <div class="actionpopup">
-									<div class="popup-arrow"></div>
-									<ul class="popup-menu">
-										<div class="row-actions">
-
-											<span class="edit">
-												<a class="ct-btn btn btn-outline-primary"
-													href="<?= admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&name={$project->name}&noheader=true") ?>">
-													Export a list of all posts/pages URLs
-												</a>
-											</span>
-
-											<span class="edit">
-												<a class="ct-btn btn btn-outline-primary"
-													href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true") ?>">
-													Update posts
-												</a>
-											</span>
-
-											<span class="edit">
-												<a class="ct-btn btn btn-outline-primary"
-													href="<?= admin_url('admin.php?page=improveseo_projects&action=duplicate&id=' . $project->id . '&noheader=true') ?>">
-													Duplicate project
-												</a>
-											</span>
-
-											<span class="edit">
-												<a class="ct-btn btn btn-outline-primary"
-													href="<?= admin_url('admin.php?page=improveseo_projects&action=stop&id=' . $project->id . '&noheader=true') ?>">
-													Stop process
-												</a>
-											</span>
-
-											<span class="edit">
-												<a class="ct-btn btn btn-outline-primary"
-													href="<?= admin_url("admin.php?page=improveseo_projects&action=export_project&id={$project->id}&name={$project->name}&noheader=true") ?>">
-													Expor Project
-												</a>
-											</span>
-
-											<span class="trash">
-												<a class="del-btn btn btn-outline-danger" class="submitdelete"
-													href="<?= admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ?>"
-													onclick="return confirm('This action will delete project and all generated posts/pages')">Delete
-													project and all posts/pages</a>
-											</span>
-
-											<span class="trash">
-												<a class="del-btn btn btn-outline-danger" class="submitdelete"
-													href="<?= admin_url('admin.php?page=improveseo_projects&action=delete_posts&id=' . $project->id . '&noheader=true') ?>"
-													onclick="return confirm('This action will delete all generated posts/pages')">Delete
-													only posts/pages</a>
-											</span>
+										?>
+									</td>
+									<td>
+										<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations): ?>
+											<a href="javascript:build_project(<?= $project->id ?>)"
+												class="styling_post_page_action_buttons for_width_only_" target="_self">Build
+												posts</a>
+										<?php endif; ?>
+										<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations): ?>
+											<a href="javascript:update_project(<?= $project->id ?>)"
+												style="width: 160px !important;" class="styling_post_page_action_buttons"
+												target="_self">Update posts</a>
+										<?php endif; ?>
+										<input type="hidden" name="max-iterations" id="max-iterations"
+											data-project="<?php echo $project->id; ?>"
+											value="<?php echo $project->max_iterations; ?>" />
+										<?php if ($project->state == 'Draft'): ?>
+											<a href="<?= admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ?>"
+												style="width: 160px !important;"
+												class="styling_post_page_action_buttons">Continue</a>
+										<?php endif; ?>
+									</td>
+									<td style="width: 4%;" scope="col" data-label="Action" class="actions-btn">
+										<a href="#" class="action-btn-pop">
+											<img src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
+												alt="ri_more-2-fill">
+										</a>
+										<div class="actionpopup">
+											<div class="popup-arrow"></div>
+											<ul class="popup-menu">
+												<li>
+													<?php
+													$associated_post = get_post_by_project_id($project->id);
+													if ($associated_post): ?>
+														<a href="<?= get_permalink($associated_post->ID) ?>" target="_blank"
+															style="max-width: max-content !important;" class="popup-link">
+															View Post
+														</a>
+													<?php else: ?>
+														<span
+															style="max-width: max-content !important; color: #999; cursor: not-allowed;"
+															class="popup-link disabled">
+															No Post Created
+														</span>
+													<?php endif; ?>
+												</li>
+												<li><a href="#" target="_blank" style="max-width: max-content !important;"
+														class="popup-link">Project Details</a></li>
+												<li><a target="_blank"
+														href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true") ?>"
+														style="max-width: max-content !important;" class="popup-link">Edit
+														Post</a>
+												</li>
+												<li style="margin: 0px !important;"><a target="_blank"
+														href="<?= admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ?>"
+														style="max-width: max-content !important;"
+														class="popup-link delete-link">Delete Post</a></li>
+											</ul>
 										</div>
 
-									</ul>
-								</div> -->
-
-									<div class="actionpopup">
-										<div class="popup-arrow"></div>
-										<ul class="popup-menu">
-											<li><a href="#" target="_blank" style="max-width: max-content !important;"
-													class="popup-link">View
-													Post</a></li>
-											<li><a href="#" target="_blank" style="max-width: max-content !important;"
-													class="popup-link">Project Details</a></li>
-											<li><a target="_blank"
-													href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true") ?>"
-													style="max-width: max-content !important;" class="popup-link">Edit
-													Post</a>
-											</li>
-											<li style="margin: 0px !important;"><a target="_blank"
-													href="<?= admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ?>"
-													style="max-width: max-content !important;"
-													class="popup-link delete-link">Delete Post</a></li>
-										</ul>
-									</div>
-
-								</td>
-							</tr>
-						<?php endforeach; ?>
-					</tbody>
-				</table>
-			</div>
-			<div class="pagination">
-				<button class="prev pagination-btn">
-					< Prev </button>
-						<button class="active">1</button>
-						<button>2</button>
-						<button>3</button>
-						<button>4</button>
-						<button>5</button>
-						<button class="next pagination-btn"> Next ></button>
-			</div>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
+			</form>
 		</div>
 	</div>
 </div>
-
-<!-- <script>
-	document.addEventListener("DOMContentLoaded", function () {
-		document.querySelectorAll(".action-btn-pop").forEach(button => {
-			button.addEventListener("click", function (event) {
-				event.preventDefault();
-
-				let popup = this.closest("td").querySelector(".actionpopup"); // Correctly selecting the popup
-
-				// Close any other open popups
-				document.querySelectorAll(".actionpopup").forEach(p => {
-					if (p !== popup) {
-						p.style.display = "none";
-					}
-				});
-
-				// Toggle current popup
-				popup.style.display = (popup.style.display === "block") ? "none" : "block";
-			});
-		});
-
-		// Close popup when clicking outside
-		document.addEventListener("click", function (event) {
-			if (!event.target.closest("td.actions-btn")) { // Correct selector
-				document.querySelectorAll(".actionpopup").forEach(popup => popup.style.display = "none");
-			}
-		});
-	});
-
-</script> -->
 
 <script type="text/javascript">
 	function build_project(id) {
@@ -417,6 +363,60 @@ if (isset($_GET['post_preview'])) {
 	jQuery('#cb-select-all').click(function (e) {
 		jQuery("input[type=checkbox]").prop('checked', jQuery(this).prop('checked'));
 	});
+
+	jQuery(document).ready(function ($) {
+		$('#cb-select-all').click(function (e) {
+			$('.project-checkbox').prop('checked', $(this).prop('checked'));
+			updateDeleteButtonState();
+		});
+
+		$(document).on('change', '.project-checkbox', function () {
+			updateSelectAllState();
+			updateDeleteButtonState();
+		});
+
+		function updateSelectAllState() {
+			var totalCheckboxes = $('.project-checkbox').length;
+			var checkedCheckboxes = $('.project-checkbox:checked').length;
+
+			$('#cb-select-all').prop('checked', totalCheckboxes === checkedCheckboxes);
+			$('#cb-select-all').prop('indeterminate', checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes);
+		}
+
+		function updateDeleteButtonState() {
+			var checkedCount = $('.project-checkbox:checked').length;
+			if (checkedCount > 0) {
+				$('#bulk-delete-btn').prop('disabled', false).text('Delete ' + checkedCount + ' Selected Project' + (checkedCount > 1 ? 's' : ''));
+			} else {
+				$('#bulk-delete-btn').prop('disabled', true).text('Delete Selected Projects');
+			}
+		}
+
+		$('#bulk-delete-btn').click(function () {
+			var checkedBoxes = $('.project-checkbox:checked');
+			if (checkedBoxes.length === 0) {
+				alert('Please select at least one project to delete.');
+				return;
+			}
+
+			var projectNames = [];
+			checkedBoxes.each(function () {
+				var row = $(this).closest('tr');
+				var projectName = row.find('h4').text();
+				projectNames.push(projectName);
+			});
+
+			var confirmMessage = 'Are you sure you want to delete the following ' + checkedBoxes.length + ' project(s)?\n\n';
+			confirmMessage += projectNames.join('\n');
+			confirmMessage += '\n\nThis action cannot be undone.';
+
+			if (confirm(confirmMessage)) {
+				$('#bulk-delete-form').submit();
+			}
+		});
+
+		updateDeleteButtonState();
+	});
 </script>
 
 <!-- Building Post Preview -->
@@ -435,8 +435,6 @@ if (isset($_GET['post_preview'])) {
 			<?php
 		} elseif ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
 			$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
-			/* header("Location:".$export_url);
-																								exit; */
 		}
 	}
 }
@@ -450,5 +448,4 @@ if (isset($_GET['build_posts_id'])) { ?>
 
 <?php } ?>
 <?php View::endSection('content') ?>
-
 <?php View::make('layouts.main') ?>
