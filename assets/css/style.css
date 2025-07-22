@@ -613,6 +613,12 @@ input:checked + .switch:before {
   border-radius: 25px;
   cursor: pointer;
 }
+.btn_delete:disabled {
+  opacity: 0.4 !important;
+  color: rgba(255, 59, 48, 0.4) !important;
+  border-color: rgba(255, 59, 48, 0.4) !important;
+  cursor: not-allowed !important;
+}
 
 .import-export {
   color: #3c434a;
