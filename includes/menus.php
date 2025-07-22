@@ -80,13 +80,13 @@ add_submenu_page(
 
 
 
-    add_submenu_page('improveseo_dashboard', 'Projects', 'Projects', 'manage_options', 'improveseo_projects', 'improveseo_projects');
+    add_submenu_page('improveseo_dashboard', 'Projects', 'Manage Single Projects', 'manage_options', 'improveseo_projects', 'improveseo_projects');
 
 
 
 
 
-    add_submenu_page('improveseo_dashboard', 'Bulk Projects Overview', 'Bulk Projects Overview', 'manage_options', 'improveseo_bulkprojects', 'improveseo_bulkprojects');
+    add_submenu_page('improveseo_dashboard', 'Manage Bulk Projects', 'Bulk Projects Overview', 'manage_options', 'improveseo_bulkprojects', 'improveseo_bulkprojects');
 
 
     //add_submenu_page('improveseo', 'Shortcodes', 'Shortcodes', 'manage_options', 'improveseo_shortcodes', 'improveseo_shortcodes');
