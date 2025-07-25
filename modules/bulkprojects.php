@@ -1,284 +1,106 @@
 <?php
 
-
-
 use ImproveSEO\View;
-
 use ImproveSEO\Validator;
-
 use ImproveSEO\Models\Bulktask;
-
 use ImproveSEO\Models\Bulktasksdetail;
-
 use ImproveSEO\FlashMessage;
-
-
-
-
 
 function improveseo_bulkprojects()
 {
-
 	global $wpdb;
-
-	// echo "<pre>";
-	// print_r($_GET);
-	// echo "</pre>";
-	// exit('red');
-
 	$action = isset($_GET['action']) ? $_GET['action'] : 'index';
-
 	$limit = isset($_GET['limit']) ? $_GET['limit'] : 20;
-
 	$offset = isset($_GET['paged']) ? $_GET['paged'] * $limit - $limit : 0;
-
 	$model = new Bulktask();
-
 	$detailsTaskModel = new Bulktasksdetail();
 
-
-
-
-
 	// Allowed mime types
-
 	$fileMimes = array(
-
 		'application/vnd.ms-excel',
-
 		'application/x-csv',
-
 		'text/x-csv',
-
 		'text/csv',
-
 		'application/csv',
-
 		'application/excel',
-
 		'application/vnd.msexcel'
-
 	);
 
-
-
 	//Upload CSV File
-
 	if (isset($_POST['submit'])) {
-
-
-
-
-
 		if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'import_project_nonce')) {
-
 			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
-
 			exit();
-
 		}
-
-
-
-
-
 		if (!current_user_can('upload_files')) {
-
 			FlashMessage::success('Current user can\'t upload file');
-
 			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
-
 			exit();
-
 		}
-
-
-
 		if (in_array($_FILES['upload_csv']['type'], $fileMimes) === false) {
-
 			FlashMessage::success('Please Upload a Valid CSV file');
-
 			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
-
 			exit();
-
 		}
-
-
-
-
 
 		//Import uploaded file to Database
-
 		$file = fopen($_FILES['upload_csv']['tmp_name'], "r");
-
-
-
 		$counter = 0;
-
 		while (!feof($file)) {
-
-
-
 			$file_content = fgetcsv($file);
-
-
-
 			if ($counter != 0) {
-
-
-
 				$wpdb->insert($wpdb->prefix . "improveseo_tasks", array(
-
 					'id' => $file_content[0],
-
 					'name' => $file_content[1],
-
 					'content' => $file_content[2],
-
 					'options' => $file_content[3],
-
 					'iteration' => $file_content[4],
-
 					'spintax_iterations' => $file_content[5],
-
 					'max_iterations' => $file_content[6],
-
 					'state' => "Draft",
-
 					'created_at' => $file_content[8],
-
 					'updated_at' => $file_content[9],
-
 					'finished_at' => $file_content[10],
-
 					'deleted_at' => $file_content[11],
-
 					'cats' => $file_content[12],
-
 				));
-
 			}
-
-
-
 			$counter++;
-
-
-
 		}
-
-
-
 		$counter = $counter - 2;
-
-
-
 		fclose($file);
-
-
-
 		FlashMessage::success($counter . ' Project Imported Successfully.');
-
-
-
 	}
 
-
-
-
-
 	if ($action == 'index'):
-
-
-
 		// Filters
-
 		$orderBy = isset($_GET['orderBy']) ? $_GET['orderBy'] : 'created_at';
-
 		$order = isset($_GET['order']) ? $_GET['order'] : 'DESC';
-
-
-
 		$highlight = isset($_GET['highlight']) ? $_GET['highlight'] : null;
-
-
-
 		$where = array();
-
 		$params = array();
-
-
-
 		$sql = 'SELECT * FROM ' . $model->getTable();
-
 		if (sizeof($where)) {
-
 			$sql .= ' WHERE ' . implode(' AND ', $where);
-
 		}
-
-
-
 		$sqlTotal = 'SELECT COUNT(id) AS total FROM ' . $model->getTable();
-
 		if (sizeof($where)) {
-
 			$sqlTotal .= ' WHERE ' . implode(' AND ', $where);
-
 		}
-
-
-
 		$sqlTotal = $wpdb->prepare($sqlTotal, $params);
-
-
-
 		$sql .= " ORDER BY $orderBy $order";
-
 		$sql .= " LIMIT %d, %d";
-
-
-
 		$params[] = $offset;
-
 		$params[] = $limit;
-
-
-
 		$sql = $wpdb->prepare($sql, $params);
 
-
-
 		// Data
-
 		$projects = $wpdb->get_results($sql);
-
 		$total_row = $wpdb->get_row($sqlTotal);
-
 		$total = $total_row->total;
-
-
-
 		$pages = ceil($total / $limit);
-
 		$page = floor($offset / $limit) + 1;
-
-
-
-		// echo "<pre>";
-
-		// print_r($projects);
-
-		// exit();
-
-
-
-		View::render('bulkprojects.index', compact('projects', 'page', 'pages', 'order', 'orderBy', 'highlight'));
-
-
-
-
+		View::render('bulkprojects.index', compact('projects', 'page', 'pages', 'total', 'order', 'orderBy', 'highlight'));
 
 	elseif ($action == 'viewAllTasks'):
 

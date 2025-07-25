@@ -1,35 +1,17 @@
 <?php
 
-
-
 use ImproveSEO\View;
 
-
-
 if (isset($_GET['post_preview'])) {
-
 	if ($_GET['post_preview'] == 'true') {
-
 		$project = $projects[0];
-
 		if ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
-
 			$export_url = admin_url("admin.php?page=improveseo_bulkprojects&action=export_preview_url&id={$project->id}&noheader=true");
-
 			header("Location:" . $export_url);
-
 			exit;
-
 		}
-
 	}
-
 }
-
-
-
-
-
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
@@ -42,19 +24,9 @@ if (isset($_GET['post_preview'])) {
 
 <?php View::endSection('breadcrumbs') ?>
 
-
-
-
-
 <?php View::startSection('content') ?>
 
-
-
 <?php View::render('import/import') ?>
-
-
-
-
 
 <h1 class="hidden">Bulk Product Listing</h1>
 <div class="global-wrap">
@@ -78,17 +50,39 @@ if (isset($_GET['post_preview'])) {
 			<button class="btn_delete">Delete Selected Projects</button>
 		</div>
 		<div class="pagination">
-			<button class="prev pagination-btn">
-				< Prev </button>
-					<button class="active">1</button>
-					<button>2</button>
-					<button>3</button>
-					<button>4</button>
-					<button>5</button>
-					<button class="next pagination-btn"> Next ></button>
+			<?php if ($page > 1): ?>
+				<button class="prev pagination-btn"
+					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&paged=' . ($page - 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
+					&lt; Prev
+				</button>
+			<?php else: ?>
+				<button class="prev pagination-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+					&lt; Prev
+				</button>
+			<?php endif; ?>
+
+			<?php for ($i = 1; $i <= $pages; $i++): ?>
+				<?php if ($i == $page): ?>
+					<button class="active"><?= $i ?></button>
+				<?php else: ?>
+					<button
+						onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?= $i ?></button>
+				<?php endif; ?>
+			<?php endfor; ?>
+
+			<?php if ($page < $pages): ?>
+				<button class="next pagination-btn"
+					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
+					Next &gt;
+				</button>
+			<?php else: ?>
+				<button class="next pagination-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+					Next &gt;
+				</button>
+			<?php endif; ?>
 		</div>
 		<div class="import-export">
-			<p><?php echo count($projects); ?> Items</p>
+			<p><?= $total ?> Items</p>
 		</div>
 	</div>
 	<div class="improve-seo-container">
@@ -156,7 +150,6 @@ if (isset($_GET['post_preview'])) {
 										$updated = strtotime($project->updated_at);
 										if (!empty($project->deleted_at) && ($project->deleted_at == '1970-01-01 11:11:11'))
 											echo '<p class="post-st">Stopped</p>';
-										//elseif (time() - $updated > 1200) echo '<p class="post-pd">Paused</p>';
 										else
 											echo 'Processing';
 									}
@@ -197,33 +190,14 @@ if (isset($_GET['post_preview'])) {
 														onclick="return confirm('This action will delete project and all generated posts/pages')">Delete
 														project and all posts/pages</a>
 												</span>
-
-
-												<!-- <button type="button" class="toggle-row"><span class="screen-reader-text">Show
-													more details</span></button> -->
 											</div>
-
 										</ul>
 									</div>
-
-
-
 								</td>
 							</tr>
-							<!-- Duplicate rows for demonstration -->
 						<?php endforeach; ?>
 					</tbody>
 				</table>
-			</div>
-			<div class="pagination">
-				<button class="prev pagination-btn">
-					< Prev </button>
-						<button class="active">1</button>
-						<button>2</button>
-						<button>3</button>
-						<button>4</button>
-						<button>5</button>
-						<button class="next pagination-btn"> Next ></button>
 			</div>
 		</div>
 	</div>
