@@ -69,9 +69,8 @@ if (isset($_GET['post_preview'])) {
 			<li>Bulk Projects List</li>
 		</ul>
 		<div class="import-export-btn">
-			<!-- <button>Export all Projects</button>
-			<button>Import</button> -->
-			<button class="active"> Add New </button>
+			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_create_bulk') ?>';"
+				class="active">Add New</button>
 		</div>
 	</div>
 	<div class="actions">
@@ -117,7 +116,7 @@ if (isset($_GET['post_preview'])) {
 					<tbody>
 						<?php foreach ($projects as $project): ?>
 							<tr <?= $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
-								<td data-label="Name" >
+								<td data-label="Name">
 									<div class="styling_projects_name_td"
 										style="display: flex; width: 100%; flex-wrap: nowrap; padding: 30px 0px; overflow-wrap: break-word;">
 										<label class="checkbox style-c">
