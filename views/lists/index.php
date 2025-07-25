@@ -65,24 +65,33 @@ use ImproveSEO\View;
 			<?php if ($page > 1): ?>
 				<button class="prev pagination-btn"
 					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&paged=' . ($page - 1) . ($s ? '&s=' . urlencode($s) : '')) ?>'">
-					< Prev </button>
-					<?php endif; ?>
+					&lt; Prev
+				</button>
+			<?php else: ?>
+				<button class="prev pagination-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+					&lt; Prev
+				</button>
+			<?php endif; ?>
 
-					<?php for ($i = 1; $i <= $pages; $i++): ?>
-						<?php if ($i == $page): ?>
-							<button class="active"><?= $i ?></button>
-						<?php else: ?>
-							<button
-								onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&paged=' . $i . ($s ? '&s=' . urlencode($s) : '')) ?>'"><?= $i ?></button>
-						<?php endif; ?>
-					<?php endfor; ?>
+			<?php for ($i = 1; $i <= $pages; $i++): ?>
+				<?php if ($i == $page): ?>
+					<button class="active"><?= $i ?></button>
+				<?php else: ?>
+					<button
+						onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&paged=' . $i . ($s ? '&s=' . urlencode($s) : '')) ?>'"><?= $i ?></button>
+				<?php endif; ?>
+			<?php endfor; ?>
 
-					<?php if ($page < $pages): ?>
-						<button class="next pagination-btn"
-							onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&paged=' . ($page + 1) . ($s ? '&s=' . urlencode($s) : '')) ?>">
-							Next >
-						</button>
-					<?php endif; ?>
+			<?php if ($page < $pages): ?>
+				<button class="next pagination-btn"
+					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&paged=' . ($page + 1) . ($s ? '&s=' . urlencode($s) : '')) ?>'">
+					Next &gt;
+				</button>
+			<?php else: ?>
+				<button class="next pagination-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+					Next &gt;
+				</button>
+			<?php endif; ?>
 		</div>
 		<div class="import-export">
 			<p><?= $total ?> Items</p>
