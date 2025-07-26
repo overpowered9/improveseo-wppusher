@@ -103,156 +103,49 @@ function improveseo_bulkprojects()
 		View::render('bulkprojects.index', compact('projects', 'page', 'pages', 'total', 'order', 'orderBy', 'highlight'));
 
 	elseif ($action == 'viewAllTasks'):
-
 		if (isset($_GET['id'])) {
-
 			$id = $_GET['id'];
-
 			$where = array('id' => $id);
-
 			$sql = 'SELECT * FROM ' . $model->getTable();
-
-			//if (sizeof($where)) {
-
 			$sql .= ' WHERE `id`=' . $id;
-
-			//}
-
 			$params = [];
-
 			$sql = $wpdb->prepare($sql, $params);
-
 			$projects = $wpdb->get_results($sql);
-
 			if (!empty($projects[0]->name)) {
-
 				$project_name = $projects[0]->name;
-
 			} else {
-
 				$project_name = '';
-
 			}
-
-
-
 		} else {
-
 			$project_name = '';
-
 		}
 
-
-
-
-
-
-
-
-
-
-
 		// Filters
-
 		$id = isset($_GET['id']) ? $_GET['id'] : '';
-
-		//exit();
-
 		$orderBy = isset($_GET['orderBy']) ? $_GET['orderBy'] : 'created_at';
-
 		$order = isset($_GET['order']) ? $_GET['order'] : 'DESC';
-
-
-
 		$highlight = isset($_GET['highlight']) ? $_GET['highlight'] : null;
-
-		// if(!empty($id)) {
-
-		// 	$where = array('bulktask_id'=>$id);
-
-		// } else {
-
 		$where = array();
-
-		//}
-
-
-
-
-
-
-
 		$params = array();
-
-
-
 		$sql = 'SELECT * FROM ' . $detailsTaskModel->getTable();
-
-		//if (sizeof($where)) {
-
 		$sql .= ' WHERE `bulktask_id` = ' . $id;
-
-		//}
-
-
-
 		$sqlTotal = 'SELECT COUNT(id) AS total FROM ' . $detailsTaskModel->getTable();
-
-		//if (sizeof($where)) {
-
 		$sqlTotal .= ' WHERE `bulktask_id` = ' . $id;
-
-		//}
-
-
-
 		$sqlTotal = $wpdb->prepare($sqlTotal, $params);
-
-
-
 		$sql .= " ORDER BY $orderBy $order";
-
 		$sql .= " LIMIT %d, %d";
-
-
-
 		$params[] = $offset;
-
 		$params[] = $limit;
-
-
-
 		$sql = $wpdb->prepare($sql, $params);
 
-
-
 		// Data
-
 		$projects = $wpdb->get_results($sql);
-
 		$total_row = $wpdb->get_row($sqlTotal);
-
 		$total = $total_row->total;
-
-
-
 		$pages = ceil($total / $limit);
-
 		$page = floor($offset / $limit) + 1;
-
-
-
-
-
-
-
 		View::render('bulkprojects.alltasks', compact('projects', 'project_name', 'id', 'page', 'pages', 'order', 'orderBy', 'highlight'));
-
-
-
-
-
-
+		View::render('bulkprojects.alltasks', compact('projects', 'project_name', 'id', 'page', 'pages', 'total', 'order', 'orderBy', 'highlight'));
 
 	elseif ($action == 'viewAiContent'):
 
