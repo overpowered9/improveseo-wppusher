@@ -144,7 +144,6 @@ function improveseo_bulkprojects()
 		$total = $total_row->total;
 		$pages = ceil($total / $limit);
 		$page = floor($offset / $limit) + 1;
-		View::render('bulkprojects.alltasks', compact('projects', 'project_name', 'id', 'page', 'pages', 'order', 'orderBy', 'highlight'));
 		View::render('bulkprojects.alltasks', compact('projects', 'project_name', 'id', 'page', 'pages', 'total', 'order', 'orderBy', 'highlight'));
 
 	elseif ($action == 'viewAiContent'):
