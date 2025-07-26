@@ -13,8 +13,6 @@ use ImproveSEO\View;
 <span>Bulk Projects List</span>
 
 <?php
-echo 'Bulk Projects List';
-echo $total;
 
 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
 
