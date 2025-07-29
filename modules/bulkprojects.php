@@ -133,8 +133,8 @@ function improveseo_bulkprojects()
 			FlashMessage::message('No projects were deleted. Please try again.', 'error');
 		}
 
-		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
-		exit;
+		$_GET['action'] = 'index';
+		$action = 'index';
 	}
 
 	if ($action == 'index'):
