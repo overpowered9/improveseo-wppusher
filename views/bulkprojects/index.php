@@ -216,15 +216,15 @@ if (isset($_GET['post_preview'])) {
 				}
 				var confirmMessage = 'Are you sure you want to delete ' + selectedProjects.length + ' project(s) and all their associated posts/pages? This action cannot be undone.';
 				if (confirm(confirmMessage)) {
-					var url = '<?php echo admin_url("admin.php"); ?>';
-					var params = new URLSearchParams();
-					params.append('page', 'improveseo_bulkprojects');
-					params.append('action', 'bulk-delete-all');
-					params.append('_wpnonce', '<?php echo wp_create_nonce('bulk_delete_nonce'); ?>');
+					var form = $('<form method="GET" action="' + window.location.pathname + '">');
+					form.append('<input type="hidden" name="page" value="improveseo_bulkprojects">');
+					form.append('<input type="hidden" name="action" value="bulk-delete-all">');
+					form.append('<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce('bulk_delete_nonce'); ?>">');
 					selectedProjects.forEach(function (projectId) {
-						params.append('project_ids[]', projectId);
+						form.append('<input type="hidden" name="project_ids[]" value="' + projectId + '">');
 					});
-					window.location.href = url + '?' + params.toString();
+					$('body').append(form);
+					form.submit();
 				}
 			});
 			$('#cb-select-all').click(function (e) {
