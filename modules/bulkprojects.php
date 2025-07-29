@@ -470,5 +470,65 @@ function improveseo_bulkprojects()
 		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
 		exit;
 
+	elseif ($action == 'bulk-delete-projects'):
+		if (!isset($_POST['bulk_delete_nonce']) || !wp_verify_nonce($_POST['bulk_delete_nonce'], 'bulk_delete_projects')) {
+			FlashMessage::message('Security check failed. Please try again.', 'error');
+			wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
+			exit;
+		}
+
+		if (!current_user_can('delete_posts')) {
+			FlashMessage::message('You do not have permission to delete projects.', 'error');
+			wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
+			exit;
+		}
+
+		if (!isset($_POST['project_ids']) || empty($_POST['project_ids'])) {
+			FlashMessage::message('No projects selected for deletion.', 'error');
+			wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
+			exit;
+		}
+
+		$project_ids = array_map('intval', $_POST['project_ids']); // Sanitize IDs
+		$deleted_count = 0;
+
+		foreach ($project_ids as $project_id) {
+			if ($project_id > 0) {
+				$wpdb->query($wpdb->prepare(
+					"DELETE FROM " . $wpdb->prefix . "posts 
+				WHERE ID IN (
+					SELECT post_id FROM {$wpdb->prefix}postmeta 
+					WHERE meta_key = 'improveseo_project_id' AND meta_value = %d
+				)",
+					$project_id
+				));
+
+				$wpdb->query($wpdb->prepare(
+					"DELETE FROM " . $wpdb->prefix . "postmeta 
+				WHERE meta_key = 'improveseo_project_id' AND meta_value = %d",
+					$project_id
+				));
+
+				$wpdb->query($wpdb->prepare(
+					"DELETE FROM " . $detailsTaskModel->getTable() . " 
+				WHERE bulktask_id = %d",
+					$project_id
+				));
+
+				if ($model->delete($project_id)) {
+					$deleted_count++;
+				}
+			}
+		}
+
+		if ($deleted_count > 0) {
+			FlashMessage::success("Successfully deleted {$deleted_count} project(s) and all associated data.");
+		} else {
+			FlashMessage::message('No projects were deleted. Please try again.', 'error');
+		}
+
+		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
+		exit;
+		
 	endif;
 }

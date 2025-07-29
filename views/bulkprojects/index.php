@@ -47,7 +47,7 @@ if (isset($_GET['post_preview'])) {
 	</div>
 	<div class="actions">
 		<div>
-			<button class="btn_delete">Delete Selected Projects</button>
+			<button type="button" class="btn_delete" onclick="handleBulkDelete()">Delete Selected Projects</button>
 		</div>
 		<div class="pagination">
 			<?php if ($page > 1): ?>
@@ -85,126 +85,179 @@ if (isset($_GET['post_preview'])) {
 			<p><?= $total ?> Items</p>
 		</div>
 	</div>
-	<div class="improve-seo-container">
-		<div class="project-lists">
-			<div class="table-responsive">
-				<table class="table project_table_listing">
-					<thead>
-						<tr>
-							<th>
-								<label class="checkbox style-c" for="cb-select-all">
-									<input type="checkbox" id="cb-select-all">
-									<div class="checkbox__checkmark"></div>
-								</label>
-
-								<h4> Name </h4>
-							</th>
-							<th> Post Count </th>
-							<th>Created At</th>
-							<th>Last Update</th>
-							<th> Publish Option </th>
-							<th>Status</th>
-							<th>Acton</th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php foreach ($projects as $project): ?>
-							<tr <?= $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
-								<td data-label="Name">
-									<div class="styling_projects_name_td"
-										style="display: flex; width: 100%; flex-wrap: nowrap; padding: 30px 0px; overflow-wrap: break-word;">
-										<label class="checkbox style-c">
-											<input id="cb-select-<?php echo $project->id; ?>" type="checkbox"
-												name="project_ids[]" value="<?php echo $project->id; ?>">
-											<div class="checkbox__checkmark"></div>
-										</label>
-
-										<h4> <?= $project->name ?> </h4>
-									</div>
-								</td>
-								<td data-label="Post Count" style="text-align:center;"><?= $project->number_of_tasks ?></td>
-								<td data-label="Created At"> <?php
-								$date = new DateTime($project->created_at);
-								echo $date->format('d/m/Y H:i:s');
-								?></td>
-								<td data-label="Last Update"><?php
-								$date = new DateTime($project->updated_at);
-								echo $date->format('d/m/Y H:i:s');
-								?></td>
-								<td data-label="Publish Option"> <?php
-								if ($project->schedule_posts == 'draft_posts') {
-									echo 'Draft';
-								} else if ($project->schedule_posts == 'schedule_all_posts') {
-									echo 'Publish All';
-								} else {
-									echo 'Publish : ' . $project->number_of_post_schedule . ' Post / ' . $project->schedule_frequency;
-								}
-								?> </td>
-								<td data-label="Status" class="status finished"><?php
-								if ($project->state == 'Draft')
-									echo 'Draft';
-								else {
-									if ($project->number_of_tasks == $project->number_of_completed_task)
-										echo '<p class="post-fd">Finished</p>';
-									else {
-										$updated = strtotime($project->updated_at);
-										if (!empty($project->deleted_at) && ($project->deleted_at == '1970-01-01 11:11:11'))
-											echo '<p class="post-st">Stopped</p>';
-										else
-											echo 'Processing';
-									}
-								}
-								?></td>
-								<td scope="col" data-label="Action" class="actions-btn" style="width: 4%;">
-
-									<a href="#" class="action-btn-pop"> <img
-											src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
-											alt="ri_more-2-fill"> </a>
-									<div class="actionpopup">
-										<div class="popup-arrow"></div>
-										<ul class="popup-menu">
-											<div class="row-actions"
-												style="display: flex; flex-direction: column !important;">
-
-												<span class="edit">
-													<a class="popup-link"
-														href="<?php /*admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&name={$project->name}&noheader=true")*/ ?>"
-														disabled>
-														Export a list of all posts/pages URLs
-													</a>
-												</span>
-												<span class="edit">
-													<a class="popup-link"
-														href="<?php /*admin_url('admin.php?page=improveseo_projects&action=stop&id=' . $project->id . '&noheader=true') */ ?>">
-														Stop process
-													</a>
-												</span>
-												<span class="edit">
-													<a class="popup-link" class="submitdelete" target="_blank"
-														href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $project->id) ?>">View
-														all AI posts/pages</a>
-												</span>
-												<span class="trash">
-													<a class="popup-link delete-link" class="submitdelete"
-														href="<?php /* admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') */ ?>"
-														onclick="return confirm('This action will delete project and all generated posts/pages')">Delete
-														project and all posts/pages</a>
-												</span>
-											</div>
-										</ul>
-									</div>
-								</td>
+	<form id="bulk-actions-form" method="post" action="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">
+		<?php wp_nonce_field('bulk_delete_projects', 'bulk_delete_nonce'); ?>
+		<div class="improve-seo-container">
+			<div class="project-lists">
+				<div class="table-responsive">
+					<table class="table project_table_listing">
+						<thead>
+							<tr>
+								<th>
+									<label class="checkbox style-c" for="cb-select-all">
+										<input type="checkbox" id="cb-select-all">
+										<div class="checkbox__checkmark"></div>
+									</label>
+									<h4> Name </h4>
+								</th>
+								<th> Post Count </th>
+								<th>Created At</th>
+								<th>Last Update</th>
+								<th> Publish Option </th>
+								<th>Status</th>
+								<th>Acton</th>
 							</tr>
-						<?php endforeach; ?>
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+							<?php foreach ($projects as $project): ?>
+								<tr <?= $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
+									<td data-label="Name">
+										<div class="styling_projects_name_td"
+											style="display: flex; width: 100%; flex-wrap: nowrap; padding: 30px 0px; overflow-wrap: break-word;">
+											<label class="checkbox style-c">
+												<input id="cb-select-<?php echo $project->id; ?>" type="checkbox"
+													name="project_ids[]" value="<?php echo $project->id; ?>">
+												<div class="checkbox__checkmark"></div>
+											</label>
+
+											<h4> <?= $project->name ?> </h4>
+										</div>
+									</td>
+									<td data-label="Post Count" style="text-align:center;"><?= $project->number_of_tasks ?>
+									</td>
+									<td data-label="Created At"> <?php
+									$date = new DateTime($project->created_at);
+									echo $date->format('d/m/Y H:i:s');
+									?></td>
+									<td data-label="Last Update"><?php
+									$date = new DateTime($project->updated_at);
+									echo $date->format('d/m/Y H:i:s');
+									?></td>
+									<td data-label="Publish Option"> <?php
+									if ($project->schedule_posts == 'draft_posts') {
+										echo 'Draft';
+									} else if ($project->schedule_posts == 'schedule_all_posts') {
+										echo 'Publish All';
+									} else {
+										echo 'Publish : ' . $project->number_of_post_schedule . ' Post / ' . $project->schedule_frequency;
+									}
+									?> </td>
+									<td data-label="Status" class="status finished"><?php
+									if ($project->state == 'Draft')
+										echo 'Draft';
+									else {
+										if ($project->number_of_tasks == $project->number_of_completed_task)
+											echo '<p class="post-fd">Finished</p>';
+										else {
+											$updated = strtotime($project->updated_at);
+											if (!empty($project->deleted_at) && ($project->deleted_at == '1970-01-01 11:11:11'))
+												echo '<p class="post-st">Stopped</p>';
+											else
+												echo 'Processing';
+										}
+									}
+									?></td>
+									<td scope="col" data-label="Action" class="actions-btn" style="width: 4%;">
+
+										<a href="#" class="action-btn-pop"> <img
+												src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
+												alt="ri_more-2-fill"> </a>
+										<div class="actionpopup">
+											<div class="popup-arrow"></div>
+											<ul class="popup-menu">
+												<div class="row-actions"
+													style="display: flex; flex-direction: column !important;">
+
+													<span class="edit">
+														<a class="popup-link"
+															href="<?php /*admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&name={$project->name}&noheader=true")*/ ?>"
+															disabled>
+															Export a list of all posts/pages URLs
+														</a>
+													</span>
+													<span class="edit">
+														<a class="popup-link"
+															href="<?php /*admin_url('admin.php?page=improveseo_projects&action=stop&id=' . $project->id . '&noheader=true') */ ?>">
+															Stop process
+														</a>
+													</span>
+													<span class="edit">
+														<a class="popup-link" class="submitdelete" target="_blank"
+															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $project->id) ?>">View
+															all AI posts/pages</a>
+													</span>
+													<span class="trash">
+														<a class="popup-link delete-link" class="submitdelete"
+															href="<?php /* admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') */ ?>"
+															onclick="return confirm('This action will delete project and all generated posts/pages')">Delete
+															project and all posts/pages</a>
+													</span>
+												</div>
+											</ul>
+										</div>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
-	</div>
+	</form>
 	<script>
-		jQuery('#cb-select-all').click(function (e) {
-			jQuery("input[type=checkbox]").prop('checked', jQuery(this).prop('checked'));
+		jQuery(document).ready(function ($) {
+			$('#cb-select-all').click(function (e) {
+				$("input[name='project_ids[]']").prop('checked', $(this).prop('checked'));
+				updateDeleteButton();
+			});
+
+			$("input[name='project_ids[]']").change(function () {
+				updateDeleteButton();
+				updateSelectAll();
+			});
+
+			function updateDeleteButton() {
+				const checkedCount = $("input[name='project_ids[]']:checked").length;
+				const deleteBtn = $('.btn_delete');
+
+				if (checkedCount > 0) {
+					deleteBtn.prop('disabled', false).css('opacity', '1');
+				} else {
+					deleteBtn.prop('disabled', true).css('opacity', '0.5');
+				}
+			}
+
+			function updateSelectAll() {
+				const totalCheckboxes = $("input[name='project_ids[]']").length;
+				const checkedCheckboxes = $("input[name='project_ids[]']:checked").length;
+
+				$('#cb-select-all').prop('checked', totalCheckboxes === checkedCheckboxes);
+			}
+
+			updateDeleteButton();
 		});
+
+		function handleBulkDelete() {
+			const checkedBoxes = jQuery("input[name='project_ids[]']:checked");
+
+			if (checkedBoxes.length === 0) {
+				alert('Please select at least one project to delete.');
+				return false;
+			}
+
+			const projectCount = checkedBoxes.length;
+			const confirmMessage = `Are you sure you want to delete ${projectCount} project(s) and all their associated posts/pages? This action cannot be undone.`;
+
+			if (confirm(confirmMessage)) {
+				const form = document.getElementById('bulk-actions-form');
+				const actionInput = document.createElement('input');
+				actionInput.type = 'hidden';
+				actionInput.name = 'action';
+				actionInput.value = 'bulk-delete-projects';
+				form.appendChild(actionInput);
+				form.submit();
+			}
+		}
 	</script>
 </div>
 
