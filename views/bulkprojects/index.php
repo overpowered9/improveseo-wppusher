@@ -47,7 +47,8 @@ if (isset($_GET['post_preview'])) {
 	</div>
 	<div class="actions">
 		<div>
-			<button type="button" class="btn_delete" onclick="handleBulkDelete()">Delete Selected Projects</button>
+			<button type="button" class="btn_delete" onclick="handleBulkDelete()" disabled style="opacity: 0.5;">Delete
+				Selected Projects</button>
 		</div>
 		<div class="pagination">
 			<?php if ($page > 1): ?>
@@ -87,6 +88,7 @@ if (isset($_GET['post_preview'])) {
 	</div>
 	<form id="bulk-actions-form" method="post" action="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">
 		<?php wp_nonce_field('bulk_delete_projects', 'bulk_delete_nonce'); ?>
+		<input type="hidden" name="action" value="" id="bulk-action-input">
 		<div class="improve-seo-container">
 			<div class="project-lists">
 				<div class="table-responsive">
@@ -105,7 +107,7 @@ if (isset($_GET['post_preview'])) {
 								<th>Last Update</th>
 								<th> Publish Option </th>
 								<th>Status</th>
-								<th>Acton</th>
+								<th>Action</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -249,13 +251,8 @@ if (isset($_GET['post_preview'])) {
 			const confirmMessage = `Are you sure you want to delete ${projectCount} project(s) and all their associated posts/pages? This action cannot be undone.`;
 
 			if (confirm(confirmMessage)) {
-				const form = document.getElementById('bulk-actions-form');
-				const actionInput = document.createElement('input');
-				actionInput.type = 'hidden';
-				actionInput.name = 'action';
-				actionInput.value = 'bulk-delete-projects';
-				form.appendChild(actionInput);
-				form.submit();
+				document.getElementById('bulk-action-input').value = 'bulk-delete-projects';
+				document.getElementById('bulk-actions-form').submit();
 			}
 		}
 	</script>
