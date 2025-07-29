@@ -12,6 +12,7 @@ if (isset($_GET['post_preview'])) {
 		}
 	}
 }
+
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
@@ -60,7 +61,6 @@ if (isset($_GET['post_preview'])) {
 					&lt; Prev
 				</button>
 			<?php endif; ?>
-
 			<?php for ($i = 1; $i <= $pages; $i++): ?>
 				<?php if ($i == $page): ?>
 					<button class="active"><?= $i ?></button>
@@ -69,7 +69,6 @@ if (isset($_GET['post_preview'])) {
 						onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?= $i ?></button>
 				<?php endif; ?>
 			<?php endfor; ?>
-
 			<?php if ($page < $pages): ?>
 				<button class="next pagination-btn"
 					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
@@ -96,7 +95,6 @@ if (isset($_GET['post_preview'])) {
 									<input type="checkbox" id="cb-select-all">
 									<div class="checkbox__checkmark"></div>
 								</label>
-
 								<h4> Name </h4>
 							</th>
 							<th> Post Count </th>
@@ -118,7 +116,6 @@ if (isset($_GET['post_preview'])) {
 												name="project_ids[]" value="<?php echo $project->id; ?>">
 											<div class="checkbox__checkmark"></div>
 										</label>
-
 										<h4> <?= $project->name ?> </h4>
 									</div>
 								</td>
@@ -156,7 +153,6 @@ if (isset($_GET['post_preview'])) {
 								}
 								?></td>
 								<td scope="col" data-label="Action" class="actions-btn" style="width: 4%;">
-
 									<a href="#" class="action-btn-pop"> <img
 											src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
 											alt="ri_more-2-fill"> </a>
@@ -165,7 +161,6 @@ if (isset($_GET['post_preview'])) {
 										<ul class="popup-menu">
 											<div class="row-actions"
 												style="display: flex; flex-direction: column !important;">
-
 												<span class="edit">
 													<a class="popup-link"
 														href="<?php /*admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&name={$project->name}&noheader=true")*/ ?>"
@@ -204,6 +199,42 @@ if (isset($_GET['post_preview'])) {
 	<script>
 		jQuery('#cb-select-all').click(function (e) {
 			jQuery("input[type=checkbox]").prop('checked', jQuery(this).prop('checked'));
+		});
+	</script>
+	<script>
+		jQuery(document).ready(function ($) {
+			$('.btn_delete').click(function (e) {
+				e.preventDefault();
+				var selectedProjects = [];
+				$('input[name="project_ids[]"]:checked').each(function () {
+					selectedProjects.push($(this).val());
+				});
+
+				if (selectedProjects.length === 0) {
+					alert('Please select at least one project to delete.');
+					return false;
+				}
+				var confirmMessage = 'Are you sure you want to delete ' + selectedProjects.length + ' project(s) and all their associated posts/pages? This action cannot be undone.';
+				if (confirm(confirmMessage)) {
+					var form = $('<form method="GET" action="' + window.location.pathname + '">');
+					form.append('<input type="hidden" name="page" value="improveseo_bulkprojects">');
+					form.append('<input type="hidden" name="action" value="bulk-delete-all">');
+					form.append('<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce('bulk_delete_nonce'); ?>">');
+					selectedProjects.forEach(function (projectId) {
+						form.append('<input type="hidden" name="project_ids[]" value="' + projectId + '">');
+					});
+					$('body').append(form);
+					form.submit();
+				}
+			});
+			$('#cb-select-all').click(function (e) {
+				$("input[name='project_ids[]']").prop('checked', $(this).prop('checked'));
+			});
+			$('input[name="project_ids[]"]').change(function () {
+				var totalCheckboxes = $('input[name="project_ids[]"]').length;
+				var checkedCheckboxes = $('input[name="project_ids[]"]:checked').length;
+				$('#cb-select-all').prop('checked', totalCheckboxes === checkedCheckboxes);
+			});
 		});
 	</script>
 </div>

@@ -414,21 +414,61 @@ function improveseo_bulkprojects()
 		exit;
 
 	elseif ($action == 'bulk-delete-all'):
-		if (isset($_GET['project_ids'])) {
-			$project_ids = $_GET['project_ids'];
+		if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'bulk_delete_nonce')) {
+			FlashMessage::message('Security check failed.', 'error');
+			wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
+			exit;
+		}
+
+		if (!current_user_can('delete_posts')) {
+			FlashMessage::message('You do not have permission to delete projects.', 'error');
+			wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
+			exit;
+		}
+
+		if (isset($_GET['project_ids']) && is_array($_GET['project_ids'])) {
+			$project_ids = array_map('intval', $_GET['project_ids']);
+			$deleted_count = 0;
+
 			if (!empty($project_ids)) {
 				foreach ($project_ids as $project_id) {
-					// Delete all posts from this project
-					$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $project_id));
-					$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $project_id));
-					$model->delete($project_id);
+					$project = $model->find($project_id);
+					if ($project) {
+						$wpdb->query($wpdb->prepare(
+							"DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)",
+							$project_id
+						));
+
+						$wpdb->query($wpdb->prepare(
+							"DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s",
+							$project_id
+						));
+
+						$wpdb->query($wpdb->prepare(
+							"DELETE FROM " . $wpdb->prefix . "improveseo_bulktasksdetails WHERE bulktask_id = %s",
+							$project_id
+						));
+
+						$model->delete($project_id);
+						$deleted_count++;
+					} else {
+						error_log("Project with ID {$project_id} not found during bulk delete.");
+					}
 				}
-				FlashMessage::success('All posts/pages deleted.');
+
+				if ($deleted_count > 0) {
+					FlashMessage::success($deleted_count . ' project(s) and all associated posts/pages deleted successfully.');
+				} else {
+					FlashMessage::message('No valid projects were found to delete.', 'error');
+				}
+			} else {
+				FlashMessage::message('No projects selected for deletion.', 'error');
 			}
 		} else {
-			FlashMessage::message('Please select projects', 'error');
+			FlashMessage::message('Please select projects to delete.', 'error');
 		}
-		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+
+		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
 		exit;
 
 	elseif ($action == 'bulk-delete-posts'):
