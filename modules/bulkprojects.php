@@ -195,8 +195,8 @@ function improveseo_bulkprojects()
 			FlashMessage::message('No tasks were deleted. Please try again.', 'error');
 		}
 
-		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $main_id));
-		exit;
+		$_GET['action'] = 'viewAllTasks';
+		$action = 'viewAllTasks';
 	}
 
 	if ($action == 'index'):

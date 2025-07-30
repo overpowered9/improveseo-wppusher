@@ -72,9 +72,7 @@ $url .= $_SERVER['REQUEST_URI'];
 				<input type="hidden" name="noheader" value="true" />
 				<input type="hidden" name="main_id" value="<?php echo esc_attr($_GET['id']); ?>" />
 				<input type="hidden" value="bulk-delete-tasks" name="action">
-				<button type="submit" id="doaction" class="btn_delete action"
-					onclick="return confirm('Are you sure you want to delete the selected tasks and their associated posts?')">Delete
-					Selected Tasks</button>
+				<button type="submit" id="doaction" class="btn_delete action">Delete Selected Tasks</button>
 			</div>
 			<div class="pagination">
 				<?php if ($page > 1): ?>
