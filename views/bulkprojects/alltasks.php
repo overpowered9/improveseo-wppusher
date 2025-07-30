@@ -47,7 +47,7 @@ $url .= $_SERVER['REQUEST_URI'];
 		<h1> ImproveSEO | 2.0.11 </h1>
 		<span>Pro</span>
 	</div>
-	<form method="get">
+	<form method="post">
 		<?php
 		$is_preview = 'no';
 		if (isset($_GET['post_preview'])) {
@@ -56,6 +56,7 @@ $url .= $_SERVER['REQUEST_URI'];
 			}
 		} ?>
 		<input type="hidden" name="is_preview_available" id="is_preview_available" value="<?php echo $is_preview; ?>" />
+		<?php wp_nonce_field('bulk_delete_tasks', 'bulk_delete_nonce'); ?>
 		<div class="box-top">
 			<ul class="breadcrumb-seo">
 				<li><a href="#">Improve SEO</a></li>
@@ -69,9 +70,11 @@ $url .= $_SERVER['REQUEST_URI'];
 			<div>
 				<input type="hidden" name="page" value="improveseo_bulkprojects" />
 				<input type="hidden" name="noheader" value="true" />
-				<input type="hidden" value="bulk-delete-posts" name="action">
-				<button type="submit" id="doaction" class="btn_delete action" value="Delete Projects">Delete Selected
-					Projects</button>
+				<input type="hidden" name="main_id" value="<?php echo esc_attr($_GET['id']); ?>" />
+				<input type="hidden" value="bulk-delete-tasks" name="action">
+				<button type="submit" id="doaction" class="btn_delete action"
+					onclick="return confirm('Are you sure you want to delete the selected tasks and their associated posts?')">Delete
+					Selected Tasks</button>
 			</div>
 			<div class="pagination">
 				<?php if ($page > 1): ?>
@@ -371,8 +374,35 @@ $url .= $_SERVER['REQUEST_URI'];
 			}
 		});
 	}
-	jQuery('#cb-select-all').click(function (e) {
-		jQuery("input[type=checkbox]").prop('checked', jQuery(this).prop('checked'));
+	jQuery(document).ready(function ($) {
+		$('#cb-select-all').on('change', function () {
+			var isChecked = $(this).prop('checked');
+			$('input[name="project_ids[]"]').prop('checked', isChecked);
+		});
+
+		$('input[name="project_ids[]"]').on('change', function () {
+			var totalCheckboxes = $('input[name="project_ids[]"]').length;
+			var checkedCheckboxes = $('input[name="project_ids[]"]:checked').length;
+
+			if (checkedCheckboxes === 0) {
+				$('#cb-select-all').prop('indeterminate', false).prop('checked', false);
+			} else if (checkedCheckboxes === totalCheckboxes) {
+				$('#cb-select-all').prop('indeterminate', false).prop('checked', true);
+			} else {
+				$('#cb-select-all').prop('indeterminate', true);
+			}
+		});
+
+		$('#doaction').on('click', function (e) {
+			var checkedItems = $('input[name="project_ids[]"]:checked').length;
+			if (checkedItems === 0) {
+				e.preventDefault();
+				alert('Please select at least one task to delete.');
+				return false;
+			}
+
+			return confirm('Are you sure you want to delete ' + checkedItems + ' selected task(s) and their associated posts? This action cannot be undone.');
+		});
 	});
 </script>
 

@@ -137,6 +137,68 @@ function improveseo_bulkprojects()
 		$action = 'index';
 	}
 
+	if (isset($_POST['action']) && $_POST['action'] === 'bulk-delete-tasks') {
+		if (!isset($_POST['bulk_delete_nonce']) || !wp_verify_nonce($_POST['bulk_delete_nonce'], 'bulk_delete_tasks')) {
+			FlashMessage::message('Security check failed. Please try again.', 'error');
+			wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . intval($_POST['main_id'])));
+			exit;
+		}
+
+		if (!current_user_can('delete_posts')) {
+			FlashMessage::message('You do not have permission to delete tasks.', 'error');
+			wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . intval($_POST['main_id'])));
+			exit;
+		}
+
+		if (!isset($_POST['project_ids']) || empty($_POST['project_ids'])) {
+			FlashMessage::message('No tasks selected for deletion.', 'error');
+			wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . intval($_POST['main_id'])));
+			exit;
+		}
+
+		$task_ids = array_map('intval', $_POST['project_ids']);
+		$main_id = intval($_POST['main_id']);
+		$deleted_count = 0;
+
+		foreach ($task_ids as $task_id) {
+			if ($task_id > 0) {
+				$task_data = $wpdb->get_row($wpdb->prepare(
+					"SELECT post_id FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE id = %d",
+					$task_id
+				));
+
+				if ($task_data && !empty($task_data->post_id)) {
+					wp_delete_post($task_data->post_id, true);
+
+					$wpdb->delete(
+						$wpdb->prefix . 'postmeta',
+						array('post_id' => $task_data->post_id),
+						array('%d')
+					);
+				}
+
+				$deleted = $wpdb->delete(
+					$wpdb->prefix . 'improveseo_bulktasksdetails',
+					array('id' => $task_id),
+					array('%d')
+				);
+
+				if ($deleted !== false) {
+					$deleted_count++;
+				}
+			}
+		}
+
+		if ($deleted_count > 0) {
+			FlashMessage::success("Successfully deleted {$deleted_count} task(s) and their associated posts.");
+		} else {
+			FlashMessage::message('No tasks were deleted. Please try again.', 'error');
+		}
+
+		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $main_id));
+		exit;
+	}
+
 	if ($action == 'index'):
 		// Filters
 		$orderBy = isset($_GET['orderBy']) ? $_GET['orderBy'] : 'created_at';
