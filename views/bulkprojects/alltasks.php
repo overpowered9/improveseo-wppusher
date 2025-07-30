@@ -15,10 +15,8 @@ use ImproveSEO\View;
 <?php
 
 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
-
 	$url = "https://";
 else
-
 	$url = "http://";
 
 // Append the host(domain name, ip) to the URL.   
@@ -63,7 +61,6 @@ $url .= $_SERVER['REQUEST_URI'];
 				<li><a href="#">Improve SEO</a></li>
 				<li>All Keyword Lists</li>
 			</ul>
-
 			<div class="import-export-btn">
 				<button type="button" class="active"> Add New </button>
 			</div>
@@ -87,7 +84,6 @@ $url .= $_SERVER['REQUEST_URI'];
 						&lt; Prev
 					</button>
 				<?php endif; ?>
-
 				<?php for ($i = 1; $i <= $pages; $i++): ?>
 					<?php if ($i == $page): ?>
 						<button type="button" class="active"><?= $i ?></button>
@@ -96,7 +92,6 @@ $url .= $_SERVER['REQUEST_URI'];
 							onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?= $i ?></button>
 					<?php endif; ?>
 				<?php endfor; ?>
-
 				<?php if ($page < $pages): ?>
 					<button type="button" class="next pagination-btn"
 						onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . '&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
@@ -185,7 +180,6 @@ $url .= $_SERVER['REQUEST_URI'];
 									}
 									?> </td>
 									<td scope="col" data-label="Action" class="actions-btn" style="width: 4%;">
-
 										<a href="#" class="action-btn-pop"> <img
 												src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
 												alt="ri_more-2-fill"> </a>
@@ -194,9 +188,6 @@ $url .= $_SERVER['REQUEST_URI'];
 											<ul class="popup-menu">
 												<div class="row-actions"
 													style="display: flex; flex-direction: column !important;">
-
-
-
 													<?php if ($project->status != 'Done') { ?>
 														<span class="edit">
 															<?php $task_id = $_GET['id']; ?>
@@ -218,11 +209,7 @@ $url .= $_SERVER['REQUEST_URI'];
 															<a href="javascript:re_generatepost(<?= $project->id ?>)"
 																class="popup-link" target="_self">Re-Generate Post</a>
 														</span>
-
 													<?php } ?>
-
-
-
 													<?php if (!empty($project->post_id)) { ?>
 														<?php //$posturl =   get_post($project->post_id); 
 																$preview_link = add_query_arg('preview', 'true', get_permalink($project->post_id)); ?>
