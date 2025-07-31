@@ -5,9 +5,6 @@ if (file_exists(dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.p
 	include_once dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.php';
 include_once dirname(__FILE__) . '/modules/GenerateAIpopup.php';
 
-
-
-
 add_action('wp_ajax_getaaldata', 'getaaldata');
 
 function getaaldata()
@@ -97,7 +94,7 @@ function getaaldata()
 
 	//$content = convert_emails_to_links($content);
 
-	//$content = convert_urls_to_links($content);
+	// $content = convert_urls_to_links($content);
 
 
 
@@ -245,6 +242,24 @@ function ChatGPTCall($question)
 function createAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '')
 {
 
+	// Print all incoming parameters to browser console for debugging
+	echo '<script>';
+	echo 'console.log("=== Function Parameters Debug ===");';
+	echo 'console.log("seed_keyword:", ' . json_encode($seed_keyword) . ');';
+	echo 'console.log("keyword_selection:", ' . json_encode($keyword_selection) . ');';
+	echo 'console.log("seed_options:", ' . json_encode($seed_options) . ');';
+	echo 'console.log("nos_of_words:", ' . json_encode($nos_of_words) . ');';
+	echo 'console.log("content_lang:", ' . json_encode($content_lang) . ');';
+	echo 'console.log("shortcode:", ' . json_encode($shortcode) . ');';
+	echo 'console.log("is_single_keyword:", ' . json_encode($is_single_keyword) . ');';
+	echo 'console.log("voice_tone:", ' . json_encode($voice_tone) . ');';
+	echo 'console.log("point_of_view:", ' . json_encode($point_of_view) . ');';
+	echo 'console.log("title:", ' . json_encode($title) . ');';
+	echo 'console.log("call_to_action:", ' . json_encode($call_to_action) . ');';
+	echo 'console.log("details_to_include:", ' . json_encode($details_to_include) . ');';
+	echo 'console.log("for_testing_only:", ' . json_encode($for_testing_only) . ');';
+	echo 'console.log("=== End Parameters Debug ===");';
+	echo '</script>';
 	global $wpdb, $user_ID;
 
 	$prompt_collection = '<b>LSI_Keyords Prompt : <b><br>';
@@ -1464,76 +1479,7 @@ Audience data: {' . $AudienceData . '}';
 		$response_seventh_call_for_small = $result['choices'][0]['message']['content'];
 
 
-
-
-
-		/*return array("first_subtitle"=>$response_first_call_for_small,
-
-																	   "second_subtitle"=>$response_secound_call_for_small,
-
-																	   "third_subtitle"=>$response_third_call_for_small,
-
-																	   "fourth_subtitle"=>$response_fourth_call_for_small,
-
-																	   "conclusion"=>$response_fifth_call_for_small,
-
-																	   "faq"=>$response_sixth_call_for_small,
-
-																	   "whats_next"=>$response_seventh_call_for_small);*/
-
 		$prompt_collection = $prompt_collection . '<br><b>seventh_call_for_small</b><br>' . $seventh_call_for_small . '<br><b>response for 7th call</b>' . $response_seventh_call_for_small;
-
-
-
-
-
-		// $prompt_collection = $prompt_collection.'<br>seventh_call_for_small<br>'.$seventh_call_for_small.'<br>'.'[
-
-		// 	[role => system, content => You are a helpful assistant. Please respond in '.$content_lang.'],<br>
-
-		// 	[role => user, content => '.$basic_prompt.'],<br>
-
-		// 	[role => assistant, content => '.$basic_prompt_response.'],<br>
-
-		// 	[role => user, content => '.$first_call_for_small.'],<br>
-
-		// 	[role => assistant, content => '.$response_first_call_for_small.'],<br>
-
-		// 	[role => user, content => '.$second_call_for_small.'],<br>
-
-		// 	[role => assistant, content => '.$response_secound_call_for_small.'],<br>
-
-		// 	[role => user, content => '.$third_call_for_small.'],<br>
-
-		// 	[role => assistant, content => '.$response_third_call_for_small.'],<br>
-
-		// 	[role => user, content => '.$fourth_call_for_small.'],<br>
-
-		// 	[role => user, content => '.$fifth_call_for_small.'],<br>
-
-		// 	[role => assistant, content => '.$response_fifth_call_for_small.'],<br>
-
-		// 	[role => user, content => '.$sixth_call_for_small.'],<br>
-
-		// 	[role => assistant, content => '.$response_sixth_call_for_small.'],<br>
-
-		// 	[role => user, content => '.$seventh_call_for_small.'],<br>
-
-		// ]';
-
-
-
-
-
-		//echo $prompt_collection;
-
-		//exit('ttttttttt1111111111111');
-
-
-
-
-
-
 
 		// For Testing purposes - Checklist
 
@@ -2576,27 +2522,6 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 		$prompt_collection = $prompt_collection . '<br><b>7th call request</b><br>' . $seventh_call_for_medium . '<br><b>response for 7th response</b>' . $response_seventh_call_for_medium;
 
 
-
-		/*return array("first_subtitle"=>$response_first_call_for_medium ,
-
-																	   "second_subtitle"=>$response_secound_call_for_medium ,
-
-																	   "third_subtitle"=>$response_third_call_for_medium ,
-
-																	   "fourth_subtitle"=>$response_fourth_call_for_medium ,
-
-																	   "conclusion"=>$response_fifth_call_for_medium ,
-
-																	   "faq"=>$response_sixth_call_for_medium ,
-
-																	   "whats_next"=>$response_seventh_call_for_medium );*/
-
-		//$content_final = $basic_prompt_response.'<br><br>'.$response_first_call_for_medium .'<br><br>'.$response_secound_call_for_medium .'<br><br>'.$response_third_call_for_medium .'<br><br>'.$response_fourth_call_for_medium .'<br><br>'.$response_fifth_call_for_medium .'<br><br>'.$response_sixth_call_for_medium .'<br><br>'.$response_seventh_call_for_medium ;
-
-
-
-
-
 		// For Testing purposes - Checklist
 
 		if ($seed_options == 'seed_option3') {
@@ -3047,13 +2972,9 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 		]);
 
-
-
 		// Execute the cURL request
 
 		$response = curl_exec($ch);
-
-
 
 		// Check for cURL errors
 
@@ -3073,19 +2994,9 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 		$response_secound_call_for_large = $result['choices'][0]['message']['content'];
 
-
-
-
-
 		$prompt_collection = $prompt_collection . '<br><b>2nd call request</b><br>' . $second_call_for_large . '<br><b>response for 2nd response</b>' . $response_secound_call_for_large;
 
-
-
 		///// third call
-
-
-
-
 
 		$third_call_for_large = 'Now generate the third subtitle content. IMPORTANT: Output should not be more than 450-600 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 
@@ -3178,10 +3089,6 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 
 		$prompt_collection = $prompt_collection . '<br><b>3rd call request</b><br>' . $third_call_for_large . '<br><b>response for 3rd response</b>' . $response_third_call_for_large;
-
-
-
-
 
 		/////// 4th call 
 
@@ -3284,19 +3191,7 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 		$prompt_collection = $prompt_collection . '<br><b>4th call request</b><br>' . $fourth_call_for_large . '<br><b>response for 4th response</b>' . $response_fourth_call_for_large;
 
 
-
-
-
-
-
-
-
-
-
 		// 5th call 
-
-
-
 
 
 		$fifth_call_for_large = 'Now generate the fifth subtitle content. IMPORTANT: Output should not be more than 450-600 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
@@ -3400,25 +3295,7 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 		$prompt_collection = $prompt_collection . '<br><b>5th call request</b><br>' . $fifth_call_for_large . '<br><b>response for 5th response</b>' . $response_fifth_call_for_large;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		// 6th call 
-
-
-
 
 
 		$sixth_call_for_large = 'Now generate the conclusion content. IMPORTANT: Output should not be more than 150-200 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
@@ -3495,13 +3372,9 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 		]);
 
-
-
 		// Execute the cURL request
 
 		$response = curl_exec($ch);
-
-
 
 		// Check for cURL errors
 
@@ -3521,19 +3394,7 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 		$response_sixth_call_for_large = $result['choices'][0]['message']['content'];
 
-
-
-
-
-
-
-
-
 		// 7th call 
-
-
-
-
 
 		$seventh_call_for_large = 'Now generate the FAQs content. IMPORTANT: Output should not be more than 100-150 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 
@@ -3639,22 +3500,7 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 		$response_seventh_call_for_large = $result['choices'][0]['message']['content'];
 
-
-
-
-
-
-
 		//8th call
-
-
-
-
-
-
-
-
-
 
 
 		$eigth_call_for_large = 'Now generate What is next? content. IMPORTANT: Output should not be more than 150-200 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
@@ -3766,37 +3612,6 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 		$response_eigth_call_for_large = $result['choices'][0]['message']['content'];
 
 
-
-
-
-
-
-
-
-
-
-		/*return array("first_subtitle"=>$response_first_call_for_large,
-
-																	   "second_subtitle"=>$response_secound_call_for_large,
-
-																	   "third_subtitle"=>$response_third_call_for_large,
-
-																	   "fourth_subtitle"=>$response_fourth_call_for_large,
-
-																	   "conclusion"=>$response_fifth_call_for_large,
-
-																	   "faq"=>$response_sixth_call_for_large,
-
-																	   "whats_next"=>$response_seventh_call_for_large);*/
-
-		//$content_final = $basic_prompt_response.'<br><br>'.$response_first_call_for_large.'<br><br>'.$response_secound_call_for_large.'<br><br>'.$response_third_call_for_large.'<br><br>'.$response_fourth_call_for_large.'<br><br>'.$response_fifth_call_for_large.'<br><br>'.$response_sixth_call_for_large.'<br><br>'.$response_seventh_call_for_large.'<br><br>'.$response_eigth_call_for_large;
-
-
-
-
-
-
-
 		// For Testing purposes - Checklist
 
 		if ($seed_options == 'seed_option3') {
@@ -3872,219 +3687,6 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 	}
 
 
-
-	//    if($details_to_include == ''){
-
-	// 	$details_to_include = '';
-
-	//    }else{
-
-	// 	$details_to_include =  '11. Call To Action:'.$details_to_include.' ' ;
-
-	//    }
-
-
-
-	// 'write a '.$nos_of_words.' blog post about '.$seed_keyword ;
-
-	/* $call_to_actions = '11. Call To Action:'.$call_to_action.'';
-
-
-
-
-
-
-
-					  $question = 'Pretend you are Malcolm Gladwell. Using the provided outline, write a '.$nos_of_words.' blog post about '.$seed_keyword.'
-
-					  Your task is to: Aim the piece at a broad audience.		
-
-					  Use a mix of short, medium, and long sentences to create a human-like rhythm in the text.
-
-					  Incorporate humor, where appropriate, to make the piece more enjoyable to read.
-
-					  Include an analogy to explain any complex concepts or ideas.
-
-					  Use a '.$voice_tone.' tone to make the piece more relatable.
-
-					  Consider the perspectives of both an expert and a beginner.
-
-					  Write from the following point of view: '.$point_of_view.'
-
-					  Incorporate the provided "LSI keywords" naturally throughout the content. LSI keywords: '.$LSI_Keyords.'
-
-					  
-
-					  Consider the context that is provided to make the blog post more relevant to the main keyword '.$seed_keyword.'
-
-					  
-
-					  Context:'.$details_to_include.'.
-
-
-
-					  Use the iterative approach to improve upon your initial draft. After each draft, critique your work, give it a score out of 10, and if the score is below 9, improve upon the previous draft. Repeat this process until you achieve a score of 9 or 10. When doing this, review and edit your work to remove any grammatical errors, unnecessary information, and superfluous sentences. Don`t provide output of this critique, this is only for you to analyze internally.
-
-					  
-
-					  The blog post should contain the following:
-
-					  
-
-						 - Provide a concise preview of the content`s value and insights and write an engaging and informative introduction, incorporating the primary keyword within the first 100-150 words, applying NLP and EI principles for emotional resonance. Don’t create a header for this section, only provide the paragraph.
-
-					  
-
-					  2. <h2>Table of Contents:</h2>
-
-						 - Outline main content areas with H2 section subheaders, non-bolded and in medium gray, for SEO and easy navigation. Please make sure that H2 section subheaders are not bold. Don’t include a header for the following section: ‘Introduction’		
-
-					  
-
-					  3. <h2>Main Content Sections:</h2>
-
-						 - Create H2 sections with titles using keywords and their variations at a 1-2% usage rate per 100 words to prevent keyword stuffing. Each section should contain 3-5 sentences of detailed content, employing NLP and EI for relatability and actionability. Please make sure that the content for each section is at least 150 words.
-
-					  
-
-					  4. <h2>Conclusion:</h2>
-
-						 - Summarize key insights in an H2 header, medium gray, encouraging further exploration or engagement.
-
-					  
-
-					  5.  <h2>Frequently Asked Questions</h2>
-
-						  -  Answer common questions about '.$seed_keyword.' with clear, informative, non-bolded answers that empathize with the reader`s concerns. Output should just be the questions and answers, don’t write ‘Q’ in front of the questions and ‘A’ in front of the answers.
-
-					  6. <h2>What’s Next? </h2>
-
-						  -Write a short paragraph inviting the reader to take action in the explained way, including links or phone numbers if provided.
-
-						 '.$call_to_actions;
-
-					  
-
-						 // Your chat messages
-
-						 $messages = [
-
-							 // ['role' => 'system', 'content' => 'You are a helpful assistant.'],
-
-							 ['role' => 'user', 'content' => $question]
-
-							 // ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
-
-						 ];
-
-						 
-
-						 // Additional parameters, including language setting (replace with actual parameters)
-
-						 $data = [
-
-							 'messages' => $messages,
-
-							 "model" => "gpt-4o",
-
-							 // 'language' => 'fr',  // Specify the result language as French
-
-						 ];
-
-						 
-
-						 // Set up cURL
-
-						 $ch = curl_init($apiUrl);
-
-						 
-
-						 // Set cURL options
-
-						 curl_setopt($ch, CURLOPT_POST, 1);
-
-						 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-
-						 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-						 curl_setopt($ch, CURLOPT_HTTPHEADER, [
-
-							 'Content-Type: application/json',
-
-							 'Authorization: Bearer ' . $apiKey,
-
-						 ]);
-
-						 
-
-						 // Execute the cURL request
-
-						 $response = curl_exec($ch);
-
-						 
-
-						 // Check for cURL errors
-
-						 if (curl_errno($ch)) {
-
-							 echo 'Curl error: ' . curl_error($ch);
-
-						 }
-
-						 
-
-						 // Close cURL session
-
-						 curl_close($ch);
-
-						 
-
-						 // Decode and display the response
-
-						 $result = json_decode($response, true);
-
-						 
-
-						 // print_r($result);
-
-						 
-
-						 // echo 'Generated Text in French: ' . $result['choices'][0]['message']['content'];
-
-						 // die();
-
-						 
-
-						 // print_r($shortcode);
-
-						 // $scode = '';
-
-						 // for ($s=0; $s<=count($shortcode)-1; $s++)
-
-						 // {
-
-						 //     $scode.= $shortcode[$s]."<br/>";
-
-						 // }
-
-						 // die();
-
-						 $content_final = $result['choices'][0]['message']['content'];
-
-						 
-
-						 */
-
-
-
-	//echo $prompt_collection;
-
-	//exit();
-
-
-
-
-
 	//if($is_single_keyword=='') {
 
 	$content_final = $content_final . '<style> p {padding-bottom: 2px !important;} </style>';
@@ -4093,39 +3695,8 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 	$options = array("max_posts" => "1");
 
-	/*$wpdb->insert($wpdb->prefix . "improveseo_tasks", array(
-
-										  
-
-								   'name' => $seed_keyword,
-
-								   'content' => base64_encode(json_encode($content)),
-
-								   'options' => base64_encode(json_encode($options)),
-
-								   'iteration' => 0,
-
-								   'spintax_iterations' => 1,
-
-								   'max_iterations' => 1,
-
-								   'state' => "Published",
-
-								   'options' => base64_encode(json_encode($options)),
-
-								//'prompt_collection' => base64_encode($prompt_collection),
-
-								   'created_at' => date('Y-m-d h:m:s')
-
-							   ));*/
-
+	
 	$inserted_id = 2;//$wpdb->insert_id;
-
-
-
-
-
-
 
 	//$upload_dir = wp_upload_dir(); // Get WordPress upload directory
 
@@ -4139,25 +3710,15 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 	}
 
-
-
 	// Define file path
 
 	$file_path = $dynamic_path . $inserted_id . date('Y-m-d-H-i-s') . '.html'; // File name with timestamp
-
-
-
-
 
 	ob_start();
 
 	?>
 
-
-
 	<html>
-
-
 
 	<head>
 
@@ -4201,28 +3762,6 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 	}
 
-
-
-
-
-
-
-
-
-	//	} else {
-
-
-
-
-
-
-
-
-
-
-
-
-
 	$content_final = convert_emails_to_links($content_final);
 
 	$content_final = convert_urls_to_links($content_final);
@@ -4257,7 +3796,7 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 	return $content_final;
 
-	//}
+	
 
 
 

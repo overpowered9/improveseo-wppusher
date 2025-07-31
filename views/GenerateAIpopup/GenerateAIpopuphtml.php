@@ -453,40 +453,14 @@ global $ai_modal_type;
                                 id="Manually_image">
                             <label for="Manually_image">Manually Upload Image</label>
                         </div>
-                        <!-- <div class="flex_imgae_gereater_radio">
-                            <div class="col" style="text-align: left; margin-top: 30px;">
-                                <label for="AI_image" class="style_imgae_gereater_radio">
-                                    <input class="for_styling_generate_image_radio_buttons" type="radio" name="aiImage"
-                                        onclick="SeedHide()" value="AI_image" id="AI_image">
-                                    <span class="custom-radio"></span>
-                                    Generate AI Image Based On Title
-                                </label>
-                            </div>
-                            <div class="col" style="text-align: left; margin-top: 30px;">
-                                <label for="manually_promt_image" class="style_imgae_gereater_radio">
-                                    <input class="for_styling_generate_image_radio_buttons" type="radio" name="aiImage"
-                                        value="manually_promt_image" id="manually_promt_image">
-                                    <span class="custom-radio"></span>
-                                    Generate AI Image - Edit Prompt
-                                </label>
-                            </div>
-                            <div class="col" style="text-align: left; margin-top: 30px;">
-                                <label for="Manually_image" class="style_imgae_gereater_radio">
-                                    <input class="for_styling_generate_image_radio_buttons" type="radio" name="aiImage"
-                                        onclick="SeedShow()" value="Manually_image" id="Manually_image">
-                                    <span class="custom-radio"></span>
-                                    Manually Upload Image
-                                </label>
-                            </div>
-                        </div> -->
+                        
 
                         <div id="AI_image_div" class="col-md-12" style="display:none;">
                             <div id="ai-image-display"></div>
                             <div class="form-group col-md-12" style="margin: 0 0 0 40%;" id="AIrefreshOption">
                                 <button class="styling_post_page_action_buttons " onclick="return refreshAIImage()"
                                     style="cursor:pointer;">Regenerate AI Image</button>
-                                <!-- <i class="fa fa-refresh" aria-hidden="true" onclick="return refreshAIImage()"
-                                style="cursor:pointer;"></i> -->
+                               
                             </div>
                             <input type="hidden" id="AI-Image-uploaded-path" name="AI-Image-uploaded-path">
                         </div>
