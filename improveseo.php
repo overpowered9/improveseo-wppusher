@@ -83,8 +83,8 @@ if (file_exists(dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.p
 if (file_exists(dirname(__FILE__) . '/modules/single_AI_post_function.php'))
 
 	include_once dirname(__FILE__) . '/modules/single_AI_post_function.php';
-if (file_exists(dirname(__FILE__) . '/modules/new_single_AI_post_function copy.php'))
-    include_once dirname(__FILE__) . '/modules/new_single_AI_post_function copy.php';	
+if (file_exists(dirname(__FILE__) . '/modules/new_single_AI_post_function.php'))
+    include_once dirname(__FILE__) . '/modules/new_single_AI_post_function.php';	
 
 if (file_exists(dirname(__FILE__) . '/modules/bulk_AI_post_function.php'))
 
