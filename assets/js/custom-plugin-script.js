@@ -166,6 +166,7 @@ jQuery("#generate_i_image").on("click", function () {
 });
 
 jQuery("#generateapivalue").on("click", function () {
+  console.log("Debug Message when gen ai is clicked");
   jQuery("#loadingAIData").show();
 
   jQuery("#for_testing_only").css("display", "none");
