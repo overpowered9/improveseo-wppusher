@@ -194,7 +194,7 @@ jQuery("#generateapivalue").on("click", function () {
 
       // jQuery("#loadingImage").hide();
 
-      console.log(response);
+      console.log("response of generate single ai", response);
 
       var searchData = response.data.search_data;
 
@@ -335,7 +335,7 @@ jQuery("#generateapivalue").on("click", function () {
     error: function (error) {
       // Handle the error
 
-      console.log(error);
+      console.log("error of generate single ai", error);
     },
   });
 });
