@@ -9,8 +9,6 @@ add_action('wp_ajax_getaaldata', 'getaaldata');
 
 function getaaldata()
 {
-	echo '<script>console.log("Debug message at getaaldata");</script>';
-
 	$arr = [];
 
 	wp_parse_str($_POST['value'], $arr);
