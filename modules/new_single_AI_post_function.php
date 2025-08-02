@@ -243,23 +243,7 @@ function createAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_
 {
 
 	// Print all incoming parameters to browser console for debugging
-	echo '<script>';
-	echo 'console.log("=== Function Parameters Debug ===");';
-	echo 'console.log("seed_keyword:", ' . json_encode($seed_keyword) . ');';
-	echo 'console.log("keyword_selection:", ' . json_encode($keyword_selection) . ');';
-	echo 'console.log("seed_options:", ' . json_encode($seed_options) . ');';
-	echo 'console.log("nos_of_words:", ' . json_encode($nos_of_words) . ');';
-	echo 'console.log("content_lang:", ' . json_encode($content_lang) . ');';
-	echo 'console.log("shortcode:", ' . json_encode($shortcode) . ');';
-	echo 'console.log("is_single_keyword:", ' . json_encode($is_single_keyword) . ');';
-	echo 'console.log("voice_tone:", ' . json_encode($voice_tone) . ');';
-	echo 'console.log("point_of_view:", ' . json_encode($point_of_view) . ');';
-	echo 'console.log("title:", ' . json_encode($title) . ');';
-	echo 'console.log("call_to_action:", ' . json_encode($call_to_action) . ');';
-	echo 'console.log("details_to_include:", ' . json_encode($details_to_include) . ');';
-	echo 'console.log("for_testing_only:", ' . json_encode($for_testing_only) . ');';
-	echo 'console.log("=== End Parameters Debug ===");';
-	echo '</script>';
+	
 	global $wpdb, $user_ID;
 
 	$prompt_collection = '<b>LSI_Keyords Prompt : <b><br>';
