@@ -5,6 +5,9 @@ if (file_exists(dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.p
 	include_once dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.php';
 include_once dirname(__FILE__) . '/modules/GenerateAIpopup.php';
 
+
+
+
 add_action('wp_ajax_getaaldata', 'getaaldata');
 
 function getaaldata()
@@ -94,7 +97,7 @@ function getaaldata()
 
 	//$content = convert_emails_to_links($content);
 
-	// $content = convert_urls_to_links($content);
+	//$content = convert_urls_to_links($content);
 
 
 
@@ -242,8 +245,6 @@ function ChatGPTCall($question)
 function createAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '')
 {
 
-	// Print all incoming parameters to browser console for debugging
-	
 	global $wpdb, $user_ID;
 
 	$prompt_collection = '<b>LSI_Keyords Prompt : <b><br>';
@@ -488,11 +489,11 @@ Audience data: {' . $AudienceData . '}';
 
 			
 
-			Table of Contents - Create a clickable table of contents with anchor links. Each item in the TOC should be formatted as a clickable link that jumps to the corresponding section. Use the format: <a href="#section-id">Section Title</a>. The section IDs should be URL-friendly (lowercase, hyphens instead of spaces, no special characters). Craft attention-grabbing subtitles that entice readers to click and read more. Use numbers, questions, and powerful words to draw interest. Use NLP techniques to craft subtitles that grab attention. Incorporate power words and questions to stimulate curiosity and engagement. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions reader has while searching it. You should understand what deep questions and concerns user wants to answer and build your subtitles(subsections) based on these. Do not include numbering in the list of subtitles. Make engaging titles in the Table of Contents.  
+			Table of Contents - Outline main content areas of the post. Craft attention-grabbing subtitles that entice readers to click and read more. Use numbers, questions, and powerful words to draw interest. Use NLP techniques to craft subtitles that grab attention. Incorporate power words and questions to stimulate curiosity and engagement. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions reader has while searching it. You should understand what deep questions and concerns user wants to answer and build your subtitles(subsections) based on these. Do not list Section titles, make short list of subtitles that will be described in Main Content Section, do not include numbering in the list of subtitles. Make engaging titles in the Table of Contents. 
 
 			
 
-			Main Content Sections - Create content sections with subtitles using keywords and their variations at a 1-2% usage rate per 100 words to prevent keyword stuffing. IMPORTANT: Each H2 heading must include an id attribute that matches the TOC links (e.g., <h2 id="section-id">Section Title</h2>). Each section should contain a detailed content, employing NLP and EI for relatability and actionability. Make the content deep so it responds to the emotions and curiosity of the readers. Use storytelling techniques to make your content more relatable and memorable. Share personal anecdotes, case studies, and real-life examples. Stories are a powerful NLP tool to create an emotional connection. Share personal anecdotes or relatable scenarios to make your content more engaging and memorable. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions user has while searching it. You should understand what deep questions and concerns users want to answer and build your output based on these. Use the following NLP Techniques for creating content:
+			Main Content Sections - Create content content sections with subtitles using keywords and their variations at a 1-2% usage rate per 100 words to prevent keyword stuffing. Each section should contain a detailed content, employing NLP and EI for relatability and actionability. Make the content deep so it responds to the emotions and curiosity of the readers. Use storytelling techniques to make your content more relatable and memorable. Share personal anecdotes, case studies, and real-life examples. Stories are a powerful NLP tool to create an emotional connection. Share personal anecdotes or relatable scenarios to make your content more engaging and memorable. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions user has while searching it. You should understand what deep questions and concerns users want to answer and build your output based on these. Use the following NLP Techniques for creating content:
 
 				Anchoring: Use anchoring to associate positive emotions with your content. For instance, repeatedly use a specific phrase or concept that evokes a positive response.
 
@@ -530,19 +531,19 @@ Audience data: {' . $AudienceData . '}';
 
 			
 
-			<h2 id="table-of-contents">Table of Contents</h2> (Heading 2) - should not be more than 50 words. Format as clickable links: <ul><li><a href="#section-id">Section Title</a></li></ul>
+			<h2>Table of Contents</h2> (Heading 2) - should not be more than 50 words
 
 			
 
-			Main Content Sections - Create 4 sections. Each section should not be more than 200-250 words of detailed content. Use format: <h2 id="section-id">Section Title</h2>
+			<h2>Main Content Sections</h2> (Heading 2) - Create 4 sections. Each section should not be more than 200-250 words of detailed content.
 
 			
 
-			<h2 id="conclusion">Conclusion</h2> (Heading 2) - Conclusion should not be more than 100-150 words.
+			<h2>Conclusion</h2> (Heading 2) - Conclusion should not be more than 100-150 words.
 
 			
 
-			<h2 id="faqs">FAQs</h2> (Heading 2) - FAQs should not be more than 100-150 words.
+			<h2>FAQs</h2> (Heading 2) - FAQs should not be more than 100-150 words.
 
 			Q: 
 
@@ -562,7 +563,7 @@ Audience data: {' . $AudienceData . '}';
 
 			
 
-			<h2 id="whats-next">What\'s Next?</h2> (Heading 2) - What\'s next? should not be more than 100-150 words.
+			<h2>What is next?</h2> (Heading 2) - What is next? should not be more than 100-150 words.
 
 			}
 
@@ -1463,7 +1464,76 @@ Audience data: {' . $AudienceData . '}';
 		$response_seventh_call_for_small = $result['choices'][0]['message']['content'];
 
 
+
+
+
+		/*return array("first_subtitle"=>$response_first_call_for_small,
+
+																	   "second_subtitle"=>$response_secound_call_for_small,
+
+																	   "third_subtitle"=>$response_third_call_for_small,
+
+																	   "fourth_subtitle"=>$response_fourth_call_for_small,
+
+																	   "conclusion"=>$response_fifth_call_for_small,
+
+																	   "faq"=>$response_sixth_call_for_small,
+
+																	   "whats_next"=>$response_seventh_call_for_small);*/
+
 		$prompt_collection = $prompt_collection . '<br><b>seventh_call_for_small</b><br>' . $seventh_call_for_small . '<br><b>response for 7th call</b>' . $response_seventh_call_for_small;
+
+
+
+
+
+		// $prompt_collection = $prompt_collection.'<br>seventh_call_for_small<br>'.$seventh_call_for_small.'<br>'.'[
+
+		// 	[role => system, content => You are a helpful assistant. Please respond in '.$content_lang.'],<br>
+
+		// 	[role => user, content => '.$basic_prompt.'],<br>
+
+		// 	[role => assistant, content => '.$basic_prompt_response.'],<br>
+
+		// 	[role => user, content => '.$first_call_for_small.'],<br>
+
+		// 	[role => assistant, content => '.$response_first_call_for_small.'],<br>
+
+		// 	[role => user, content => '.$second_call_for_small.'],<br>
+
+		// 	[role => assistant, content => '.$response_secound_call_for_small.'],<br>
+
+		// 	[role => user, content => '.$third_call_for_small.'],<br>
+
+		// 	[role => assistant, content => '.$response_third_call_for_small.'],<br>
+
+		// 	[role => user, content => '.$fourth_call_for_small.'],<br>
+
+		// 	[role => user, content => '.$fifth_call_for_small.'],<br>
+
+		// 	[role => assistant, content => '.$response_fifth_call_for_small.'],<br>
+
+		// 	[role => user, content => '.$sixth_call_for_small.'],<br>
+
+		// 	[role => assistant, content => '.$response_sixth_call_for_small.'],<br>
+
+		// 	[role => user, content => '.$seventh_call_for_small.'],<br>
+
+		// ]';
+
+
+
+
+
+		//echo $prompt_collection;
+
+		//exit('ttttttttt1111111111111');
+
+
+
+
+
+
 
 		// For Testing purposes - Checklist
 
@@ -1514,9 +1584,6 @@ Audience data: {' . $AudienceData . '}';
 
 
 		$content_final = '<div class="main-content-section-improveseo">' . $basic_prompt_response . '<div style="margin-bottom: 15px;margin-top: 50px;">' . $response_first_call_for_small . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_secound_call_for_small . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_third_call_for_small . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_fourth_call_for_small . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_fifth_call_for_small . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_sixth_call_for_small . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_seventh_call_for_small . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $test_prupose . '</div></div>';
-
-		// Verify and fix TOC links
-		$content_final = verifyAndFixTOCLinks($content_final);
 
 
 
@@ -1600,15 +1667,15 @@ Introduction - Introduction should not be more than 100-150 words.(do not includ
 
 
 
-<h2 id="table-of-contents">Table of Contents</h2> (Heading 2) - should not be more than 50 words. Format as clickable links: <ul><li><a href="#section-id">Section Title</a></li></ul>
+<h2>Table of Contents</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
 
 
 
-Main Content Sections - Create 4 sections. Create 2-3 subsections and subtitles with formatting H3 for each section so it does not exceed required word quantity. IMPORTANT: Each section should not be more than 350-400 words. Use format: <h2 id="section-id">Section Title</h2> and <h3 id="subsection-id">Subsection Title</h3>
+<h2>Main Content Sections</h2> (Heading 2) - Create 4 sections. Create 2-3 subsections and subtitles with formatting H3 for the each section so it does not exceed required word quantity. IMPORTANT: Each section should not be more than 350-400 words
 
 
 
-<h2 id="conclusion">Conclusion</h2> (Heading 2) - Conclusion should not be more than 100-150 words. Do not include call to action details in the conclusion.
+<h2>Conclusion</h2> (Heading 2) - Conclusion should not be more than 100-150 words. Do not include call to action details in the conclusion.
 
 
 
@@ -2509,6 +2576,27 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 		$prompt_collection = $prompt_collection . '<br><b>7th call request</b><br>' . $seventh_call_for_medium . '<br><b>response for 7th response</b>' . $response_seventh_call_for_medium;
 
 
+
+		/*return array("first_subtitle"=>$response_first_call_for_medium ,
+
+																	   "second_subtitle"=>$response_secound_call_for_medium ,
+
+																	   "third_subtitle"=>$response_third_call_for_medium ,
+
+																	   "fourth_subtitle"=>$response_fourth_call_for_medium ,
+
+																	   "conclusion"=>$response_fifth_call_for_medium ,
+
+																	   "faq"=>$response_sixth_call_for_medium ,
+
+																	   "whats_next"=>$response_seventh_call_for_medium );*/
+
+		//$content_final = $basic_prompt_response.'<br><br>'.$response_first_call_for_medium .'<br><br>'.$response_secound_call_for_medium .'<br><br>'.$response_third_call_for_medium .'<br><br>'.$response_fourth_call_for_medium .'<br><br>'.$response_fifth_call_for_medium .'<br><br>'.$response_sixth_call_for_medium .'<br><br>'.$response_seventh_call_for_medium ;
+
+
+
+
+
 		// For Testing purposes - Checklist
 
 		if ($seed_options == 'seed_option3') {
@@ -2959,9 +3047,13 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 		]);
 
+
+
 		// Execute the cURL request
 
 		$response = curl_exec($ch);
+
+
 
 		// Check for cURL errors
 
@@ -2981,9 +3073,19 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 		$response_secound_call_for_large = $result['choices'][0]['message']['content'];
 
+
+
+
+
 		$prompt_collection = $prompt_collection . '<br><b>2nd call request</b><br>' . $second_call_for_large . '<br><b>response for 2nd response</b>' . $response_secound_call_for_large;
 
+
+
 		///// third call
+
+
+
+
 
 		$third_call_for_large = 'Now generate the third subtitle content. IMPORTANT: Output should not be more than 450-600 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 
@@ -3076,6 +3178,10 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 
 		$prompt_collection = $prompt_collection . '<br><b>3rd call request</b><br>' . $third_call_for_large . '<br><b>response for 3rd response</b>' . $response_third_call_for_large;
+
+
+
+
 
 		/////// 4th call 
 
@@ -3178,7 +3284,19 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 		$prompt_collection = $prompt_collection . '<br><b>4th call request</b><br>' . $fourth_call_for_large . '<br><b>response for 4th response</b>' . $response_fourth_call_for_large;
 
 
+
+
+
+
+
+
+
+
+
 		// 5th call 
+
+
+
 
 
 		$fifth_call_for_large = 'Now generate the fifth subtitle content. IMPORTANT: Output should not be more than 450-600 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
@@ -3282,7 +3400,25 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 		$prompt_collection = $prompt_collection . '<br><b>5th call request</b><br>' . $fifth_call_for_large . '<br><b>response for 5th response</b>' . $response_fifth_call_for_large;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		// 6th call 
+
+
+
 
 
 		$sixth_call_for_large = 'Now generate the conclusion content. IMPORTANT: Output should not be more than 150-200 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
@@ -3359,9 +3495,13 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 		]);
 
+
+
 		// Execute the cURL request
 
 		$response = curl_exec($ch);
+
+
 
 		// Check for cURL errors
 
@@ -3381,7 +3521,19 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 		$response_sixth_call_for_large = $result['choices'][0]['message']['content'];
 
+
+
+
+
+
+
+
+
 		// 7th call 
+
+
+
+
 
 		$seventh_call_for_large = 'Now generate the FAQs content. IMPORTANT: Output should not be more than 100-150 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
 
@@ -3487,7 +3639,22 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 		$response_seventh_call_for_large = $result['choices'][0]['message']['content'];
 
+
+
+
+
+
+
 		//8th call
+
+
+
+
+
+
+
+
+
 
 
 		$eigth_call_for_large = 'Now generate What is next? content. IMPORTANT: Output should not be more than 150-200 words. After writing an output check the word count and regenerate if it is not in the range. Do not include the word count in the output.';
@@ -3599,6 +3766,37 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 		$response_eigth_call_for_large = $result['choices'][0]['message']['content'];
 
 
+
+
+
+
+
+
+
+
+
+		/*return array("first_subtitle"=>$response_first_call_for_large,
+
+																	   "second_subtitle"=>$response_secound_call_for_large,
+
+																	   "third_subtitle"=>$response_third_call_for_large,
+
+																	   "fourth_subtitle"=>$response_fourth_call_for_large,
+
+																	   "conclusion"=>$response_fifth_call_for_large,
+
+																	   "faq"=>$response_sixth_call_for_large,
+
+																	   "whats_next"=>$response_seventh_call_for_large);*/
+
+		//$content_final = $basic_prompt_response.'<br><br>'.$response_first_call_for_large.'<br><br>'.$response_secound_call_for_large.'<br><br>'.$response_third_call_for_large.'<br><br>'.$response_fourth_call_for_large.'<br><br>'.$response_fifth_call_for_large.'<br><br>'.$response_sixth_call_for_large.'<br><br>'.$response_seventh_call_for_large.'<br><br>'.$response_eigth_call_for_large;
+
+
+
+
+
+
+
 		// For Testing purposes - Checklist
 
 		if ($seed_options == 'seed_option3') {
@@ -3674,6 +3872,219 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 	}
 
 
+
+	//    if($details_to_include == ''){
+
+	// 	$details_to_include = '';
+
+	//    }else{
+
+	// 	$details_to_include =  '11. Call To Action:'.$details_to_include.' ' ;
+
+	//    }
+
+
+
+	// 'write a '.$nos_of_words.' blog post about '.$seed_keyword ;
+
+	/* $call_to_actions = '11. Call To Action:'.$call_to_action.'';
+
+
+
+
+
+
+
+					  $question = 'Pretend you are Malcolm Gladwell. Using the provided outline, write a '.$nos_of_words.' blog post about '.$seed_keyword.'
+
+					  Your task is to: Aim the piece at a broad audience.		
+
+					  Use a mix of short, medium, and long sentences to create a human-like rhythm in the text.
+
+					  Incorporate humor, where appropriate, to make the piece more enjoyable to read.
+
+					  Include an analogy to explain any complex concepts or ideas.
+
+					  Use a '.$voice_tone.' tone to make the piece more relatable.
+
+					  Consider the perspectives of both an expert and a beginner.
+
+					  Write from the following point of view: '.$point_of_view.'
+
+					  Incorporate the provided "LSI keywords" naturally throughout the content. LSI keywords: '.$LSI_Keyords.'
+
+					  
+
+					  Consider the context that is provided to make the blog post more relevant to the main keyword '.$seed_keyword.'
+
+					  
+
+					  Context:'.$details_to_include.'.
+
+
+
+					  Use the iterative approach to improve upon your initial draft. After each draft, critique your work, give it a score out of 10, and if the score is below 9, improve upon the previous draft. Repeat this process until you achieve a score of 9 or 10. When doing this, review and edit your work to remove any grammatical errors, unnecessary information, and superfluous sentences. Don`t provide output of this critique, this is only for you to analyze internally.
+
+					  
+
+					  The blog post should contain the following:
+
+					  
+
+						 - Provide a concise preview of the content`s value and insights and write an engaging and informative introduction, incorporating the primary keyword within the first 100-150 words, applying NLP and EI principles for emotional resonance. Don’t create a header for this section, only provide the paragraph.
+
+					  
+
+					  2. <h2>Table of Contents:</h2>
+
+						 - Outline main content areas with H2 section subheaders, non-bolded and in medium gray, for SEO and easy navigation. Please make sure that H2 section subheaders are not bold. Don’t include a header for the following section: ‘Introduction’		
+
+					  
+
+					  3. <h2>Main Content Sections:</h2>
+
+						 - Create H2 sections with titles using keywords and their variations at a 1-2% usage rate per 100 words to prevent keyword stuffing. Each section should contain 3-5 sentences of detailed content, employing NLP and EI for relatability and actionability. Please make sure that the content for each section is at least 150 words.
+
+					  
+
+					  4. <h2>Conclusion:</h2>
+
+						 - Summarize key insights in an H2 header, medium gray, encouraging further exploration or engagement.
+
+					  
+
+					  5.  <h2>Frequently Asked Questions</h2>
+
+						  -  Answer common questions about '.$seed_keyword.' with clear, informative, non-bolded answers that empathize with the reader`s concerns. Output should just be the questions and answers, don’t write ‘Q’ in front of the questions and ‘A’ in front of the answers.
+
+					  6. <h2>What’s Next? </h2>
+
+						  -Write a short paragraph inviting the reader to take action in the explained way, including links or phone numbers if provided.
+
+						 '.$call_to_actions;
+
+					  
+
+						 // Your chat messages
+
+						 $messages = [
+
+							 // ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+
+							 ['role' => 'user', 'content' => $question]
+
+							 // ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
+
+						 ];
+
+						 
+
+						 // Additional parameters, including language setting (replace with actual parameters)
+
+						 $data = [
+
+							 'messages' => $messages,
+
+							 "model" => "gpt-4o",
+
+							 // 'language' => 'fr',  // Specify the result language as French
+
+						 ];
+
+						 
+
+						 // Set up cURL
+
+						 $ch = curl_init($apiUrl);
+
+						 
+
+						 // Set cURL options
+
+						 curl_setopt($ch, CURLOPT_POST, 1);
+
+						 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+						 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+						 curl_setopt($ch, CURLOPT_HTTPHEADER, [
+
+							 'Content-Type: application/json',
+
+							 'Authorization: Bearer ' . $apiKey,
+
+						 ]);
+
+						 
+
+						 // Execute the cURL request
+
+						 $response = curl_exec($ch);
+
+						 
+
+						 // Check for cURL errors
+
+						 if (curl_errno($ch)) {
+
+							 echo 'Curl error: ' . curl_error($ch);
+
+						 }
+
+						 
+
+						 // Close cURL session
+
+						 curl_close($ch);
+
+						 
+
+						 // Decode and display the response
+
+						 $result = json_decode($response, true);
+
+						 
+
+						 // print_r($result);
+
+						 
+
+						 // echo 'Generated Text in French: ' . $result['choices'][0]['message']['content'];
+
+						 // die();
+
+						 
+
+						 // print_r($shortcode);
+
+						 // $scode = '';
+
+						 // for ($s=0; $s<=count($shortcode)-1; $s++)
+
+						 // {
+
+						 //     $scode.= $shortcode[$s]."<br/>";
+
+						 // }
+
+						 // die();
+
+						 $content_final = $result['choices'][0]['message']['content'];
+
+						 
+
+						 */
+
+
+
+	//echo $prompt_collection;
+
+	//exit();
+
+
+
+
+
 	//if($is_single_keyword=='') {
 
 	$content_final = $content_final . '<style> p {padding-bottom: 2px !important;} </style>';
@@ -3682,8 +4093,39 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 	$options = array("max_posts" => "1");
 
-	
+	/*$wpdb->insert($wpdb->prefix . "improveseo_tasks", array(
+
+										  
+
+								   'name' => $seed_keyword,
+
+								   'content' => base64_encode(json_encode($content)),
+
+								   'options' => base64_encode(json_encode($options)),
+
+								   'iteration' => 0,
+
+								   'spintax_iterations' => 1,
+
+								   'max_iterations' => 1,
+
+								   'state' => "Published",
+
+								   'options' => base64_encode(json_encode($options)),
+
+								//'prompt_collection' => base64_encode($prompt_collection),
+
+								   'created_at' => date('Y-m-d h:m:s')
+
+							   ));*/
+
 	$inserted_id = 2;//$wpdb->insert_id;
+
+
+
+
+
+
 
 	//$upload_dir = wp_upload_dir(); // Get WordPress upload directory
 
@@ -3697,15 +4139,25 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 	}
 
+
+
 	// Define file path
 
 	$file_path = $dynamic_path . $inserted_id . date('Y-m-d-H-i-s') . '.html'; // File name with timestamp
+
+
+
+
 
 	ob_start();
 
 	?>
 
+
+
 	<html>
+
+
 
 	<head>
 
@@ -3749,6 +4201,28 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 	}
 
+
+
+
+
+
+
+
+
+	//	} else {
+
+
+
+
+
+
+
+
+
+
+
+
+
 	$content_final = convert_emails_to_links($content_final);
 
 	$content_final = convert_urls_to_links($content_final);
@@ -3781,105 +4255,12 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 	$content_final = removePTags($content_final);
 
-	// Final TOC verification and fixing
-	$content_final = verifyAndFixTOCLinks($content_final);
-
 	return $content_final;
 
-	
+	//}
 
 
 
-}
-
-/**
- * Function to verify and fix Table of Contents links
- * This function ensures that TOC links properly connect to their corresponding headings
- */
-function verifyAndFixTOCLinks($content) {
-    // Parse the content to extract TOC links and headings
-    $toc_links = [];
-    $headings = [];
-    
-    // Extract TOC links using regex
-    preg_match_all('/<a href="#([^"]+)">([^<]+)<\/a>/', $content, $toc_matches);
-    if (!empty($toc_matches[1])) {
-        foreach ($toc_matches[1] as $index => $anchor) {
-            $toc_links[$anchor] = $toc_matches[2][$index];
-        }
-    }
-    
-    // Extract headings with IDs using regex
-    preg_match_all('/<h([2-6])(?:\s+id="([^"]+)")?>([^<]+)<\/h[2-6]>/', $content, $heading_matches);
-    if (!empty($heading_matches[2])) {
-        foreach ($heading_matches[2] as $index => $id) {
-            if (!empty($id)) {
-                $headings[$id] = $heading_matches[3][$index];
-            }
-        }
-    }
-    
-    // Check for missing IDs and fix them
-    $updated_content = $content;
-    
-    foreach ($toc_links as $anchor => $title) {
-        if (!isset($headings[$anchor])) {
-            // Find the heading with matching title and add ID
-            $heading_pattern = '/<h([2-6])(?:\s+[^>]*)?>(' . preg_quote(trim($title), '/') . ')<\/h[2-6]>/i';
-            $replacement = '<h$1 id="' . $anchor . '">$2</h$1>';
-            $updated_content = preg_replace($heading_pattern, $replacement, $updated_content, 1);
-        }
-    }
-    
-    // Generate missing TOC links for headings without them
-    foreach ($headings as $id => $title) {
-        if (!isset($toc_links[$id])) {
-            // Log missing TOC link (for debugging)
-            error_log("Missing TOC link for heading: " . $title . " (ID: " . $id . ")");
-        }
-    }
-    
-    return $updated_content;
-}
-
-/**
- * Function to generate URL-friendly anchor IDs from heading text
- */
-function generateAnchorId($text) {
-    // Remove HTML tags, convert to lowercase, replace spaces and special chars with hyphens
-    $id = strtolower(strip_tags($text));
-    $id = preg_replace('/[^a-z0-9\s-]/', '', $id);
-    $id = preg_replace('/[\s-]+/', '-', $id);
-    $id = trim($id, '-');
-    return $id;
-}
-
-/**
- * Function to automatically generate TOC from content headings
- */
-function generateTOCFromContent($content) {
-    preg_match_all('/<h([2-6])(?:\s+id="([^"]+)")?>([^<]+)<\/h[2-6]>/', $content, $matches);
-    
-    if (empty($matches[0])) {
-        return '<h2 id="table-of-contents">Table of Contents</h2><p>No headings found.</p>';
-    }
-    
-    $toc = '<h2 id="table-of-contents">Table of Contents</h2><ul>';
-    
-    foreach ($matches[0] as $index => $match) {
-        $level = $matches[1][$index];
-        $id = !empty($matches[2][$index]) ? $matches[2][$index] : generateAnchorId($matches[3][$index]);
-        $title = trim($matches[3][$index]);
-        
-        // Only include H2 and H3 in TOC for better readability
-        if ($level <= 3) {
-            $indent = $level == 3 ? 'style="margin-left: 20px;"' : '';
-            $toc .= '<li ' . $indent . '><a href="#' . $id . '">' . $title . '</a></li>';
-        }
-    }
-    
-    $toc .= '</ul>';
-    return $toc;
 }
 
 ?>

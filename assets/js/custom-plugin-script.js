@@ -187,7 +187,7 @@ jQuery("#generateapivalue").on("click", function () {
 
     dataType: "json",
 
-    data: { value: form_inputValue, action: "getaaldata2" }, // Send the captured value to the server
+    data: { value: form_inputValue, action: "getaaldata" }, // Send the captured value to the server
 
     success: function (response) {
       // Handle the success response from the server

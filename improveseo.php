@@ -88,10 +88,6 @@ if (file_exists(dirname(__FILE__) . '/modules/bulk_AI_post_function.php'))
 
 	include_once dirname(__FILE__) . '/modules/bulk_AI_post_function.php';
 
-// new toc optimized file
-// if (file_exists(dirname(__FILE__) . '/modules/new_single_AI_post_function.php'))
-//     include_once dirname(__FILE__) . '/modules/new_single_AI_post_function.php';
-
 
 // if( file_exists( dirname(__FILE__).'/includes/admin.php' )) include_once dirname(__FILE__).'/includes/admin.php';
 
