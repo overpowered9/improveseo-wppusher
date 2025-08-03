@@ -140,7 +140,7 @@ $url .= $_SERVER['REQUEST_URI'];
 								<th>Size</th>
 								<th>Content Status </th>
 								<th>Publish Date</th>
-								<th>Pots Status</th>
+								<th>Post Status</th>
 								<th> </th>
 							</tr>
 						</thead>
@@ -171,15 +171,9 @@ $url .= $_SERVER['REQUEST_URI'];
 									<td data-label="Publish Date"> <?php
 									echo $project->published_on;
 									?> </td>
-									<td data-label="Pots Status" class="status paused"> <?php
-									if ($project->state == 'Published') {
-										echo "Published";
-									} else if ($project->state == 'Draft') {
-										echo 'Draft';
-									} else {
-										echo $project->state;
-									}
-									?> </td>
+									<td data-label="Pots Status" class="status paused">									
+										<?= $project->status; ?>
+									</td>
 									<td scope="col" data-label="Action" class="actions-btn" style="width: 4%;">
 										<a href="#" class="action-btn-pop"> <img
 												src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
