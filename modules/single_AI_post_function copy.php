@@ -8,7 +8,7 @@ include_once dirname(__FILE__) . '/modules/GenerateAIpopup.php';
 
 
 
-add_action('wp_ajax_getaaldata', 'getaaldata');
+// add_action('wp_ajax_getaaldata', 'getaaldata');
 
 function getaaldata()
 {
