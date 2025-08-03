@@ -172,7 +172,12 @@ $url .= $_SERVER['REQUEST_URI'];
 									echo $project->published_on;
 									?> </td>
 									<td data-label="Pots Status" class="status paused">									
-										<?= $project->status; ?>
+										<?php if($project->status == 'Done' && $project->post_id) {
+											echo 'Published';
+										} else {
+											echo 'Scheduled';
+										}
+										?>
 									</td>
 									<td scope="col" data-label="Action" class="actions-btn" style="width: 4%;">
 										<a href="#" class="action-btn-pop"> <img
