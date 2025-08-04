@@ -1081,12 +1081,6 @@
    //}
 
 
-   // Hook into the wp_enqueue_scripts action
-
-
-   //add_action('wp_enqueue_scripts', 'custom_plugin_enqueue_script');
-
-
    
 
 
@@ -1102,7 +1096,7 @@
    function generateAIpopup()   {
 
 
-   	//wp_enqueue_scripts();
+   	
 
 
    	$output ='';

@@ -2,8 +2,8 @@
 
 if (file_exists(dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.php'))
 
-include_once dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.php';
-include_once dirname(__FILE__) . '/modules/GenerateAIpopup.php';
+	include_once dirname(__FILE__) . '/single_and_bulk_AI_post_function.php';
+	include_once dirname(__FILE__) . '/GenerateAIpopup.php';
 
 
 

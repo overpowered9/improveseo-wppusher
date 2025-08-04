@@ -28,19 +28,39 @@ define('WT_PATH', untrailingslashit(plugin_dir_path(__FILE__)));
 
 define('WT_URL', untrailingslashit(plugin_dir_url(__FILE__)));
 
-wp_enqueue_script(
 
-	'custom-plugin-script',
+// Remove lines 29-37 and 856-863 from improveseo.php and replace with:
 
-	plugin_dir_url(__FILE__) . 'assets/js/custom-plugin-script.js',
+add_action('wp_enqueue_scripts', 'improveseo_enqueue_frontend_scripts');
+add_action('admin_enqueue_scripts', 'improveseo_enqueue_admin_scripts');
 
-	array('jquery'),
+function improveseo_enqueue_frontend_scripts() {
+    wp_enqueue_script(
+        'custom-plugin-script',
+        plugin_dir_url(__FILE__) . 'assets/js/custom-plugin-script.js',
+        array('jquery'),
+        '1.5',
+        true
+    );
+    
+    wp_localize_script('custom-plugin-script', 'standred_var', array(
+        'ajax_url' => admin_url('admin-ajax.php')
+    ));
+}
 
-	'1.5',
-
-	true
-
-);
+function improveseo_enqueue_admin_scripts() {
+    wp_enqueue_script(
+        'custom-plugin-script',
+        plugin_dir_url(__FILE__) . 'assets/js/custom-plugin-script.js',
+        array('jquery'),
+        '1.5',
+        true
+    );
+    
+    wp_localize_script('custom-plugin-script', 'standred_var', array(
+        'ajax_url' => admin_url('admin-ajax.php')
+    ));
+}
 
 
 
@@ -857,21 +877,8 @@ function improveseo_hide_other_notices()
 
 //function custom_plugin_enqueue_script() {
 
-// Enqueue the script
+// Enqueue the script removed function is added above with proper handling at line 31
 
-wp_enqueue_script(
-
-	'custom-plugin-script', // Script handle
-
-	plugin_dir_url(__FILE__) . 'assets/js/custom-plugin-script.js', // Script URL
-
-	array('jquery'), // Dependencies (optional)
-
-	'1.3.6', // Script version (optional)
-
-	true // Load script in footer
-
-);
 
 
 
