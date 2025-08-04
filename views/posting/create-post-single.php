@@ -16,7 +16,7 @@ $ai_modal_type = 'single';
 
 &raquo;
 
-<span>Create Post</span>
+
 
 <?php View::endSection('breadcrumbs') ?> -->
 
