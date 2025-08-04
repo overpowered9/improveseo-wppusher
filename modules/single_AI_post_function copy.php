@@ -1,3 +1,4 @@
+<!-- this is  the original code, by indian devs and is not being used, a copy is kept for refernce -->
 <?php
 
 if (file_exists(dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.php'))

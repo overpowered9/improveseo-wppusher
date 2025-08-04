@@ -1,3 +1,4 @@
+<!--referenced in an ajax call at assets/js/custom-plugin-script.js -->
 <?php
 
 if (file_exists(dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.php'))

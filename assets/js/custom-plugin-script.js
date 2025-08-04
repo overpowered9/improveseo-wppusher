@@ -1,3 +1,5 @@
+//multiple console logs for debugging make sure to remove when development is complete
+// this files contains ajax call for post generate " find getaaldata to reach that ajax call"
 var $ = jQuery;
 
 var ajaxUrl = standred_var.ajax_url;
@@ -990,7 +992,7 @@ jQuery("#seed_select").on("change", function () {
     })
 
     .success(function (data) {
-      console.log("" + data);
+      console.log("getgptdata" + data);
 
       jQuery("#loader").hide();
 
