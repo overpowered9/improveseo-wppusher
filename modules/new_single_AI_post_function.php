@@ -5,10 +5,11 @@ if (file_exists(dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.p
 	include_once dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.php';
 include_once dirname(__FILE__) . '/modules/GenerateAIpopup.php';
 
-add_action('wp_ajax_getaaldata', 'getaaldata');
+// add_action('wp_ajax_getaaldata2', 'getaaldata2');
 
-function getaaldata()
+function getaaldata2()
 {
+
 	$arr = [];
 
 	wp_parse_str($_POST['value'], $arr);
