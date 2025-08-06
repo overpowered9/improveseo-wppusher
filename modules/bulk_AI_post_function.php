@@ -5,6 +5,10 @@ if (file_exists(dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.p
 include_once dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.php';
 include_once dirname(__FILE__) . '/modules/GenerateAIpopup.php';
 
+// Include TOC helper functions
+if (file_exists(dirname(__DIR__) . '/includes/toc-helpers.php'))
+    include_once dirname(__DIR__) . '/includes/toc-helpers.php';
+
 
 
 
@@ -1518,11 +1522,11 @@ Audience data: {' . $AudienceData . '}';
 
 			
 
-			Table of Contents - Outline main content areas of the post. Craft attention-grabbing subtitles that entice readers to click and read more. Use numbers, questions, and powerful words to draw interest. Use NLP techniques to craft subtitles that grab attention. Incorporate power words and questions to stimulate curiosity and engagement. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions reader has while searching it. You should understand what deep questions and concerns user wants to answer and build your subtitles(subsections) based on these. Do not list Section titles, make short list of subtitles that will be described in Main Content Section, do not include numbering in the list of subtitles. Make engaging titles in the Table of Contents. 
+			Table of Contents - Create a clickable table of contents with anchor links. Each item in the TOC should be formatted as a clickable link that jumps to the corresponding section. Use the format: <a href="#section-id">Section Title</a>. The section IDs should be URL-friendly (lowercase, hyphens instead of spaces, no special characters). Craft attention-grabbing subtitles that entice readers to click and read more. Use numbers, questions, and powerful words to draw interest. Use NLP techniques to craft subtitles that grab attention. Incorporate power words and questions to stimulate curiosity and engagement. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions reader has while searching it. You should understand what deep questions and concerns user wants to answer and build your subtitles(subsections) based on these. Do not include numbering in the list of subtitles. Make engaging titles in the Table of Contents. 
 
 			
 
-			Main Content Sections - Create content sections with subtitles using keywords and their variations at a 1-2% usage rate per 100 words to prevent keyword stuffing. Each section should contain a detailed content, employing NLP and EI for relatability and actionability. Make the content deep so it responds to the emotions and curiosity of the readers. Use storytelling techniques to make your content more relatable and memorable. Share personal anecdotes, case studies, and real-life examples. Stories are a powerful NLP tool to create an emotional connection. Share personal anecdotes or relatable scenarios to make your content more engaging and memorable. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions user has while searching it. You should understand what deep questions and concerns users want to answer and build your output based on these. Use the following NLP Techniques for creating content:
+			Main Content Sections - Create content sections with subtitles using keywords and their variations at a 1-2% usage rate per 100 words to prevent keyword stuffing. IMPORTANT: Each H2 heading must include an id attribute that matches the TOC links (e.g., <h2 id="section-id">Section Title</h2>). Each section should contain a detailed content, employing NLP and EI for relatability and actionability. Make the content deep so it responds to the emotions and curiosity of the readers. Use storytelling techniques to make your content more relatable and memorable. Share personal anecdotes, case studies, and real-life examples. Stories are a powerful NLP tool to create an emotional connection. Share personal anecdotes or relatable scenarios to make your content more engaging and memorable. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions user has while searching it. You should understand what deep questions and concerns users want to answer and build your output based on these. Use the following NLP Techniques for creating content:
 
 				Anchoring: Use anchoring to associate positive emotions with your content. For instance, repeatedly use a specific phrase or concept that evokes a positive response.
 
@@ -1560,19 +1564,19 @@ Audience data: {' . $AudienceData . '}';
 
 			
 
-			<h2>Table of Contents</h2> (Heading 2) - should not be more than 50 words
+			<h2 id="table-of-contents">Table of Contents</h2> (Heading 2) - should not be more than 50 words. Format as clickable links: <ul><li><a href="#section-id">Section Title</a></li></ul>
 
 			
 
-			<h2>Main Content Sections</h2> (Heading 2) - Create 4 sections. Each section should not be more than 200-250 words of detailed content.
+			Main Content Sections - Create 4 sections. Each section should not be more than 200-250 words of detailed content. Use format: <h2 id="section-id">Section Title</h2>
 
 			
 
-			<h2>Conclusion</h2> (Heading 2) - Conclusion should not be more than 100-150 words.
+			<h2 id="conclusion">Conclusion</h2> (Heading 2) - Conclusion should not be more than 100-150 words.
 
 			
 
-			<h2>FAQs</h2> (Heading 2) - FAQs should not be more than 100-150 words.
+			<h2 id="faqs">FAQs</h2> (Heading 2) - FAQs should not be more than 100-150 words.
 
 			Q: 
 
@@ -1592,7 +1596,7 @@ Audience data: {' . $AudienceData . '}';
 
 			
 
-			<h2>What is next?</h2> (Heading 2) - What is next? should not be more than 100-150 words.
+			<h2 id="whats-next">What\'s Next?</h2> (Heading 2) - What\'s next? should not be more than 100-150 words.
 
 			}
 
@@ -2484,6 +2488,11 @@ Audience data: {' . $AudienceData . '}';
 
 		$content_final = '<div class="main-content-section-improveseo">' . $basic_prompt_response . '<div style="margin-bottom: 15px;margin-top: 50px;">' . $response_first_call_for_small . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_secound_call_for_small . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_third_call_for_small . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_fourth_call_for_small . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_fifth_call_for_small . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_sixth_call_for_small . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_seventh_call_for_small . '</div></div>';
 
+		// Verify and fix TOC links for small articles
+		if (function_exists('verifyAndFixTOCLinks')) {
+			$content_final = verifyAndFixTOCLinks($content_final);
+		}
+
 
 
 
@@ -2566,11 +2575,11 @@ Introduction - Introduction should not be more than 100-150 words.(do not includ
 
 
 
-<h2>Table of Contents</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
+<h2 id="table-of-contents">Table of Contents</h2> (Heading 2) - should not be more than 50 words. Format as clickable links: <ul><li><a href="#section-id">Section Title</a></li></ul>
 
 
 
-<h2>Main Content Sections</h2> (Heading 2) - Create 4 sections. Create 2-3 subsections and subtitles with formatting H3 for the each section so it does not exceed required word quantity. IMPORTANT: Each section should not be more than 350-400 words
+Main Content Sections - Create 4 sections. Create 2-3 subsections and subtitles with formatting H3 for each section so it does not exceed required word quantity. IMPORTANT: Each section should not be more than 350-400 words. Use format: <h2 id="section-id">Section Title</h2> and <h3 id="subsection-id">Subsection Title</h3>
 
 
 
@@ -3492,6 +3501,11 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 		$content_final = '<div class="main-content-section-improveseo">' . $basic_prompt_response . '<div style="margin-bottom: 15px;margin-top: 50px;">' . $response_first_call_for_medium . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_secound_call_for_medium . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_third_call_for_medium . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_fourth_call_for_medium . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_fifth_call_for_medium . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_sixth_call_for_medium . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_seventh_call_for_medium . '</div></div>';
 
+		// Verify and fix TOC links for medium articles
+		if (function_exists('verifyAndFixTOCLinks')) {
+			$content_final = verifyAndFixTOCLinks($content_final);
+		}
+
 
 
 
@@ -3580,7 +3594,7 @@ Introduction - Introduction should not be more than 100-150 words.(do not includ
 
 
 
-<h2>Table of Contents</h2> (Heading 2) - should not be more than 50 words and formatted as a list with bullet points with normal text format
+<h2 id="table-of-contents">Table of Contents</h2> (Heading 2) - should not be more than 50 words. Format as clickable links: <ul><li><a href="#section-id">Section Title</a></li></ul>
 
 
 
@@ -4610,6 +4624,11 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 		$content_final = '<div class="main-content-section-improveseo">' . $basic_prompt_response . '<div style="margin-bottom: 15px;margin-top: 50px;">' . $response_first_call_for_large . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_secound_call_for_large . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_third_call_for_large . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_fourth_call_for_large . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_fifth_call_for_large . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_sixth_call_for_large . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_seventh_call_for_large . '</div><div style="margin-bottom: 15px;margin-top: 50px;">' . $response_eigth_call_for_large . '</div></div>';
 
+		// Verify and fix TOC links for large articles
+		if (function_exists('verifyAndFixTOCLinks')) {
+			$content_final = verifyAndFixTOCLinks($content_final);
+		}
+
 
 
 
@@ -4648,7 +4667,10 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 	$content_final = removePTags($content_final);
 
-
+	// Final TOC verification and enhancement
+	if (function_exists('enhanceContentWithTOC')) {
+		$content_final = enhanceContentWithTOC($content_final);
+	}
 
 	return $content_final;
 
