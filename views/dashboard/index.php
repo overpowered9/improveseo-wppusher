@@ -39,7 +39,7 @@ use ImproveSEO\View;
 		</div>
 		<div class="modules-row text-left">
 			<div class="module-box">
-			<a href="<?= admin_url('admin.php?page=improveseo_posting') ?>">
+			<a href="<?= admin_url('admin.php?page=improveseo_create_single') ?>">
 				<div class="module-icon justify-between m-0">
 					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon2.svg' ?>" alt="icon2">
 					<div class="module-toggle">
@@ -103,7 +103,7 @@ use ImproveSEO\View;
 				</a>
 			</div>
 			<div class="module-box">
-			<a href="<?= admin_url('admin.php?page=improveseo_posting') ?>">
+			<a href="<?= admin_url('admin.php?page=improveseo_create_bulk') ?>">
 				<div class="module-icon justify-between m-0">
 					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon5.svg' ?>" alt="icon5">
 					<div class="module-toggle">
