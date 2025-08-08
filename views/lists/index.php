@@ -12,28 +12,13 @@ use ImproveSEO\View;
 
 <span>Improve SEO Lists</span>
 
-
-
 <?php View::endSection('breadcrumbs') ?>
-
-
 
 <?php View::startSection('content') ?>
 
-
-
-
-
 <h2 class="hidden">Improve SEO Lists</h2>
 
-
-
-
-
-
-
 <?php View::render('import/import') ?>
-
 
 <div class="seo-breadcumb">
 	<div class="seo-text">
@@ -59,11 +44,6 @@ use ImproveSEO\View;
 			<li>Keyword Lists</li>
 		</ul>
 		<div class="import-export-btn">
-			<!-- <button
-				onclick="if(confirm('Are you sure you want to export all item?')) { window.location.href = '<?= admin_url('admin.php?page=improveseo_lists&action=export_all_list&noheader=true') ?>'; }">
-				Export all Projects
-			</button>
-			<button id="importProject">Import</button> -->
 			<button class="active"
 				onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&action=create') ?>'">
 				Create New
@@ -71,26 +51,50 @@ use ImproveSEO\View;
 		</div>
 	</div>
 	<div class="actions search-form-box">
-		<form class="improve-seo-form-global">
-			<input type="text" id="post-search-input" name="s" value="<?= $s; ?>" placeholder="Search Here">
+		<form class="improve-seo-form-global" method="GET">
+			<input type="text" id="post-search-input" name="s" value="<?= htmlspecialchars($s); ?>"
+				placeholder="Search Here">
 			<input type="hidden" name="page" value="improveseo_lists" />
 			<input type="hidden" name="action" value="index" />
-			<button class="search-btn"> <img
-					src="<?php echo WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ?>"
-					alt="clarity_search-line"> </button>
+			<button type="submit" class="search-btn">
+				<img src="<?php echo WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ?>"
+					alt="clarity_search-line">
+			</button>
 		</form>
 		<div class="pagination">
-			<button class="prev pagination-btn">
-				< Prev </button>
-					<button class="active">1</button>
-					<button>2</button>
-					<button>3</button>
-					<button>4</button>
-					<button>5</button>
-					<button class="next pagination-btn"> Next ></button>
+			<?php if ($page > 1): ?>
+				<button class="prev pagination-btn"
+					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&paged=' . ($page - 1) . ($s ? '&s=' . urlencode($s) : '')) ?>'">
+					&lt; Prev
+				</button>
+			<?php else: ?>
+				<button class="prev pagination-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+					&lt; Prev
+				</button>
+			<?php endif; ?>
+
+			<?php for ($i = 1; $i <= $pages; $i++): ?>
+				<?php if ($i == $page): ?>
+					<button class="active"><?= $i ?></button>
+				<?php else: ?>
+					<button
+						onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&paged=' . $i . ($s ? '&s=' . urlencode($s) : '')) ?>'"><?= $i ?></button>
+				<?php endif; ?>
+			<?php endfor; ?>
+
+			<?php if ($page < $pages): ?>
+				<button class="next pagination-btn"
+					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&paged=' . ($page + 1) . ($s ? '&s=' . urlencode($s) : '')) ?>'">
+					Next &gt;
+				</button>
+			<?php else: ?>
+				<button class="next pagination-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+					Next &gt;
+				</button>
+			<?php endif; ?>
 		</div>
 		<div class="import-export">
-			<p>112 Items</p>
+			<p><?= $total ?> Items</p>
 		</div>
 	</div>
 	<div class="improve-seo-container">
