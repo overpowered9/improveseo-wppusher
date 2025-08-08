@@ -1,20 +1,8 @@
 <?php
 
-
-
 use ImproveSEO\View;
 
-
-
-
-
-
-
-
-
 ?>
-
-
 
 <?php View::startSection('breadcrumbs') ?>
 
@@ -24,44 +12,26 @@ use ImproveSEO\View;
 
 <span>Bulk Projects List</span>
 
-
-
 <?php
 
 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
-
 	$url = "https://";
 else
-
 	$url = "http://";
 
 // Append the host(domain name, ip) to the URL.   
-
 $url .= $_SERVER['HTTP_HOST'];
 
 // Append the requested resource location to the URL   
-
 $url .= $_SERVER['REQUEST_URI'];
 
 ?>
 
-
-
 <?php View::endSection('breadcrumbs') ?>
-
-
-
-
 
 <?php View::startSection('content') ?>
 
-
-
 <?php View::render('import/import') ?>
-
-
-
-
 
 <h1 class="hidden">All Keywords of <?php echo $project_name; ?></h1>
 <div class="show_loading alert-modal">
@@ -69,16 +39,6 @@ $url .= $_SERVER['REQUEST_URI'];
 	<h2 id="mid_notice"></h2>
 
 </div>
-<section class="pagination-wrapper text-right py-3">
-	<span class="pagination-links">
-		<?= paginate_links(array(
-			'total' => $pages,
-			'current' => $page,
-			'format' => '&paged=%#%',
-			'base' => admin_url('admin.php?page=improveseo_bulkprojects&id=' . $id . '%_%')
-		)) ?>
-	</span>
-</section>
 
 <div class="global-wrap">
 
@@ -87,7 +47,7 @@ $url .= $_SERVER['REQUEST_URI'];
 		<h1> ImproveSEO | 2.0.11 </h1>
 		<span>Pro</span>
 	</div>
-	<form method="get">
+	<form method="post">
 		<?php
 		$is_preview = 'no';
 		if (isset($_GET['post_preview'])) {
@@ -96,15 +56,13 @@ $url .= $_SERVER['REQUEST_URI'];
 			}
 		} ?>
 		<input type="hidden" name="is_preview_available" id="is_preview_available" value="<?php echo $is_preview; ?>" />
+		<?php wp_nonce_field('bulk_delete_tasks', 'bulk_delete_nonce'); ?>
 		<div class="box-top">
 			<ul class="breadcrumb-seo">
 				<li><a href="#">Improve SEO</a></li>
 				<li>All Keyword Lists</li>
 			</ul>
-
 			<div class="import-export-btn">
-				<!-- <button type="button">Export all Projects</button>
-				<button type="button">Import</button> -->
 				<button type="button" class="active"> Add New </button>
 			</div>
 		</div>
@@ -112,23 +70,42 @@ $url .= $_SERVER['REQUEST_URI'];
 			<div>
 				<input type="hidden" name="page" value="improveseo_bulkprojects" />
 				<input type="hidden" name="noheader" value="true" />
-				<input type="hidden" value="bulk-delete-posts" name="action">
-				<button type="submit" id="doaction" class="btn_delete action" value="Delete Projects">Delete Selected
-					Projects</button>
-				<!-- <input type="submit" id="doaction" class="del-btn btn btn-outline-danger button action" value="Delete Projects"> -->
+				<input type="hidden" name="main_id" value="<?php echo esc_attr($_GET['id']); ?>" />
+				<input type="hidden" value="bulk-delete-tasks" name="action">
+				<button type="submit" id="doaction" class="btn_delete action">Delete Selected Tasks</button>
 			</div>
 			<div class="pagination">
-				<button class="prev pagination-btn">
-					< Prev </button>
-						<button type="button" class="active">1</button>
-						<button type="button">2</button>
-						<button type="button">3</button>
-						<button type="button">4</button>
-						<button type="button">5</button>
-						<button type="button" class="next pagination-btn"> Next ></button>
+				<?php if ($page > 1): ?>
+					<button type="button" class="prev pagination-btn"
+						onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . '&paged=' . ($page - 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
+						&lt; Prev
+					</button>
+				<?php else: ?>
+					<button type="button" class="prev pagination-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+						&lt; Prev
+					</button>
+				<?php endif; ?>
+				<?php for ($i = 1; $i <= $pages; $i++): ?>
+					<?php if ($i == $page): ?>
+						<button type="button" class="active"><?= $i ?></button>
+					<?php else: ?>
+						<button type="button"
+							onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?= $i ?></button>
+					<?php endif; ?>
+				<?php endfor; ?>
+				<?php if ($page < $pages): ?>
+					<button type="button" class="next pagination-btn"
+						onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . '&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
+						Next &gt;
+					</button>
+				<?php else: ?>
+					<button type="button" class="next pagination-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+						Next &gt;
+					</button>
+				<?php endif; ?>
 			</div>
 			<div class="import-export">
-				<p><?php echo count($projects); ?> Items</p>
+				<p><?= $total ?> Items</p>
 			</div>
 			<div class="import-refrsh-seo">
 				<button type="button" class="toggle-row pull-right" onclick="return refreshPage()"> Refresh List
@@ -159,18 +136,16 @@ $url .= $_SERVER['REQUEST_URI'];
 									</label>
 									<h4> Keyword Name </h4>
 								</th>
-								<!-- <th> Tone of Voice </th> -->
 								<th>Language</th>
 								<th>Size</th>
 								<th>Content Status </th>
 								<th>Publish Date</th>
-								<th>Pots Status</th>
+								<th>Post Status</th>
 								<th> </th>
 							</tr>
 						</thead>
 						<tbody>
 							<?php foreach ($projects as $key => $project): ?>
-
 								<tr <?= $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
 									<td data-label="Name">
 										<label class="checkbox style-c">
@@ -180,9 +155,6 @@ $url .= $_SERVER['REQUEST_URI'];
 										</label>
 										<h4> <?= $project->keyword_name ?> </h4>
 									</td>
-									<!-- <td style="color:rgba(0,0,0,0.6) ;" data-label="Tone of Voice">
-									<?= $project->tone_of_voice ?>
-								</td> -->
 									<td data-label="Language"><?= $project->content_lang ?></td>
 									<td data-label="Size"><?= $project->nos_of_words ?></td>
 									<td data-label="Content Status" class="status finished"><?php
@@ -199,17 +171,15 @@ $url .= $_SERVER['REQUEST_URI'];
 									<td data-label="Publish Date"> <?php
 									echo $project->published_on;
 									?> </td>
-									<td data-label="Pots Status" class="status paused"> <?php
-									if ($project->state == 'Published') {
-										echo "Published";
-									} else if ($project->state == 'Draft') {
-										echo 'Draft';
-									} else {
-										echo $project->state;
-									}
-									?> </td>
+									<td data-label="Pots Status" class="status paused">									
+										<?php if($project->status == 'Done' && $project->post_id) {
+											echo 'Published';
+										} else {
+											echo 'Scheduled';
+										}
+										?>
+									</td>
 									<td scope="col" data-label="Action" class="actions-btn" style="width: 4%;">
-
 										<a href="#" class="action-btn-pop"> <img
 												src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
 												alt="ri_more-2-fill"> </a>
@@ -218,9 +188,6 @@ $url .= $_SERVER['REQUEST_URI'];
 											<ul class="popup-menu">
 												<div class="row-actions"
 													style="display: flex; flex-direction: column !important;">
-
-
-
 													<?php if ($project->status != 'Done') { ?>
 														<span class="edit">
 															<?php $task_id = $_GET['id']; ?>
@@ -242,11 +209,7 @@ $url .= $_SERVER['REQUEST_URI'];
 															<a href="javascript:re_generatepost(<?= $project->id ?>)"
 																class="popup-link" target="_self">Re-Generate Post</a>
 														</span>
-
 													<?php } ?>
-
-
-
 													<?php if (!empty($project->post_id)) { ?>
 														<?php //$posturl =   get_post($project->post_id); 
 																$preview_link = add_query_arg('preview', 'true', get_permalink($project->post_id)); ?>
@@ -278,37 +241,14 @@ $url .= $_SERVER['REQUEST_URI'];
 																Post Content</a>
 														</span>
 													<?php } ?>
-
-
-
 												</div>
-
 											</ul>
 										</div>
-
-
-
 									</td>
 								</tr>
-
-
-
-
 							<?php endforeach; ?>
-
-							<!-- Duplicate rows for demonstration -->
 						</tbody>
 					</table>
-				</div>
-				<div class="pagination">
-					<button class="prev pagination-btn">
-						< Prev </button>
-							<button type="button" class="active">1</button>
-							<button type="button">2</button>
-							<button type="button">3</button>
-							<button type="button">4</button>
-							<button type="button">5</button>
-							<button type="button" type="button" class="next pagination-btn"> Next ></button>
 				</div>
 			</div>
 		</div>
@@ -333,25 +273,9 @@ $url .= $_SERVER['REQUEST_URI'];
 					console.log(data);
 					alert("Content has been Re-Generated successfully.");
 					location.reload(true);
-					//var is_preview_available = jQuery('#is_preview_available').val();
-
 				}
 			});
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	function build_project(id) {
 		jQuery('.show_loading').css("display", "block");
@@ -391,7 +315,6 @@ $url .= $_SERVER['REQUEST_URI'];
 						}
 						location.reload(true);
 					} else {
-
 						if (is_preview_available == "yes") {
 							jQuery(".show_loading h1").html("Exporting posts. Please wait");
 							jQuery(".show_loading h2").html("");
@@ -416,7 +339,6 @@ $url .= $_SERVER['REQUEST_URI'];
 	var numm_update;
 
 	function start_update(ids) {
-
 		var new_location = "<?php echo admin_url('admin.php?page=improveseo_projects'); ?>";
 		var max_iterations = parseInt(jQuery('#max-iterations[data-project="' + ids + '"]').val());
 		jQuery.ajax({
@@ -449,63 +371,67 @@ $url .= $_SERVER['REQUEST_URI'];
 			}
 		});
 	}
-	jQuery('#cb-select-all').click(function (e) {
-		jQuery("input[type=checkbox]").prop('checked', jQuery(this).prop('checked'));
+	jQuery(document).ready(function ($) {
+		$('#cb-select-all').on('change', function () {
+			var isChecked = $(this).prop('checked');
+			$('input[name="project_ids[]"]').prop('checked', isChecked);
+		});
+
+		$('input[name="project_ids[]"]').on('change', function () {
+			var totalCheckboxes = $('input[name="project_ids[]"]').length;
+			var checkedCheckboxes = $('input[name="project_ids[]"]:checked').length;
+
+			if (checkedCheckboxes === 0) {
+				$('#cb-select-all').prop('indeterminate', false).prop('checked', false);
+			} else if (checkedCheckboxes === totalCheckboxes) {
+				$('#cb-select-all').prop('indeterminate', false).prop('checked', true);
+			} else {
+				$('#cb-select-all').prop('indeterminate', true);
+			}
+		});
+
+		$('#doaction').on('click', function (e) {
+			var checkedItems = $('input[name="project_ids[]"]:checked').length;
+			if (checkedItems === 0) {
+				e.preventDefault();
+				alert('Please select at least one task to delete.');
+				return false;
+			}
+
+			return confirm('Are you sure you want to delete ' + checkedItems + ' selected task(s) and their associated posts? This action cannot be undone.');
+		});
 	});
 </script>
 
 <?php
 
 if (isset($_GET['post_preview'])) {
-
 	if ($_GET['post_preview'] == 'true') {
-
 		$project = $projects[0];
 		if ($project->state == 'Published' && $project->iteration < $project->max_iterations) { ?>
-
 			<script type="text/javascript">
 				build_project(<?php echo $project->id ?>);
 			</script>
 			<?php
 		} elseif ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
 			$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
-			/* header("Location:".$export_url);
-																				 exit; */
 		}
 	}
 }
 
-
 if (isset($_GET['build_posts_id'])) { ?>
-
 	<script type='text/javascript'>
 		update_project(<?= $_GET['build_posts_id'] ?>);
 	</script>
-
 <?php } ?>
-
-<section class="pagination-wrapper text-right">
-	<span class="pagination-links">
-		<?= paginate_links(array(
-			'total' => $pages,
-			'current' => $page,
-			'format' => '&paged=%#%',
-			'base' => admin_url('admin.php?page=improveseo_bulkprojects%_%')
-		)) ?>
-	</span>
-</section>
 <?php View::endSection('content') ?>
-
 <?php View::make('layouts.main') ?>
-
 <script>
-
 	function re_generatepost(id) {
 		jQuery('.show_loading').css("display", "block");
 		jQuery(".show_loading h2").html("Post is re-generating............ Please wait........");
 		re_generate(id);
 	}
-
 	function re_generate(ids) {
 		jQuery
 			.ajax({
@@ -518,16 +444,10 @@ if (isset($_GET['build_posts_id'])) { ?>
 					console.log(data);
 					alert("Content has been Re-Generated successfully.");
 					location.reload(true);
-					//var is_preview_available = jQuery('#is_preview_available').val();
-
 				}
 			});
 	}
-
 	function refreshPage() {
-
 		location.reload();
-
 	}
-
 </script>
