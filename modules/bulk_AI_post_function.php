@@ -5,15 +5,122 @@ if (file_exists(dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.p
 include_once dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.php';
 include_once dirname(__FILE__) . '/modules/GenerateAIpopup.php';
 
-
-
-
-
-
-
-
-
 add_action('cronjob_request_event', 'CronjobRequest');
+
+// TOC Helper Functions
+if (!function_exists('verifyAndFixTOCLinks')) {
+    /**
+     * Function to verify and fix Table of Contents links
+     * This function ensures that TOC links properly connect to their corresponding headings
+     */
+    function verifyAndFixTOCLinks($content) {
+        // Parse the content to extract TOC links and headings
+        $toc_links = [];
+        $headings = [];
+        
+        // Extract TOC links using regex
+        preg_match_all('/<a href="#([^"]+)">([^<]+)<\/a>/', $content, $toc_matches);
+        if (!empty($toc_matches[1])) {
+            foreach ($toc_matches[1] as $index => $anchor) {
+                $toc_links[$anchor] = $toc_matches[2][$index];
+            }
+        }
+        
+        // Extract headings with IDs using regex
+        preg_match_all('/<h([2-6])(?:\s+id="([^"]+)")?>([^<]+)<\/h[2-6]>/', $content, $heading_matches);
+        if (!empty($heading_matches[2])) {
+            foreach ($heading_matches[2] as $index => $id) {
+                if (!empty($id)) {
+                    $headings[$id] = $heading_matches[3][$index];
+                }
+            }
+        }
+        
+        // Check for missing IDs and fix them
+        $updated_content = $content;
+        
+        foreach ($toc_links as $anchor => $title) {
+            if (!isset($headings[$anchor])) {
+                // Find the heading with matching title and add ID
+                $heading_pattern = '/<h([2-6])(?:\s+[^>]*)?>(' . preg_quote(trim($title), '/') . ')<\/h[2-6]>/i';
+                $replacement = '<h$1 id="' . $anchor . '">$2</h$1>';
+                $updated_content = preg_replace($heading_pattern, $replacement, $updated_content, 1);
+            }
+        }
+        
+        // Generate missing TOC links for headings without them
+        foreach ($headings as $id => $title) {
+            if (!isset($toc_links[$id])) {
+                // Log missing TOC link (for debugging)
+                error_log("Missing TOC link for heading: " . $title . " (ID: " . $id . ")");
+            }
+        }
+        
+        return $updated_content;
+    }
+}
+
+if (!function_exists('generateAnchorId')) {
+    /**
+     * Function to generate URL-friendly anchor IDs from heading text
+     */
+    function generateAnchorId($text) {
+        // Remove HTML tags, convert to lowercase, replace spaces and special chars with hyphens
+        $id = strtolower(strip_tags($text));
+        $id = preg_replace('/[^a-z0-9\s-]/', '', $id);
+        $id = preg_replace('/[\s-]+/', '-', $id);
+        $id = trim($id, '-');
+        return $id;
+    }
+}
+
+if (!function_exists('generateTOCFromContent')) {
+    /**
+     * Function to automatically generate TOC from content headings
+     */
+    function generateTOCFromContent($content) {
+        preg_match_all('/<h([2-6])(?:\s+id="([^"]+)")?>([^<]+)<\/h[2-6]>/', $content, $matches);
+        
+        if (empty($matches[0])) {
+            return '<h2 id="table-of-contents">Table of Contents</h2><p>No headings found.</p>';
+        }
+        
+        $toc = '<h2 id="table-of-contents">Table of Contents</h2><ul>';
+        
+        foreach ($matches[0] as $index => $match) {
+            $level = $matches[1][$index];
+            $id = !empty($matches[2][$index]) ? $matches[2][$index] : generateAnchorId($matches[3][$index]);
+            $title = trim($matches[3][$index]);
+            
+            // Only include H2 and H3 in TOC for better readability
+            if ($level <= 3) {
+                $indent = $level == 3 ? 'style="margin-left: 20px;"' : '';
+                $toc .= '<li ' . $indent . '><a href="#' . $id . '">' . $title . '</a></li>';
+            }
+        }
+        
+        $toc .= '</ul>';
+        return $toc;
+    }
+}
+
+if (!function_exists('enhanceContentWithTOC')) {
+    /**
+     * Function to enhance content with proper TOC formatting
+     * This is a comprehensive function that applies all TOC enhancements
+     */
+    function enhanceContentWithTOC($content) {
+        // First verify and fix existing TOC links
+        $enhanced_content = verifyAndFixTOCLinks($content);
+        
+        // Additional enhancements can be added here in the future
+        // - Smooth scrolling JavaScript
+        // - Back to top links
+        // - Section numbering
+        
+        return $enhanced_content;
+    }
+}
 
 function CronjobRequest()
 
@@ -1518,7 +1625,7 @@ Audience data: {' . $AudienceData . '}';
 
 			
 
-			Table of Contents - Outline main content areas of the post. Craft attention-grabbing subtitles that entice readers to click and read more. Use numbers, questions, and powerful words to draw interest. Use NLP techniques to craft subtitles that grab attention. Incorporate power words and questions to stimulate curiosity and engagement. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions reader has while searching it. You should understand what deep questions and concerns user wants to answer and build your subtitles(subsections) based on these. Do not list Section titles, make short list of subtitles that will be described in Main Content Section, do not include numbering in the list of subtitles. Make engaging titles in the Table of Contents. 
+			Table of Contents - Create a clickable table of contents with anchor links. Each item in the TOC should be formatted as a clickable link that jumps to the corresponding section. Use the format: <a href="#section-id">Section Title</a>. The section IDs should be URL-friendly (lowercase, hyphens instead of spaces, no special characters). Craft attention-grabbing subtitles that entice readers to click and read more. Use numbers, questions, and powerful words to draw interest. Use NLP techniques to craft subtitles that grab attention. Incorporate power words and questions to stimulate curiosity and engagement. Based on the main keyword and the audience data provided to you, you need to understand what are the emotions and intentions reader has while searching it. You should understand what deep questions and concerns user wants to answer and build your subtitles(subsections) based on these. Do not include numbering in the list of subtitles. Make engaging titles in the Table of Contents. 
 
 			
 
@@ -1560,19 +1667,19 @@ Audience data: {' . $AudienceData . '}';
 
 			
 
-			<h2>Table of Contents</h2> (Heading 2) - should not be more than 50 words
+			<h2 id="table-of-contents">Table of Contents</h2> (Heading 2) - should not be more than 50 words. Format as clickable links: <ul><li><a href="#section-id">Section Title</a></li></ul>
 
 			
 
-			<h2>Main Content Sections</h2> (Heading 2) - Create 4 sections. Each section should not be more than 200-250 words of detailed content.
+			Main Content Sections - Create 4 sections. Each section should not be more than 200-250 words of detailed content. Use format: <h2 id="section-id">Section Title</h2>
 
 			
 
-			<h2>Conclusion</h2> (Heading 2) - Conclusion should not be more than 100-150 words.
+			<h2 id="conclusion">Conclusion</h2> (Heading 2) - Conclusion should not be more than 100-150 words.
 
 			
 
-			<h2>FAQs</h2> (Heading 2) - FAQs should not be more than 100-150 words.
+			<h2 id="faqs">FAQs</h2> (Heading 2) - FAQs should not be more than 100-150 words.
 
 			Q: 
 
@@ -1592,7 +1699,7 @@ Audience data: {' . $AudienceData . '}';
 
 			
 
-			<h2>What is next?</h2> (Heading 2) - What is next? should not be more than 100-150 words.
+			<h2 id="whats-next">What\'s Next?</h2> (Heading 2) - What\'s next? should not be more than 100-150 words.
 
 			}
 
@@ -4648,7 +4755,8 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 	$content_final = removePTags($content_final);
 
-
+	// Apply TOC enhancements and verification
+	$content_final = enhanceContentWithTOC($content_final);
 
 	return $content_final;
 
