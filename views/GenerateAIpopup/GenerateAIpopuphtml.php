@@ -682,7 +682,7 @@ global $ai_modal_type;
                                 <select id="keyword_list_name" name="keyword_list_name"
                                     class="form-control bulk_post_input_style"
                                     style="max-width: 100% !important; width: 100%; padding: 10px 20px !important;">
-                                    <option value="">Select a project</option>
+                                    <option value="">Select a Keyword List</option>
                                     <option value="create_new_project">Create New KW List</option>
                                     <?php echo $html_key_to_send; ?>
                                 </select>
@@ -699,7 +699,7 @@ global $ai_modal_type;
                                 <label style="padding-left:20px;"> How do you want to create a new list?</label><br>
                                 <select id="create_keyword" name="create_keyword" class="form-control"
                                     style="max-width: 100% !important; width: 100%;    padding: 10px 20px !important;">
-                                    <option value="none">Select</option>
+                                    <!-- <option value="none">Select</option> -->
                                     <option value="copy_paste">Copy & Paste</option>
                                     <option value="google_suggestion">Generate Google Suggest KW list
                                     </option>
@@ -713,7 +713,7 @@ global $ai_modal_type;
                                 <label style="padding-left:20px;" for="cotnt_type"> Tone of Voice</label>
                                 <select class="form-control" name="content_type" id="cotnt_type"
                                     style="max-width: 100% !important; width: 100%;    padding: 10px 20px !important;">
-                                    <option value="">Tone of Voice</option>
+                                    <!-- <option value="">Tone of Voice</option> -->
                                     <option value="friendly">Friendly</option>
                                     <option value="professional">Professional</option>
                                     <option value="informational">Informational</option>
@@ -733,7 +733,7 @@ global $ai_modal_type;
                             <label style="padding-left:20px;" for="existing_select"> Select</label>
                             <select id="existing_select" name="select_exisiting_options" class="form-control"
                                 style="max-width: 100% !important; width: 100%;    padding: 10px 20px !important;">
-                                <option value="">Select</option>
+                                <!-- <option value="">Select</option> -->
                                 <option value="seed_option1">USE KEYWORD AS IS IN TITLE [A.I. will build
                                     content]</option>
                                 <option value="seed_option2">CREATE BEST TITLE FROM KEYWORD [A.I. will
