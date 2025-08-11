@@ -810,7 +810,7 @@ global $ai_modal_type;
                                     <select class="form-control" name="point_of_view"
                                         style="max-width: 100% !important;  padding: 10px 20px !important;">
 
-                                        <option value="none">None
+                                        <option value="Whatever is suited to keyword">None
                                         </option>
                                         <option value="First person singular (I,me,my,mine)">First person singular
                                             (I, me, my, mine)
@@ -828,7 +828,7 @@ global $ai_modal_type;
                                     <select class="form-control" name="content_lang" id="language"
                                         style="max-width: 100% !important;  padding: 10px 20px !important;">
 
-                                        <option value="">Select Language</option>
+                                        
                                         <option value="US English">English (US)</option>
                                         <option value="UK English">English (Uk)</option>
                                         <option value="German">German (De)</option>
