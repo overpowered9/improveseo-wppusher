@@ -1009,23 +1009,39 @@ function SaveResultsButton() {
 
   var content_type = jQuery("#contenttype").val();
 
+  // Show loading message and disable button
+  jQuery("#exampleFormControlTextarea1").text("Wait! Generating content...");
+  jQuery("#exampleFormControlTextarea1").val("Wait! Generating content...");
+
+  // Disable the button to prevent multiple clicks
+  var button = jQuery('input[onclick="return SaveResultsButton();"]');
+  var originalValue = button.val();
+  button.val("Generating...").prop("disabled", true);
+
   jQuery
     .post(ajaxUrl, {
       action: "multi_form_data",
-
       keyword_id: keyword_id,
-
       keyword_list: keyword_list,
-
       content_type: content_type,
     })
-
     .success(function (data) {
       jQuery("#exampleFormControlTextarea1").text(data);
-
       jQuery("#exampleFormControlTextarea1").val(data);
-
       // alert(data);
+    })
+    .fail(function () {
+      // Handle error case
+      jQuery("#exampleFormControlTextarea1").text(
+        "Error generating content. Please try again."
+      );
+      jQuery("#exampleFormControlTextarea1").val(
+        "Error generating content. Please try again."
+      );
+    })
+    .always(function () {
+      // Re-enable button regardless of success or failure
+      button.val(originalValue).prop("disabled", false);
     });
 }
 

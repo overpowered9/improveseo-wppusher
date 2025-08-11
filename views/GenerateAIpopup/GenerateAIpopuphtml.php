@@ -678,7 +678,10 @@ global $ai_modal_type;
                     <div class="bulk-widths1170_multi">
                         <div class="improve-seo-form-global_multi">
                             <div class="form-group">
-                                <label style="padding-left:20px;" for="keyword_list_name">Select a project</label>
+                                <label style="padding-left:20px;" for="keyword_list_name">Create New or Select an exisiting keyword list*.</label>
+                                <p style="font-size: 14px; color: #666; padding-left: 20px; margin-top: 5px;">
+                                    Keyword list allows you to generate bulk posts once against each keyword.
+                                </p>
                                 <select id="keyword_list_name" name="keyword_list_name"
                                     class="form-control bulk_post_input_style"
                                     style="max-width: 100% !important; width: 100%; padding: 10px 20px !important;">
@@ -689,7 +692,7 @@ global $ai_modal_type;
                                 <span id="error_keyword_list_name" style="color: red;"></span>
                             </div>
                             <div class="form-group" id="keyword_list_container" style="display: none;">
-                                <label style="padding-left:20px;" for="keyword_list">Keywords</label>
+                                <label style="padding-left:20px;" for="keyword_list">Keywords*(At least one)</label>
                                 <textarea id="keyword_list" name="keyword_list" class="form-control" rows="10"
                                     style="max-width: 100% !important; width: 100%;"></textarea>
                                 <div id="keyword_count"></div>
