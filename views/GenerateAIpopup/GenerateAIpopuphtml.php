@@ -1054,9 +1054,7 @@ global $ai_modal_type;
                                         <div id="author_number" style="display:none">
                                             <?php echo $all_auths; ?>
                                         </div>
-                                        <div id="author_number" style="display:none">
-                                            <?php echo $all_auths_to_send; ?>
-                                        </div>
+                            
                                         <!-- <input style="border: none !important;" type="text"
                                                 placeholder="Add Author Name">
                                             <button
