@@ -52,14 +52,35 @@ use ImproveSEO\View;
 	</div>
 	<div class="actions">
 		<div class="pagination">
-			<button class="prev pagination-btn">
-				< Prev </button>
-					<button class="active">1</button>
-					<button>2</button>
-					<button>3</button>
-					<button>4</button>
-					<button>5</button>
-					<button class="next pagination-btn"> Next ></button>
+			<?php if ($page > 1): ?>
+				<button class="prev pagination-btn"
+					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_authors&paged=' . ($page - 1)) ?>'">
+					&lt; Prev
+				</button>
+			<?php else: ?>
+				<button class="prev pagination-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+					&lt; Prev
+				</button>
+			<?php endif; ?>
+
+			<?php for ($i = 1; $i <= $pages; $i++): ?>
+				<?php if ($i == $page): ?>
+					<button class="active"><?= $i ?></button>
+				<?php else: ?>
+					<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_authors&paged=' . $i) ?>'"><?= $i ?></button>
+				<?php endif; ?>
+			<?php endfor; ?>
+
+			<?php if ($page < $pages): ?>
+				<button class="next pagination-btn"
+					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_authors&paged=' . ($page + 1)) ?>'">
+					Next &gt;
+				</button>
+			<?php else: ?>
+				<button class="next pagination-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+					Next &gt;
+				</button>
+			<?php endif; ?>
 		</div>
 		<div class="import-export">
 			<p><?= $results['avail_roles']['improveseo_user'] ?> Items</p>
@@ -91,21 +112,6 @@ use ImproveSEO\View;
 						<?php endforeach; ?>
 					</tbody>
 				</table>
-			</div>
-			<div class="actions">
-				<div class="pagination">
-					<button class="prev pagination-btn">
-						< Prev </button>
-							<button class="active">1</button>
-							<button>2</button>
-							<button>3</button>
-							<button>4</button>
-							<button>5</button>
-							<button class="next pagination-btn"> Next ></button>
-				</div>
-				<div class="import-export">
-					<p><?= $results['avail_roles']['improveseo_user'] ?> Items</p>
-				</div>
 			</div>
 		</div>
 	</div>
