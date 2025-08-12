@@ -136,6 +136,8 @@ function improveseo_posting(){
 
 			)) && !isset($_POST['draft'])) {
 				 global $ai_modal_type;
+				 echo '<script>console.log("ai_modal_type from posting.php:", "' . esc_js($ai_modal_type) . '");</script>';
+ 
 				 if (isset($ai_modal_type) && $ai_modal_type === 'single') {
 					wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post_single'));
     				
