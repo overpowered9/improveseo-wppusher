@@ -1091,10 +1091,10 @@ global $ai_modal_type;
                             </div>
                         </div>
 
-                        <h2 style="padding-left:20px;">Choose or Create Category</h2>
+                        <!-- <h2 style="padding-left:20px;">Choose or Create Category</h2>
                         <div class="category-box_multi">
                             <div class="cta-check_multi clearfix ">
-                                <?php echo $select_to_send; ?>
+                                <?php //echo $select_to_send; ?>
                             </div>
                             <div class="add_cat">
                                 <form method="post" action="add_category_form" class="form-wrap m-0">
@@ -1108,7 +1108,7 @@ global $ai_modal_type;
                                     </div>
                                 </form>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
 
