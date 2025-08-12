@@ -37,7 +37,8 @@ $ai_modal_type = 'bulk';
 
 	<div class="style_create_page_form">
 		<div class="CreatePost improveseo_wrapper create_page_cont_1">
-
+		  <input type="hidden" name="ai_modal_type" value="bulk" />
+    
 			<section class="project-section d-flex flex-row  justify-content-between align-items-center pb-2">
 				<div class="head-bar">
 					<img src="<?php echo WT_URL . '/assets/images/project-list-logo.png' ?>" alt="ImproveSeo">
