@@ -136,8 +136,16 @@ function improveseo_posting(){
 
 			)) && !isset($_POST['draft'])) {
 
-
-				wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post'));
+				global $ai_modal_type;
+        
+       			 // Check ai_modal_type and redirect accordingly
+       			 if (isset($ai_modal_type) && $ai_modal_type === 'single') {
+            		wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post_single'));
+        			} else {
+            				wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post'));
+       						
+						}
+				
 
 
 				exit;
