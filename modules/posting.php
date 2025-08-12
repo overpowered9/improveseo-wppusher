@@ -135,10 +135,18 @@ function improveseo_posting(){
 
 
 			)) && !isset($_POST['draft'])) {
-
-
-				wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post_single'));
-
+				 global $ai_modal_type;
+				 if (isset($ai_modal_type) && $ai_modal_type === 'single') {
+					wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post_single'));
+    				
+				} elseif (isset($ai_modal_type) && $ai_modal_type === 'bulk') {
+        					wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post_bulk'));
+    				
+				} else {
+        					wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post'));
+    			 }
+        
+        
 
 				exit;
 
