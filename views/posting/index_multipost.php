@@ -61,38 +61,11 @@ if (isset($_POST['cat_name'])) {
 			<span>Publish</span>
 		</div>
 		<div class="category-box category_improveseo">
-			<h3 class="category-title">Choose or Create Category</h3>
-			<div class="category-list">
-				<?php
-				$select = '';
-				$args = array(
-					"hide_empty" => 0,
-					"type" => "post",
-					"orderby" => "name",
-					"order" => "ASC"
-				);
-				$cats = get_categories($args);
-				foreach ($cats as $category) {
-
-					if ($category->slug == "improve-seo") {
-						$checked = 'checked  onclick="return false"';
-					} else {
-						$checked = '';
-					}
-
-					$select .= "<span class='category'>
-    <label for='" . $category->term_id . "'>
-        <input style='display:none;' type='checkbox' " . $checked . " value='" . $category->term_id . "' id='" . $category->term_id . "' name='cats[]'>
-        " . $category->name . "
-    </label>
-</span>";
-
-
-				}
-				echo $select;
-				?>
-				<!-- <span class="category active">Anil</span> -->
-			</div>
+			<h3 class="category-title">Create Category</h3>
+			<p class="category-subtext" style="color: #666; font-size: 14px; margin-bottom: 15px;">
+				Easily add new categories with a simple click. Create as many as you need, one at a time.
+			</p>
+			
 
 			<div class="add-category">
 				<form method="post">
