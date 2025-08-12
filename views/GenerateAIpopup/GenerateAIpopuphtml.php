@@ -921,7 +921,16 @@ global $ai_modal_type;
                 <!-- Step 4 Content -->
                 <div class="data_multi">
                     <div class="fourth_ttepss_multi">
-                        <div class="fourth_ttepss_outer_multi">
+                        <div class="seo-visuals-coming-soon">
+                            <div class="coming-soon-content">
+                                <h3><img src="<?php echo WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ?>" alt="sparks"> SEO Visuals Coming Soon!</h3>
+                                <p>Get ready for powerful visual elements that will supercharge your content! Our upcoming SEO Visuals feature will automatically add engaging testimonials, interactive buttons, Google Maps, and compelling videos to make your AI-generated posts truly stand out.</p>
+                                <div class="excitement-note">
+                                    <strong>🚀  Very soon - your content is about to get a major upgrade!</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="fourth_ttepss_outer_multi">
                             <div class="fourth_ttepss-lft_multi">Testimonial:</div>
                             <div class="fourth_ttepss-rgt_multi">
                                 <div class="category-box_multi">
@@ -969,7 +978,7 @@ global $ai_modal_type;
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
 
