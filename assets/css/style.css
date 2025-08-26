@@ -347,7 +347,7 @@ input:checked + .switch:before {
 
   gap: 35px 50px; */
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   flex-wrap: wrap;
 }
 
@@ -2380,6 +2380,7 @@ div#ai-image-display {
   }
 
   .create-ai-post {
+    margin-top: 20px;
     padding: 30px;
   }
 
