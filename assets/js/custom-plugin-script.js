@@ -963,8 +963,23 @@ function resetSmartWizard() {
 
 jQuery("#seed_select").on("change", function () {
   var seedtype = jQuery(this).val();
+  var seedkeyword = jQuery("#seed_keyword").val();
+  seedkeyword = seedkeyword ? seedkeyword.trim() : "";
 
+  // When AI title needs to be generated (not seed_option1), ensure seed keyword exists first
   if (seedtype != "seed_option1") {
+    if (!seedkeyword) {
+      // Prompt user and stop
+      document.getElementById("error_seed_keyword").innerText = "Please enter seed keyword.";
+      jQuery("#loader").hide();
+      jQuery(".hide_on_seed_option1").hide();
+      jQuery("#gettitle").hide();
+      return; // do not call API without seed keyword
+    } else {
+      // Clear any previous error
+      jQuery("#error_seed_keyword").html("");
+    }
+
     jQuery("#loader").show();
     jQuery("#gettitle").css({ display: "flex" });
     jQuery(".hide_on_seed_option1").show();
@@ -974,21 +989,16 @@ jQuery("#seed_select").on("change", function () {
     jQuery("#gettitle").hide();
   }
 
-  var seedkeyword = jQuery("#seed_keyword").val();
-
   var contenttype = jQuery("#cotnt_type").val();
 
+  // If seedtype requires AI title, we already validated seedkeyword above
   jQuery
     .post(ajaxUrl, {
       action: "getGPTdata",
-
       seedtype: seedtype,
-
       seedkeyword: seedkeyword,
-
       contenttype: contenttype,
     })
-
     .success(function (data) {
       console.log("" + data);
 

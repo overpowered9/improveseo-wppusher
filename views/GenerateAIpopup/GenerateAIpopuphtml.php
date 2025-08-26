@@ -1767,82 +1767,6 @@ global $ai_modal_type;
     // Select option display setup
 
 </script>
-<!-- <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        let currentStep = 0;
-        const steps = document.querySelectorAll(".percent_multi");
-        const dataSections = document.querySelectorAll(".data_multi");
-        const prevButton = document.getElementById("prevStepButton_multi");
-        const nextButton = document.getElementById("nextStepButton_multi");
-
-        function updateSteps() {
-            steps.forEach((step, index) => {
-                step.classList.remove("active_multi", "completed_multi");
-                if (index < currentStep) {
-                    step.classList.add("completed_multi");
-                } else if (index === currentStep) {
-                    step.classList.add("active_multi");
-                }
-            });
-        }
-
-        function updateDataDisplay() {
-            dataSections.forEach((section, index) => {
-                section.classList.remove("dataJSmulti_multi");
-                if (index === currentStep) {
-                    section.classList.add("dataJSmulti_multi");
-                }
-            });
-        }
-        function updateButtonText() {
-            let buttonText = 'Next';
-            const totalSteps = steps.length;
-
-            if (currentStep === totalSteps - 1) {
-                buttonText = 'Submit';
-                console.log(totalSteps);
-            } else if (currentStep === 8) {
-                jQuery("#bulk_ai_post_submi_button").trigger("click");
-            } else {
-                buttonText = 'Next';
-            }
-
-            nextButton.innerHTML = `${buttonText} <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>" alt="arrow-right">`;
-        }
-
-        nextButton.addEventListener("click", () => {
-            if (currentStep < steps.length - 1) {
-                currentStep++;
-                updateSteps();
-                updateDataDisplay();
-                updateButtonText();
-                prevButton.disabled = false;
-                // if (currentStep === steps.length) {
-                //     nextButton.disabled = true;
-                // }
-            }
-        });
-
-        prevButton.addEventListener("click", () => {
-            if (currentStep > 0) {
-                currentStep--;
-                updateSteps();
-                updateDataDisplay();
-                updateButtonText();
-                nextButton.disabled = false;
-                if (currentStep === 0) {
-                    prevButton.disabled = true;
-                }
-            }
-        });
-
-        updateSteps();
-        updateDataDisplay();
-        prevButton.disabled = true;
-    });
-
-</script> -->
-<!-- forimage generaton in single post -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         let currentStep = 0;
@@ -2011,8 +1935,28 @@ global $ai_modal_type;
             const label = document.querySelector(".step_one_approve_button");
             const labelText = label.querySelector(".label-text");
             const icon = label.querySelector(".icon");
+            const titleArea = document.getElementById('maintitlearea');
 
             if (this.checked) {
+                // Validate that the AI generated title is not empty before allowing approve
+                if (!titleArea || titleArea.value.trim() === "") {
+                    alert("AI generated title cannot be empty.");
+                    this.checked = false;
+                    // Reset label state
+                    label.classList.remove("approve_active");
+                    labelText.textContent = 'Approve';
+                    icon.style.display = 'none';
+                    // Highlight the textarea and focus it
+                    if (titleArea) {
+                        titleArea.style.border = '2px solid red';
+                        titleArea.focus();
+                    }
+                    return;
+                } else {
+                    // Clear any prior error styling if present
+                    titleArea.style.border = '1px solid #D2D2D2';
+                }
+
                 label.classList.add("approve_active");
                 labelText.textContent = 'Approved';
                 icon.style.display = 'block'; // Show the icon
@@ -2023,11 +1967,6 @@ global $ai_modal_type;
             }
         });
     });
-
-
-
-
-
 
     document.addEventListener("DOMContentLoaded", function () {
         const radioButtons = document.querySelectorAll('.show_hide_content_in_bulk_part_3');
