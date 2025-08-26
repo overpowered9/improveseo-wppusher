@@ -531,6 +531,7 @@ global $ai_modal_type;
                                         <input type="hidden" id="AI-Prompt-Image-uploaded-path"
                                             name="AI-Prompt-Image-uploaded-path">
                                     </div>
+
                                 </div>
 
                                 <input type="button" name="generate_i_image" class="styling_post_page_action_buttons "
@@ -1768,7 +1769,65 @@ global $ai_modal_type;
     // Select option display setup
 
 </script>
-<!-- <script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const approveCheckbox = document.getElementById("checkbox_need");
+        if (!approveCheckbox) return;
+
+        approveCheckbox.addEventListener("change", function () {
+            const label = document.querySelector(".step_one_approve_button");
+            const labelText = label ? label.querySelector(".label-text") : null;
+            const icon = label ? label.querySelector(".icon") : null;
+            const mainTitleArea = document.getElementById('maintitlearea');
+            const validationBox = document.getElementById('for_approve_content_validation');
+            const validationMsgEl = validationBox ? validationBox.querySelector('.for_approve_content_validation_error') : null;
+
+            const setApprovedUI = (approved) => {
+                if (label) label.classList.toggle("approve_active", approved);
+                if (labelText) labelText.textContent = approved ? 'Approved' : 'Approve';
+                if (icon) icon.style.display = approved ? 'block' : 'none';
+            };
+
+            const showError = (msg) => {
+                if (mainTitleArea) mainTitleArea.style.border = '2px solid red';
+                if (validationBox) validationBox.style.display = 'block';
+                if (validationMsgEl && msg) validationMsgEl.textContent = msg;
+            };
+
+            const clearError = () => {
+                if (mainTitleArea) mainTitleArea.style.border = '1px solid #D2D2D2';
+                if (validationBox) validationBox.style.display = 'none';
+            };
+
+            if (this.checked) {
+                if (!mainTitleArea || mainTitleArea.value.trim() === '') {
+                    this.checked = false; // prevent approval on empty title
+                    setApprovedUI(false);
+                    showError('AI generated title cannot be empty');
+                    if (mainTitleArea) mainTitleArea.focus();
+                    return;
+                }
+                clearError();
+                setApprovedUI(true);
+            } else {
+                setApprovedUI(false);
+            }
+        });
+
+        // Clear error on typing
+        const mainTitleArea = document.getElementById('maintitlearea');
+        const validationBox = document.getElementById('for_approve_content_validation');
+        if (mainTitleArea) {
+            mainTitleArea.addEventListener('input', function () {
+                if (mainTitleArea.value.trim() !== '') {
+                    mainTitleArea.style.border = '1px solid #D2D2D2';
+                    if (validationBox) validationBox.style.display = 'none';
+                }
+            });
+        }
+    });
+</script>
+<script>
     document.addEventListener("DOMContentLoaded", () => {
         let currentStep = 0;
         const steps = document.querySelectorAll(".percent_multi");
@@ -1842,7 +1901,7 @@ global $ai_modal_type;
         prevButton.disabled = true;
     });
 
-</script> -->
+</script>
 <!-- forimage generaton in single post -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
