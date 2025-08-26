@@ -65,7 +65,7 @@ if (isset($_GET['post_preview'])) {
 			<li>Projects List</li>
 		</ul>
 		<div class="import-export-btn">
-			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_posting') ?>';"
+			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_create_single') ?>';"
 				class="active">Add New</button>
 		</div>
 	</div>

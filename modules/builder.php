@@ -34,39 +34,39 @@ use ImproveSEO\Models\Shortcode;
  * @param string $content Post content
  * @return void
  */
-function improveseo_set_featured_image($post_id, $content) {
-    preg_match('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $content, $matches);
+// function improveseo_set_featured_image($post_id, $content) {
+//     preg_match('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $content, $matches);
     
-    if (empty($matches) || empty($matches[1])) {
-        return;
-    }
+//     if (empty($matches) || empty($matches[1])) {
+//         return;
+//     }
     
-    $image_url = $matches[1];
+//     $image_url = $matches[1];
     
-    if (!filter_var($image_url, FILTER_VALIDATE_URL)) {
-        if (strpos($image_url, '/wp-content') === 0) {
-            $image_url = site_url() . $image_url;
-        } else {
-            return;
-        }
-    }
+//     if (!filter_var($image_url, FILTER_VALIDATE_URL)) {
+//         if (strpos($image_url, '/wp-content') === 0) {
+//             $image_url = site_url() . $image_url;
+//         } else {
+//             return;
+//         }
+//     }
 
-    $attachment_id = attachment_url_to_postid($image_url);
+//     $attachment_id = attachment_url_to_postid($image_url);
     
-    if (!$attachment_id) {
-        require_once(ABSPATH . 'wp-admin/includes/image.php');
-        require_once(ABSPATH . 'wp-admin/includes/file.php');
-        require_once(ABSPATH . 'wp-admin/includes/media.php');
+//     if (!$attachment_id) {
+//         require_once(ABSPATH . 'wp-admin/includes/image.php');
+//         require_once(ABSPATH . 'wp-admin/includes/file.php');
+//         require_once(ABSPATH . 'wp-admin/includes/media.php');
         
-        $attachment_id = media_sideload_image($image_url, $post_id, null, 'id');
+//         $attachment_id = media_sideload_image($image_url, $post_id, null, 'id');
         
-        if (is_wp_error($attachment_id)) {
-            return;
-        }
-    }
+//         if (is_wp_error($attachment_id)) {
+//             return;
+//         }
+//     }
     
-    set_post_thumbnail($post_id, $attachment_id);
-}
+//     set_post_thumbnail($post_id, $attachment_id);
+// }
 
 
 
@@ -1319,7 +1319,7 @@ function improveseo_builder()
 
 			$post_id = wp_insert_post($post_array);
 
-			improveseo_set_featured_image($post_id, $contentText);
+			// improveseo_set_featured_image($post_id, $contentText);
 
 
 			//$post_id = $wpdb->insert_id;
@@ -3313,7 +3313,7 @@ function improveseo_builder_update()
 
 			$post_id = wp_insert_post($post_array);
 
-			improveseo_set_featured_image($post_id, $contentText);
+			// improveseo_set_featured_image($post_id, $contentText);
 
 
 
