@@ -483,7 +483,7 @@ global $ai_modal_type;
                         <div id="AI_image_div" class="col-md-12" style="display:none;">
                             <div id="ai-image-display"></div>
                             <div class="form-group col-md-12" style="margin: 0 0 0 40%;" id="AIrefreshOption">
-                                <button class="styling_post_page_action_buttons " onclick="return refreshAIImage()"
+                                <button type="button" class="styling_post_page_action_buttons " onclick="return refreshAIImage()"
                                     style="cursor:pointer;">Regenerate AI Image</button>
                                 <!-- <i class="fa fa-refresh" aria-hidden="true" onclick="return refreshAIImage()"
                                 style="cursor:pointer;"></i> -->

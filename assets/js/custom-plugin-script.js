@@ -647,6 +647,9 @@ function refreshAIImage() {
       jQuery("#loadingAIImage").hide();
     },
   });
+
+  // Prevent form submission when called via inline onclick="return refreshAIImage()"
+  return false;
 }
 
 function getCookie(cname) {
