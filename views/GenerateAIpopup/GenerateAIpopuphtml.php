@@ -2013,3 +2013,91 @@ global $ai_modal_type;
     });
 
 </script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const seedInput = document.getElementById("seed_keyword");
+    const seedSelect = document.getElementById("seed_select");
+    const toneSelect = document.getElementById("cotnt_type");
+    const reloadBtn = document.getElementById("reload");
+    const approveCheckbox = document.getElementById("checkbox_need");
+    const approveLabel = document.querySelector(".step_one_approve_button");
+
+    const controls = [
+      { el: seedSelect, type: "select" },
+      { el: toneSelect, type: "select" },
+      { el: reloadBtn, type: "button" },
+    ];
+
+    function hasSeed() {
+      return (seedInput?.value || "").trim().length > 0;
+    }
+
+    function applyDisabledUI(disabled) {
+      const targets = [seedSelect, toneSelect, reloadBtn, approveLabel];
+      targets.forEach((t) => {
+        if (!t) return;
+        if (disabled) {
+          t.classList.add("is-disabled");
+          t.setAttribute("aria-disabled", "true");
+        } else {
+          t.classList.remove("is-disabled");
+          t.removeAttribute("aria-disabled");
+        }
+      });
+    }
+
+    function guardEvent(e) {
+      if (!hasSeed()) {
+        e.preventDefault();
+        e.stopPropagation();
+        alert("Please enter seed keyword.");
+        seedInput?.focus();
+        return true;
+      }
+      return false;
+    }
+
+    // Attach guards
+    controls.forEach(({ el, type }) => {
+      if (!el) return;
+      if (type === "select") {
+        el.addEventListener("mousedown", guardEvent, true);
+        el.addEventListener("keydown", function (e) {
+          // Block opening with keyboard (Space/Arrow) if no seed
+          if ([" ", "ArrowDown", "Enter"].includes(e.key)) {
+            guardEvent(e);
+          }
+        }, true);
+      } else if (type === "button") {
+        el.addEventListener("click", guardEvent, true);
+      }
+    });
+
+    if (approveLabel) {
+      // Guard label click
+      approveLabel.addEventListener("click", function (e) {
+        if (guardEvent(e)) return;
+      }, true);
+    }
+    if (approveCheckbox) {
+      // Guard checkbox change
+      approveCheckbox.addEventListener("change", function (e) {
+        if (!hasSeed()) {
+          e.preventDefault();
+          e.stopPropagation();
+          alert("Please enter seed keyword.");
+          this.checked = false;
+          seedInput?.focus();
+        }
+      }, true);
+    }
+
+    // Update UI on seed input changes
+    seedInput?.addEventListener("input", function () {
+      applyDisabledUI(!hasSeed());
+    });
+
+    // Initialize state
+    applyDisabledUI(!hasSeed());
+  });
+</script>

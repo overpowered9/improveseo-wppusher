@@ -2000,8 +2000,16 @@ table tbody td .linmit-text {
   background: linear-gradient(90deg, #70ea8f, #469c5c);
   -webkit-mask: linear-gradient(white, white) content-box,
     linear-gradient(white, white);
+  mask: linear-gradient(white, white) content-box,
+    linear-gradient(white, white);
   -webkit-mask-composite: destination-out;
   mask-composite: exclude;
+}
+
+/* Visual disabled state without blocking events */
+.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 form.improve-seo-form-global select {
