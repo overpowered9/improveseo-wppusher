@@ -3780,6 +3780,9 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 	$content_final = removePTags($content_final);
 
+	// Clean up: remove consecutive special characters in visible text (e.g., ###, ***, ----)
+	$content_final = removeConsecutiveSpecialCharacters($content_final);
+
 	// Final TOC verification and fixing
 	$content_final = verifyAndFixTOCLinks($content_final);
 
@@ -3788,7 +3791,32 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 	
 
 
+}
 
+/**
+ * Function to remove consecutive special characters from content text nodes
+ * - Keeps single special characters (may be meaningful)
+ * - Removes runs of 2+ special characters (e.g., ###, ***, ----, !!!, ???, ...)
+ * - Does not alter HTML tags/attributes
+ */
+function removeConsecutiveSpecialCharacters($content) {
+    // Split content into tags and text nodes
+    $parts = preg_split('/(<[^>]+>)/', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
+    if ($parts === false) {
+        return $content; // Fallback: if splitting fails, return original
+    }
+
+    foreach ($parts as $i => $part) {
+        // Skip HTML tags
+        if ($part !== '' && $part[0] === '<') {
+            continue;
+        }
+        // Within text nodes, remove any run of 2+ non-alphanumeric, non-space characters
+        // This preserves single occurrences but strips sequences (e.g., ### -> '', ** -> '')
+        $parts[$i] = preg_replace('/([^\p{L}\p{N}\s]){2,}/u', '', $part);
+    }
+
+    return implode('', $parts);
 }
 
 /**
@@ -3809,7 +3837,7 @@ function verifyAndFixTOCLinks($content) {
     }
     
     // Extract headings with IDs using regex
-    preg_match_all('/<h([2-6])(?:\s+id="([^"]+)")?>([^<]+)<\/h[2-6]>/', $content, $heading_matches);
+    preg_match_all('/<h([2-6])(?:\s+id=\"([^\"]+)\")?>([^<]+)<\/h[2-6]>/', $content, $heading_matches);
     if (!empty($heading_matches[2])) {
         foreach ($heading_matches[2] as $index => $id) {
             if (!empty($id)) {
@@ -3857,7 +3885,7 @@ function generateAnchorId($text) {
  * Function to automatically generate TOC from content headings
  */
 function generateTOCFromContent($content) {
-    preg_match_all('/<h([2-6])(?:\s+id="([^"]+)")?>([^<]+)<\/h[2-6]>/', $content, $matches);
+    preg_match_all('/<h([2-6])(?:\s+id=\"([^\"]+)\")?>([^<]+)<\/h[2-6]>/', $content, $matches);
     
     if (empty($matches[0])) {
         return '<h2 id="table-of-contents">Table of Contents</h2><p>No headings found.</p>';

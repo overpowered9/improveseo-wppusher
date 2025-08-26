@@ -122,6 +122,28 @@ if (!function_exists('enhanceContentWithTOC')) {
     }
 }
 
+if (!function_exists('removeConsecutiveSpecialCharacters')) {
+    /**
+     * Remove runs of 2+ special characters from visible text, preserving single occurrences.
+     * Does not alter HTML tags or attributes.
+     */
+    function removeConsecutiveSpecialCharacters($content) {
+        $parts = preg_split('/(<[^>]+>)/', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
+        if ($parts === false) {
+            return $content;
+        }
+        foreach ($parts as $i => $part) {
+            // Skip HTML tags
+            if ($part !== '' && $part[0] === '<') {
+                continue;
+            }
+            // Remove any sequence of 2+ non-letter/number/space chars (e.g., ###, ***, ----, !!!, ???)
+            $parts[$i] = preg_replace('/([^\p{L}\p{N}\s]){2,}/u', '', $part);
+        }
+        return implode('', $parts);
+    }
+}
+
 function CronjobRequest()
 
 {
@@ -4756,6 +4778,8 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 	$content_final = removePTags($content_final);
 
 	// Apply TOC enhancements and verification
+	// Clean up: remove consecutive special characters in visible text (e.g., ###, ***, ----)
+	$content_final = removeConsecutiveSpecialCharacters($content_final);
 	$content_final = enhanceContentWithTOC($content_final);
 
 	return $content_final;
