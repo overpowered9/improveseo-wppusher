@@ -270,8 +270,9 @@ global $ai_modal_type;
                         <div class="title-tune">
                             <div class="title">
                                 <label for="seed_options">Select Title Type</label>
+                                <p style="color: grey; font-size: small;">Click on dropdown to select default is use Keyword as in title</p>
                                 <select id="seed_select" name="seed_options" id="title" class="custom-selcected">
-                                    <option value="">Select Title Type</option>
+                                    
                                     <option value="seed_option1">USE KEYWORD AS IS IN TITLE [A.I. will build
                                         content]</option>
                                     <option value="seed_option2">CREATE BEST TITLE FROM KEYWORD [A.I. will
@@ -284,8 +285,8 @@ global $ai_modal_type;
                             <div style="clear: both"> </div>
                             <div class="tune" id="seed">
                                 <label for="tune">Tone of voice</label>
+                                <p style="color: grey; font-size: small;">Click on dropdown to select another tone of voice</p>
                                 <select name="content_type" id="cotnt_type" id="tune" class="custom-selcected">
-                                    <option value="">Tone of Voice</option>
                                     <option value="friendly">Friendly</option>
                                     <option value="professional">Professional</option>
                                     <option value="informational">Informational</option>

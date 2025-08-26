@@ -347,7 +347,7 @@ input:checked + .switch:before {
 
   gap: 35px 50px; */
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   flex-wrap: wrap;
 }
 
