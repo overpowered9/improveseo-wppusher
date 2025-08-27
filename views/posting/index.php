@@ -61,8 +61,9 @@ if (isset($_POST['cat_name'])) {
 			<span>Publish</span>
 		</div>
 		<div class="create-ai-post">
+		<h2 class="title">What would you like to create?</h2>
 			<div class="create-ai">
-				<h2 class="title">What would you like to create?</h2>
+				
 				<div class="create-ai-col">
 					<a class="Posting__post-button" href="<?php echo admin_url("admin.php?page=improveseo_posting&action=create_post"); ?>">
 						<img src="<?php echo WT_URL . '/assets/images/latest-images/Mobile-UX-rafiki.png'; ?>"
