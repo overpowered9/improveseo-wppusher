@@ -3748,38 +3748,28 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 	}
 
-	$content_final = convert_emails_to_links($content_final);
+	// Remove parentheses that wrap raw URLs/emails before converting them to links
+	$content_final = stripParenthesesWrappingContactTokens($content_final);
 
+	$content_final = convert_emails_to_links($content_final);
 	$content_final = convert_urls_to_links($content_final);
 
-
+	// Remove parentheses that wrap already-linked anchors like (<a href>..</a>)
+	$content_final = stripParenthesesAroundAnchorTags($content_final);
 
 	$content_final = htmlentities($content_final, null, 'utf-8');
-
 	$content_final = str_replace("&nbsp;", "", $content_final);
-
 	$content_final = str_replace("<p>&nbsp;</p>", "", $content_final);
-
 	$content_final = str_replace("<p> </p>", "", $content_final);
-
 	$content_final = str_replace("<p></p>", "", $content_final);
-
-
 
 	$content_final = html_entity_decode($content_final);
 
-
-
 	$content_final = replace_content($content_final, '<h2>Main Content Sections</h2>');
-
-
 
 	$content_final = replace_content($content_final, '<p>—</p>');
 
-
-
 	$content_final = removePTags($content_final);
-
 	// Clean up: remove consecutive special characters in visible text (e.g., ###, ***, ----)
 	$content_final = removeConsecutiveSpecialCharacters($content_final);
 
@@ -3817,6 +3807,29 @@ function removeConsecutiveSpecialCharacters($content) {
     }
 
     return implode('', $parts);
+}
+
+/**
+ * Strip parentheses that wrap raw URLs or emails in plain text.
+ * Examples:
+ *  - (https://example.com) => https://example.com
+ *  - (www.example.com/path) => www.example.com/path
+ *  - (user@example.com) => user@example.com
+ */
+function stripParenthesesWrappingContactTokens($content) {
+    // URLs wrapped in parentheses
+    $content = preg_replace('/\(\s*((?:https?:\/\/|www\.)[^\s)]+)\s*\)/i', '$1', $content);
+    // Emails wrapped in parentheses
+    $content = preg_replace('/\(\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,})\s*\)/', '$1', $content);
+    return $content;
+}
+
+/**
+ * Strip parentheses that directly surround an anchor tag.
+ * Example: (<a href="...">link</a>) => <a href="...">link</a>
+ */
+function stripParenthesesAroundAnchorTags($content) {
+    return preg_replace('/\(\s*(<a\b[^>]*>.*?<\/a>)\s*\)/i', '$1', $content);
 }
 
 /**
