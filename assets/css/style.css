@@ -348,7 +348,6 @@ input:checked + .switch:before {
   gap: 35px 50px; */
   align-items: center;
   justify-content: space-around;
-  margin-top: 20px;
   flex-wrap: wrap;
 }
 
@@ -378,6 +377,7 @@ input:checked + .switch:before {
   width: 100%;
   margin: 0;
   text-align: center;
+  margin-bottom: 20px;
   font-size: 34px;
   font-weight: 400;
   color: #000;
