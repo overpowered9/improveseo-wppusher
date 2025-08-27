@@ -168,6 +168,35 @@ if (!function_exists('stripParenthesesAroundAnchorTags')) {
     }
 }
 
+// Keep parent bulk project's number_of_completed_task in sync with details
+if (!function_exists('improveseo_sync_bulk_parent_progress')) {
+    function improveseo_sync_bulk_parent_progress($bulktask_id) {
+        global $wpdb;
+        $bulktask_id = (int) $bulktask_id;
+        if ($bulktask_id <= 0) {
+            return;
+        }
+        $completed = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(1) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND status = %s",
+                $bulktask_id,
+                'Done'
+            )
+        );
+        // Update the parent row with the recalculated count and touch updated_at
+        $wpdb->update(
+            $wpdb->prefix . 'improveseo_bulktasks',
+            array(
+                'number_of_completed_task' => $completed,
+                'updated_at' => current_time('mysql'),
+            ),
+            array('id' => $bulktask_id),
+            array('%d', '%s'),
+            array('%d')
+        );
+    }
+}
+
 function CronjobRequest()
 
 {
@@ -316,6 +345,20 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 		my_plugin_log('This is a log message content : ' . $AI_Content);
 
+        // Persist one detail row as Done + AI payload
+        $wpdb->query(
+            $wpdb->prepare(
+                "UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
+                 SET status = %s, ai_title = %s, ai_content = %s, ai_image = %s
+                 WHERE id = %d",
+                'Done', $ai_title, $AI_Content, $imageURL, $id
+            )
+        );
+
+        // Sync parent bulk project after changing child status
+        if (isset($value->bulktask_id)) {
+            improveseo_sync_bulk_parent_progress((int) $value->bulktask_id);
+        }
 	}
 
 	//$wpdb->query ( "UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails` SET status='Done',`ai_title`=".$ai_title.",`ai_content`='".$AI_Content."',`ai_image`='".$imageURL."', WHERE id=".$id );
@@ -735,14 +778,18 @@ function saveContentInTaskList()
 
 				)
 
-			);
+			 );
+
+            // Also refresh parent progress (keeps updated_at fresh in UI)
+            if (isset($value->bulktask_id)) {
+                improveseo_sync_bulk_parent_progress((int) $value->bulktask_id);
+            }
 
 			my_plugin_log('This is a log message : ' . $value->id);
 
 			//wp_send_json_success(array('status' => 'false',"message"=>'here 1 : '. $wpdb->last_error  ));
 
 		}
-
 	}
 
 
@@ -811,12 +858,14 @@ function saveContentInTaskList()
 
 				)
 
-			);
+			 );
 
+            // Keep parent updated_at moving forward in UI
+            if (isset($value->bulktask_id)) {
+                improveseo_sync_bulk_parent_progress((int) $value->bulktask_id);
+            }
 		}
-
 	}
-
 }
 
 function getAudienceData($seed_keyword)
