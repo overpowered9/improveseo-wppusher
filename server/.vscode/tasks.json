@@ -28,6 +28,30 @@
 				"$tsc"
 			],
 			"group": "build"
+		},
+		{
+			"label": "Install deps (pnpm or npm)",
+			"type": "shell",
+			"command": "pwsh",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"if (Get-Command pnpm -ErrorAction SilentlyContinue) { pnpm add he } else { npm install he }"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Install he package",
+			"type": "shell",
+			"command": "pwsh",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"if (Get-Command pnpm -ErrorAction SilentlyContinue) { pnpm add he } else { npm install he }"
+			],
+			"isBackground": false,
+			"group": "build"
 		}
 	]
 }
