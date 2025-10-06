@@ -1,0 +1,301 @@
+import { Types } from 'mongoose';
+import { 
+  PromptTemplate, 
+  PromptVersion, 
+  PromptSet, 
+  IPromptTemplate, 
+  IPromptVersion, 
+  IPromptSet 
+} from '../models/prompt.models';
+
+export interface PromptWithVersion extends IPromptTemplate {
+  activeVersion: IPromptVersion;
+}
+
+export interface CompletePromptSet extends IPromptSet {
+  prompts: PromptWithVersion[];
+}
+
+export class PromptManagementService {
+  
+  /**
+   * Get the currently active prompt set with all its prompts and active versions
+   */
+  async getActivePromptSet(): Promise<CompletePromptSet> {
+    const activeSet = await PromptSet.findOne({ isActive: true });
+    if (!activeSet) {
+      throw new Error('No active prompt set found');
+    }
+
+    const promptsWithVersions = await Promise.all(
+      activeSet.prompts.map(async ({ templateName, versionId }) => {
+        const template = await PromptTemplate.findOne({ name: templateName });
+        if (!template) {
+          throw new Error(`Template ${templateName} not found`);
+        }
+        
+        const version = await PromptVersion.findById(versionId);
+        if (!version) {
+          throw new Error(`Version ${versionId} not found for template ${templateName}`);
+        }
+
+        return {
+          ...template.toObject(),
+          activeVersion: version
+        } as PromptWithVersion;
+      })
+    );
+
+    return {
+      ...activeSet.toObject(),
+      prompts: promptsWithVersions
+    } as CompletePromptSet;
+  }
+
+  /**
+   * Get a specific prompt by template name and word count variant
+   */
+  async getPrompt(templateName: string, wordCountVariant: string): Promise<string> {
+    const template = await PromptTemplate.findOne({ 
+      name: templateName,
+      $or: [
+        { wordCountVariant },
+        { wordCountVariant: 'all' }
+      ]
+    });
+    
+    if (!template) {
+      throw new Error(`Template '${templateName}' not found for word count '${wordCountVariant}'`);
+    }
+
+    // First try to get from active prompt set
+    const activeSet = await PromptSet.findOne({ isActive: true });
+    if (activeSet) {
+      const promptMapping = activeSet.prompts.find(p => p.templateName === templateName);
+      if (promptMapping) {
+        const version = await PromptVersion.findById(promptMapping.versionId);
+        if (version) {
+          return version.prompt;
+        }
+      }
+    }
+
+    // Fallback to active version for the template
+    const activeVersion = await PromptVersion.findOne({
+      templateId: template._id,
+      isActive: true
+    });
+
+    if (!activeVersion) {
+      throw new Error(`No active version found for template '${templateName}'`);
+    }
+
+    return activeVersion.prompt;
+  }
+
+  /**
+   * Create a new version of a prompt template
+   */
+  async createPromptVersion(
+    templateId: string, 
+    prompt: string, 
+    adminId: string,
+    metadata?: IPromptVersion['metadata']
+  ): Promise<IPromptVersion> {
+    const template = await PromptTemplate.findById(templateId);
+    if (!template) {
+      throw new Error(`Template ${templateId} not found`);
+    }
+
+    // Get the next version number
+    const lastVersion = await PromptVersion
+      .findOne({ templateId })
+      .sort({ version: -1 });
+
+    const newVersion = new PromptVersion({
+      templateId,
+      version: (lastVersion?.version || 0) + 1,
+      prompt,
+      isActive: false, // New versions start inactive
+      createdBy: adminId,
+      createdAt: new Date(),
+      metadata
+    });
+
+    return await newVersion.save();
+  }
+
+  /**
+   * Activate a specific prompt version (deactivates others for the same template)
+   */
+  async activatePromptVersion(templateId: string, versionId: string): Promise<void> {
+    // Deactivate all versions for this template
+    await PromptVersion.updateMany(
+      { templateId, isActive: true },
+      { isActive: false }
+    );
+
+    // Activate the specified version
+    const updatedVersion = await PromptVersion.findByIdAndUpdate(
+      versionId, 
+      { isActive: true },
+      { new: true }
+    );
+
+    if (!updatedVersion) {
+      throw new Error(`Version ${versionId} not found`);
+    }
+  }
+
+  /**
+   * Create a new prompt set
+   */
+  async createPromptSet(
+    name: string, 
+    description: string, 
+    promptMappings: { templateName: string; versionId: string }[],
+    adminId: string
+  ): Promise<IPromptSet> {
+    // Validate that all referenced templates and versions exist
+    for (const mapping of promptMappings) {
+      const template = await PromptTemplate.findOne({ name: mapping.templateName });
+      if (!template) {
+        throw new Error(`Template '${mapping.templateName}' not found`);
+      }
+
+      const version = await PromptVersion.findById(mapping.versionId);
+      if (!version) {
+        throw new Error(`Version '${mapping.versionId}' not found`);
+      }
+
+      if (!version.templateId.equals(template._id)) {
+        throw new Error(`Version '${mapping.versionId}' does not belong to template '${mapping.templateName}'`);
+      }
+    }
+
+    const newSet = new PromptSet({
+      name,
+      description,
+      isActive: false, // New sets start inactive
+      prompts: promptMappings.map(m => ({
+        templateName: m.templateName,
+        versionId: new Types.ObjectId(m.versionId)
+      })),
+      createdBy: adminId,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    return await newSet.save();
+  }
+
+  /**
+   * Activate a prompt set (deactivates all other sets)
+   */
+  async activatePromptSet(setId: string): Promise<void> {
+    // Deactivate all prompt sets
+    await PromptSet.updateMany({}, { isActive: false });
+
+    // Activate the specified set
+    const updatedSet = await PromptSet.findByIdAndUpdate(
+      setId,
+      { isActive: true, updatedAt: new Date() },
+      { new: true }
+    );
+
+    if (!updatedSet) {
+      throw new Error(`Prompt set ${setId} not found`);
+    }
+  }
+
+  /**
+   * Get all templates
+   */
+  async getAllTemplates(): Promise<IPromptTemplate[]> {
+    return await PromptTemplate.find().sort({ name: 1, wordCountVariant: 1 });
+  }
+
+  /**
+   * Get all versions for a template
+   */
+  async getTemplateVersions(templateId: string): Promise<IPromptVersion[]> {
+    return await PromptVersion.find({ templateId }).sort({ version: -1 });
+  }
+
+  /**
+   * Get all prompt sets
+   */
+  async getAllPromptSets(): Promise<IPromptSet[]> {
+    return await PromptSet.find().sort({ createdAt: -1 });
+  }
+
+  /**
+   * Process prompt template variables (replace {{variable}} with actual values)
+   */
+  processPromptVariables(prompt: string, variables: Record<string, string>): string {
+    let processedPrompt = prompt;
+    
+    Object.entries(variables).forEach(([key, value]) => {
+      const placeholder = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+      processedPrompt = processedPrompt.replace(placeholder, value || '');
+    });
+
+    return processedPrompt;
+  }
+
+  /**
+   * Extract variables from a prompt template
+   */
+  extractVariables(prompt: string): string[] {
+    const variableRegex = /\{\{([^}]+)\}\}/g;
+    const variables: string[] = [];
+    let match;
+
+    while ((match = variableRegex.exec(prompt)) !== null) {
+      if (!variables.includes(match[1])) {
+        variables.push(match[1]);
+      }
+    }
+
+    return variables;
+  }
+
+  /**
+   * Create a new prompt template
+   */
+  async createPromptTemplate(
+    name: string,
+    description: string,
+    category: IPromptTemplate['category'],
+    wordCountVariant: IPromptTemplate['wordCountVariant'],
+    sectionType?: IPromptTemplate['sectionType'],
+    variables: string[] = []
+  ): Promise<IPromptTemplate> {
+    const template = new PromptTemplate({
+      name,
+      description,
+      category,
+      wordCountVariant,
+      sectionType,
+      variables,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    return await template.save();
+  }
+
+  /**
+   * Update prompt template metadata
+   */
+  async updatePromptTemplate(
+    templateId: string,
+    updates: Partial<Pick<IPromptTemplate, 'description' | 'variables'>>
+  ): Promise<IPromptTemplate | null> {
+    return await PromptTemplate.findByIdAndUpdate(
+      templateId,
+      { ...updates, updatedAt: new Date() },
+      { new: true }
+    );
+  }
+}
