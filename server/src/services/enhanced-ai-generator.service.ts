@@ -1,5 +1,5 @@
-import { PromptManagementService } from './prompt-management.service';
-import { GeneratePostParams, GeneratePostResult, ChatMessage } from './ai_content_admin_tuneable';
+import { PromptManagementService } from './prompt-management.service.js';
+import { GeneratePostParams, GeneratePostResult, ChatMessage } from './ai_content_admin_tuneable.js';
 
 export class EnhancedAIContentGenerator {
   constructor(private promptService: PromptManagementService) {}

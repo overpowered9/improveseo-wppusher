@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { PromptManagementService } from '../services/prompt-management.service.js';
+import { Router, Request, Response } from 'express';
+import { PromptManagementService } from '../../services/prompt-management.service.js';
 
 const router = Router();
 
@@ -74,7 +74,7 @@ router.post('/prompt-sets', requireAdmin, async (req, res) => {
       name,
       description,
       promptMappings,
-      req.adminId
+      (req as any).adminId
     );
 
     res.status(201).json({ 
@@ -247,7 +247,7 @@ router.post('/prompt-templates/:templateId/versions', requireAdmin, async (req, 
     const newVersion = await promptService.createPromptVersion(
       templateId,
       prompt,
-      req.adminId,
+      (req as any).adminId,
       metadata
     );
 

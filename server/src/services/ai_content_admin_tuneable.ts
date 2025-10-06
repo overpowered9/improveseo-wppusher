@@ -24,7 +24,7 @@ export interface GeneratePostResult {
   meta_descreption: string;
 }
 
-interface ChatMessage {
+export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }

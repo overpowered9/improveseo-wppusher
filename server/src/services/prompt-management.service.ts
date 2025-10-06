@@ -6,13 +6,29 @@ import {
   IPromptTemplate, 
   IPromptVersion, 
   IPromptSet 
-} from '../models/prompt.models';
+} from '../models/prompt.models.js';
 
-export interface PromptWithVersion extends IPromptTemplate {
+export interface PromptWithVersion {
+  _id: Types.ObjectId;
+  name: string;
+  description: string;
+  category: IPromptTemplate['category'];
+  wordCountVariant: IPromptTemplate['wordCountVariant'];
+  sectionType?: IPromptTemplate['sectionType'];
+  variables: string[];
+  createdAt: Date;
+  updatedAt: Date;
   activeVersion: IPromptVersion;
 }
 
-export interface CompletePromptSet extends IPromptSet {
+export interface CompletePromptSet {
+  _id: Types.ObjectId;
+  name: string;
+  description: string;
+  isActive: boolean;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
   prompts: PromptWithVersion[];
 }
 
@@ -40,14 +56,28 @@ export class PromptManagementService {
         }
 
         return {
-          ...template.toObject(),
+          _id: template._id,
+          name: template.name,
+          description: template.description,
+          category: template.category,
+          wordCountVariant: template.wordCountVariant,
+          sectionType: template.sectionType,
+          variables: template.variables,
+          createdAt: template.createdAt,
+          updatedAt: template.updatedAt,
           activeVersion: version
         } as PromptWithVersion;
       })
     );
 
     return {
-      ...activeSet.toObject(),
+      _id: activeSet._id,
+      name: activeSet.name,
+      description: activeSet.description,
+      isActive: activeSet.isActive,
+      createdBy: activeSet.createdBy,
+      createdAt: activeSet.createdAt,
+      updatedAt: activeSet.updatedAt,
       prompts: promptsWithVersions
     } as CompletePromptSet;
   }
