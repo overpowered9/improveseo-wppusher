@@ -386,4 +386,140 @@ router.get('/prompts/health', requireAdmin, async (req, res) => {
   }
 });
 
+// ===== VERSION MANAGEMENT =====
+
+/**
+ * GET /admin/prompt-templates/:templateId/versions
+ * Get all versions for a specific template
+ */
+router.get('/prompt-templates/:templateId/versions', requireAdmin, async (req, res) => {
+  try {
+    const { templateId } = req.params;
+    const versions = await promptService.getTemplateVersions(templateId);
+    
+    res.json({
+      success: true,
+      data: versions,
+      message: `Found ${versions.length} versions for template`
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch versions'
+    });
+  }
+});
+
+/**
+ * POST /admin/prompt-templates/:templateId/versions
+ * Create a new version for a template
+ */
+router.post('/prompt-templates/:templateId/versions', requireAdmin, async (req, res) => {
+  try {
+    const { templateId } = req.params;
+    const { prompt, notes, expectedOutput } = req.body;
+    
+    if (!prompt) {
+      return res.status(400).json({
+        success: false,
+        error: 'Prompt content is required'
+      });
+    }
+
+    const newVersion = await promptService.createTemplateVersion(templateId, {
+      prompt,
+      createdBy: (req as any).adminId,
+      metadata: {
+        notes,
+        expectedOutput
+      }
+    });
+    
+    res.status(201).json({
+      success: true,
+      data: newVersion,
+      message: 'New version created successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to create version'
+    });
+  }
+});
+
+/**
+ * PUT /admin/prompt-templates/:templateId/versions/:versionId/activate
+ * Activate a specific version (deactivates others)
+ */
+router.put('/prompt-templates/:templateId/versions/:versionId/activate', requireAdmin, async (req, res) => {
+  try {
+    const { templateId, versionId } = req.params;
+    
+    const activatedVersion = await promptService.activateTemplateVersion(templateId, versionId);
+    
+    res.json({
+      success: true,
+      data: activatedVersion,
+      message: 'Version activated successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to activate version'
+    });
+  }
+});
+
+/**
+ * GET /admin/prompt-templates/:templateId/versions/:versionId
+ * Get specific version details
+ */
+router.get('/prompt-templates/:templateId/versions/:versionId', requireAdmin, async (req, res) => {
+  try {
+    const { versionId } = req.params;
+    const version = await promptService.getVersionById(versionId);
+    
+    if (!version) {
+      return res.status(404).json({
+        success: false,
+        error: 'Version not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: version,
+      message: 'Version retrieved successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch version'
+    });
+  }
+});
+
+/**
+ * DELETE /admin/prompt-templates/:templateId/versions/:versionId
+ * Delete a specific version (cannot delete active version)
+ */
+router.delete('/prompt-templates/:templateId/versions/:versionId', requireAdmin, async (req, res) => {
+  try {
+    const { versionId } = req.params;
+    
+    await promptService.deleteTemplateVersion(versionId);
+    
+    res.json({
+      success: true,
+      message: 'Version deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to delete version'
+    });
+  }
+});
+
 export default router;

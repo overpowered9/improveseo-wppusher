@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard.js';
 import PromptTemplates from './pages/PromptTemplates.tsx';
 import PromptSets from './pages/PromptSets.js';
 import ContentGenerator from './pages/ContentGenerator.js';
+import VersionManagement from './pages/VersionManagement.tsx';
 import LoadingSpinner from './components/UI/LoadingSpinner.js';
 
 const AppRoutes: React.FC = () => {
@@ -32,6 +33,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/templates" element={<PromptTemplates />} />
+        <Route path="/templates/:templateId/versions" element={<VersionManagement />} />
         <Route path="/sets" element={<PromptSets />} />
         <Route path="/generator" element={<ContentGenerator />} />
         <Route path="/login" element={<Navigate to="/dashboard" replace />} />

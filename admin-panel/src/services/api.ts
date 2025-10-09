@@ -248,6 +248,40 @@ class ApiClient {
     const response = await this.client.post('/admin/prompts/test-variables', test);
     return response.data;
   }
+
+  // ===== VERSION MANAGEMENT =====
+
+  async getTemplateVersions(templateId: string): Promise<ApiResponse<PromptVersion[]>> {
+    const response = await this.client.get(`/admin/prompt-templates/${templateId}/versions`);
+    return response.data;
+  }
+
+  async createTemplateVersion(
+    templateId: string, 
+    versionData: {
+      prompt: string;
+      notes?: string;
+      expectedOutput?: string;
+    }
+  ): Promise<ApiResponse<PromptVersion>> {
+    const response = await this.client.post(`/admin/prompt-templates/${templateId}/versions`, versionData);
+    return response.data;
+  }
+
+  async activateTemplateVersion(templateId: string, versionId: string): Promise<ApiResponse<PromptVersion>> {
+    const response = await this.client.put(`/admin/prompt-templates/${templateId}/versions/${versionId}/activate`);
+    return response.data;
+  }
+
+  async getVersionById(templateId: string, versionId: string): Promise<ApiResponse<PromptVersion>> {
+    const response = await this.client.get(`/admin/prompt-templates/${templateId}/versions/${versionId}`);
+    return response.data;
+  }
+
+  async deleteTemplateVersion(templateId: string, versionId: string): Promise<ApiResponse<void>> {
+    const response = await this.client.delete(`/admin/prompt-templates/${templateId}/versions/${versionId}`);
+    return response.data;
+  }
 }
 
 // Create singleton instance

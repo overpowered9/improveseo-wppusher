@@ -38,6 +38,7 @@ import {
   History as HistoryIcon,
   ContentCopy as CopyIcon,
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import apiClient from '../services/api.js';
 import type { PromptTemplate } from '../services/api.js';
 
@@ -288,6 +289,7 @@ const TemplateDialog: React.FC<TemplateDialogProps> = ({ open, onClose, template
 };
 
 const PromptTemplates: React.FC = () => {
+  const navigate = useNavigate();
   const [templates, setTemplates] = useState<PromptTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -546,7 +548,7 @@ const PromptTemplates: React.FC = () => {
           </ListItemIcon>
           <ListItemText>Duplicate</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => console.log('View versions:', menuTemplate)}>
+        <MenuItem onClick={() => menuTemplate && navigate(`/templates/${menuTemplate._id}/versions`)}>
           <ListItemIcon>
             <HistoryIcon fontSize="small" />
           </ListItemIcon>

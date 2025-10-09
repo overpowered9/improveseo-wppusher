@@ -328,4 +328,97 @@ export class PromptManagementService {
       { new: true }
     );
   }
+
+  // ===== VERSION MANAGEMENT METHODS =====
+
+  /**
+   * Create a new version for a template
+   */
+  async createTemplateVersion(
+    templateId: string, 
+    versionData: {
+      prompt: string;
+      createdBy: string;
+      metadata?: {
+        notes?: string;
+        expectedOutput?: string;
+      };
+    }
+  ): Promise<IPromptVersion> {
+    // Get the highest version number for this template
+    const latestVersion = await PromptVersion.findOne({ templateId })
+      .sort({ version: -1 })
+      .exec();
+    
+    const nextVersion = latestVersion ? latestVersion.version + 1 : 1;
+
+    const newVersion = new PromptVersion({
+      templateId: new Types.ObjectId(templateId),
+      version: nextVersion,
+      prompt: versionData.prompt,
+      isActive: false, // New versions start as inactive
+      createdBy: versionData.createdBy,
+      metadata: versionData.metadata
+    });
+
+    return await newVersion.save();
+  }
+
+  /**
+   * Activate a specific version (deactivates all other versions for this template)
+   */
+  async activateTemplateVersion(templateId: string, versionId: string): Promise<IPromptVersion> {
+    // Deactivate all versions for this template
+    await PromptVersion.updateMany(
+      { templateId },
+      { isActive: false }
+    );
+
+    // Activate the specified version
+    const activatedVersion = await PromptVersion.findByIdAndUpdate(
+      versionId,
+      { isActive: true },
+      { new: true }
+    );
+
+    if (!activatedVersion) {
+      throw new Error('Version not found');
+    }
+
+    return activatedVersion;
+  }
+
+  /**
+   * Get a specific version by ID
+   */
+  async getVersionById(versionId: string): Promise<IPromptVersion | null> {
+    return await PromptVersion.findById(versionId).exec();
+  }
+
+  /**
+   * Delete a version (cannot delete active version)
+   */
+  async deleteTemplateVersion(versionId: string): Promise<void> {
+    const version = await PromptVersion.findById(versionId);
+    
+    if (!version) {
+      throw new Error('Version not found');
+    }
+
+    if (version.isActive) {
+      throw new Error('Cannot delete active version. Please activate another version first.');
+    }
+
+    await PromptVersion.findByIdAndDelete(versionId);
+  }
+
+  /**
+   * Get active version for a template
+   */
+  async getActiveVersion(templateId: string): Promise<IPromptVersion | null> {
+    return await PromptVersion.findOne({ 
+      templateId, 
+      isActive: true 
+    }).exec();
+  }
 }
