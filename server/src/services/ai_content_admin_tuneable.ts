@@ -347,7 +347,58 @@ Main Content Sections - Create content sections with subtitles using keywords an
 Anchoring, Reframing, Vivid Descriptions, Addressing Reader Emotions, High-Quality Content.
 `;
 
-  const formatBlock = (nos_of_words === '2400 to 3600 words') ? largeFormat : mediumFormat;
+  // Small format (600-1200 words) - matches PHP implementation
+  const smallFormat = `
+Use the following formatting and structure for the output:
+{
+IMPORTANT: Never include the Blog Post Title. Start with the introduction paragraph
+
+Introduction - Introduction should not be more than 100-150 words.(do not include any title, just paragraph)
+
+<h2 id="table-of-contents">Table of Contents</h2> (Heading 2) - should not be more than 50 words. Format as clickable links: <ul><li><a href="#section-id">Section Title</a></li></ul>
+
+Main Content Sections - Create 4 sections. Each section should not be more than 200-250 words of detailed content. Use format: <h2 id="section-id">Section Title</h2>
+
+<h2 id="conclusion">Conclusion</h2> (Heading 2) - Conclusion should not be more than 100-150 words.
+
+<h2 id="faqs">FAQs</h2> (Heading 2) - FAQs should not be more than 100-150 words.
+Q: 
+A:
+
+Q: 
+A: 
+
+Q:
+A: 
+
+<h2 id="whats-next">What\'s Next?</h2> (Heading 2) - What\'s next? should not be more than 100-150 words.
+}
+
+Use the iterative approach to improve upon your initial draft. After each draft, critique your work, give it a score out of 10, and if the score is below 9, improve upon the previous draft. Repeat this process until you achieve a score of 9 or 10. When doing this, review and edit your work to remove any grammatical errors, unnecessary information, and superfluous sentences. Don\`t provide output of this critique, this is only for you to analyze internally. Also, check the formatting, output should not include a title of the blog post and each section/subsection should have a title with a specific heading type. 
+
+Now generate ONLY the Introduction and the Table of Contents based on the following parameters:
+
+                Main keyword: ${seed_keyword}
+                Title: "${title}"
+                LSI keywords: ${LSI_Keywords}
+                Tone of voice: ${voice_tone} 
+                Point of view: ${point_of_view}
+                Audience data: {${audience}}
+                Details to include: ${details_to_include} 
+                Language: ${content_lang}
+                Call to action from user: \`${call_to_action}\`
+                Facts to include: {${facts_prompt_response}} Do not print "Main Content Sections" text in output.`;
+
+  // Choose format based on word count
+  let formatBlock: string;
+  if (nos_of_words === '600 to 1200 words') {
+    formatBlock = smallFormat;
+  } else if (nos_of_words === '2400 to 3600 words') {
+    formatBlock = largeFormat;
+  } else {
+    formatBlock = mediumFormat;
+  }
+  
   return sharedIntro + '\n' + formatBlock;
 }
 
