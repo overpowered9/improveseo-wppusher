@@ -57,7 +57,7 @@ function getaaldata()
 
 	}
 
-	$content = createAIpost(
+	$content = createAIpost2(
 
 		$seed_keyword,
 
@@ -237,7 +237,8 @@ function ChatGPTCall($question)
 
 
 }
-
+function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '')
+{return "2";}
 function createAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '')
 {
 
