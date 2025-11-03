@@ -244,6 +244,16 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 	// Get audience data from cookie (same as original function)
 	$AudienceData = $_COOKIE['AudienceData'];
 	
+	// Get API credentials from WordPress options
+	$api_key = get_option('improveseo_api_key');
+	$site_code = get_option('improveseo_site_code');
+	
+	// Validate credentials
+	if (empty($api_key) || empty($site_code)) {
+		error_log("createAIpost2 Error: Missing API credentials. Please configure API Key and Site Code in settings.");
+		return "Error: Missing API credentials. Please configure your API Key and Site Code in ImproveSEO settings.";
+	}
+	
 	// Admin server configuration
 	$admin_server_url = 'https://imporve-seo-admin-server.onrender.com';
     $api_endpoint = $admin_server_url . '/api/v1/generate/active';
@@ -282,10 +292,12 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 		'Content-Type: application/json',
-		'Accept: application/json'
+		'Accept: application/json',
+		'X-API-Key: ' . $api_key,
+		'X-Site-Code: ' . $site_code
 	));
-	curl_setopt($ch, CURLOPT_TIMEOUT, 120); // 2 minutes timeout for AI generation
-	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // 10 seconds connection timeout
+	curl_setopt($ch, CURLOPT_TIMEOUT, 480); // 2 minutes timeout for AI generation
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 100); // 10 seconds connection timeout
 	
 	// Execute the request
 	$response = curl_exec($ch);
