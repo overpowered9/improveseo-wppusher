@@ -273,7 +273,7 @@ function createAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_
 	);
 
 	// Determine endpoint based on testing mode
-	$endpoint = ($for_testing_only == 1) ? '/api/v1/generation/testing' : '/api/v1/generation/active';
+	$endpoint = '/api/v1/generation/active';
 	
 	// Make request to our server
 	$response = wp_remote_post($server_config['server_url'] . $endpoint, array(
