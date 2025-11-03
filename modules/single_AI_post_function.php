@@ -6,91 +6,6 @@ if (file_exists(dirname(__FILE__) . '/modules/single_and_bulk_AI_post_function.p
 include_once dirname(__FILE__) . '/modules/GenerateAIpopup.php';
 
 add_action('wp_ajax_getaaldata', 'getaaldata');
-add_action('wp_ajax_test_improveseo_connection', 'test_improveseo_connection');
-
-function test_improveseo_connection() {
-	// Verify nonce for security
-	if (!wp_verify_nonce($_POST['nonce'], 'test_connection_nonce')) {
-		wp_send_json_error(['error' => 'Security check failed']);
-		return;
-	}
-	
-	// Get credentials from request
-	$api_key = sanitize_text_field($_POST['api_key']);
-	$site_code = sanitize_text_field($_POST['site_code']);
-	
-	if (empty($api_key) || empty($site_code)) {
-		wp_send_json_error(['error' => 'API Key and Site Code are required']);
-		return;
-	}
-	
-	// Test endpoint - use the actual generation endpoint with minimal payload
-	$admin_server_url = 'https://imporve-seo-admin-server.onrender.com';
-	$test_endpoint = $admin_server_url . '/api/v1/generate/active';
-	
-	// Prepare minimal test payload
-	$payload = array(
-		'seed_keyword' => 'test',
-		'nos_of_words' => '600 to 1200 words',
-		'content_lang' => 'en',
-		'for_testing_only' => 1
-	);
-	
-	// Set up cURL for test request
-	$ch = curl_init($test_endpoint);
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-		'Content-Type: application/json',
-		'Accept: application/json',
-		'x-api-key: ' . $api_key,
-		'x-site-code: ' . $site_code
-	));
-	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-	
-	// Execute request
-	$response = curl_exec($ch);
-	$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	$curl_error = curl_error($ch);
-	curl_close($ch);
-	
-	// Handle connection errors
-	if (!empty($curl_error)) {
-		wp_send_json_error(['error' => 'Connection failed: ' . $curl_error]);
-		return;
-	}
-	
-	// Handle HTTP errors
-	if ($http_status !== 200) {
-		$error_msg = "Server returned status: $http_status";
-		if ($response) {
-			$result = json_decode($response, true);
-			if (isset($result['error'])) {
-				$error_msg = $result['error'];
-			}
-		}
-		wp_send_json_error(['error' => $error_msg]);
-		return;
-	}
-	
-	// Parse successful response
-	$result = json_decode($response, true);
-	if (!$result) {
-		wp_send_json_error(['error' => 'Invalid response from server']);
-		return;
-	}
-	
-	// Return success with server data
-	wp_send_json_success([
-		'message' => 'Connection successful',
-		'server' => 'ImproveSEO Server',
-		'credits' => $result['credits'] ?? null,
-		'user' => $result['user'] ?? 'Authenticated',
-		'timestamp' => date('Y-m-d H:i:s')
-	]);
-}
 
 function getaaldata()
 {
@@ -333,16 +248,6 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 	$admin_server_url = 'https://imporve-seo-admin-server.onrender.com';
     $api_endpoint = $admin_server_url . '/api/v1/generate/active';
 	
-	// Get authentication credentials from WordPress options
-	$api_key = get_option('improveseo_api_key');
-	$site_code = get_option('improveseo_site_code');
-	
-	// Validate credentials
-	if (empty($api_key) || empty($site_code)) {
-		error_log("createAIpost2 Authentication Error: Missing API Key or Site Code");
-		return "Error: API Key and Site Code must be configured in settings. Please check your ImproveSEO settings.";
-	}
-	
 	// Prepare request payload matching the /active route interface
 	$payload = array(
 		'seed_keyword' => $seed_keyword,
@@ -377,9 +282,7 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 		'Content-Type: application/json',
-		'Accept: application/json',
-		'x-api-key: ' . $api_key,
-		'x-site-code: ' . $site_code
+		'Accept: application/json'
 	));
 	curl_setopt($ch, CURLOPT_TIMEOUT, 120); // 2 minutes timeout for AI generation
 	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // 10 seconds connection timeout
