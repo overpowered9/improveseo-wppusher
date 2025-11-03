@@ -1,95 +1,346 @@
-<?php
-/* This file will handle all ajax requests from plugin */
-add_action('wp_ajax_improveseo_get_shortcodes', 'improveseo_get_shortcodes');
-function improveseo_get_shortcodes(){
-    $improveseo_shortcode_type = sanitize_text_field($_POST['improveseo_shortcode_type']);
-    $saved_rnos =  get_option('get_saved_random_numbers');
-    $allowed_shortcode_types = array('testimonial', 'googlemap', 'button', 'video', 'list');
-    $shortcode_html = '';
-
-    if(in_array($improveseo_shortcode_type, $allowed_shortcode_types)){
-        switch($improveseo_shortcode_type){
-            case 'testimonial':
-                foreach($saved_rnos as $id){
-                    $testimonial = get_option('get_testimonials_'.$id);
-                    if(!empty($testimonial)){
-                        $display_name = 'Testimonial - '.$id;
-				        $data_name = '';
-                        if(isset($testimonial['tw_testi_shortcode_name'])){
-                            if($testimonial['tw_testi_shortcode_name']!=""){
-                                $data_name = $display_name = $testimonial['tw_testi_shortcode_name'];
-                            }
-                        }
-                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
-                    }
-                }
-            break;
-            case 'button':
-                foreach($saved_rnos as $id){
-                    $button = get_option('get_buttons_'.$id);
-                    $display_name = 'Button - '.$id;
-                    $data_name = '';
-                    if(isset($button['tw_button_shortcode_name'])){
-                        if($button['tw_button_shortcode_name']!=""){
-                            $data_name = $display_name = $button['tw_button_shortcode_name'];
-                        }
-                    }
-                    if(!empty($button)){
-                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
-                    }
-                }
-            break;
-            case 'googlemap':
-                foreach($saved_rnos as $id){
-                    $googlemap = get_option('get_googlemaps_'.$id);
-                    if(!empty($googlemap)){
-                        $display_name = 'GoogleMap - '.$id;
-                        $data_name = '';
-                        if(isset($googlemap['tw_maps_shortcode_name'])){
-                            if($googlemap['tw_maps_shortcode_name']!=""){
-                                $data_name = $display_name = $googlemap['tw_maps_shortcode_name'];
-                            }
-                        }
-                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
-                    }
-                }
-            break;
-            case 'video':
-                foreach($saved_rnos as $id){
-                    $videos = get_option('get_videos_'.$id);
-                    $display_name = 'Video - '.$id;
-                    $data_name = '';
-                    if(isset($videos['video_shortcode_name'])){
-                        if($videos['video_shortcode_name']!=""){
-                            $data_name = $display_name = $videos['video_shortcode_name'];
-                        }
-                    }
-                    if(!empty($videos)){
-                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
-                    }
-                }
-            break;
-            case 'list':
-                $seo_list = improve_seo_lits();
-                if(!empty($seo_list)){
-                    foreach($seo_list as $list){
-                        $shortcode_html .= '<option value="'.$list.'">@list: '.$list.'</option>';
-                    }
-                }
-            break;
-
-        }
-    }else{
-        echo json_encode(array('status' => 'empty array', 'data' => $improveseo_shortcode_type));
-    }
-    if($shortcode_html!=""){
-        echo json_encode(array('status' => 'success', 'shortcode_html' => $shortcode_html));
-    }else{
-        echo json_encode(array('status' => 'failed'));
-    }
-    die;
-}
-
-
-
-
+<?php
+
+
+/* This file will handle all ajax requests from plugin */
+
+// Test ImproveSEO server connection
+add_action('wp_ajax_test_improveseo_connection', 'test_improveseo_connection');
+
+function test_improveseo_connection() {
+    // Verify nonce for security
+    if (!wp_verify_nonce($_POST['nonce'], 'test_connection_nonce')) {
+        wp_die('Security check failed');
+    }
+    
+    // Use fixed server URL
+    $server_url = 'https://imporve-seo-admin-server.onrender.com';
+    $api_key = sanitize_text_field($_POST['api_key']);
+    $site_code = sanitize_text_field($_POST['site_code']);
+    
+    // Validate inputs
+    if (empty($api_key) || empty($site_code)) {
+        wp_send_json_error(array(
+            'error' => 'Missing required fields: API Key or Site Code'
+        ));
+        return;
+    }
+    
+    // Test the connection by making a simple request to the server
+    $test_url = rtrim($server_url, '/') . '/api/v1/users/status';
+    
+    $response = wp_remote_get($test_url, array(
+        'timeout' => 10,
+        'headers' => array(
+            'x-api-key' => $api_key,
+            'x-site-code' => $site_code,
+            'Content-Type' => 'application/json'
+        )
+    ));
+    
+    if (is_wp_error($response)) {
+        wp_send_json_error(array(
+            'error' => 'Failed to connect to server: ' . $response->get_error_message()
+        ));
+        return;
+    }
+    
+    $status_code = wp_remote_retrieve_response_code($response);
+    $body = wp_remote_retrieve_body($response);
+    
+    if ($status_code === 200) {
+        $result = json_decode($body, true);
+        wp_send_json_success(array(
+            'server' => 'Connected successfully',
+            'user' => isset($result['user']) ? $result['user'] : 'Authenticated',
+            'credits' => isset($result['credits']) ? $result['credits'] : null
+        ));
+    } else {
+        $error_data = json_decode($body, true);
+        $error_message = isset($error_data['error']) ? $error_data['error'] : "Server returned status code: $status_code";
+        
+        wp_send_json_error(array(
+            'error' => $error_message
+        ));
+    }
+}
+
+
+add_action('wp_ajax_improveseo_get_shortcodes', 'improveseo_get_shortcodes');
+
+
+function improveseo_get_shortcodes(){
+
+
+    $improveseo_shortcode_type = sanitize_text_field($_POST['improveseo_shortcode_type']);
+
+
+    $saved_rnos =  get_option('get_saved_random_numbers');
+
+
+    $allowed_shortcode_types = array('testimonial', 'googlemap', 'button', 'video', 'list');
+
+
+    $shortcode_html = '';
+
+
+
+
+
+    if(in_array($improveseo_shortcode_type, $allowed_shortcode_types)){
+
+
+        switch($improveseo_shortcode_type){
+
+
+            case 'testimonial':
+
+
+                foreach($saved_rnos as $id){
+
+
+                    $testimonial = get_option('get_testimonials_'.$id);
+
+
+                    if(!empty($testimonial)){
+
+
+                        $display_name = 'Testimonial - '.$id;
+
+
+				        $data_name = '';
+
+
+                        if(isset($testimonial['tw_testi_shortcode_name'])){
+
+
+                            if($testimonial['tw_testi_shortcode_name']!=""){
+
+
+                                $data_name = $display_name = $testimonial['tw_testi_shortcode_name'];
+
+
+                            }
+
+
+                        }
+
+
+                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
+
+
+                    }
+
+
+                }
+
+
+            break;
+
+
+            case 'button':
+
+
+                foreach($saved_rnos as $id){
+
+
+                    $button = get_option('get_buttons_'.$id);
+
+
+                    $display_name = 'Button - '.$id;
+
+
+                    $data_name = '';
+
+
+                    if(isset($button['tw_button_shortcode_name'])){
+
+
+                        if($button['tw_button_shortcode_name']!=""){
+
+
+                            $data_name = $display_name = $button['tw_button_shortcode_name'];
+
+
+                        }
+
+
+                    }
+
+
+                    if(!empty($button)){
+
+
+                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
+
+
+                    }
+
+
+                }
+
+
+            break;
+
+
+            case 'googlemap':
+
+
+                foreach($saved_rnos as $id){
+
+
+                    $googlemap = get_option('get_googlemaps_'.$id);
+
+
+                    if(!empty($googlemap)){
+
+
+                        $display_name = 'GoogleMap - '.$id;
+
+
+                        $data_name = '';
+
+
+                        if(isset($googlemap['tw_maps_shortcode_name'])){
+
+
+                            if($googlemap['tw_maps_shortcode_name']!=""){
+
+
+                                $data_name = $display_name = $googlemap['tw_maps_shortcode_name'];
+
+
+                            }
+
+
+                        }
+
+
+                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
+
+
+                    }
+
+
+                }
+
+
+            break;
+
+
+            case 'video':
+
+
+                foreach($saved_rnos as $id){
+
+
+                    $videos = get_option('get_videos_'.$id);
+
+
+                    $display_name = 'Video - '.$id;
+
+
+                    $data_name = '';
+
+
+                    if(isset($videos['video_shortcode_name'])){
+
+
+                        if($videos['video_shortcode_name']!=""){
+
+
+                            $data_name = $display_name = $videos['video_shortcode_name'];
+
+
+                        }
+
+
+                    }
+
+
+                    if(!empty($videos)){
+
+
+                        $shortcode_html .= '<option value="'.$id.'" data-name="'.$data_name.'">'.$display_name.'</option>';
+
+
+                    }
+
+
+                }
+
+
+            break;
+
+
+            case 'list':
+
+
+                $seo_list = improve_seo_lits();
+
+
+                if(!empty($seo_list)){
+
+
+                    foreach($seo_list as $list){
+
+
+                        $shortcode_html .= '<option value="'.$list.'">@list: '.$list.'</option>';
+
+
+                    }
+
+
+                }
+
+
+            break;
+
+
+
+
+
+        }
+
+
+    }else{
+
+
+        echo json_encode(array('status' => 'empty array', 'data' => $improveseo_shortcode_type));
+
+
+    }
+
+
+    if($shortcode_html!=""){
+
+
+        echo json_encode(array('status' => 'success', 'shortcode_html' => $shortcode_html));
+
+
+    }else{
+
+
+        echo json_encode(array('status' => 'failed'));
+
+
+    }
+
+
+    die;
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

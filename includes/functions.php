@@ -1848,5 +1848,28 @@ function test_spintax(){
 
 //add_action('init', 'test_spintax');
 
+/**
+ * Get ImproveSEO server configuration
+ * 
+ * @return array Server configuration array
+ */
+function improveseo_get_server_config() {
+    return array(
+        'server_url' => 'https://imporve-seo-admin-server.onrender.com',
+        'api_key' => get_option('improveseo_api_key'),
+        'site_code' => get_option('improveseo_site_code')
+    );
+}
+
+/**
+ * Check if ImproveSEO server is properly configured
+ * 
+ * @return bool True if configured, false otherwise
+ */
+function improveseo_is_server_configured() {
+    $config = improveseo_get_server_config();
+    return !empty($config['api_key']) && !empty($config['site_code']);
+}
+
 
 
