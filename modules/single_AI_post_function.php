@@ -238,7 +238,136 @@ function ChatGPTCall($question)
 
 }
 function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '')
-{return "2";}
+{
+	global $wpdb, $user_ID;
+	
+	// Get audience data from cookie (same as original function)
+	$AudienceData = $_COOKIE['AudienceData'];
+	
+	// Admin server configuration
+	$admin_server_url = 'https://imporve-seo-admin-server.onrender.com/api/v1'; // Adjust based on your server setup
+	$api_endpoint = $admin_server_url . '/api/generate/active';
+	
+	// Prepare request payload matching the /active route interface
+	$payload = array(
+		'seed_keyword' => $seed_keyword,
+		'keyword_selection' => $keyword_selection,
+		'seed_options' => $seed_options,
+		'nos_of_words' => $nos_of_words,
+		'content_lang' => $content_lang,
+		'voice_tone' => $voice_tone,
+		'point_of_view' => $point_of_view,
+		'title' => $title,
+		'call_to_action' => $call_to_action,
+		'details_to_include' => $details_to_include,
+		'for_testing_only' => intval($for_testing_only),
+		'audienceData' => $AudienceData,
+		'useActivePrompts' => true,
+		'customPrompts' => new stdClass(), // Empty object
+		'templateVariables' => array(
+			'seed_keyword' => $seed_keyword,
+			'context' => $details_to_include,
+			'audience_data' => $AudienceData,
+			'meta_title' => $title ?: $seed_keyword,
+			'whats_next_content' => $call_to_action
+		)
+	);
+	
+	// Set up cURL for HTTP request to admin server
+	$ch = curl_init($api_endpoint);
+	
+	// Configure cURL options
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		'Content-Type: application/json',
+		'Accept: application/json'
+	));
+	curl_setopt($ch, CURLOPT_TIMEOUT, 120); // 2 minutes timeout for AI generation
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // 10 seconds connection timeout
+	
+	// Execute the request
+	$response = curl_exec($ch);
+	$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	
+	// Check for cURL errors
+	if (curl_errno($ch)) {
+		$error = curl_error($ch);
+		curl_close($ch);
+		error_log("createAIpost2 cURL Error: " . $error);
+		return "Error: Failed to connect to content generation server. Please try again.";
+	}
+	
+	curl_close($ch);
+	
+	// Check HTTP status
+	if ($http_status !== 200) {
+		error_log("createAIpost2 HTTP Error: Status $http_status, Response: " . $response);
+		return "Error: Content generation server returned error status: $http_status";
+	}
+	
+	// Parse JSON response
+	$result = json_decode($response, true);
+	
+	if (!$result || !isset($result['success'])) {
+		error_log("createAIpost2 Invalid Response: " . $response);
+		return "Error: Invalid response from content generation server.";
+	}
+	
+	if (!$result['success']) {
+		$error_msg = isset($result['error']) ? $result['error'] : 'Unknown error';
+		error_log("createAIpost2 API Error: " . $error_msg);
+		return "Error: " . $error_msg;
+	}
+	
+	// Extract content from successful response
+	if (!isset($result['data']['content'])) {
+		error_log("createAIpost2 Missing Content: " . $response);
+		return "Error: No content returned from generation server.";
+	}
+	
+	$content_final = $result['data']['content'];
+	
+	// Apply the same post-processing as original function
+	// Remove parentheses that wrap raw URLs/emails before converting them to links
+	$content_final = stripParenthesesWrappingContactTokens($content_final);
+	$content_final = convert_emails_to_links($content_final);
+	$content_final = convert_urls_to_links($content_final);
+	
+	// Remove parentheses that wrap already-linked anchors like (<a href>..</a>)
+	$content_final = stripParenthesesAroundAnchorTags($content_final);
+	
+	// HTML entity processing
+	$content_final = htmlentities($content_final, ENT_QUOTES, 'utf-8');
+	$content_final = str_replace("&nbsp;", "", $content_final);
+	$content_final = str_replace("<p>&nbsp;</p>", "", $content_final);
+	$content_final = str_replace("<p> </p>", "", $content_final);
+	$content_final = str_replace("<p></p>", "", $content_final);
+	$content_final = html_entity_decode($content_final);
+	
+	// Remove unwanted content
+	$content_final = replace_content($content_final, '<h2>Main Content Sections</h2>');
+	$content_final = replace_content($content_final, '<p>—</p>');
+	
+	// Apply final processing
+	$content_final = removePTags($content_final);
+	$content_final = removeConsecutiveSpecialCharacters($content_final);
+	$content_final = verifyAndFixTOCLinks($content_final);
+	
+	// Add styling like original function
+	$content_final = '<div class="main-content-section-improveseo">' . $content_final . '</div>';
+	$content_final = $content_final . '<style> p {padding-bottom: 2px !important;} </style>';
+	
+	// Log the generation metadata if available (for debugging)
+	if (isset($result['data']['generationMetadata'])) {
+		$metadata = $result['data']['generationMetadata'];
+		error_log("createAIpost2 Generation Metadata: " . json_encode($metadata));
+	}
+	
+	return $content_final;
+}
+
 function createAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '')
 {
 
