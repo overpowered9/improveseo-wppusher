@@ -341,31 +341,31 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 	
 	$content_final = $result['data']['content'];
 	
-	// Apply the same post-processing as original function
-	// Remove parentheses that wrap raw URLs/emails before converting them to links
-	$content_final = stripParenthesesWrappingContactTokens($content_final);
-	$content_final = convert_emails_to_links($content_final);
-	$content_final = convert_urls_to_links($content_final);
+	// // Apply the same post-processing as original function
+	// // Remove parentheses that wrap raw URLs/emails before converting them to links
+	// $content_final = stripParenthesesWrappingContactTokens($content_final);
+	// $content_final = convert_emails_to_links($content_final);
+	// $content_final = convert_urls_to_links($content_final);
 	
-	// Remove parentheses that wrap already-linked anchors like (<a href>..</a>)
-	$content_final = stripParenthesesAroundAnchorTags($content_final);
+	// // Remove parentheses that wrap already-linked anchors like (<a href>..</a>)
+	// $content_final = stripParenthesesAroundAnchorTags($content_final);
 	
-	// HTML entity processing
-	$content_final = htmlentities($content_final, ENT_QUOTES, 'utf-8');
-	$content_final = str_replace("&nbsp;", "", $content_final);
-	$content_final = str_replace("<p>&nbsp;</p>", "", $content_final);
-	$content_final = str_replace("<p> </p>", "", $content_final);
-	$content_final = str_replace("<p></p>", "", $content_final);
-	$content_final = html_entity_decode($content_final);
+	// // HTML entity processing
+	// $content_final = htmlentities($content_final, ENT_QUOTES, 'utf-8');
+	// $content_final = str_replace("&nbsp;", "", $content_final);
+	// $content_final = str_replace("<p>&nbsp;</p>", "", $content_final);
+	// $content_final = str_replace("<p> </p>", "", $content_final);
+	// $content_final = str_replace("<p></p>", "", $content_final);
+	// $content_final = html_entity_decode($content_final);
 	
-	// Remove unwanted content
-	$content_final = replace_content($content_final, '<h2>Main Content Sections</h2>');
-	$content_final = replace_content($content_final, '<p>—</p>');
+	// // Remove unwanted content
+	// $content_final = replace_content($content_final, '<h2>Main Content Sections</h2>');
+	// $content_final = replace_content($content_final, '<p>—</p>');
 	
-	// Apply final processing
-	$content_final = removePTags($content_final);
-	$content_final = removeConsecutiveSpecialCharacters($content_final);
-	$content_final = verifyAndFixTOCLinks($content_final);
+	// // Apply final processing
+	// $content_final = removePTags($content_final);
+	// $content_final = removeConsecutiveSpecialCharacters($content_final);
+	// $content_final = verifyAndFixTOCLinks($content_final);
 	
 	// Add styling like original function
 	$content_final = '<div class="main-content-section-improveseo">' . $content_final . '</div>';
