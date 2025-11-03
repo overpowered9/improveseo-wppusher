@@ -245,8 +245,8 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 	$AudienceData = $_COOKIE['AudienceData'];
 	
 	// Admin server configuration
-	$admin_server_url = 'https://imporve-seo-admin-server.onrender.com/api/v1'; // Adjust based on your server setup
-	$api_endpoint = $admin_server_url . '/api/generate/active';
+	$admin_server_url = 'https://imporve-seo-admin-server.onrender.com';
+    $api_endpoint = $admin_server_url . '/api/v1/generate/active';
 	
 	// Prepare request payload matching the /active route interface
 	$payload = array(
