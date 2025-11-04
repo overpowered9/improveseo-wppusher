@@ -1408,7 +1408,7 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 	
 	// Add styling like original function
 	$content_final = '<div class="main-content-section-improveseo">' . $content_final . '</div>';
-	
+	$content_final = $content_final . '<style> p {padding-bottom: 2px !important;} </style>';
 	
 	// Log the generation metadata if available (for debugging)
 	if (isset($result['data']['generationMetadata'])) {
