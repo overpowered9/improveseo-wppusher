@@ -201,13 +201,16 @@ function CronjobRequest()
 
 {
 
+	my_plugin_log("=== CRON JOB STARTED ===");
 	my_plugin_log("cron calling working...");
 
 	global $wpdb;
 
-
+	my_plugin_log("Calling generateBulkAiContent()...");
 
 	$returndata = generateBulkAiContent();
+	
+	my_plugin_log("generateBulkAiContent() returned: " . json_encode($returndata));
 
 	// $wpdb->insert($wpdb->prefix . "improveseo_cron_job_status", array(
 
@@ -220,8 +223,12 @@ function CronjobRequest()
 	// 	'status' => 1
 
 	// ));
+	
+	my_plugin_log("Calling saveContentInTaskList()...");
 
 	$publishContent = saveContentInTaskList();
+	
+	my_plugin_log("saveContentInTaskList() returned: " . json_encode($publishContent));
 
 	// Generate Content
 
@@ -230,6 +237,8 @@ function CronjobRequest()
 	//$lastid = $wpdb->insert_id;
 
 	//error_log('This is a log message : '.date('Y-m-d H:i:s'));
+	
+	my_plugin_log("=== CRON JOB COMPLETED ===");
 
 }
 
@@ -1475,18 +1484,25 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 {
 	global $wpdb, $user_ID;
 	
+	my_plugin_log("createAIpost2bulk called for keyword: " . $seed_keyword);
+	
 	// Get audience data from cookie (same as original function)
-	$AudienceData = $_COOKIE['AudienceData'];
+	$AudienceData = isset($_COOKIE['AudienceData']) ? $_COOKIE['AudienceData'] : '';
 	
 	// Get API credentials from WordPress options
 	$api_key = get_option('improveseo_api_key');
 	$site_code = get_option('improveseo_site_code');
 	
+	my_plugin_log("API Key: " . ($api_key ? "Configured" : "MISSING") . ", Site Code: " . ($site_code ? "Configured" : "MISSING"));
+	
 	// Validate credentials
 	if (empty($api_key) || empty($site_code)) {
-		error_log("createAIpost2 Error: Missing API credentials. Please configure API Key and Site Code in settings.");
+		my_plugin_log("createAIpost2bulk Error: Missing API credentials!");
+		error_log("createAIpost2bulk Error: Missing API credentials. Please configure API Key and Site Code in settings.");
 		return "Error: Missing API credentials. Please configure your API Key and Site Code in ImproveSEO settings.";
 	}
+	
+	my_plugin_log("Connecting to admin server for bulk generation...");
 	
 	// Admin server configuration
 	$admin_server_url = 'https://imporve-seo-admin-server.onrender.com';
