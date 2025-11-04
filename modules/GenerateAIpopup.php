@@ -610,6 +610,8 @@ function generateAIpopup()
 
         var queryflag = false;
 
+        var maxKeywords = 30; // Limit keywords to 30
+
 
 
         function generate() {
@@ -672,6 +674,18 @@ function generateAIpopup()
 
             if (doWork == true && queryflag == false) {
 
+                // Stop if we've reached the maximum number of keywords
+
+                if (displayKeywords.length >= maxKeywords) {
+
+                    doWork = false;
+
+                    jQuery('#startjob').val('Start');
+
+                    return;
+
+                }
+
                 if (queryKeywordsIndex < queryKeywords.length) {
 
                     var currentKw = queryKeywords[queryKeywordsIndex];
@@ -733,6 +747,20 @@ function generateAIpopup()
                     var retList = res[1];
 
                     for (var i = 0; i < retList.length; i++) {
+
+                        // Stop adding keywords if we've reached the limit
+
+                        if (displayKeywords.length >= maxKeywords) {
+
+                            doWork = false;
+
+                            jQuery('#startjob').val('Start');
+
+                            queryflag = false;
+
+                            return;
+
+                        }
 
                         var currents = clean(retList[i]);
 
@@ -820,7 +848,9 @@ function generateAIpopup()
 
             var outputKeywords = displayKeywords;
 
-            for (var i = 0; i < 100; i++) {
+            var limit = Math.min(outputKeywords.length, maxKeywords);
+
+            for (var i = 0; i < limit; i++) {
 
                 sb += outputKeywords[i];
 

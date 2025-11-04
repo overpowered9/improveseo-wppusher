@@ -109,6 +109,7 @@ use ImproveSEO\View;
     var queryKeywords = [];
     var queryKeywordsIndex = 0;
     var queryflag = false;
+    var maxKeywords = 30; // Limit keywords to 30
     function generate()
     {
     if(doWork == false) {
@@ -141,6 +142,12 @@ use ImproveSEO\View;
     function tick()
     {
     if(doWork == true && queryflag == false) {
+    // Stop if we've reached the maximum number of keywords
+    if(displayKeywords.length >= maxKeywords) {
+    doWork = false;
+    jQuery('#startjob').val('Start');
+    return;
+    }
     if(queryKeywordsIndex < queryKeywords.length) {
     var currentKw = queryKeywords[queryKeywordsIndex];
     query(currentKw);
@@ -173,6 +180,13 @@ use ImproveSEO\View;
     success: function(res) {
     var retList = res[1];
     for(var i = 0; i < retList.length; i++) {
+    // Stop adding keywords if we've reached the limit
+    if(displayKeywords.length >= maxKeywords) {
+    doWork = false;
+    jQuery('#startjob').val('Start');
+    queryflag = false;
+    return;
+    }
     var currents = clean(retList[i]);
     if(results[currents] != 1) {
     results[currents] = 1;

@@ -706,7 +706,7 @@ global $ai_modal_type;
                                     <option value="copy_paste">Copy & Paste</option>
                                     <option value="google_suggestion">Generate Google Suggest KW list
                                     </option>
-                                    <option value="ai_create_keyword">AI generated KW list</option>
+                                    
                                 </select>
                                 <div id="copy_paste_container" style="width:100%;"></div>
                                 <div id="google_suggestion_container" style="width:100%;"></div>
