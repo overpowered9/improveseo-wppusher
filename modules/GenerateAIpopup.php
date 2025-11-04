@@ -612,6 +612,60 @@ function generateAIpopup()
 
         var maxKeywords = 30; // Limit keywords to 30
 
+        var creditsDeducted = false; // Track if credits have been deducted
+
+
+
+        function deductKeywordCredits() {
+
+            if (creditsDeducted) {
+
+                return; // Already deducted, don't deduct again
+
+            }
+
+
+
+            jQuery.ajax({
+
+                url: ajaxurl,
+
+                type: 'POST',
+
+                data: {
+
+                    action: 'deduct_keyword_credits',
+
+                    keyword_count: displayKeywords.length
+
+                },
+
+                success: function(response) {
+
+                    if (response.success) {
+
+                        console.log('Credits deducted successfully:', response.data);
+
+                        creditsDeducted = true;
+
+                    } else {
+
+                        console.error('Failed to deduct credits:', response.data);
+
+                    }
+
+                },
+
+                error: function(xhr, status, error) {
+
+                    console.error('Error deducting credits:', error);
+
+                }
+
+            });
+
+        }
+
 
 
         function generate() {
@@ -623,6 +677,8 @@ function generateAIpopup()
                 queryKeywordsIndex = 0;
 
                 displayKeywords = [];
+
+                creditsDeducted = false; // Reset credit deduction flag
 
                 results = { '': 1, ' ': 1, '  ': 1 };
 
@@ -682,6 +738,8 @@ function generateAIpopup()
 
                     jQuery('#startjob').val('Start');
 
+                    deductKeywordCredits(); // Deduct credits when generation completes
+
                     return;
 
                 }
@@ -703,6 +761,8 @@ function generateAIpopup()
                         doWork = false;
 
                         jQuery('#startjob').val('Start');
+
+                        deductKeywordCredits(); // Deduct credits when generation completes
 
                     }
 
