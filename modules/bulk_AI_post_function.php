@@ -1144,341 +1144,130 @@ function bulkAiTitle($getAudienceData, $question, $keyword_name, $tone_of_voice)
 }
 
 function generateBulkAiImage($title, $AudienceData)
-
 {
-
-
-
-	$basicImagePromptResponse = ImageBasicPrompt($title);
-
-
-
-	/*$AudienceData = $_COOKIE['AudienceData'];*/
-
-	$imgPrompt = 'You should come up with the cover image for an article. The image should be a very high quality shooting from a distance, high detail, photorealistic, image resolution is  2146 pixels, cinematic. Do not include any text on the image. Using the following information generate an image.  ' . $basicImagePromptResponse;
-
-
-
-
-
-
-
-	$dateTimeDefault = date('YmdHis');
-
-	$imagename = 'ai_image_' . $dateTimeDefault;
-
-	$seed_title = $imagename;
-
-	// Your OpenAI API key
-
-	//$apiKey = get_option('improveseo_chatgpt_api_key');
-
-	// The endpoint URL for OpenAI chat completions API (replace with the correct endpoint)
-
-	//$apiUrl = 'https://api.openai.com/v1/images/generations';
-
-
-
-	$apiKey = 'c0a5519b-922b-4ba9-8a32-0ba118286265';//replace with above function when you have added the flux_ai_api_key to the options, also do not forget to remove this hardcoeded api key as it can lead to api key leak
-
-
-
-	// Flux AI API endpoint
-
-	$apiUrl = 'https://api.us1.bfl.ai/v1/flux-pro-1.1';
-
-
-
-	// Your input data or parameters
-
-	$data = array(
-
-		// 'prompt' => $term.' '.accordingtoterm($call, $_REQUEST['wordlimit']),
-
-		'prompt' => $imgPrompt,//.' '.accordingtoterm($imgdisc, $_REQUEST['wordlimit']),
-
-		'width' => 1024,  // use your desired dimensions Width of the generated image in pixels. Must be a multiple of 32. min 256 max 1440
-
-		'height' => 768,  // use your desired dimensions height of the generated image in pixels. Must be a multiple of 32.min 256 max 1440
-
-		'prompt_upsampling' => false,//Whether to perform upsampling on the prompt. If true, automatically modifies the prompt for more creative generation.
-
-		'safety_tolerance' => 2,//Tolerance level for input and output moderation. Between 0 and 6, 0 being most strict, 6 being least strict.
-
-		'output_format' => 'jpeg'//Output format for the generated image. Can be 'jpeg' or 'png'.
-
-		// 'model'     => 'dall-e-3',
-
-		// 'n'         => 1,
-
-		// 'size'  => '1792x1024'
-
-	);
-
-
-
-	// Set up cURL
-
-	$ch = curl_init($apiUrl);
-
-
-
-	// Set cURL options
-
-	curl_setopt($ch, CURLOPT_POST, 1);
-
-	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-
-		'Content-Type: application/json',
-
-		'X-Key: ' . $apiKey
-
-		//'Authorization: Bearer ' . $apiKey,
-
-	));
-
-
-
-	// Execute the cURL request
-
-	$response = curl_exec($ch);
-
-
-
-	// Check for cURL errors
-
-	if (curl_errno($ch)) {
-
-		echo 'Curl error: ' . curl_error($ch);
-
-	}
-
-
-
-	// Close cURL session
-
-	curl_close($ch);
-
-
-
-	// Decode and display the response
-
-	$result = json_decode($response, true);
-
-
-
-
-
-
-
-	if (!empty($result['id'])) {
-
-		// Get the task ID and poll for results
-
-		$taskId = $result['id'];
-
-		$maxAttempts = 10;
-
-		$attempt = 0;
-
-
-
-		do {
-
-			if ($attempt > 0) {
-
-				sleep(4); // Wait before checking again
-
-			}
-
-
-
-			// Check result
-
-			$ch = curl_init("https://api.us1.bfl.ai/v1/get_result?id=" . $taskId);
-
-			curl_setopt_array($ch, [
-
-				CURLOPT_RETURNTRANSFER => true,
-
-				CURLOPT_SSL_VERIFYPEER => false, // For development only, Change/remove both if the SSL certificate is valid on Wordpress
-
-				CURLOPT_SSL_VERIFYHOST => 0,     // For development only, 
-
-				CURLOPT_HTTPHEADER => [
-
-					'X-Key: ' . $apiKey
-
-				]
-
-			]);
-
-
-
-			$resultResponse = curl_exec($ch);
-
-			curl_close($ch);
-
-
-
-			$resultData = json_decode($resultResponse, true);
-
-
-
-			if ($resultData['status'] === 'Ready') {
-
-
-
-
-
-
-
-				$url = $resultData['result']['sample'];
-
-
-
-				// Get WordPress upload directory
-
-				$upload_dir = wp_upload_dir();
-
-
-
-
-
-				$ch = curl_init($url);
-
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-				$image_data = curl_exec($ch);
-
-				curl_close($ch);
-
-
-
-				if (!$image_data) {
-
-					die('Error fetching image.');
-
-				}
-
-
-
-
-
-				// Fetch image data from URL
-
-				// $image_data = file_get_contents($url);
-
-
-
-				if ($image_data !== false) {
-
-					// Generate unique filename
-
-
-
-					$file_name = wp_unique_filename($upload_dir['path'], str_replace(" ", "_", str_replace(".", "", $seed_title)));
-
-					$file_name = $file_name . '_' . rand();
-
-					$file_path = $upload_dir['path'] . '/' . $file_name;
-
-					//exit();
-
-					if (file_put_contents($file_path, $image_data) !== false) {
-
-						//Convert to WebP if GD is available
-
-						if (extension_loaded('gd')) {
-
-							$original_image = imagecreatefromstring($image_data);
-
-
-
-							// Path for the WebP image
-
-							$webp_file_name = pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
-
-							$webp_file_path = $upload_dir['path'] . '/' . $webp_file_name;
-
-
-
-							// Convert and save as WebP
-
-							imagewebp($original_image, $webp_file_path, 90);
-
-
-
-							// Free memory
-
-							imagedestroy($original_image);
-
-
-
-							// Delete the original file
-
-							unlink($file_path);
-
-
-
-							$image_url = $upload_dir['url'] . '/' . $webp_file_name;
-
-							//exit('here');
-
-						} else {
-
-							$image_url = $upload_dir['url'] . '/' . $file_name;
-
-							//exit();
-
-						}
-
-
-
-						return $image_url;
-
-						// exit();
-
-					} else {
-
-						//   echo 'Error saving the image file.';
-
-						//   exit();
-
-					}
-
-				} else {
-
-					//return 'Error fetching image data from URL.';
-
-				}
-
-			}
-
-
-
-			$attempt++;
-
-		} while ($attempt < $maxAttempts);
-
-
-
-		return 'Timeout waiting for image generation.';
-
-	} else {
-
-		return $result;
-
-	}
-
-
-
+    // Get API credentials from WordPress options
+    $api_key = get_option('improveseo_api_key');
+    $site_code = get_option('improveseo_site_code');
+    
+    // Validate credentials
+    if (empty($api_key) || empty($site_code)) {
+        error_log("generateBulkAiImage Error: Missing API credentials");
+        return "Error: Missing API credentials. Please configure API Key and Site Code in settings.";
+    }
+    
+    // Admin server configuration
+    $admin_server_url = 'https://imporve-seo-admin-server.onrender.com';
+    $api_endpoint = $admin_server_url . '/api/v1/generate/generateimage';
+    
+    $seed_title = 'ai_image_' . date('YmdHis');
+    
+    // Prepare request payload
+    $payload = array(
+        'title' => $title,
+        'noedit' => false,
+        'seed_title' => $seed_title,
+        'width' => 1024,
+        'height' => 768
+    );
+    
+    // Set up cURL for HTTP request to admin server
+    $ch = curl_init($api_endpoint);
+    
+    // Configure cURL options
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'Content-Type: application/json',
+        'Accept: application/json',
+        'X-API-Key: ' . $api_key,
+        'X-Site-Code: ' . $site_code
+    ));
+    curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    
+    // Execute the request
+    $response = curl_exec($ch);
+    $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    
+    // Check for cURL errors
+    if (curl_errno($ch)) {
+        $error = curl_error($ch);
+        curl_close($ch);
+        error_log("generateBulkAiImage cURL Error: " . $error);
+        return "Error: Failed to connect to image generation server.";
+    }
+    
+    curl_close($ch);
+    
+    // Check HTTP status
+    if ($http_status !== 200) {
+        error_log("generateBulkAiImage HTTP Error: Status $http_status, Response: " . $response);
+        return "Error: Image generation server returned error status: $http_status";
+    }
+    
+    // Parse JSON response
+    $result = json_decode($response, true);
+    
+    if (!$result || !isset($result['success'])) {
+        error_log("generateBulkAiImage Invalid Response: " . $response);
+        return "Error: Invalid response from image generation server.";
+    }
+    
+    if (!$result['success']) {
+        $error_msg = isset($result['error']) ? $result['error'] : 'Unknown error';
+        error_log("generateBulkAiImage API Error: " . $error_msg);
+        return "Error: " . $error_msg;
+    }
+    
+    // Extract image URL from successful response
+    if (!isset($result['data']['image_url'])) {
+        error_log("generateBulkAiImage Missing Image URL: " . $response);
+        return "Error: No image URL returned from generation server.";
+    }
+    
+    $image_url = $result['data']['image_url'];
+    
+    // Download the image and save to WordPress uploads
+    $upload_dir = wp_upload_dir();
+    
+    $ch = curl_init($image_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+    $image_data = curl_exec($ch);
+    curl_close($ch);
+    
+    if (!$image_data) {
+        error_log("generateBulkAiImage Error: Failed to download image from URL: " . $image_url);
+        return "Error: Failed to download generated image.";
+    }
+    
+    // Generate unique filename
+    $file_name = wp_unique_filename($upload_dir['path'], str_replace(" ", "_", str_replace(".", "", $seed_title)));
+    $file_name = $file_name . '_' . rand();
+    $file_path = $upload_dir['path'] . '/' . $file_name;
+    
+    if (file_put_contents($file_path, $image_data) !== false) {
+        // Convert to WebP if GD is available
+        if (extension_loaded('gd')) {
+            $original_image = imagecreatefromstring($image_data);
+            
+            $webp_file_name = pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
+            $webp_file_path = $upload_dir['path'] . '/' . $webp_file_name;
+            
+            imagewebp($original_image, $webp_file_path, 90);
+            imagedestroy($original_image);
+            unlink($file_path);
+            
+            return $upload_dir['url'] . '/' . $webp_file_name;
+        } else {
+            return $upload_dir['url'] . '/' . $file_name;
+        }
+    } else {
+        error_log("generateBulkAiImage Error: Failed to save image file");
+        return "Error: Failed to save image file.";
+    }
 }
 function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '')
 {
