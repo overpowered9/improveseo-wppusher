@@ -612,9 +612,12 @@ function generateAIpopup()
 
         var maxKeywords = 30; // Limit keywords to 30
 
+        var creditsDeducted = false; // Flag to prevent duplicate credit deductions
+
 
 
         function generate() {
+            console.log("🟢 GENERATEAIPOPUP.PHP: generate() called from modules/GenerateAIpopup.php");
 
             if (doWork == false) {
 
@@ -625,6 +628,8 @@ function generateAIpopup()
                 displayKeywords = [];
 
                 results = { '': 1, ' ': 1, '  ': 1 };
+
+                creditsDeducted = false; // Reset flag on new generation
 
                 var ks = jQuery('#input').val().split("\n");
 
@@ -666,6 +671,14 @@ function generateAIpopup()
 
                 jQuery('#startjob').val('Start');
 
+                // Deduct credits when generation is stopped manually (if keywords were generated)
+
+                if (!creditsDeducted && displayKeywords.length > initialKeywords) {
+
+                    deductKeywordCredits();
+
+                }
+
             }
 
         }
@@ -681,6 +694,14 @@ function generateAIpopup()
                     doWork = false;
 
                     jQuery('#startjob').val('Start');
+
+                    // Deduct credits when max keywords reached
+
+                    if (!creditsDeducted) {
+
+                        deductKeywordCredits();
+
+                    }
 
                     return;
 
@@ -703,6 +724,14 @@ function generateAIpopup()
                         doWork = false;
 
                         jQuery('#startjob').val('Start');
+
+                        // Deduct credits when generation completes successfully
+
+                        if (!creditsDeducted) {
+
+                            deductKeywordCredits();
+
+                        }
 
                     }
 
@@ -757,6 +786,14 @@ function generateAIpopup()
                             jQuery('#startjob').val('Start');
 
                             queryflag = false;
+
+                            // Deduct credits when limit reached
+
+                            if (!creditsDeducted) {
+
+                                deductKeywordCredits();
+
+                            }
 
                             return;
 
@@ -839,6 +876,124 @@ function generateAIpopup()
             if (val.length > 4 && val.substring(0, 4) == "http") val = "";
 
             return val;
+
+        }
+
+        function deductKeywordCredits() {
+
+            // Prevent duplicate calls
+
+            if (creditsDeducted) {
+
+                console.log('⚠️ Credits already deducted, skipping duplicate call');
+
+                return;
+
+            }
+
+            var generatedKeywordsCount = displayKeywords.length - initialKeywords;
+
+            // Only deduct if new keywords were actually generated
+
+            if (generatedKeywordsCount <= 0) {
+
+                console.log('⚠️ No new keywords generated, skipping credit deduction');
+
+                return;
+
+            }
+
+            // Mark as deducted immediately to prevent race conditions
+
+            creditsDeducted = true;
+
+            console.log('💳 Deducting credits for ' + generatedKeywordsCount + ' keywords...');
+
+            // Get API credentials from WordPress options
+
+            var apiKey = '<?php echo esc_js(get_option("improveseo_api_key")); ?>';
+
+            var siteCode = '<?php echo esc_js(get_option("improveseo_site_code")); ?>';
+
+            if (!apiKey || !siteCode) {
+
+                console.error('❌ Missing API credentials. Please configure API Key and Site Code in settings.');
+
+                creditsDeducted = false; // Reset flag on error
+
+                return;
+
+            }
+
+            jQuery.ajax({
+
+                url: 'https://imporve-seo-admin-server.onrender.com/api/v1/generate/generatekeywordded',
+
+                type: 'POST',
+
+                contentType: 'application/json',
+
+                headers: {
+
+                    'X-API-Key': apiKey,
+
+                    'X-Site-Code': siteCode
+
+                },
+
+                data: JSON.stringify({
+
+                    keywords_generated: generatedKeywordsCount,
+
+                    total_keywords: displayKeywords.length,
+
+                    seed_keyword: jQuery('#input').val(),
+
+                    max_limit: maxKeywords
+
+                }),
+
+                success: function (response) {
+
+                    console.log('✅ Credits deducted successfully:', response);
+
+                    // Optionally show user notification
+
+                    if (response.remaining_credits !== undefined) {
+
+                        console.log('📊 Remaining credits: ' + response.remaining_credits);
+
+                    }
+
+                },
+
+                error: function (xhr, status, error) {
+
+                    console.error('❌ Failed to deduct credits:', error);
+
+                    console.error('Response:', xhr.responseText);
+
+                    creditsDeducted = false; // Reset flag on error to allow retry
+
+                    // Show error message to user
+
+                    if (xhr.status === 401) {
+
+                        alert('Authentication failed. Please check your API credentials in settings.');
+
+                    } else if (xhr.status === 402) {
+
+                        alert('Insufficient credits. Please upgrade your plan.');
+
+                    } else {
+
+                        alert('Failed to deduct credits. Please contact support if this issue persists.');
+
+                    }
+
+                }
+
+            });
 
         }
 
