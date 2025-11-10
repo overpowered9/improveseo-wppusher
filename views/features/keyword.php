@@ -110,41 +110,12 @@ use ImproveSEO\View;
     var queryKeywordsIndex = 0;
     var queryflag = false;
     var maxKeywords = 30; // Limit keywords to 30
-    var creditsDeducted = false; // Track if credits have been deducted
-    
-    function deductKeywordCredits() {
-        if (creditsDeducted) {
-            return; // Already deducted, don't deduct again
-        }
-        
-        jQuery.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'deduct_keyword_credits',
-                keyword_count: displayKeywords.length
-            },
-            success: function(response) {
-                if (response.success) {
-                    console.log('Credits deducted successfully:', response.data);
-                    creditsDeducted = true;
-                } else {
-                    console.error('Failed to deduct credits:', response.data);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error deducting credits:', error);
-            }
-        });
-    }
-    
     function generate()
     {
     if(doWork == false) {
     queryKeywords = [];
     queryKeywordsIndex = 0;
     displayKeywords = [];
-    creditsDeducted = false; // Reset credit deduction flag
     results = {'': 1, ' ': 1, '  ': 1};
     var ks = jQuery('#input').val().split("\n");
     var i = 0;
@@ -175,7 +146,6 @@ use ImproveSEO\View;
     if(displayKeywords.length >= maxKeywords) {
     doWork = false;
     jQuery('#startjob').val('Start');
-    deductKeywordCredits(); // Deduct credits when generation completes
     return;
     }
     if(queryKeywordsIndex < queryKeywords.length) {
@@ -187,7 +157,6 @@ use ImproveSEO\View;
     if (initialKeywords != displayKeywords.length) {
     doWork = false;
     jQuery('#startjob').val('Start');
-    deductKeywordCredits(); // Deduct credits when generation completes
     }
     else {
     queryKeywordsIndex = 0;
