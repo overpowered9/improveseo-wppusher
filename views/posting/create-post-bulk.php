@@ -286,6 +286,12 @@ $ai_modal_type = 'bulk';
 ?>
 <?php View::endSection('content') ?>
 
-
+<script>
+jQuery(document).ready(function($) {
+    setTimeout(function() {
+        $('#exampleModal2').modal('show');
+    }, 500);
+});
+</script>
 
 <?php echo View::make('layouts.main') ?>
