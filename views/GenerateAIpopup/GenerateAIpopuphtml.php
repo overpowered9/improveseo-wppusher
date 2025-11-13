@@ -364,9 +364,9 @@ global $ai_modal_type;
                                 </select> -->
                                 <select class="form-control" name="nos_of_words" required
                                     style="max-width: 100% !important;" id="post_size">
-                                    <option value="600 to 1200 words">Small </option>
-                                    <option value="1200 to 2400 words">Medium </option>
-                                    <option value="2400 to 3600 words">Large</option>
+                                      <option value="600 to 1200 words">Small (600 to 1200 words) </option>
+                                        <option value="1200 to 2400 words">Medium (1200 to 2400 words) </option>
+                                        <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
 
                                 </select>
                                 <input type="text" id="post_size_select" readonly style="width: 100% !important; display: none !important;"
