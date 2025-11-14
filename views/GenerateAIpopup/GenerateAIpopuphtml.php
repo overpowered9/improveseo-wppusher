@@ -222,8 +222,8 @@ global $ai_modal_type;
     }
 
     .improveseo-notification-icon {
-        width: 32px;
-        height: 32px;
+        width: 56px;
+        height: 56px;
         border-radius: 50%;
         display: flex;
         align-items: center;
