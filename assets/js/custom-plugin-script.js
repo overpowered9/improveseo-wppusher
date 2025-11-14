@@ -83,6 +83,22 @@ function GenerateCustomImage() {
     processData: false,
 
     success: function (response) {
+      // Check for insufficient credits error
+      if (response.success === false) {
+        jQuery("#loadingAIImage").hide();
+        if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits'))) {
+          showImproveSEONotification(
+            'error',
+            'Out of Credits',
+            'You are out of image generation credits. Please purchase more credits to continue.',
+            'https://dashboard.improveseoplugin.com'
+          );
+        } else {
+          alert('Error: ' + (response.data || 'Unknown error occurred'));
+        }
+        return;
+      }
+      
       jQuery("#AI_image_div").html(
         "<img src='" +
           response.data +
@@ -144,6 +160,22 @@ jQuery("#generate_i_image").on("click", function () {
     processData: false,
 
     success: function (response) {
+      // Check for insufficient credits error
+      if (response.success === false) {
+        jQuery("#loadingAIImage").hide();
+        if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits'))) {
+          showImproveSEONotification(
+            'error',
+            'Out of Credits',
+            'You are out of image generation credits. Please purchase more credits to continue.',
+            'https://dashboard.improveseoplugin.com'
+          );
+        } else {
+          alert('Error: ' + (response.data || 'Unknown error occurred'));
+        }
+        return;
+      }
+      
       jQuery("#ai-with-prompt-image-display").html(
         "<img src='" +
           response.data +
@@ -630,6 +662,22 @@ function refreshAIImage() {
     processData: false,
 
     success: function (response) {
+      // Check for insufficient credits error
+      if (response.success === false) {
+        jQuery("#loadingAIImage").hide();
+        if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits'))) {
+          showImproveSEONotification(
+            'error',
+            'Out of Credits',
+            'You are out of image generation credits. Please purchase more credits to continue.',
+            'https://dashboard.improveseoplugin.com'
+          );
+        } else {
+          alert('Error: ' + (response.data || 'Unknown error occurred'));
+        }
+        return;
+      }
+      
       jQuery("#ai-image-display").html(
         "<img src='" +
           response.data +

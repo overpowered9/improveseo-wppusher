@@ -2525,6 +2525,55 @@ global $ai_modal_type;
   // Make it globally available
   window.ImproveSEONotification = ImproveSEONotification;
 
+  /**
+   * Show credit exhaustion notification with link to buy more credits
+   */
+  function showImproveSEONotification(type, title, message, actionUrl) {
+    const overlay = document.getElementById('improveseoNotification');
+    const iconEl = document.getElementById('improveseoNotificationIcon');
+    const titleEl = document.getElementById('improveseoNotificationTitle');
+    const messageEl = document.getElementById('improveseoNotificationMessage');
+    const okBtn = document.getElementById('improveseoNotificationOk');
+    
+    // Set icon based on type
+    const icons = {
+      warning: '⚠️',
+      error: '❌',
+      success: '✓',
+      info: 'ℹ️'
+    };
+    
+    iconEl.classList.remove('warning', 'error', 'success', 'info');
+    iconEl.classList.add(type);
+    iconEl.textContent = icons[type] || icons.error;
+    
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    
+    if (actionUrl) {
+      okBtn.textContent = 'Buy Credits';
+      okBtn.onclick = function() {
+        window.open(actionUrl, '_blank');
+        overlay.classList.remove('active');
+      };
+    } else {
+      okBtn.textContent = 'OK';
+      okBtn.onclick = function() {
+        overlay.classList.remove('active');
+      };
+    }
+    
+    overlay.classList.add('active');
+    overlay.onclick = function(e) {
+      if (e.target === overlay) {
+        overlay.classList.remove('active');
+      }
+    };
+  }
+  
+  // Make globally available
+  window.showImproveSEONotification = showImproveSEONotification;
+
   // ImproveSEO Loading System
   const ImproveSEOLoading = {
     show: function(options) {
