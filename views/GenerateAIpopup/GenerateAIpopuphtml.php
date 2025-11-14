@@ -146,6 +146,42 @@ global $ai_modal_type;
         top: -25px;
         font-size: 30px;
     }
+    
+    /* Bulk Category Styles */
+    .bulk-category-item {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 15px;
+        background: white;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 14px;
+    }
+    
+    .bulk-category-item:hover {
+        border-color: #0073aa;
+        box-shadow: 0 2px 5px rgba(0, 115, 170, 0.2);
+    }
+    
+    .bulk-category-item input[type="checkbox"] {
+        display: inline-block !important;
+        margin-right: 8px;
+        cursor: pointer;
+    }
+    
+    .category-selection-section h2 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #23282d;
+    }
+    
+    .category-selection-section h3 {
+        font-size: 16px;
+        font-weight: 500;
+        color: #23282d;
+    }
 </style>
 
 
@@ -921,14 +957,57 @@ global $ai_modal_type;
                 <!-- Step 4 Content -->
                 <div class="data_multi">
                     <div class="fourth_ttepss_multi">
-                        <div class="seo-visuals-coming-soon">
-                            <div class="coming-soon-content">
-                                <h3><img src="<?php echo WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ?>" alt="sparks"> SEO Visuals Coming Soon!</h3>
-                                <p>Get ready for powerful visual elements that will supercharge your content! Our upcoming SEO Visuals feature will automatically add engaging testimonials, interactive buttons, Google Maps, and compelling videos to make your AI-generated posts truly stand out.</p>
-                                <div class="excitement-note">
-                                    <strong>🚀  Very soon - your content is about to get a major upgrade!</strong>
+                        <div class="category-selection-section">
+                            <h2 style="padding-left:20px; margin-bottom: 20px;">Assign Categories to Posts</h2>
+                            
+                            <!-- Category Selection -->
+                            <div class="bulk-category-box" style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
+                                <h3 style="font-size: 16px; margin-bottom: 15px; color: #23282d;">Select Categories</h3>
+                                <div class="bulk-category-list" id="bulk-category-list" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                                    <?php
+                                    $args = array(
+                                        "hide_empty" => 0,
+                                        "type" => "post",
+                                        "orderby" => "name",
+                                        "order" => "ASC"
+                                    );
+                                    $cats = get_categories($args);
+                                    foreach ($cats as $category) {
+                                        $checked = '';
+                                        $disabled = '';
+                                        
+                                        if ($category->slug == "improve-seo") {
+                                            $checked = 'checked';
+                                            $disabled = 'onclick="return false"';
+                                        }
+                                        
+                                        echo '<label class="bulk-category-item" style="padding: 8px 15px; background: white; border: 2px solid #ddd; border-radius: 5px; cursor: pointer; transition: all 0.3s;">
+                                            <input type="checkbox" name="cats[]" value="' . $category->term_id . '" ' . $checked . ' ' . $disabled . ' style="margin-right: 8px;">
+                                            <span>' . $category->name . '</span>
+                                        </label>';
+                                    }
+                                    ?>
+                                </div>
+                                
+                                <!-- Add New Category -->
+                                <div class="add-category-section" style="border-top: 1px solid #ddd; padding-top: 20px;">
+                                    <h3 style="font-size: 16px; margin-bottom: 15px; color: #23282d;">Create New Category</h3>
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <input type="text" id="new_category_name_bulk" placeholder="Enter category name" 
+                                            style="flex: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
+                                        <button type="button" id="add_category_bulk_btn" 
+                                            style="padding: 10px 25px; background: #0073aa; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; transition: background 0.3s;"
+                                            onmouseover="this.style.background='#005a87'" onmouseout="this.style.background='#0073aa'">
+                                            Add Category
+                                        </button>
+                                    </div>
+                                    <p id="category_add_message_bulk" style="margin-top: 10px; color: #46b450; font-size: 14px;"></p>
                                 </div>
                             </div>
+                            
+                            <p style="padding-left: 20px; color: #666; font-size: 14px; margin-top: 10px;">
+                                <strong>Note:</strong> Selected categories will be assigned to all posts in this bulk project. You can select multiple categories.
+                            </p>
                         </div>
                         <!-- <div class="fourth_ttepss_outer_multi">
                             <div class="fourth_ttepss-lft_multi">Testimonial:</div>
@@ -1980,6 +2059,113 @@ global $ai_modal_type;
                     aiImageElement.style.visibility = "hidden";
                 }
             });
+        });
+    });
+    
+    // Bulk Category Management
+    jQuery(document).ready(function($) {
+        // Handle category selection styling
+        $('.bulk-category-item input[type="checkbox"]').on('change', function() {
+            const label = $(this).closest('.bulk-category-item');
+            if ($(this).is(':checked')) {
+                label.css({
+                    'background': '#0073aa',
+                    'color': 'white',
+                    'border-color': '#0073aa'
+                });
+            } else {
+                label.css({
+                    'background': 'white',
+                    'color': '#23282d',
+                    'border-color': '#ddd'
+                });
+            }
+        });
+        
+        // Initialize checked categories styling
+        $('.bulk-category-item input[type="checkbox"]:checked').each(function() {
+            $(this).closest('.bulk-category-item').css({
+                'background': '#0073aa',
+                'color': 'white',
+                'border-color': '#0073aa'
+            });
+        });
+        
+        // Add new category
+        $('#add_category_bulk_btn').on('click', function() {
+            const categoryName = $('#new_category_name_bulk').val().trim();
+            const messageEl = $('#category_add_message_bulk');
+            
+            if (!categoryName) {
+                messageEl.text('Please enter a category name').css('color', '#dc3232');
+                return;
+            }
+            
+            // Send AJAX request to create category
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'create_bulk_category',
+                    cat_name: categoryName,
+                    nonce: '<?php echo wp_create_nonce("create_category_nonce"); ?>'
+                },
+                beforeSend: function() {
+                    $('#add_category_bulk_btn').prop('disabled', true).text('Adding...');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Add new category to the list
+                        const newCategoryHtml = '<label class="bulk-category-item" style="padding: 8px 15px; background: #0073aa; color: white; border: 2px solid #0073aa; border-radius: 5px; cursor: pointer; transition: all 0.3s;">' +
+                            '<input type="checkbox" name="cats[]" value="' + response.data.term_id + '" checked style="margin-right: 8px;">' +
+                            '<span>' + response.data.name + '</span>' +
+                        '</label>';
+                        
+                        $('#bulk-category-list').append(newCategoryHtml);
+                        
+                        // Re-bind event handler for new checkbox
+                        $('#bulk-category-list .bulk-category-item:last input[type="checkbox"]').on('change', function() {
+                            const label = $(this).closest('.bulk-category-item');
+                            if ($(this).is(':checked')) {
+                                label.css({
+                                    'background': '#0073aa',
+                                    'color': 'white',
+                                    'border-color': '#0073aa'
+                                });
+                            } else {
+                                label.css({
+                                    'background': 'white',
+                                    'color': '#23282d',
+                                    'border-color': '#ddd'
+                                });
+                            }
+                        });
+                        
+                        $('#new_category_name_bulk').val('');
+                        messageEl.text('Category added successfully!').css('color', '#46b450');
+                        
+                        setTimeout(function() {
+                            messageEl.text('');
+                        }, 3000);
+                    } else {
+                        messageEl.text(response.data || 'Error creating category').css('color', '#dc3232');
+                    }
+                },
+                error: function() {
+                    messageEl.text('Error creating category. Please try again.').css('color', '#dc3232');
+                },
+                complete: function() {
+                    $('#add_category_bulk_btn').prop('disabled', false).text('Add Category');
+                }
+            });
+        });
+        
+        // Allow Enter key to add category
+        $('#new_category_name_bulk').on('keypress', function(e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                $('#add_category_bulk_btn').click();
+            }
         });
     });
 </script>
