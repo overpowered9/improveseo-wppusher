@@ -222,14 +222,39 @@ global $ai_modal_type;
     }
 
     .improveseo-notification-icon {
-        width: 48px;
-        height: 48px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 28px;
+        font-weight: 700;
         flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        position: relative;
+    }
+    
+    .improveseo-notification-icon::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: inherit;
+        opacity: 0.2;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 0.2;
+        }
+        50% {
+            transform: scale(1.1);
+            opacity: 0;
+        }
     }
 
     .improveseo-notification-icon.warning {
@@ -238,17 +263,25 @@ global $ai_modal_type;
     }
 
     .improveseo-notification-icon.error {
-        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
         color: white;
+    }
+    
+    .improveseo-notification-icon.error::after {
+        content: '✕';
+        position: absolute;
+        font-size: 32px;
+        font-weight: 300;
+        line-height: 1;
     }
 
     .improveseo-notification-icon.success {
-        background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
         color: white;
     }
 
     .improveseo-notification-icon.info {
-        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
         color: white;
     }
 
@@ -2535,17 +2568,17 @@ global $ai_modal_type;
     const messageEl = document.getElementById('improveseoNotificationMessage');
     const okBtn = document.getElementById('improveseoNotificationOk');
     
-    // Set icon based on type
+    // Set icon based on type - use Unicode symbols for better display
     const icons = {
-      warning: '⚠️',
-      error: '❌',
+      warning: '⚠',
+      error: '', // Empty - we'll use CSS ::after for a clean X
       success: '✓',
-      info: 'ℹ️'
+      info: 'ℹ'
     };
     
     iconEl.classList.remove('warning', 'error', 'success', 'info');
     iconEl.classList.add(type);
-    iconEl.textContent = icons[type] || icons.error;
+    iconEl.textContent = icons[type] || '';
     
     titleEl.textContent = title;
     messageEl.textContent = message;

@@ -229,6 +229,27 @@ jQuery("#generateapivalue").on("click", function () {
 
       console.log("response of generate single ai", response);
 
+      // Check for insufficient credits error
+      if (response.success === false || response.data.content?.includes('Error: Content generation server returned error status: 402')) {
+        jQuery("#loadingAIData").hide();
+        if (response.data.content?.includes('402') || response.data.content?.includes('Insufficient') || response.data.content?.includes('credits')) {
+          showImproveSEONotification(
+            'error',
+            'Out of Credits',
+            'You are out of content generation credits. Please purchase more credits to continue.',
+            'https://dashboard.improveseoplugin.com'
+          );
+        } else {
+          showImproveSEONotification(
+            'error',
+            'Generation Error',
+            response.data.content || 'An error occurred during content generation.',
+            null
+          );
+        }
+        return;
+      }
+
       var searchData = response.data.search_data;
 
       var content = response.data.content;
