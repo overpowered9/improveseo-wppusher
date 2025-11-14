@@ -453,7 +453,21 @@ function fetch_AI_image_callback()
         curl_close($ch);
         
         // Check HTTP status
-        if ($http_status !== 200) {
+        if ($http_status === 402) {
+            // Handle insufficient credits specifically
+            $result = json_decode($response, true);
+            $credit_info = array(
+                'status' => 402,
+                'message' => 'Insufficient credits',
+                'error' => isset($result['error']) ? $result['error'] : 'You do not have enough image credits.',
+                'creditType' => isset($result['creditType']) ? $result['creditType'] : 'images',
+                'required' => isset($result['required']) ? $result['required'] : 1,
+                'available' => isset($result['available']) ? $result['available'] : 0
+            );
+            error_log("fetch_AI_image Insufficient Credits: " . json_encode($credit_info));
+            wp_send_json_error($credit_info);
+            wp_die();
+        } elseif ($http_status !== 200) {
             error_log("fetch_AI_image HTTP Error: Status $http_status, Response: " . $response);
             wp_send_json_error("Image generation server returned error status: $http_status");
             wp_die();
