@@ -182,10 +182,251 @@ global $ai_modal_type;
         font-weight: 500;
         color: #23282d;
     }
+
+    /* ImproveSEO Notification Popup Styles */
+    .improveseo-notification-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 99999;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .improveseo-notification-overlay.active {
+        display: flex;
+    }
+
+    .improveseo-notification-box {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        max-width: 450px;
+        width: 90%;
+        overflow: hidden;
+        animation: slideUp 0.3s ease-out;
+        position: relative;
+    }
+
+    .improveseo-notification-header {
+        padding: 24px 24px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .improveseo-notification-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    }
+
+    .improveseo-notification-icon.warning {
+        background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+        color: white;
+    }
+
+    .improveseo-notification-icon.error {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+    }
+
+    .improveseo-notification-icon.success {
+        background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+        color: white;
+    }
+
+    .improveseo-notification-icon.info {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        color: white;
+    }
+
+    .improveseo-notification-title {
+        flex: 1;
+    }
+
+    .improveseo-notification-title h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: #23282d;
+        line-height: 1.3;
+    }
+
+    .improveseo-notification-body {
+        padding: 20px 24px;
+    }
+
+    .improveseo-notification-body p {
+        margin: 0;
+        font-size: 15px;
+        color: #50575e;
+        line-height: 1.6;
+    }
+
+    .improveseo-notification-footer {
+        padding: 16px 24px 24px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .improveseo-notification-btn {
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        outline: none;
+        transition: all 0.2s ease;
+        font-family: inherit;
+    }
+
+    .improveseo-notification-btn-primary {
+        background: linear-gradient(135deg, #0073aa 0%, #005a87 100%);
+        color: white;
+    }
+
+    .improveseo-notification-btn-primary:hover {
+        background: linear-gradient(135deg, #005a87 0%, #00405f 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 115, 170, 0.3);
+    }
+
+    .improveseo-notification-btn-secondary {
+        background: #f0f0f0;
+        color: #50575e;
+    }
+
+    .improveseo-notification-btn-secondary:hover {
+        background: #e0e0e0;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Loading Notification Styles */
+    .improveseo-loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 99999;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .improveseo-loading-overlay.active {
+        display: flex;
+    }
+
+    .improveseo-loading-box {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        max-width: 400px;
+        width: 90%;
+        padding: 32px 24px;
+        text-align: center;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    .improveseo-loading-spinner {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 20px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #0073aa;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .improveseo-loading-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #23282d;
+        margin: 0 0 12px 0;
+    }
+
+    .improveseo-loading-message {
+        font-size: 15px;
+        color: #50575e;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 
 
 
+
+<!-- ImproveSEO Notification Popup -->
+<div class="improveseo-notification-overlay" id="improveseoNotification">
+    <div class="improveseo-notification-box">
+        <div class="improveseo-notification-header">
+            <div class="improveseo-notification-icon" id="improveseoNotificationIcon">
+                ⚠️
+            </div>
+            <div class="improveseo-notification-title">
+                <h3 id="improveseoNotificationTitle">Notification</h3>
+            </div>
+        </div>
+        <div class="improveseo-notification-body">
+            <p id="improveseoNotificationMessage">This is a notification message.</p>
+        </div>
+        <div class="improveseo-notification-footer">
+            <button class="improveseo-notification-btn improveseo-notification-btn-primary" id="improveseoNotificationOk">
+                OK
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ImproveSEO Loading Popup -->
+<div class="improveseo-loading-overlay" id="improveseoLoading">
+    <div class="improveseo-loading-box">
+        <div class="improveseo-loading-spinner"></div>
+        <h3 class="improveseo-loading-title" id="improveseoLoadingTitle">Generating Title...</h3>
+        <p class="improveseo-loading-message" id="improveseoLoadingMessage">Please wait while AI generates your title.</p>
+    </div>
+</div>
 
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="false" aria-modal="false">
@@ -307,7 +548,7 @@ global $ai_modal_type;
                             <div class="title">
                                 <label for="seed_options">Select Title Type</label>
                                 <select id="seed_select" name="seed_options" id="title" class="custom-selcected">
-                                    <option value="">Select Title Type</option>
+                                    
                                     <option value="seed_option1">USE KEYWORD AS IS IN TITLE [A.I. will build
                                         content]</option>
                                     <option value="seed_option2">CREATE BEST TITLE FROM KEYWORD [A.I. will
@@ -321,7 +562,7 @@ global $ai_modal_type;
                             <div class="tune" id="seed">
                                 <label for="tune">Tone of voice</label>
                                 <select name="content_type" id="cotnt_type" id="tune" class="custom-selcected">
-                                    <option value="">Tone of Voice</option>
+                                    
                                     <option value="friendly">Friendly</option>
                                     <option value="professional">Professional</option>
                                     <option value="informational">Informational</option>
@@ -372,7 +613,7 @@ global $ai_modal_type;
                             <div class="title-btn">
                                 <button type="button" id="reload"><img
                                         src="<?php echo WT_URL . '/assets/images/Vector.png' ?>"
-                                        alt="ep_arrow-rights">&nbsp;Regenerate</button>
+                                        alt="ep_arrow-rights">&nbsp;<span id="reload-btn-text">Generate</span></button>
                                 <label class="step_one_approve_button" for="checkbox_need"><input type="checkbox"
                                         id="checkbox_need" /><span style="display: none;" class="icon"><img
                                             src="<?php echo WT_URL . '/assets/images/hugeicons_tick-01.png' ?>"
@@ -2200,6 +2441,117 @@ global $ai_modal_type;
 
 </script>
 <script>
+  // ImproveSEO Notification System
+  const ImproveSEONotification = {
+    show: function(options) {
+      const {
+        title = 'Notification',
+        message = '',
+        type = 'warning', // warning, error, success, info
+        buttonText = 'OK',
+        onClose = null
+      } = options;
+
+      const overlay = document.getElementById('improveseoNotification');
+      const iconEl = document.getElementById('improveseoNotificationIcon');
+      const titleEl = document.getElementById('improveseoNotificationTitle');
+      const messageEl = document.getElementById('improveseoNotificationMessage');
+      const okBtn = document.getElementById('improveseoNotificationOk');
+
+      // Set icon based on type
+      const icons = {
+        warning: '⚠️',
+        error: '❌',
+        success: '✓',
+        info: 'ℹ️'
+      };
+
+      // Remove all type classes
+      iconEl.classList.remove('warning', 'error', 'success', 'info');
+      // Add current type class
+      iconEl.classList.add(type);
+      iconEl.textContent = icons[type] || icons.warning;
+
+      // Set content
+      titleEl.textContent = title;
+      messageEl.textContent = message;
+      okBtn.textContent = buttonText;
+
+      // Show overlay
+      overlay.classList.add('active');
+
+      // Handle close
+      const closeHandler = function() {
+        overlay.classList.remove('active');
+        okBtn.removeEventListener('click', closeHandler);
+        overlay.removeEventListener('click', overlayClickHandler);
+        if (onClose && typeof onClose === 'function') {
+          onClose();
+        }
+      };
+
+      const overlayClickHandler = function(e) {
+        if (e.target === overlay) {
+          closeHandler();
+        }
+      };
+
+      okBtn.addEventListener('click', closeHandler);
+      overlay.addEventListener('click', overlayClickHandler);
+
+      // Return API for external control
+      return {
+        close: closeHandler
+      };
+    },
+
+    warning: function(message, title = 'Warning') {
+      return this.show({ title, message, type: 'warning' });
+    },
+
+    error: function(message, title = 'Error') {
+      return this.show({ title, message, type: 'error' });
+    },
+
+    success: function(message, title = 'Success') {
+      return this.show({ title, message, type: 'success' });
+    },
+
+    info: function(message, title = 'Information') {
+      return this.show({ title, message, type: 'info' });
+    }
+  };
+
+  // Make it globally available
+  window.ImproveSEONotification = ImproveSEONotification;
+
+  // ImproveSEO Loading System
+  const ImproveSEOLoading = {
+    show: function(options) {
+      const {
+        title = 'Loading...',
+        message = 'Please wait...'
+      } = options || {};
+
+      const overlay = document.getElementById('improveseoLoading');
+      const titleEl = document.getElementById('improveseoLoadingTitle');
+      const messageEl = document.getElementById('improveseoLoadingMessage');
+
+      titleEl.textContent = title;
+      messageEl.textContent = message;
+      overlay.classList.add('active');
+    },
+
+    hide: function() {
+      const overlay = document.getElementById('improveseoLoading');
+      overlay.classList.remove('active');
+    }
+  };
+
+  // Make it globally available
+  window.ImproveSEOLoading = ImproveSEOLoading;
+</script>
+<script>
   document.addEventListener("DOMContentLoaded", function () {
     const seedInput = document.getElementById("seed_keyword");
     const seedSelect = document.getElementById("seed_select");
@@ -2236,7 +2588,11 @@ global $ai_modal_type;
       if (!hasSeed()) {
         e.preventDefault();
         e.stopPropagation();
-        alert("Please enter seed keyword.");
+        // Show styled notification instead of alert
+        ImproveSEONotification.warning(
+          'Please enter a seed keyword before selecting title type or tone of voice.',
+          'Seed Keyword Required'
+        );
         seedInput?.focus();
         return true;
       }
@@ -2271,7 +2627,11 @@ global $ai_modal_type;
         if (!hasSeed()) {
           e.preventDefault();
           e.stopPropagation();
-          alert("Please enter seed keyword.");
+          // Show styled notification instead of alert
+          ImproveSEONotification.warning(
+            'Please enter a seed keyword before approving.',
+            'Seed Keyword Required'
+          );
           this.checked = false;
           seedInput?.focus();
         }

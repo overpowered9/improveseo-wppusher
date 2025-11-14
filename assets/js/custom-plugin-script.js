@@ -964,16 +964,24 @@ function resetSmartWizard() {
   jQuery("#smartwizard").smartWizard("reset");
 }
 
-jQuery("#seed_select").on("change", function () {
-  var seedtype = jQuery(this).val();
+// Function to generate AI title
+function generateAITitle() {
+  var seedtype = jQuery("#seed_select").val();
   var seedkeyword = jQuery("#seed_keyword").val();
   seedkeyword = seedkeyword ? seedkeyword.trim() : "";
 
   // When AI title needs to be generated (not seed_option1), ensure seed keyword exists first
   if (seedtype != "seed_option1") {
     if (!seedkeyword) {
-      // Prompt user and stop
-      document.getElementById("error_seed_keyword").innerText = "Please enter seed keyword.";
+      // Show styled notification instead of inline error
+      if (typeof ImproveSEONotification !== 'undefined') {
+        ImproveSEONotification.warning(
+          'Please enter a seed keyword before generating a title.',
+          'Seed Keyword Required'
+        );
+      } else {
+        alert("Please enter seed keyword.");
+      }
       jQuery("#loader").hide();
       jQuery(".hide_on_seed_option1").hide();
       jQuery("#gettitle").hide();
@@ -990,9 +998,18 @@ jQuery("#seed_select").on("change", function () {
     jQuery("#loader").hide();
     jQuery(".hide_on_seed_option1").hide();
     jQuery("#gettitle").hide();
+    return; // Don't generate for seed_option1
   }
 
   var contenttype = jQuery("#cotnt_type").val();
+
+  // Show loading popup
+  if (typeof ImproveSEOLoading !== 'undefined') {
+    ImproveSEOLoading.show({
+      title: 'Generating Title...',
+      message: 'Please wait while AI generates your title.'
+    });
+  }
 
   // If seedtype requires AI title, we already validated seedkeyword above
   jQuery
@@ -1006,13 +1023,54 @@ jQuery("#seed_select").on("change", function () {
       console.log("" + data);
 
       jQuery("#loader").hide();
+      
+      // Hide loading popup
+      if (typeof ImproveSEOLoading !== 'undefined') {
+        ImproveSEOLoading.hide();
+      }
 
       // jQuery("#maintitle").html(" <div class=\'resultdata\'><textarea id=\'maintitlearea\' name=\'maintitlearea\' class=\'form-control\' rows=\'3\' cols=\'70\'>" + data + "</textarea></div>");
       jQuery("#maintitlearea").val(data);
       jQuery("#aigeneratedtitle").val(data);
+      
+      // Update button text to Regenerate after first generation
+      jQuery("#reload-btn-text").text("Regenerate");
 
       var AudienceData = getCookie("AudienceData");
+    })
+    .fail(function() {
+      jQuery("#loader").hide();
+      
+      // Hide loading popup
+      if (typeof ImproveSEOLoading !== 'undefined') {
+        ImproveSEOLoading.hide();
+      }
+      
+      if (typeof ImproveSEONotification !== 'undefined') {
+        ImproveSEONotification.error(
+          'Failed to generate title. Please try again.',
+          'Generation Error'
+        );
+      } else {
+        alert("Failed to generate title. Please try again.");
+      }
     });
+}
+
+jQuery("#seed_select").on("change", function () {
+  var seedtype = jQuery(this).val();
+  
+  // Just show/hide the title generation area based on selection
+  if (seedtype != "seed_option1") {
+    jQuery(".hide_on_seed_option1").show();
+    jQuery("#gettitle").css({ display: "flex" });
+  } else {
+    jQuery(".hide_on_seed_option1").hide();
+    jQuery("#gettitle").hide();
+    // Clear the title area when switching to seed_option1
+    jQuery("#maintitlearea").val("");
+    jQuery("#aigeneratedtitle").val("");
+  }
 });
 
 function SaveResultsButton() {
@@ -1391,16 +1449,19 @@ jQuery("#create_keyword").on("change", function () {
 jQuery(document).ready(function () {
   jQuery("#gettitle").css({ display: "none" });
 
+  // Only generate when the button is clicked, not on selection changes
   jQuery("#reload").on("click", function () {
-    jQuery("#seed_select").trigger("change");
+    generateAITitle();
   });
 
+  // Remove auto-generation on tone of voice changes
+  // Just let the user make their selections, they'll click Generate when ready
   jQuery('input[name="content_type"]').on("click", function () {
-    jQuery("#seed_select").trigger("change");
+    // Do nothing - user will click Generate button
   });
 
   jQuery("#cotnt_type").on("change", function () {
-    jQuery("#seed_select").trigger("change");
+    // Do nothing - user will click Generate button
   });
 
   /* jQuery('select#shortcodetype').on('change', function() {
