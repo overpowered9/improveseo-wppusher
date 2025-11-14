@@ -10,7 +10,11 @@ use ImproveSEO\View;
 
 &raquo;
 
-<span>Bulk Projects List</span>
+<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects List</a>
+
+&raquo;
+
+<span><?php echo esc_html($project_name); ?></span>
 
 <?php
 
@@ -59,8 +63,9 @@ $url .= $_SERVER['REQUEST_URI'];
 		<?php wp_nonce_field('bulk_delete_tasks', 'bulk_delete_nonce'); ?>
 		<div class="box-top">
 			<ul class="breadcrumb-seo">
-				<li><a href="#">Improve SEO</a></li>
-				<li>All Keyword Lists</li>
+				<li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Improve SEO</a></li>
+				<li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
+				<li><?php echo esc_html($project_name); ?></li>
 			</ul>
 			<div class="import-export-btn">
 				<button type="button" class="active"> Add New </button>
@@ -125,6 +130,14 @@ $url .= $_SERVER['REQUEST_URI'];
 		?>
 		<div class="improve-seo-container">
 			<div class="project-lists">
+				<div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-left: 4px solid #0073aa;">
+					<h2 style="margin: 0; font-size: 18px; color: #23282d;">
+						Bulk Project: <strong><?php echo esc_html($project_name); ?></strong>
+					</h2>
+					<p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
+						Viewing all posts/pages for this bulk project
+					</p>
+				</div>
 				<div class="table-responsive">
 					<table class="table ">
 						<thead>
