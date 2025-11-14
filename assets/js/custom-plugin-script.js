@@ -868,6 +868,22 @@ jQuery(document).ready(function (jQuery) {
           processData: false,
 
           success: function (response) {
+            // Check for insufficient credits error
+            if (response.success === false) {
+              jQuery("#loadingAIImage").hide();
+              if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits'))) {
+                showImproveSEONotification(
+                  'error',
+                  'Out of Credits',
+                  'You are out of image generation credits. Please purchase more credits to continue.',
+                  'https://dashboard.improveseoplugin.com'
+                );
+              } else {
+                alert('Error: ' + (response.data || 'Unknown error occurred'));
+              }
+              return;
+            }
+            
             jQuery("#ai-image-display").html(
               "<img src='" +
                 response.data +
