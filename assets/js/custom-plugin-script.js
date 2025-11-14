@@ -48,6 +48,13 @@ function getShortCodeDetails(value) {
 
 function GenerateCustomImage() {
   jQuery("#loadingAIImage").show();
+  
+  // Initialize modal if not already initialized
+  if (typeof window.improveseoModal === 'undefined') {
+    window.improveseoModal = new ImproveSEOModal();
+  }
+  
+  const modal = window.improveseoModal;
 
   var seed_select = jQuery("#seed_select").val();
 
@@ -92,12 +99,40 @@ function GenerateCustomImage() {
       jQuery("#image-uploaded-path").val(response.data);
 
       jQuery("#loadingImage").hide();
+      
+      // Show success toast
+      modal.showToast('AI image generated successfully!', 'success');
     },
 
-    error: function () {
-      alert("Error uploading image.");
-
+    error: function (xhr, status, error) {
       jQuery("#loadingImage").hide();
+      
+      // Parse error response
+      let errorMessage = 'Failed to generate AI image.';
+      let errorDetails = '';
+      
+      try {
+        const errorResponse = JSON.parse(xhr.responseText);
+        if (errorResponse.error) {
+          // Check for credit exhaustion
+          if (errorResponse.error.code === 'INSUFFICIENT_CREDITS') {
+            modal.showCreditModal(
+              errorResponse.error.message || 'You have run out of credits.',
+              errorResponse.error.creditsNeeded || 0,
+              errorResponse.error.currentCredits || 0
+            );
+            return;
+          }
+          
+          errorMessage = errorResponse.error.message || errorMessage;
+          errorDetails = errorResponse.error.details || '';
+        }
+      } catch (e) {
+        errorDetails = `Status: ${status}, Error: ${error}`;
+      }
+      
+      // Show error modal
+      modal.showErrorModal('Image Generation Failed', errorMessage, errorDetails);
     },
   });
 }
@@ -105,6 +140,13 @@ function GenerateCustomImage() {
 jQuery("#generate_i_image").on("click", function () {
   jQuery("#loadingAIImage").show();
   jQuery("#hide_older_genrated_image_on_step3").hide();
+  
+  // Initialize modal if not already initialized
+  if (typeof window.improveseoModal === 'undefined') {
+    window.improveseoModal = new ImproveSEOModal();
+  }
+  
+  const modal = window.improveseoModal;
 
   var seed_select = jQuery("#seed_select").val();
 
@@ -155,18 +197,61 @@ jQuery("#generate_i_image").on("click", function () {
       jQuery("#prompt_image_div").css("display", "block");
 
       jQuery("#loadingAIImage").hide();
+      
+      // Show success toast
+      modal.showToast('Custom AI image generated successfully!', 'success');
     },
 
-    error: function () {
-      alert("Error uploading image.");
-
+    error: function (xhr, status, error) {
       jQuery("#loadingAIImage").hide();
+      
+      // Parse error response
+      let errorMessage = 'Failed to generate custom AI image.';
+      let errorDetails = '';
+      
+      try {
+        const errorResponse = JSON.parse(xhr.responseText);
+        if (errorResponse.error) {
+          // Check for credit exhaustion
+          if (errorResponse.error.code === 'INSUFFICIENT_CREDITS') {
+            modal.showCreditModal(
+              errorResponse.error.message || 'You have run out of credits.',
+              errorResponse.error.creditsNeeded || 0,
+              errorResponse.error.currentCredits || 0
+            );
+            return;
+          }
+          
+          errorMessage = errorResponse.error.message || errorMessage;
+          errorDetails = errorResponse.error.details || '';
+        }
+      } catch (e) {
+        errorDetails = `Status: ${status}, Error: ${error}`;
+      }
+      
+      // Show error modal
+      modal.showErrorModal('Image Generation Failed', errorMessage, errorDetails);
     },
   });
 });
 
 jQuery("#generateapivalue").on("click", function () {
   console.log("Debug Message when gen ai is clicked");
+  
+  // Initialize modal if not already initialized
+  if (typeof window.improveseoModal === 'undefined') {
+    window.improveseoModal = new ImproveSEOModal();
+  }
+  
+  // Show loading modal with stages
+  const modal = window.improveseoModal;
+  modal.showLoadingModal('Generating AI Content...', [
+    'Analyzing keyword and title',
+    'Generating content with AI',
+    'Creating meta description',
+    'Finalizing post'
+  ]);
+  
   jQuery("#loadingAIData").show();
 
   jQuery("#for_testing_only").css("display", "none");
@@ -180,6 +265,9 @@ jQuery("#generateapivalue").on("click", function () {
   var form_inputValue = jQuery("#popup_form").serialize();
   console.log(form_inputValue);
   //  console.log(inputValue);
+  
+  // Update progress - Stage 1
+  modal.updateLoadingProgress(25, 0);
 
   jQuery.ajax({
     type: "POST", // or "GET" depending on your form method
@@ -196,6 +284,33 @@ jQuery("#generateapivalue").on("click", function () {
       // jQuery("#loadingImage").hide();
 
       console.log("response of generate single ai", response);
+      
+      // Check for credit exhaustion
+      if (response.error && response.error.code === 'INSUFFICIENT_CREDITS') {
+        modal.closeLoadingModal();
+        modal.showCreditModal(
+          response.error.message || 'You have run out of credits.',
+          response.error.creditsNeeded || 0,
+          response.error.currentCredits || 0
+        );
+        jQuery("#loadingAIData").hide();
+        return;
+      }
+      
+      // Check for other errors
+      if (response.error) {
+        modal.closeLoadingModal();
+        modal.showErrorModal(
+          'Content Generation Failed',
+          response.error.message || 'An error occurred while generating content.',
+          response.error.details || ''
+        );
+        jQuery("#loadingAIData").hide();
+        return;
+      }
+      
+      // Update progress - Stage 2
+      modal.updateLoadingProgress(50, 1);
 
       var searchData = response.data.search_data;
 
@@ -204,6 +319,9 @@ jQuery("#generateapivalue").on("click", function () {
       var meta_title = response.data.meta_title;
 
       var meta_descreption = response.data.meta_descreption;
+      
+      // Update progress - Stage 3
+      modal.updateLoadingProgress(75, 2);
 
       // Set the value of the input field
 
@@ -329,14 +447,55 @@ jQuery("#generateapivalue").on("click", function () {
       // var htmlContent = convertToHtml(content);
 
       //tinymce.activeEditor.insertContent(htmlContent);
+      
+      // Update progress - Stage 4 (Complete)
+      modal.updateLoadingProgress(100, 3);
+      
+      // Close loading modal after a brief delay to show completion
+      setTimeout(function() {
+        modal.closeLoadingModal();
+        // Show success toast
+        modal.showToast('AI content generated successfully!', 'success');
+      }, 500);
 
       jQuery("#loadingAIData").hide();
     },
 
-    error: function (error) {
+    error: function (xhr, status, error) {
       // Handle the error
-
       console.log("error of generate single ai", error);
+      
+      // Close loading modal
+      modal.closeLoadingModal();
+      jQuery("#loadingAIData").hide();
+      
+      // Parse error response
+      let errorMessage = 'Failed to generate AI content. Please try again.';
+      let errorDetails = '';
+      
+      try {
+        const errorResponse = JSON.parse(xhr.responseText);
+        if (errorResponse.error) {
+          // Check for credit exhaustion
+          if (errorResponse.error.code === 'INSUFFICIENT_CREDITS') {
+            modal.showCreditModal(
+              errorResponse.error.message || 'You have run out of credits.',
+              errorResponse.error.creditsNeeded || 0,
+              errorResponse.error.currentCredits || 0
+            );
+            return;
+          }
+          
+          errorMessage = errorResponse.error.message || errorMessage;
+          errorDetails = errorResponse.error.details || '';
+        }
+      } catch (e) {
+        // Use generic error message
+        errorDetails = `Status: ${status}, Error: ${error}`;
+      }
+      
+      // Show error modal
+      modal.showErrorModal('Generation Error', errorMessage, errorDetails);
     },
   });
 });
@@ -380,6 +539,13 @@ var isTinyMCEInitialized = false;
 var pendingContent = "";
 
 function saveFinalData() {
+  // Initialize modal if not already initialized
+  if (typeof window.improveseoModal === 'undefined') {
+    window.improveseoModal = new ImproveSEOModal();
+  }
+  
+  const modal = window.improveseoModal;
+  
   var textarea = document.getElementById("showmydataindivText");
 
   var plainTextContent = textarea.value;
@@ -401,6 +567,12 @@ function saveFinalData() {
   jQuery("#butn").trigger("click");
 
   insertContent(plainTextContent);
+  
+  // Show success message
+  modal.showSuccessModal(
+    'Post Created Successfully!',
+    'Your AI-generated content has been added to the editor. You can now review and publish your post.'
+  );
 }
 
 function initializeTinyMCE() {

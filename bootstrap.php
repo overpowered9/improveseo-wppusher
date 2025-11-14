@@ -20,6 +20,8 @@ include_once 'includes/api.php';
 
 include_once 'includes/debug.php';
 
+include_once 'includes/credit-helpers.php'; // Credit system helpers
+
 
 
 include_once 'includes/assets.php';

@@ -389,6 +389,23 @@ add_action('wp_ajax_fetch_AI_image', 'fetch_AI_image_callback');
 function fetch_AI_image_callback()
 {
     if (!empty($_POST['title'])) {
+        // Define credit cost for AI image generation
+        $credits_needed = 5; // Adjust this value based on your pricing
+        
+        // Check if user has sufficient credits
+        $user_id = get_current_user_id();
+        $current_credits = improveseo_get_user_credits($user_id);
+        
+        if ($current_credits < $credits_needed) {
+            wp_send_json_error([
+                'code' => 'INSUFFICIENT_CREDITS',
+                'message' => 'You have run out of credits to generate images.',
+                'creditsNeeded' => $credits_needed,
+                'currentCredits' => $current_credits
+            ]);
+            wp_die();
+        }
+        
         $title = $_POST['title'];
         $noedit = !empty($_POST['noedit']);
         $seed_title = $noedit ? $_POST['seed_title'] : $title;
@@ -399,7 +416,11 @@ function fetch_AI_image_callback()
         
         // Validate credentials
         if (empty($api_key) || empty($site_code)) {
-            wp_send_json_error('Missing API credentials. Please configure your API Key and Site Code in ImproveSEO settings.');
+            wp_send_json_error([
+                'code' => 'CONFIGURATION_ERROR',
+                'message' => 'Missing API credentials.',
+                'details' => 'Please configure your API Key and Site Code in ImproveSEO settings.'
+            ]);
             wp_die();
         }
         
@@ -446,7 +467,11 @@ function fetch_AI_image_callback()
             $error = curl_error($ch);
             curl_close($ch);
             error_log("fetch_AI_image cURL Error: " . $error);
-            wp_send_json_error('Failed to connect to image generation server. Please try again.');
+            wp_send_json_error([
+                'code' => 'CONNECTION_ERROR',
+                'message' => 'Failed to connect to image generation server.',
+                'details' => $error
+            ]);
             wp_die();
         }
         
@@ -455,7 +480,21 @@ function fetch_AI_image_callback()
         // Check HTTP status
         if ($http_status !== 200) {
             error_log("fetch_AI_image HTTP Error: Status $http_status, Response: " . $response);
-            wp_send_json_error("Image generation server returned error status: $http_status");
+            
+            // Try to parse error response
+            $error_data = json_decode($response, true);
+            $error_message = 'Image generation server returned error status: ' . $http_status;
+            $error_details = '';
+            
+            if ($error_data && isset($error_data['error'])) {
+                $error_details = is_string($error_data['error']) ? $error_data['error'] : json_encode($error_data['error']);
+            }
+            
+            wp_send_json_error([
+                'code' => 'API_ERROR',
+                'message' => $error_message,
+                'details' => $error_details ?: $response
+            ]);
             wp_die();
         }
         
@@ -464,21 +503,33 @@ function fetch_AI_image_callback()
         
         if (!$result || !isset($result['success'])) {
             error_log("fetch_AI_image Invalid Response: " . $response);
-            wp_send_json_error('Invalid response from image generation server.');
+            wp_send_json_error([
+                'code' => 'INVALID_RESPONSE',
+                'message' => 'Invalid response from image generation server.',
+                'details' => $response
+            ]);
             wp_die();
         }
         
         if (!$result['success']) {
             $error_msg = isset($result['error']) ? $result['error'] : 'Unknown error';
             error_log("fetch_AI_image API Error: " . $error_msg);
-            wp_send_json_error($error_msg);
+            wp_send_json_error([
+                'code' => 'IMAGE_GENERATION_ERROR',
+                'message' => 'Failed to generate AI image.',
+                'details' => $error_msg
+            ]);
             wp_die();
         }
         
         // Extract image URL from successful response
         if (!isset($result['data']['image_url'])) {
             error_log("fetch_AI_image Missing Image URL: " . $response);
-            wp_send_json_error('No image URL returned from generation server.');
+            wp_send_json_error([
+                'code' => 'MISSING_IMAGE_URL',
+                'message' => 'No image URL returned from generation server.',
+                'details' => $response
+            ]);
             wp_die();
         }
         
@@ -496,7 +547,11 @@ function fetch_AI_image_callback()
         
         if (!$image_data) {
             error_log("fetch_AI_image Error: Failed to download image from URL: " . $image_url);
-            wp_send_json_error('Error fetching generated image.');
+            wp_send_json_error([
+                'code' => 'IMAGE_DOWNLOAD_ERROR',
+                'message' => 'Error fetching generated image.',
+                'details' => 'Failed to download image from URL: ' . $image_url
+            ]);
             wp_die();
         }
         
@@ -528,15 +583,28 @@ function fetch_AI_image_callback()
                 $final_image_url = $upload_dir['url'] . '/' . $file_name;
             }
             
+            // Deduct credits after successful image generation
+            improveseo_deduct_credits($credits_needed, $user_id);
+            improveseo_log_credit_usage($user_id, $credits_needed, 'AI Image Generation');
+            
             wp_send_json_success(array($final_image_url));
             exit();
         } else {
             error_log("fetch_AI_image Error: Failed to save image file to: " . $file_path);
-            wp_send_json_error('Error saving the image file.');
+            wp_send_json_error([
+                'code' => 'FILE_SAVE_ERROR',
+                'message' => 'Error saving the image file.',
+                'details' => 'Failed to save image to: ' . $file_path
+            ]);
             wp_die();
         }
     }
     
+    wp_send_json_error([
+        'code' => 'MISSING_TITLE',
+        'message' => 'Missing required parameter: title',
+        'details' => 'The title parameter is required for image generation.'
+    ]);
     wp_die();
 }
 

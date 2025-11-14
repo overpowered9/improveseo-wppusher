@@ -20,6 +20,9 @@ function improveseo_enqueue_admin(){
 	wp_enqueue_style('improveseo-fa', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css');
 
 	wp_enqueue_style('improveseo-modalStyle',IMPROVESEO_DIR . '/assets/js/jquery.modal.min.css');
+	
+	// Enqueue modern modal system
+	wp_enqueue_style('improveseo-modals', IMPROVESEO_DIR . '/assets/css/improveseo-modals.css', array(), IMPROVESEO_VERSION);
 
 
 
@@ -76,6 +79,12 @@ function improveseo_enqueue_admin(){
 	
 
 	wp_enqueue_script('improveseo-modal',IMPROVESEO_DIR . '/assets/js/jquery.modal.min.js', array('jquery'), IMPROVESEO_VERSION, true);	
+
+	// Enqueue modern modal system
+	wp_enqueue_script('improveseo-modals', IMPROVESEO_DIR . '/assets/js/improveseo-modals.js', array('jquery'), IMPROVESEO_VERSION, true);
+	wp_localize_script('improveseo-modals', 'improveseo_modal_vars', array(
+		'dashboard_url' => 'https://dashboard.improveseoplugin.com'
+	));	
 
 	
 

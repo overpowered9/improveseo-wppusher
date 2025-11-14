@@ -9,6 +9,23 @@ add_action('wp_ajax_getaaldata', 'getaaldata');
 
 function getaaldata()
 {
+	// Define credit cost for AI content generation
+	$credits_needed = 10; // Adjust this value based on your pricing
+	
+	// Check if user has sufficient credits
+	$user_id = get_current_user_id();
+	$current_credits = improveseo_get_user_credits($user_id);
+	
+	if ($current_credits < $credits_needed) {
+		wp_send_json_error([
+			'code' => 'INSUFFICIENT_CREDITS',
+			'message' => 'You have run out of credits to generate content.',
+			'creditsNeeded' => $credits_needed,
+			'currentCredits' => $current_credits
+		]);
+		wp_die();
+	}
+	
 	$arr = [];
 
 	wp_parse_str($_POST['value'], $arr);
@@ -56,54 +73,81 @@ function getaaldata()
 		$search_data = $ai_title;
 
 	}
+	
+	// Wrap in try-catch for error handling
+	try {
+		$content = createAIpost2(
 
-	$content = createAIpost2(
+			$seed_keyword,
 
-		$seed_keyword,
+			$keyword_selection,
 
-		$keyword_selection,
+			$seed_options,
 
-		$seed_options,
+			$nos_of_words,
 
-		$nos_of_words,
+			$content_lang,
 
-		$content_lang,
+			$shortcode = '',
 
-		$shortcode = '',
+			1,
 
-		1,
+			$voice_tone,
 
-		$voice_tone,
+			$point_of_view,
 
-		$point_of_view,
+			$search_data,
 
-		$search_data,
+			$call_to_action,
 
-		$call_to_action,
+			$details_to_include,
 
-		$details_to_include,
+			$for_testing_only
 
-		$for_testing_only
+		);
+		
+		// Check if content generation returned an error
+		if (strpos($content, 'Error:') === 0) {
+			// Extract error message
+			$error_message = str_replace('Error: ', '', $content);
+			wp_send_json_error([
+				'code' => 'API_ERROR',
+				'message' => 'Failed to generate AI content.',
+				'details' => $error_message
+			]);
+			wp_die();
+		}
 
-	);
+
+
+
+
+		//$content = convert_emails_to_links($content);
+
+		// $content = convert_urls_to_links($content);
 
 
 
 
 
-	//$content = convert_emails_to_links($content);
+		$meta_title = generateMetaTitle($arr['ai_tittle'], $arr['seed_keyword']);
 
-	// $content = convert_urls_to_links($content);
-
-
-
-
-
-	$meta_title = generateMetaTitle($arr['ai_tittle'], $arr['seed_keyword']);
-
-	$meta_descreption = generateMetaDescreption($arr['ai_tittle'], $arr['seed_keyword'], $content);
-
-	wp_send_json_success(array("search_data" => $search_data, "content" => $content, "meta_title" => $meta_title, "meta_descreption" => $meta_descreption));
+		$meta_descreption = generateMetaDescreption($arr['ai_tittle'], $arr['seed_keyword'], $content);
+		
+		// Deduct credits after successful generation
+		improveseo_deduct_credits($credits_needed, $user_id);
+		improveseo_log_credit_usage($user_id, $credits_needed, 'AI Content Generation');
+		
+		wp_send_json_success(array("search_data" => $search_data, "content" => $content, "meta_title" => $meta_title, "meta_descreption" => $meta_descreption));
+		
+	} catch (Exception $e) {
+		wp_send_json_error([
+			'code' => 'GENERATION_ERROR',
+			'message' => 'An error occurred while generating content.',
+			'details' => $e->getMessage()
+		]);
+		wp_die();
+	}
 
 }
 
