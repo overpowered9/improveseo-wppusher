@@ -1609,18 +1609,16 @@ jQuery(document).ready(function() {
    			// top: 209px;
 
 
-   			left: 0;
+   		left: 0;
 
 
-   			z-index: 999;
+   		z-index: 999;
 
 
-   			background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loadingGif.gif") center no-repeat; 
+   		background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/Writing-Optimization.gif") center no-repeat; 
 
 
-   		}
-
-
+   	}
    
 
 
