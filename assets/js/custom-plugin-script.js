@@ -83,52 +83,21 @@ function GenerateCustomImage() {
     processData: false,
 
     success: function (response) {
-      jQuery("#loadingAIImage").hide();
-      
-      if (response.success) {
-        jQuery("#AI_image_div").html(
-          "<img src='" +
-            response.data +
-            "' alt='Uploaded Image' style='max-width: 100%'>"
-        );
-        jQuery("#image-uploaded-path").val(response.data);
-      }
+      jQuery("#AI_image_div").html(
+        "<img src='" +
+          response.data +
+          "' alt='Uploaded Image' style='max-width: 100%'>"
+      );
+
+      jQuery("#image-uploaded-path").val(response.data);
+
+      jQuery("#loadingImage").hide();
     },
 
-    error: function (xhr) {
-      jQuery("#loadingAIImage").hide();
-      
-      // Check if it's a 402 insufficient credits error
-      if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.status === 402) {
-        const creditInfo = xhr.responseJSON.data;
-        
-        if (typeof ImproveSEONotification !== 'undefined') {
-          ImproveSEONotification.show({
-            title: 'Insufficient Credits',
-            message: `You need ${creditInfo.required} image credit(s) but only have ${creditInfo.available}. Please purchase more credits to continue generating images.`,
-            type: 'warning',
-            buttonText: 'Buy Credits',
-            onClose: function() {
-              window.open('https://dashboard.improveseoplugin.com/dashboard', '_blank');
-            }
-          });
-        } else {
-          alert('Insufficient credits. Please purchase more image credits.');
-        }
-        
-        // Keep image area empty - do not add any image
-        jQuery("#AI_image_div").html('');
-      } else {
-        // Generic error
-        if (typeof ImproveSEONotification !== 'undefined') {
-          ImproveSEONotification.error(
-            'Failed to generate image. Please try again.',
-            'Image Generation Error'
-          );
-        } else {
-          alert("Error uploading image.");
-        }
-      }
+    error: function () {
+      alert("Error uploading image.");
+
+      jQuery("#loadingImage").hide();
     },
   });
 }
@@ -175,54 +144,23 @@ jQuery("#generate_i_image").on("click", function () {
     processData: false,
 
     success: function (response) {
+      jQuery("#ai-with-prompt-image-display").html(
+        "<img src='" +
+          response.data +
+          "' alt='Uploaded Image' style='max-width: 100%'>"
+      );
+
+      jQuery("#AI-Prompt-Image-uploaded-path").val(response.data);
+
+      jQuery("#prompt_image_div").css("display", "block");
+
       jQuery("#loadingAIImage").hide();
-      
-      if (response.success) {
-        jQuery("#ai-with-prompt-image-display").html(
-          "<img src='" +
-            response.data +
-            "' alt='Uploaded Image' style='max-width: 100%'>"
-        );
-        jQuery("#AI-Prompt-Image-uploaded-path").val(response.data);
-        jQuery("#prompt_image_div").css("display", "block");
-      }
     },
 
-    error: function (xhr) {
+    error: function () {
+      alert("Error uploading image.");
+
       jQuery("#loadingAIImage").hide();
-      
-      // Check if it's a 402 insufficient credits error
-      if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.status === 402) {
-        const creditInfo = xhr.responseJSON.data;
-        
-        if (typeof ImproveSEONotification !== 'undefined') {
-          ImproveSEONotification.show({
-            title: 'Insufficient Credits',
-            message: `You need ${creditInfo.required} image credit(s) but only have ${creditInfo.available}. Please purchase more credits to continue generating images.`,
-            type: 'warning',
-            buttonText: 'Buy Credits',
-            onClose: function() {
-              window.open('https://dashboard.improveseoplugin.com/dashboard', '_blank');
-            }
-          });
-        } else {
-          alert('Insufficient credits. Please purchase more image credits.');
-        }
-        
-        // Keep image area empty - do not add any image
-        jQuery("#ai-with-prompt-image-display").html('');
-        jQuery("#hide_older_genrated_image_on_step3").show();
-      } else {
-        // Generic error
-        if (typeof ImproveSEONotification !== 'undefined') {
-          ImproveSEONotification.error(
-            'Failed to generate image. Please try again.',
-            'Image Generation Error'
-          );
-        } else {
-          alert("Error uploading image.");
-        }
-      }
     },
   });
 });
@@ -395,44 +333,10 @@ jQuery("#generateapivalue").on("click", function () {
       jQuery("#loadingAIData").hide();
     },
 
-    error: function (xhr, status, error) {
-      jQuery("#loadingAIData").hide();
-      
-      // Check if it's a 402 insufficient credits error
-      if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.status === 402) {
-        const creditInfo = xhr.responseJSON.data;
-        
-        if (typeof ImproveSEONotification !== 'undefined') {
-          ImproveSEONotification.show({
-            title: 'Insufficient Credits',
-            message: `You need ${creditInfo.required} content credit(s) but only have ${creditInfo.available}. Please purchase more credits to continue generating content.`,
-            type: 'warning',
-            buttonText: 'Buy Credits',
-            onClose: function() {
-              window.open('https://dashboard.improveseoplugin.com/dashboard', '_blank');
-            }
-          });
-        } else {
-          alert('Insufficient credits. Please purchase more content credits to generate AI posts.');
-        }
-        
-        // Clear the content display areas
-        jQuery("#showmydataindivText").val('');
-        jQuery("#showmydataindiv1").html('');
-        jQuery("#showmydataindiv1").hide();
-      } else {
-        // Generic error handling
-        console.log("error of generate single ai", xhr);
-        
-        if (typeof ImproveSEONotification !== 'undefined') {
-          ImproveSEONotification.error(
-            'Failed to generate content. Please try again.',
-            'Content Generation Error'
-          );
-        } else {
-          alert('Error generating content. Please try again.');
-        }
-      }
+    error: function (error) {
+      // Handle the error
+
+      console.log("error of generate single ai", error);
     },
   });
 });

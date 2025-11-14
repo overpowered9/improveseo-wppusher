@@ -95,13 +95,7 @@ function getaaldata()
 
 	// $content = convert_urls_to_links($content);
 
-	// Check if content generation returned a credit error
-	$content_decoded = json_decode($content, true);
-	if (is_array($content_decoded) && isset($content_decoded['insufficient_credits']) && $content_decoded['insufficient_credits'] === true) {
-		// Return the credit error to the frontend
-		wp_send_json_error($content_decoded['credit_info']);
-		return;
-	}
+
 
 
 
@@ -320,21 +314,7 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 	curl_close($ch);
 	
 	// Check HTTP status
-	if ($http_status === 402) {
-		// Handle insufficient credits specifically
-		$result = json_decode($response, true);
-		$credit_info = array(
-			'status' => 402,
-			'message' => 'Insufficient credits',
-			'error' => isset($result['error']) ? $result['error'] : 'You do not have enough content credits.',
-			'creditType' => isset($result['creditType']) ? $result['creditType'] : 'content',
-			'required' => isset($result['required']) ? $result['required'] : 1,
-			'available' => isset($result['available']) ? $result['available'] : 0
-		);
-		error_log("createAIpost2 Insufficient Credits: " . json_encode($credit_info));
-		// Return error as JSON string that will be caught by getaaldata
-		return json_encode(array('insufficient_credits' => true, 'credit_info' => $credit_info));
-	} elseif ($http_status !== 200) {
+	if ($http_status !== 200) {
 		error_log("createAIpost2 HTTP Error: Status $http_status, Response: " . $response);
 		return "Error: Content generation server returned error status: $http_status";
 	}
