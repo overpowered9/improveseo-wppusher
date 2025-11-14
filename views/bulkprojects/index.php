@@ -147,6 +147,8 @@ if (isset($_GET['post_preview'])) {
 									<td data-label="Status" class="status finished"><?php
 									if ($project->state == 'Draft')
 										echo 'Draft';
+									elseif ($project->state == 'Finished')
+										echo '<p class="post-fd">Finished</p>';
 									else {
 										if ($project->number_of_tasks == $project->number_of_completed_task)
 											echo '<p class="post-fd">Finished</p>';

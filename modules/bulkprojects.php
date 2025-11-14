@@ -454,6 +454,27 @@ function improveseo_bulkprojects()
 					$value->id
 				)
 			);
+			
+			// Check if all tasks are completed and update parent project state
+			$total_tasks = (int) $wpdb->get_var($wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d",
+				$mainid
+			));
+			$completed_tasks = (int) $wpdb->get_var($wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND state = 'publish'",
+				$mainid
+			));
+			
+			if ($total_tasks > 0 && $total_tasks == $completed_tasks) {
+				$wpdb->update(
+					$wpdb->prefix . 'improveseo_bulktasks',
+					array('state' => 'Finished'),
+					array('id' => $mainid),
+					array('%s'),
+					array('%d')
+				);
+			}
+			
 			my_plugin_log('This is a log message : ' . $value->id);
 			FlashMessage::success('Post hasb been published successfully.');
 			wp_redirect(admin_url("admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id={$mainid}"));

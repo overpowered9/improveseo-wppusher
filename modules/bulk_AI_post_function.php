@@ -183,15 +183,32 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
                 'Done'
             )
         );
-        // Update the parent row with the recalculated count and touch updated_at
+        
+        // Get total number of tasks for this bulk project
+        $total = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(1) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d",
+                $bulktask_id
+            )
+        );
+        
+        // Determine if project should be marked as finished
+        $update_data = array(
+            'number_of_completed_task' => $completed,
+            'updated_at' => current_time('mysql'),
+        );
+        
+        // If all tasks are completed, mark project as finished
+        if ($total > 0 && $completed == $total) {
+            $update_data['state'] = 'Finished';
+        }
+        
+        // Update the parent row with the recalculated count and state
         $wpdb->update(
             $wpdb->prefix . 'improveseo_bulktasks',
-            array(
-                'number_of_completed_task' => $completed,
-                'updated_at' => current_time('mysql'),
-            ),
+            $update_data,
             array('id' => $bulktask_id),
-            array('%d', '%s'),
+            array('%d', '%s', '%s'),
             array('%d')
         );
     }
