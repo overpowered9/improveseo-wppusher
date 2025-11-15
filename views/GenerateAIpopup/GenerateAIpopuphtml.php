@@ -1183,61 +1183,53 @@ global $ai_modal_type;
                 <!-- Step 3 Content -->
                 <div class="data_multi">
                     <div class="seo-slide-steps-fours_multi bulk-boxx_multi">
-                        <!-- <div class="style_bulk_image_section_parent">
-                            <div class="style_bulk_image_section flex_imgae_gereater_radio">
-                                <div class="col-md-6 col">
-                                    <label class="style_imgae_gereater_radio">
-                                        <input type="radio" name="aiImage" value="AI_image_one" id="AI_image"
-                                            class="show_hide_content_in_bulk_part_3" onclick="multiple_image_div();">
-                                        Generate AI Image Based On Title
-                                    </label>
-                                </div>
-
-                                <div class="col-md-6 col">
-                                    <label class="style_imgae_gereater_radio">
-                                        <input type="radio" name="aiImage" value="Multiple_images"
-                                            onclick="SelectexisitingHide();" id="Multiple_images">
-                                        Upload Your Own Images (Up to 10)
-                                    </label>
-                                </div>
-                            </div>
-                        </div> -->
-                        <div class="seo-slide-steps-fours bulk-boxx">
-                            <div class="radio-container">
-                                <input type="radio" name="aiImage" class="show_hide_content_in_bulk_part_3"
-                                    value="AI_image_one" id="AI_image_multi" onclick="multiple_image_div();">
-                                <label for="AI_image_multi">Generate AI Image Based On Title</label>
-
-                                <input type="radio" name="aiImage" value="Multiple_images"
-                                    onclick="SelectexisitingHide();" id="Multiple_images">
-                                <label for="Multiple_images">Upload Your Own Images (Up to 10)</label>
+                        <!-- New per-keyword image selection container -->
+                        <div id="keyword-image-selection-container" style="display:none; padding: 20px;">
+                            <h3 style="margin-bottom: 20px; color: #23282d;">Select Image Method for Each Keyword</h3>
+                            <div id="keyword-image-list">
+                                <!-- Will be populated dynamically when Step 3 loads -->
                             </div>
                         </div>
-                        <div class="form-group col-md-12" style="margin: 0 0 0 0;">
-                            <div id="multiple_image_div" style="display:none;">
-                                <form id="uploadForm">
-                                    <div class="improve-seo-upload-box">
-                                        <h2 class="frg-drp">Drag & Drop Your File here <br> <span> or </span></h2>
-                                        <input type="file" id="images" name="images[]" multiple>
-                                        <div
-                                            style="width: 100%; display: flex; justify-content: center; align-items: center; flex-direction: column;">
-                                            <label style="max-width: max-content;"
-                                                class="styling_post_page_action_buttons2 styling_post_page_action_buttons"
-                                                for="images">Choose a File</label>
-                                            <div id="preview"></div>
-                                            <div id="response"></div>
-                                            <div id="hiddenInputs"></div>
-                                            <button style="max-width: max-content; padding: 5px 54px !important; "
-                                                type="button" class="styling_post_page_action_buttons"
-                                                id="uploadBtn">Upload</button>
+                        
+                        <!-- Keep old radio buttons hidden as fallback (for backwards compatibility) -->
+                        <div id="old-image-selection" style="display:none;">
+                            <div class="seo-slide-steps-fours bulk-boxx">
+                                <div class="radio-container">
+                                    <input type="radio" name="aiImage" class="show_hide_content_in_bulk_part_3"
+                                        value="AI_image_one" id="AI_image_multi" onclick="multiple_image_div();">
+                                    <label for="AI_image_multi">Generate AI Image Based On Title</label>
+
+                                    <input type="radio" name="aiImage" value="Multiple_images"
+                                        onclick="SelectexisitingHide();" id="Multiple_images">
+                                    <label for="Multiple_images">Upload Your Own Images (Up to 10)</label>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12" style="margin: 0 0 0 0;">
+                                <div id="multiple_image_div" style="display:none;">
+                                    <form id="uploadForm">
+                                        <div class="improve-seo-upload-box">
+                                            <h2 class="frg-drp">Drag & Drop Your File here <br> <span> or </span></h2>
+                                            <input type="file" id="images" name="images[]" multiple>
+                                            <div
+                                                style="width: 100%; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                                                <label style="max-width: max-content;"
+                                                    class="styling_post_page_action_buttons2 styling_post_page_action_buttons"
+                                                    for="images">Choose a File</label>
+                                                <div id="preview"></div>
+                                                <div id="response"></div>
+                                                <div id="hiddenInputs"></div>
+                                                <button style="max-width: max-content; padding: 5px 54px !important; "
+                                                    type="button" class="styling_post_page_action_buttons"
+                                                    id="uploadBtn">Upload</button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </form>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
-                        <div id="ai-image-generating" class="ai-image-content active text-center ok-aii">
-                            <h3> Ok, AI images will be generated based on the post titles. </h3>
-                            <p> <strong> Note: </strong> a preview of the images is not available yet at this step. </p>
+                            <div id="ai-image-generating" class="ai-image-content active text-center ok-aii">
+                                <h3> Ok, AI images will be generated based on the post titles. </h3>
+                                <p> <strong> Note: </strong> a preview of the images is not available yet at this step. </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2247,6 +2239,11 @@ global $ai_modal_type;
                 updateDataDisplay();
                 updateButtonText();
                 prevButton.disabled = false;
+                
+                // Generate keyword image options when moving to Step 3 (index 2)
+                if (currentStep === 2) {
+                    generateKeywordImageOptionsForBulk();
+                }
 
             }
             else if (currentStep === steps.length - 1) { // When on last step
@@ -2277,6 +2274,154 @@ global $ai_modal_type;
         prevButton.disabled = true;
     });
 </script>
+
+<script>
+    // Bulk Post: Per-Keyword Image Selection Functions
+    function generateKeywordImageOptionsForBulk() {
+        const keywordText = jQuery('#keyword_list').val();
+        
+        if (!keywordText || keywordText.trim() === '') {
+            return;
+        }
+        
+        // Split keywords and filter empty lines
+        const keywords = keywordText.split('\n').filter(k => k.trim() !== '');
+        
+        if (keywords.length === 0) {
+            return;
+        }
+        
+        const container = jQuery('#keyword-image-list');
+        container.empty();
+        
+        keywords.forEach((keyword, index) => {
+            const trimmedKeyword = keyword.trim();
+            
+            const html = `
+                <div class="keyword-image-row" style="padding: 15px; border: 1px solid #ddd; margin-bottom: 15px; border-radius: 5px; background: #f9f9f9;">
+                    <div style="margin-bottom: 10px;">
+                        <strong style="font-size: 14px; color: #23282d;">Keyword:</strong> 
+                        <span style="color: #555;">${trimmedKeyword}</span>
+                    </div>
+                    <div class="image-method-radio" style="margin-bottom: 10px;">
+                        <label style="margin-right: 20px; cursor: pointer; display: inline-flex; align-items: center;">
+                            <input type="radio" name="image_method_${index}" value="AI_image_one" checked style="margin-right: 5px;">
+                            Generate Image Using AI
+                        </label>
+                        <label style="cursor: pointer; display: inline-flex; align-items: center;">
+                            <input type="radio" name="image_method_${index}" value="Multiple_images" style="margin-right: 5px;">
+                            Upload Image
+                        </label>
+                    </div>
+                    <div class="upload-section-${index}" style="display: none; padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-radius: 3px; margin-top: 10px;">
+                        <input type="file" class="keyword-upload-input" data-index="${index}" accept="image/*" 
+                               style="margin-bottom: 10px; padding: 5px;">
+                        <div class="preview-${index}" style="margin: 10px 0;"></div>
+                        <button type="button" class="btn-remove-image" data-index="${index}" 
+                                style="display: none; background: #dc3545; color: #fff; padding: 8px 15px; border: none; border-radius: 3px; cursor: pointer; font-size: 13px;">
+                            Remove Image
+                        </button>
+                        <input type="hidden" name="keyword_image_url_${index}" value="">
+                    </div>
+                </div>
+            `;
+            container.append(html);
+        });
+        
+        // Show the container
+        jQuery('#keyword-image-selection-container').show();
+        jQuery('#old-image-selection').hide();
+    }
+    
+    // Toggle upload section when radio changes
+    jQuery(document).on('change', 'input[name^="image_method_"]', function() {
+        const index = jQuery(this).attr('name').match(/\d+/)[0];
+        const uploadSection = jQuery('.upload-section-' + index);
+        
+        if (jQuery(this).val() === 'Multiple_images') {
+            uploadSection.show();
+        } else {
+            uploadSection.hide();
+            // Clear uploaded image data when switching back to AI
+            jQuery('input[name="keyword_image_url_' + index + '"]').val('');
+            jQuery('.preview-' + index).empty();
+            jQuery('.btn-remove-image[data-index="' + index + '"]').hide();
+            jQuery('.keyword-upload-input[data-index="' + index + '"]').val('');
+        }
+    });
+    
+    // Handle file upload for each keyword
+    jQuery(document).on('change', '.keyword-upload-input', function() {
+        const index = jQuery(this).data('index');
+        const file = this.files[0];
+        
+        if (!file) return;
+        
+        // Validate file type
+        if (!file.type.match('image.*')) {
+            alert('Please select a valid image file.');
+            jQuery(this).val('');
+            return;
+        }
+        
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Image size should not exceed 5MB.');
+            jQuery(this).val('');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('action', 'upload_keyword_image');
+        formData.append('image', file);
+        
+        // Show loading indicator
+        jQuery('.preview-' + index).html('<p style="color: #0073aa;">Uploading...</p>');
+        
+        jQuery.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    // Store URL in hidden input
+                    jQuery('input[name="keyword_image_url_' + index + '"]').val(response.data.image_url);
+                    
+                    // Show preview
+                    jQuery('.preview-' + index).html(
+                        '<img src="' + response.data.image_url + '" style="max-width: 200px; max-height: 150px; border-radius: 3px; border: 1px solid #ddd;">'
+                    );
+                    
+                    // Show remove button
+                    jQuery('.btn-remove-image[data-index="' + index + '"]').show();
+                } else {
+                    jQuery('.preview-' + index).html('<p style="color: #dc3545;">Upload failed. Please try again.</p>');
+                    setTimeout(() => {
+                        jQuery('.preview-' + index).empty();
+                    }, 3000);
+                }
+            },
+            error: function() {
+                jQuery('.preview-' + index).html('<p style="color: #dc3545;">Upload failed. Please try again.</p>');
+                setTimeout(() => {
+                    jQuery('.preview-' + index).empty();
+                }, 3000);
+            }
+        });
+    });
+    
+    // Handle remove image
+    jQuery(document).on('click', '.btn-remove-image', function() {
+        const index = jQuery(this).data('index');
+        jQuery('input[name="keyword_image_url_' + index + '"]').val('');
+        jQuery('.preview-' + index).empty();
+        jQuery('.keyword-upload-input[data-index="' + index + '"]').val('');
+        jQuery(this).hide();
+    });
+</script>
+
 <script>
     document.querySelectorAll('.style_imgae_gereater_radio input[type="radio"]').forEach(input => {
         input.addEventListener('change', function () {

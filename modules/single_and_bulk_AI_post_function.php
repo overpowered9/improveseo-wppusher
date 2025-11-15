@@ -349,6 +349,28 @@ function upload_image_callback()
 }
 
 
+// AJAX handler for per-keyword image uploads in bulk form
+add_action('wp_ajax_upload_keyword_image', 'upload_keyword_image_callback');
+
+function upload_keyword_image_callback()
+{
+	if (empty($_FILES['image'])) {
+		wp_send_json_error(array('message' => 'No file uploaded'));
+	}
+	
+	$uploaded_file = $_FILES['image'];
+	$upload_overrides = array('test_form' => false);
+	$movefile = wp_handle_upload($uploaded_file, $upload_overrides);
+
+	if ($movefile && !isset($movefile['error'])) {
+		wp_send_json_success(array('image_url' => $movefile['url']));
+	} else {
+		$error_message = isset($movefile['error']) ? $movefile['error'] : 'Upload failed';
+		wp_send_json_error(array('message' => $error_message));
+	}
+}
+
+
 
 
 

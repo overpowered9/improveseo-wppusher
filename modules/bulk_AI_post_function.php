@@ -4994,8 +4994,6 @@ function multiPostData()
 
 					$nos_of_words = (!empty($_POST['nos_of_words'])) ? $_POST['nos_of_words'] : "";
 
-					$aiImage = (!empty($_POST['aiImage'])) ? $_POST['aiImage'] : "";
-
 					$schedule_posts = (!empty($_POST['schedule_posts'])) ? $_POST['schedule_posts'] : "";
 
 					$number_of_post_schedule = (!empty($_POST['number_of_post_schedule'])) ? $_POST['number_of_post_schedule'] : "";
@@ -5093,33 +5091,31 @@ function multiPostData()
 					$Button_SC = (!empty($_POST['Button_SC'])) ? $_POST['Button_SC'] : "";
 
 					$GoogleMap_SC = (!empty($_POST['GoogleMap_SC'])) ? $_POST['GoogleMap_SC'] : "";
+					
+					$Video_SC = (!empty($_POST['Video_SC'])) ? $_POST['Video_SC'] : "";
 
 					if ($authors_number == '') {
 
 						$authors_number = $author_name;
 
 					}
-
-					// manuually images
-
-					if ($uploaded_images_count > 0) {
-
-						if (($uploaded_images_count) == $sequence_manually_images) {
-
-							$sequence_manually_images = 0;
-
+					
+					// NEW IMAGE LOGIC - Get image method for THIS specific keyword
+					$aiImage = isset($_POST['image_method_' . $key]) 
+						? $_POST['image_method_' . $key] 
+						: 'AI_image_one';
+					
+					// Get uploaded image URL for THIS specific keyword
+					$ai_image = '';
+					if ($aiImage == 'Multiple_images' && isset($_POST['keyword_image_url_' . $key])) {
+						$image_url = $_POST['keyword_image_url_' . $key];
+						if (!empty($image_url)) {
+							$ai_image = base64_encode($image_url);
 						}
-
-						$ai_image = base64_encode($_POST['uploaded_images'][$sequence_manually_images]);
-
-
-
-					} else {
-
-						$ai_image = '';
-
 					}
+					// If aiImage is 'AI_image_one', leave ai_image empty for cron to generate
 
+					$sequence_manually_images++;
 
 
 
