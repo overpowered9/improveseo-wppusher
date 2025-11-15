@@ -5007,9 +5007,9 @@ function multiPostData()
 
 		foreach ($keyword_lists as $key => $value) {
 
-			if (!empty($value)) {
+			if (!empty(trim($value))) {
 				
-				error_log('ImproveSEO Debug: Processing keyword #' . $key . ': ' . $value);
+				error_log('ImproveSEO Debug: Processing keyword #' . $key . ': ' . trim($value));
 
 
 
@@ -5138,10 +5138,16 @@ function multiPostData()
 
 				}
 
+				// Initialize image variable
+				$ai_image = '';
+
 				// Handle keyword-specific image mapping (new system)
 				if ($aiImage == 'Multiple_images' && isset($_POST['keyword_images']) && is_array($_POST['keyword_images'])) {
-					// New keyword-specific mapping system
-					if (isset($_POST['keyword_images'][$key]) && isset($_POST['keyword_images'][$key]['image'])) {
+					// Check if this specific keyword has an image mapped
+					if (isset($_POST['keyword_images'][$key]) && 
+						is_array($_POST['keyword_images'][$key]) && 
+						!empty($_POST['keyword_images'][$key]['image'])) {
+						
 						// Extract base64 data from data URL if present
 						$imageData = $_POST['keyword_images'][$key]['image'];
 						if (strpos($imageData, 'data:image') === 0) {
@@ -5149,20 +5155,29 @@ function multiPostData()
 							$imageData = preg_replace('/^data:image\/\w+;base64,/', '', $imageData);
 						}
 						$ai_image = $imageData;
+						error_log('ImproveSEO Debug: Using keyword-specific image for keyword #' . $key . ' (length: ' . strlen($ai_image) . ')');
 					} else {
 						// No image mapped for this keyword
-						$ai_image = '';
+						error_log('ImproveSEO Debug: WARNING - No image found for keyword #' . $key . ' in keyword_images array');
 					}
 				} 
 				// Fallback to old sequential system for backwards compatibility
-				elseif ($uploaded_images_count > 0) {
+				elseif ($aiImage == 'Multiple_images' && $uploaded_images_count > 0 && isset($_POST['uploaded_images'][$sequence_manually_images])) {
 					// Old sequential image assignment system (deprecated)
-					if (($uploaded_images_count) == $sequence_manually_images) {
-						$sequence_manually_images = 0;
-					}
 					$ai_image = base64_encode($_POST['uploaded_images'][$sequence_manually_images]);
+					$sequence_manually_images++;
+					
+					if ($sequence_manually_images >= $uploaded_images_count) {
+						$sequence_manually_images = 0; // Wrap around
+					}
+					
+					error_log('ImproveSEO Debug: Using sequential image for keyword #' . $key);
 				} else {
+					// AI image generation or no image
 					$ai_image = '';
+					if ($aiImage == 'AI_image_one' || $aiImage == 'AI_image') {
+						error_log('ImproveSEO Debug: AI image will be generated for keyword #' . $key);
+					}
 				}
 
 
@@ -5198,7 +5213,7 @@ function multiPostData()
 
 						'keyword_list_name' => $keyword_list_name,
 
-						'keyword_name' => $value,
+						'keyword_name' => trim($value),
 
 						'tone_of_voice' => $content_type,
 
@@ -5244,34 +5259,41 @@ function multiPostData()
 
 						'published_on' => $published_on,
 
-						'created_at' => date('Y-m-d h:m:s'),
+						'created_at' => date('Y-m-d H:i:s'),
 
-						'updated_at' => date('Y-m-d h:m:s'),
+						'updated_at' => date('Y-m-d H:i:s'),
 
 					);
 
-					$wpdb->insert($wpdb->prefix . "improveseo_bulktasksdetails", $insert_bulk_data);
+					error_log('ImproveSEO Debug: Attempting to insert task for keyword "' . trim($value) . '" with aiImage="' . $aiImage . '"');
 
+					$insert_result = $wpdb->insert($wpdb->prefix . "improveseo_bulktasksdetails", $insert_bulk_data);
 
-
-					$json_d = json_encode($insert_bulk_data);
-
-					if (empty($json_d)) {
-
-						my_plugin_log('Post created --> ' . $json_d);
-
-						return true;
-
+					if ($insert_result === false) {
+						error_log('ImproveSEO Debug: FAILED to insert task for keyword #' . $key . ': ' . $wpdb->last_error);
+					} else {
+						error_log('ImproveSEO Debug: Successfully inserted task ID: ' . $wpdb->insert_id . ' for keyword: "' . trim($value) . '"');
 					}
 
-					$sequence_manually_images++;
 
 
+				$json_d = json_encode($insert_bulk_data);
+
+				if (empty($json_d)) {
+
+					my_plugin_log('Post created --> ' . $json_d);
+
+					return true;
 
 				}
 
+			} else {
+				error_log('ImproveSEO Debug: Skipping empty/whitespace keyword at index #' . $key);
 			}
 
+		}
+		
+		error_log('ImproveSEO Debug: Finished processing all keywords. Total processed: ' . count(array_filter($keyword_lists, function($v) { return !empty(trim($v)); })) . ' out of ' . count($keyword_lists));
 
 
 			if (!empty($notify_email)) {
