@@ -33,7 +33,13 @@ use ImproveSEO\View;
             <ul class="breadcrumb-seo">
                 <li><a href="#">Improve SEO</a></li>
                 <li> Keyword Generator</li>
+                
+
             </ul>
+            <ul><li> <button class=""
+				onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists') ?>'">
+				View Keyword lists
+			</button></li></ul>
         </div>
         <div class="improve-seo-form-box" style="padding-bottom: 0;">
             <form class="improve-seo-form-global">
@@ -59,16 +65,7 @@ use ImproveSEO\View;
         </div>  
     </div>
 
-    <div class="global-wrap seo-mt-30">
-       
-            <div class="import-export-btn">
-			<button class="active"
-				onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists') ?>'">
-				View Keyword lists
-			</button>
-		
-        </div>
-    </div>
+   
     <?php
                 
                 wt_load_templates('sw-all-saved-keywords.php')

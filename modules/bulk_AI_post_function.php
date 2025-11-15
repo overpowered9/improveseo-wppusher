@@ -4857,9 +4857,26 @@ function multiPostData()
 
 	}
 
+	// Validate keyword list exists and is not empty
+	if (empty($_POST['keyword_list']) || trim($_POST['keyword_list']) == '') {
+		wp_send_json_success(array('status' => 'false', "message" => "Keyword list is required. Please add at least one keyword."));
+		return;
+	}
+
 	if (!empty($_POST['keyword_list'])) {
 
 		$keyword_lists = explode("\n", $_POST['keyword_list']);
+		
+		// Filter out empty lines
+		$keyword_lists = array_filter($keyword_lists, function($keyword) {
+			return trim($keyword) !== '';
+		});
+		
+		// Check if we have any valid keywords after filtering
+		if (empty($keyword_lists) || count($keyword_lists) == 0) {
+			wp_send_json_success(array('status' => 'false', "message" => "Keyword list is empty. Please add at least one keyword."));
+			return;
+		}
 
 
 

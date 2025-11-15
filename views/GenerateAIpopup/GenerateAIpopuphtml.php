@@ -2196,7 +2196,51 @@ global $ai_modal_type;
             nextButton.innerHTML = `${buttonText} <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>" alt="arrow-right">`;
         }
 
+        // Validate if keyword list has keywords
+        function validateKeywordList() {
+            var text = jQuery('#keyword_list').val();
+            
+            if (!text || text.trim().length === 0) {
+                return false;
+            }
+            
+            // Split by lines and filter empty ones
+            var lines = text.split('\n');
+            var nonEmptyLines = lines.filter(function(line) {
+                return line.trim().length > 0;
+            });
+            
+            return nonEmptyLines.length > 0;
+        }
+
         nextButton.addEventListener("click", () => {
+            // Validate keyword list on step 0 (first step)
+            if (currentStep === 0) {
+                var keywordListName = jQuery('#keyword_list_name').val();
+                
+                // Check if a list is selected
+                if (!keywordListName || keywordListName === '' || keywordListName === 'none') {
+                    showImproveSEONotification(
+                        'warning',
+                        'Keyword List Required',
+                        'Please select a keyword list or create a new one before proceeding.',
+                        null
+                    );
+                    return;
+                }
+                
+                // Check if selected list has keywords
+                if (!validateKeywordList()) {
+                    showImproveSEONotification(
+                        'warning',
+                        'Empty Keyword List',
+                        'The selected keyword list is empty. Please add at least one keyword before proceeding.',
+                        null
+                    );
+                    return;
+                }
+            }
+            
             if (currentStep < steps.length - 1) { // Only go up to step 6
                 currentStep++;
                 updateSteps();
