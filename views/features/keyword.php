@@ -61,39 +61,12 @@ use ImproveSEO\View;
 
     <div class="global-wrap seo-mt-30">
         <div class="improve-seo-container">
-            <div class="project-lists">
-                <table>
-                    <thead>
-                      <tr>
-                        <th> No </th>
-                        <th>Project Name</th>
-                        <th> </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td data-label="Name"> 1 </td>
-                        <td data-label="Project Name"> <strong> Cricket </strong> </td>
-                        <td data-label="Last Update"> 
-                          <div>
-                            <a href="#"> <img src="<?php echo WT_URL . '/assets/images/latest-images/write.svg' ?>" alt="write"> </a> 
-                            <a href="#"> <img src="<?php echo WT_URL . '/assets/images/latest-images/delete.svg' ?>" alt="delete"> </a>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td data-label="Name"> 2 </td>
-                        <td data-label="Project Name"> <strong> Shoes </strong> </td>
-                        <td data-label="Last Update"> 
-                          <div>
-                            <a href="#"> <img src="<?php echo WT_URL . '/assets/images/latest-images/write.svg' ?>"  alt="write"> </a> 
-                            <a href="#"> <img src="<?php echo WT_URL . '/assets/images/latest-images/delete.svg' ?>" alt="delete"> </a>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                </table>
-            </div>
+            <div class="import-export-btn">
+			<button class="active"
+				onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists') ?>'">
+				View Keyword lists
+			</button>
+		</div>
         </div>
     </div>
     <?php

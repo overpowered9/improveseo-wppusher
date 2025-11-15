@@ -996,7 +996,7 @@ global $ai_modal_type;
                                     class="form-control bulk_post_input_style"
                                     style="max-width: 100% !important; width: 100%; padding: 10px 20px !important;">
                                     <option value="">Select a Keyword List</option>
-                                    <option value="create_new_project">Create New KW List</option>
+                                    
                                     <?php echo $html_key_to_send; ?>
                                 </select>
                                 <span id="error_keyword_list_name" style="color: red;"></span>
