@@ -40,4 +40,7 @@ include_once IMPROVESEO_ROOT .'/modules/ajax.php';
 include_once IMPROVESEO_ROOT .'/modules/ajax_keyword_refresh.php';
 
 
+include_once IMPROVESEO_ROOT .'/modules/ajax_keyword_image_upload.php';
+
+
 include_once IMPROVESEO_ROOT .'/modules/ajax.php';
