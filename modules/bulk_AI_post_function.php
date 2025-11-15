@@ -4877,34 +4877,6 @@ function multiPostData()
 			wp_send_json_success(array('status' => 'false', "message" => "Keyword list is empty. Please add at least one keyword."));
 			return;
 		}
-		
-		// Validate keyword-image mapping if Multiple_images option is selected
-		$aiImage = (!empty($_POST['aiImage'])) ? $_POST['aiImage'] : "";
-		if ($aiImage == 'Multiple_images' && isset($_POST['keyword_images']) && is_array($_POST['keyword_images'])) {
-			$keyword_count = count($keyword_lists);
-			$image_count = 0;
-			$missing_keywords = array();
-			
-			// Count how many keywords have images mapped
-			foreach ($keyword_lists as $key => $keyword) {
-				if (isset($_POST['keyword_images'][$key]) && isset($_POST['keyword_images'][$key]['image']) && !empty($_POST['keyword_images'][$key]['image'])) {
-					$image_count++;
-				} else {
-					$missing_keywords[] = $keyword;
-				}
-			}
-			
-			// If not all keywords have images, reject the submission
-			if ($image_count < $keyword_count) {
-				$missing_count = $keyword_count - $image_count;
-				$error_message = "Incomplete image upload. Please upload images for all $keyword_count keywords. Missing images for $missing_count keyword(s).";
-				if (count($missing_keywords) <= 5) {
-					$error_message .= " Missing: " . implode(', ', $missing_keywords);
-				}
-				wp_send_json_success(array('status' => 'false', "message" => $error_message));
-				return;
-			}
-		}
 
 
 
@@ -5118,42 +5090,36 @@ function multiPostData()
 
 
 
-				$Button_SC = (!empty($_POST['Button_SC'])) ? $_POST['Button_SC'] : "";
+					$Button_SC = (!empty($_POST['Button_SC'])) ? $_POST['Button_SC'] : "";
 
-				$GoogleMap_SC = (!empty($_POST['GoogleMap_SC'])) ? $_POST['GoogleMap_SC'] : "";
+					$GoogleMap_SC = (!empty($_POST['GoogleMap_SC'])) ? $_POST['GoogleMap_SC'] : "";
 
-				if ($authors_number == '') {
+					if ($authors_number == '') {
 
-					$authors_number = $author_name;
+						$authors_number = $author_name;
 
-				}
+					}
 
-				// Handle keyword-specific image mapping (new system)
-				if ($aiImage == 'Multiple_images' && isset($_POST['keyword_images']) && is_array($_POST['keyword_images'])) {
-					// New keyword-specific mapping system
-					if (isset($_POST['keyword_images'][$key]) && isset($_POST['keyword_images'][$key]['image'])) {
-						// Extract base64 data from data URL if present
-						$imageData = $_POST['keyword_images'][$key]['image'];
-						if (strpos($imageData, 'data:image') === 0) {
-							// Remove data URL prefix (e.g., "data:image/jpeg;base64,")
-							$imageData = preg_replace('/^data:image\/\w+;base64,/', '', $imageData);
+					// manuually images
+
+					if ($uploaded_images_count > 0) {
+
+						if (($uploaded_images_count) == $sequence_manually_images) {
+
+							$sequence_manually_images = 0;
+
 						}
-						$ai_image = $imageData;
+
+						$ai_image = base64_encode($_POST['uploaded_images'][$sequence_manually_images]);
+
+
+
 					} else {
-						// No image mapped for this keyword
+
 						$ai_image = '';
+
 					}
-				} 
-				// Fallback to old sequential system for backwards compatibility
-				elseif ($uploaded_images_count > 0) {
-					// Old sequential image assignment system (deprecated)
-					if (($uploaded_images_count) == $sequence_manually_images) {
-						$sequence_manually_images = 0;
-					}
-					$ai_image = base64_encode($_POST['uploaded_images'][$sequence_manually_images]);
-				} else {
-					$ai_image = '';
-				}
+
 
 
 

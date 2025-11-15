@@ -1393,199 +1393,10 @@ function SeedHide() {
 
 function SelectexisitingHide() {
   jQuery("#multiple_image_div").show();
+
   jQuery("#manually_image_div").hide();
   jQuery("#ai-image-generating").hide();
-  
-  // Generate keyword cards from the keyword list
-  generateKeywordImageCards();
 }
-
-function generateKeywordImageCards() {
-  // Get keywords from textarea
-  var keywordListText = jQuery('#keyword_list').val();
-  
-  if (!keywordListText || keywordListText.trim() === '') {
-    jQuery('#keyword_image_cards').html(
-      '<div style="padding: 40px; text-align: center; color: #646970;">' +
-      '<span class="dashicons dashicons-info" style="font-size: 48px; opacity: 0.3;"></span>' +
-      '<p style="margin-top: 16px; font-size: 14px;">No keywords found. Please select a keyword list in Step 1.</p>' +
-      '</div>'
-    );
-    return;
-  }
-  
-  // Split keywords by line and filter empty lines
-  var keywords = keywordListText.split('\n')
-    .map(function(keyword) { return keyword.trim(); })
-    .filter(function(keyword) { return keyword !== ''; });
-  
-  if (keywords.length === 0) {
-    jQuery('#keyword_image_cards').html(
-      '<div style="padding: 40px; text-align: center; color: #646970;">' +
-      '<span class="dashicons dashicons-info" style="font-size: 48px; opacity: 0.3;"></span>' +
-      '<p style="margin-top: 16px; font-size: 14px;">No valid keywords found. Please check your keyword list.</p>' +
-      '</div>'
-    );
-    return;
-  }
-  
-  // Generate card HTML for each keyword
-  var cardsHtml = '';
-  keywords.forEach(function(keyword, index) {
-    cardsHtml += 
-      '<div class="keyword-card" data-keyword-index="' + index + '" data-keyword="' + escapeHtml(keyword) + '">' +
-        '<div class="keyword-info">' +
-          '<p class="keyword-text">' + escapeHtml(keyword) + '</p>' +
-          '<p class="keyword-status" data-status="pending">' +
-            '<span class="dashicons dashicons-upload"></span>' +
-            'No image uploaded' +
-          '</p>' +
-        '</div>' +
-        '<div class="keyword-upload-section">' +
-          '<div class="keyword-preview-container" style="display: none;">' +
-            '<img class="keyword-image-preview" src="" alt="Preview">' +
-          '</div>' +
-          '<input type="file" class="keyword-file-input" id="keyword_file_' + index + '" accept="image/*" data-keyword-index="' + index + '">' +
-          '<label for="keyword_file_' + index + '" class="keyword-upload-btn">' +
-            '<span class="dashicons dashicons-upload" style="font-size: 14px; vertical-align: middle; margin-right: 4px;"></span>' +
-            'Upload Image' +
-          '</label>' +
-          '<button type="button" class="keyword-remove-image" style="display: none;" data-keyword-index="' + index + '">' +
-            '<span class="dashicons dashicons-no" style="font-size: 14px; vertical-align: middle;"></span>' +
-          '</button>' +
-        '</div>' +
-      '</div>';
-  });
-  
-  // Add progress bar
-  var progressHtml = 
-    '<div class="mapping-progress">' +
-      '<span class="mapping-progress-text"><strong id="uploaded_count">0</strong> of <strong>' + keywords.length + '</strong> images uploaded</span>' +
-      '<div class="mapping-progress-bar">' +
-        '<div class="mapping-progress-fill" id="mapping_progress_fill" style="width: 0%;"></div>' +
-      '</div>' +
-      '<span class="mapping-progress-text" id="progress_percentage">0%</span>' +
-    '</div>';
-  
-  jQuery('#keyword_image_cards').html(cardsHtml);
-  jQuery('.keyword-image-mapping-container').append(progressHtml);
-  
-  // Attach event listeners
-  attachKeywordImageHandlers();
-}
-
-function escapeHtml(text) {
-  var map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;'
-  };
-  return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-}
-
-function attachKeywordImageHandlers() {
-  // Handle file selection
-  jQuery('.keyword-file-input').off('change').on('change', function() {
-    var input = this;
-    var keywordIndex = jQuery(input).data('keyword-index');
-    var card = jQuery('.keyword-card[data-keyword-index="' + keywordIndex + '"]');
-    
-    if (input.files && input.files[0]) {
-      var file = input.files[0];
-      var reader = new FileReader();
-      
-      reader.onload = function(e) {
-        var imageData = e.target.result;
-        
-        // Update card UI
-        card.addClass('has-image');
-        card.find('.keyword-image-preview').attr('src', imageData);
-        card.find('.keyword-preview-container').show();
-        card.find('.keyword-upload-btn')
-          .addClass('uploaded')
-          .html('<span class="dashicons dashicons-yes" style="font-size: 14px; vertical-align: middle; margin-right: 4px;"></span>Change Image');
-        card.find('.keyword-remove-image').show();
-        card.find('.keyword-status')
-          .addClass('uploaded')
-          .attr('data-status', 'uploaded')
-          .html('<span class="dashicons dashicons-yes"></span>Image uploaded');
-        
-        // Store image data in hidden input
-        updateHiddenInputs();
-        updateProgress();
-      };
-      
-      reader.readAsDataURL(file);
-    }
-  });
-  
-  // Handle remove image
-  jQuery('.keyword-remove-image').off('click').on('click', function() {
-    var keywordIndex = jQuery(this).data('keyword-index');
-    var card = jQuery('.keyword-card[data-keyword-index="' + keywordIndex + '"]');
-    var fileInput = jQuery('#keyword_file_' + keywordIndex);
-    
-    // Reset file input
-    fileInput.val('');
-    
-    // Reset card UI
-    card.removeClass('has-image');
-    card.find('.keyword-preview-container').hide();
-    card.find('.keyword-image-preview').attr('src', '');
-    card.find('.keyword-upload-btn')
-      .removeClass('uploaded')
-      .html('<span class="dashicons dashicons-upload" style="font-size: 14px; vertical-align: middle; margin-right: 4px;"></span>Upload Image');
-    card.find('.keyword-remove-image').hide();
-    card.find('.keyword-status')
-      .removeClass('uploaded')
-      .attr('data-status', 'pending')
-      .html('<span class="dashicons dashicons-upload"></span>No image uploaded');
-    
-    // Update hidden inputs and progress
-    updateHiddenInputs();
-    updateProgress();
-  });
-}
-
-function updateHiddenInputs() {
-  var hiddenInputsHtml = '';
-  
-  jQuery('.keyword-card').each(function() {
-    var keywordIndex = jQuery(this).data('keyword-index');
-    var keyword = jQuery(this).data('keyword');
-    var fileInput = jQuery('#keyword_file_' + keywordIndex)[0];
-    
-    if (fileInput && fileInput.files && fileInput.files[0]) {
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        // Create hidden input with base64 image data
-        var existingInput = jQuery('input[name="keyword_images[' + keywordIndex + '][image]"]');
-        if (existingInput.length) {
-          existingInput.val(e.target.result);
-        } else {
-          jQuery('#hiddenInputs').append(
-            '<input type="hidden" name="keyword_images[' + keywordIndex + '][keyword]" value="' + escapeHtml(keyword) + '">' +
-            '<input type="hidden" name="keyword_images[' + keywordIndex + '][image]" value="' + e.target.result + '">'
-          );
-        }
-      };
-      reader.readAsDataURL(fileInput.files[0]);
-    }
-  });
-}
-
-function updateProgress() {
-  var totalKeywords = jQuery('.keyword-card').length;
-  var uploadedCount = jQuery('.keyword-card.has-image').length;
-  var percentage = totalKeywords > 0 ? Math.round((uploadedCount / totalKeywords) * 100) : 0;
-  
-  jQuery('#uploaded_count').text(uploadedCount);
-  jQuery('#mapping_progress_fill').css('width', percentage + '%');
-  jQuery('#progress_percentage').text(percentage + '%');
-}
-
 function multiple_image_div() {
   jQuery("#multiple_image_div").hide();
   jQuery("#ai-image-generating").show();
@@ -2166,14 +1977,9 @@ jQuery("input[type='radio'][name='schedule_posts']").change(function () {
   }
 });
 
-// OLD UPLOAD HANDLER - Replaced with keyword-specific upload system
-// jQuery("#uploadBtn").on("click", function (e) { ... });
+// upload.js
 
-// NEW: Individual keyword image preview handler
 jQuery(document).ready(function ($) {
-  // Old upload.js code commented out - now using keyword-specific uploads
-  
-  /*
   jQuery("#uploadBtn").on("click", function (e) {
     e.preventDefault();
 
@@ -2235,7 +2041,6 @@ jQuery(document).ready(function ($) {
       reader.readAsDataURL(files[i]);
     }
   });
-  */
 });
 
 // my js for action button popup

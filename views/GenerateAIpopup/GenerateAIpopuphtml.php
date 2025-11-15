@@ -425,161 +425,6 @@ global $ai_modal_type;
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
-
-    /* Keyword-Image Mapping Styles */
-    .keyword-image-mapping-container {
-        background: white;
-        border: 1px solid #dcdcde;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    .keyword-cards-container {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .keyword-card {
-        background: #f8f9fa;
-        border: 2px solid #dcdcde;
-        border-radius: 8px;
-        padding: 16px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        transition: all 0.3s ease;
-    }
-
-    .keyword-card:hover {
-        border-color: #0073aa;
-        box-shadow: 0 2px 8px rgba(0, 115, 170, 0.1);
-    }
-
-    .keyword-card.has-image {
-        border-color: #00a32a;
-        background: #f6faf7;
-    }
-
-    .keyword-info {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .keyword-text {
-        font-size: 14px;
-        font-weight: 600;
-        color: #23282d;
-        margin: 0 0 4px 0;
-        word-wrap: break-word;
-    }
-
-    .keyword-status {
-        font-size: 12px;
-        color: #646970;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .keyword-status .dashicons {
-        font-size: 16px;
-    }
-
-    .keyword-status.uploaded {
-        color: #00a32a;
-    }
-
-    .keyword-upload-section {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .keyword-image-preview {
-        width: 80px;
-        height: 80px;
-        border-radius: 6px;
-        object-fit: cover;
-        border: 2px solid #dcdcde;
-    }
-
-    .keyword-upload-btn {
-        padding: 8px 16px;
-        background: #0073aa;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-    }
-
-    .keyword-upload-btn:hover {
-        background: #005a87;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(0, 115, 170, 0.3);
-    }
-
-    .keyword-upload-btn.uploaded {
-        background: #00a32a;
-    }
-
-    .keyword-upload-btn.uploaded:hover {
-        background: #008a20;
-    }
-
-    .keyword-file-input {
-        display: none;
-    }
-
-    .keyword-remove-image {
-        padding: 6px 12px;
-        background: #d63638;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 12px;
-        transition: all 0.2s ease;
-    }
-
-    .keyword-remove-image:hover {
-        background: #b32d2e;
-    }
-
-    .mapping-progress {
-        padding: 12px 15px;
-        background: #f0f0f1;
-        border-top: 1px solid #dcdcde;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 13px;
-    }
-
-    .mapping-progress-text {
-        color: #50575e;
-    }
-
-    .mapping-progress-bar {
-        flex: 1;
-        max-width: 200px;
-        height: 6px;
-        background: #dcdcde;
-        border-radius: 3px;
-        overflow: hidden;
-        margin: 0 12px;
-    }
-
-    .mapping-progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #0073aa 0%, #00a32a 100%);
-        transition: width 0.3s ease;
-        border-radius: 3px;
-    }
 </style>
 
 
@@ -1370,21 +1215,24 @@ global $ai_modal_type;
                         </div>
                         <div class="form-group col-md-12" style="margin: 0 0 0 0;">
                             <div id="multiple_image_div" style="display:none;">
-                                <div class="keyword-image-mapping-container">
-                                    <div class="mapping-header" style="padding: 15px; background: #f0f0f1; border-radius: 8px 8px 0 0; margin-bottom: 0;">
-                                        <h3 style="margin: 0; font-size: 16px; color: #23282d;">
-                                            <span class="dashicons dashicons-images-alt2" style="font-size: 18px; margin-right: 8px;"></span>
-                                            Upload Images for Each Keyword
-                                        </h3>
-                                        <p style="margin: 8px 0 0 0; font-size: 13px; color: #646970;">
-                                            Each keyword will generate a separate post. Upload a specific image for each keyword below.
-                                        </p>
+                                <form id="uploadForm">
+                                    <div class="improve-seo-upload-box">
+                                        <h2 class="frg-drp">Drag & Drop Your File here <br> <span> or </span></h2>
+                                        <input type="file" id="images" name="images[]" multiple>
+                                        <div
+                                            style="width: 100%; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                                            <label style="max-width: max-content;"
+                                                class="styling_post_page_action_buttons2 styling_post_page_action_buttons"
+                                                for="images">Choose a File</label>
+                                            <div id="preview"></div>
+                                            <div id="response"></div>
+                                            <div id="hiddenInputs"></div>
+                                            <button style="max-width: max-content; padding: 5px 54px !important; "
+                                                type="button" class="styling_post_page_action_buttons"
+                                                id="uploadBtn">Upload</button>
+                                        </div>
                                     </div>
-                                    <div id="keyword_image_cards" class="keyword-cards-container" style="max-height: 500px; overflow-y: auto; padding: 15px; background: white; border: 1px solid #dcdcde; border-radius: 0 0 8px 8px;">
-                                        <!-- Keyword cards will be dynamically generated here -->
-                                    </div>
-                                    <div id="hiddenInputs"></div>
-                                </div>
+                                </form>
                             </div>
                         </div>
                         <div id="ai-image-generating" class="ai-image-content active text-center ok-aii">
@@ -2741,47 +2589,6 @@ global $ai_modal_type;
             }
             else {
                 jQuery('#create_keyword_container').hide();
-            }
-        });
-        
-        // Validation for keyword-image mapping before moving to next step
-        jQuery('.sw-btn-next').on('click', function(e) {
-            var currentStep = parseInt(jQuery('#step_value').val() || '0');
-            
-            // Check if we're on step 3 (image selection step) in bulk form
-            if (currentStep === 2 && jQuery('#pop_up_multi_form').length > 0) {
-                var aiImageOption = jQuery('input[name="aiImage"]:checked').val();
-                
-                // If Multiple_images is selected, validate all keywords have images
-                if (aiImageOption === 'Multiple_images') {
-                    var totalKeywords = jQuery('.keyword-card').length;
-                    var uploadedImages = jQuery('.keyword-card.has-image').length;
-                    
-                    if (totalKeywords === 0) {
-                        e.preventDefault();
-                        e.stopImmediatePropagation();
-                        showImproveSEONotification(
-                            'warning',
-                            'No Keywords Found',
-                            'Please select a keyword list before uploading images.',
-                            null
-                        );
-                        return false;
-                    }
-                    
-                    if (uploadedImages < totalKeywords) {
-                        e.preventDefault();
-                        e.stopImmediatePropagation();
-                        var missingCount = totalKeywords - uploadedImages;
-                        showImproveSEONotification(
-                            'warning',
-                            'Incomplete Image Upload',
-                            'Please upload images for all ' + totalKeywords + ' keywords. You still need to upload ' + missingCount + ' more image(s).',
-                            null
-                        );
-                        return false;
-                    }
-                }
             }
         });
     });
