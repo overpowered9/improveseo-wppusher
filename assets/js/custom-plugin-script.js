@@ -2092,18 +2092,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // ===== BULK POST PER-KEYWORD IMAGE SELECTION =====
 
-// Generate per-keyword image selection UI when proceeding to Step 3
-jQuery(document).on('click', '.sw-btn-next', function() {
-    // Check if we're on Step 2 (keyword input step) of bulk modal
-    const currentStep = jQuery('#smartwizard_bulk_post').smartWizard('getStepIndex');
-    if (currentStep === 1) { // Moving from Step 2 to Step 3
-        const keywordText = jQuery('#keyword_list').val();
-        if (keywordText) {
-            const keywords = keywordText.split('\n').filter(k => k.trim() !== '');
-            generateBulkKeywordImageSelection(keywords);
+// Helper function to escape HTML
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
+// Generate per-keyword image selection UI when moving to Step 3
+jQuery("#smartwizard_multi").on(
+    "showStep",
+    function (e, anchorObject, stepNumber, stepDirection) {
+        // Step 3 is index 2 (0-based)
+        if (stepNumber === 2) {
+            const keywordText = jQuery('#keyword_list').val();
+            if (keywordText && keywordText.trim() !== '') {
+                const keywords = keywordText.split('\n').filter(k => k.trim() !== '');
+                if (keywords.length > 0) {
+                    generateBulkKeywordImageSelection(keywords);
+                }
+            }
         }
     }
-});
+);
 
 function generateBulkKeywordImageSelection(keywords) {
     const container = jQuery('#keyword-image-list');
