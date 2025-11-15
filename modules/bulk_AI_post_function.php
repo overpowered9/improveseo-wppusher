@@ -4829,6 +4829,22 @@ function multiPostData()
 
 	global $wpdb;
 
+	$uploaded_images_count = 0;
+
+	$sequence_manually_images = 0;
+
+	if ($_POST['aiImage'] == 'Multiple_images') {
+
+		$uploaded_images_count = count($_POST['uploaded_images']);
+
+
+
+	}
+
+
+
+
+
 	$project_name = sanitize_text_field($_POST['project_name']);
 
 	//$number_of_post_schedule = sanitize_text_field($_POST['number_of_post_schedule']);
@@ -5074,39 +5090,43 @@ function multiPostData()
 
 
 
-				$Button_SC = (!empty($_POST['Button_SC'])) ? $_POST['Button_SC'] : "";
+					$Button_SC = (!empty($_POST['Button_SC'])) ? $_POST['Button_SC'] : "";
 
-				$GoogleMap_SC = (!empty($_POST['GoogleMap_SC'])) ? $_POST['GoogleMap_SC'] : "";
+					$GoogleMap_SC = (!empty($_POST['GoogleMap_SC'])) ? $_POST['GoogleMap_SC'] : "";
 
-				$Video_SC = (!empty($_POST['Video_SC'])) ? $_POST['Video_SC'] : "";
+					if ($authors_number == '') {
 
-				if ($authors_number == '') {					$authors_number = $author_name;
+						$authors_number = $author_name;
 
-				}
-
-				// Per-keyword image handling
-				// Get image method for THIS specific keyword
-				$aiImage = isset($_POST['image_method_' . $key]) 
-					? $_POST['image_method_' . $key] 
-					: 'AI_image_one';
-
-				// Get uploaded image URL for THIS specific keyword (if uploaded)
-				$ai_image = '';
-				if ($aiImage == 'Multiple_images') {
-					$image_url = isset($_POST['keyword_image_url_' . $key]) 
-						? $_POST['keyword_image_url_' . $key] 
-						: '';
-					if (!empty($image_url)) {
-						$ai_image = base64_encode($image_url);
 					}
-				}
-				// else: leave empty for AI generation in cron job
+
+					// manuually images
+
+					if ($uploaded_images_count > 0) {
+
+						if (($uploaded_images_count) == $sequence_manually_images) {
+
+							$sequence_manually_images = 0;
+
+						}
+
+						$ai_image = base64_encode($_POST['uploaded_images'][$sequence_manually_images]);
+
+
+
+					} else {
+
+						$ai_image = '';
+
+					}
 
 
 
 
 
-				if ($schedule_posts == 'schedule_posts_input_wise') {						$status = 'Scheduled';
+					if ($schedule_posts == 'schedule_posts_input_wise') {
+
+						$status = 'Scheduled';
 
 					} else if ($schedule_posts == 'draft_posts') {
 
