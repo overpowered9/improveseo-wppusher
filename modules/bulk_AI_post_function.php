@@ -4834,13 +4834,20 @@ function multiPostData()
 	$sequence_manually_images = 0;
 
 	if ($_POST['aiImage'] == 'Multiple_images') {
-
-		$uploaded_images_count = count($_POST['uploaded_images']);
-
-
-
+		// Check for new keyword_images structure first
+		if (isset($_POST['keyword_images']) && is_array($_POST['keyword_images'])) {
+			$uploaded_images_count = count($_POST['keyword_images']);
+			error_log('ImproveSEO Debug: Found ' . $uploaded_images_count . ' keyword_images entries');
+			error_log('ImproveSEO Debug: keyword_images keys: ' . implode(', ', array_keys($_POST['keyword_images'])));
+		}
+		// Fallback to old uploaded_images structure
+		elseif (isset($_POST['uploaded_images']) && is_array($_POST['uploaded_images'])) {
+			$uploaded_images_count = count($_POST['uploaded_images']);
+			error_log('ImproveSEO Debug: Using old uploaded_images system with ' . $uploaded_images_count . ' images');
+		} else {
+			error_log('ImproveSEO Debug: Multiple_images selected but no images found in $_POST');
+		}
 	}
-
 
 
 
@@ -4867,10 +4874,10 @@ function multiPostData()
 
 		$keyword_lists = explode("\n", $_POST['keyword_list']);
 		
-		// Filter out empty lines
-		$keyword_lists = array_filter($keyword_lists, function($keyword) {
+		// Filter out empty lines and re-index array to ensure sequential keys
+		$keyword_lists = array_values(array_filter($keyword_lists, function($keyword) {
 			return trim($keyword) !== '';
-		});
+		}));
 		
 		// Check if we have any valid keywords after filtering
 		if (empty($keyword_lists) || count($keyword_lists) == 0) {
@@ -4992,14 +4999,17 @@ function multiPostData()
 
 
 
-			$pdate = date('Y-m-d');
+		$pdate = date('Y-m-d');
 
-			$number_of_post_schedule_count = $number_of_post_schedule;
+		$number_of_post_schedule_count = $number_of_post_schedule;
+		
+		error_log('ImproveSEO Debug: Starting keyword loop with ' . count($keyword_lists) . ' keywords');
 
-			foreach ($keyword_lists as $key => $value) {
+		foreach ($keyword_lists as $key => $value) {
 
-				if (!empty($value)) {
-
+			if (!empty($value)) {
+				
+				error_log('ImproveSEO Debug: Processing keyword #' . $key . ': ' . $value);
 
 
 

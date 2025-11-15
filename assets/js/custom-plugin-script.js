@@ -982,6 +982,14 @@ jQuery(document).ready(function ($) {
     var formData = new FormData(form);
 
     formData.append("action", "multiPostData");
+    
+    // Debug: Log keyword_images data
+    console.log('Form submission - checking keyword_images:');
+    var keywordImageInputs = jQuery('input[name^="keyword_images"]');
+    console.log('Found ' + keywordImageInputs.length + ' keyword_images inputs');
+    keywordImageInputs.each(function() {
+      console.log(jQuery(this).attr('name') + ' = ' + (jQuery(this).val().substring(0, 50) + '...'));
+    });
 
     $.ajax({
       url: ajaxurl,
@@ -1550,7 +1558,11 @@ function attachKeywordImageHandlers() {
 }
 
 function updateHiddenInputs() {
-  var hiddenInputsHtml = '';
+  // Clear all existing keyword_images hidden inputs
+  jQuery('input[name^="keyword_images"]').remove();
+  
+  var processedCount = 0;
+  var totalCards = jQuery('.keyword-card.has-image').length;
   
   jQuery('.keyword-card').each(function() {
     var keywordIndex = jQuery(this).data('keyword-index');
@@ -1561,19 +1573,25 @@ function updateHiddenInputs() {
       var reader = new FileReader();
       reader.onload = function(e) {
         // Create hidden input with base64 image data
-        var existingInput = jQuery('input[name="keyword_images[' + keywordIndex + '][image]"]');
-        if (existingInput.length) {
-          existingInput.val(e.target.result);
-        } else {
-          jQuery('#hiddenInputs').append(
-            '<input type="hidden" name="keyword_images[' + keywordIndex + '][keyword]" value="' + escapeHtml(keyword) + '">' +
-            '<input type="hidden" name="keyword_images[' + keywordIndex + '][image]" value="' + e.target.result + '">'
-          );
+        jQuery('#hiddenInputs').append(
+          '<input type="hidden" name="keyword_images[' + keywordIndex + '][keyword]" value="' + escapeHtml(keyword) + '">' +
+          '<input type="hidden" name="keyword_images[' + keywordIndex + '][image]" value="' + e.target.result + '">'
+        );
+        processedCount++;
+        
+        // Debug log when all images are processed
+        if (processedCount === totalCards) {
+          console.log('All ' + totalCards + ' keyword images processed and added to form');
         }
       };
       reader.readAsDataURL(fileInput.files[0]);
     }
   });
+  
+  // If no images with files, log that too
+  if (totalCards === 0) {
+    console.log('No keyword images to process');
+  }
 }
 
 function updateProgress() {
