@@ -1211,10 +1211,6 @@ global $ai_modal_type;
                                 <input type="radio" name="aiImage" value="Multiple_images"
                                     onclick="SelectexisitingHide();" id="Multiple_images">
                                 <label for="Multiple_images">Upload Your Own Images (Up to 10)</label>
-                                
-                                <input type="radio" name="aiImage" value="Keyword_Specific_Images"
-                                    onclick="showKeywordSpecificImageUpload();" id="Keyword_Specific_Images">
-                                <label for="Keyword_Specific_Images">Upload Images Per Keyword</label>
                             </div>
                         </div>
                         <div class="form-group col-md-12" style="margin: 0 0 0 0;">
@@ -1237,17 +1233,6 @@ global $ai_modal_type;
                                         </div>
                                     </div>
                                 </form>
-                            </div>
-                            
-                            <!-- Keyword-Specific Image Upload Container -->
-                            <div id="keyword_specific_image_div" style="display:none; padding: 20px;">
-                                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                                    <h3 style="margin-bottom: 15px; color: #23282d;">Upload Images for Each Keyword</h3>
-                                    <p style="color: #666; margin-bottom: 20px;">Upload a specific image for each keyword. These images will be used when generating posts for their respective keywords.</p>
-                                    <div id="keyword_image_list" style="display: grid; gap: 15px;">
-                                        <!-- Keyword image upload fields will be dynamically inserted here -->
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         <div id="ai-image-generating" class="ai-image-content active text-center ok-aii">
@@ -2262,14 +2247,6 @@ global $ai_modal_type;
                 updateDataDisplay();
                 updateButtonText();
                 prevButton.disabled = false;
-                
-                // Regenerate keyword-specific image fields when entering step 3 (Add Media)
-                if (currentStep === 3) {
-                    var selectedRadio = jQuery('input[name="aiImage"]:checked').val();
-                    if (selectedRadio === 'Keyword_Specific_Images') {
-                        showKeywordSpecificImageUpload();
-                    }
-                }
 
             }
             else if (currentStep === steps.length - 1) { // When on last step

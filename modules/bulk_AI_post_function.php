@@ -4840,15 +4840,6 @@ function multiPostData()
 
 
 	}
-	
-	// Parse keyword-specific image mappings
-	$keyword_image_mappings = array();
-	if (!empty($_POST['keyword_image_paths'])) {
-		$decoded = json_decode(stripslashes($_POST['keyword_image_paths']), true);
-		if (is_array($decoded)) {
-			$keyword_image_mappings = $decoded;
-		}
-	}
 
 
 
@@ -5108,25 +5099,27 @@ function multiPostData()
 						$authors_number = $author_name;
 
 					}
-					
-					// Check for keyword-specific images first
-					$ai_image = '';
-					$keyword_trimmed = trim($value);
-					
-					if (!empty($keyword_image_mappings) && isset($keyword_image_mappings[$keyword_trimmed])) {
-						$image_url = $keyword_image_mappings[$keyword_trimmed];
-						if (!empty($image_url)) {
-							$ai_image = base64_encode($image_url);
-						}
-					}
-					
-					// Fall back to manually uploaded images if no keyword-specific image
-					if (empty($ai_image) && $uploaded_images_count > 0) {
+
+					// manuually images
+
+					if ($uploaded_images_count > 0) {
+
 						if (($uploaded_images_count) == $sequence_manually_images) {
+
 							$sequence_manually_images = 0;
+
 						}
+
 						$ai_image = base64_encode($_POST['uploaded_images'][$sequence_manually_images]);
+
+
+
+					} else {
+
+						$ai_image = '';
+
 					}
+
 
 
 
