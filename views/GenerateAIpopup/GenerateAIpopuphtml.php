@@ -992,6 +992,20 @@ global $ai_modal_type;
                                 <p style="font-size: 14px; color: #666; padding-left: 20px; margin-top: 5px;">
                                     Keyword list allows you to generate bulk posts once against each keyword.
                                 </p>
+                                <p style="font-size: 14px; color: #0073aa; padding-left: 20px; margin-top: 8px; margin-bottom: 12px;">
+                                    To create a new keyword list, click 
+                                    <a href="<?php echo admin_url('admin.php?page=improveseo_keyword_generator'); ?>" 
+                                       target="_blank" 
+                                       style="color: #0073aa; text-decoration: underline; font-weight: 500;">
+                                        Generate Keywords
+                                    </a>. 
+                                    Once you are done, 
+                                    <a href="javascript:void(0);" 
+                                       id="refresh_keyword_lists" 
+                                       style="color: #0073aa; text-decoration: underline; font-weight: 500; cursor: pointer;">
+                                        click here to refresh
+                                    </a>.
+                                </p>
                                 <select id="keyword_list_name" name="keyword_list_name"
                                     class="form-control bulk_post_input_style"
                                     style="max-width: 100% !important; width: 100%; padding: 10px 20px !important;">
@@ -2445,7 +2459,70 @@ global $ai_modal_type;
 </script>
 <script>
 
-
+    // Refresh keyword lists dropdown
+    jQuery(document).ready(function() {
+        jQuery('#refresh_keyword_lists').on('click', function(e) {
+            e.preventDefault();
+            var $link = jQuery(this);
+            var originalText = $link.text();
+            
+            // Show loading state
+            $link.text('Refreshing...').css('pointer-events', 'none');
+            
+            // Make AJAX call to get updated keyword lists
+            jQuery.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'refresh_keyword_lists'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Update the dropdown with new options
+                        var $select = jQuery('#keyword_list_name');
+                        var currentValue = $select.val();
+                        
+                        // Clear existing options except the first one
+                        $select.find('option:not(:first)').remove();
+                        
+                        // Add updated options
+                        if (response.data.lists) {
+                            jQuery.each(response.data.lists, function(id, name) {
+                                $select.append(new Option(name, id));
+                            });
+                        }
+                        
+                        // Show success notification
+                        showImproveSEONotification(
+                            'success',
+                            'Lists Refreshed',
+                            'Keyword lists have been refreshed successfully.',
+                            null
+                        );
+                    } else {
+                        showImproveSEONotification(
+                            'error',
+                            'Refresh Failed',
+                            'Failed to refresh keyword lists. Please try again.',
+                            null
+                        );
+                    }
+                },
+                error: function() {
+                    showImproveSEONotification(
+                        'error',
+                        'Refresh Failed',
+                        'An error occurred while refreshing. Please try again.',
+                        null
+                    );
+                },
+                complete: function() {
+                    // Restore link state
+                    $link.text(originalText).css('pointer-events', '');
+                }
+            });
+        });
+    });
 
     jQuery(document).ready(function () {
         jQuery('#keyword_list_name').on('change', function () {

@@ -60,13 +60,13 @@ use ImproveSEO\View;
     </div>
 
     <div class="global-wrap seo-mt-30">
-        <div class="improve-seo-container">
+       
             <div class="import-export-btn">
 			<button class="active"
 				onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists') ?>'">
 				View Keyword lists
 			</button>
-		</div>
+		
         </div>
     </div>
     <?php
