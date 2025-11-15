@@ -1183,61 +1183,13 @@ global $ai_modal_type;
                 <!-- Step 3 Content -->
                 <div class="data_multi">
                     <div class="seo-slide-steps-fours_multi bulk-boxx_multi">
-                        <!-- <div class="style_bulk_image_section_parent">
-                            <div class="style_bulk_image_section flex_imgae_gereater_radio">
-                                <div class="col-md-6 col">
-                                    <label class="style_imgae_gereater_radio">
-                                        <input type="radio" name="aiImage" value="AI_image_one" id="AI_image"
-                                            class="show_hide_content_in_bulk_part_3" onclick="multiple_image_div();">
-                                        Generate AI Image Based On Title
-                                    </label>
-                                </div>
-
-                                <div class="col-md-6 col">
-                                    <label class="style_imgae_gereater_radio">
-                                        <input type="radio" name="aiImage" value="Multiple_images"
-                                            onclick="SelectexisitingHide();" id="Multiple_images">
-                                        Upload Your Own Images (Up to 10)
-                                    </label>
-                                </div>
+                        <h3 style="padding-left:20px; margin-bottom: 20px;">Select Image Method for Each Keyword</h3>
+                        
+                        <!-- Per-keyword image selection will be dynamically generated here -->
+                        <div id="bulk-keyword-image-selection" style="padding: 20px;">
+                            <div id="keyword-image-list">
+                                <!-- JavaScript will populate this with per-keyword image options -->
                             </div>
-                        </div> -->
-                        <div class="seo-slide-steps-fours bulk-boxx">
-                            <div class="radio-container">
-                                <input type="radio" name="aiImage" class="show_hide_content_in_bulk_part_3"
-                                    value="AI_image_one" id="AI_image_multi" onclick="multiple_image_div();">
-                                <label for="AI_image_multi">Generate AI Image Based On Title</label>
-
-                                <input type="radio" name="aiImage" value="Multiple_images"
-                                    onclick="SelectexisitingHide();" id="Multiple_images">
-                                <label for="Multiple_images">Upload Your Own Images (Up to 10)</label>
-                            </div>
-                        </div>
-                        <div class="form-group col-md-12" style="margin: 0 0 0 0;">
-                            <div id="multiple_image_div" style="display:none;">
-                                <form id="uploadForm">
-                                    <div class="improve-seo-upload-box">
-                                        <h2 class="frg-drp">Drag & Drop Your File here <br> <span> or </span></h2>
-                                        <input type="file" id="images" name="images[]" multiple>
-                                        <div
-                                            style="width: 100%; display: flex; justify-content: center; align-items: center; flex-direction: column;">
-                                            <label style="max-width: max-content;"
-                                                class="styling_post_page_action_buttons2 styling_post_page_action_buttons"
-                                                for="images">Choose a File</label>
-                                            <div id="preview"></div>
-                                            <div id="response"></div>
-                                            <div id="hiddenInputs"></div>
-                                            <button style="max-width: max-content; padding: 5px 54px !important; "
-                                                type="button" class="styling_post_page_action_buttons"
-                                                id="uploadBtn">Upload</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div id="ai-image-generating" class="ai-image-content active text-center ok-aii">
-                            <h3> Ok, AI images will be generated based on the post titles. </h3>
-                            <p> <strong> Note: </strong> a preview of the images is not available yet at this step. </p>
                         </div>
                     </div>
                 </div>
