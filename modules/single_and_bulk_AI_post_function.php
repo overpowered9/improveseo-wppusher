@@ -371,6 +371,96 @@ function upload_keyword_image_callback()
 }
 
 
+// AJAX handler for bulk post credit check
+add_action('wp_ajax_check_bulk_credits', 'check_bulk_credits_callback');
+
+function check_bulk_credits_callback() {
+	// Verify nonce
+	if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'check_credits_nonce')) {
+		wp_send_json_error(array('error' => 'Invalid security token'));
+	}
+	
+	$api_key = sanitize_text_field($_POST['api_key']);
+	$site_code = sanitize_text_field($_POST['site_code']);
+	$keyword_count = intval($_POST['keyword_count']);
+	$ai_image_count = intval($_POST['ai_image_count']);
+	
+	if (empty($api_key) || empty($site_code)) {
+		wp_send_json_error(array('error' => 'API credentials not configured'));
+	}
+	
+	// Call ImproveSEO server to get user status with subscription info
+	$admin_server_url = 'https://imporve-seo-admin-server.onrender.com';
+	$api_endpoint = $admin_server_url . '/api/v1/users/status';
+	
+	$response = wp_remote_get($api_endpoint, array(
+		'headers' => array(
+			'x-api-key' => $api_key,
+			'x-site-code' => $site_code,
+			'Content-Type' => 'application/json'
+		),
+		'timeout' => 30
+	));
+	
+	if (is_wp_error($response)) {
+		wp_send_json_error(array('error' => 'Unable to connect to ImproveSEO server'));
+	}
+	
+	$body = wp_remote_retrieve_body($response);
+	$data = json_decode($body, true);
+	
+	if (!$data || !isset($data['success']) || !$data['success']) {
+		wp_send_json_error(array('error' => $data['error'] ?? 'Failed to retrieve user status'));
+	}
+	
+	// Extract data from response
+	$credits = $data['credits'] ?? array('images' => 0, 'content' => 0, 'keywords' => 0);
+	$subscription = $data['subscription'] ?? null;
+	
+	// Get plan information from subscription
+	$plan_slug = 'unknown';
+	$plan_id = 0;
+	$plan_name = 'Unknown';
+	
+	if ($subscription && isset($subscription['plan'])) {
+		$plan = $subscription['plan'];
+		$plan_slug = strtolower($plan['slug'] ?? 'unknown');
+		$plan_id = $plan['id'] ?? 0;
+		$plan_name = $plan['name'] ?? 'Unknown';
+	}
+	
+	// Perform checks
+	$checks = array();
+	
+	// Check 1: Plan restriction (Basic/Grow plan cannot use bulk)
+	// Plan IDs: 1 = Grow/Basic, 2 = Scale, 3 = Enterprise
+	$checks['plan_check'] = array(
+		'allowed' => $plan_id !== 1 && !in_array($plan_slug, array('basic', 'grow')),
+		'plan_slug' => $plan_slug,
+		'plan_id' => $plan_id,
+		'plan_name' => $plan_name
+	);
+	
+	// Check 2: Content credits
+	$content_credits = intval($credits['content']);
+	$checks['content_check'] = array(
+		'sufficient' => $content_credits >= $keyword_count,
+		'needed' => $keyword_count,
+		'available' => $content_credits
+	);
+	
+	// Check 3: Image credits (only for AI-generated images)
+	$image_credits = intval($credits['images']);
+	$checks['image_check'] = array(
+		'sufficient' => $image_credits >= $ai_image_count,
+		'needed' => $ai_image_count,
+		'available' => $image_credits
+	);
+	
+	wp_send_json_success($checks);
+}
+
+
 
 
 

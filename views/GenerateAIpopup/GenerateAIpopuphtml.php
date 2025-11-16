@@ -2233,6 +2233,35 @@ global $ai_modal_type;
                 }
             }
             
+            // NEW: Credit check when moving from Step 3 (index 2) to Step 4 (index 3)
+            if (currentStep === 2) {
+                // Prevent default progression
+                const proceedToNextStep = () => {
+                    if (currentStep < steps.length - 1) {
+                        currentStep++;
+                        updateSteps();
+                        updateDataDisplay();
+                        updateButtonText();
+                        prevButton.disabled = false;
+                    }
+                };
+                
+                // Run credit check
+                checkBulkCreditsBeforeStep4()
+                    .then((creditData) => {
+                        // Credits OK - proceed to next step
+                        console.log('✅ Credit check passed:', creditData);
+                        proceedToNextStep();
+                    })
+                    .catch((error) => {
+                        // Credits insufficient or error - stay on current step
+                        console.log('❌ Credit check failed:', error);
+                        // User already notified via popup
+                    });
+                
+                return; // Don't proceed automatically
+            }
+            
             if (currentStep < steps.length - 1) { // Only go up to step 6
                 currentStep++;
                 updateSteps();
@@ -2420,6 +2449,143 @@ global $ai_modal_type;
         jQuery('.keyword-upload-input[data-index="' + index + '"]').val('');
         jQuery(this).hide();
     });
+    
+    // Bulk Post: Credit Check Function
+    function checkBulkCreditsBeforeStep4() {
+        return new Promise((resolve, reject) => {
+            // Get API credentials
+            const apiKey = '<?php echo esc_js(get_option("improveseo_api_key")); ?>';
+            const siteCode = '<?php echo esc_js(get_option("improveseo_site_code")); ?>';
+            
+            if (!apiKey || !siteCode) {
+                showImproveSEONotification(
+                    'error',
+                    '❌ Configuration Required',
+                    'Please configure your API Key and Site Code in ImproveSEO settings first.',
+                    null
+                );
+                reject('missing_credentials');
+                return;
+            }
+            
+            // Get keyword list and count
+            const keywordText = jQuery('#keyword_list').val();
+            const keywords = keywordText.split('\n').filter(k => k.trim() !== '');
+            const keywordCount = keywords.length;
+            
+            // Count how many keywords selected AI image generation
+            let aiImageCount = 0;
+            keywords.forEach((keyword, index) => {
+                const imageMethod = jQuery('input[name="image_method_' + index + '"]:checked').val();
+                if (imageMethod === 'AI_image_one') {
+                    aiImageCount++;
+                }
+            });
+            
+            // Show loading
+            if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.show) {
+                ImproveSEOLoading.show({
+                    title: 'Checking Credits...',
+                    message: 'Please wait while we verify your available credits.'
+                });
+            }
+            
+            // Make AJAX call to check credits
+            jQuery.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'check_bulk_credits',
+                    api_key: apiKey,
+                    site_code: siteCode,
+                    keyword_count: keywordCount,
+                    ai_image_count: aiImageCount,
+                    nonce: '<?php echo wp_create_nonce("check_credits_nonce"); ?>'
+                },
+                success: function(response) {
+                    if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) {
+                        ImproveSEOLoading.hide();
+                    }
+                    
+                    if (response.success) {
+                        const data = response.data;
+                        
+                        // Check 1: Plan restriction (Grow/Basic plan)
+                        if (data.plan_check && !data.plan_check.allowed) {
+                            showImproveSEONotification(
+                                'warning',
+                                '⚠️ Plan Upgrade Required',
+                                'Your current plan (' + data.plan_check.plan_name + ') does not support Bulk Posts. Please upgrade to access this feature.',
+                                'https://dashboard.improveseoplugin.com/pricing'
+                            );
+                            reject('plan_restriction');
+                            return;
+                        }
+                        
+                        // Check 2: Content credits insufficient
+                        if (data.content_check && !data.content_check.sufficient) {
+                            const msg = 'You need ' + keywordCount + ' content credits but only have ' + 
+                                       data.content_check.available + ' remaining. Please reduce keywords to ' + 
+                                       data.content_check.available + ' or purchase more credits.';
+                            
+                            showImproveSEONotification(
+                                'warning',
+                                '⚠️ Insufficient Content Credits',
+                                msg,
+                                'https://dashboard.improveseoplugin.com/pricing'
+                            );
+                            reject('insufficient_content_credits');
+                            return;
+                        }
+                        
+                        // Check 3: Image credits insufficient
+                        if (data.image_check && !data.image_check.sufficient) {
+                            const needed = data.image_check.needed;
+                            const available = data.image_check.available;
+                            const shortage = needed - available;
+                            
+                            const msg = 'You selected AI image generation for ' + needed + ' keywords but only have ' + 
+                                       available + ' image credits remaining. Please change ' + shortage + 
+                                       ' keyword(s) to "Upload Image" or purchase more credits.';
+                            
+                            showImproveSEONotification(
+                                'warning',
+                                '⚠️ Insufficient Image Credits',
+                                msg,
+                                'https://dashboard.improveseoplugin.com/pricing'
+                            );
+                            reject('insufficient_image_credits');
+                            return;
+                        }
+                        
+                        // All checks passed
+                        console.log('✅ Credit check passed:', data);
+                        resolve(data);
+                    } else {
+                        showImproveSEONotification(
+                            'error',
+                            '❌ Credit Check Failed',
+                            response.data.error || 'Unable to verify credits. Please try again.',
+                            null
+                        );
+                        reject('check_failed');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) {
+                        ImproveSEOLoading.hide();
+                    }
+                    showImproveSEONotification(
+                        'error',
+                        '❌ Connection Error',
+                        'Unable to connect to ImproveSEO server. Please check your internet connection and settings.',
+                        null
+                    );
+                    reject('connection_error');
+                }
+            });
+        });
+    }
 </script>
 
 <script>
