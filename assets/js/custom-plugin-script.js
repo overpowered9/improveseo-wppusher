@@ -982,6 +982,14 @@ jQuery(document).ready(function ($) {
     var formData = new FormData(form);
 
     formData.append("action", "multiPostData");
+    
+    // Show loading overlay if available
+    if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.show) {
+      ImproveSEOLoading.show({
+        title: 'Creating Bulk Project...',
+        message: 'Please wait while we create your bulk content generation project. This may take a few moments.'
+      });
+    }
 
     $.ajax({
       url: ajaxurl,
@@ -995,19 +1003,87 @@ jQuery(document).ready(function ($) {
       contentType: false,
 
       success: function (response) {
+        // Hide loading overlay
+        if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) {
+          ImproveSEOLoading.hide();
+        }
+        
         console.log(response);
 
-        if (response.data.status == "success") {
-          alert("Your form has been sent successfully.");
-
-          window.location.replace(response.data.linkredirect);
+        if (response && response.data && response.data.status == "success") {
+          // Show success notification
+          if (typeof showImproveSEONotification !== 'undefined') {
+            showImproveSEONotification(
+              'success',
+              '✓ Bulk Project Created',
+              'Your bulk content generation project has been created successfully. You will receive an email notification when processing is complete.',
+              null
+            );
+          }
+          
+          // Set button to success state if available
+          if (typeof BulkSubmitButton !== 'undefined' && BulkSubmitButton.setSuccess) {
+            BulkSubmitButton.setSuccess();
+          }
+          
+          // Redirect after brief delay
+          setTimeout(function() {
+            window.location.replace(response.data.linkredirect);
+          }, 1500);
         } else {
-          alert(response.data.message);
+          // Show error notification
+          const errorMsg = response && response.data && response.data.message 
+            ? response.data.message 
+            : 'An error occurred while creating the bulk project.';
+          
+          if (typeof showImproveSEONotification !== 'undefined') {
+            showImproveSEONotification(
+              'error',
+              '❌ Submission Failed',
+              errorMsg,
+              null
+            );
+          } else {
+            alert(errorMsg);
+          }
+          
+          // Reset button state if available
+          if (typeof BulkSubmitButton !== 'undefined' && BulkSubmitButton.setError) {
+            BulkSubmitButton.setError();
+          }
         }
       },
 
       error: function (xhr, status, error) {
-        alert(response.data.message);
+        // Hide loading overlay
+        if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) {
+          ImproveSEOLoading.hide();
+        }
+        
+        let errorMsg = 'Network error occurred. Please check your connection and try again.';
+        
+        if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+          errorMsg = xhr.responseJSON.data.message;
+        } else if (xhr.statusText && xhr.statusText !== 'error') {
+          errorMsg = 'Server error: ' + xhr.statusText;
+        }
+        
+        // Show error notification
+        if (typeof showImproveSEONotification !== 'undefined') {
+          showImproveSEONotification(
+            'error',
+            '❌ Connection Error',
+            errorMsg,
+            null
+          );
+        } else {
+          alert(errorMsg);
+        }
+        
+        // Reset button state if available
+        if (typeof BulkSubmitButton !== 'undefined' && BulkSubmitButton.setError) {
+          BulkSubmitButton.setError();
+        }
 
         console.error(error);
       },

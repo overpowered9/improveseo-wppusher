@@ -2204,6 +2204,9 @@ global $ai_modal_type;
             
             return nonEmptyLines.length > 0;
         }
+        
+        // Initialize button state manager
+        BulkSubmitButton.init(nextButton);
 
         nextButton.addEventListener("click", () => {
             // Validate keyword list on step 0 (first step)
@@ -2235,6 +2238,9 @@ global $ai_modal_type;
             
             // NEW: Credit check when moving from Step 3 (index 2) to Step 4 (index 3)
             if (currentStep === 2) {
+                // Set button to validating state
+                BulkSubmitButton.setValidating();
+                
                 // Prevent default progression
                 const proceedToNextStep = () => {
                     if (currentStep < steps.length - 1) {
@@ -2243,6 +2249,7 @@ global $ai_modal_type;
                         updateDataDisplay();
                         updateButtonText();
                         prevButton.disabled = false;
+                        BulkSubmitButton.reset();
                     }
                 };
                 
@@ -2256,6 +2263,7 @@ global $ai_modal_type;
                     .catch((error) => {
                         // Credits insufficient or error - stay on current step
                         console.log('❌ Credit check failed:', error);
+                        BulkSubmitButton.setError();
                         // User already notified via popup
                     });
                 
@@ -2276,10 +2284,20 @@ global $ai_modal_type;
 
             }
             else if (currentStep === steps.length - 1) { // When on last step
+                // Validate before submission
+                if (!validateBulkProjectName()) {
+                    return;
+                }
+                
+                if (!validateBulkKeywordListForSubmit()) {
+                    return;
+                }
+                
+                // Set button to processing state
+                BulkSubmitButton.setProcessing();
+                
                 // Trigger bulk submission
                 jQuery("#bulk_ai_post_submi_button").trigger("click");
-                nextButton.disabled = true;
-                nextButton.innerHTML = `Processing... <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>" alt="arrow-right">`;
             }
         });
 
@@ -2289,7 +2307,10 @@ global $ai_modal_type;
                 updateSteps();
                 updateDataDisplay();
                 updateButtonText();
-                nextButton.disabled = false;
+                
+                // Reset button state when going back
+                BulkSubmitButton.reset();
+                
                 if (currentStep === 0) {
                     prevButton.disabled = true;
                 }
@@ -2585,6 +2606,104 @@ global $ai_modal_type;
                 }
             });
         });
+    }
+    
+    // Bulk Post: Button State Management
+    const BulkSubmitButton = {
+        button: null,
+        originalHTML: '',
+        
+        init: function(buttonElement) {
+            this.button = buttonElement;
+            if (this.button) {
+                this.originalHTML = this.button.innerHTML;
+            }
+        },
+        
+        setValidating: function() {
+            if (!this.button) return;
+            this.button.disabled = true;
+            this.button.innerHTML = 'Validating... <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>" alt="arrow-right">';
+        },
+        
+        setProcessing: function() {
+            if (!this.button) return;
+            this.button.disabled = true;
+            this.button.innerHTML = 'Processing... <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>" alt="arrow-right">';
+        },
+        
+        setError: function() {
+            if (!this.button) return;
+            this.button.disabled = false;
+            this.button.innerHTML = this.originalHTML;
+        },
+        
+        setSuccess: function() {
+            if (!this.button) return;
+            this.button.disabled = true;
+            this.button.innerHTML = 'Completed! ✓';
+        },
+        
+        reset: function() {
+            if (!this.button) return;
+            this.button.disabled = false;
+            this.button.innerHTML = this.originalHTML;
+        }
+    };
+    
+    // Bulk Post: Validation Functions
+    function validateBulkProjectName() {
+        const projectName = jQuery('#project_name').val();
+        
+        if (!projectName || projectName.trim() === '') {
+            showImproveSEONotification(
+                'warning',
+                '⚠️ Project Name Required',
+                'Please enter a project name for this bulk task before submitting.',
+                null
+            );
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function validateBulkKeywordListForSubmit() {
+        const keywordListName = jQuery('#keyword_list_name').val();
+        const keywordList = jQuery('#keyword_list').val();
+        
+        if (!keywordListName || keywordListName === '' || keywordListName === 'none') {
+            showImproveSEONotification(
+                'warning',
+                '⚠️ Keyword List Required',
+                'Please select a keyword list before submitting.',
+                null
+            );
+            return false;
+        }
+        
+        if (!keywordList || keywordList.trim() === '') {
+            showImproveSEONotification(
+                'warning',
+                '⚠️ Empty Keyword List',
+                'The selected keyword list is empty. Please select a list with keywords.',
+                null
+            );
+            return false;
+        }
+        
+        const keywords = keywordList.split('\n').filter(k => k.trim() !== '');
+        if (keywords.length === 0) {
+            showImproveSEONotification(
+                'warning',
+                '⚠️ No Valid Keywords',
+                'Please ensure your keyword list contains at least one valid keyword.',
+                null
+            );
+            return false;
+        }
+        
+        return true;
     }
 </script>
 
