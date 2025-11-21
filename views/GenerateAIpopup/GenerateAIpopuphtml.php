@@ -617,7 +617,7 @@ global $ai_modal_type;
                     <div style="clear: both"> </div>
                     <div id="loader" style="display: none;">Loading...</div>
                     <div style="clear: both"> </div>
-                    <div class="seo-form-field hide_on_seed_option1">
+                    <div class="seo-form-field hide_on_seed_option1 " style="display: none;">
                         <div class="generate-title">
                             <div class="title-input">
                                 <label for="Generate">AI Generated Title</label>
@@ -2024,7 +2024,7 @@ global $ai_modal_type;
         }
 
         function showValidationError() {
-            mainTitleArea.style.border = '2px solid red';
+            mainTitleArea.style.border = '2px solid #FFC107';
             forApproveValidation.style.display = "block";
         }
 
@@ -2073,6 +2073,28 @@ global $ai_modal_type;
         }
 
         nextStepButton.addEventListener("click", () => {
+            // Enforce AI title approval: if in AI title generation mode (seed_select not 'seed_option1')
+            // and approval checkbox not checked, show popup and move title to editable prompt.
+            if (currentStep === 0 && seedSelect && seedSelect.value !== 'seed_option1' && !approve_content_check_box.checked) {
+                showValidationError();
+                // Shift current AI title into seed keyword prompt (if exists) for user edits
+                const seedKeywordInput = document.getElementById('seed_keyword');
+                if (seedKeywordInput && mainTitleArea && mainTitleArea.value) {
+                    seedKeywordInput.value = mainTitleArea.value;
+                }
+                if (typeof showImproveSEONotification === 'function') {
+                    showImproveSEONotification({
+                        type: 'warning',
+                        title: 'Approve AI Title',
+                        message: 'Please approve or edit the AI generated title before continuing.'
+                    });
+                } else {
+                    alert('Please approve or edit the AI generated title before continuing.');
+                }
+                mainTitleArea && mainTitleArea.focus();
+                return;
+            }
+
             if (currentStep === 0 && !validateCheckbox(true)) {
                 showValidationError();
                 return;
