@@ -627,7 +627,7 @@ global $ai_modal_type;
                                             required></textarea>
                                         <div id="for_approve_content_validation" style="display: none;">
                                             <p class="for_approve_content_validation_error"
-                                                style="color: red !important;">Approve AI generated title in order to
+                                                style="color: #FFC107 !important;">Approve AI generated title in order to
                                                 continue</p>
                                         </div>
                                     </div>
@@ -2082,15 +2082,13 @@ global $ai_modal_type;
                 if (seedKeywordInput && mainTitleArea && mainTitleArea.value) {
                     seedKeywordInput.value = mainTitleArea.value;
                 }
-                if (typeof showImproveSEONotification === 'function') {
+                
                     showImproveSEONotification({
                         type: 'warning',
                         title: 'Approve AI Title',
                         message: 'Please approve or edit the AI generated title before continuing.'
                     });
-                } else {
-                    alert('Please approve or edit the AI generated title before continuing.');
-                }
+                } 
                 mainTitleArea && mainTitleArea.focus();
                 return;
             }
