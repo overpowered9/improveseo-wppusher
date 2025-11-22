@@ -224,15 +224,83 @@ jQuery(function($){
 
                 if (resp.status=='success') {
 
-                    swal("Your Data has been saved Successfully!", {
-
-                      icon: "success",
-
-                    }).then(function(){
-
+                    // Create custom success popup with redirect button
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0, 0, 0, 0.5);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 999999;
+                    `;
+                    
+                    const popup = document.createElement('div');
+                    popup.style.cssText = `
+                        background: white;
+                        border-radius: 12px;
+                        padding: 30px;
+                        max-width: 400px;
+                        width: 90%;
+                        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+                        text-align: center;
+                    `;
+                    
+                    popup.innerHTML = `
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #52c41a; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+                            <span style="color: white; font-size: 32px; font-weight: bold;">✓</span>
+                        </div>
+                        <h2 style="margin: 0 0 10px; font-size: 22px; color: #333;">Success!</h2>
+                        <p style="margin: 0 0 25px; color: #666; font-size: 15px;">Your keyword list has been saved successfully!</p>
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button id="closeKeywordPopup" style="
+                                padding: 10px 20px;
+                                background: #f0f0f0;
+                                border: 1px solid #d9d9d9;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                color: #333;
+                                transition: all 0.3s;
+                            ">Close</button>
+                            <button id="viewKeywordLists" style="
+                                padding: 10px 20px;
+                                background: #ff9c33;
+                                border: 1px solid #e07d00;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                color: white;
+                                transition: all 0.3s;
+                            ">View Keyword Lists</button>
+                        </div>
+                    `;
+                    
+                    overlay.appendChild(popup);
+                    document.body.appendChild(overlay);
+                    
+                    // Close button handler
+                    document.getElementById('closeKeywordPopup').onclick = function() {
+                        overlay.remove();
                         window.location.reload();
-
-                    });
+                    };
+                    
+                    // View lists button handler
+                    document.getElementById('viewKeywordLists').onclick = function() {
+                        window.location.href = '<?php echo admin_url("admin.php?page=improveseo_lists"); ?>';
+                    };
+                    
+                    // Close on overlay click
+                    overlay.onclick = function(e) {
+                        if (e.target === overlay) {
+                            overlay.remove();
+                            window.location.reload();
+                        }
+                    };
 
                 }
 
