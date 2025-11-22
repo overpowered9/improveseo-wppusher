@@ -3978,7 +3978,7 @@ function improveseo_wp_exist_post_by_title($title)
 	$return = $wpdb->get_row("SELECT ID FROM wp_posts WHERE post_title = '" . $title . "' && post_status = 'publish' && post_type = 'post' ", 'ARRAY_N');
 
 
-	return false;
+	
 
 
 	if (empty($return)) {
