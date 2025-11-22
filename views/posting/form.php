@@ -81,15 +81,15 @@ $google_api_key = get_option('improveseo_google_api_key');
 			</div>
 
 			<div id="post_form_buttons" class="PostForm__buttons">
-				<button name="create" type="submit" formtarget="_self"
-					class="btn styling_post_page_action_buttons btn-outline-primary"
-					onclick="return validateBeforeSubmit()">
-					<?php if ($_GET['action'] == 'edit_post'): ?>
-						Update project and posts
-					<?php else: ?>
-						Create Project
-					<?php endif; ?>
-				</button>
+			<button name="create" type="submit" formtarget="_self"
+				class="btn styling_post_page_action_buttons btn-outline-primary"
+				onclick="return validateBeforeSubmit()">
+				<?php if ($_GET['action'] == 'edit_post'): ?>
+					Update project and posts
+				<?php else: ?>
+					Publish Post
+				<?php endif; ?>
+			</button>
 				<button name="draft" type="submit" formtarget="_self"
 					class="btn styling_post_page_action_buttons btn-outline-primary"
 					onclick="return validateBeforeSubmit()">Save As Draft</button>
