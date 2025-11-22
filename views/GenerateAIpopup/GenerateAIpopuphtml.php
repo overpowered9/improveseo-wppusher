@@ -625,11 +625,7 @@ global $ai_modal_type;
                                     <div class="resultdata">
                                         <textarea class="title-text" name="maintitlearea" id="maintitlearea"
                                             required></textarea>
-                                        <div id="for_approve_content_validation" style="display: none;">
-                                            <p class="for_approve_content_validation_error"
-                                                style="color: red !important;">Approve AI generated title in order to
-                                                continue</p>
-                                        </div>
+                                        
                                     </div>
                                 </span>
 
