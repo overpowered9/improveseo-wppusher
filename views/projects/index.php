@@ -53,6 +53,11 @@ if (isset($_GET['post_preview'])) {
 
 <h1 class="hidden">Product Listing</h1>
 
+<div class="show_loading alert-modal">
+	<h1>Building project.... in progress</h1>
+	<h2 id="mid_notice"></h2>
+</div>
+
 <div class="global-wrap">
 	<div class="head-bar">
 		<img src="<?php echo WT_URL . '/assets/images/latest-images/seo-latest-logo.svg' ?>" alt="project-list-logo">
@@ -273,7 +278,7 @@ if (isset($_GET['post_preview'])) {
 	var numm;
 
 	function start_build(ids) {
-		var max_iterations = parseInt(jQuery('#max-iterations').val());
+		var max_iterations = parseInt(jQuery('#max-iterations[data-project="' + ids + '"]').val());
 		var export_url = "<?php echo admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id="); ?>";
 		jQuery
 			.ajax({
@@ -295,14 +300,14 @@ if (isset($_GET['post_preview'])) {
 							jQuery('.show_loading').css("display", "none");
 							if (is_preview_available == "yes") {
 								window.location.href = export_url + ids + '&noheader=true';
+							} else {
+								location.reload(true);
 							}
 						} else {
 							numm = data;
-							setTimeout("start_build(" + ids + ")", 100);
+							setTimeout(function() { start_build(ids); }, 100);
 						}
-						location.reload(true);
 					} else {
-
 						if (is_preview_available == "yes") {
 							jQuery(".show_loading h1").html("Exporting posts. Please wait");
 							jQuery(".show_loading h2").html("");
@@ -314,6 +319,11 @@ if (isset($_GET['post_preview'])) {
 							}, 100);
 						}
 					}
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.error('Build failed:', textStatus, errorThrown);
+					jQuery('.show_loading').css("display", "none");
+					alert('Failed to build posts. Please check console for errors.');
 				}
 			});
 	}
