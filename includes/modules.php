@@ -16,6 +16,9 @@ include_once IMPROVESEO_ROOT .'/modules/posting.php';
 include_once IMPROVESEO_ROOT .'/modules/projects.php';
 
 
+include_once IMPROVESEO_ROOT .'/modules/builder.php';
+
+
 include_once IMPROVESEO_ROOT .'/modules/settings.php';
 
 
