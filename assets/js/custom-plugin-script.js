@@ -366,6 +366,10 @@ jQuery("#generateapivalue").on("click", function () {
       jQuery("#custom-title").val(meta_title);
 
       jQuery("#custom-description").val(meta_descreption);
+      
+      // Trigger keyup events to update Google Preview
+      jQuery("#custom-title").trigger("keyup");
+      jQuery("#custom-description").trigger("keyup");
 
       // // Convert plain text formatting to HTML equivalents
 
