@@ -36,13 +36,10 @@ use ImproveSEO\View;
                 
 
             </ul>
-            <ul><li>
-                <button class=""
-                    style="background:#ff9c33;color:#fff;border:1px solid #e07d00;padding:8px 14px;border-radius:4px;cursor:pointer;"
-                    onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists') ?>'">
-                    View Keyword lists
-                </button>
-            </li></ul>
+            <ul><li> <button class=""
+				onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists') ?>'">
+				View Keyword lists
+			</button></li></ul>
         </div>
         <div class="improve-seo-form-box" style="padding-bottom: 0;">
             <form class="improve-seo-form-global">
