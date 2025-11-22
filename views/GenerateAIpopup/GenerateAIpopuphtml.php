@@ -2082,15 +2082,12 @@ global $ai_modal_type;
                 if (seedKeywordInput && mainTitleArea && mainTitleArea.value) {
                     seedKeywordInput.value = mainTitleArea.value;
                 }
-                if (typeof showImproveSEONotification === 'function') {
-                    showImproveSEONotification({
-                        type: 'warning',
-                        title: 'Approve AI Title',
-                        message: 'Please approve or edit the AI generated title before continuing.'
-                    });
-                } else {
-                    alert('Please approve or edit the AI generated title before continuing.');
-                }
+                showImproveSEONotification(
+                    'warning',
+                    'Approve AI Title',
+                    'Please approve or edit the AI generated title before continuing.',
+                    null
+                );
                 mainTitleArea && mainTitleArea.focus();
                 return;
             }
@@ -2803,7 +2800,12 @@ global $ai_modal_type;
             if (this.checked) {
                 // Validate that the AI generated title is not empty before allowing approve
                 if (!titleArea || titleArea.value.trim() === "") {
-                    alert("AI generated title cannot be empty.");
+                    showImproveSEONotification(
+                        'warning',
+                        'Empty Title',
+                        'AI generated title cannot be empty. Please generate a title first.',
+                        null
+                    );
                     this.checked = false;
                     // Reset label state
                     label.classList.remove("approve_active");
