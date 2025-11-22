@@ -87,7 +87,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 					<?php if ($_GET['action'] == 'edit_post'): ?>
 						Update project and posts
 					<?php else: ?>
-						Create Project
+						Create & Publish Project
 					<?php endif; ?>
 				</button>
 				<button name="draft" type="submit" formtarget="_self"
