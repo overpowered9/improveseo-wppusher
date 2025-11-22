@@ -714,7 +714,7 @@ function improveseo_dashboard() {
 		} 
 
 
-		wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$project_id}"));
+		wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$project_id}&build_posts_id={$project_id}"));
 
 
 		exit;
