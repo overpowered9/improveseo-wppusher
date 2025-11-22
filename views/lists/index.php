@@ -46,13 +46,13 @@ use ImproveSEO\View;
 		<div class="import-export-btn">
 			<button class="active"
 				onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&action=create') ?>'">
-				Create New List
+				Create New List(Manually)
 			</button>
 		</div>
 		<div class="import-export-btn">
 			<button class="active"
 				onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_keyword_generator') ?>'">
-				Generate New list
+				Keyword generator tool(Auto)
 			</button>
 		</div>
 	</div>
