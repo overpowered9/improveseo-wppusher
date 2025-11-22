@@ -30,7 +30,7 @@ $ai_modal_type = 'bulk';
 
 <?php View::startSection('content') ?>
 
-<h1 class="hidden">Create Post</h1>
+<h1 class="hidden"></h1>
 <form id="main_form"
 	action="<?php echo admin_url('admin.php?page=improveseo_dashboard&action=do_create_post&noheader=true'); ?>"
 	class="form-wrap" method="post">
