@@ -198,7 +198,7 @@ if (isset($_GET['post_preview'])) {
 										<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations): ?>
 											<a href="javascript:build_project(<?= $project->id ?>)"
 												class="styling_post_page_action_buttons for_width_only_" target="_self">Publish
-												Post</a>
+												</a>
 										<?php endif; ?>
 										<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations): ?>
 											<a href="javascript:update_project(<?= $project->id ?>)"
