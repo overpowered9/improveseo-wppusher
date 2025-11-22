@@ -192,14 +192,19 @@ if (isset($_GET['post_preview'])) {
 													echo 'Processing';
 											}
 										}
-									?>
-								</td>
-								<td>
-									<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations): ?>
-										<a href="javascript:update_project(<?= $project->id ?>)"
-											style="width: 160px !important;" class="styling_post_page_action_buttons"
-											target="_self">Update posts</a>
-									<?php endif; ?>
+										?>
+									</td>
+									<td>
+										<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations): ?>
+											<a href="javascript:build_project(<?= $project->id ?>)"
+												class="styling_post_page_action_buttons for_width_only_" target="_self">Build
+												posts</a>
+										<?php endif; ?>
+										<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations): ?>
+											<a href="javascript:update_project(<?= $project->id ?>)"
+												style="width: 160px !important;" class="styling_post_page_action_buttons"
+												target="_self">Update posts</a>
+										<?php endif; ?>
 										<input type="hidden" name="max-iterations" id="max-iterations"
 											data-project="<?php echo $project->id; ?>"
 											value="<?php echo $project->max_iterations; ?>" />

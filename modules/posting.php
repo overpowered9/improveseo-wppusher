@@ -698,41 +698,38 @@ function improveseo_posting(){
 		$project_id = isset($_GET['id']) ? $model->update($data, $_GET['id']) : $model->create($data);
 
 
-
-
-	if (isset($_GET['id'])) $project_id = $_GET['id'];
+		if (isset($_GET['id'])) $project_id = $_GET['id'];
 
 
 
 
 
-	if (isset($_POST['create'])) {
+		if (isset($_POST['create'])) {
 
 
-		FlashMessage::success('Project successfully created. It will generate <strong>'. $data['max_iterations'] .'</strong> posts/pages.'
+			FlashMessage::success('Project successfully created. It will generate <strong>'. $data['max_iterations'] .'</strong> posts/pages.'
 
 
-			);
-
-		// Automatically redirect to build the project
-		wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$project_id}&post_preview=true"));
+				);
 
 
-	}
+		}
 
 
-	elseif (isset($_POST['draft'])) {
+		elseif (isset($_POST['draft'])) {
 
 
-		FlashMessage::success('Project successfully saved. You can continue editing by pressing Continue button.');
+			FlashMessage::success('Project successfully saved. You can continue editing by pressing Continue button.');
+
+
+		} 
+
 
 		wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$project_id}"));
 
 
-	} 
+		exit;
 
-
-	exit;
 
 
 
