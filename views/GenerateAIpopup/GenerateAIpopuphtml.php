@@ -3215,11 +3215,22 @@ global $ai_modal_type;
     jQuery(document).ready(function () {
         jQuery('#keyword_list_name').on('change', function () {
             var selectedOption = jQuery(this).val();
+            
             if (selectedOption == 'create_new_project' || selectedOption == 'none') {
                 jQuery('#keyword_list_container').hide();
-            } else {
-                jQuery('#keyword_list_container').show();
-                var allKeywords = <?php echo json_encode($all_keywords); ?>;
+                jQuery('#create_keyword_container').toggle(selectedOption == 'create_new_project');
+                return;
+            }
+            
+            // Show container immediately
+            jQuery('#keyword_list_container').show();
+            jQuery('#create_keyword_container').hide();
+            
+            // Try to load from cached PHP data first
+            var allKeywords = <?php echo json_encode($all_keywords); ?>;
+            
+            if (allKeywords[selectedOption]) {
+                // Data exists in cache - use it immediately
                 var keywordCount = allKeywords[selectedOption].split('\n').length;
                 var keywordMin = keywordCount * 3;
                 var keywordTime = (keywordMin / 60).toFixed(2);
@@ -3227,12 +3238,44 @@ global $ai_modal_type;
                 jQuery('#keywordcounts').text(keywordCount);
                 jQuery('#keywordtime').text(keywordTime);
                 jQuery('#keyword_list').val(allKeywords[selectedOption]);
-            }
-            if (selectedOption == 'create_new_project') {
-                jQuery('#create_keyword_container').show();
-            }
-            else {
-                jQuery('#create_keyword_container').hide();
+            } else {
+                // Data not in cache (newly created list) - fetch from server
+                jQuery('#keyword_list').val('Loading keywords...');
+                jQuery.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'get_keyword_list_data',
+                        list_id: selectedOption
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            jQuery('#keywordcounts').text(response.data.count);
+                            jQuery('#keywordtime').text(response.data.time);
+                            jQuery('#keyword_list').val(response.data.keywords);
+                            
+                            // Cache it for next time
+                            allKeywords[selectedOption] = response.data.keywords;
+                        } else {
+                            jQuery('#keyword_list').val('');
+                            showImproveSEONotification(
+                                'error',
+                                'Load Failed',
+                                'Failed to load keywords. Please try again.',
+                                null
+                            );
+                        }
+                    },
+                    error: function() {
+                        jQuery('#keyword_list').val('');
+                        showImproveSEONotification(
+                            'error',
+                            'Load Failed',
+                            'An error occurred while loading keywords.',
+                            null
+                        );
+                    }
+                });
             }
         });
     });
