@@ -151,36 +151,106 @@ global $ai_modal_type;
     .bulk-category-item {
         display: inline-flex;
         align-items: center;
-        padding: 8px 15px;
+        padding: 10px 18px;
         background: white;
-        border: 2px solid #ddd;
-        border-radius: 5px;
+        border: 2px solid #e0e0e0;
+        border-radius: 25px;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
         font-size: 14px;
+        font-weight: 500;
+        color: #333;
     }
     
     .bulk-category-item:hover {
         border-color: #0073aa;
-        box-shadow: 0 2px 5px rgba(0, 115, 170, 0.2);
+        background: #f0f8ff;
+        box-shadow: 0 3px 8px rgba(0, 115, 170, 0.15);
+        transform: translateY(-1px);
     }
     
     .bulk-category-item input[type="checkbox"] {
         display: inline-block !important;
-        margin-right: 8px;
+        margin-right: 10px;
         cursor: pointer;
+        width: 18px;
+        height: 18px;
+    }
+    
+    .bulk-category-item input[type="checkbox"]:checked {
+        accent-color: #0073aa;
     }
     
     .category-selection-section h2 {
         font-size: 18px;
         font-weight: 600;
         color: #23282d;
+        margin-bottom: 15px;
     }
     
     .category-selection-section h3 {
         font-size: 16px;
         font-weight: 500;
         color: #23282d;
+        margin-bottom: 12px;
+    }
+    
+    .bulk-category-box {
+        background: white !important;
+        padding: 25px !important;
+        border-radius: 15px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        margin-bottom: 20px !important;
+    }
+    
+    .add-category-section {
+        border-top: 1px solid #e8e8e8 !important;
+        padding-top: 20px !important;
+        margin-top: 20px;
+    }
+    
+    .add-category-section input[type="text"] {
+        flex: 1;
+        padding: 12px 18px !important;
+        border: 2px solid #e0e0e0 !important;
+        border-radius: 25px !important;
+        font-size: 14px !important;
+        transition: all 0.3s ease;
+    }
+    
+    .add-category-section input[type="text"]:focus {
+        outline: none;
+        border-color: #0073aa !important;
+        box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1);
+    }
+    
+    .add-category-section button {
+        padding: 12px 30px !important;
+        background: #0073aa !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 25px !important;
+        cursor: pointer !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 2px 6px rgba(0, 115, 170, 0.2);
+    }
+    
+    .add-category-section button:hover {
+        background: #005a87 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 115, 170, 0.3) !important;
+    }
+    
+    .category-selection-section > p {
+        padding: 15px 20px !important;
+        background: #fff9e6;
+        border-left: 4px solid #ffc107;
+        border-radius: 8px;
+        color: #666 !important;
+        font-size: 14px !important;
+        margin-top: 15px !important;
     }
 
     /* ImproveSEO Notification Popup Styles */
@@ -1241,9 +1311,9 @@ global $ai_modal_type;
                             <h2 style="padding-left:20px; margin-bottom: 20px;">Assign Categories to Posts</h2>
                             
                             <!-- Category Selection -->
-                            <div class="bulk-category-box" style="padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
-                                <h3 style="font-size: 16px; margin-bottom: 15px; color: #23282d;">Select Categories</h3>
-                                <div class="bulk-category-list" id="bulk-category-list" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                            <div class="bulk-category-box">
+                                <h3>Select Categories</h3>
+                                <div class="bulk-category-list" id="bulk-category-list" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 25px;">
                                     <?php
                                     $args = array(
                                         "hide_empty" => 0,
@@ -1261,8 +1331,8 @@ global $ai_modal_type;
                                             $disabled = 'onclick="return false"';
                                         }
                                         
-                                        echo '<label class="bulk-category-item" style="padding: 8px 15px; background: white; border: 2px solid #ddd; border-radius: 5px; cursor: pointer; transition: all 0.3s;">
-                                            <input type="checkbox" name="cats[]" value="' . $category->term_id . '" ' . $checked . ' ' . $disabled . ' style="margin-right: 8px;">
+                                        echo '<label class="bulk-category-item">
+                                            <input type="checkbox" name="cats[]" value="' . $category->term_id . '" ' . $checked . ' ' . $disabled . '>
                                             <span>' . $category->name . '</span>
                                         </label>';
                                     }
@@ -1270,18 +1340,15 @@ global $ai_modal_type;
                                 </div>
                                 
                                 <!-- Add New Category -->
-                                <div class="add-category-section" style="border-top: 1px solid #ddd; padding-top: 20px;">
-                                    <h3 style="font-size: 16px; margin-bottom: 15px; color: #23282d;">Create New Category</h3>
-                                    <div style="display: flex; gap: 10px; align-items: center;">
-                                        <input type="text" id="new_category_name_bulk" placeholder="Enter category name" 
-                                            style="flex: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
-                                        <button type="button" id="add_category_bulk_btn" 
-                                            style="padding: 10px 25px; background: #0073aa; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; transition: background 0.3s;"
-                                            onmouseover="this.style.background='#005a87'" onmouseout="this.style.background='#0073aa'">
+                                <div class="add-category-section">
+                                    <h3>Create New Category</h3>
+                                    <div style="display: flex; gap: 12px; align-items: center;">
+                                        <input type="text" id="new_category_name_bulk" placeholder="Enter category name">
+                                        <button type="button" id="add_category_bulk_btn">
                                             Add Category
                                         </button>
                                     </div>
-                                    <p id="category_add_message_bulk" style="margin-top: 10px; color: #46b450; font-size: 14px;"></p>
+                                    <p id="category_add_message_bulk" style="margin-top: 12px; color: #46b450; font-size: 14px;"></p>
                                 </div>
                             </div>
                             

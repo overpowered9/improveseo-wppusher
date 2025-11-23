@@ -291,7 +291,8 @@ jQuery(function($){
                     
                     // View lists button handler
                     document.getElementById('viewKeywordLists').onclick = function() {
-                        window.location.href = '<?php echo admin_url("admin.php?page=improveseo_lists"); ?>';
+                        const adminUrl = ajax_vars.ajax_url.replace('admin-ajax.php', 'admin.php?page=improveseo_lists');
+                        window.location.href = adminUrl;
                     };
                     
                     // Close on overlay click
