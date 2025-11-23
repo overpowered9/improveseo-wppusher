@@ -185,7 +185,7 @@ $url .= $_SERVER['REQUEST_URI'];
 									echo $project->published_on;
 									?> </td>
 									<td data-label="Pots Status" class="status paused">									
-										<?php if($project->status == 'Done' && $project->post_id) {
+										<?php if($project->state == 'Published' && $project->post_id) {
 											echo 'Published';
 										} else {
 											echo 'Scheduled';
