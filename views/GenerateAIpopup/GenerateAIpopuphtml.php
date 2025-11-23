@@ -3180,29 +3180,6 @@ global $ai_modal_type;
                             });
                         }
                         
-                        // Update the global keywords object
-                        if (response.data.keywords) {
-                            window.bulkKeywordsData = response.data.keywords;
-                            
-                            // If a list is currently selected, update the textarea immediately
-                            if (currentValue && currentValue !== 'none' && currentValue !== 'create_new_project') {
-                                if (response.data.keywords[currentValue]) {
-                                    jQuery('#keyword_list').val(response.data.keywords[currentValue]);
-                                    
-                                    // Update counts
-                                    var keywords = response.data.keywords[currentValue];
-                                    var keywordCount = keywords.split('\n').filter(function(line) {
-                                        return line.trim().length > 0;
-                                    }).length;
-                                    var keywordMin = keywordCount * 3;
-                                    var keywordTime = (keywordMin / 60).toFixed(2);
-                                    
-                                    jQuery('#keywordcounts').text(keywordCount);
-                                    jQuery('#keywordtime').text(keywordTime);
-                                }
-                            }
-                        }
-                        
                         // Show success notification
                         showImproveSEONotification(
                             'success',
@@ -3236,31 +3213,20 @@ global $ai_modal_type;
     });
 
     jQuery(document).ready(function () {
-        // Initialize global keywords data from PHP
-        window.bulkKeywordsData = <?php echo json_encode($all_keywords); ?>;
-        
         jQuery('#keyword_list_name').on('change', function () {
             var selectedOption = jQuery(this).val();
             if (selectedOption == 'create_new_project' || selectedOption == 'none') {
                 jQuery('#keyword_list_container').hide();
             } else {
                 jQuery('#keyword_list_container').show();
-                
-                // Use the global keywords object (which gets updated on refresh)
-                var allKeywords = window.bulkKeywordsData || {};
-                
-                if (allKeywords[selectedOption]) {
-                    var keywords = allKeywords[selectedOption];
-                    var keywordCount = keywords.split('\n').filter(function(line) {
-                        return line.trim().length > 0;
-                    }).length;
-                    var keywordMin = keywordCount * 3;
-                    var keywordTime = (keywordMin / 60).toFixed(2);
+                var allKeywords = <?php echo json_encode($all_keywords); ?>;
+                var keywordCount = allKeywords[selectedOption].split('\n').length;
+                var keywordMin = keywordCount * 3;
+                var keywordTime = (keywordMin / 60).toFixed(2);
 
-                    jQuery('#keywordcounts').text(keywordCount);
-                    jQuery('#keywordtime').text(keywordTime);
-                    jQuery('#keyword_list').val(keywords);
-                }
+                jQuery('#keywordcounts').text(keywordCount);
+                jQuery('#keywordtime').text(keywordTime);
+                jQuery('#keyword_list').val(allKeywords[selectedOption]);
             }
             if (selectedOption == 'create_new_project') {
                 jQuery('#create_keyword_container').show();
