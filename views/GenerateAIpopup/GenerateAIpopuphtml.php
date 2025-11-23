@@ -3178,6 +3178,16 @@ global $ai_modal_type;
                             jQuery.each(response.data.lists, function(id, name) {
                                 $select.append(new Option(name, id));
                             });
+                            
+                            // Restore the previously selected value if it still exists
+                            if (currentValue && currentValue !== 'none') {
+                                if (response.data.lists[currentValue]) {
+                                    $select.val(currentValue);
+                                } else {
+                                    // If the previously selected list no longer exists, reset to default
+                                    $select.val('none');
+                                }
+                            }
                         }
                         
                         // Update the global keywords object
