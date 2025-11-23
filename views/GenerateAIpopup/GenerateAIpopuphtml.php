@@ -2295,7 +2295,7 @@ global $ai_modal_type;
         BulkSubmitButton.init(nextButton);
 
         nextButton.addEventListener("click", () => {
-            // Validate keyword list on step 0 (first step)
+            // Validate keyword list and check CONTENT credits on step 0 (first step)
             if (currentStep === 0) {
                 var keywordListName = jQuery('#keyword_list_name').val();
                 
@@ -2320,9 +2320,36 @@ global $ai_modal_type;
                     );
                     return;
                 }
+                
+                // NEW: Check CONTENT GENERATION credits at step 1
+                BulkSubmitButton.setValidating();
+                
+                const proceedToStep2 = () => {
+                    if (currentStep < steps.length - 1) {
+                        currentStep++;
+                        updateSteps();
+                        updateDataDisplay();
+                        updateButtonText();
+                        prevButton.disabled = false;
+                        BulkSubmitButton.reset();
+                    }
+                };
+                
+                // Run content credit check
+                checkBulkContentCredits()
+                    .then((creditData) => {
+                        console.log('✅ Content credit check passed:', creditData);
+                        proceedToStep2();
+                    })
+                    .catch((error) => {
+                        console.log('❌ Content credit check failed:', error);
+                        BulkSubmitButton.setError();
+                    });
+                
+                return; // Don't proceed automatically
             }
             
-            // NEW: Credit check when moving from Step 3 (index 2) to Step 4 (index 3)
+            // NEW: Check IMAGE credits when moving from Step 3 (index 2) to Step 4 (index 3)
             if (currentStep === 2) {
                 // Set button to validating state
                 BulkSubmitButton.setValidating();
@@ -2339,16 +2366,16 @@ global $ai_modal_type;
                     }
                 };
                 
-                // Run credit check
-                checkBulkCreditsBeforeStep4()
+                // Run IMAGE credit check only
+                checkBulkImageCredits()
                     .then((creditData) => {
-                        // Credits OK - proceed to next step
-                        console.log('✅ Credit check passed:', creditData);
+                        // Image credits OK - proceed to next step
+                        console.log('✅ Image credit check passed:', creditData);
                         proceedToNextStep();
                     })
                     .catch((error) => {
-                        // Credits insufficient or error - stay on current step
-                        console.log('❌ Credit check failed:', error);
+                        // Image credits insufficient or error - stay on current step
+                        console.log('❌ Image credit check failed:', error);
                         BulkSubmitButton.setError();
                         // User already notified via popup
                     });
@@ -2557,8 +2584,8 @@ global $ai_modal_type;
         jQuery(this).hide();
     });
     
-    // Bulk Post: Credit Check Function
-    function checkBulkCreditsBeforeStep4() {
+    // Bulk Post: Content Credit Check Function (Step 1)
+    function checkBulkContentCredits() {
         return new Promise((resolve, reject) => {
             // Get API credentials
             const apiKey = '<?php echo esc_js(get_option("improveseo_api_key")); ?>';
@@ -2580,20 +2607,11 @@ global $ai_modal_type;
             const keywords = keywordText.split('\n').filter(k => k.trim() !== '');
             const keywordCount = keywords.length;
             
-            // Count how many keywords selected AI image generation
-            let aiImageCount = 0;
-            keywords.forEach((keyword, index) => {
-                const imageMethod = jQuery('input[name="image_method_' + index + '"]:checked').val();
-                if (imageMethod === 'AI_image_one') {
-                    aiImageCount++;
-                }
-            });
-            
             // Show loading
             if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.show) {
                 ImproveSEOLoading.show({
-                    title: 'Checking Credits...',
-                    message: 'Please wait while we verify your available credits.'
+                    title: 'Checking Content Credits...',
+                    message: 'Verifying you have enough credits for ' + keywordCount + ' posts.'
                 });
             }
             
@@ -2606,7 +2624,7 @@ global $ai_modal_type;
                     api_key: apiKey,
                     site_code: siteCode,
                     keyword_count: keywordCount,
-                    ai_image_count: aiImageCount,
+                    ai_image_count: 0, // Not checking images at step 1
                     nonce: '<?php echo wp_create_nonce("check_credits_nonce"); ?>'
                 },
                 success: function(response) {
@@ -2645,7 +2663,103 @@ global $ai_modal_type;
                             return;
                         }
                         
-                        // Check 3: Image credits insufficient
+                        // Content credits are sufficient!
+                        showImproveSEONotification(
+                            'success',
+                            '✅ Content Credits Available',
+                            'You have ' + data.content_check.available + ' content credits available for ' + keywordCount + ' posts. Proceeding to next step.'
+                        );
+                        resolve(data);
+                        
+                    } else {
+                        showImproveSEONotification(
+                            'error',
+                            '❌ Credit Check Failed',
+                            response.data && response.data.message ? response.data.message : 'Unable to verify credits. Please try again.',
+                            null
+                        );
+                        reject('check_failed');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) {
+                        ImproveSEOLoading.hide();
+                    }
+                    
+                    showImproveSEONotification(
+                        'error',
+                        '❌ Connection Error',
+                        'Unable to verify credits. Please check your connection and try again.',
+                        null
+                    );
+                    reject('ajax_error');
+                }
+            });
+        });
+    }
+    
+    // Bulk Post: Image Credit Check Function (Step 3)
+    function checkBulkImageCredits() {
+        return new Promise((resolve, reject) => {
+            // Get API credentials
+            const apiKey = '<?php echo esc_js(get_option("improveseo_api_key")); ?>';
+            const siteCode = '<?php echo esc_js(get_option("improveseo_site_code")); ?>';
+            
+            if (!apiKey || !siteCode) {
+                showImproveSEONotification(
+                    'error',
+                    '❌ Configuration Required',
+                    'Please configure your API Key and Site Code in ImproveSEO settings first.',
+                    null
+                );
+                reject('missing_credentials');
+                return;
+            }
+            
+            // Get keyword list and count
+            const keywordText = jQuery('#keyword_list').val();
+            const keywords = keywordText.split('\n').filter(k => k.trim() !== '');
+            const keywordCount = keywords.length;
+            
+            // Count how many keywords selected AI image generation
+            let aiImageCount = 0;
+            keywords.forEach((keyword, index) => {
+                const imageMethod = jQuery('input[name="image_method_' + index + '"]:checked').val();
+                if (imageMethod === 'AI_image_one') {
+                    aiImageCount++;
+                }
+            });
+            
+            // Show loading
+            if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.show) {
+                ImproveSEOLoading.show({
+                    title: 'Checking Image Credits...',
+                    message: 'Verifying you have enough credits for ' + aiImageCount + ' AI images.'
+                });
+            }
+            
+            // Make AJAX call to check credits
+            jQuery.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'check_bulk_credits',
+                    api_key: apiKey,
+                    site_code: siteCode,
+                    keyword_count: keywordCount,
+                    ai_image_count: aiImageCount,
+                    nonce: '<?php echo wp_create_nonce("check_credits_nonce"); ?>'
+                },
+                success: function(response) {
+                    if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) {
+                        ImproveSEOLoading.hide();
+                    }
+                    
+                    if (response.success) {
+                        const data = response.data;
+                        
+                        // Only check image credits at this step (content already checked at step 1)
+                        // Check: Image credits insufficient
                         if (data.image_check && !data.image_check.sufficient) {
                             const needed = data.image_check.needed;
                             const available = data.image_check.available;
@@ -2665,8 +2779,17 @@ global $ai_modal_type;
                             return;
                         }
                         
+                        // Image credits are sufficient!
+                        if (aiImageCount > 0) {
+                            showImproveSEONotification(
+                                'success',
+                                '✅ Image Credits Available',
+                                'You have ' + data.image_check.available + ' image credits available for ' + aiImageCount + ' AI images. Proceeding to next step.'
+                            );
+                        }
+                        
                         // All checks passed
-                        console.log('✅ Credit check passed:', data);
+                        console.log('✅ Image credit check passed:', data);
                         resolve(data);
                     } else {
                         showImproveSEONotification(
