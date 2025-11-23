@@ -222,7 +222,10 @@ jQuery(function($){
 
                 
 
-                if (resp.status=='success') {
+                // Handle both wp_send_json_success format and direct response
+                const responseData = resp.data || resp;
+                
+                if (resp.success || responseData.status === 'success') {
 
                     // Create custom success popup with redirect button
                     const overlay = document.createElement('div');
