@@ -3147,6 +3147,9 @@ global $ai_modal_type;
 </script>
 <script>
 
+    // Store keyword data globally
+    var allKeywordsData = <?php echo json_encode($all_keywords); ?>;
+
     // Refresh keyword lists dropdown
     jQuery(document).ready(function() {
         jQuery('#refresh_keyword_lists').on('click', function(e) {
@@ -3173,6 +3176,11 @@ global $ai_modal_type;
                         // Clear existing options except the first one
                         $select.find('option:not(:first)').remove();
                         
+                        // Update global keywords data
+                        if (response.data.keywords) {
+                            allKeywordsData = response.data.keywords;
+                        }
+                        
                         // Add updated options
                         if (response.data.lists) {
                             jQuery.each(response.data.lists, function(id, name) {
@@ -3184,7 +3192,7 @@ global $ai_modal_type;
                         showImproveSEONotification(
                             'success',
                             'Lists Refreshed',
-                            'Keyword lists have been refreshed successfully.',
+                            'Keyword lists have been refreshed successfully. You can now select the new list.',
                             null
                         );
                     } else {
@@ -3219,14 +3227,14 @@ global $ai_modal_type;
                 jQuery('#keyword_list_container').hide();
             } else {
                 jQuery('#keyword_list_container').show();
-                var allKeywords = <?php echo json_encode($all_keywords); ?>;
-                var keywordCount = allKeywords[selectedOption].split('\n').length;
+                // Use the global allKeywordsData instead of local variable
+                var keywordCount = allKeywordsData[selectedOption].split('\n').length;
                 var keywordMin = keywordCount * 3;
                 var keywordTime = (keywordMin / 60).toFixed(2);
 
                 jQuery('#keywordcounts').text(keywordCount);
                 jQuery('#keywordtime').text(keywordTime);
-                jQuery('#keyword_list').val(allKeywords[selectedOption]);
+                jQuery('#keyword_list').val(allKeywordsData[selectedOption]);
             }
             if (selectedOption == 'create_new_project') {
                 jQuery('#create_keyword_container').show();
