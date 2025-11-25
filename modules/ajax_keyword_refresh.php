@@ -35,12 +35,12 @@ function improveseo_get_keyword_list_data() {
     }
     
     $list = $wpdb->get_row($wpdb->prepare(
-        "SELECT list FROM {$wpdb->prefix}improveseo_lists WHERE id = %d",
+        "SELECT keywords FROM {$wpdb->prefix}improveseo_lists WHERE id = %d",
         $list_id
     ));
     
     if ($list) {
-        $keywords = $list->list; // Column is named 'list', not 'keywords'
+        $keywords = $list->keywords;
         $keyword_array = array_filter(explode("\n", $keywords));
         $keyword_count = count($keyword_array);
         $keyword_min = $keyword_count * 3;
