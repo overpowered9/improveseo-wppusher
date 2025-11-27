@@ -331,6 +331,14 @@ global $ai_modal_type;
         background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
         color: white;
     }
+    
+    .improveseo-notification-icon.warning::after {
+        content: '⚠';
+        position: absolute;
+        font-size: 32px;
+        font-weight: 300;
+        line-height: 1;
+    }
 
     .improveseo-notification-icon.error {
         background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
@@ -3392,9 +3400,21 @@ global $ai_modal_type;
     messageEl.textContent = message;
     
     if (actionUrl) {
-      okBtn.textContent = 'Buy Credits';
+      // Determine button text based on URL type
+      if (actionUrl.startsWith('mailto:')) {
+        okBtn.textContent = 'Contact Support';
+      } else if (actionUrl.includes('dashboard.improveseoplugin.com')) {
+        okBtn.textContent = 'Buy Credits';
+      } else {
+        okBtn.textContent = 'Learn More';
+      }
+      
       okBtn.onclick = function() {
-        window.open(actionUrl, '_blank');
+        if (actionUrl.startsWith('mailto:')) {
+          window.location.href = actionUrl;
+        } else {
+          window.open(actionUrl, '_blank');
+        }
         overlay.classList.remove('active');
       };
     } else {

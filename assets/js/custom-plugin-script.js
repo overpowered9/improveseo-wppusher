@@ -83,18 +83,24 @@ function GenerateCustomImage() {
     processData: false,
 
     success: function (response) {
-      // Check for insufficient credits error
+      // Check for insufficient credits error (HTTP 402)
       if (response.success === false) {
         jQuery("#loadingAIImage").hide();
         if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits'))) {
           showImproveSEONotification(
-            'error',
+            'warning',
             'Out of Credits',
             'You are out of image generation credits. Please purchase more credits to continue.',
             'https://dashboard.improveseoplugin.com'
           );
         } else {
-          alert('Error: ' + (response.data || 'Unknown error occurred'));
+          // Show error notification for other failures (500, network, etc.)
+          showImproveSEONotification(
+            'error',
+            'Image Generation Failed',
+            'Unable to generate image. If you experience errors too often, please contact support.',
+            'mailto:support@improveseoplugin.com?subject=Image%20Generation%20Error'
+          );
         }
         return;
       }
@@ -160,18 +166,24 @@ jQuery("#generate_i_image").on("click", function () {
     processData: false,
 
     success: function (response) {
-      // Check for insufficient credits error
+      // Check for insufficient credits error (HTTP 402)
       if (response.success === false) {
         jQuery("#loadingAIImage").hide();
         if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits'))) {
           showImproveSEONotification(
-            'error',
+            'warning',
             'Out of Credits',
             'You are out of image generation credits. Please purchase more credits to continue.',
             'https://dashboard.improveseoplugin.com'
           );
         } else {
-          alert('Error: ' + (response.data || 'Unknown error occurred'));
+          // Show error notification for other failures (500, network, etc.)
+          showImproveSEONotification(
+            'error',
+            'Image Generation Failed',
+            'Unable to generate image. If you experience errors too often, please contact support.',
+            'mailto:support@improveseoplugin.com?subject=Image%20Generation%20Error'
+          );
         }
         return;
       }
@@ -687,18 +699,24 @@ function refreshAIImage() {
     processData: false,
 
     success: function (response) {
-      // Check for insufficient credits error
+      // Check for insufficient credits error (HTTP 402)
       if (response.success === false) {
         jQuery("#loadingAIImage").hide();
         if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits'))) {
           showImproveSEONotification(
-            'error',
+            'warning',
             'Out of Credits',
             'You are out of image generation credits. Please purchase more credits to continue.',
             'https://dashboard.improveseoplugin.com'
           );
         } else {
-          alert('Error: ' + (response.data || 'Unknown error occurred'));
+          // Show error notification for other failures (500, network, etc.)
+          showImproveSEONotification(
+            'error',
+            'Image Generation Failed',
+            'Unable to generate image. If you experience errors too often, please contact support.',
+            'mailto:support@improveseoplugin.com?subject=Image%20Generation%20Error'
+          );
         }
         return;
       }
@@ -893,18 +911,24 @@ jQuery(document).ready(function (jQuery) {
           processData: false,
 
           success: function (response) {
-            // Check for insufficient credits error
+            // Check for insufficient credits error (HTTP 402)
             if (response.success === false) {
               jQuery("#loadingAIImage").hide();
               if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits'))) {
                 showImproveSEONotification(
-                  'error',
+                  'warning',
                   'Out of Credits',
                   'You are out of image generation credits. Please purchase more credits to continue.',
                   'https://dashboard.improveseoplugin.com'
                 );
               } else {
-                alert('Error: ' + (response.data || 'Unknown error occurred'));
+                // Show error notification for other failures (500, network, etc.)
+                showImproveSEONotification(
+                  'error',
+                  'Image Generation Failed',
+                  'Unable to generate image. If you experience errors too often, please contact support.',
+                  'mailto:support@improveseoplugin.com?subject=Image%20Generation%20Error'
+                );
               }
               return;
             }
