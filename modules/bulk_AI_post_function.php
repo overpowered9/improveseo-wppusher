@@ -335,31 +335,36 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 
 
-		// AI Image
+	// AI Image
 
-		if ($value->aiImage == 'AI_image_one') {
+	if ($value->aiImage == 'AI_image_one') {
 
-			$imageURL = generateBulkAiImage($ai_title, $getAudienceData);
-
-			$imageURL = base64_encode($imageURL);
-
+		$imageURL = generateBulkAiImage($ai_title, $getAudienceData);
+		
+		// ✅ Check if image generation failed (returns false)
+		if ($imageURL === false) {
+			error_log("CronjobRequest: Image generation FAILED for task " . $id . " - keyword: " . $value->keyword_name);
+			$imageURL = ''; // Set empty string for database
 		} else {
-
-			$imageURL = $value->ai_image;
-
+			error_log("CronjobRequest: Image generated successfully for task " . $id);
+			error_log("CronjobRequest: Image URL: " . $imageURL);
+			// Encode the valid URL for storage
+			$imageURL = base64_encode($imageURL);
 		}
 
+	} else {
 
+		$imageURL = $value->ai_image;
 
-		// AI Content
+	}
 
-		$keyword_selection = '';
+	// AI Content
 
-		//my_plugin_log('arrays : '.$basic_prompt);
+	$keyword_selection = '';
 
-		$AI_Content = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, $value->point_of_view, $value->details_to_include, $value->call_to_action, $value->details_to_include);
+	//my_plugin_log('arrays : '.$basic_prompt);
 
-
+	$AI_Content = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, $value->point_of_view, $value->details_to_include, $value->call_to_action, $value->details_to_include);
 
 
 
@@ -548,13 +553,29 @@ function saveContentInTaskList()
 
 			}
 
-			$tags = array();
+		$tags = array();
 
-			$fullcontent = "<img src='" . base64_decode($value->ai_image) . "' style='width:100%; margin-bottom: 100px;' alt='" . $value->ai_title . "'>" . base64_decode($value->ai_content) . $content;
+		// ✅ Validate and decode image URL before using it
+		$image_html = '';
+		if (!empty($value->ai_image)) {
+			$decoded_image = base64_decode($value->ai_image);
+			error_log("saveContentInTaskList: Decoded ai_image for task " . $value->id . ": " . $decoded_image);
+			
+			// Validate that decoded image is a proper URL
+			if (filter_var($decoded_image, FILTER_VALIDATE_URL)) {
+				$image_html = "<img src='" . esc_url($decoded_image) . "' style='width:100%; margin-bottom: 100px;' alt='" . esc_attr($value->ai_title) . "'>";
+				error_log("saveContentInTaskList: Valid image URL, including in post");
+			} else {
+				error_log("saveContentInTaskList: Invalid or missing image URL (value: '" . $decoded_image . "'), skipping image");
+			}
+		} else {
+			error_log("saveContentInTaskList: No image data for task " . $value->id);
+		}
+		
+		// Assemble content with optional image
+		$fullcontent = $image_html . base64_decode($value->ai_content) . $content;
 
-			$post_date = date('Y-m-d H:i:s');
-
-			$post_status = 'Published';
+		$post_date = date('Y-m-d H:i:s');			$post_status = 'Published';
 
 			if ($value->schedule_posts == 'draft_posts') {
 
@@ -1169,7 +1190,7 @@ function generateBulkAiImage($title, $AudienceData)
     // Validate credentials
     if (empty($api_key) || empty($site_code)) {
         error_log("generateBulkAiImage Error: Missing API credentials");
-        return "Error: Missing API credentials. Please configure API Key and Site Code in settings.";
+        return false; // ✅ Return false instead of error string
     }
     
     // Admin server configuration
@@ -1186,6 +1207,8 @@ function generateBulkAiImage($title, $AudienceData)
         'width' => 1024,
         'height' => 768
     );
+    
+    error_log("generateBulkAiImage: Calling API for title: " . $title);
     
     // Set up cURL for HTTP request to admin server
     $ch = curl_init($api_endpoint);
@@ -1212,38 +1235,61 @@ function generateBulkAiImage($title, $AudienceData)
         $error = curl_error($ch);
         curl_close($ch);
         error_log("generateBulkAiImage cURL Error: " . $error);
-        return "Error: Failed to connect to image generation server.";
+        return false; // ✅ Return false on cURL error
     }
     
     curl_close($ch);
     
-    // Check HTTP status
+    error_log("generateBulkAiImage: HTTP Status: " . $http_status);
+    error_log("generateBulkAiImage: Response: " . substr($response, 0, 500));
+    
+    // ✅ CRITICAL FIX: Check HTTP status FIRST - do NOT use response if status is not 200
     if ($http_status !== 200) {
         error_log("generateBulkAiImage HTTP Error: Status $http_status, Response: " . $response);
-        return "Error: Image generation server returned error status: $http_status";
+        
+        // Check for specific error types
+        if ($http_status === 402) {
+            error_log("generateBulkAiImage: Insufficient credits (HTTP 402)");
+        } else if ($http_status === 401) {
+            error_log("generateBulkAiImage: Authentication failed (HTTP 401)");
+        } else if ($http_status === 400) {
+            error_log("generateBulkAiImage: Bad request (HTTP 400)");
+        } else if ($http_status >= 500) {
+            error_log("generateBulkAiImage: Server error (HTTP " . $http_status . ")");
+        }
+        
+        return false; // ✅ Return false - do NOT store HTTP status as image URL
     }
     
-    // Parse JSON response
+    // Parse JSON response - only if HTTP status was 200
     $result = json_decode($response, true);
     
-    if (!$result || !isset($result['success'])) {
-        error_log("generateBulkAiImage Invalid Response: " . $response);
-        return "Error: Invalid response from image generation server.";
+    if (!$result || !is_array($result)) {
+        error_log("generateBulkAiImage Invalid JSON Response: " . $response);
+        return false; // ✅ Return false on invalid JSON
     }
     
-    if (!$result['success']) {
+    // ✅ Check success field in response
+    if (!isset($result['success']) || $result['success'] !== true) {
         $error_msg = isset($result['error']) ? $result['error'] : 'Unknown error';
-        error_log("generateBulkAiImage API Error: " . $error_msg);
-        return "Error: " . $error_msg;
+        error_log("generateBulkAiImage API Error: success=" . ($result['success'] ?? 'not set') . ", error=" . $error_msg);
+        return false; // ✅ Return false if success is not true
     }
     
-    // Extract image URL from successful response
-    if (!isset($result['data']['image_url'])) {
-        error_log("generateBulkAiImage Missing Image URL: " . $response);
-        return "Error: No image URL returned from generation server.";
+    // ✅ ONLY extract image URL if status is 200 AND success is true
+    if (!isset($result['data']['image_url']) || empty($result['data']['image_url'])) {
+        error_log("generateBulkAiImage Missing Image URL in response data");
+        return false; // ✅ Return false if image URL is missing
     }
     
     $image_url = $result['data']['image_url'];
+    error_log("generateBulkAiImage: Image URL received: " . $image_url);
+    
+    // Validate that image_url is a proper URL
+    if (!filter_var($image_url, FILTER_VALIDATE_URL)) {
+        error_log("generateBulkAiImage: Invalid URL format: " . $image_url);
+        return false; // ✅ Return false if URL is invalid
+    }
     
     // Download the image and save to WordPress uploads
     $upload_dir = wp_upload_dir();
@@ -1252,13 +1298,17 @@ function generateBulkAiImage($title, $AudienceData)
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     $image_data = curl_exec($ch);
+    $download_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     
-    if (!$image_data) {
-        error_log("generateBulkAiImage Error: Failed to download image from URL: " . $image_url);
-        return "Error: Failed to download generated image.";
+    if (!$image_data || $download_status !== 200) {
+        error_log("generateBulkAiImage Error: Failed to download image from URL: " . $image_url . " (HTTP " . $download_status . ")");
+        return false; // ✅ Return false on download failure
     }
+    
+    error_log("generateBulkAiImage: Image downloaded successfully (" . strlen($image_data) . " bytes)");
     
     // Generate unique filename
     $file_name = wp_unique_filename($upload_dir['path'], str_replace(" ", "_", str_replace(".", "", $seed_title)));
@@ -1266,24 +1316,36 @@ function generateBulkAiImage($title, $AudienceData)
     $file_path = $upload_dir['path'] . '/' . $file_name;
     
     if (file_put_contents($file_path, $image_data) !== false) {
+        error_log("generateBulkAiImage: Image saved to: " . $file_path);
+        
         // Convert to WebP if GD is available
         if (extension_loaded('gd')) {
             $original_image = imagecreatefromstring($image_data);
             
-            $webp_file_name = pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
-            $webp_file_path = $upload_dir['path'] . '/' . $webp_file_name;
-            
-            imagewebp($original_image, $webp_file_path, 90);
-            imagedestroy($original_image);
-            unlink($file_path);
-            
-            return $upload_dir['url'] . '/' . $webp_file_name;
-        } else {
-            return $upload_dir['url'] . '/' . $file_name;
+            if ($original_image !== false) {
+                $webp_file_name = pathinfo($file_name, PATHINFO_FILENAME) . '.webp';
+                $webp_file_path = $upload_dir['path'] . '/' . $webp_file_name;
+                
+                if (imagewebp($original_image, $webp_file_path, 90)) {
+                    imagedestroy($original_image);
+                    unlink($file_path);
+                    
+                    $final_url = $upload_dir['url'] . '/' . $webp_file_name;
+                    error_log("generateBulkAiImage: Success! WebP image URL: " . $final_url);
+                    return $final_url; // ✅ Return valid URL
+                } else {
+                    imagedestroy($original_image);
+                    error_log("generateBulkAiImage: WebP conversion failed, using original");
+                }
+            }
         }
+        
+        $final_url = $upload_dir['url'] . '/' . $file_name;
+        error_log("generateBulkAiImage: Success! Image URL: " . $final_url);
+        return $final_url; // ✅ Return valid URL
     } else {
-        error_log("generateBulkAiImage Error: Failed to save image file");
-        return "Error: Failed to save image file.";
+        error_log("generateBulkAiImage Error: Failed to save image file to: " . $file_path);
+        return false; // ✅ Return false on save failure
     }
 }
 function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '')
