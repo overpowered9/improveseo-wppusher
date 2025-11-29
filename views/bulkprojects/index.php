@@ -174,14 +174,14 @@ if (isset($_GET['post_preview'])) {
 
 													<span class="edit">
 														<a class="popup-link"
-															href="<?php /*admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&name={$project->name}&noheader=true")*/ ?>"
+															href="<?php admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&name={$project->name}&noheader=true") ?>"
 															disabled>
 															Export a list of all posts/pages URLs
 														</a>
 													</span>
 													<span class="edit">
 														<a class="popup-link"
-															href="<?php /*admin_url('admin.php?page=improveseo_projects&action=stop&id=' . $project->id . '&noheader=true') */ ?>">
+															href="<?php admin_url('admin.php?page=improveseo_projects&action=stop&id=' . $project->id . '&noheader=true')  ?>">
 															Stop process
 														</a>
 													</span>
@@ -192,7 +192,7 @@ if (isset($_GET['post_preview'])) {
 													</span>
 													<span class="trash">
 														<a class="popup-link delete-link" class="submitdelete"
-															href="<?php /* admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') */ ?>"
+															href="<?php  admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true')  ?>"
 															onclick="return confirm('This action will delete project and all generated posts/pages')">Delete
 															project and all posts/pages</a>
 													</span>
