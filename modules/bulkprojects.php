@@ -29,17 +29,17 @@ function improveseo_bulkprojects()
 	//Upload CSV File
 	if (isset($_POST['submit'])) {
 		if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'import_project_nonce')) {
-			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+			wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
 			exit();
 		}
 		if (!current_user_can('upload_files')) {
 			FlashMessage::success('Current user can\'t upload file');
-			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+			wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
 			exit();
 		}
 		if (in_array($_FILES['upload_csv']['type'], $fileMimes) === false) {
 			FlashMessage::success('Please Upload a Valid CSV file');
-			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+			wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
 			exit();
 		}
 
@@ -306,7 +306,7 @@ function improveseo_bulkprojects()
 		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
 		$model->delete($id);
 		FlashMessage::success('Project and all posts/pages deleted.');
-		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
 		exit;
 
 	elseif ($action == 'delete_posts'):
@@ -317,168 +317,8 @@ function improveseo_bulkprojects()
 		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
 		$model->update(array('iteration' => 0), $id);
 		FlashMessage::success('All posts/pages deleted.');
-		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
 		exit;
-
-	elseif ($action == 'stop'):
-		$id = $_GET['id'];
-		$mainid = $_GET['mainid'];
-		$wpdb->query(
-			$wpdb->prepare(
-				"UPDATE `" . $detailsTaskModel->getTable() . "`
-				SET status = %s WHERE id = %d",
-				'Stoped',
-				$id
-			)
-		);
-
-		$wpdb->last_error;
-		FlashMessage::success('Project stopped. You can continue process by clicking Build posts');
-		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $mainid));
-		exit;
-
-	elseif ($action == 'publish'):
-		$id = $_GET['id'];
-		$mainid = sanitize_title_with_dashes($_GET['mainid']);
-		global $wpdb;
-		$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `id`=" . $id;
-		$Bulktasks = $wpdb->get_results($sql);
-		$content = '';
-		foreach ($Bulktasks as $key => $value) {
-			// short code
-			if (!empty($value->testimonial)) {
-				$testimonial_ids = '';
-				$all_testimonial = explode("||", $value->testimonial);
-				foreach ($all_testimonial as $key1 => $value1) {
-					if (!empty($value1)) {
-						$testimonial_ids = $value1 . ',' . $testimonial_ids;
-					}
-				}
-				$content = $content . '<p>[improveseo_testimonial id="' . $testimonial_ids . '"]</p>';
-			}
-			if (!empty($value->Button_SC)) {
-				$content = $content . '<p>[improveseo_buttons id="' . $value->Button_SC . '"]</p>';
-			}
-			if (!empty($value->GoogleMap_SC)) {
-				$content = $content . '<p>[improveseo_googlemaps id="' . $value->GoogleMap_SC . '"]</p>';
-			}
-			if (!empty($value->Video_SC)) {
-				$content = $content . '<p style="width:100%">[improveseo_video id="' . $value->Video_SC . '"]</p>';
-			}
-			$catids = [];
-			if (!empty($value->cats)) {
-				$categories = explode("||", $value->cats);
-				foreach ($categories as $ckey => $cvalue) {
-					if (!empty($cvalue)) {
-						array_push($catids, $cvalue);
-					}
-				}
-			} else {
-				$categories = '';
-			}
-			$tags = array('-');
-			$fullcontent = "<img src='" . base64_decode($value->ai_image) . "' style='width:100%; margin-bottom: 100px;' alt='" . $value->ai_title . "'>" . base64_decode($value->ai_content) . $content;
-			$post_date = date('Y-m-d H:i:s');
-			$post_status = 'publish';
-			if ($value->assigning_authors == 'assigning_authors') {
-				$post_author = $value->assigning_authors_value;
-			}
-			if ($value->assigning_authors == 'assigning_multi_authors') {
-				$first_names = array('John', 'Jane', 'Michael', 'Emily', 'David', 'Sarah', 'James', 'Linda', 'Robert', 'Jessica', 'Daniel', 'Laura', 'Chris', 'Amy', 'Mark', 'Angela', 'Steven', 'Megan', 'Paul', 'Rachel', 'Peter', 'Hannah', 'Kevin', 'Sophia', 'Edward', 'Emma', 'Jason', 'Grace', 'Tom', 'Alice'); // Add more names as needed to increase uniqueness
-				$last_names = array('Smith', 'Johnson', 'Brown', 'Williams', 'Jones', 'Miller', 'Davis', 'Garcia', 'Martinez', 'Taylor', 'Wilson', 'Moore', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Martin', 'Thompson', 'Lopez', 'Gonzalez', 'Clark', 'Lewis', 'Walker', 'Hall', 'Allen', 'Young', 'King', 'Wright', 'Scott');
-				// Pick a random first and last name
-				$first_name = $first_names[array_rand($first_names)];
-				$last_name = $last_names[array_rand($last_names)];
-				// Combine to create a full name
-				$fullname = array('first_name' => $first_name, 'Last_name' => $last_name);
-				$first_name = $fullname['first_name'];
-				$last_name = $fullname['Last_name'];
-				$username = str_replace(" ", "", $fullname);
-				// Check if the username already exists
-				if (username_exists($username) || email_exists($first_name . '@example.com')) {
-					my_plugin_log('author recreate : ' . $username);
-					$first_name = $first_names[array_rand($first_names)];
-					$last_name = $last_names[array_rand($last_names)];
-					$username = str_replace(" ", "", $first_name . $last_name);
-				}
-				// Define user information
-				$user_data = array(
-					'user_login' => $username,
-					'user_pass' => 'PASssword123@4jkkhk$qwrfg123',
-					'user_email' => $first_name . '@example.com',
-					'first_name' => $first_name,
-					'last_name' => $last_name,
-					'role' => 'author',
-				);
-				my_plugin_log('author created : ' . $username);
-				// Create the user
-				$post_author = wp_insert_user($user_data);
-			}
-			if (!empty($value->post_id)) {
-				$post_array = array(
-					'ID' => $value->post_id,
-					'post_author' => $post_author,
-					'post_content' => $fullcontent,
-					'post_title' => $value->ai_title,
-					'comment_status' => 'closed',
-					'ping_status' => 'closed',
-					'post_type' => "post",
-					'post_date' => $post_date,
-					'post_status' => $post_status
-				);
-				wp_update_post($post_array);
-				$post_id = $value->post_id;
-			} else {
-				$post_array = array(
-					'post_author' => $post_author,
-					'post_content' => $fullcontent,
-					'post_title' => $value->ai_title,
-					'comment_status' => 'closed',
-					'ping_status' => 'closed',
-					'post_type' => "post",
-					'post_date' => $post_date,
-					'post_status' => $post_status
-				);
-				$post_id = wp_insert_post($post_array);
-			}
-			wp_set_post_tags($post_id, '-');
-			if ((!empty($catids))) {
-				wp_set_post_categories($post_id, $catids, false);
-			}
-			$wpdb->query(
-				$wpdb->prepare(
-					"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
-					SET state = %s, post_id = %d WHERE id = %d",
-					$post_status,
-					$post_id,
-					$value->id
-				)
-			);
-			
-			// Check if all tasks are completed and update parent project state
-			$total_tasks = (int) $wpdb->get_var($wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d",
-				$mainid
-			));
-			$completed_tasks = (int) $wpdb->get_var($wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND state = 'publish'",
-				$mainid
-			));
-			
-			if ($total_tasks > 0 && $total_tasks == $completed_tasks) {
-				$wpdb->update(
-					$wpdb->prefix . 'improveseo_bulktasks',
-					array('state' => 'Finished'),
-					array('id' => $mainid),
-					array('%s'),
-					array('%d')
-				);
-			}
-			
-			my_plugin_log('This is a log message : ' . $value->id);
-			FlashMessage::success('Post hasb been published successfully.');
-			wp_redirect(admin_url("admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id={$mainid}"));
-		}
 
 	elseif ($action == 'export_urls'):
 		$id = $_GET['id'];
@@ -502,7 +342,7 @@ function improveseo_bulkprojects()
 	elseif ($action == 'export_all_project'):
 		$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_tasks"));
 		if (empty($data)) {
-			wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+			wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
 		}
 		wt_load_templates('import-export.php');
 		$exportRecords = new improveseo_import_export();
@@ -558,7 +398,7 @@ function improveseo_bulkprojects()
 			'state' => 'Draft'
 		));
 		FlashMessage::success('Project duplicated.');
-		wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$new_id}"));
+		wp_redirect(admin_url("admin.php?page=improveseo_bulkprojects&highlight={$new_id}"));
 		exit;
 
 	elseif ($action == 'bulk-delete-all'):
@@ -576,7 +416,7 @@ function improveseo_bulkprojects()
 		} else {
 			FlashMessage::message('Please select projects', 'error');
 		}
-		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
 		exit;
 
 	elseif ($action == 'bulk-delete-posts'):
@@ -610,12 +450,12 @@ function improveseo_bulkprojects()
 				FlashMessage::success('All posts/pages deleted.');
 			}
 		}
-		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
 		exit;
 
 	elseif ($action == 'bulk-empty'):
 		FlashMessage::message('Please select an option from bulk actions', 'error');
-		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
 		exit;
 
 	endif;
