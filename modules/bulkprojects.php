@@ -333,8 +333,19 @@ function improveseo_bulkprojects()
 		);
 
 		$wpdb->last_error;
-		FlashMessage::success('Project stopped. You can continue process by clicking Build posts');
+		FlashMessage::success('Task has been canceled. Content generation has been halted.');
 		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $mainid));
+		exit;
+
+	elseif ($action == 'stop_bulk_task'):
+		// Stop entire bulk task (from main bulkprojects list page)
+		$id = $_GET['id'];
+		
+		// Update the bulk task's state to 'Stopped'
+		$model->update(array('state' => 'Stopped'), $id);
+		
+		FlashMessage::success('Project has been canceled. Content generation has been halted.');
+		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
 		exit;
 
 	elseif ($action == 'publish'):

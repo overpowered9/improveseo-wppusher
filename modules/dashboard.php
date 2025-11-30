@@ -23,6 +23,8 @@ use ImproveSEO\LiteSpintax;
 
 
 use ImproveSEO\Models\Task;
+use ImproveSEO\Models\Bulktask;
+use ImproveSEO\Models\Bulktasksdetail;
 
 
 use ImproveSEO\FlashMessage;
@@ -680,18 +682,55 @@ function improveseo_dashboard() {
 
 		$wpdb->query("SET GLOBAL max_allowed_packet = 268435456");
 
-
-
-
+		$model = new Task();
+		if (isset($_POST['ai_modal_type']) && $_POST['ai_modal_type'] == 'bulk') {
+			$model = new Bulktask();
+			$data['max_iterations'] = count(array_filter(array_map('trim', explode("\n", trim($_POST['keywords'] ?? '')))));
+		}
 
 		$project_id = isset($_GET['id']) ? $model->update($data, $_GET['id']) : $model->create($data);
 
 
 		if (isset($_GET['id'])) $project_id = $_GET['id'];
 
-
-
-
+		if (isset($_POST['ai_modal_type']) && $_POST['ai_modal_type'] == 'bulk') {
+			$keywords = array_filter(array_map('trim', explode("\n", trim($_POST['keywords'] ?? ''))));
+			$detailsModel = new Bulktasksdetail();
+			foreach ($keywords as $keyword) {
+				$detail_data = array(
+					'bulktask_id' => $project_id,
+					'keyword_name' => $keyword,
+					'select_exisiting_options' => $_POST['select_exisiting_options'] ?? 'seed_option1',
+					'nos_of_words' => $_POST['nos_of_words'] ?? '600 to 1200 words',
+					'content_lang' => $_POST['content_lang'] ?? 'US English',
+					'tone_of_voice' => $_POST['tone_of_voice'] ?? '',
+					'point_of_view' => $_POST['point_of_view'] ?? '',
+					'details_to_include' => $_POST['details_to_include'] ?? '',
+					'call_to_action' => $_POST['call_to_action'] ?? '',
+					'aiImage' => $_POST['aiImage'] ?? '',
+					'ai_image' => '',
+					'cats' => json_encode($_POST['cats']),
+					'assigning_authors' => $_POST['assigning_authors'] ?? '',
+					'assigning_authors_value' => $_POST['assigning_authors_value'] ?? '',
+					'assigning_multi_authors' => $_POST['assigning_multi_authors'] ?? '',
+					'schedule_posts' => $_POST['schedule_posts'] ?? '',
+					'published_on' => $_POST['published_on'] ?? '',
+					'testimonial' => $_POST['testimonial'] ?? '',
+					'Button_SC' => $_POST['Button_SC'] ?? '',
+					'GoogleMap_SC' => $_POST['GoogleMap_SC'] ?? '',
+					'Video_SC' => $_POST['Video_SC'] ?? '',
+					'state' => 'Scheduled',
+					'status' => 'Pending',
+					'post_id' => null,
+					'is_published_by_plugin' => 0,
+					'ai_title' => '',
+					'ai_content' => '',
+					'created_at' => current_time('mysql'),
+					'updated_at' => current_time('mysql')
+				);
+				$detailsModel->create($detail_data);
+			}
+		}
 
 		if (isset($_POST['create'])) {
 

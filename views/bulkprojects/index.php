@@ -154,8 +154,8 @@ if (isset($_GET['post_preview'])) {
 											echo '<p class="post-fd">Finished</p>';
 										else {
 											$updated = strtotime($project->updated_at);
-											if (!empty($project->deleted_at) && ($project->deleted_at == '1970-01-01 11:11:11'))
-												echo '<p class="post-st">Stopped</p>';
+											if ($project->state == 'Stopped')
+												echo '<p class="post-st" style="color: #ff4d4f; font-weight: 600;">Canceled</p>';
 											else
 												echo 'Processing';
 										}
@@ -179,12 +179,12 @@ if (isset($_GET['post_preview'])) {
 															Export a list of all posts/pages URLs
 														</a>
 													</span>
-													<span class="edit">
-														<a class="popup-link"
-															href="<?php admin_url('admin.php?page=improveseo_projects&action=stop&id=' . $project->id . '&noheader=true')  ?>">
-															Stop process
-														</a>
-													</span>
+												<span class="edit">
+													<a class="popup-link"
+														href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=stop_bulk_task&id=' . $project->id . '&noheader=true') ?>">
+														Stop process
+													</a>
+												</span>
 													<span class="edit">
 														<a class="popup-link" class="submitdelete" target="_blank"
 															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $project->id) ?>">View

@@ -301,6 +301,22 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 		my_plugin_log('This is a log message : ' . $id);
 
+		// Check if parent bulk task is stopped
+		if (isset($value->bulktask_id)) {
+			$parent_task = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT state FROM {$wpdb->prefix}improveseo_bulktasks WHERE id = %d",
+					$value->bulktask_id
+				)
+			);
+			
+			if ($parent_task && $parent_task->state == 'Stopped') {
+				my_plugin_log('Bulk task stopped by user - bulktask_id: ' . $value->bulktask_id);
+				echo '<h3>Bulk project stopped by user.</h3>';
+				return false;
+			}
+		}
+
 		// AI Title
 
 
@@ -482,6 +498,22 @@ function saveContentInTaskList()
 	if (!empty($Bulktasks)) {
 
 		foreach ($Bulktasks as $key => $value) {
+
+			// Check if parent bulk task is stopped
+			if (isset($value->bulktask_id)) {
+				$parent_task = $wpdb->get_row(
+					$wpdb->prepare(
+						"SELECT state FROM {$wpdb->prefix}improveseo_bulktasks WHERE id = %d",
+						$value->bulktask_id
+					)
+				);
+				
+				if ($parent_task && $parent_task->state == 'Stopped') {
+					my_plugin_log('Bulk task stopped by user during publishing - bulktask_id: ' . $value->bulktask_id);
+					echo '<h3>Bulk project stopped by user.</h3>';
+					return false;
+				}
+			}
 
 			// short code
 
@@ -862,6 +894,22 @@ function saveContentInTaskList()
 	$content = '';
 
 	foreach ($Bulktasks as $key => $value) {
+
+		// Check if parent bulk task is stopped
+		if (isset($value->bulktask_id)) {
+			$parent_task = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT state FROM {$wpdb->prefix}improveseo_bulktasks WHERE id = %d",
+					$value->bulktask_id
+				)
+			);
+			
+			if ($parent_task && $parent_task->state == 'Stopped') {
+				my_plugin_log('Bulk task stopped by user during scheduled publishing - bulktask_id: ' . $value->bulktask_id);
+				echo '<h3>Bulk project stopped by user.</h3>';
+				return false;
+			}
+		}
 
 		if (!empty($value->post_id)) {
 
