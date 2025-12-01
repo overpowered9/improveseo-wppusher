@@ -538,14 +538,12 @@ function improveseo_bulkprojects()
 		
 		@set_time_limit(0);
 		
-		// Get all posts for this project with additional metadata
-		$posts_data = $wpdb->get_results($wpdb->prepare(
-			"SELECT p.ID, p.post_title, p.post_date, p.post_status, p.post_type
-			FROM {$wpdb->prefix}posts p
-			INNER JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id
-			WHERE pm.meta_key = 'improveseo_project_id' 
-			AND pm.meta_value = %s
-			ORDER BY p.post_date DESC",
+		// Get all tasks for this project with post data
+		$tasks_data = $wpdb->get_results($wpdb->prepare(
+			"SELECT btd.id, btd.post_id, btd.ai_title, btd.status, btd.state, btd.published_on, btd.content_lang
+			FROM {$wpdb->prefix}improveseo_bulktasksdetails btd
+			WHERE btd.bulktask_id = %d
+			ORDER BY btd.id ASC",
 			$id
 		));
 		
@@ -563,16 +561,41 @@ function improveseo_bulkprojects()
 		fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
 		
 		// Add headers
-		fputcsv($output, array('Title', 'URL', 'Post Type', 'Status', 'Published Date'));
+		fputcsv($output, array('Title', 'URL', 'Status', 'Post Status', 'Published Date', 'Language'));
 		
 		// Add data rows
-		foreach ($posts_data as $post) {
+		foreach ($tasks_data as $task) {
+			$url = '';
+			$post_status = 'Not Published';
+			
+			// Get URL if post_id exists
+			if (!empty($task->post_id)) {
+				$url = get_permalink($task->post_id);
+				$post = get_post($task->post_id);
+				if ($post) {
+					$post_status = ucfirst($post->post_status);
+				}
+			}
+			
+			// Determine content status
+			$content_status = '';
+			if ($task->status == 'Draft') {
+				$content_status = 'Draft';
+			} elseif ($task->status == 'Done') {
+				$content_status = 'Done';
+			} elseif ($task->status == 'Stoped') {
+				$content_status = 'Canceled';
+			} else {
+				$content_status = $task->status;
+			}
+			
 			fputcsv($output, array(
-				$post->post_title,
-				get_permalink($post->ID),
-				$post->post_type,
-				$post->post_status,
-				$post->post_date
+				$task->ai_title,
+				$url,
+				$content_status,
+				$post_status,
+				($task->status == 'Stoped' || $task->published_on == '0000-00-00 00:00:00' || empty($task->published_on)) ? 'N/A' : $task->published_on,
+				$task->content_lang
 			));
 		}
 		
