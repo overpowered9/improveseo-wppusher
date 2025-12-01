@@ -46,7 +46,7 @@ use ImproveSEO\View;
 		<div class="import-export-btn">
 			<button class="active"
 				onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&action=create') ?>'">
-				Create New List(Manually)
+				Create New List(Manual)
 			</button>
 		</div>
 		<div class="import-export-btn">
