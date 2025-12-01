@@ -339,13 +339,18 @@ function improveseo_bulkprojects()
 
 	elseif ($action == 'stop_bulk_task'):
 		// Stop entire bulk task (from main bulkprojects list page)
-		$id = $_GET['id'];
+		$id = intval($_GET['id']);
 		
 		// Update the bulk task's state to 'Stopped'
-		$model->update(array('state' => 'Stopped'), $id);
+		$update_result = $model->update(array('state' => 'Stopped'), $id);
+		
+		// Log any database errors
+		if ($wpdb->last_error) {
+			error_log('Bulktask update error: ' . $wpdb->last_error);
+		}
 		
 		// Stop all individual tasks that are not yet Done (Pending or processing)
-		$wpdb->query(
+		$details_result = $wpdb->query(
 			$wpdb->prepare(
 				"UPDATE `" . $detailsTaskModel->getTable() . "`
 				SET status = %s 
@@ -355,6 +360,14 @@ function improveseo_bulkprojects()
 				'Done'
 			)
 		);
+		
+		// Log any database errors
+		if ($wpdb->last_error) {
+			error_log('Bulktasksdetails update error: ' . $wpdb->last_error);
+			error_log('Query: UPDATE ' . $detailsTaskModel->getTable() . ' SET status = Stoped WHERE bulktask_id = ' . $id . ' AND status != Done');
+		}
+		
+		error_log('Stop bulk task - ID: ' . $id . ', Bulktask updated: ' . ($update_result ? 'yes' : 'no') . ', Details rows affected: ' . $details_result);
 		
 		FlashMessage::success('Project has been canceled. All ongoing tasks have been halted.');
 		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
