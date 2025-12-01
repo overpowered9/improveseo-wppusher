@@ -527,6 +527,11 @@ function improveseo_bulkprojects()
 		}
 
 	elseif ($action == 'export_urls'):
+		// Clean all output buffers to prevent HTML from being sent
+		while (ob_get_level()) {
+			ob_end_clean();
+		}
+		
 		$id = intval($_GET['id']);
 		$project_name = isset($_GET['name']) ? sanitize_text_field($_GET['name']) : 'project-' . $id;
 		$filename = sanitize_file_name($project_name) . '-urls.csv';
@@ -544,18 +549,25 @@ function improveseo_bulkprojects()
 			$id
 		));
 		
-		// Create CSV content
-		$csv_output = fopen('php://temp', 'w');
+		// Set headers for download BEFORE any output
+		header('Content-Type: text/csv; charset=utf-8');
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
+		header('Expires: 0');
+		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+		header('Pragma: public');
+		
+		// Open output stream directly
+		$output = fopen('php://output', 'w');
 		
 		// Add UTF-8 BOM for Excel compatibility
-		fprintf($csv_output, chr(0xEF).chr(0xBB).chr(0xBF));
+		fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
 		
 		// Add headers
-		fputcsv($csv_output, array('Title', 'URL', 'Post Type', 'Status', 'Published Date'));
+		fputcsv($output, array('Title', 'URL', 'Post Type', 'Status', 'Published Date'));
 		
 		// Add data rows
 		foreach ($posts_data as $post) {
-			fputcsv($csv_output, array(
+			fputcsv($output, array(
 				$post->post_title,
 				get_permalink($post->ID),
 				$post->post_type,
@@ -564,20 +576,7 @@ function improveseo_bulkprojects()
 			));
 		}
 		
-		// Get the CSV content
-		rewind($csv_output);
-		$csv_content = stream_get_contents($csv_output);
-		fclose($csv_output);
-		
-		// Set headers for download
-		header('Content-Type: text/csv; charset=utf-8');
-		header('Content-Disposition: attachment; filename="' . $filename . '"');
-		header('Expires: 0');
-		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-		header('Pragma: public');
-		header('Content-Length: ' . strlen($csv_content));
-		
-		echo $csv_content;
+		fclose($output);
 		exit;
 
 	elseif ($action == 'export_all_project'):
