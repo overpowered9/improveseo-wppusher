@@ -527,22 +527,57 @@ function improveseo_bulkprojects()
 		}
 
 	elseif ($action == 'export_urls'):
-		$id = $_GET['id'];
-		$project_name = sanitize_title_with_dashes($_GET['name']);
+		$id = intval($_GET['id']);
+		$project_name = isset($_GET['name']) ? sanitize_text_field($_GET['name']) : 'project-' . $id;
+		$filename = sanitize_file_name($project_name) . '-urls.csv';
+		
 		@set_time_limit(0);
-		$urls = "";
-		$posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
-		foreach ($posts as $post) {
-			$urls .= get_permalink($post->post_id) . "\r\n";
+		
+		// Get all posts for this project with additional metadata
+		$posts_data = $wpdb->get_results($wpdb->prepare(
+			"SELECT p.ID, p.post_title, p.post_date, p.post_status, p.post_type
+			FROM {$wpdb->prefix}posts p
+			INNER JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id
+			WHERE pm.meta_key = 'improveseo_project_id' 
+			AND pm.meta_value = %s
+			ORDER BY p.post_date DESC",
+			$id
+		));
+		
+		// Create CSV content
+		$csv_output = fopen('php://temp', 'w');
+		
+		// Add UTF-8 BOM for Excel compatibility
+		fprintf($csv_output, chr(0xEF).chr(0xBB).chr(0xBF));
+		
+		// Add headers
+		fputcsv($csv_output, array('Title', 'URL', 'Post Type', 'Status', 'Published Date'));
+		
+		// Add data rows
+		foreach ($posts_data as $post) {
+			fputcsv($csv_output, array(
+				$post->post_title,
+				get_permalink($post->ID),
+				$post->post_type,
+				$post->post_status,
+				$post->post_date
+			));
 		}
-		file_put_contents("$project_name.txt", $urls);
-		header('Content-Type: application/octet-stream');
-		header('Content-Disposition: attachment; filename=' . basename("$project_name.txt"));
+		
+		// Get the CSV content
+		rewind($csv_output);
+		$csv_content = stream_get_contents($csv_output);
+		fclose($csv_output);
+		
+		// Set headers for download
+		header('Content-Type: text/csv; charset=utf-8');
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
 		header('Expires: 0');
-		header('Cache-Control: must-revalidate');
+		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 		header('Pragma: public');
-		header('Content-Length: ' . filesize("$project_name.txt"));
-		readfile("$project_name.txt");
+		header('Content-Length: ' . strlen($csv_content));
+		
+		echo $csv_content;
 		exit;
 
 	elseif ($action == 'export_all_project'):

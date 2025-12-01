@@ -165,13 +165,12 @@ if (isset($_GET['post_preview'])) {
 												<div class="row-actions"
 													style="display: flex; flex-direction: column !important;">
 
-													<span class="edit">
-														<a class="popup-link"
-															href="<?php admin_url("admin.php?page=improveseo_projects&action=export_urls&id={$project->id}&name={$project->name}&noheader=true") ?>"
-															disabled>
-															Export a list of all posts/pages URLs
-														</a>
-													</span>
+												<span class="edit">
+													<a class="popup-link"
+														href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=export_urls&id=' . $project->id . '&name=' . urlencode($project->name)) ?>">
+														Export URLs to Excel
+													</a>
+												</span>
 										<?php if ($project->state != 'Stopped' && $project->state != 'Finished' && $project->state != 'Draft') { ?>
 										<span class="edit">
 											<a class="popup-link"
