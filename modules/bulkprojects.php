@@ -304,9 +304,11 @@ function improveseo_bulkprojects()
 		// Delete all posts from this project
 		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));
 		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
+		// Delete all tasks for this project
+		$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d", $id));
 		$model->delete($id);
-		FlashMessage::success('Project and all posts/pages deleted.');
-		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+		FlashMessage::success('Project, all posts/pages, and all tasks deleted.');
+		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
 		exit;
 
 	elseif ($action == 'delete_posts'):
