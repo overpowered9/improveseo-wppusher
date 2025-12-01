@@ -187,9 +187,9 @@ if (isset($_GET['post_preview'])) {
 															all AI posts/pages</a>
 													</span>
 													<span class="trash">
-														<a class="popup-link delete-link" class="submitdelete"
-															href="<?php  admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true')  ?>"
-															onclick="return confirm('This action will delete project and all generated posts/pages')">Delete
+														<a class="popup-link delete-link submitdelete"
+															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=delete&id=' . $project->id) ?>"
+															onclick="if(confirm('This action will delete project and all generated posts/pages')) { window.location.href=this.href; } return false;">Delete
 															project and all posts/pages</a>
 													</span>
 												</div>
