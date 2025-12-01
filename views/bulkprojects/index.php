@@ -174,8 +174,9 @@ if (isset($_GET['post_preview'])) {
 													</span>
 										<?php if ($project->state != 'Stopped' && $project->state != 'Finished' && $project->state != 'Draft') { ?>
 										<span class="edit">
-											<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=stop_bulk_task&id=' . $project->id) ?>"
-												onclick="return confirm('Are you sure you want to cancel this project? All ongoing tasks will be halted immediately.')">
+											<a class="popup-link"
+												href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=stop_bulk_task&id=' . $project->id) ?>"
+												onclick="if(confirm('Are you sure you want to cancel this project? All ongoing tasks will be halted immediately.')) { window.location.href=this.href; } return false;">
 												Cancel Process
 											</a>
 										</span>
