@@ -328,8 +328,9 @@ function improveseo_bulkprojects()
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE `" . $detailsTaskModel->getTable() . "`
-				SET status = %s WHERE id = %d",
+				SET status = %s, published_on = %s WHERE id = %d",
 				'Stoped',
+				'0000-00-00 00:00:00',
 				$id
 			)
 		);

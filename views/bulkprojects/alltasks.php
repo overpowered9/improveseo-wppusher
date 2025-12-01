@@ -182,7 +182,11 @@ $url .= $_SERVER['REQUEST_URI'];
 									}
 									?> </td>
 									<td data-label="Publish Date"> <?php
-									echo $project->published_on;
+									if ($project->status == 'Stoped' || $project->published_on == '0000-00-00 00:00:00' || empty($project->published_on)) {
+										echo 'N/A';
+									} else {
+										echo $project->published_on;
+									}
 									?> </td>
 									<td data-label="Pots Status" class="status paused">									
 										<?php if($project->status == 'Stoped') {
