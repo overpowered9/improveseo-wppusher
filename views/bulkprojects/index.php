@@ -144,23 +144,16 @@ if (isset($_GET['post_preview'])) {
 										echo 'Publish : ' . $project->number_of_post_schedule . ' Post / ' . $project->schedule_frequency;
 									}
 									?> </td>
-									<td data-label="Status" class="status finished"><?php
-									if ($project->state == 'Draft')
-										echo 'Draft';
-									elseif ($project->state == 'Finished')
-										echo '<p class="post-fd">Finished</p>';
-									else {
-										if ($project->number_of_tasks == $project->number_of_completed_task)
-											echo '<p class="post-fd">Finished</p>';
-										else {
-											$updated = strtotime($project->updated_at);
-											if ($project->state == 'Stopped')
-												echo '<p class="post-st" style="color: #ff4d4f; font-weight: 600;">Canceled</p>';
-											else
-												echo 'Processing';
-										}
-									}
-									?></td>
+								<td data-label="Status" class="status finished"><?php
+								if ($project->state == 'Stopped')
+									echo '<p class="post-st" style="color: #ff4d4f; font-weight: 600;">Canceled</p>';
+								elseif ($project->state == 'Finished')
+									echo '<p class="post-fd">Finished</p>';
+								elseif ($project->state == 'Draft')
+									echo 'Draft';
+								else
+									echo 'Processing';
+								?></td>
 									<td scope="col" data-label="Action" class="actions-btn" style="width: 4%;">
 
 										<a href="#" class="action-btn-pop"> <img
@@ -179,15 +172,15 @@ if (isset($_GET['post_preview'])) {
 															Export a list of all posts/pages URLs
 														</a>
 													</span>
-											<?php if ($project->state != 'Stopped' && $project->state != 'Finished' && $project->number_of_tasks > $project->number_of_completed_task) { ?>
-											<span class="edit">
-												<a class="popup-link"
-													href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=stop_bulk_task&id=' . $project->id . '&noheader=true') ?>"
-													onclick="return confirm('Are you sure you want to cancel this project? All ongoing tasks will be halted immediately.')">
-													Cancel Process
-												</a>
-											</span>
-											<?php } ?>
+										<?php if ($project->state != 'Stopped' && $project->state != 'Finished' && $project->state != 'Draft') { ?>
+										<span class="edit">
+											<a class="popup-link"
+												href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=stop_bulk_task&id=' . $project->id . '&noheader=true') ?>"
+												onclick="return confirm('Are you sure you want to cancel this project? All ongoing tasks will be halted immediately.')">
+												Cancel Process
+											</a>
+										</span>
+										<?php } ?>
 												<span class="edit">
 														<a class="popup-link" class="submitdelete" target="_blank"
 															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $project->id) ?>">View
