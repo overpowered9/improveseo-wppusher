@@ -341,18 +341,19 @@ function improveseo_bulkprojects()
 		// Stop entire bulk task (from main bulkprojects list page)
 		$id = intval($_GET['id']);
 		
-		// Update the bulk task's state to 'Stopped'
-		$update_result = $model->update(array('state' => 'Stopped'), $id);
-		
-		// Log any database errors
-		if ($wpdb->last_error) {
-			error_log('Bulktask update error: ' . $wpdb->last_error);
-		}
+		// Update the bulk task's state to 'Stopped' using wpdb->update (same pattern as Finished status)
+		$wpdb->update(
+			$wpdb->prefix . 'improveseo_bulktasks',
+			array('state' => 'Stopped'),
+			array('id' => $id),
+			array('%s'),
+			array('%d')
+		);
 		
 		// Stop all individual tasks that are not yet Done (Pending or processing)
-		$details_result = $wpdb->query(
+		$wpdb->query(
 			$wpdb->prepare(
-				"UPDATE `" . $detailsTaskModel->getTable() . "`
+				"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
 				SET status = %s 
 				WHERE bulktask_id = %d AND status != %s",
 				'Stoped',
@@ -360,14 +361,6 @@ function improveseo_bulkprojects()
 				'Done'
 			)
 		);
-		
-		// Log any database errors
-		if ($wpdb->last_error) {
-			error_log('Bulktasksdetails update error: ' . $wpdb->last_error);
-			error_log('Query: UPDATE ' . $detailsTaskModel->getTable() . ' SET status = Stoped WHERE bulktask_id = ' . $id . ' AND status != Done');
-		}
-		
-		error_log('Stop bulk task - ID: ' . $id . ', Bulktask updated: ' . ($update_result ? 'yes' : 'no') . ', Details rows affected: ' . $details_result);
 		
 		FlashMessage::success('Project has been canceled. All ongoing tasks have been halted.');
 		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
@@ -505,6 +498,20 @@ function improveseo_bulkprojects()
 				$wpdb->update(
 					$wpdb->prefix . 'improveseo_bulktasks',
 					array('state' => 'Finished'),
+					array('id' => $mainid),
+					array('%s'),
+					array('%d')
+				);
+			}
+			// Fallback: if all tasks are canceled, set parent state to 'Stopped'
+			$canceled_tasks = (int) $wpdb->get_var($wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND status = 'Stoped'",
+				$mainid
+			));
+			if ($total_tasks > 0 && $total_tasks == $canceled_tasks) {
+				$wpdb->update(
+					$wpdb->prefix . 'improveseo_bulktasks',
+					array('state' => 'Stopped'),
 					array('id' => $mainid),
 					array('%s'),
 					array('%d')
