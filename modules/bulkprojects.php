@@ -526,36 +526,23 @@ function improveseo_bulkprojects()
 			wp_redirect(admin_url("admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id={$mainid}"));
 		}
 
-	elseif ($action == 'export_urls_excel'):
+	elseif ($action == 'export_urls'):
 		$id = $_GET['id'];
 		$project_name = sanitize_title_with_dashes($_GET['name']);
 		@set_time_limit(0);
+		$urls = "";
 		$posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
-		$urls = array();
 		foreach ($posts as $post) {
-			$urls[] = get_permalink($post->post_id);
+			$urls .= get_permalink($post->post_id) . "\r\n";
 		}
-		// Generate Excel file
-		require_once ABSPATH . 'wp-admin/includes/class-pclzip.php';
-		$excelFile = tempnam(sys_get_temp_dir(), 'urls_') . '.xlsx';
-		$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-		$sheet = $spreadsheet->getActiveSheet();
-		$sheet->setCellValue('A1', 'Post URLs');
-		$row = 2;
-		foreach ($urls as $url) {
-			$sheet->setCellValue('A' . $row, $url);
-			$row++;
-		}
-		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-		$writer->save($excelFile);
-		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-		header('Content-Disposition: attachment; filename=' . basename($project_name . '_urls.xlsx'));
+		file_put_contents("$project_name.txt", $urls);
+		header('Content-Type: application/octet-stream');
+		header('Content-Disposition: attachment; filename=' . basename("$project_name.txt"));
 		header('Expires: 0');
 		header('Cache-Control: must-revalidate');
 		header('Pragma: public');
-		header('Content-Length: ' . filesize($excelFile));
-		readfile($excelFile);
-		unlink($excelFile);
+		header('Content-Length: ' . filesize("$project_name.txt"));
+		readfile("$project_name.txt");
 		exit;
 
 	elseif ($action == 'export_all_project'):
