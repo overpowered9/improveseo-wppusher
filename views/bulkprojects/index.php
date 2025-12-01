@@ -179,13 +179,16 @@ if (isset($_GET['post_preview'])) {
 															Export a list of all posts/pages URLs
 														</a>
 													</span>
+											<?php if ($project->state != 'Stopped' && $project->state != 'Finished' && $project->number_of_tasks > $project->number_of_completed_task) { ?>
+											<span class="edit">
+												<a class="popup-link"
+													href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=stop_bulk_task&id=' . $project->id . '&noheader=true') ?>"
+													onclick="return confirm('Are you sure you want to cancel this project? All ongoing tasks will be halted immediately.')">
+													Cancel Process
+												</a>
+											</span>
+											<?php } ?>
 												<span class="edit">
-													<a class="popup-link"
-														href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=stop_bulk_task&id=' . $project->id . '&noheader=true') ?>">
-														Stop process
-													</a>
-												</span>
-													<span class="edit">
 														<a class="popup-link" class="submitdelete" target="_blank"
 															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $project->id) ?>">View
 															all AI posts/pages</a>

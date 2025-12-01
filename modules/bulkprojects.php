@@ -344,7 +344,19 @@ function improveseo_bulkprojects()
 		// Update the bulk task's state to 'Stopped'
 		$model->update(array('state' => 'Stopped'), $id);
 		
-		FlashMessage::success('Project has been canceled. Content generation has been halted.');
+		// Stop all individual tasks that are not yet Done (Pending or processing)
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE `" . $detailsTaskModel->getTable() . "`
+				SET status = %s 
+				WHERE bulktask_id = %d AND status != %s",
+				'Stoped',
+				$id,
+				'Done'
+			)
+		);
+		
+		FlashMessage::success('Project has been canceled. All ongoing tasks have been halted.');
 		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
 		exit;
 

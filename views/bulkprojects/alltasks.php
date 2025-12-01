@@ -203,16 +203,16 @@ $url .= $_SERVER['REQUEST_URI'];
 											<ul class="popup-menu">
 												<div class="row-actions"
 													style="display: flex; flex-direction: column !important;">
-												<?php if ($project->status != 'Done' && $project->status != 'Stoped') { ?>
-													<span class="edit">
-														<?php $task_id = $_GET['id']; ?>
-														<a class="ct-btn btn btn-outline-primary"
-															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=stop&mainid=' . $task_id . '&id=' . $project->id) ?>"
-															onclick="return confirm('Are you sure you want to cancel this task? Content generation will be halted.')">
-															Cancel Process
-														</a>
-													</span>
-												<?php }
+											<?php if ($project->status != 'Done' && $project->status != 'Stoped') { ?>
+												<span class="edit">
+													<?php $task_id = $_GET['id']; ?>
+													<a class="popup-link"
+														href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=stop&mainid=' . $task_id . '&id=' . $project->id) ?>"
+														onclick="return confirm('Are you sure you want to cancel this task? Content generation will be halted.')">
+														Cancel Process
+													</a>
+												</span>
+											<?php }
 													if ($project->state == 'Draft') {
 														$task_id = $_GET['id']; ?>
 														<span class="primary">
