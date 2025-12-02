@@ -235,12 +235,10 @@ $url .= $_SERVER['REQUEST_URI'];
 															onclick="return confirm('This will delete the existing content and regenerate from scratch. Continue?')">Re-Generate Content</a>
 													</span>
 												<?php } ?>
-													<?php if (!empty($project->post_id)) { ?>
-														<?php //$posturl =   get_post($project->post_id); 
-																$preview_link = add_query_arg('preview', 'true', get_permalink($project->post_id)); ?>
+													<?php if (!empty($project->ai_content)) { ?>
 														<span class="primary">
 															<a class="popup-link" class="submitdelete" target="_blank"
-																href="<?php echo $preview_link; ?>">View AI
+																href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAiContent&id=' . $project->id) ?>">View AI
 																content</a>
 														</span>
 													<?php } else { ?>

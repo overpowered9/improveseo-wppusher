@@ -275,28 +275,21 @@ function improveseo_bulkprojects()
 
 	elseif ($action == 'viewAiContent'):
 		// Filters
-		$id = isset($_GET['id']) ? $_GET['id'] : '';
+		$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 		$orderBy = isset($_GET['orderBy']) ? $_GET['orderBy'] : 'created_at';
 		$order = isset($_GET['order']) ? $_GET['order'] : 'DESC';
 		$highlight = isset($_GET['highlight']) ? $_GET['highlight'] : null;
-		$params = array();
+		
 		$sql = 'SELECT * FROM ' . $detailsTaskModel->getTable();
-		$sql .= ' WHERE `id` = ' . $id;
-		$sqlTotal = 'SELECT COUNT(id) AS total FROM ' . $detailsTaskModel->getTable();
-		$sqlTotal .= ' WHERE `id` = ' . $id;
-		$sqlTotal = $wpdb->prepare($sqlTotal, $params);
+		$sql .= ' WHERE `id` = %d';
 		$sql .= " ORDER BY $orderBy $order";
-		$sql .= " LIMIT %d, %d";
-		$params[] = $offset;
-		$params[] = $limit;
-		$sql = $wpdb->prepare($sql, $params);
+		$sql = $wpdb->prepare($sql, $id);
 
 		// Data
 		$projects = $wpdb->get_results($sql);
-		$total_row = $wpdb->get_row($sqlTotal);
-		$total = $total_row->total;
-		$pages = ceil($total / $limit);
-		$page = floor($offset / $limit) + 1;
+		$total = count($projects);
+		$pages = 1;
+		$page = 1;
 		View::render('bulkprojects.viewAIContent', compact('projects', 'id', 'page', 'pages', 'order', 'orderBy', 'highlight'));
 
 	elseif ($action == 'delete'):
