@@ -253,8 +253,7 @@ $url .= $_SERVER['REQUEST_URI'];
 														$edit_link = admin_url('post.php?action=edit&post=' . $project->post_id); ?>
 														<span class="primary">
 															<a class="popup-link" class="submitdelete" target="_blank"
-																href="<?php echo $edit_link; ?>"
-																onclick="return confirm('Are you sure you want to edit this post directly in wordpress post? Only post content will edit.');">Edit
+																href="<?php echo $edit_link; ?>">Edit
 																Post Content</a>
 														</span>
 													<?php } else { ?>
