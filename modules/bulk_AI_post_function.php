@@ -427,44 +427,6 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 
 
-	// if($regenerate==1) {
-
-		$wpdb->query(
-			$wpdb->prepare(
-				"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
-						SET status = %s, state = %s, ai_title = %s, ai_content = %s, ai_image = %s
-						WHERE id = %d",
-				'Done',
-				'Published',
-				$ai_title,
-				$AI_Content,
-				$imageURL,
-				$id
-			)
-		);
-
-	// } else {
-
-	// 	$wpdb->query(
-
-	// 		$wpdb->prepare(
-
-	// 			"UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails`
-
-	// 			SET ai_title = %s, ai_content = %s, ai_image = %s
-
-	// 			WHERE id = %d",
-
-	// 			 $ai_title, $AI_Content, $imageURL, $id
-
-	// 		)
-
-	// 	);
-
-	// }
-
-
-
 
 
 	//update_option("work_dex_schedule",time());
