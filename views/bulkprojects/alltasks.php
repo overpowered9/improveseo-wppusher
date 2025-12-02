@@ -225,13 +225,16 @@ $url .= $_SERVER['REQUEST_URI'];
 															<a class="popup-link"
 																href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=publish&mainid=' . $task_id . '&id=' . $project->id) ?>">
 																Publish
-															</a>
-														</span>
-														<span class="primary">
-															<a href="javascript:re_generatepost(<?= $project->id ?>)"
-																class="popup-link" target="_self">Re-Generate Post</a>
-														</span>
-													<?php } ?>
+														</a>
+													</span>
+												<?php }
+												if ($project->status != 'Stoped') { ?>
+													<span class="primary">
+														<a href="javascript:re_generatepost(<?= $project->id ?>)"
+															class="popup-link" target="_self"
+															onclick="return confirm('This will delete the existing content and regenerate from scratch. Continue?')">Re-Generate Content</a>
+													</span>
+												<?php } ?>
 													<?php if (!empty($project->post_id)) { ?>
 														<?php //$posturl =   get_post($project->post_id); 
 																$preview_link = add_query_arg('preview', 'true', get_permalink($project->post_id)); ?>

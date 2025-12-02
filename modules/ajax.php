@@ -606,3 +606,45 @@ function improveseo_create_bulk_category() {
         'slug' => $cat_slug
     ));
 }
+
+// AJAX handler for regenerating bulk task content
+add_action('wp_ajax_re_generate_post', 'improveseo_re_generate_post');
+function improveseo_re_generate_post() {
+    global $wpdb;
+    
+    if (!isset($_POST['id'])) {
+        wp_send_json_error('Task ID is required');
+        return;
+    }
+    
+    $id = intval($_POST['id']);
+    
+    // Clear existing AI content before regenerating
+    $result = $wpdb->update(
+        $wpdb->prefix . 'improveseo_bulktasksdetails',
+        array(
+            'ai_content' => '',
+            'ai_title' => '',
+            'ai_image' => '',
+            'status' => 'Pending'
+        ),
+        array('id' => $id),
+        array('%s', '%s', '%s', '%s'),
+        array('%d')
+    );
+    
+    if ($result === false) {
+        wp_send_json_error('Failed to clear old content');
+        return;
+    }
+    
+    // Trigger content regeneration by calling the bulk AI function
+    require_once plugin_dir_path(__FILE__) . 'bulk_AI_post_function.php';
+    
+    try {
+        generateBulkAiContent($id);
+        wp_send_json_success('Content regenerated successfully');
+    } catch (Exception $e) {
+        wp_send_json_error('Failed to regenerate content: ' . $e->getMessage());
+    }
+}
