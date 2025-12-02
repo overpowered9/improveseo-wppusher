@@ -5503,21 +5503,7 @@ function re_generate_post()
 
 	generateBulkAiContent($id, $regenerate);
 
-	$wpdb->query(
-
-		$wpdb->prepare(
-
-			"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
-
-			SET state = %s WHERE id = %d",
-
-			'draft',
-
-			$id
-
-		)
-
-	);
+	// State is already set correctly in generateBulkAiContent, no need to override it here
 
 	wp_send_json_success(array('status' => 'true', "message" => "Post regenerated successfully."));
 
