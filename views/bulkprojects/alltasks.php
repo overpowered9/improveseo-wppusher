@@ -282,7 +282,7 @@ $url .= $_SERVER['REQUEST_URI'];
 <script>
 	function re_generatepost(id) {
 		jQuery('.show_loading').css("display", "block");
-		jQuery(".show_loading h2").html("Post is re-generating............ Please wait........");
+		jQuery(".show_loading h2").html("Post is re-generating, Please wait ...<br><strong style='color: #d63638; margin-top: 10px; display: inline-block;'>Do not close this page!</strong>");
 		re_generate(id);
 	}
 
@@ -296,8 +296,14 @@ $url .= $_SERVER['REQUEST_URI'];
 				}),
 				success: function (data) {
 					console.log(data);
+					jQuery('.show_loading').css("display", "none");
 					alert("Content has been Re-Generated successfully.");
 					location.reload(true);
+				},
+				error: function(xhr, status, error) {
+					jQuery('.show_loading').css("display", "none");
+					alert("Failed to regenerate content. Please try again.");
+					console.error(error);
 				}
 			});
 	}
