@@ -226,21 +226,25 @@ global $ai_modal_type;
     
     .add-category-section button {
         padding: 12px 30px !important;
-               background: #1A73E8;
-               color: #fff;
-               border: none;
-               border-radius: 8px;
-               cursor: pointer;
-               font-weight: 700;
-               font-size: 18px;
-               transition: background 0.2s, box-shadow 0.2s;
-               box-shadow: 0 2px 8px rgba(26,115,232,0.15);
+        border: 1px solid #1E70B8 !important;
+        border-radius: 50px !important;
+        font-weight: normal !important;
+        cursor: pointer !important;
+        font-size: 20px !important;
+        background: linear-gradient(181deg, #2891EE 0%, #1E70B8 48%, #0061B6 100%) !important;
+        color: #fff !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        justify-content: center !important;
+        box-shadow: 0 2px 8px rgba(30, 112, 184, 0.15);
+        transition: all 0.3s ease;
     }
     
     .add-category-section button:hover {
-        background: #005a87 !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 115, 170, 0.3) !important;
+        background: linear-gradient(80deg, #2891EE 0%, #1E70B8 48%, #0061B6 100%) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 12px rgba(30, 112, 184, 0.25) !important;
     }
     
     .category-selection-section > p {
@@ -3079,10 +3083,12 @@ global $ai_modal_type;
         $('#add_category_bulk_btn').on('click', function() {
             const categoryName = $('#new_category_name_bulk').val().trim();
             const messageEl = $('#category_add_message_bulk');
+            
             if (!categoryName) {
                 messageEl.text('Please enter a category name').css('color', '#dc3232');
                 return;
             }
+            
             // Send AJAX request to create category
             $.ajax({
                 url: ajaxurl,
@@ -3097,11 +3103,39 @@ global $ai_modal_type;
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Add new category to the list using same structure as PHP
-                        const newCategoryHtml = '<div class="input-group cta-check m-0"><span><input type="checkbox" name="cats[]" value="' + response.data.term_id + '" id="cat_' + response.data.term_id + '" checked><label for="cat_' + response.data.term_id + '">' + response.data.name + '</label></span></div>';
+                        // Add new category to the list
+                        const newCategoryHtml = '<label class="bulk-category-item" style="display: inline-flex; align-items: center; padding: 10px 18px; background: #0073aa; border: 2px solid #0073aa; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-size: 14px; font-weight: 500; color: white;">' +
+                            '<input type="checkbox" name="cats[]" value="' + response.data.term_id + '" checked style="display: inline-block !important; margin-right: 10px; cursor: pointer; width: 18px; height: 18px; accent-color: white;">' +
+                            '<span>' + response.data.name + '</span>' +
+                        '</label>';
+                        
                         $('#bulk-category-list').append(newCategoryHtml);
+                        
+                        // Re-bind event handler for new checkbox
+                        $('#bulk-category-list .bulk-category-item:last input[type="checkbox"]').on('change', function() {
+                            const label = $(this).closest('.bulk-category-item');
+                            if ($(this).is(':checked')) {
+                                label.css({
+                                    'background': '#0073aa',
+                                    'color': 'white',
+                                    'border-color': '#0073aa',
+                                    'padding': '10px 18px',
+                                    'border-radius': '25px'
+                                });
+                            } else {
+                                label.css({
+                                    'background': 'white',
+                                    'color': '#333',
+                                    'border-color': '#e0e0e0',
+                                    'padding': '10px 18px',
+                                    'border-radius': '25px'
+                                });
+                            }
+                        });
+                        
                         $('#new_category_name_bulk').val('');
                         messageEl.text('Category added successfully!').css('color', '#46b450');
+                        
                         setTimeout(function() {
                             messageEl.text('');
                         }, 3000);
