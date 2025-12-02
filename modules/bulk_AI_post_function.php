@@ -393,8 +393,15 @@ function generateBulkAiContent($id = '', $regenerate = '')
 		my_plugin_log('This is a log message content : ' . $AI_Content);
 
         // Persist one detail row as Done + AI payload
-		// Determine state based on whether post_id exists
-		$state = !empty($value->post_id) ? 'Published' : 'Draft';
+		// Determine state based on whether post exists and is published
+		$state = 'Draft';
+		if (!empty($value->post_id)) {
+			$post = get_post($value->post_id);
+			if ($post && $post->post_status == 'publish') {
+				$state = 'Published';
+			}
+		}
+		
         $wpdb->query(
             $wpdb->prepare(
                 "UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
@@ -410,16 +417,13 @@ function generateBulkAiContent($id = '', $regenerate = '')
 		}
 
 		// Update WordPress post content only if post is already published
-		if (!empty($value->post_id)) {
-			$post = get_post($value->post_id);
-			if ($post && $post->post_status == 'publish') {
-				$post_update = array(
-					'ID' => $value->post_id,
-					'post_title' => $ai_title,
-					'post_content' => base64_decode($AI_Content),
-				);
-				wp_update_post($post_update);
-			}
+		if ($state == 'Published') {
+			$post_update = array(
+				'ID' => $value->post_id,
+				'post_title' => $ai_title,
+				'post_content' => base64_decode($AI_Content),
+			);
+			wp_update_post($post_update);
 		}
 	}
 
