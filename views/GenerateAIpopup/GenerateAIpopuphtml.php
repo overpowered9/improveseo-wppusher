@@ -226,15 +226,15 @@ global $ai_modal_type;
     
     .add-category-section button {
         padding: 12px 30px !important;
-        background: #0073aa !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 25px !important;
-        cursor: pointer !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 2px 6px rgba(0, 115, 170, 0.2);
+               background: #1A73E8;
+               color: #fff;
+               border: none;
+               border-radius: 8px;
+               cursor: pointer;
+               font-weight: 700;
+               font-size: 18px;
+               transition: background 0.2s, box-shadow 0.2s;
+               box-shadow: 0 2px 8px rgba(26,115,232,0.15);
     }
     
     .add-category-section button:hover {
@@ -3079,12 +3079,10 @@ global $ai_modal_type;
         $('#add_category_bulk_btn').on('click', function() {
             const categoryName = $('#new_category_name_bulk').val().trim();
             const messageEl = $('#category_add_message_bulk');
-            
             if (!categoryName) {
                 messageEl.text('Please enter a category name').css('color', '#dc3232');
                 return;
             }
-            
             // Send AJAX request to create category
             $.ajax({
                 url: ajaxurl,
@@ -3099,35 +3097,11 @@ global $ai_modal_type;
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Add new category to the list
-                        const newCategoryHtml = '<label class="bulk-category-item" style="padding: 8px 15px; background: #0073aa; color: white; border: 2px solid #0073aa; border-radius: 5px; cursor: pointer; transition: all 0.3s;">' +
-                            '<input type="checkbox" name="cats[]" value="' + response.data.term_id + '" checked style="margin-right: 8px;">' +
-                            '<span>' + response.data.name + '</span>' +
-                        '</label>';
-                        
+                        // Add new category to the list using same structure as PHP
+                        const newCategoryHtml = '<div class="input-group cta-check m-0"><span><input type="checkbox" name="cats[]" value="' + response.data.term_id + '" id="cat_' + response.data.term_id + '" checked><label for="cat_' + response.data.term_id + '">' + response.data.name + '</label></span></div>';
                         $('#bulk-category-list').append(newCategoryHtml);
-                        
-                        // Re-bind event handler for new checkbox
-                        $('#bulk-category-list .bulk-category-item:last input[type="checkbox"]').on('change', function() {
-                            const label = $(this).closest('.bulk-category-item');
-                            if ($(this).is(':checked')) {
-                                label.css({
-                                    'background': '#0073aa',
-                                    'color': 'white',
-                                    'border-color': '#0073aa'
-                                });
-                            } else {
-                                label.css({
-                                    'background': 'white',
-                                    'color': '#23282d',
-                                    'border-color': '#ddd'
-                                });
-                            }
-                        });
-                        
                         $('#new_category_name_bulk').val('');
                         messageEl.text('Category added successfully!').css('color', '#46b450');
-                        
                         setTimeout(function() {
                             messageEl.text('');
                         }, 3000);
