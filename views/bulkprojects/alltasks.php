@@ -455,28 +455,3 @@ if (isset($_GET['build_posts_id'])) { ?>
 <?php } ?>
 <?php View::endSection('content') ?>
 <?php View::make('layouts.main') ?>
-<script>
-	function re_generatepost(id) {
-		jQuery('.show_loading').css("display", "block");
-		jQuery(".show_loading h2").html("Post is re-generating............ Please wait........");
-		re_generate(id);
-	}
-	function re_generate(ids) {
-		jQuery
-			.ajax({
-				url: "<?php echo admin_url("admin-ajax.php"); ?>",
-				data: ({
-					action: 're_generate_post',
-					id: ids
-				}),
-				success: function (data) {
-					console.log(data);
-					alert("Content has been Re-Generated successfully.");
-					location.reload(true);
-				}
-			});
-	}
-	function refreshPage() {
-		location.reload();
-	}
-</script>
