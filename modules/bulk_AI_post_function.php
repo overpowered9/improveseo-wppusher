@@ -402,10 +402,20 @@ function generateBulkAiContent($id = '', $regenerate = '')
             )
         );
 
-        // Sync parent bulk project after changing child status
-        if (isset($value->bulktask_id)) {
-            improveseo_sync_bulk_parent_progress((int) $value->bulktask_id);
-        }
+		// Sync parent bulk project after changing child status
+		if (isset($value->bulktask_id)) {
+			improveseo_sync_bulk_parent_progress((int) $value->bulktask_id);
+		}
+
+		// Update WordPress post content if post_id exists
+		if (!empty($value->post_id)) {
+			$post_update = array(
+				'ID' => $value->post_id,
+				'post_title' => $ai_title,
+				'post_content' => base64_decode($AI_Content),
+			);
+			wp_update_post($post_update);
+		}
 	}
 
 	//$wpdb->query ( "UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails` SET status='Done',`ai_title`=".$ai_title.",`ai_content`='".$AI_Content."',`ai_image`='".$imageURL."', WHERE id=".$id );
@@ -414,29 +424,19 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 	// if($regenerate==1) {
 
-	$wpdb->query(
-
-		$wpdb->prepare(
-
-			"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
-
-					SET status = %s, ai_title = %s, ai_content = %s, ai_image = %s
-
-					WHERE id = %d",
-
-			'Done',
-
-			$ai_title,
-
-			$AI_Content,
-
-			$imageURL,
-
-			$id
-
-		)
-
-	);
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
+						SET status = %s, state = %s, ai_title = %s, ai_content = %s, ai_image = %s
+						WHERE id = %d",
+				'Done',
+				'Published',
+				$ai_title,
+				$AI_Content,
+				$imageURL,
+				$id
+			)
+		);
 
 	// } else {
 
