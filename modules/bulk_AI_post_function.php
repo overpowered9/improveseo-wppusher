@@ -393,12 +393,14 @@ function generateBulkAiContent($id = '', $regenerate = '')
 		my_plugin_log('This is a log message content : ' . $AI_Content);
 
         // Persist one detail row as Done + AI payload
+		// Determine state based on whether post_id exists
+		$state = !empty($value->post_id) ? 'Published' : 'Draft';
         $wpdb->query(
             $wpdb->prepare(
                 "UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
-                 SET status = %s, ai_title = %s, ai_content = %s, ai_image = %s
+                 SET status = %s, state = %s, ai_title = %s, ai_content = %s, ai_image = %s
                  WHERE id = %d",
-                'Done', $ai_title, $AI_Content, $imageURL, $id
+                'Done', $state, $ai_title, $AI_Content, $imageURL, $id
             )
         );
 
@@ -407,14 +409,17 @@ function generateBulkAiContent($id = '', $regenerate = '')
 			improveseo_sync_bulk_parent_progress((int) $value->bulktask_id);
 		}
 
-		// Update WordPress post content if post_id exists
+		// Update WordPress post content only if post is already published
 		if (!empty($value->post_id)) {
-			$post_update = array(
-				'ID' => $value->post_id,
-				'post_title' => $ai_title,
-				'post_content' => base64_decode($AI_Content),
-			);
-			wp_update_post($post_update);
+			$post = get_post($value->post_id);
+			if ($post && $post->post_status == 'publish') {
+				$post_update = array(
+					'ID' => $value->post_id,
+					'post_title' => $ai_title,
+					'post_content' => base64_decode($AI_Content),
+				);
+				wp_update_post($post_update);
+			}
 		}
 	}
 
