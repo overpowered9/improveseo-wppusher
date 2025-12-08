@@ -146,7 +146,7 @@ if (isset($_GET['post_preview'])) {
 									?> </td>
 								<td data-label="Status" class="status finished"><?php
 								if ($project->state == 'Stopped')
-									echo '<p class="post-st" style="color: #ff4d4f; font-weight: 600; font-size: 14px;" >Canceled</p>';
+									echo '<span style="color: #ff4d4f; font-weight: 600;">Canceled</span>';
 								elseif ($project->state == 'Finished')
 									echo '<p class="post-fd">Finished</p>';
 								elseif ($project->state == 'Draft')
