@@ -393,37 +393,36 @@ function generateBulkAiContent($id = '', $regenerate = '')
 		my_plugin_log('This is a log message content : ' . $AI_Content);
 
         // Persist one detail row as Done + AI payload
-		// Determine state based on whether post exists and is published
-		$state = 'Draft';
-		if (!empty($value->post_id)) {
-			$post = get_post($value->post_id);
-			if ($post && $post->post_status == 'publish') {
-				$state = 'Published';
-			}
-		}
-		
+		// DO NOT modify state - it represents user's original publishing intent
+		// Only update status to 'Done' when content is ready
         $wpdb->query(
             $wpdb->prepare(
                 "UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
-                 SET status = %s, state = %s, ai_title = %s, ai_content = %s, ai_image = %s
+                 SET status = %s, ai_title = %s, ai_content = %s, ai_image = %s
                  WHERE id = %d",
-                'Done', $state, $ai_title, $AI_Content, $imageURL, $id
+                'Done', $ai_title, $AI_Content, $imageURL, $id
             )
         );
+
+		my_plugin_log('Content generation complete for task ID: ' . $id . ', status set to Done');
 
 		// Sync parent bulk project after changing child status
 		if (isset($value->bulktask_id)) {
 			improveseo_sync_bulk_parent_progress((int) $value->bulktask_id);
 		}
 
-		// Update WordPress post content only if post is already published
-		if ($state == 'Published') {
-			$post_update = array(
-				'ID' => $value->post_id,
-				'post_title' => $ai_title,
-				'post_content' => base64_decode($AI_Content),
-			);
-			wp_update_post($post_update);
+		// If regenerating and post already exists and is published, update the WordPress post content
+		if (!empty($regenerate) && !empty($value->post_id)) {
+			$post = get_post($value->post_id);
+			if ($post && $post->post_status == 'publish') {
+				$post_update = array(
+					'ID' => $value->post_id,
+					'post_title' => $ai_title,
+					'post_content' => base64_decode($AI_Content),
+				);
+				wp_update_post($post_update);
+				my_plugin_log('Updated existing WordPress post ID: ' . $value->post_id);
+			}
 		}
 	}
 
@@ -578,19 +577,21 @@ function saveContentInTaskList()
 		// Assemble content with optional image
 		$fullcontent = $image_html . base64_decode($value->ai_content) . $content;
 
-		$post_date = date('Y-m-d H:i:s');			$post_status = 'Published';
+		$post_date = date('Y-m-d H:i:s');
+		
+		// Determine WordPress post_status (lowercase for WordPress)
+		$post_status = 'publish';  // Default: publish immediately
+		// Determine internal state value (Capital for tracking)
+		$internal_state = 'Published';  // Default
 
-			if ($value->schedule_posts == 'draft_posts') {
-
-				$post_status = 'Draft';
-
-			} elseif ($value->schedule_posts == 'schedule_posts_input_wise') {
-
-				$post_status = 'Draft';
-
-				$tags = array('This post will published on ' . $value->published_on . ' automatically.');
-
-			}
+		if ($value->schedule_posts == 'draft_posts') {
+			$post_status = 'draft';  // WordPress uses lowercase
+			$internal_state = 'Draft';  // Internal tracking uses Capital
+		} elseif ($value->schedule_posts == 'schedule_posts_input_wise') {
+			$post_status = 'draft';  // Create as draft, will be published on scheduled date
+			$internal_state = 'Scheduled';  // Keep original scheduling intent
+			$tags = array('This post will published on ' . $value->published_on . ' automatically.');
+		}
 
 
 
@@ -820,7 +821,7 @@ function saveContentInTaskList()
 
 						SET state = %s, post_id = %d WHERE id = %d",
 
-					$post_status,
+					$internal_state,  // Use internal_state instead of post_status
 
 					$post_id,
 
@@ -829,6 +830,8 @@ function saveContentInTaskList()
 				)
 
 			 );
+
+			my_plugin_log('Created WordPress post ID: ' . $post_id . ' with post_status: ' . $post_status . ', set state to: ' . $internal_state);
 
             // Also refresh parent progress (keeps updated_at fresh in UI)
             if (isset($value->bulktask_id)) {
@@ -888,14 +891,14 @@ function saveContentInTaskList()
 
 				'ID' => $value->post_id, // The ID of the post being updated
 
-				'post_status' => 'publish'  // or any other status
+				'post_status' => 'publish'  // lowercase for WordPress
 
 			);
 
 
 
 			wp_update_post($post_data);
-			my_plugin_log('updated post info ' . json_encode($post_data));
+			my_plugin_log('Scheduled publishing: Changed post ID ' . $value->post_id . ' to publish status');
 
 
 			// tag 
@@ -910,7 +913,7 @@ function saveContentInTaskList()
 
 
 
-			// $post_status = 'publish';
+			// Update state to 'Published' after scheduled publishing
 
 			$wpdb->query(
 
@@ -919,7 +922,7 @@ function saveContentInTaskList()
 					"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
 					SET `is_published_by_plugin` = %d, `state` = %s WHERE id = %d",
 					1,
-					'Published',
+					'Published',  // Change state from 'Scheduled' to 'Published'
 					$value->id
 
 				)
