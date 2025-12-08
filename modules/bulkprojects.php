@@ -402,7 +402,25 @@ function improveseo_bulkprojects()
 				$categories = '';
 			}
 			$tags = array('-');
-			$fullcontent = "<img src='" . base64_decode($value->ai_image) . "' style='width:100%; margin-bottom: 100px;' alt='" . $value->ai_title . "'>" . base64_decode($value->ai_content) . $content;
+			
+			// Validate and decode image URL before using it (same as cron job)
+			$image_html = '';
+			if (!empty($value->ai_image)) {
+				$decoded_image = base64_decode($value->ai_image);
+				// Validate that decoded image is a proper URL
+				if (filter_var($decoded_image, FILTER_VALIDATE_URL)) {
+					$image_html = "<img src='" . esc_url($decoded_image) . "' style='width:100%; margin-bottom: 100px;' alt='" . esc_attr($value->ai_title) . "'>";
+					my_plugin_log('Publish action: Valid image URL found for task ' . $value->id);
+				} else {
+					my_plugin_log('Publish action: Invalid or missing image URL for task ' . $value->id . ', skipping image');
+				}
+			} else {
+				my_plugin_log('Publish action: No image data for task ' . $value->id);
+			}
+			
+			// Assemble content with optional image
+			$fullcontent = $image_html . base64_decode($value->ai_content) . $content;
+			
 			$post_date = date('Y-m-d H:i:s');
 			$post_status = 'publish';
 			if ($value->assigning_authors == 'assigning_authors') {
@@ -474,11 +492,17 @@ function improveseo_bulkprojects()
 				$wpdb->prepare(
 					"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
 					SET state = %s, post_id = %d WHERE id = %d",
-					$post_status,
+					'Published',  // Use 'Published' (capital) for internal state
 					$post_id,
 					$value->id
 				)
 			);
+			my_plugin_log('Published post ID: ' . $post_id . ' for task: ' . $value->id . ', state set to Published');
+			
+			// Sync parent project progress after publishing
+			if (!empty($mainid)) {
+				improveseo_sync_bulk_parent_progress((int) $mainid);
+			}
 			
 			// Check if all tasks are completed and update parent project state
 			$total_tasks = (int) $wpdb->get_var($wpdb->prepare(
@@ -486,7 +510,7 @@ function improveseo_bulkprojects()
 				$mainid
 			));
 			$completed_tasks = (int) $wpdb->get_var($wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND state = 'publish'",
+				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND state = 'Published'",
 				$mainid
 			));
 			

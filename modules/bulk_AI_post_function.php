@@ -591,14 +591,14 @@ function saveContentInTaskList()
 		// Determine WordPress post_status (lowercase for WordPress)
 		$post_status = 'publish';  // Default: publish immediately
 		// Determine internal state value (Capital for tracking)
-		$internal_state = 'Published';  // Default
+		$internal_state = 'Published';  // Will be 'Published' after creating live post
 
 		if ($value->schedule_posts == 'draft_posts') {
 			$post_status = 'draft';  // WordPress uses lowercase
 			$internal_state = 'Draft';  // Internal tracking uses Capital
 		} elseif ($value->schedule_posts == 'schedule_posts_input_wise') {
 			$post_status = 'draft';  // Create as draft, will be published on scheduled date
-			$internal_state = 'Scheduled';  // Keep original scheduling intent
+			$internal_state = 'Scheduled';  // Keep scheduling intent until published
 			$tags = array('This post will published on ' . $value->published_on . ' automatically.');
 		}
 
@@ -5222,8 +5222,9 @@ function multiPostData()
 						$status = 'Draft';
 
 					} else {
-
-						$status = 'Published';
+						// 'schedule_all_posts' - will be published immediately by cron
+						// Set as Scheduled initially, will change to Published after post is created
+						$status = 'Scheduled';
 
 					}
 
