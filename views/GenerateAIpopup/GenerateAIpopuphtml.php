@@ -3103,9 +3103,9 @@ global $ai_modal_type;
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Add new category to the list - matching exact pre-existing category CSS
-                        const newCategoryHtml = '<label class="bulk-category-item" style="display: inline-flex; align-items: center; padding: 10px 18px; background: #1E70B8; border: 2px solid #1E70B8; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-size: 14px; font-weight: 500; color: white; margin: 5px;">' +
-                            '<input type="checkbox" name="cats[]" value="' + response.data.term_id + '" checked style="display: inline-block !important; margin-right: 10px; cursor: pointer; width: 18px; height: 18px; accent-color: white;">' +
+                        // Add new category to the list - using CSS class like pre-existing categories
+                        const newCategoryHtml = '<label class="bulk-category-item" style="background: #1E70B8; color: white;">' +
+                            '<input type="checkbox" name="cats[]" value="' + response.data.term_id + '" checked>' +
                             '<span>' + response.data.name + '</span>' +
                         '</label>';
                         
@@ -3117,22 +3117,12 @@ global $ai_modal_type;
                             if ($(this).is(':checked')) {
                                 label.css({
                                     'background': '#1E70B8',
-                                    'color': 'white',
-                                    'border': '2px solid #1E70B8',
-                                    'padding': '10px 18px',
-                                    'border-radius': '25px',
-                                    'font-size': '14px',
-                                    'font-weight': '500'
+                                    'color': 'white'
                                 });
                             } else {
                                 label.css({
                                     'background': 'white',
-                                    'color': '#333',
-                                    'border': '2px solid #1E70B8',
-                                    'padding': '10px 18px',
-                                    'border-radius': '25px',
-                                    'font-size': '14px',
-                                    'font-weight': '500'
+                                    'color': '#333'
                                 });
                             }
                         });
