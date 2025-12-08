@@ -184,6 +184,15 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
             )
         );
         
+        // Get count of stopped/canceled tasks
+        $stopped = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(1) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND status = %s",
+                $bulktask_id,
+                'Stoped'
+            )
+        );
+        
         // Get total number of tasks for this bulk project
         $total = (int) $wpdb->get_var(
             $wpdb->prepare(
@@ -198,8 +207,8 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
             'updated_at' => current_time('mysql'),
         );
         
-        // If all tasks are completed, mark project as finished
-        if ($total > 0 && $completed == $total) {
+        // If all tasks are either completed or stopped, mark project as finished
+        if ($total > 0 && ($completed + $stopped) >= $total) {
             $update_data['state'] = 'Finished';
         }
         
