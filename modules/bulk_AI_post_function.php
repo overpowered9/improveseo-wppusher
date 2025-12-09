@@ -176,11 +176,15 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
         if ($bulktask_id <= 0) {
             return;
         }
-        $completed = (int) $wpdb->get_var(
+        
+        
+        
+        // Count tasks with state='Published' (actually published posts)
+        $published = (int) $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(1) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND status = %s",
+                "SELECT COUNT(1) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND state = %s",
                 $bulktask_id,
-                'Done'
+                'Published'
             )
         );
         
@@ -202,13 +206,15 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
         );
         
         // Determine if project should be marked as finished
+        // Use published count as the completed task metric since it reflects actual published posts
         $update_data = array(
-            'number_of_completed_task' => $completed,
+            'number_of_completed_task' => $published,
             'updated_at' => current_time('mysql'),
         );
         
-        // If all tasks are either completed or stopped, mark project as finished
-        if ($total > 0 && ($completed + $stopped) >= $total) {
+        // If all tasks are either published or stopped, mark project as finished
+        // This considers the actual publishing state, not just content generation status
+        if ($total > 0 && ($published + $stopped) >= $total) {
             $update_data['state'] = 'Finished';
         }
         
