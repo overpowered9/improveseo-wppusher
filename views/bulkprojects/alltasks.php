@@ -162,14 +162,14 @@ $url .= $_SERVER['REQUEST_URI'];
 								<tr <?= $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
 									<td data-label="Name" style="vertical-align: middle; padding: 15px 10px;">
 										<div style="display: flex; align-items: center; gap: 10px;">
-												<label class="checkbox style-c" style="display: flex; align-items: center; margin: 0;">
-													<input id="cb-select-<?php echo $project->id; ?>" type="checkbox"
-														name="project_ids[]" value="<?php echo $project->id; ?>">
-													<div class="checkbox__checkmark"></div>
-												</label>
-												<h4 style="margin: 0; word-break: break-word; white-space: pre-line; line-height: 1.2;"> <?= $project->keyword_name ?> </h4>
-											</div>
-										</td>
+											<label class="checkbox style-c" style="margin: 0;">
+												<input id="cb-select-<?php echo $project->id; ?>" type="checkbox"
+													name="project_ids[]" value="<?php echo $project->id; ?>">
+												<div class="checkbox__checkmark"></div>
+											</label>
+											<h4 style="margin: 0; word-break: break-word; white-space: pre-line;"> <?= $project->keyword_name ?> </h4>
+										</div>
+									</td>
 									<td data-label="Language"><?= $project->content_lang ?></td>
 									<td data-label="Size"><?= $project->nos_of_words ?></td>
 									<td data-label="Content Status" class="status finished"><?php
