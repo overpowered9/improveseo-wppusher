@@ -42,7 +42,7 @@ if (isset($_GET['post_preview'])) {
 		</ul>
 		<div class="import-export-btn">
 			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_create_bulk') ?>';"
-				class="active">Add New</button>
+				class="active">Add New Project</button>
 		</div>
 	</div>
 	<div class="actions">
@@ -182,14 +182,12 @@ if (isset($_GET['post_preview'])) {
 										<?php } ?>
 												<span class="edit">
 														<a class="popup-link" class="submitdelete" target="_blank"
-															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $project->id) ?>">View
-															all AI posts/pages</a>
+															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $project->id) ?>">View All Posts Within Project</a>
 													</span>
 													<span class="trash">
 														<a class="popup-link delete-link submitdelete"
 															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=delete&id=' . $project->id) ?>"
-															onclick="if(confirm('This action will delete project and all generated posts/pages')) { window.location.href=this.href; } return false;">Delete
-															project and all posts/pages</a>
+															onclick="if(confirm('This action will delete project and all generated posts/pages')) { window.location.href=this.href; } return false;">Delete Project and All Posts</a>
 													</span>
 												</div>
 											</ul>

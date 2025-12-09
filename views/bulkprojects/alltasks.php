@@ -68,8 +68,9 @@ $url .= $_SERVER['REQUEST_URI'];
 				<li><?php echo esc_html($project_name); ?></li>
 			</ul>
 			<div class="import-export-btn">
-				<button type="button" class="active"> Add New </button>
-			</div>
+			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_create_bulk') ?>';"
+				class="active">Add New Project</button>
+		</div>
 		</div>
 		<div class="actions">
 			<div>
@@ -190,13 +191,17 @@ $url .= $_SERVER['REQUEST_URI'];
 										echo $project->published_on;
 									}
 									?> </td>
-									<td data-label="Pots Status" class="status paused">									
+									<td data-label="Post Status" class="status paused">									
 										<?php if($project->status == 'Stoped') {
 											echo '<span style="color: #ff4d4f; font-weight: 600;">Canceled</span>';
 										} else if($project->state == 'Published' && $project->post_id) {
 											echo 'Published';
-										} else {
+										} else if($project->state == 'Draft') {
+											echo 'Draft';
+										} else if($project->state == 'Scheduled') {
 											echo 'Scheduled';
+										} else {
+											echo 'Pending';
 										}
 										?>
 									</td>
