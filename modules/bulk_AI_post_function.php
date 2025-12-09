@@ -176,9 +176,7 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
         if ($bulktask_id <= 0) {
             return;
         }
-        
-        
-        
+
         // Count tasks with state='Published' (actually published posts)
         $published = (int) $wpdb->get_var(
             $wpdb->prepare(
