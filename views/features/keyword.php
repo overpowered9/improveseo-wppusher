@@ -16,6 +16,15 @@ use ImproveSEO\View;
 
 <?php View::startSection('content') ?>
 
+<style>
+.keyword_clear_btn:hover {
+    color: #fff !important;
+}
+.keyword_save_result_btn:hover {
+    color: #fff !important;
+}
+</style>
+
 <h2 class="hidden">Keyword Generator</h2>
 
 <div class="seo-breadcumb">
@@ -36,13 +45,6 @@ use ImproveSEO\View;
                 
 
             </ul>
-            <ul><li> 
-                <button class=""
-                    style="background:#ff9c33;color:#fff;border:1px solid #e07d00;padding:8px 14px;border-radius:4px;cursor:pointer;"
-                    onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists') ?>'">
-                    View Keyword lists
-                </button>
-        </li></ul>
         </div>
         <div class="improve-seo-form-box" style="padding-bottom: 0;">
             <form class="improve-seo-form-global">
@@ -57,6 +59,7 @@ use ImproveSEO\View;
                 <div class="seo-form-field">
                     <div class="improve-submit-box"> 
                         <input id="startjob" onclick="generate();" type="button" value="Generate Keywords!">
+                        <input type="button" onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists') ?>'" value="View Keyword lists" style="background:#ff9c33;color:#fff;border:1px solid #e07d00;padding:11px 20px;border-radius:4px;cursor:pointer;font-size:14px;font-weight:500;">
                         <div class="improve-submit-box-btns">
                             <input type="button" style="color:#ff4d4f !important" class="clear-search-results keyword_clear_btn" value="Clear Results"></input>
                             <input type="button" style="color:#59c174 !important" class="sw-save-search-results keyword_save_result_btn" value="Save Results"></input>
