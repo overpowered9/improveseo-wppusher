@@ -160,14 +160,14 @@ $url .= $_SERVER['REQUEST_URI'];
 						<tbody>
 							<?php foreach ($projects as $key => $project): ?>
 								<tr <?= $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
-									<td data-label="Name" style="vertical-align: top;">
-										<div style="display: flex; align-items: flex-start;">
-											<label class="checkbox style-c" style="margin-top: 2px;">
+									<td data-label="Name" style="vertical-align: middle; padding: 15px 10px;">
+										<div style="display: flex; align-items: center; gap: 10px;">
+											<label class="checkbox style-c" style="margin: 0;">
 												<input id="cb-select-<?php echo $project->id; ?>" type="checkbox"
 													name="project_ids[]" value="<?php echo $project->id; ?>">
 												<div class="checkbox__checkmark"></div>
 											</label>
-											<h4 style="margin: 0 0 0 8px; word-break: break-word; white-space: pre-line;"> <?= $project->keyword_name ?> </h4>
+											<h4 style="margin: 0; word-break: break-word; white-space: pre-line;"> <?= $project->keyword_name ?> </h4>
 										</div>
 									</td>
 									<td data-label="Language"><?= $project->content_lang ?></td>
