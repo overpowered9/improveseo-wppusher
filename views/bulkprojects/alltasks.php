@@ -161,7 +161,7 @@ $url .= $_SERVER['REQUEST_URI'];
 							<?php foreach ($projects as $key => $project): ?>
 								<tr <?= $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
 									<td data-label="Name" style="vertical-align: middle; padding: 15px 10px;">
-										<div style="display: flex; align-items: center; gap: 10px;">
+										<div style="display: flex; align-items: flex-start; gap: 10px;">
 											<label class="checkbox style-c" style="margin: 0;">
 												<input id="cb-select-<?php echo $project->id; ?>" type="checkbox"
 													name="project_ids[]" value="<?php echo $project->id; ?>">
