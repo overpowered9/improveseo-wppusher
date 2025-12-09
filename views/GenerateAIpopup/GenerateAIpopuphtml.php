@@ -875,8 +875,7 @@ global $ai_modal_type;
                         <div id="AI_image_div" class="col-md-12" style="display:none;">
                             <div id="ai-image-display"></div>
                             <div class="form-group col-md-12" style="margin: 0 0 0 40%;" id="AIrefreshOption">
-                                <button type="button" class="styling_post_page_action_buttons " onclick="return refreshAIImage()"
-                                    style="cursor:pointer;">Regenerate AI Image</button>
+                                <button type="button" class="style_next_button_in_popup" onclick="return refreshAIImage()">Regenerate AI Image</button>
                                 <!-- <i class="fa fa-refresh" aria-hidden="true" onclick="return refreshAIImage()"
                                 style="cursor:pointer;"></i> -->
                             </div>
@@ -3157,68 +3156,11 @@ global $ai_modal_type;
 </script>
 <script>
 
-    // Refresh keyword lists dropdown
+    // Refresh keyword lists dropdown - simplified to just reload page
     jQuery(document).ready(function() {
         jQuery('#refresh_keyword_lists').on('click', function(e) {
             e.preventDefault();
-            var $link = jQuery(this);
-            var originalText = $link.text();
-            
-            // Show loading state
-            $link.text('Refreshing...').css('pointer-events', 'none');
-            
-            // Make AJAX call to get updated keyword lists
-            jQuery.ajax({
-                url: ajaxurl,
-                type: 'POST',
-                data: {
-                    action: 'refresh_keyword_lists'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Update the dropdown with new options
-                        var $select = jQuery('#keyword_list_name');
-                        var currentValue = $select.val();
-                        
-                        // Clear existing options except the first one
-                        $select.find('option:not(:first)').remove();
-                        
-                        // Add updated options
-                        if (response.data.lists) {
-                            jQuery.each(response.data.lists, function(id, name) {
-                                $select.append(new Option(name, id));
-                            });
-                        }
-                        
-                        // Show success notification
-                        showImproveSEONotification(
-                            'success',
-                            'Lists Refreshed',
-                            'Keyword lists have been refreshed successfully.',
-                            null
-                        );
-                    } else {
-                        showImproveSEONotification(
-                            'error',
-                            'Refresh Failed',
-                            'Failed to refresh keyword lists. Please try again.',
-                            null
-                        );
-                    }
-                },
-                error: function() {
-                    showImproveSEONotification(
-                        'error',
-                        'Refresh Failed',
-                        'An error occurred while refreshing. Please try again.',
-                        null
-                    );
-                },
-                complete: function() {
-                    // Restore link state
-                    $link.text(originalText).css('pointer-events', '');
-                }
-            });
+            location.reload();
         });
     });
 

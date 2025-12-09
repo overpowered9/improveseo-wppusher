@@ -399,6 +399,12 @@ $url .= $_SERVER['REQUEST_URI'];
 			}
 		});
 	}
+	
+	function refreshPage() {
+		location.reload();
+		return false;
+	}
+	
 	jQuery(document).ready(function ($) {
 		$('#cb-select-all').on('change', function () {
 			var isChecked = $(this).prop('checked');
