@@ -68,7 +68,7 @@ $url .= $_SERVER['REQUEST_URI'];
 				<li><?php echo esc_html($project_name); ?></li>
 			</ul>
 			<div class="import-export-btn">
-			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_create_bulk') ?>';"
+			<button type="button" onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_create_bulk') ?>';"
 				class="active">Add New Project</button>
 		</div>
 		</div>
