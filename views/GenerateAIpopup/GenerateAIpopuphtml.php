@@ -1036,7 +1036,7 @@ global $ai_modal_type;
                     <div class="percent_multi">
                         <div class="step_multi">
                             <div class="circle_multi">4</div>
-                            <p>Select <br>category</p>
+                            <p>Select <br>Category</p>
                         </div>
                     </div>
                     <!-- Step 5 -->
