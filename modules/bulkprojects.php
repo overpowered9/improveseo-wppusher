@@ -346,20 +346,23 @@ function improveseo_bulkprojects()
 			array('%d')
 		);
 		
-		// Stop all individual tasks that haven't been published yet (regardless of content generation status)
-		// This ensures cron doesn't try to publish scheduled posts from stopped projects
+		// Cancel ALL unpublished tasks:
+		// 1. Tasks still generating content (status != 'Done')
+		// 2. Tasks with content ready but not yet published (status = 'Done' AND post_id IS NULL)
+		// This prevents orphaned scheduled posts that can't be published because parent is stopped
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
 				SET status = %s 
-				WHERE bulktask_id = %d AND state != %s",
+				WHERE bulktask_id = %d 
+				AND (status != %s OR post_id IS NULL)",
 				'Stoped',
 				$id,
-				'Published'
+				'Done'
 			)
 		);
 		
-		FlashMessage::success('Project has been canceled. All ongoing tasks have been halted.');
+		FlashMessage::success('Project has been canceled. All ongoing and scheduled tasks have been halted.');
 		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
 		exit;
 
