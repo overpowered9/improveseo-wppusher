@@ -346,15 +346,16 @@ function improveseo_bulkprojects()
 			array('%d')
 		);
 		
-		// Stop all individual tasks that are not yet Done (Pending or processing)
+		// Stop all individual tasks that haven't been published yet (regardless of content generation status)
+		// This ensures cron doesn't try to publish scheduled posts from stopped projects
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
 				SET status = %s 
-				WHERE bulktask_id = %d AND status != %s",
+				WHERE bulktask_id = %d AND state != %s",
 				'Stoped',
 				$id,
-				'Done'
+				'Published'
 			)
 		);
 		
