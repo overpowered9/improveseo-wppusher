@@ -468,9 +468,14 @@ function saveContentInTaskList()
 	$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `state` IN('Scheduled','Published') AND `status` = 'Done' AND `post_id` IS NULL 
 	 ORDER BY `id` ASC LIMIT 1";
 
-
+	my_plugin_log("saveContentInTaskList() query: " . $sql);
 
 	$Bulktasks = $wpdb->get_results($sql);
+	
+	my_plugin_log("saveContentInTaskList() found " . count($Bulktasks) . " tasks to publish");
+	if (!empty($Bulktasks)) {
+		my_plugin_log("First task: ID=" . $Bulktasks[0]->id . ", bulktask_id=" . $Bulktasks[0]->bulktask_id . ", keyword=" . $Bulktasks[0]->keyword_name);
+	}
 
 
 
