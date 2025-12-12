@@ -395,11 +395,16 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 	//my_plugin_log('arrays : '.$basic_prompt);
 
-	$AI_Content = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, $value->point_of_view, $value->details_to_include, $value->call_to_action, $value->details_to_include);
+	$generation_result = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, $value->point_of_view, $value->details_to_include, $value->call_to_action, $value->details_to_include);
 
+	// Extract content from the result array
+	$AI_Content = $generation_result['content'];
+	$meta_title = $generation_result['meta_title'];
+	$meta_description = $generation_result['meta_description'];
 
-
-
+	// Store meta data for later use if needed
+	// Note: Currently bulk generation doesn't persist meta fields to DB, but they're available here
+	my_plugin_log('Generated meta_title: ' . $meta_title . ', meta_description: ' . $meta_description);
 
 		$data_array = array('ai_title' => $ai_title, 'imageURL' => $imageURL, 'AI_Content' => $AI_Content);
 
@@ -1409,7 +1414,11 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 	if (empty($api_key) || empty($site_code)) {
 		my_plugin_log("createAIpost2bulk Error: Missing API credentials!");
 		error_log("createAIpost2bulk Error: Missing API credentials. Please configure API Key and Site Code in settings.");
-		return "Error: Missing API credentials. Please configure your API Key and Site Code in ImproveSEO settings.";
+		return array(
+			'content' => "Error: Missing API credentials. Please configure your API Key and Site Code in ImproveSEO settings.",
+			'meta_title' => '',
+			'meta_description' => ''
+		);
 	}
 	
 	my_plugin_log("Connecting to admin server for bulk generation...");
@@ -1468,7 +1477,11 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 		$error = curl_error($ch);
 		curl_close($ch);
 		error_log("createAIpost2 cURL Error: " . $error);
-		return "Error: Failed to connect to content generation server. Please try again.";
+		return array(
+			'content' => "Error: Failed to connect to content generation server. Please try again.",
+			'meta_title' => '',
+			'meta_description' => ''
+		);
 	}
 	
 	curl_close($ch);
@@ -1476,7 +1489,11 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 	// Check HTTP status
 	if ($http_status !== 200) {
 		error_log("createAIpost2 HTTP Error: Status $http_status, Response: " . $response);
-		return "Error: Content generation server returned error status: $http_status";
+		return array(
+			'content' => "Error: Content generation server returned error status: $http_status",
+			'meta_title' => '',
+			'meta_description' => ''
+		);
 	}
 	
 	// Parse JSON response
@@ -1484,22 +1501,36 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 	
 	if (!$result || !isset($result['success'])) {
 		error_log("createAIpost2 Invalid Response: " . $response);
-		return "Error: Invalid response from content generation server.";
+		return array(
+			'content' => "Error: Invalid response from content generation server.",
+			'meta_title' => '',
+			'meta_description' => ''
+		);
 	}
 	
 	if (!$result['success']) {
 		$error_msg = isset($result['error']) ? $result['error'] : 'Unknown error';
 		error_log("createAIpost2 API Error: " . $error_msg);
-		return "Error: " . $error_msg;
+		return array(
+			'content' => "Error: " . $error_msg,
+			'meta_title' => '',
+			'meta_description' => ''
+		);
 	}
 	
 	// Extract content from successful response
 	if (!isset($result['data']['content'])) {
 		error_log("createAIpost2 Missing Content: " . $response);
-		return "Error: No content returned from generation server.";
+		return array(
+			'content' => "Error: No content returned from generation server.",
+			'meta_title' => '',
+			'meta_description' => ''
+		);
 	}
 	
 	$content_final = $result['data']['content'];
+	$meta_title = isset($result['data']['meta_title']) ? $result['data']['meta_title'] : '';
+	$meta_description = isset($result['data']['meta_descreption']) ? $result['data']['meta_descreption'] : '';
 	
 	// // Apply the same post-processing as original function
 	// // Remove parentheses that wrap raw URLs/emails before converting them to links
@@ -1537,7 +1568,13 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 		error_log("createAIpost2 Generation Metadata: " . json_encode($metadata));
 	}
 	
-	return $content_final;
+	// Return array with all three values
+	return array(
+		'content' => $content_final,
+		'meta_title' => $meta_title,
+		'meta_description' => $meta_description,
+		'metadata' => isset($result['data']['generationMetadata']) ? $result['data']['generationMetadata'] : array()
+	);
 }
 function createBulkAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title, $call_to_action = '', $details_to_include = '')
 
