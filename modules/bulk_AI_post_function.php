@@ -784,7 +784,7 @@ function saveContentInTaskList()
 
 				'post_content' => $fullcontent,
 
-				'post_title' => $value->ai_title,
+				'post_title' => improveseo_sanitize_title($value->ai_title),
 
 				'comment_status' => 'closed',
 
@@ -1070,7 +1070,9 @@ function getAudienceData($seed_keyword)
 
 	if (!empty($result['choices'][0]['message']['content'])) {
 
-		return $result['choices'][0]['message']['content'];
+		$title = $result['choices'][0]['message']['content'];
+		// Remove surrounding quotes from AI-generated title
+		return improveseo_sanitize_title($title);
 
 	} else {
 
@@ -1078,6 +1080,24 @@ function getAudienceData($seed_keyword)
 
 	}
 
+}
+
+/**
+ * Sanitize title by removing surrounding double quotes
+ * @param string $title The title to sanitize
+ * @return string Cleaned title without surrounding quotes
+ */
+function improveseo_sanitize_title($title) {
+	// Trim whitespace
+	$title = trim($title);
+	
+	// Remove leading and trailing double quotes
+	$title = preg_replace('/^["\']+|["\']+$/', '', $title);
+	
+	// Trim again in case there was whitespace inside quotes
+	$title = trim($title);
+	
+	return $title;
 }
 
 function bulkAiTitle($getAudienceData, $question, $keyword_name, $tone_of_voice)
