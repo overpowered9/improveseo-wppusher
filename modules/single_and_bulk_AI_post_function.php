@@ -1,6 +1,303 @@
 <?php
 
 
+
+
+
+function replace_content($content, $remove)
+
+
+{
+
+
+	// Use preg_replace if you want more complex pattern matching
+
+
+	return preg_replace('/' . preg_quote($remove, '/') . '/', '', $content);
+
+
+}
+
+
+
+
+
+function removePTags($html)
+
+
+{
+
+
+	$html = preg_replace('/<p>(\s|&nbsp;)*<\/p>/', '', $html);
+
+
+	$html = str_replace("\n", '<br>', $html);
+
+
+
+
+
+	$html = str_replace('<h2>Table of Contents</h2>', '<h2 style="margin-top: 35px;">Table of Contents</h2>', $html);
+
+
+	// Remove any text inside square brackets [example]
+
+
+	$html = preg_replace('/\[[^\]]*\]/', '', $html);
+
+
+
+
+
+	// Remove parentheses but keep the text inside
+
+
+	// $html = preg_replace('/\(([^)]+)\)/', '$1', $html);
+
+
+	return $html;
+
+
+}
+
+
+
+
+
+function convert_emails_to_links($content)
+
+
+{
+
+
+	// Convert any email address to a mailto link
+
+
+	$content = preg_replace(
+
+
+		'/\b([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\b/',
+
+
+		'<a href="mailto:$1">$1</a>',
+
+
+		$content
+
+
+	);
+
+
+	return $content;
+
+
+}
+
+
+
+
+
+function convert_urls_to_links($content)
+
+
+{
+
+
+	// Regex to match URLs that are not inside HTML tags
+
+
+	$content = preg_replace_callback(
+
+
+		'/(<a\b[^>]*>.*?<\/a>)|((https?:\/\/|www\.)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}([\/\w.-]*)?)/',
+
+
+		function ($matches) {
+
+
+			// If it's an existing link, return it as is
+
+
+			if (!empty($matches[1])) {
+
+
+				return $matches[1];
+
+
+			}
+
+
+
+
+
+			// If it's a plain URL, convert it to a clickable link
+
+
+			$url = $matches[2];
+
+
+			$href = preg_match('/^https?:\/\//', $url) ? $url : "http://$url";
+
+
+			return "<a href=\"$href\" target=\"_blank\" rel=\"noopener\">$url</a>";
+
+
+		},
+
+
+		$content
+
+
+	);
+
+
+
+
+
+	return $content;
+
+
+}
+
+
+function ImageBasicPrompt($title)
+
+
+{
+
+
+	$apiUrl = 'https://api.openai.com/v1/chat/completions';
+
+
+	$apiKey = get_option('improveseo_chatgpt_api_key');
+
+
+	$imageBasicPrompt = "‘I need help creating a Dalle image prompt for an article based on the title: " . $title . ". Provide the description without any further explanation. Don not include the word 'prompt'.";
+
+
+	// Your chat messages
+
+
+	$messages = [
+
+
+		['role' => 'system', 'content' => 'You are a helpful assistant.'],
+
+
+		['role' => 'user', 'content' => $imageBasicPrompt],
+
+
+	];
+
+
+
+
+
+	// Additional parameters, including language setting (replace with actual parameters)
+
+
+	$data = [
+
+
+		'messages' => $messages,
+
+
+		"model" => "gpt-4o",
+
+
+		// 'language' => 'fr',  // Specify the result language as French
+
+
+	];
+
+
+
+
+
+	// Set up cURL
+
+
+	$ch = curl_init($apiUrl);
+
+
+
+
+
+	// Set cURL options
+
+
+	curl_setopt($ch, CURLOPT_POST, 1);
+
+
+	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+
+	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+
+
+		'Content-Type: application/json',
+
+
+		'Authorization: Bearer ' . $apiKey,
+
+
+	]);
+
+
+
+
+
+	// Execute the cURL request
+
+
+	$response = curl_exec($ch);
+
+
+
+
+
+	// Check for cURL errors
+
+
+	if (curl_errno($ch)) {
+
+
+		echo 'Curl error: ' . curl_error($ch);
+
+
+	}
+
+
+	// Close cURL session
+
+
+	curl_close($ch);
+
+
+	// Decode and display the response
+
+
+	$result = json_decode($response, true);
+
+
+
+
+
+	$response_data = $result['choices'][0]['message']['content'];
+
+
+	return $response_data;
+
+
+
+
+
+}
+
+
 add_action('wp_ajax_upload_image', 'upload_image_callback');
 
 
@@ -162,6 +459,40 @@ function check_bulk_credits_callback() {
 	
 	wp_send_json_success($checks);
 }
+
+
+
+
+
+add_action('wp_ajax_getPromptForImages', 'getPromptForImages');
+
+
+function getPromptForImages()
+
+
+{
+
+
+	if (!empty($_POST['title'])) {
+
+
+		$title = $_POST['title'];
+
+
+		$basicImagePromptResponse = ImageBasicPrompt($title);
+
+
+		wp_send_json_success($basicImagePromptResponse);
+
+
+	}
+
+
+}
+
+
+
+
 
 add_action('wp_ajax_fetch_AI_image', 'fetch_AI_image_callback');
 
