@@ -283,10 +283,12 @@ function generateBulkAiContent($id = '', $regenerate = '')
 	if ($id != '') {
 
 		$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `id` = " . $id;
+		my_plugin_log('generateBulkAiContent: Querying specific task ID: ' . $id);
 
 	} else {
 
 		$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `status`='Pending' ORDER BY `id` ASC LIMIT 1";
+		my_plugin_log('generateBulkAiContent: Querying next pending task');
 
 	}
 
@@ -294,17 +296,12 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 	$tasks = $wpdb->get_results($sql);
 
-	$json_d = json_encode($tasks);
-
-	if (empty($json_d)) {
-
-		my_plugin_log('This is a log message : returned true --> ' . $json_d);
-
+	if (empty($tasks)) {
+		my_plugin_log('generateBulkAiContent: No tasks found to process');
 		return true;
-
 	}
 
-	my_plugin_log('bulk saved values : ' . $json_d);
+	my_plugin_log('generateBulkAiContent: Found ' . count($tasks) . ' task(s) to process');
 
 
 
@@ -313,10 +310,33 @@ function generateBulkAiContent($id = '', $regenerate = '')
 	foreach ($tasks as $key => $value) {
 
 		$id = $value->id;
+		my_plugin_log('generateBulkAiContent: Processing task ID: ' . $id . ' | Keyword: "' . $value->keyword_name . '" | Bulk Task: ' . $value->bulktask_id);
 
-		my_plugin_log('This is a log message : ' . $id);
+		// ✅ STEP 1: Lock the task by setting status to 'Processing'
+		// This prevents another cron from processing the same task
+		if (empty($regenerate)) {
+			my_plugin_log('generateBulkAiContent: Attempting to lock task ID ' . $id);
+			
+			$rows_affected = $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
+					 SET status = %s, updated_at = NOW()
+					 WHERE id = %d AND status = %s",
+					'Processing',
+					$id,
+					'Pending'
+				)
+			);
+			
+			if ($rows_affected === 0) {
+				my_plugin_log('generateBulkAiContent: Task ID ' . $id . ' already locked by another process or not in Pending state. Skipping.');
+				return false;
+			}
+			
+			my_plugin_log('generateBulkAiContent: Successfully locked task ID ' . $id . ' - status set to Processing');
+		}
 
-		// Check if parent bulk task is stopped
+		// ✅ STEP 2: Check if parent bulk task is stopped
 		if (isset($value->bulktask_id)) {
 			$parent_task = $wpdb->get_row(
 				$wpdb->prepare(
@@ -326,10 +346,23 @@ function generateBulkAiContent($id = '', $regenerate = '')
 			);
 			
 			if ($parent_task && $parent_task->state == 'Stopped') {
-				my_plugin_log('Bulk task stopped by user - bulktask_id: ' . $value->bulktask_id);
+				my_plugin_log('generateBulkAiContent: Parent bulk task ' . $value->bulktask_id . ' is Stopped. Marking task ID ' . $id . ' as Stoped.');
+				
+				// Mark task as canceled
+				$wpdb->query(
+					$wpdb->prepare(
+						"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
+						 SET status = %s WHERE id = %d",
+						'Stoped',
+						$id
+					)
+				);
+				
 				echo '<h3>Bulk project stopped by user.</h3>';
 				return false;
 			}
+			
+			my_plugin_log('generateBulkAiContent: Parent bulk task ' . $value->bulktask_id . ' state: ' . ($parent_task ? $parent_task->state : 'NOT FOUND'));
 		}
 
 		// AI Title
@@ -356,6 +389,7 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 		}
 
+		my_plugin_log('generateBulkAiContent: Generated title for task ' . $id . ': "' . $ai_title . '"');
 
 
 
@@ -365,20 +399,19 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 
 
-
-	// AI Image
-
+	// ✅ STEP 3: Generate AI Image
+	my_plugin_log('generateBulkAiContent: Starting image generation for task ' . $id . ' | Image option: ' . $value->aiImage);
+	
 	if ($value->aiImage == 'AI_image_one') {
 
 		$imageURL = generateBulkAiImage($ai_title, $getAudienceData);
 		
-		// ✅ Check if image generation failed (returns false)
+		// Check if image generation failed (returns false)
 		if ($imageURL === false) {
-			error_log("CronjobRequest: Image generation FAILED for task " . $id . " - keyword: " . $value->keyword_name);
+			my_plugin_log('generateBulkAiContent: Image generation FAILED for task ' . $id);
 			$imageURL = ''; // Set empty string for database
 		} else {
-			error_log("CronjobRequest: Image generated successfully for task " . $id);
-			error_log("CronjobRequest: Image URL: " . $imageURL);
+			my_plugin_log('generateBulkAiContent: Image generated successfully for task ' . $id . ' | URL: ' . substr($imageURL, 0, 100) . '...');
 			// Encode the valid URL for storage
 			$imageURL = base64_encode($imageURL);
 		}
@@ -386,14 +419,14 @@ function generateBulkAiContent($id = '', $regenerate = '')
 	} else {
 
 		$imageURL = $value->ai_image;
+		my_plugin_log('generateBulkAiContent: Using existing image for task ' . $id);
 
 	}
 
-	// AI Content
-
+	// ✅ STEP 4: Generate AI Content
+	my_plugin_log('generateBulkAiContent: Starting content generation for task ' . $id . ' | Words: ' . $value->nos_of_words . ' | Language: ' . $value->content_lang);
+	
 	$keyword_selection = '';
-
-	//my_plugin_log('arrays : '.$basic_prompt);
 
 	$generation_result = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, $value->point_of_view, $value->details_to_include, $value->call_to_action, $value->details_to_include);
 
@@ -402,19 +435,56 @@ function generateBulkAiContent($id = '', $regenerate = '')
 	$meta_title = $generation_result['meta_title'];
 	$meta_description = $generation_result['meta_description'];
 
-	// Store meta data for later use if needed
-	// Note: Currently bulk generation doesn't persist meta fields to DB, but they're available here
-	my_plugin_log('Generated meta_title: ' . $meta_title . ', meta_description: ' . $meta_description);
+	my_plugin_log('generateBulkAiContent: Content generation result for task ' . $id . ' | Content length: ' . strlen($AI_Content) . ' characters | Meta title: ' . $meta_title);
+
+	// ✅ STEP 5: Validate content - check for errors
+	if (empty($AI_Content)) {
+		my_plugin_log('generateBulkAiContent: ERROR - Empty content received for task ' . $id . '. Resetting to Pending for retry.');
+		
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
+				 SET status = %s WHERE id = %d",
+				'Pending',
+				$id
+			)
+		);
+		
+		return false;
+	}
+	
+	// Check if content contains error messages
+	if (strpos($AI_Content, 'Error:') === 0 || 
+		strpos($AI_Content, 'Failed to connect') !== false ||
+		strpos($AI_Content, 'failed to open stream') !== false) {
+		
+		my_plugin_log('generateBulkAiContent: ERROR - Content contains error message for task ' . $id . ': ' . substr($AI_Content, 0, 100) . '... | Resetting to Pending for retry.');
+		
+		// Store the error temporarily but mark for retry
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
+				 SET status = %s, ai_content = %s WHERE id = %d",
+				'Pending',
+				base64_encode($AI_Content), // Store error for debugging
+				$id
+			)
+		);
+		
+		return false;
+	}
+	
+	my_plugin_log('generateBulkAiContent: Content validation passed for task ' . $id);
 
 		$data_array = array('ai_title' => $ai_title, 'imageURL' => $imageURL, 'AI_Content' => $AI_Content);
 
 		$AI_Content = base64_encode($AI_Content);
 
-		my_plugin_log('This is a log message content : ' . $AI_Content);
-
-        // Persist one detail row as Done + AI payload
+        // ✅ STEP 6: Persist content as Done + AI payload
 		// DO NOT modify state - it represents user's original publishing intent
 		// Only update status to 'Done' when content is ready
+		my_plugin_log('generateBulkAiContent: Saving generated content for task ' . $id . ' | Setting status to Done');
+		
         $wpdb->query(
             $wpdb->prepare(
                 "UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
@@ -424,10 +494,11 @@ function generateBulkAiContent($id = '', $regenerate = '')
             )
         );
 
-		my_plugin_log('Content generation complete for task ID: ' . $id . ', status set to Done');
+		my_plugin_log('generateBulkAiContent: ✅ SUCCESS - Content generation complete for task ID: ' . $id . ' | Status: Done | State: ' . $value->state);
 
 		// Sync parent bulk project after changing child status
 		if (isset($value->bulktask_id)) {
+			my_plugin_log('generateBulkAiContent: Syncing parent bulk task progress for bulktask_id: ' . $value->bulktask_id);
 			improveseo_sync_bulk_parent_progress((int) $value->bulktask_id);
 		}
 
@@ -435,13 +506,15 @@ function generateBulkAiContent($id = '', $regenerate = '')
 		if (!empty($regenerate) && !empty($value->post_id)) {
 			$post = get_post($value->post_id);
 			if ($post && $post->post_status == 'publish') {
+				my_plugin_log('generateBulkAiContent: Regeneration mode - updating existing WordPress post ID: ' . $value->post_id);
+				
 				$post_update = array(
 					'ID' => $value->post_id,
 					'post_title' => $ai_title,
 					'post_content' => base64_decode($AI_Content),
 				);
 				wp_update_post($post_update);
-				my_plugin_log('Updated existing WordPress post ID: ' . $value->post_id);
+				my_plugin_log('generateBulkAiContent: WordPress post updated successfully');
 			}
 		}
 	}
@@ -473,14 +546,18 @@ function saveContentInTaskList()
 	$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `state` IN('Scheduled','Published') AND `status` = 'Done' AND `post_id` IS NULL 
 	 ORDER BY `id` ASC LIMIT 1";
 
-	my_plugin_log("saveContentInTaskList() query: " . $sql);
+	my_plugin_log("saveContentInTaskList: Executing query to find tasks ready to publish");
+	my_plugin_log("saveContentInTaskList: Query: " . $sql);
 
 	$Bulktasks = $wpdb->get_results($sql);
 	
-	my_plugin_log("saveContentInTaskList() found " . count($Bulktasks) . " tasks to publish");
-	if (!empty($Bulktasks)) {
-		my_plugin_log("First task: ID=" . $Bulktasks[0]->id . ", bulktask_id=" . $Bulktasks[0]->bulktask_id . ", keyword=" . $Bulktasks[0]->keyword_name);
+	if (empty($Bulktasks)) {
+		my_plugin_log("saveContentInTaskList: No tasks found ready to publish");
+		return true;
 	}
+	
+	my_plugin_log("saveContentInTaskList: Found " . count($Bulktasks) . " task(s) ready to publish");
+	my_plugin_log("saveContentInTaskList: Task details - ID: " . $Bulktasks[0]->id . " | Bulktask: " . $Bulktasks[0]->bulktask_id . " | Keyword: " . $Bulktasks[0]->keyword_name . " | State: " . $Bulktasks[0]->state);
 
 
 
@@ -493,8 +570,34 @@ function saveContentInTaskList()
 	if (!empty($Bulktasks)) {
 
 		foreach ($Bulktasks as $key => $value) {
+			
+			$task_id = $value->id;
+			
+			my_plugin_log("saveContentInTaskList: Processing task ID " . $task_id . " for publishing");
 
-			// Check if parent bulk task is stopped
+			// ✅ STEP 1: Lock the task by setting a temporary status
+			// This prevents duplicate post creation if multiple crons run
+			my_plugin_log("saveContentInTaskList: Attempting to lock task " . $task_id . " for publishing");
+			
+			$rows_affected = $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
+					 SET status = %s, updated_at = NOW()
+					 WHERE id = %d AND status = %s AND post_id IS NULL",
+					'Publishing',
+					$task_id,
+					'Done'
+				)
+			);
+			
+			if ($rows_affected === 0) {
+				my_plugin_log("saveContentInTaskList: Task " . $task_id . " already being published by another process or post already exists. Skipping.");
+				return false;
+			}
+			
+			my_plugin_log("saveContentInTaskList: Successfully locked task " . $task_id . " - status set to Publishing");
+
+			// ✅ STEP 2: Check if parent bulk task is stopped
 			if (isset($value->bulktask_id)) {
 				$parent_task = $wpdb->get_row(
 					$wpdb->prepare(
@@ -504,10 +607,23 @@ function saveContentInTaskList()
 				);
 				
 				if ($parent_task && $parent_task->state == 'Stopped') {
-					my_plugin_log('Bulk task stopped by user during publishing - bulktask_id: ' . $value->bulktask_id);
+					my_plugin_log('saveContentInTaskList: Parent bulk task ' . $value->bulktask_id . ' is Stopped. Aborting publish for task ' . $task_id);
+					
+					// Reset status back to Done so it can be published later if project is reactivated
+					$wpdb->query(
+						$wpdb->prepare(
+							"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
+							 SET status = %s WHERE id = %d",
+							'Done',
+							$task_id
+						)
+					);
+					
 					echo '<h3>Bulk project stopped by user.</h3>';
 					return false;
 				}
+				
+				my_plugin_log('saveContentInTaskList: Parent bulk task ' . $value->bulktask_id . ' state: ' . ($parent_task ? $parent_task->state : 'NOT FOUND'));
 			}
 
 			// short code
@@ -776,7 +892,7 @@ function saveContentInTaskList()
 
 
 
-			my_plugin_log('author added : ' . $post_author);
+			my_plugin_log('saveContentInTaskList: Author assigned for post | Author ID: ' . $post_author . ' | Task ID: ' . $task_id);
 
 			$post_array = array(
 
@@ -804,15 +920,27 @@ function saveContentInTaskList()
 
 
 
+			my_plugin_log('saveContentInTaskList: Creating WordPress post for task ' . $task_id . ' | Title: "' . $value->ai_title . '" | Post Status: ' . $post_status);
+
 			$post_id = wp_insert_post($post_array, true); // 'true' enables WP_Error return
 
 			if (is_wp_error($post_id)) {
 				$error_message = $post_id->get_error_message();
-				//echo 'Error inserting post: ' . esc_html($error_message);
-				my_plugin_log('Error inserting post: ' . $error_message);
+				my_plugin_log('saveContentInTaskList: ❌ ERROR - Failed to create WordPress post for task ' . $task_id . ': ' . $error_message);
+				
+				// Reset status back to Done so it can be retried
+				$wpdb->query(
+					$wpdb->prepare(
+						"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
+						 SET status = %s WHERE id = %d",
+						'Done',
+						$task_id
+					)
+				);
+				
+				return false;
 			} else {
-				$smsg = 'Post inserted successfully with ID: ' . intval($post_id);
-				my_plugin_log('Post id insert: ' . $smsg);
+				my_plugin_log('saveContentInTaskList: ✅ WordPress post created successfully | Post ID: ' . $post_id . ' | Task ID: ' . $task_id);
 			}
 
 
@@ -821,6 +949,7 @@ function saveContentInTaskList()
 			if (!empty($tags)) {
 
 				wp_set_post_tags($post_id, $tags);
+				my_plugin_log('saveContentInTaskList: Added tags to post ' . $post_id);
 
 			}
 
@@ -833,21 +962,24 @@ function saveContentInTaskList()
 			if ((!empty($catids))) {
 
 				wp_set_post_categories($post_id, $catids, false);
+				my_plugin_log('saveContentInTaskList: Added ' . count($catids) . ' categories to post ' . $post_id);
 
 			}
 
 
 
+			my_plugin_log('saveContentInTaskList: Updating task ' . $task_id . ' | Setting post_id: ' . $post_id . ' | Setting state: ' . $internal_state . ' | Setting status: Done');
+			
 			$wpdb->query(
 
 				$wpdb->prepare(
 
 					"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
 
-						SET state = %s, post_id = %d WHERE id = %d",
+						SET state = %s, status = %s, post_id = %d WHERE id = %d",
 
 					$internal_state,  // Use internal_state instead of post_status
-
+					'Done',  // Set status back to Done now that post is created
 					$post_id,
 
 					$value->id
@@ -856,10 +988,11 @@ function saveContentInTaskList()
 
 			 );
 
-			my_plugin_log('Created WordPress post ID: ' . $post_id . ' with post_status: ' . $post_status . ', set state to: ' . $internal_state);
+			my_plugin_log('saveContentInTaskList: ✅ SUCCESS - Publishing complete for task ' . $task_id . ' | Post ID: ' . $post_id . ' | WP Status: ' . $post_status . ' | Internal State: ' . $internal_state);
 
             // Also refresh parent progress (keeps updated_at fresh in UI)
             if (isset($value->bulktask_id)) {
+				my_plugin_log('saveContentInTaskList: Syncing parent bulk task progress for bulktask_id: ' . $value->bulktask_id);
                 improveseo_sync_bulk_parent_progress((int) $value->bulktask_id);
             }
 
