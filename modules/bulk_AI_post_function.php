@@ -1918,14 +1918,7 @@ function multiPostData()
 
 		foreach ($keyword_lists as $key => $value) {
 
-
-
-
-					$keyword_list_name = (!empty($_POST['keyword_list_name'])) ? $_POST['keyword_list_name'] : "";
-
-					$content_type = (!empty($_POST['content_type'])) ? $_POST['content_type'] : "";
-
-					$select_exisiting_options = (!empty($_POST['select_exisiting_options'])) ? $_POST['select_exisiting_options'] : "";
+		if (!empty($value)) {
 
 					$details_to_include = (!empty($_POST['details_to_include'])) ? $_POST['details_to_include'] : "";
 
@@ -2169,11 +2162,10 @@ function multiPostData()
 
 
 
-				}
-
 			}
+
 		}
-			
+		
 		// All tasks inserted successfully, commit transaction
 		// This MUST be outside the foreach loop to ensure it always executes
 		if ($tasks_inserted == count($keyword_lists)) {
