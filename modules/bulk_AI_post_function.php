@@ -564,7 +564,7 @@ function saveContentInTaskList()
 
 				'post_content' => $fullcontent,
 
-				'post_title' => improveseo_sanitize_title($value->ai_title),
+				'post_title' => $value->ai_title,
 
 				'comment_status' => 'closed',
 
@@ -1004,29 +1004,8 @@ function bulkAiTitle($getAudienceData, $question, $keyword_name, $tone_of_voice)
 
 	$result = json_decode($response, true);
 
-	$title = $result['choices'][0]['message']['content'];
-	
-	// Clean up title - remove surrounding quotes
-	return improveseo_sanitize_title($title);
+	return $result['choices'][0]['message']['content'];
 
-}
-
-/**
- * Sanitize title by removing surrounding double quotes
- * @param string $title The title to sanitize
- * @return string Cleaned title without surrounding quotes
- */
-function improveseo_sanitize_title($title) {
-	// Trim whitespace
-	$title = trim($title);
-	
-	// Remove leading and trailing double quotes
-	$title = preg_replace('/^"+|"+$/', '', $title);
-	
-	// Trim again in case there was whitespace inside quotes
-	$title = trim($title);
-	
-	return $title;
 }
 
 function generateBulkAiImage($title, $AudienceData)
