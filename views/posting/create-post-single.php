@@ -35,7 +35,6 @@ $ai_modal_type = 'single';
 	action="<?php echo admin_url('admin.php?page=improveseo_dashboard&action=do_create_post&noheader=true'); ?>"
 	class="form-wrap" method="post">
 	<input type="hidden" name="ai_modal_type" value="single" />
-	<input type="hidden" name="improveseo_single_content" value="1" />
     
 	<div class="style_create_page_form">
 		<div class="CreatePost improveseo_wrapper create_page_cont_1">

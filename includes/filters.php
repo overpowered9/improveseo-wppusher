@@ -157,58 +157,4 @@ function improveseo_hide_improveseo_category(){
     
     echo '<style type="text/css">.cat-item-'.$category_id.' { display:none; }</style>';
 }
-add_action('wp_head', 'improveseo_hide_improveseo_category');/**
- * Disable wpautop for ImproveSEO single post content to preserve AI-generated HTML
- * This only affects single post creation, not bulk posts
- */
-add_action('init', 'improveseo_disable_wpautop_for_single_posts', 1);
-
-function improveseo_disable_wpautop_for_single_posts() {
-    // Only on ImproveSEO admin pages for single post creation
-    if (is_admin() && isset($_GET['page']) && $_GET['page'] === 'improveseo_posting' && 
-        isset($_GET['action']) && $_GET['action'] === 'create_post_single') {
-        
-        // Remove wpautop filters on admin pages
-        remove_filter('the_content', 'wpautop');
-        remove_filter('the_excerpt', 'wpautop');
-    }
-}
-
-// Preserve HTML when saving single posts from ImproveSEO
-add_filter('wp_insert_post_data', 'improveseo_preserve_single_post_html', 10, 2);
-
-function improveseo_preserve_single_post_html($data, $postarr) {
-    // Only process if this is a single post submission from ImproveSEO
-    if (isset($_POST['improveseo_single_content']) && $_POST['improveseo_single_content'] == '1') {
-        
-        // Temporarily disable wpautop filters during save
-        remove_filter('content_save_pre', 'wp_filter_post_kses');
-        remove_filter('content_filtered_save_pre', 'wp_filter_post_kses');
-        remove_filter('the_content', 'wpautop');
-        
-        // Mark this post as ImproveSEO-generated for future reference
-        add_action('save_post', 'improveseo_mark_single_post_generated', 10, 1);
-    }
-    
-    return $data;
-}
-
-function improveseo_mark_single_post_generated($post_id) {
-    if (isset($_POST['improveseo_single_content']) && $_POST['improveseo_single_content'] == '1') {
-        update_post_meta($post_id, '_improveseo_single_generated', '1');
-    }
-}
-
-// Disable wpautop when displaying ImproveSEO single posts on frontend
-add_filter('the_content', 'improveseo_disable_wpautop_on_single_display', 1);
-
-function improveseo_disable_wpautop_on_single_display($content) {
-    global $post;
-    
-    if (is_object($post) && get_post_meta($post->ID, '_improveseo_single_generated', true)) {
-        // This is an ImproveSEO single post - disable wpautop
-        remove_filter('the_content', 'wpautop');
-    }
-    
-    return $content;
-}
+add_action('wp_head', 'improveseo_hide_improveseo_category');
