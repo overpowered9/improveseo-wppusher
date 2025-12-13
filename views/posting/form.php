@@ -64,39 +64,17 @@ $google_api_key = get_option('improveseo_google_api_key');
 
 			<div class="PostForm__body-wrap <?php if (Validator::hasError('content'))
 				echo ' PostForm--error' ?>">
-				<?php 
-				// Check if this is single post creation
-				$is_single_post = (isset($_GET['action']) && $_GET['action'] === 'create_post_single');
-				
-				// Configure TinyMCE settings
-				$editor_settings = array(
-					'_content_editor_dfw' => '',
-					'drag_drop_upload' => true,
-					'tabfocus_elements' => 'content-html,save-post',
-					'editor_height' => 300,
-					'tinymce' => array(
-						'resize' => false,
-						'add_unload_trigger' => false,
-						'setup' => 'function (ed) { ed.on("change", function(e) { determineMaxPosts(); }) }'
-					),
-				);
-				
-				// Disable wpautop for single posts only
-				if ($is_single_post) {
-					$editor_settings['wpautop'] = false;
-					$editor_settings['tinymce']['wpautop'] = false;
-					$editor_settings['tinymce']['indent'] = false;
-					$editor_settings['tinymce']['forced_root_block'] = false;
-					$editor_settings['tinymce']['force_br_newlines'] = false;
-					$editor_settings['tinymce']['force_p_newlines'] = false;
-					$editor_settings['tinymce']['remove_linebreaks'] = false;
-					$editor_settings['tinymce']['convert_newlines_to_brs'] = false;
-					$editor_settings['tinymce']['remove_redundant_brs'] = false;
-					$editor_settings['tinymce']['preformatted'] = true;
-				}
-				
-				wp_editor(Validator::old('content', $task->content['content']), 'content', $editor_settings); 
-				?>
+				<?php wp_editor(Validator::old('content', $task->content['content']), 'content', array(
+				'_content_editor_dfw' => '',
+				'drag_drop_upload' => true,
+				'tabfocus_elements' => 'content-html,save-post',
+				'editor_height' => 300,
+				'tinymce' => array(
+					'resize' => false,
+					'add_unload_trigger' => false,
+					'setup' => 'function (ed) { ed.on("change", function(e) { determineMaxPosts(); }) }'
+				),
+			)); ?>
 				<?php if (Validator::hasError('content')): ?>
 					<span class="PostForm__error"><?= Validator::get('content') ?></span>
 				<?php endif; ?>

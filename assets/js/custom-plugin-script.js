@@ -2,46 +2,6 @@ var $ = jQuery;
 
 var ajaxUrl = standred_var.ajax_url;
 
-// Disable wpautop for single post creation
-jQuery(document).ready(function($) {
-  // Check if we're on the single post creation page
-  var urlParams = new URLSearchParams(window.location.search);
-  var isSinglePost = urlParams.get('action') === 'create_post_single';
-  
-  if (isSinglePost && typeof tinymce !== 'undefined') {
-    // Hook into TinyMCE before it initializes
-    $(document).on('tinymce-editor-init', function(event, editor) {
-      if (editor.id === 'content') {
-        // Disable wpautop
-        editor.settings.wpautop = false;
-        editor.settings.indent = false;
-        editor.settings.forced_root_block = false;
-        editor.settings.force_br_newlines = false;
-        editor.settings.force_p_newlines = false;
-        editor.settings.remove_linebreaks = false;
-        editor.settings.convert_newlines_to_brs = false;
-        editor.settings.remove_redundant_brs = false;
-        
-        // Prevent auto-formatting on paste
-        editor.on('PastePreProcess', function(e) {
-          // Don't clean HTML on paste
-          e.preventDefault = false;
-        });
-        
-        // Prevent auto-formatting on setContent
-        editor.on('BeforeSetContent', function(e) {
-          // Preserve exact HTML
-          if (e.content) {
-            e.format = 'raw';
-          }
-        });
-        
-        console.log('ImproveSEO: wpautop disabled for single post editor');
-      }
-    });
-  }
-});
-
 function getShortCodeDetails(value) {
   alert(value);
 
@@ -514,60 +474,37 @@ function saveFinalData() {
 
 function initializeTinyMCE() {
   // Initialize TinyMCE
-  
-  // Check if we're on single post creation page
-  var urlParams = new URLSearchParams(window.location.search);
-  var isSinglePost = urlParams.get('action') === 'create_post_single';
-  
-  var tinyMCESettings = {
+
+  tinymce.init({
     selector: "#content",
+
     setup: function (editor) {
       editor.on("init", function () {
         // Set the flag to true once initialized
+
         isTinyMCEInitialized = true;
 
         // After initialization, insert content if there's content to insert
+
         if (pendingContent) {
           insertContent(pendingContent);
 
           // Clear pending content after insertion
+
           pendingContent = "";
         }
       });
     },
-  };
-  
-  // Disable wpautop for single posts
-  if (isSinglePost) {
-    tinyMCESettings.wpautop = false;
-    tinyMCESettings.indent = false;
-    tinyMCESettings.forced_root_block = false;
-    tinyMCESettings.force_br_newlines = false;
-    tinyMCESettings.force_p_newlines = false;
-    tinyMCESettings.remove_linebreaks = false;
-    tinyMCESettings.convert_newlines_to_brs = false;
-    tinyMCESettings.remove_redundant_brs = false;
-  }
-
-  tinymce.init(tinyMCESettings);
+  });
 }
 
 function insertContent(content) {
   if (isTinyMCEInitialized) {
     // If TinyMCE is initialized, insert content
-    
-    // Check if we're on single post creation page
-    var urlParams = new URLSearchParams(window.location.search);
-    var isSinglePost = urlParams.get('action') === 'create_post_single';
-    
-    if (isSinglePost && tinymce.activeEditor) {
-      // For single posts, set content as raw HTML without processing
-      tinymce.activeEditor.setContent(content, {format: 'raw'});
-    } else {
-      // For other pages, use default behavior
-      tinyMCE.activeEditor.setContent("");
-      tinymce.activeEditor.insertContent(content);
-    }
+
+    tinyMCE.activeEditor.setContent("");
+
+    tinymce.activeEditor.insertContent(content);
   } else {
     // If TinyMCE is not initialized, initialize it and store the content to be inserted
 
