@@ -37,11 +37,11 @@ function getaaldata()
 
 	if (!empty($arr['maintitlearea'])) {
 
-		$ai_title = $arr['maintitlearea'];
+		$ai_title = improveseo_sanitize_title($arr['maintitlearea']);
 
 	} else {
 
-		$ai_title = $arr['aigeneratedtitle'];
+		$ai_title = improveseo_sanitize_title($arr['aigeneratedtitle']);
 
 	}
 
