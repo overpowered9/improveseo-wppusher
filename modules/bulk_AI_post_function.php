@@ -1952,39 +1952,35 @@ function multiPostData()
 
 		$authors_number = (!empty($_POST['authors_number'])) ? $_POST['authors_number'] : "";
 
-		$author_name = (!empty($_POST['author_name'])) ? $_POST['author_name'] : "";
+					$category = '';
+
+					if (!empty($_POST['cats'])) {
+
+						foreach ($_POST['cats'] as $cats) {
+
+							$category = $category . '||' . $cats;
+
+						}
+
+					}
 
 
 
-		$category = '';
+					$testimonial = '';
 
-		if (!empty($_POST['cats'])) {
+					if (!empty($_POST['testimonial_SC'])) {
 
-			foreach ($_POST['cats'] as $cats) {
+						foreach ($_POST['testimonial_SC'] as $testimonial_SC) {
 
-				$category = $category . '||' . $cats;
+							$testimonial = $testimonial . '||' . $testimonial_SC;
 
-			}
+						}
 
-		}
-
-
-
-		$testimonial = '';
-
-		if (!empty($_POST['testimonial_SC'])) {
-
-			foreach ($_POST['testimonial_SC'] as $testimonial_SC) {
-
-				$testimonial = $testimonial . '||' . $testimonial_SC;
-
-			}
-
-		}
+					}
 
 
 
-		if (($schedule_posts == 'schedule_all_posts')) {
+					if (($schedule_posts == 'schedule_all_posts')) {
 
 						$published_on = date('Y-m-d');
 
