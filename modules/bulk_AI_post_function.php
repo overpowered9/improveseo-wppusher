@@ -441,6 +441,7 @@ function generateBulkAiContent($id = '', $regenerate = '')
 			$ai_title = '';
 
 		}
+		$ai_title = str_replace('"', '', $ai_title);
 
 		my_plugin_log('generateBulkAiContent: Generated title for task ' . $id . ': "' . $ai_title . '"');
 

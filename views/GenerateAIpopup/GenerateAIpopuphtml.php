@@ -2666,7 +2666,7 @@ global $ai_modal_type;
                             
                             showImproveSEONotification(
                                 'warning',
-                                '⚠️ Insufficient Content Credits',
+                                'Insufficient Content Credits',
                                 msg,
                                 'https://dashboard.improveseoplugin.com/pricing'
                             );
@@ -2677,7 +2677,7 @@ global $ai_modal_type;
                         // Content credits are sufficient!
                         showImproveSEONotification(
                             'success',
-                            '✅ Content Credits Available',
+                            ' Content Credits Available',
                             'You have ' + data.content_check.available + ' content credits available for ' + keywordCount + ' posts. Proceeding to next step.'
                         );
                         resolve(data);
