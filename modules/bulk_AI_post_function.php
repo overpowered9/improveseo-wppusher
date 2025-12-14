@@ -490,15 +490,54 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 	my_plugin_log('generateBulkAiContent: Content generation result for task ' . $id . ' | Content length: ' . strlen($AI_Content) . ' characters | Meta title: ' . $meta_title);
 
-	// ✅ STEP 5: Validate content - check for errors
-	if (empty($AI_Content)) {
-		my_plugin_log('generateBulkAiContent: ERROR - Empty content received for task ' . $id . '. Resetting to Pending for retry.');
+	// ✅ CRITICAL FIX: Validate title and image FIRST - these are mandatory fields
+	// These MUST NOT be NULL in database - hard fail if missing
+	if (empty($ai_title)) {
+		my_plugin_log('generateBulkAiContent: CRITICAL ERROR - Missing title for task ' . $id . '. Cannot proceed.');
 		
+		// Keep in Processing state to prevent retry loop - manual intervention needed
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
 				 SET status = %s WHERE id = %d",
+				'Processing',
+				$id
+			)
+		);
+		
+		return false;
+	}
+	
+	// ✅ Image validation - if image generation was requested, it must succeed
+	// ai_image field should NEVER be NULL after generation attempt
+	if ($value->aiImage == 'AI_image_one' && empty($imageURL)) {
+		my_plugin_log('generateBulkAiContent: CRITICAL ERROR - Image generation failed and returned empty for task ' . $id . '. Cannot proceed with NULL image.');
+		
+		// Keep in Processing state - manual intervention or retry with different image option
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
+				 SET status = %s WHERE id = %d",
+				'Processing',
+				$id
+			)
+		);
+		
+		return false;
+	}
+
+	// ✅ STEP 5: Validate content - check for errors
+	if (empty($AI_Content)) {
+		my_plugin_log('generateBulkAiContent: ERROR - Empty content received for task ' . $id . '. Saving title/image, resetting status for content retry.');
+		
+		// ✅ CRITICAL: Save title and image even if content failed!
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
+				 SET status = %s, ai_title = %s, ai_image = %s WHERE id = %d",
 				'Pending',
+				$ai_title,
+				$imageURL,
 				$id
 			)
 		);
@@ -514,14 +553,16 @@ function generateBulkAiContent($id = '', $regenerate = '')
 		stripos($AI_Content, 'failed to open stream') !== false ||
 		stripos($AI_Content, 'connection') !== false)) {
 		
-		my_plugin_log('generateBulkAiContent: ERROR - Content appears to be an error message for task ' . $id . ': ' . substr($AI_Content, 0, 100) . '... | Resetting to Pending for retry.');
+		my_plugin_log('generateBulkAiContent: ERROR - Content appears to be an error message for task ' . $id . ': ' . substr($AI_Content, 0, 100) . '... | Saving title/image, resetting status for content retry.');
 		
-		// Store the error temporarily but mark for retry
+		// ✅ CRITICAL: Save title and image even if content is an error message!
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
-				 SET status = %s, ai_content = %s WHERE id = %d",
+				 SET status = %s, ai_title = %s, ai_image = %s, ai_content = %s WHERE id = %d",
 				'Pending',
+				$ai_title,
+				$imageURL,
 				base64_encode($AI_Content), // Store error for debugging
 				$id
 			)
@@ -536,12 +577,33 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 		$AI_Content = base64_encode($AI_Content);
 
-        // ✅ STEP 6: Persist content as Done + AI payload
+        // ✅ STEP 6: FINAL PRE-PERSISTENCE VALIDATION
+		// CRITICAL: Assert that NO mandatory fields are NULL before database write
+		// This is our last line of defense against data corruption
+		if (empty($ai_title) || $ai_title === null) {
+			my_plugin_log('generateBulkAiContent: FATAL - ai_title is NULL at persistence point for task ' . $id . '. This should NEVER happen. Aborting.');
+			return false;
+		}
+		
+		if ($imageURL === null) {
+			my_plugin_log('generateBulkAiContent: FATAL - ai_image is NULL at persistence point for task ' . $id . '. This should NEVER happen. Aborting.');
+			return false;
+		}
+		
+		if (empty($AI_Content)) {
+			my_plugin_log('generateBulkAiContent: FATAL - ai_content is NULL/empty at persistence point for task ' . $id . '. This should NEVER happen. Aborting.');
+			return false;
+		}
+		
+		// Log exactly what we're about to save
+		my_plugin_log('generateBulkAiContent: Pre-persistence check passed | ai_title: "' . substr($ai_title, 0, 50) . '" | ai_image length: ' . strlen($imageURL) . ' | ai_content length: ' . strlen($AI_Content) . ' bytes');
+
+        // ✅ STEP 7: Persist content as Done + AI payload
 		// DO NOT modify state - it represents user's original publishing intent
 		// Only update status to 'Done' when content is ready
 		my_plugin_log('generateBulkAiContent: Saving generated content for task ' . $id . ' | Setting status to Done');
 		
-        $wpdb->query(
+        $update_result = $wpdb->query(
             $wpdb->prepare(
                 "UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
                  SET status = %s, ai_title = %s, ai_content = %s, ai_image = %s
@@ -549,6 +611,47 @@ function generateBulkAiContent($id = '', $regenerate = '')
                 'Done', $ai_title, $AI_Content, $imageURL, $id
             )
         );
+		
+		// ✅ CRITICAL: Verify the update succeeded
+		if ($update_result === false) {
+			my_plugin_log('generateBulkAiContent: FATAL - Database UPDATE failed for task ' . $id . ' | MySQL Error: ' . $wpdb->last_error);
+			return false;
+		}
+		
+		if ($update_result === 0) {
+			my_plugin_log('generateBulkAiContent: WARNING - UPDATE affected 0 rows for task ' . $id . '. Task may not exist or values unchanged.');
+		}
+		
+		// ✅ CRITICAL: Verify the data was actually written to database
+		$verification = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT ai_title, ai_image, ai_content FROM `{$wpdb->prefix}improveseo_bulktasksdetails` WHERE id = %d",
+				$id
+			)
+		);
+		
+		if (!$verification) {
+			my_plugin_log('generateBulkAiContent: FATAL - Cannot verify saved data for task ' . $id . '. Record not found after UPDATE.');
+			return false;
+		}
+		
+		// Assert mandatory fields are NOT NULL in database
+		if ($verification->ai_title === null || $verification->ai_title === '') {
+			my_plugin_log('generateBulkAiContent: FATAL - ai_title is NULL in database after UPDATE for task ' . $id . '. DATA CORRUPTION DETECTED!');
+			return false;
+		}
+		
+		if ($verification->ai_image === null) {
+			my_plugin_log('generateBulkAiContent: FATAL - ai_image is NULL in database after UPDATE for task ' . $id . '. DATA CORRUPTION DETECTED!');
+			return false;
+		}
+		
+		if ($verification->ai_content === null || $verification->ai_content === '') {
+			my_plugin_log('generateBulkAiContent: FATAL - ai_content is NULL in database after UPDATE for task ' . $id . '. DATA CORRUPTION DETECTED!');
+			return false;
+		}
+		
+		my_plugin_log('generateBulkAiContent: ✅ Database verification passed | ai_title: "' . substr($verification->ai_title, 0, 50) . '" | ai_image: ' . strlen($verification->ai_image) . ' bytes | ai_content: ' . strlen($verification->ai_content) . ' bytes');
 
 		my_plugin_log('generateBulkAiContent: ✅ SUCCESS - Content generation complete for task ID: ' . $id . ' | Status: Done | State: ' . $value->state);
 
@@ -695,6 +798,46 @@ function saveContentInTaskList()
 				
 				my_plugin_log('saveContentInTaskList: Parent bulk task ' . $value->bulktask_id . ' state: ' . ($parent_task ? $parent_task->state : 'NOT FOUND'));
 			}
+
+			// ✅ STEP 3: CRITICAL PRE-PUBLISH VALIDATION
+			// Assert that mandatory fields are NOT NULL before attempting to create WordPress post
+			// This prevents publishing incomplete/corrupted data
+			if ($value->ai_title === null || $value->ai_title === '') {
+				my_plugin_log('saveContentInTaskList: FATAL - ai_title is NULL for task ' . $task_id . '. Cannot create post with empty title. Resetting to Pending.');
+				
+				$wpdb->query(
+					$wpdb->prepare(
+						"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
+						 SET status = %s WHERE id = %d",
+						'Pending',
+						$task_id
+					)
+				);
+				
+				return false;
+			}
+			
+			if ($value->ai_content === null || $value->ai_content === '') {
+				my_plugin_log('saveContentInTaskList: FATAL - ai_content is NULL for task ' . $task_id . '. Cannot create post with empty content. Resetting to Pending.');
+				
+				$wpdb->query(
+					$wpdb->prepare(
+						"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
+						 SET status = %s WHERE id = %d",
+						'Pending',
+						$task_id
+					)
+				);
+				
+				return false;
+			}
+			
+			// Note: ai_image CAN be empty if user chose not to use images, so we only log a warning
+			if ($value->ai_image === null || $value->ai_image === '') {
+				my_plugin_log('saveContentInTaskList: WARNING - ai_image is NULL/empty for task ' . $task_id . '. Post will be created without featured image.');
+			}
+			
+			my_plugin_log('saveContentInTaskList: Pre-publish validation passed for task ' . $task_id . ' | Title: "' . substr($value->ai_title, 0, 50) . '..." | Content length: ' . strlen($value->ai_content) . ' bytes');
 
 			// short code
 
@@ -1919,6 +2062,11 @@ function multiPostData()
 		foreach ($keyword_lists as $key => $value) {
 
 		if (!empty($value)) {
+
+					// ✅ CRITICAL FIX: These form values MUST be captured - they're used by generateBulkAiContent()
+					$keyword_list_name = (!empty($_POST['keyword_list_name'])) ? $_POST['keyword_list_name'] : "";
+					$content_type = (!empty($_POST['content_type'])) ? $_POST['content_type'] : "";
+					$select_exisiting_options = (!empty($_POST['select_exisiting_options'])) ? $_POST['select_exisiting_options'] : "";
 
 					$details_to_include = (!empty($_POST['details_to_include'])) ? $_POST['details_to_include'] : "";
 
