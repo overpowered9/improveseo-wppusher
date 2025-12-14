@@ -442,7 +442,7 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 		}
 
-		my_plugin_log('generateBulkAiContent: Generated title for task ' . $id . ': "' . $ai_title . '" | select_exisiting_options: ' . $value->select_exisiting_options);
+		my_plugin_log('generateBulkAiContent: Generated title for task ' . $id . ': "' . $ai_title . '"');
 
 
 
@@ -452,16 +452,12 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 
 
-// ✅ STEP 3: Generate AI Image
-my_plugin_log('generateBulkAiContent: Starting image generation for task ' . $id . ' | Image option: ' . $value->aiImage);
-
-if ($value->aiImage == 'AI_image_one') {
-
-	// Use keyword if ai_title is empty for image generation
-	$image_title = !empty($ai_title) ? $ai_title : $value->keyword_name;
-	my_plugin_log('generateBulkAiContent: Image generation using title: "' . $image_title . '"');
+	// ✅ STEP 3: Generate AI Image
+	my_plugin_log('generateBulkAiContent: Starting image generation for task ' . $id . ' | Image option: ' . $value->aiImage);
 	
-	$imageURL = generateBulkAiImage($image_title, $getAudienceData);
+	if ($value->aiImage == 'AI_image_one') {
+
+		$imageURL = generateBulkAiImage($ai_title, $getAudienceData);
 		
 		// Check if image generation failed (returns false)
 		if ($imageURL === false) {
@@ -536,31 +532,23 @@ if ($value->aiImage == 'AI_image_one') {
 	
 	my_plugin_log('generateBulkAiContent: Content validation passed for task ' . $id);
 
-	// Use meta_title from API if ai_title is empty
-	$final_title = !empty($meta_title) ? $meta_title : $ai_title;
-	if (empty($final_title)) {
-		// Fallback to keyword if both are empty
-		$final_title = $value->keyword_name;
-		my_plugin_log('generateBulkAiContent: WARNING - Both ai_title and meta_title are empty, using keyword as title: ' . $final_title);
-	}
+		$data_array = array('ai_title' => $ai_title, 'imageURL' => $imageURL, 'AI_Content' => $AI_Content);
 
-	$data_array = array('ai_title' => $final_title, 'imageURL' => $imageURL, 'AI_Content' => $AI_Content);
+		$AI_Content = base64_encode($AI_Content);
 
-	$AI_Content = base64_encode($AI_Content);
-
-	// ✅ STEP 6: Persist content as Done + AI payload
-	// DO NOT modify state - it represents user's original publishing intent
-	// Only update status to 'Done' when content is ready
-	my_plugin_log('generateBulkAiContent: Saving generated content for task ' . $id . ' | Title: "' . $final_title . '" | Setting status to Done');
-	
-	$wpdb->query(
-		$wpdb->prepare(
-			"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
-			 SET status = %s, ai_title = %s, ai_content = %s, ai_image = %s
-			 WHERE id = %d",
-			'Done', $final_title, $AI_Content, $imageURL, $id
-		)
-	);
+        // ✅ STEP 6: Persist content as Done + AI payload
+		// DO NOT modify state - it represents user's original publishing intent
+		// Only update status to 'Done' when content is ready
+		my_plugin_log('generateBulkAiContent: Saving generated content for task ' . $id . ' | Setting status to Done');
+		
+        $wpdb->query(
+            $wpdb->prepare(
+                "UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
+                 SET status = %s, ai_title = %s, ai_content = %s, ai_image = %s
+                 WHERE id = %d",
+                'Done', $ai_title, $AI_Content, $imageURL, $id
+            )
+        );
 
 		my_plugin_log('generateBulkAiContent: ✅ SUCCESS - Content generation complete for task ID: ' . $id . ' | Status: Done | State: ' . $value->state);
 
@@ -578,7 +566,15 @@ if ($value->aiImage == 'AI_image_one') {
 				
 				$post_update = array(
 					'ID' => $value->post_id,
-				'post_title' => $final_title,
+					'post_title' => $ai_title,
+					'post_content' => base64_decode($AI_Content),
+				);
+				wp_update_post($post_update);
+				my_plugin_log('generateBulkAiContent: WordPress post updated successfully');
+			}
+		}
+	}
+
 	//$wpdb->query ( "UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails` SET status='Done',`ai_title`=".$ai_title.",`ai_content`='".$AI_Content."',`ai_image`='".$imageURL."', WHERE id=".$id );
 
 
@@ -1924,33 +1920,29 @@ function multiPostData()
 
 		if (!empty($value)) {
 
+					$details_to_include = (!empty($_POST['details_to_include'])) ? $_POST['details_to_include'] : "";
+
+					$content_lang = (!empty($_POST['content_lang'])) ? $_POST['content_lang'] : "";
+
+					$point_of_view = (!empty($_POST['point_of_view'])) ? $_POST['point_of_view'] : "";
+
+					$call_to_action = (!empty($_POST['call_to_action'])) ? $_POST['call_to_action'] : "";
+
+					$nos_of_words = (!empty($_POST['nos_of_words'])) ? $_POST['nos_of_words'] : "";
+
+					$schedule_posts = (!empty($_POST['schedule_posts'])) ? $_POST['schedule_posts'] : "";
+
+					$number_of_post_schedule = (!empty($_POST['number_of_post_schedule'])) ? $_POST['number_of_post_schedule'] : "";
+
+					$schedule_frequency = (!empty($_POST['schedule_frequency'])) ? $_POST['schedule_frequency'] : "";
+
+					$assigning_authors = (!empty($_POST['assigning_authors'])) ? $_POST['assigning_authors'] : "";
+
+					$authors_number = (!empty($_POST['authors_number'])) ? $_POST['authors_number'] : "";
+
+					$author_name = (!empty($_POST['author_name'])) ? $_POST['author_name'] : "";
 
 
-			$keyword_list_name = (!empty($_POST['keyword_list_name'])) ? $_POST['keyword_list_name'] : "";
-
-			$content_type = (!empty($_POST['content_type'])) ? $_POST['content_type'] : "";
-
-			$select_exisiting_options = (!empty($_POST['select_exisiting_options'])) ? $_POST['select_exisiting_options'] : "";
-
-			$details_to_include = (!empty($_POST['details_to_include'])) ? $_POST['details_to_include'] : "";
-
-			$content_lang = (!empty($_POST['content_lang'])) ? $_POST['content_lang'] : "";
-
-		$nos_of_words = (!empty($_POST['nos_of_words'])) ? $_POST['nos_of_words'] : "";
-
-		$point_of_view = (!empty($_POST['point_of_view'])) ? $_POST['point_of_view'] : "";
-
-		$call_to_action = (!empty($_POST['call_to_action'])) ? $_POST['call_to_action'] : "";
-
-		$schedule_posts = (!empty($_POST['schedule_posts'])) ? $_POST['schedule_posts'] : "";
-
-		$number_of_post_schedule = (!empty($_POST['number_of_post_schedule'])) ? $_POST['number_of_post_schedule'] : "";
-
-		$schedule_frequency = (!empty($_POST['schedule_frequency'])) ? $_POST['schedule_frequency'] : "";
-
-		$assigning_authors = (!empty($_POST['assigning_authors'])) ? $_POST['assigning_authors'] : "";
-
-		$authors_number = (!empty($_POST['authors_number'])) ? $_POST['authors_number'] : "";
 
 					$category = '';
 
