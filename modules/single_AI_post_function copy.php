@@ -4115,7 +4115,15 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 								//'prompt_collection' => base64_encode($prompt_collection),
 
-							   'created_at' => date('Y-m-d H:i:s')
+								   'created_at' => date('Y-m-d h:m:s')
+
+							   ));*/
+
+	$inserted_id = 2;//$wpdb->insert_id;
+
+
+
+
 
 
 

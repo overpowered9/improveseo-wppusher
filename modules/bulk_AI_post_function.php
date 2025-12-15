@@ -2038,7 +2038,13 @@ function multiPostData()
 
 			'state' => "Unpublished",
 
-		'created_at' => date('Y-m-d H:i:s')
+			'created_at' => date('Y-m-d h:m:s')
+
+		));
+		
+		if ($wpdb->last_error) {
+			throw new Exception('Failed to insert parent project: ' . $wpdb->last_error);
+		}
 
 
 
@@ -2282,9 +2288,15 @@ function multiPostData()
 
 						'published_on' => $published_on,
 
-					'created_at' => date('Y-m-d H:i:s'),
+						'created_at' => date('Y-m-d h:m:s'),
 
-					'updated_at' => date('Y-m-d H:i:s'),
+						'updated_at' => date('Y-m-d h:m:s'),
+
+					);
+
+					$insert_result = $wpdb->insert($wpdb->prefix . "improveseo_bulktasksdetails", $insert_bulk_data);
+					
+					if ($insert_result === false) {
 						throw new Exception('Failed to insert child task #' . ($tasks_inserted + 1) . ' for keyword: ' . substr($value, 0, 50) . ' | Error: ' . $wpdb->last_error);
 					}
 					
