@@ -441,7 +441,15 @@ function generateBulkAiContent($id = '', $regenerate = '')
 			$ai_title = '';
 
 		}
+	
+	// ✅ TITLE SANITIZATION: Remove double quotes from titles
+	// This prevents issues with:
+	// - Titles breaking HTML attributes
+	// - SQL query problems with quotes
+	// - API responses that wrap titles in quotes
+	// Applied to all title sources: keyword_name, bulkAiTitle (normal/question), and empty fallback
 		$ai_title = str_replace('"', '', $ai_title);
+		$ai_title = trim($ai_title, '"');
 
 		my_plugin_log('generateBulkAiContent: Generated title for task ' . $id . ': "' . $ai_title . '"');
 
@@ -931,8 +939,10 @@ function saveContentInTaskList()
 		
 		// Assemble content with optional image
 		$fullcontent = $image_html . base64_decode($value->ai_content) . $content;
-
-		$post_date = date('Y-m-d H:i:s');
+	
+	// Sanitize title: remove all double quotes and trim any quotes from start/end
+	$post_title = str_replace('"', '', $value->ai_title);
+	$post_title = trim($post_title, '"');
 		
 		// Determine WordPress post_status (lowercase for WordPress)
 		$post_status = 'publish';  // Default: publish immediately
@@ -1117,11 +1127,7 @@ function saveContentInTaskList()
 
 				'post_content' => $fullcontent,
 
-				'post_title' => $value->ai_title,
-
-				'comment_status' => 'closed',
-
-				'ping_status' => 'closed',
+			'post_title' => $post_title,
 
 				'post_type' => "post",
 
