@@ -86,7 +86,7 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
                 </div>
                 <div class="seo-form-field">
                     <div class="improve-submit-box"> 
-                        <div style="display: flex-row; align-items: center; gap: 15px; ">
+                        <div style="display: flex; align-items: center; gap: 15px; ">
                             <input id="startjob" onclick="generate();" type="button" value="Generate Keywords!">
                             <input id="viewkeywordlists" type="button" onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists') ?>'" value="View Keyword lists" class="view-keyword-lists-btn">
                         </div>
