@@ -815,7 +815,8 @@ select.selected {
   padding: 15px 20px;
 }
 
-form.improve-seo-form-global input[type="button"] {
+/* Primary buttons default (exclude Clear/Save/View lists) */
+form.improve-seo-form-global input[type="button"]:not(.keyword_clear_btn):not(.keyword_save_result_btn):not(.view-keyword-lists-btn) {
   background: linear-gradient(181deg, #2891ee 0%, #1e70b8 48%, #0061b6 100%);
   color: #fff !important;
   max-width: 263px;
@@ -830,8 +831,8 @@ form.improve-seo-form-global input[type="button"] {
   font-weight: 500;
 }
 
-form.improve-seo-form-global input[type="button"]:hover,
-form.improve-seo-form-global input[type="button"]:focus {
+form.improve-seo-form-global input[type="button"]:not(.keyword_clear_btn):not(.keyword_save_result_btn):not(.view-keyword-lists-btn):hover,
+form.improve-seo-form-global input[type="button"]:not(.keyword_clear_btn):not(.keyword_save_result_btn):not(.view-keyword-lists-btn):focus {
   background: linear-gradient(100deg, #2891ee 0%, #0061b6 48%, #0061b6 100%);
 }
 
