@@ -91,8 +91,8 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
                             <input id="viewkeywordlists" type="button" onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists') ?>'" value="View Keyword lists" class="view-keyword-lists-btn">
                         </div>
                         <div class="improve-submit-box-btns">
-                            <input type="button" style="" class="clear-search-results keyword_clear_btn" value="Clear Results"></input>
-                            <input type="button" style="" class="sw-save-search-results keyword_save_result_btn" value="Save Results"></input>
+                            <input type="button" style="color:#ff4d4f !important" class="clear-search-results keyword_clear_btn" value="Clear Results"></input>
+                            <input type="button" style="color:#59c174 !important" class="sw-save-search-results keyword_save_result_btn" value="Save Results"></input>
                         </div>
                     </div>
                     
