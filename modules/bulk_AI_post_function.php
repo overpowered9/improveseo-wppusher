@@ -2038,7 +2038,7 @@ function multiPostData()
 
 			'state' => "Unpublished",
 
-			'created_at' => date('Y-m-d h:m:s')
+			'created_at' => date('Y-m-d H:i:s')
 
 		));
 		
@@ -2288,9 +2288,9 @@ function multiPostData()
 
 						'published_on' => $published_on,
 
-						'created_at' => date('Y-m-d h:m:s'),
+						'created_at' => date('Y-m-d H:i:s'),
 
-						'updated_at' => date('Y-m-d h:m:s'),
+						'updated_at' => date('Y-m-d H:i:s'),
 
 					);
 
