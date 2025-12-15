@@ -36,7 +36,7 @@ $ai_modal_type = 'single';
 	class="form-wrap" method="post">
 	<input type="hidden" name="ai_modal_type" value="single" />
     
-	<div class="style_create_page_form">
+	<div class="style_create_page_form" style="display: none;">
 		<div class="CreatePost improveseo_wrapper create_page_cont_1">
 
 			<section class="project-section d-flex flex-row  justify-content-between align-items-center pb-2">
@@ -291,7 +291,11 @@ jQuery(document).ready(function($) {
     // Auto-trigger bulk AI popup on page load
     setTimeout(function() {
         $('#generate_ai_popup_open').trigger('click');
-    }, 5);
+    }, 0);
+	// Reveal the hidden form after the button is triggered
+	$('#generate_ai_popup_open').on('click', function () {
+		$('.style_create_page_form').removeAttr('style').show();
+	});
 });
 </script>
 

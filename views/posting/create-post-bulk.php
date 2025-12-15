@@ -291,7 +291,7 @@ jQuery(document).ready(function($) {
     // Auto-trigger bulk AI popup on page load
     setTimeout(function() {
         $('#generate_ai_popup_open').trigger('click');
-    }, 5);
+    }, 0);
 });
 </script>
 
