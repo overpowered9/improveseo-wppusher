@@ -1341,6 +1341,69 @@ form.improve-seo-form-global input[type="button"]:focus {
   gap: 20px;
 }
 
+/* ImproveSEO: Clear/Save keyword buttons — base and hover with high specificity */
+input.keyword_clear_btn,
+input.clear-search-results.keyword_clear_btn {
+  background: #fff !important;
+  color: #ff4d4f !important;
+  border: 1px solid #ff4d4f !important;
+  padding: 9px 26px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1.2;
+  font-family: "Poppins", serif;
+  font-weight: 500;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
+}
+input.keyword_clear_btn:hover,
+input.keyword_clear_btn:focus,
+input.clear-search-results.keyword_clear_btn:hover,
+input.clear-search-results.keyword_clear_btn:focus {
+  background: linear-gradient(181deg, #ff6b6b 0%, #ff4d4f 48%, #d43c3e 100%) !important;
+  color: #fff !important;
+  border-color: #d43c3e !important;
+  transform: translateY(-1px);
+}
+
+input.keyword_save_result_btn,
+input.sw-save-search-results.keyword_save_result_btn {
+  background: #fff !important;
+  color: #59c174 !important;
+  border: 1px solid #59c174 !important;
+  padding: 9px 26px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1.2;
+  font-family: "Poppins", serif;
+  font-weight: 500;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
+}
+input.keyword_save_result_btn:hover,
+input.keyword_save_result_btn:focus,
+input.sw-save-search-results.keyword_save_result_btn:hover,
+input.sw-save-search-results.keyword_save_result_btn:focus {
+  background: linear-gradient(181deg, #6dd88a 0%, #59c174 48%, #4aad62 100%) !important;
+  color: #fff !important;
+  border-color: #4aad62 !important;
+  transform: translateY(-1px);
+}
+
+/* Primary action buttons row (Generate + View lists) spacing */
+.improve-submit-box > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+/* Secondary buttons container spacing */
+.improve-submit-box-btns {
+  gap: 12px;
+  margin-top: 12px;
+}
+
 button.seo-danger-btn {
   color: #ce1e14;
   border-color: #ce1e14;
