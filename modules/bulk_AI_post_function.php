@@ -209,7 +209,7 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
         // Use published count as the completed task metric since it reflects actual published posts
         $update_data = array(
             'number_of_completed_task' => $published,
-            'updated_at' => date('Y-m-d H:i:s'),
+            'updated_at' => current_time('mysql'),
         );
         
         // If all tasks are either published or stopped, mark project as finished
@@ -268,7 +268,7 @@ function CronjobRequest()
 
 	//$lastid = $wpdb->insert_id;
 
-	//error_log('This is a log message : '.date('Y-m-d H:i:s'));
+	//error_log('This is a log message : '.current_time('mysql'));
 	
 	my_plugin_log("=== CRON JOB COMPLETED ===");
 
@@ -2038,7 +2038,7 @@ function multiPostData()
 
 			'state' => "Unpublished",
 
-			'created_at' => date('Y-m-d H:i:s')
+			'created_at' => current_time('mysql')
 
 		));
 		
@@ -2288,9 +2288,9 @@ function multiPostData()
 
 						'published_on' => $published_on,
 
-						'created_at' => date('Y-m-d H:i:s'),
+						'created_at' => current_time('mysql'),
 
-						'updated_at' => date('Y-m-d H:i:s'),
+						'updated_at' => current_time('mysql'),
 
 					);
 
@@ -2357,7 +2357,7 @@ function multiPostData()
 
 			$email_content .= "State: In Process" . "\n";
 
-			$email_content .= "Created At: " . date('Y-m-d H:i:s') . "\n\n";
+			$email_content .= "Created At: " . current_time('mysql') . "\n\n";
 
 			$email_content .= "<a href='" . $linkredirect . "' target='_blank'> Check status </a>" . "\n\n";
 
@@ -2537,7 +2537,7 @@ function re_generate_post()
 			'ai_title' => '',
 			'ai_image' => '',
 			'status' => 'Pending',
-			'updated_at' => date('Y-m-d H:i:s')
+			'updated_at' => current_time('mysql')
 		),
 		array('id' => $id),
 		array('%s', '%s', '%s', '%s', '%s'),
