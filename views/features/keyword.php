@@ -17,11 +17,17 @@ use ImproveSEO\View;
 <?php View::startSection('content') ?>
 
 <style>
-.keyword_clear_btn:hover {
+/* Clear and Save Results buttons hover state */
+input.keyword_clear_btn:hover,
+input.clear-search-results.keyword_clear_btn:hover {
     color: #fff !important;
+    background-color: #ff4d4f !important;
 }
-.keyword_save_result_btn:hover {
+
+input.keyword_save_result_btn:hover,
+input.sw-save-search-results.keyword_save_result_btn:hover {
     color: #fff !important;
+    background-color: #59c174 !important;
 }
 
 /* Style View Keyword Lists button to match Generate Keywords button */
