@@ -209,7 +209,7 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
         // Use published count as the completed task metric since it reflects actual published posts
         $update_data = array(
             'number_of_completed_task' => $published,
-            'updated_at' => current_time('mysql'),
+            'updated_at' => date('Y-m-d H:i:s'),
         );
         
         // If all tasks are either published or stopped, mark project as finished
@@ -2537,7 +2537,7 @@ function re_generate_post()
 			'ai_title' => '',
 			'ai_image' => '',
 			'status' => 'Pending',
-			'updated_at' => current_time('mysql')
+			'updated_at' => date('Y-m-d H:i:s')
 		),
 		array('id' => $id),
 		array('%s', '%s', '%s', '%s', '%s'),
