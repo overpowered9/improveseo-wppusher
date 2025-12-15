@@ -290,7 +290,6 @@ $ai_modal_type = 'single';
 jQuery(document).ready(function($) {
     // Ensure form starts completely hidden with opacity
     $('.style_create_page_form').css({
-        'display': 'none',
         'opacity': '0',
         'visibility': 'hidden'
     });
@@ -299,35 +298,40 @@ jQuery(document).ready(function($) {
     setTimeout(function() {
         $('#generate_ai_popup_open').trigger('click');
         
-        // Smoothly reveal the form after modal opens
+        // Smoothly reveal the form after modal opens (remove inline display:none and fade in)
         setTimeout(function() {
-            $('.style_create_page_form').css({
-                'display': 'block',
-                'visibility': 'visible'
-            }).animate({
-                'opacity': '1'
-            }, 400);
+            $('.style_create_page_form')
+                .removeAttr('style')
+                .css({
+                    'opacity': '0',
+                    'visibility': 'visible'
+                })
+                .animate({
+                    'opacity': '1'
+                }, 400);
         }, 350); // Wait for modal animation to complete
     }, 100); // Small initial delay to ensure page is fully rendered
     
     // Also handle manual button clicks
     $('#generate_ai_popup_open').on('click', function() {
         setTimeout(function() {
-            $('.style_create_page_form').css({
-                'display': 'block',
-                'visibility': 'visible',
-                'opacity': '1'
-            });
+            $('.style_create_page_form')
+                .removeAttr('style')
+                .css({
+                    'opacity': '1',
+                    'visibility': 'visible'
+                });
         }, 350);
     });
     
     // Handle modal close - keep form visible after first open
     $('#close_single_post, #exampleModal1 .close').on('click', function() {
-        $('.style_create_page_form').css({
-            'display': 'block',
-            'visibility': 'visible',
-            'opacity': '1'
-        });
+        $('.style_create_page_form')
+            .removeAttr('style')
+            .css({
+                'opacity': '1',
+                'visibility': 'visible'
+            });
     });
 });
 </script>
