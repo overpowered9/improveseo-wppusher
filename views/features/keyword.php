@@ -17,45 +17,17 @@ use ImproveSEO\View;
 <?php View::startSection('content') ?>
 
 <style>
-/* Clear and Save Results buttons - default and hover states */
-input.keyword_clear_btn,
-input.clear-search-results.keyword_clear_btn {
-    color: #ff4d4f !important;
-    padding: 9px 26px;
-    border-radius: 50px;
-    cursor: pointer;
-    font-size: 20px;
-    outline: none;
-    background-color: transparent;
-    border: 1px solid transparent;
-    transition: all 0.3s ease;
-}
-
+/* Clear and Save Results buttons hover state */
 input.keyword_clear_btn:hover,
 input.clear-search-results.keyword_clear_btn:hover {
     color: #fff !important;
     background-color: #ff4d4f !important;
-    border-color: #ff4d4f !important;
-}
-
-input.keyword_save_result_btn,
-input.sw-save-search-results.keyword_save_result_btn {
-    color: #59c174 !important;
-    padding: 9px 26px;
-    border-radius: 50px;
-    cursor: pointer;
-    font-size: 20px;
-    outline: none;
-    background-color: transparent;
-    border: 1px solid transparent;
-    transition: all 0.3s ease;
 }
 
 input.keyword_save_result_btn:hover,
 input.sw-save-search-results.keyword_save_result_btn:hover {
     color: #fff !important;
     background-color: #59c174 !important;
-    border-color: #59c174 !important;
 }
 
 /* Style View Keyword Lists button to match Generate Keywords button */
@@ -119,8 +91,8 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
                             <input id="viewkeywordlists" type="button" onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists') ?>'" value="View Keyword lists" class="view-keyword-lists-btn">
                         </div>
                         <div class="improve-submit-box-btns">
-                            <input type="button" class="clear-search-results keyword_clear_btn" value="Clear Results"></input>
-                            <input type="button" class="sw-save-search-results keyword_save_result_btn" value="Save Results"></input>
+                            <input type="button" style="color:#ff4d4f !important" class="clear-search-results keyword_clear_btn" value="Clear Results"></input>
+                            <input type="button" style="color:#59c174 !important" class="sw-save-search-results keyword_save_result_btn" value="Save Results"></input>
                         </div>
                     </div>
                     
