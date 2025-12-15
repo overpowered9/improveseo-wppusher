@@ -1099,9 +1099,7 @@ li {
   justify-content: center;
 }
 
-.keyword_clear_btn:hover,
-.keyword_clear_btn:active,
-.keyword_clear_btn:focus {
+.keyword_clear_btn:hover {
   /* background: #ff4d4f !important; */
   background: linear-gradient(35deg, #d16062 30%, #8b1113 100%) !important;
   color: white !important;
@@ -1122,9 +1120,7 @@ li {
   justify-content: center;
 }
 
-.keyword_save_result_btn:hover,
-.keyword_save_result_btn:active,
-.keyword_save_result_btn:focus {
+.keyword_save_result_btn:hover {
   /* background-color: #59c174 !important; */
   background: linear-gradient(35deg, #57cc76 30%, #256336 100%) !important;
   color: white !important;
