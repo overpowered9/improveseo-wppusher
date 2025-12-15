@@ -2038,7 +2038,8 @@ function multiPostData()
 
 			'state' => "Unpublished",
 
-			'created_at' => current_time('mysql')
+			'created_at' => current_time('mysql'),
+			'updated_at' => current_time('mysql')
 
 		));
 		
