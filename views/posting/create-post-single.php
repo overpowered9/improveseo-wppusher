@@ -286,6 +286,13 @@ $ai_modal_type = 'single';
 ?>
 <?php View::endSection('content') ?>
 
-
+<script>
+jQuery(document).ready(function($) {
+    // Auto-trigger bulk AI popup on page load
+    setTimeout(function() {
+        $('#generate_ai_popup_open').trigger('click');
+    }, 5);
+});
+</script>
 
 <?php echo View::make('layouts.main') ?>
