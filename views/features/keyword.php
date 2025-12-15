@@ -17,17 +17,33 @@ use ImproveSEO\View;
 <?php View::startSection('content') ?>
 
 <style>
-/* Clear and Save Results buttons hover state */
-input.keyword_clear_btn:hover,
-input.clear-search-results.keyword_clear_btn:hover {
+/* Clear and Save Results buttons - override inline styles on hover */
+.improve-submit-box-btns input[type="button"].keyword_clear_btn:hover,
+.improve-submit-box-btns input.clear-search-results.keyword_clear_btn:hover,
+input[type="button"].clear-search-results.keyword_clear_btn:hover {
     color: #fff !important;
     background-color: #ff4d4f !important;
+    border-color: #ff4d4f !important;
 }
 
-input.keyword_save_result_btn:hover,
-input.sw-save-search-results.keyword_save_result_btn:hover {
+.improve-submit-box-btns input[type="button"].keyword_save_result_btn:hover,
+.improve-submit-box-btns input.sw-save-search-results.keyword_save_result_btn:hover,
+input[type="button"].sw-save-search-results.keyword_save_result_btn:hover {
     color: #fff !important;
     background-color: #59c174 !important;
+    border-color: #59c174 !important;
+}
+
+/* Base styles for buttons */
+.improve-submit-box-btns input[type="button"] {
+    padding: 9px 26px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 20px;
+    outline: none;
+    background-color: transparent;
+    border: 1px solid;
+    transition: all 0.3s ease;
 }
 
 /* Style View Keyword Lists button to match Generate Keywords button */
