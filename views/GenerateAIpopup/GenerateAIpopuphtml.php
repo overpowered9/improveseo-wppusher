@@ -697,7 +697,7 @@ global $ai_modal_type;
                         </div>
                     </div>
                     <div style="clear: both"> </div>
-                    <div id="loader" style="display: none;">Loading...</div>
+                    
                     <div style="clear: both"> </div>
                     <div class="seo-form-field hide_on_seed_option1 " style="display: none;">
                         <div class="generate-title">
