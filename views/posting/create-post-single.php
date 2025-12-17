@@ -10,6 +10,24 @@ $ai_modal_type = 'single';
 
 ?>
 
+<?php
+// TinyMCE: render plain spaces without converting to NBSP and avoid encoding them.
+// Scoped to this screen; runs before wp_editor initializes in posting.form.
+add_filter('tiny_mce_before_init', function ($init) {
+	$style = 'body.mce-content-body{white-space:pre-wrap;}';
+	if (!empty($init['content_style'])) {
+		$init['content_style'] .= ' ' . $style;
+	} else {
+		$init['content_style'] = $style;
+	}
+	// Prevent TinyMCE from encoding spaces as entities like &nbsp;
+	$init['entity_encoding'] = 'raw';
+	// Do not force tabs/non-breaking spaces
+	$init['nonbreaking_force_tab'] = false;
+	return $init;
+}, 50);
+?>
+
 <!-- <?php View::startSection('breadcrumbs') ?>
 
 <a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
@@ -334,6 +352,53 @@ jQuery(document).ready(function($) {
             });
     });
 });
+</script>
+
+<script>
+(function () {
+	function normalizeSpaces(s) {
+		return typeof s === 'string' ? s.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ') : s;
+	}
+
+	function onEditorReady(id, cb) {
+		(function wait() {
+			if (window.tinymce && tinymce.get(id)) cb(tinymce.get(id));
+			else setTimeout(wait, 100);
+		})();
+	}
+
+	function attachGuards(editor) {
+		// Visual rendering: preserve spaces without NBSP in the editor UI
+		try { editor.getBody().style.whiteSpace = 'pre-wrap'; } catch (e) {}
+
+		// Normalize content on all main TinyMCE pipelines
+		editor.on('BeforeSetContent', function (e) { if (e.content) e.content = normalizeSpaces(e.content); });
+		editor.on('GetContent',        function (e) { if (e.content) e.content = normalizeSpaces(e.content); });
+		editor.on('SaveContent',       function (e) { if (e.content) e.content = normalizeSpaces(e.content); });
+		editor.on('PastePreProcess',   function (e) { if (e.content) e.content = normalizeSpaces(e.content); });
+
+		// Clean when switching between Visual/Text tabs
+		jQuery(document).on('click', '#content-html, #content-tmce', function () {
+			var raw = editor.getContent({ format: 'raw' });
+			editor.setContent(normalizeSpaces(raw), { format: 'raw' });
+		});
+
+		// Final guard on submit (covers preview/draft/publish and this form)
+		jQuery(document).on('submit', '#post, #main_form', function () {
+			var ed = tinymce.get('content');
+			if (ed) {
+				var raw = ed.getContent({ format: 'raw' });
+				ed.setContent(normalizeSpaces(raw), { format: 'raw' });
+			}
+			var ta = jQuery('#content');
+			if (ta.length) ta.val(normalizeSpaces(ta.val()));
+		});
+	}
+
+	document.addEventListener('DOMContentLoaded', function () {
+		onEditorReady('content', attachGuards);
+	});
+})();
 </script>
 
 <?php echo View::make('layouts.main') ?>
