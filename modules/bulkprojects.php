@@ -358,7 +358,7 @@ function improveseo_bulkprojects()
 				AND (status != %s OR post_id IS NULL)",
 				'Stoped',
 				$id,
-				'Done'
+				'Published'
 			)
 		);
 		
