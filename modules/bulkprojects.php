@@ -355,7 +355,7 @@ function improveseo_bulkprojects()
 				"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
 				SET status = %s 
 				WHERE bulktask_id = %d 
-				AND (status != %s OR post_id IS NULL)",
+				AND (state != %s OR post_id IS NULL)",
 				'Stoped',
 				$id,
 				'Published'
