@@ -787,9 +787,8 @@ function saveContentInTaskList()
 			$update_rows = $wpdb->query(
 				$wpdb->prepare(
 					"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
-					 SET `is_published_by_plugin` = %d, `state` = %s, `updated_at` = NOW()
+					 SET `state` = %s, `updated_at` = NOW()
 					 WHERE id = %d",
-					1,
 					'Published',
 					$task->id
 				)
