@@ -782,7 +782,9 @@ function saveContentInTaskList()
 			}
 
 			// Update task state to Published
-			$wpdb->query(
+			my_plugin_log('saveContentInTaskList: Preparing to UPDATE database | Task ID: ' . $task->id . ' | Setting state=Published, is_published_by_plugin=1');
+			
+			$update_rows = $wpdb->query(
 				$wpdb->prepare(
 					"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
 					 SET `is_published_by_plugin` = %d, `state` = %s, `updated_at` = NOW()
@@ -793,7 +795,32 @@ function saveContentInTaskList()
 				)
 			);
 			
-			my_plugin_log('saveContentInTaskList: 📝 Task state updated to Published | Task ID: ' . $task->id);
+			// Log MySQL error if any
+			if ($wpdb->last_error) {
+				my_plugin_log('saveContentInTaskList: ❌ MySQL ERROR during UPDATE | Task ID: ' . $task->id . ' | Error: ' . $wpdb->last_error);
+			}
+			
+			if ($update_rows === false) {
+				my_plugin_log('saveContentInTaskList: ❌ Database UPDATE returned FALSE | Task ID: ' . $task->id);
+			} elseif ($update_rows === 0) {
+				my_plugin_log('saveContentInTaskList: ⚠️ UPDATE affected 0 rows | Task ID: ' . $task->id);
+				
+				// Verify the task still exists and check its current state
+				$verification = $wpdb->get_row(
+					$wpdb->prepare(
+						"SELECT id, state, is_published_by_plugin FROM `{$wpdb->prefix}improveseo_bulktasksdetails` WHERE id = %d",
+						$task->id
+					)
+				);
+				
+				if ($verification) {
+					my_plugin_log('saveContentInTaskList: Task exists | Current state: ' . $verification->state . ' | is_published_by_plugin: ' . $verification->is_published_by_plugin);
+				} else {
+					my_plugin_log('saveContentInTaskList: ❌ Task ID ' . $task->id . ' not found in database!');
+				}
+			} else {
+				my_plugin_log('saveContentInTaskList: ✅ Task state updated to Published | Task ID: ' . $task->id . ' | Rows affected: ' . $update_rows);
+			}
 
 			// Sync parent bulk project progress
 			if (isset($task->bulktask_id)) {
@@ -808,36 +835,37 @@ function saveContentInTaskList()
 	my_plugin_log('saveContentInTaskList: === SCHEDULED POST PUBLISHER END ===');
 	
 	// ========================================
-	// PART 2: CREATE NEW DRAFTS
+	// PART 2: CREATE WORDPRESS POSTS
 	// ========================================
-	// This runs SECOND - creates WordPress drafts for tasks whose date has arrived
+	// This runs SECOND - creates WordPress posts for tasks with generated content
+	// Posts are created as 'draft' or 'publish' based on state and published_on date
 	
-	my_plugin_log('saveContentInTaskList: === DRAFT CREATION START ===');
+	my_plugin_log('saveContentInTaskList: === WORDPRESS POST CREATION START ===');
 	
-// Query includes:
-// 1. Scheduled posts ready to publish (auto-published by cron)
-// 2. Posts with state='Published' but not yet created (edge case recovery)
-// 3. Stuck 'Publishing' tasks (older than 10 minutes - recovery mechanism)
-// NOTE: We DO NOT include 'Draft' state - drafts should only be published manually via UI
+// Query finds tasks with generated content but no WordPress post created yet:
+// 1. state='Scheduled' - posts that should be created as drafts for future publishing
+// 2. state='Published' - posts that should be published immediately
+// 3. status='Done' - content generation completed
+// 4. post_id IS NULL - WordPress post not yet created
 	$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` 
 			WHERE `state` IN('Scheduled','Published') 
 			AND `status` = 'Done' 
 			AND `post_id` IS NULL 
 			ORDER BY `id` ASC LIMIT 1";
 
-	my_plugin_log("saveContentInTaskList: Executing query to find tasks ready to create as drafts");
+	my_plugin_log("saveContentInTaskList: Executing query to find tasks ready to create WordPress posts");
 	my_plugin_log("saveContentInTaskList: Query: " . $sql);
 
 	$Bulktasks = $wpdb->get_results($sql);
 	
 	if (empty($Bulktasks)) {
-		my_plugin_log("saveContentInTaskList: No tasks found ready to create as drafts");
-		my_plugin_log('saveContentInTaskList: === DRAFT CREATION END ===');
+		my_plugin_log("saveContentInTaskList: No tasks found needing WordPress post creation");
+		my_plugin_log('saveContentInTaskList: === WORDPRESS POST CREATION END ===');
 		my_plugin_log('saveContentInTaskList: === FUNCTION END ===');
 		return true;
 	}
 	
-	my_plugin_log("saveContentInTaskList: Found " . count($Bulktasks) . " task(s) ready to publish");
+	my_plugin_log("saveContentInTaskList: Found " . count($Bulktasks) . " task(s) ready for WordPress post creation");
 	my_plugin_log("saveContentInTaskList: Task details - ID: " . $Bulktasks[0]->id . " | Bulktask: " . $Bulktasks[0]->bulktask_id . " | Keyword: " . $Bulktasks[0]->keyword_name . " | State: " . $Bulktasks[0]->state);
 
 
