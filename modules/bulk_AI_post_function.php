@@ -1233,32 +1233,50 @@ function saveContentInTaskList()
 
 
 	/*  Update post status on scheduled date - for posts that were already created but scheduled for future publishing*/
-	// Use prepared statement and JOIN to validate parent state
+	// Enhanced query to handle all scheduled publishing scenarios:
+	// 1. Posts created with future published_on date (state='Scheduled')
+	// 2. Posts that have a scheduled date that has arrived or passed
 	$today = date('Y-m-d');
+	
+	my_plugin_log('saveContentInTaskList: Scheduled post publishing query | Date: ' . $today);
+	my_plugin_log('saveContentInTaskList: Looking for posts with state=Scheduled, post_id exists, published_on <= today');
+	
 	$sql = $wpdb->prepare(
 		"SELECT d.* FROM `{$wpdb->prefix}improveseo_bulktasksdetails` d
 		 INNER JOIN `{$wpdb->prefix}improveseo_bulktasks` p ON d.bulktask_id = p.id
 		 WHERE d.published_on IS NOT NULL
 		 AND d.published_on <= %s 
 		 AND d.post_id IS NOT NULL 
-		 AND d.is_published_by_plugin = '0' 
+		 AND d.state = 'Scheduled'
 		 AND d.status = 'Done'
 		 AND p.state IN ('Processing', 'Finished', 'Unpublished')
 		 ORDER BY d.id ASC",
 		$today
 	);
 
-	my_plugin_log('saveContentInTaskList: Scheduled post status update query | Date: ' . $today);
 	$Bulktasks = $wpdb->get_results($sql);
 
-	my_plugin_log('saveContentInTaskList: Found ' . count($Bulktasks) . ' scheduled posts to update | Details: ' . json_encode($Bulktasks));
+	my_plugin_log('saveContentInTaskList: Found ' . count($Bulktasks) . ' scheduled posts to publish');
 
 	$content = '';
 
 	foreach ($Bulktasks as $key => $value) {
 
-		// Parent state validation already done in JOIN query above
-		my_plugin_log('saveContentInTaskList: Updating scheduled post to published | Task ID: ' . $value->id . ' | Post ID: ' . $value->post_id . ' | Bulktask ID: ' . $value->bulktask_id);
+		// Verify the WordPress post actually exists before trying to publish
+		$wp_post = get_post($value->post_id);
+		
+		if (!$wp_post) {
+			my_plugin_log('saveContentInTaskList: WordPress post not found | Task ID: ' . $value->id . ' | Post ID: ' . $value->post_id . ' | Skipping');
+			continue;
+		}
+		
+		// Only publish if post is currently a draft
+		if ($wp_post->post_status !== 'draft') {
+			my_plugin_log('saveContentInTaskList: Post not in draft status | Task ID: ' . $value->id . ' | Post ID: ' . $value->post_id . ' | Current status: ' . $wp_post->post_status . ' | Skipping');
+			continue;
+		}
+
+		my_plugin_log('saveContentInTaskList: Publishing scheduled post | Task ID: ' . $value->id . ' | Post ID: ' . $value->post_id . ' | Bulktask ID: ' . $value->bulktask_id . ' | Scheduled date: ' . $value->published_on);
 
 		if (!empty($value->post_id)) {
 
@@ -1272,8 +1290,14 @@ function saveContentInTaskList()
 
 
 
-			wp_update_post($post_data);
-			my_plugin_log('Scheduled publishing: Changed post ID ' . $value->post_id . ' to publish status');
+			$update_result = wp_update_post($post_data, true);
+			
+			if (is_wp_error($update_result)) {
+				my_plugin_log('saveContentInTaskList: Failed to publish post | Task ID: ' . $value->id . ' | Post ID: ' . $value->post_id . ' | Error: ' . $update_result->get_error_message());
+				continue;
+			}
+			
+			my_plugin_log('saveContentInTaskList: ✅ Post published successfully | Post ID: ' . $value->post_id . ' | Task ID: ' . $value->id);
 
 
 			// tag 
@@ -1283,6 +1307,7 @@ function saveContentInTaskList()
 			if (!empty($tags)) {
 
 				wp_set_post_tags($value->post_id, $tags);
+				my_plugin_log('saveContentInTaskList: Added keyword tag | Post ID: ' . $value->post_id);
 
 			}
 
@@ -1295,7 +1320,7 @@ function saveContentInTaskList()
 				$wpdb->prepare(
 
 					"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
-					SET `is_published_by_plugin` = %d, `state` = %s WHERE id = %d",
+					SET `is_published_by_plugin` = %d, `state` = %s, `updated_at` = NOW() WHERE id = %d",
 					1,
 					'Published',  // Change state from 'Scheduled' to 'Published'
 					$value->id
@@ -1303,9 +1328,12 @@ function saveContentInTaskList()
 				)
 
 			 );
+			
+			my_plugin_log('saveContentInTaskList: Task state updated to Published | Task ID: ' . $value->id);
 
             // Keep parent updated_at moving forward in UI
             if (isset($value->bulktask_id)) {
+                my_plugin_log('saveContentInTaskList: Syncing parent bulk task progress for bulktask_id: ' . $value->bulktask_id);
                 improveseo_sync_bulk_parent_progress((int) $value->bulktask_id);
             }
 		}
