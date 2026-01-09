@@ -2120,7 +2120,7 @@ function multiPostData()
 
 		$pdate = date('Y-m-d');
 
-		$number_of_post_schedule_count = 0;  // ✅ START AT 0 to ensure first post(s) get today's date
+		$number_of_post_schedule_count = $number_of_post_schedule;
 		
 		$tasks_inserted = 0;
 
@@ -2193,37 +2193,39 @@ function multiPostData()
 
 						if ($schedule_frequency == 'per_day') {
 
-							// Increment counter first
-							$number_of_post_schedule_count++;
+							if ($number_of_post_schedule >= $number_of_post_schedule_count) {
 
-							// Check if we've exceeded the daily limit
-							if ($number_of_post_schedule_count > $number_of_post_schedule) {
+								$published_on = $pdate;
 
-								// Move to next day and reset counter
-								$pdate = date('Y-m-d', strtotime("+1 day", strtotime($pdate)));
+								$number_of_post_schedule_count++;
 
-								$number_of_post_schedule_count = 1;
+							} else {
+
+								$pdate = date('Y-m-d', date(strtotime("+1 day", strtotime($pdate))));
+
+								$number_of_post_schedule_count = 2;
+
+								$published_on = $pdate;
 
 							}
-
-							$published_on = $pdate;
 
 						} elseif ($schedule_frequency == 'per_week') {
 
-							// Increment counter first
-							$number_of_post_schedule_count++;
+							if ($number_of_post_schedule >= $number_of_post_schedule_count) {
 
-							// Check if we've exceeded the weekly limit
-							if ($number_of_post_schedule_count > $number_of_post_schedule) {
+								$published_on = $pdate;
 
-								// Move to next week and reset counter
-								$pdate = date('Y-m-d', strtotime("+7 day", strtotime($pdate)));
+								$number_of_post_schedule_count++;
 
-								$number_of_post_schedule_count = 1;
+							} else {
+
+								$pdate = date('Y-m-d', date(strtotime("+7 day", strtotime($pdate))));
+
+								$number_of_post_schedule_count = 2;
+
+								$published_on = $pdate;
 
 							}
-
-							$published_on = $pdate;
 
 						}
 
