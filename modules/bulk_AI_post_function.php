@@ -2193,37 +2193,47 @@ function multiPostData()
 
 						if ($schedule_frequency == 'per_day') {
 
-							if ($number_of_post_schedule >= $number_of_post_schedule_count) {
+							// Check if current date has slots available
+							if ($number_of_post_schedule_count > 0) {
 
+								// Assign to current date
 								$published_on = $pdate;
 
-								$number_of_post_schedule_count++;
+								$number_of_post_schedule_count--;  // Use one slot
 
 							} else {
 
-								$pdate = date('Y-m-d', date(strtotime("+1 day", strtotime($pdate))));
+								// No slots left, move to next day
+								$pdate = date('Y-m-d', strtotime("+1 day", strtotime($pdate)));
 
-								$number_of_post_schedule_count = 2;
+								$number_of_post_schedule_count = $number_of_post_schedule;  // Reset to full quota
 
 								$published_on = $pdate;
+
+								$number_of_post_schedule_count--;  // Use one slot
 
 							}
 
 						} elseif ($schedule_frequency == 'per_week') {
 
-							if ($number_of_post_schedule >= $number_of_post_schedule_count) {
+							// Check if current week has slots available
+							if ($number_of_post_schedule_count > 0) {
 
+								// Assign to current date
 								$published_on = $pdate;
 
-								$number_of_post_schedule_count++;
+								$number_of_post_schedule_count--;  // Use one slot
 
 							} else {
 
-								$pdate = date('Y-m-d', date(strtotime("+7 day", strtotime($pdate))));
+								// No slots left, move to next week
+								$pdate = date('Y-m-d', strtotime("+7 day", strtotime($pdate)));
 
-								$number_of_post_schedule_count = 2;
+								$number_of_post_schedule_count = $number_of_post_schedule;  // Reset to full quota
 
 								$published_on = $pdate;
+
+								$number_of_post_schedule_count--;  // Use one slot
 
 							}
 
