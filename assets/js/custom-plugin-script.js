@@ -500,10 +500,16 @@ function initializeTinyMCE() {
 
 function insertContent(content) {
   if (isTinyMCEInitialized) {
-    // If TinyMCE is initialized, insert content
-
+    // Normalize content before insertion:
+    // 1. Replace &nbsp; and U+00A0 with regular spaces
+    content = content.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ');
+    
+    // 2. Convert multiple consecutive blank lines into single blank lines
+    //    (prevents wpautop from creating <p>&nbsp;</p> chains)
+    content = content.replace(/\n{3,}/g, '\n\n');
+    
+    // 3. Clear editor and insert normalized content
     tinyMCE.activeEditor.setContent("");
-
     tinymce.activeEditor.insertContent(content);
   } else {
     // If TinyMCE is not initialized, initialize it and store the content to be inserted
@@ -514,8 +520,9 @@ function insertContent(content) {
       initializeTinyMCE();
     }
 
-    // Store the content to be inserted
-
+    // Store the content to be inserted (normalized)
+    content = content.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ');
+    content = content.replace(/\n{3,}/g, '\n\n');
     pendingContent = content;
 
     tinymce.activeEditor.insertContent(pendingContent);

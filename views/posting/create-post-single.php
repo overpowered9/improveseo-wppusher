@@ -26,6 +26,15 @@ add_filter('tiny_mce_before_init', function ($init) {
 	$init['nonbreaking_force_tab'] = false;
 	return $init;
 }, 50);
+
+// Server-side safety: strip NBSP when saving from the ImproveSEO single create screen
+add_filter('wp_insert_post_data', function ($data, $postarr) {
+	if (isset($_POST['ai_modal_type']) && $_POST['ai_modal_type'] === 'single' && isset($data['post_content'])) {
+		$data['post_content'] = str_replace('&nbsp;', ' ', $data['post_content']);
+		$data['post_content'] = preg_replace('/\xC2\xA0/u', ' ', $data['post_content']); // U+00A0
+	}
+	return $data;
+}, 10, 2);
 ?>
 
 <!-- <?php View::startSection('breadcrumbs') ?>
@@ -357,7 +366,18 @@ jQuery(document).ready(function($) {
 <script>
 (function () {
 	function normalizeSpaces(s) {
-		return typeof s === 'string' ? s.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ') : s;
+		if (typeof s !== 'string') return s;
+		
+		// 1. Replace &nbsp; and U+00A0 with regular spaces
+		s = s.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ');
+		
+		// 2. Collapse multiple blank lines (3+) into max 2 newlines (one blank line)
+		s = s.replace(/\n{3,}/g, '\n\n');
+		
+		// 3. Remove <p>&nbsp;</p> empty paragraph artifacts
+		s = s.replace(/<p>\s*(&nbsp;|\u00A0|\s)*\s*<\/p>/gi, '<p></p>');
+		
+		return s;
 	}
 
 	function onEditorReady(id, cb) {
@@ -376,11 +396,16 @@ jQuery(document).ready(function($) {
 		editor.on('GetContent',        function (e) { if (e.content) e.content = normalizeSpaces(e.content); });
 		editor.on('SaveContent',       function (e) { if (e.content) e.content = normalizeSpaces(e.content); });
 		editor.on('PastePreProcess',   function (e) { if (e.content) e.content = normalizeSpaces(e.content); });
+		editor.on('PastePostProcess',  function (e) {
+			if (e.node && e.node.innerHTML) e.node.innerHTML = normalizeSpaces(e.node.innerHTML);
+		});
 
 		// Clean when switching between Visual/Text tabs
 		jQuery(document).on('click', '#content-html, #content-tmce', function () {
-			var raw = editor.getContent({ format: 'raw' });
-			editor.setContent(normalizeSpaces(raw), { format: 'raw' });
+			setTimeout(function() {
+				var raw = editor.getContent({ format: 'raw' });
+				editor.setContent(normalizeSpaces(raw), { format: 'raw' });
+			}, 50);
 		});
 
 		// Final guard on submit (covers preview/draft/publish and this form)
