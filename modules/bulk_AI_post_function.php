@@ -188,14 +188,12 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
             )
         );
         
-        // Get count of draft posts that have completed content generation
-        // Only count drafts with status='Done' to ensure content is ready
+        // Get count of draft posts
         $drafts = (int) $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(1) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND state = %s AND status = %s",
+                "SELECT COUNT(1) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND state = %s",
                 $bulktask_id,
-                'Draft',
-                'Done'
+                'Draft'
             )
         );
         

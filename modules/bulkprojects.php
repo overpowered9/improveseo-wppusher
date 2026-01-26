@@ -513,11 +513,8 @@ function improveseo_bulkprojects()
 				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d",
 				$mainid
 			));
-			// Count published posts + drafts with completed content (status='Done')
 			$completed_tasks = (int) $wpdb->get_var($wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails 
-				 WHERE bulktask_id = %d 
-				 AND ((state = 'Published') OR (state = 'Draft' AND status = 'Done'))",
+				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND state IN ('Published', 'Draft')",
 				$mainid
 			));
 			$stopped_tasks = (int) $wpdb->get_var($wpdb->prepare(
