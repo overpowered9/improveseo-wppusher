@@ -508,38 +508,41 @@ function improveseo_bulkprojects()
 				improveseo_sync_bulk_parent_progress((int) $mainid);
 			}
 			
-			// Check if all tasks are completed and update parent project state
-			$total_tasks = (int) $wpdb->get_var($wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d",
-				$mainid
-			));
-			$completed_tasks = (int) $wpdb->get_var($wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND state = 'Published'",
-				$mainid
-			));
-			
-			if ($total_tasks > 0 && $total_tasks == $completed_tasks) {
-				$wpdb->update(
-					$wpdb->prefix . 'improveseo_bulktasks',
-					array('state' => 'Finished'),
-					array('id' => $mainid),
-					array('%s'),
-					array('%d')
-				);
-			}
-			// Fallback: if all tasks are canceled, set parent state to 'Stopped'
-			$canceled_tasks = (int) $wpdb->get_var($wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND status = 'Stoped'",
-				$mainid
-			));
-			if ($total_tasks > 0 && $total_tasks == $canceled_tasks) {
-				$wpdb->update(
-					$wpdb->prefix . 'improveseo_bulktasks',
-					array('state' => 'Stopped'),
-					array('id' => $mainid),
-					array('%s'),
-					array('%d')
-				);
+// Check if all tasks have completed content generation
+            $total_tasks = (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d",
+                $mainid
+            ));
+            $done_tasks = (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND status = 'Done'",
+                $mainid
+            ));
+            $canceled_tasks = (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND status = 'Stoped'",
+                $mainid
+            ));
+            
+            // If all tasks have reached terminal status (Done or Canceled)
+            if ($total_tasks > 0 && ($done_tasks + $canceled_tasks) >= $total_tasks) {
+                // If ALL tasks are canceled, mark as Cancelled
+                if ($canceled_tasks === $total_tasks) {
+                    $wpdb->update(
+                        $wpdb->prefix . 'improveseo_bulktasks',
+                        array('state' => 'Cancelled'),
+                        array('id' => $mainid),
+                        array('%s'),
+                        array('%d')
+                    );
+                } else {
+                    // Otherwise at least some content generated - mark as Finished
+                    $wpdb->update(
+                        $wpdb->prefix . 'improveseo_bulktasks',
+                        array('state' => 'Finished'),
+                        array('id' => $mainid),
+                        array('%s'),
+                        array('%d')
+                    );
+                }
 			}
 			
 			my_plugin_log('This is a log message : ' . $value->id);

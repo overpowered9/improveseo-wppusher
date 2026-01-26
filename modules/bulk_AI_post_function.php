@@ -179,17 +179,17 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
         
         
         
-        // Count tasks with state='Published' (actually published posts)
-        $published = (int) $wpdb->get_var(
+        // Count tasks with status='Done' (content generation completed)
+        $done = (int) $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(1) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND state = %s",
+                "SELECT COUNT(1) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND status = %s",
                 $bulktask_id,
-                'Published'
+                'Done'
             )
         );
         
-        // Get count of stopped/canceled tasks
-        $stopped = (int) $wpdb->get_var(
+        // Get count of canceled tasks (status='Stoped')
+        $canceled = (int) $wpdb->get_var(
             $wpdb->prepare(
                 "SELECT COUNT(1) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND status = %s",
                 $bulktask_id,
@@ -205,17 +205,22 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
             )
         );
         
-        // Determine if project should be marked as finished
-        // Use published count as the completed task metric since it reflects actual published posts
+        // Determine parent project state based on content generation status
+        // number_of_completed_task tracks successfully generated content (status='Done')
         $update_data = array(
-            'number_of_completed_task' => $published,
+            'number_of_completed_task' => $done,
             'updated_at' => current_time('mysql'),
         );
         
-        // If all tasks are either published or stopped, mark project as finished
-        // This considers the actual publishing state, not just content generation status
-        if ($total > 0 && ($published + $stopped) >= $total) {
-            $update_data['state'] = 'Finished';
+        // Check if all tasks have reached a terminal status (Done or Canceled)
+        if ($total > 0 && ($done + $canceled) >= $total) {
+            // If ALL tasks are canceled, mark project as Cancelled
+            if ($canceled === $total) {
+                $update_data['state'] = 'Cancelled';
+            } else {
+                // Otherwise, at least some content was generated - mark as Finished
+                $update_data['state'] = 'Finished';
+            }
         }
         
         // Update the parent row with the recalculated count and state
