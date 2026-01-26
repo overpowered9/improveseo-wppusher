@@ -188,15 +188,6 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
             )
         );
         
-        // Get count of draft posts
-        $drafts = (int) $wpdb->get_var(
-            $wpdb->prepare(
-                "SELECT COUNT(1) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND state = %s",
-                $bulktask_id,
-                'Draft'
-            )
-        );
-        
         // Get count of stopped/canceled tasks
         $stopped = (int) $wpdb->get_var(
             $wpdb->prepare(
@@ -221,9 +212,9 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
             'updated_at' => current_time('mysql'),
         );
         
-        // If all tasks are either published, draft, or stopped, mark project as finished
-        // This considers published posts, draft posts, and canceled tasks
-        if ($total > 0 && ($published + $drafts + $stopped) >= $total) {
+        // If all tasks are either published or stopped, mark project as finished
+        // This considers the actual publishing state, not just content generation status
+        if ($total > 0 && ($published + $stopped) >= $total) {
             $update_data['state'] = 'Finished';
         }
         

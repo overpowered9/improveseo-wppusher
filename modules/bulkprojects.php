@@ -514,15 +514,11 @@ function improveseo_bulkprojects()
 				$mainid
 			));
 			$completed_tasks = (int) $wpdb->get_var($wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND state IN ('Published', 'Draft')",
-				$mainid
-			));
-			$stopped_tasks = (int) $wpdb->get_var($wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND status = 'Stoped'",
+				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND state = 'Published'",
 				$mainid
 			));
 			
-			if ($total_tasks > 0 && ($completed_tasks + $stopped_tasks) >= $total_tasks) {
+			if ($total_tasks > 0 && $total_tasks == $completed_tasks) {
 				$wpdb->update(
 					$wpdb->prefix . 'improveseo_bulktasks',
 					array('state' => 'Finished'),
