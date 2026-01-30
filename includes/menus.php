@@ -40,50 +40,91 @@ function improveseo_add_menu_items()
 {
 
 
-    // Main menu
+    //add_menu_page('Improve SEO', 'Improve SEO', 6, 'improveseo');
+
+
     add_menu_page('Improve SEO', 'Improve SEO', 'manage_options', 'improveseo_dashboard');
 
-    // 1. Dashboard
+
+    
+
+
     add_submenu_page('improveseo_dashboard', 'Dashboard', 'Dashboard', 'manage_options', 'improveseo_dashboard', 'improveseo_dashboard');
 
-    // 2. Create Single Post
-    add_submenu_page(
+
+    
+
+
+add_submenu_page('improveseo_dashboard', 'Posting', 'Create Post or Pages', 'manage_options', 'improveseo_posting', 'improveseo_posting');
+add_submenu_page(
         'improveseo_dashboard',
-        'Create Single Post',
-        'Create Single Post',
+        'Create Single Post',         // Page title
+        'Create Single Post',         // Menu title
         'manage_options',
-        'improveseo_create_single',
+        'improveseo_create_single',   // Unique slug
         function() {
             include_once WT_PATH . '/views/posting/index_single.php';
         }
     );
-
-    // 3. Create Bulk Post
     add_submenu_page(
         'improveseo_dashboard',
-        'Create Bulk Post',
-        'Create Bulk Post',
+        'Create Bulk Post',           // Page title
+        'Create Bulk Post',           // Menu title
         'manage_options',
-        'improveseo_create_bulk',
+        'improveseo_create_bulk',     // Unique slug
         function() {
             include_once WT_PATH . '/views/posting/index_multipost.php';
         }
     );
 
-    // 4. Single Post Projects (was "Projects")
-    add_submenu_page('improveseo_dashboard', 'Single Post Projects', 'Single Post Projects', 'manage_options', 'improveseo_projects', 'improveseo_projects');
 
-    // 5. Bulk Post Projects (was "Bulk Projects Overview")
-    add_submenu_page('improveseo_dashboard', 'Bulk Post Projects', 'Bulk Post Projects', 'manage_options', 'improveseo_bulkprojects', 'improveseo_bulkprojects');
 
-    // 6. Keyword Lists (was "Lists")
-    add_submenu_page('improveseo_dashboard', 'Keyword Lists', 'Keyword Lists', 'manage_options', 'improveseo_lists', 'improveseo_lists');
 
-    // 7. Keyword Generator Tool (was "Keyword Generator")
-    add_submenu_page('improveseo_dashboard', 'Keyword Generator Tool', 'Keyword Generator Tool', 'manage_options', 'improveseo_keyword_generator', 'improveseo_keyword_generator');
+    add_submenu_page('improveseo_dashboard', 'Projects', 'Projects', 'manage_options', 'improveseo_projects', 'improveseo_projects');
 
-    // 8. Settings
+
+
+
+
+    add_submenu_page('improveseo_dashboard', 'Bulk Projects Overview', 'Bulk Projects Overview', 'manage_options', 'improveseo_bulkprojects', 'improveseo_bulkprojects');
+
+
+    //add_submenu_page('improveseo', 'Shortcodes', 'Shortcodes', 'manage_options', 'improveseo_shortcodes', 'improveseo_shortcodes');
+
+
+    add_submenu_page('improveseo_dashboard', 'Lists', 'Lists', 'manage_options', 'improveseo_lists', 'improveseo_lists');
+
+
     add_submenu_page('improveseo_dashboard', 'Settings', 'Settings', 'manage_options', 'improveseo_settings', 'improveseo_settings');
+
+
+    add_submenu_page('improveseo_dashboard', 'Authors', 'Authors', 'manage_options', 'improveseo_authors', 'improveseo_authors');
+
+
+    
+
+
+    //add_submenu_page('improveseo', 'Builder', 'Builder', 'manage_options', 'improveseo_builder', 'improveseo_builder');
+
+
+    //add_submenu_page('improveseo', 'BuilderUpdate', 'BuilderUpdate', 'manage_options', 'improveseo_update_builder', 'improveseo_update_builder');
+
+
+
+
+
+    
+
+
+    //add_submenu_page('improveseo', 'Noindex Tags', 'Noindex Tags', 'manage_options', 'improveseo_noindex', 'improveseo_noindex');
+
+
+    add_submenu_page('improveseo_dashboard', 'Keyword Generator', 'Keyword Generator', 'manage_options', 'improveseo_keyword_generator', 'improveseo_keyword_generator');
+
+
+    add_submenu_page('improveseo_dashboard', 'Shortcodes', 'Shortcodes', 'manage_options','improveseo_shortcodes', 'custom_testimonials_settings');
+
+    
 
 }
 
