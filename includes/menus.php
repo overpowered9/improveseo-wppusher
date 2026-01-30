@@ -47,7 +47,7 @@ function improveseo_add_menu_items()
     add_submenu_page('improveseo_dashboard', 'Dashboard', 'Dashboard', 'manage_options', 'improveseo_dashboard', 'improveseo_dashboard');
 
     // Hidden parent page for posting (empty menu title hides it, but page remains accessible)
-    add_submenu_page('improveseo_dashboard', 'Posting', '', 'manage_options', 'improveseo_posting', 'improveseo_posting');
+    add_submenu_page('improveseo_dashboard', 'Posting', 'Create Posts', 'manage_options', 'improveseo_posting', 'improveseo_posting');
 
     // 2. Create Single Post - links directly to the single post action
     add_submenu_page(
