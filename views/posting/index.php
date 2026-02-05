@@ -64,19 +64,19 @@ if (isset($_POST['cat_name'])) {
 			<div class="create-ai">
 				<h2 class="title">What would you like to create?</h2>
 				<div class="create-ai-col">
-					<a class="Posting__post-button" href="<?php echo admin_url("admin.php?page=improveseo_posting&action=create_post"); ?>">
+					<a class="Posting__post-button" href="<?php echo admin_url("admin.php?page=improveseo_posting&action=create_post_single"); ?>">
 						<img src="<?php echo WT_URL . '/assets/images/latest-images/Mobile-UX-rafiki.png'; ?>"
 							alt="Create Single AI Post">
-						<h3>Create AI Post</h3>
+						<h3>Create Single AI Post</h3>
 					</a>
 				</div>
 
 
 				<div class="create-ai-col">
-					<a class="Posting__page-button" href="<?php echo admin_url("admin.php?page=improveseo_posting&action=create_page"); ?>">
+					<a class="Posting__page-button" href="<?php echo admin_url("admin.php?page=improveseo_posting&action=create_post_bulk"); ?>">
 						<img src="<?php echo WT_URL . '/assets/images/latest-images/Multi-device.png' ?>"
 							alt="Multi-device">
-						<h3>Create Pages</h3>
+						<h3>Create Bulk AI Posts Project</h3>
 					</a>
 				</div>
 			</div>
