@@ -94,7 +94,7 @@ add_submenu_page(
 
     add_submenu_page('improveseo_dashboard', 'Lists', 'Keyword Lists', 'manage_options', 'improveseo_lists', 'improveseo_lists');
 
-    add_submenu_page('improveseo_dashboard', 'Keywords Generator Tool', 'Keyword Generator', 'manage_options', 'improveseo_keyword_generator', 'improveseo_keyword_generator');
+    add_submenu_page('improveseo_dashboard', 'Keyword Generator', 'Keywords Generator Tool', 'manage_options', 'improveseo_keyword_generator', 'improveseo_keyword_generator');
 
     add_submenu_page('improveseo_dashboard', 'Settings', 'Settings', 'manage_options', 'improveseo_settings', 'improveseo_settings');
 
