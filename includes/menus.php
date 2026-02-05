@@ -46,27 +46,24 @@ function improveseo_add_menu_items()
     // 1. Dashboard
     add_submenu_page('improveseo_dashboard', 'Dashboard', 'Dashboard', 'manage_options', 'improveseo_dashboard', 'improveseo_dashboard');
 
-    // Hidden parent page for posting (empty menu title hides it, but page remains accessible)
-    add_submenu_page('improveseo_dashboard', 'Posting', '', 'manage_options', 'improveseo_posting', 'improveseo_posting');
-
-    // 2. Create Single Post - links directly to the single post action
+    // 2. Create Single Post - uses its own callback function
     add_submenu_page(
         'improveseo_dashboard',
         'Create Single Post',
         'Create Single Post',
         'manage_options',
-        'improveseo_posting&action=create_post_single',
-        'improveseo_posting'
+        'improveseo_generateAIpopup',
+        'improveseo_generateAIpopup'
     );
 
-    // 3. Create Bulk Post - links directly to the bulk post action
+    // 3. Create Bulk Post - uses its own callback function
     add_submenu_page(
         'improveseo_dashboard',
         'Create Bulk Post',
         'Create Bulk Post',
         'manage_options',
-        'improveseo_posting&action=create_post_bulk',
-        'improveseo_posting'
+        'improveseo_generateBulkAI',
+        'improveseo_GenerateBulkAIpopup'
     );
 
     // 4. Single Post Projects (renamed from Projects)
