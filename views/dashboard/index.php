@@ -114,7 +114,7 @@ use ImproveSEO\View;
 					</div>
 				</div>
 				<div class="line"></div>
-				<h3>Bulk AI Posts <span> Pro </span></h3>
+				<h3>Bulk AI Posts </h3>
 				<p>Create projects. Option to duplicate project, update all published content, download content URLs to
 					desktop, delete all posts/pages and project</p>
 					</a>
@@ -131,7 +131,7 @@ use ImproveSEO\View;
 					</div>
 				</div>
 				<div class="line"> </div>
-				<h3>Keyword Lists <span> Pro </span></h3>
+				<h3>Keyword Lists </h3>
 				<p>Add keywords that you would like to target and use to quickly create posts for all of them. This is
 					handy for lists of keywords that you would like to bulk create posts for.</p>
 					</a>
@@ -148,112 +148,14 @@ use ImproveSEO\View;
 					</div>
 				</div>
 				<div class="line"> </div>
-				<h3>Keyword Generator <span> Pro </span></h3>
+				<h3>Keyword Generator </h3>
 				<p>Add seed keyword and uses the Google autosuggest feature to generate a list of keywords. Save
 					projects and put these keywords into a your list projects.</p>
 					</a>
 			</div>
-			<div class="module-box">
-			<a  href="<?= admin_url('admin.php?page=improveseo_authors') ?>">
-				<div class="module-icon justify-between m-0">
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon8.svg' ?>" alt="icon8">
-					<div class="module-toggle">
-						<label class="toggle-switch">
-							<input type="checkbox">
-							<span class="switch"></span>
-						</label>
-					</div>
-				</div>
-				<div class="line"></div>
-				<h3>Author List <span> Pro </span></h3>
-				<p>Create authors that are only for use within Improve SEO. The authors you make will be distributed
-					among these multiple posts to make your site look more authoritative and natural.</p>
-					</a>
-			</div>
-			<div class="module-box">
-			<a  href="<?= admin_url('admin.php?page=improveseo_shortcodes') ?>">
-				<div class="module-icon justify-between m-0">
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon9.svg' ?>" alt="icon9">
-					<div class="module-toggle">
-						<label class="toggle-switch">
-							<input type="checkbox">
-							<span class="switch"></span>
-						</label>
-					</div>
-				</div>
-				<div class="line"></div>
-				<h3>SEO Visuals <span> Pro </span></h3>
-				<p>Create shortcodes here manually. Once you've created a shortcode, simply use [name of your shortcode]
-					to implement it within your post!</p>
-					</a>
-			</div>
-			<div class="module-box">
-			<a href="<?= admin_url('admin.php?page=improveseo_shortcodes') ?>">
-				<div class="module-icon justify-between m-0">
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon10.svg' ?>" alt="icon10">
-					<div class="module-toggle">
-						<label class="toggle-switch">
-							<input type="checkbox">
-							<span class="switch"></span>
-						</label>
-					</div>
-				</div>
-				<div class="line"></div>
-				<h3>Testimonials <span> Pro </span></h3>
-				<p>Create one or multiple testimonial shortcodes to add to your posts for social proof of your products
-					and services</p>
-					</a>
-			</div>
-			<div class="module-box">
-			<a href="<?= admin_url('admin.php?page=improveseo_shortcodes') ?>">
-				<div class="module-icon justify-between m-0">
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon11.svg' ?>" alt="icon11">
-					<div class="module-toggle">
-						<label class="toggle-switch">
-							<input type="checkbox">
-							<span class="switch"></span>
-						</label>
-					</div>
-				</div>
-				<div class="line"></div>
-				<h3>Buttons <span> Pro </span></h3>
-				<p>Create one or multiple buy/book button shortcodes with hyperlinks to your calender or shopping cart
-					to add to your posts.</p>
-					</a>
-			</div>
-			<div class="module-box">
-			<a href="<?= admin_url('admin.php?page=improveseo_shortcodes') ?>">
-				<div class="module-icon justify-between m-0">
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon12.svg' ?>" alt="icon12">
-					<div class="module-toggle">
-						<label class="toggle-switch">
-							<input type="checkbox">
-							<span class="switch"></span>
-						</label>
-					</div>
-				</div>
-				<div class="line"></div>
-				<h3>Maps <span> Pro </span></h3>
-				<p>Create map shortcodes to add to your posts adding your Google api [great for local seo ]</p>
-				</a>
-			</div>
-			<div class="module-box">
-			<a href="#">
-				<div class="module-icon justify-between m-0">
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon13.svg' ?>" alt="icon13">
-					<div class="module-toggle">
-						<label class="toggle-switch">
-							<input type="checkbox">
-							<span class="switch"></span>
-						</label>
-					</div>
-				</div>
-				<div class="line"></div>
-				<h3>Schema <span> Pro </span></h3>
-				<p>Easily generate and manage structured data to improve your website's SEO and search engine
-					visibility.</p>
-					</a>
-			</div>
+			
+			
+			
 		</div>
 	</div>
 </div>
