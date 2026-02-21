@@ -167,7 +167,7 @@ if (isset($_GET['post_preview'])) {
 
 												<span class="edit">
 													<a class="popup-link"
-														href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=export_urls&id=' . $project->id . '&name=' . urlencode($project->name)) ?>">
+														href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=export_urls&id=' . $project->id . '&name=' . urlencode($project->name) . '&noheader=true') ?>">
 														Export URLs to Excel
 													</a>
 												</span>
