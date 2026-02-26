@@ -1,17 +1,18 @@
 <?php
 
 /*
-
 Plugin Name: Improve SEO
-
-Plugin URI: 
-
+Plugin URI: https://wordpress.org/plugins/improveseo/
 Description: Creates a large number of pages/posts and customize them to rank in Google.
-
 Author: Improve SEO Team
-
+Author URI: https://improveseoplugin.com/
 Version: 2.0.11
-
+Requires at least: 5.0
+Tested up to: 6.7
+Requires PHP: 7.4
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: improve-seo
 */
 
 define("IMPROVESEO_VERSION", "2.0.11");
