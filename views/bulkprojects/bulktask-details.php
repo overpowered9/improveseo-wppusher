@@ -167,7 +167,6 @@ function btd_author_label($val) {
     <div class="head-bar">
         <img src="<?php echo WT_URL . '/assets/images/latest-images/seo-latest-logo.svg' ?>" alt="project-list-logo">
         <h1>ImproveSEO | Task Details</h1>
-        <span>Pro</span>
     </div>
     <div class="box-top">
         <ul class="breadcrumb-seo">
