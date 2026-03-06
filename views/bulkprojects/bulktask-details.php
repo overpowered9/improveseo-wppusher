@@ -76,32 +76,11 @@ function btd_author_label($val) {
 ?>
 
 <style>
-    .btd-wrap {
-        max-width: 1100px;
-        margin: 20px auto;
-    }
-    .btd-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 24px;
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-    .btd-header h1 {
-        margin: 0;
-        font-size: 22px;
-        font-weight: 600;
-        color: #1d2327;
-    }
-    .btd-header .btd-actions a {
-        text-decoration: none;
-        margin-left: 8px;
-    }
     .btd-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px;
+        padding: 0 20px 20px;
     }
     @media (max-width: 782px) {
         .btd-grid {
@@ -110,17 +89,18 @@ function btd_author_label($val) {
     }
     .btd-card {
         background: #fff;
-        border: 1px solid #c3c4c7;
-        border-radius: 4px;
-        box-shadow: 0 1px 1px rgba(0,0,0,.04);
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        box-shadow: 0 1px 4px rgba(0,0,0,.06);
     }
     .btd-card-header {
         padding: 12px 16px;
-        border-bottom: 1px solid #c3c4c7;
-        background: #f6f7f7;
+        border-bottom: 1px solid #dee2e6;
+        background: #f8f9fa;
         font-weight: 600;
         font-size: 14px;
         color: #1d2327;
+        border-radius: 10px 10px 0 0;
     }
     .btd-card-body {
         padding: 16px;
@@ -183,32 +163,50 @@ function btd_author_label($val) {
     }
 </style>
 
-<div class="btd-wrap">
-    <div class="btd-header">
-        <h1>Task Details – <?= esc_html($task->keyword_name) ?></h1>
-        <div class="btd-actions">
+<div class="global-wrap">
+    <div class="head-bar">
+        <img src="<?php echo WT_URL . '/assets/images/latest-images/seo-latest-logo.svg' ?>" alt="project-list-logo">
+        <h1>ImproveSEO | Task Details</h1>
+        <span>Pro</span>
+    </div>
+    <div class="box-top">
+        <ul class="breadcrumb-seo">
+            <li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+            <li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
             <?php if ($task->bulktask_id): ?>
-                <a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>" class="button">
-                    ← Back to Tasks
+                <li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>"><?= esc_html($parent_name) ?></a></li>
+            <?php endif; ?>
+            <li><?= esc_html($task->keyword_name) ?></li>
+        </ul>
+        <div class="import-export-btn">
+            <?php if ($task->bulktask_id): ?>
+                <a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>" style="text-decoration:none;">
+                    <button>← Back to Tasks</button>
                 </a>
             <?php else: ?>
-                <a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>" class="button">
-                    ← Back to Bulk Projects
+                <a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>" style="text-decoration:none;">
+                    <button>← Back to Bulk Projects</button>
                 </a>
             <?php endif; ?>
             <?php if (!empty($task->ai_content)): ?>
-                <a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAiContent&id=' . $task->id) ?>" class="button" target="_blank">
-                    View AI Content
+                <a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAiContent&id=' . $task->id) ?>" target="_blank" style="text-decoration:none;">
+                    <button>View AI Content</button>
                 </a>
             <?php endif; ?>
             <?php if ($associated_post && $post_url): ?>
-                <a href="<?= esc_url($post_url) ?>" class="button button-primary" target="_blank">View Post</a>
+                <a href="<?= esc_url($post_url) ?>" target="_blank" style="text-decoration:none;">
+                    <button class="active">View Post</button>
+                </a>
             <?php endif; ?>
             <?php if (!empty($task->post_id)): ?>
-                <a href="<?= admin_url('post.php?action=edit&post=' . $task->post_id) ?>" class="button" target="_blank">Edit Post</a>
+                <a href="<?= admin_url('post.php?action=edit&post=' . $task->post_id) ?>" target="_blank" style="text-decoration:none;">
+                    <button>Edit Post</button>
+                </a>
             <?php endif; ?>
         </div>
     </div>
+    <div class="improve-seo-container">
+    <div class="project-lists" style="padding: 20px 0 0;">
 
     <div class="btd-grid">
         <!-- Card 1: Basic Information -->
@@ -513,6 +511,9 @@ function btd_author_label($val) {
                 <?php endif; ?>
             </div>
         </div>
+    </div>
+
+    </div>
     </div>
 </div>
 

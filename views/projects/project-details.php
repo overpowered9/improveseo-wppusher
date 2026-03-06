@@ -60,32 +60,11 @@ function pd_image_label($val) {
 ?>
 
 <style>
-    .project-details-wrap {
-        max-width: 1100px;
-        margin: 20px auto;
-    }
-    .project-details-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 24px;
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-    .project-details-header h1 {
-        margin: 0;
-        font-size: 22px;
-        font-weight: 600;
-        color: #1d2327;
-    }
-    .project-details-header .pd-actions a {
-        text-decoration: none;
-        margin-left: 8px;
-    }
     .pd-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px;
+        padding: 0 20px 20px;
     }
     @media (max-width: 782px) {
         .pd-grid {
@@ -94,17 +73,18 @@ function pd_image_label($val) {
     }
     .pd-card {
         background: #fff;
-        border: 1px solid #c3c4c7;
-        border-radius: 4px;
-        box-shadow: 0 1px 1px rgba(0,0,0,.04);
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        box-shadow: 0 1px 4px rgba(0,0,0,.06);
     }
     .pd-card-header {
         padding: 12px 16px;
-        border-bottom: 1px solid #c3c4c7;
-        background: #f6f7f7;
+        border-bottom: 1px solid #dee2e6;
+        background: #f8f9fa;
         font-weight: 600;
         font-size: 14px;
         color: #1d2327;
+        border-radius: 10px 10px 0 0;
     }
     .pd-card-body {
         padding: 16px;
@@ -158,21 +138,34 @@ function pd_image_label($val) {
     }
 </style>
 
-<div class="project-details-wrap">
-    <div class="project-details-header">
-        <h1><?= esc_html($project->name) ?> – Project Details</h1>
-        <div class="pd-actions">
-            <a href="<?= admin_url('admin.php?page=improveseo_projects') ?>" class="button">
-                ← Back to Projects
+<div class="global-wrap">
+    <div class="head-bar">
+        <img src="<?php echo WT_URL . '/assets/images/latest-images/seo-latest-logo.svg' ?>" alt="project-list-logo">
+        <h1>ImproveSEO | Project Details</h1>
+        <span>Pro</span>
+    </div>
+    <div class="box-top">
+        <ul class="breadcrumb-seo">
+            <li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+            <li><a href="<?= admin_url('admin.php?page=improveseo_projects') ?>">Projects List</a></li>
+            <li><?= esc_html($project->name) ?></li>
+        </ul>
+        <div class="import-export-btn">
+            <a href="<?= admin_url('admin.php?page=improveseo_projects') ?>" style="text-decoration:none;">
+                <button>← Back to Projects</button>
             </a>
-            <a href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true") ?>" class="button button-primary" target="_blank">
-                Edit Project
+            <a href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true") ?>" target="_blank" style="text-decoration:none;">
+                <button class="active">Edit Project</button>
             </a>
             <?php if ($associated_post && $post_url): ?>
-                <a href="<?= esc_url($post_url) ?>" class="button" target="_blank">View Post</a>
+                <a href="<?= esc_url($post_url) ?>" target="_blank" style="text-decoration:none;">
+                    <button>View Post</button>
+                </a>
             <?php endif; ?>
         </div>
     </div>
+    <div class="improve-seo-container">
+    <div class="project-lists" style="padding: 20px 0 0;">
 
     <div class="pd-grid">
         <!-- Card 1: Basic Info -->
@@ -402,6 +395,9 @@ function pd_image_label($val) {
                 <?php endif; ?>
             </div>
         </div>
+    </div>
+
+    </div>
     </div>
 </div>
 
