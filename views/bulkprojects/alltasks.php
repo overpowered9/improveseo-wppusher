@@ -254,6 +254,12 @@ $url .= $_SERVER['REQUEST_URI'];
 														</span>
 													<?php } ?>
 
+													<span class="primary">
+														<a class="popup-link"
+															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=view_task_details&id=' . $project->id . '&parent_id=' . $id) ?>">View
+															Details</a>
+													</span>
+
 													<?php if (!empty($project->post_id)) {
 														$edit_link = admin_url('post.php?action=edit&post=' . $project->post_id); ?>
 														<span class="primary">

@@ -745,5 +745,48 @@ function improveseo_bulkprojects()
 		wp_redirect(admin_url('admin.php?page=improveseo_projects'));
 		exit;
 
+	elseif ($action == 'view_task_details'):
+		$task_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+		$parent_id = isset($_GET['parent_id']) ? intval($_GET['parent_id']) : 0;
+
+		if (!$task_id) {
+			FlashMessage::error('Invalid task ID.');
+			wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
+			exit;
+		}
+
+		// Fetch the bulk task detail row
+		$sql = $wpdb->prepare("SELECT * FROM " . $detailsTaskModel->getTable() . " WHERE id = %d", $task_id);
+		$task = $wpdb->get_row($sql);
+
+		if (!$task) {
+			FlashMessage::error('Task not found.');
+			wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects'));
+			exit;
+		}
+
+		// Get parent project name
+		$parent_name = '';
+		if ($task->bulktask_id) {
+			$parent = $wpdb->get_row($wpdb->prepare("SELECT name FROM " . $model->getTable() . " WHERE id = %d", $task->bulktask_id));
+			if ($parent) {
+				$parent_name = $parent->name;
+			}
+		}
+
+		// Get associated WordPress post
+		$associated_post = null;
+		$post_url = '';
+		if (!empty($task->post_id)) {
+			$associated_post = get_post($task->post_id);
+			if ($associated_post && $associated_post->post_status !== 'trash') {
+				$post_url = get_permalink($task->post_id);
+			} else {
+				$associated_post = null;
+			}
+		}
+
+		View::render('bulkprojects.bulktask-details', compact('task', 'parent_name', 'associated_post', 'post_url'));
+
 	endif;
 }
