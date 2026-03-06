@@ -644,7 +644,47 @@ function improveseo_dashboard() {
 		}
 
 
+		// AI Generation Settings (from popup form hidden fields)
 
+		if (isset($_POST['ai_modal_type']) && $_POST['ai_modal_type'] === 'single') {
+
+			$ai_fields = array(
+
+				'ai_seed_keyword',
+
+				'ai_seed_options',
+
+				'ai_content_type',
+
+				'ai_nos_of_words',
+
+				'ai_point_of_view',
+
+				'ai_content_lang',
+
+				'ai_details_to_include',
+
+				'ai_call_to_action',
+
+				'ai_image_option',
+
+				'ai_generated_title',
+
+				'ai_for_testing_only'
+
+			);
+
+			foreach ($ai_fields as $field) {
+
+				if (isset($_POST[$field]) && $_POST[$field] !== '') {
+
+					$options_data[$field] = stripslashes($_POST[$field]);
+
+				}
+
+			}
+
+		}
 
 
 		$data = array(

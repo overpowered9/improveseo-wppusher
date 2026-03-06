@@ -463,6 +463,19 @@ function saveFinalData() {
 
   jQuery("#custom-description").val(meta_descreption);
 
+  // Copy AI popup form values to hidden fields in main_form for project details
+  jQuery("#ai_seed_keyword_hidden").val(jQuery("#seed_keyword").val() || "");
+  jQuery("#ai_seed_options_hidden").val(jQuery("select[name='seed_options']").val() || "");
+  jQuery("#ai_content_type_hidden").val(jQuery("select[name='content_type']").val() || jQuery("#cotnt_type").val() || "");
+  jQuery("#ai_nos_of_words_hidden").val(jQuery("select[name='nos_of_words']").val() || jQuery("#post_size").val() || "");
+  jQuery("#ai_point_of_view_hidden").val(jQuery("select[name='point_of_view']").val() || "");
+  jQuery("#ai_content_lang_hidden").val(jQuery("select[name='content_lang']").val() || jQuery("#language").val() || "");
+  jQuery("#ai_details_to_include_hidden").val(jQuery("textarea[name='details_to_include']").val() || "");
+  jQuery("#ai_call_to_action_hidden").val(jQuery("#call_to_action").val() || "");
+  jQuery("#ai_image_option_hidden").val(jQuery("input[name='aiImage']:checked").val() || "");
+  jQuery("#ai_generated_title_hidden").val(jQuery("#AI_Title").val() || jQuery("#ai_title").val() || "");
+  jQuery("#ai_for_testing_only_hidden").val(jQuery("#for_testing_only").is(":checked") ? "1" : "0");
+
   jQuery("#exampleModal").hide();
 
   jQuery("#exampleModal1").hide();

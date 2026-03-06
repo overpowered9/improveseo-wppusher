@@ -371,6 +371,41 @@ function improveseo_projects()
     wp_redirect(admin_url('admin.php?page=improveseo_projects'));
     exit;
 
+  elseif ($action == 'view_details'):
+    $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+    if (!$id) {
+      FlashMessage::error('Invalid project ID.');
+      wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+      exit;
+    }
+
+    $project = $model->find($id);
+
+    if (!$project) {
+      FlashMessage::error('Project not found.');
+      wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+      exit;
+    }
+
+    // $project->options and $project->content are already decoded by the Task model (array|b64 cast)
+    $options = is_array($project->options) ? $project->options : array();
+    $content = is_array($project->content) ? $project->content : array();
+
+    // Get associated WordPress post
+    $associated_post = null;
+    $post_url = '';
+    $post_id_result = $wpdb->get_var($wpdb->prepare(
+      "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'improveseo_project_id' AND meta_value = %s",
+      $id
+    ));
+    if ($post_id_result) {
+      $associated_post = get_post($post_id_result);
+      $post_url = get_permalink($post_id_result);
+    }
+
+    View::render('projects.project-details', compact('project', 'options', 'content', 'associated_post', 'post_url'));
+
   endif;
 }
 

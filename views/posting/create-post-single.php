@@ -62,6 +62,18 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 	action="<?php echo admin_url('admin.php?page=improveseo_dashboard&action=do_create_post&noheader=true'); ?>"
 	class="form-wrap" method="post">
 	<input type="hidden" name="ai_modal_type" value="single" />
+	<!-- Hidden fields to capture AI popup values for project details -->
+	<input type="hidden" name="ai_seed_keyword" id="ai_seed_keyword_hidden" />
+	<input type="hidden" name="ai_seed_options" id="ai_seed_options_hidden" />
+	<input type="hidden" name="ai_content_type" id="ai_content_type_hidden" />
+	<input type="hidden" name="ai_nos_of_words" id="ai_nos_of_words_hidden" />
+	<input type="hidden" name="ai_point_of_view" id="ai_point_of_view_hidden" />
+	<input type="hidden" name="ai_content_lang" id="ai_content_lang_hidden" />
+	<input type="hidden" name="ai_details_to_include" id="ai_details_to_include_hidden" />
+	<input type="hidden" name="ai_call_to_action" id="ai_call_to_action_hidden" />
+	<input type="hidden" name="ai_image_option" id="ai_image_option_hidden" />
+	<input type="hidden" name="ai_generated_title" id="ai_generated_title_hidden" />
+	<input type="hidden" name="ai_for_testing_only" id="ai_for_testing_only_hidden" value="0" />
     
 	<div class="style_create_page_form" style="display: none;">
 		<div class="CreatePost improveseo_wrapper create_page_cont_1">
