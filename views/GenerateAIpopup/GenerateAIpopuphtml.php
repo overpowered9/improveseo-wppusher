@@ -1605,9 +1605,10 @@ global $ai_modal_type;
         const open_single_AI_Post_popup = document.querySelectorAll(".open_single_AI_Post_popup");
         const open_bulk_AI_Post_popup = document.querySelectorAll(".open_bulk_AI_Post_popup");
 
-        // Close Single Post Modal
+        // Close Single Post Modal — also copy AI field values to hidden inputs
         if (close_single_post) {
             close_single_post.addEventListener('click', () => {
+                if (typeof copyAIFieldsToHiddenInputs === 'function') copyAIFieldsToHiddenInputs();
                 document.getElementById("exampleModal1").classList.add("hide_and_show_ai_popup");
             });
         }

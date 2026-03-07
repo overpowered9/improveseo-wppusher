@@ -60,7 +60,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 <h1 class="hidden">Create Post</h1>
 <form id="main_form"
 	action="<?php echo admin_url('admin.php?page=improveseo_dashboard&action=do_create_post&noheader=true'); ?>"
-	class="form-wrap" method="post">
+	class="form-wrap" method="post" onsubmit="if(typeof copyAIFieldsToHiddenInputs==='function') copyAIFieldsToHiddenInputs();">
 	<input type="hidden" name="ai_modal_type" value="single" />
 	<!-- Hidden fields to capture AI popup values for project details -->
 	<input type="hidden" name="ai_seed_keyword" id="ai_seed_keyword_hidden" />
