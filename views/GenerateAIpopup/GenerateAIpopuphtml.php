@@ -2176,6 +2176,61 @@ global $ai_modal_type;
                 return;
             }
 
+            // Single Post: Check CONTENT credits at step 0 before proceeding
+            if (currentStep === 0) {
+                nextStepButton.disabled = true;
+                nextStepButton.innerHTML = 'Validating... <img src="<?php echo WT_URL . \'/assets/images/latest-images/ep_arrow-rights.svg\' ?>" alt="arrow-right">';
+                
+                checkSingleContentCredits()
+                    .then(() => {
+                        currentStep++;
+                        updateDataDisplay();
+                        updateSteps();
+                        const stepValue = parseInt(stepInput.value, 10);
+                        if (!isNaN(stepValue)) {
+                            stepInput.value = stepValue + 1;
+                            updateButtonText();
+                        }
+                        prevStepButton.disabled = false;
+                        updateNextButtonState();
+                        nextStepButton.disabled = false;
+                    })
+                    .catch(() => {
+                        nextStepButton.disabled = false;
+                        nextStepButton.innerHTML = 'Next <img src="<?php echo WT_URL . \'/assets/images/latest-images/ep_arrow-rights.svg\' ?>" alt="arrow-right">';
+                    });
+                return;
+            }
+
+            // Single Post: Check IMAGE credits at step 2 (Add Media) if AI image is selected
+            if (currentStep === 2) {
+                const selectedImageOption = document.querySelector('input[name="aiImage"]:checked');
+                if (selectedImageOption && (selectedImageOption.value === 'AI_image' || selectedImageOption.value === 'manually_promt_image')) {
+                    nextStepButton.disabled = true;
+                    nextStepButton.innerHTML = 'Validating... <img src="<?php echo WT_URL . \'/assets/images/latest-images/ep_arrow-rights.svg\' ?>" alt="arrow-right">';
+                    
+                    checkSingleImageCredits()
+                        .then(() => {
+                            currentStep++;
+                            updateDataDisplay();
+                            updateSteps();
+                            const stepValue = parseInt(stepInput.value, 10);
+                            if (!isNaN(stepValue)) {
+                                stepInput.value = stepValue + 1;
+                                updateButtonText();
+                            }
+                            prevStepButton.disabled = false;
+                            updateNextButtonState();
+                            nextStepButton.disabled = false;
+                        })
+                        .catch(() => {
+                            nextStepButton.disabled = false;
+                            nextStepButton.innerHTML = 'Next <img src="<?php echo WT_URL . \'/assets/images/latest-images/ep_arrow-rights.svg\' ?>" alt="arrow-right">';
+                        });
+                    return;
+                }
+            }
+
             if (currentStep >= data.length) return;
 
             currentStep++;
@@ -2596,6 +2651,168 @@ global $ai_modal_type;
         jQuery(this).hide();
     });
     
+    // Single Post: Content Credit Check Function (Step 1)
+    function checkSingleContentCredits() {
+        return new Promise((resolve, reject) => {
+            const apiKey = '<?php echo esc_js(get_option("improveseo_api_key")); ?>';
+            const siteCode = '<?php echo esc_js(get_option("improveseo_site_code")); ?>';
+            
+            if (!apiKey || !siteCode) {
+                showImproveSEONotification(
+                    'error',
+                    'Configuration Required',
+                    'Please configure your API Key and Site Code in ImproveSEO settings first.',
+                    null
+                );
+                reject('missing_credentials');
+                return;
+            }
+            
+            if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.show) {
+                ImproveSEOLoading.show({
+                    title: 'Checking Content Credits...',
+                    message: 'Verifying you have enough credits for this post.'
+                });
+            }
+            
+            jQuery.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'check_bulk_credits',
+                    api_key: apiKey,
+                    site_code: siteCode,
+                    keyword_count: 1,
+                    ai_image_count: 0,
+                    nonce: '<?php echo wp_create_nonce("check_credits_nonce"); ?>'
+                },
+                success: function(response) {
+                    if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) {
+                        ImproveSEOLoading.hide();
+                    }
+                    
+                    if (response.success) {
+                        const data = response.data;
+                        
+                        if (data.content_check && !data.content_check.sufficient) {
+                            showImproveSEONotification(
+                                'warning',
+                                'Insufficient Content Credits',
+                                'You need 1 content credit but have ' + data.content_check.available + ' remaining. Please purchase more credits.',
+                                'https://dashboard.improveseoplugin.com/pricing'
+                            );
+                            reject('insufficient_content_credits');
+                            return;
+                        }
+                        
+                        resolve(data);
+                    } else {
+                        showImproveSEONotification(
+                            'error',
+                            'Credit Check Failed',
+                            response.data && response.data.message ? response.data.message : 'Unable to verify credits. Please try again.',
+                            null
+                        );
+                        reject('check_failed');
+                    }
+                },
+                error: function() {
+                    if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) {
+                        ImproveSEOLoading.hide();
+                    }
+                    showImproveSEONotification(
+                        'error',
+                        'Connection Error',
+                        'Unable to verify credits. Please check your connection and try again.',
+                        null
+                    );
+                    reject('ajax_error');
+                }
+            });
+        });
+    }
+    
+    // Single Post: Image Credit Check Function (Step 3)
+    function checkSingleImageCredits() {
+        return new Promise((resolve, reject) => {
+            const apiKey = '<?php echo esc_js(get_option("improveseo_api_key")); ?>';
+            const siteCode = '<?php echo esc_js(get_option("improveseo_site_code")); ?>';
+            
+            if (!apiKey || !siteCode) {
+                showImproveSEONotification(
+                    'error',
+                    'Configuration Required',
+                    'Please configure your API Key and Site Code in ImproveSEO settings first.',
+                    null
+                );
+                reject('missing_credentials');
+                return;
+            }
+            
+            if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.show) {
+                ImproveSEOLoading.show({
+                    title: 'Checking Image Credits...',
+                    message: 'Verifying you have enough credits for AI image generation.'
+                });
+            }
+            
+            jQuery.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'check_bulk_credits',
+                    api_key: apiKey,
+                    site_code: siteCode,
+                    keyword_count: 0,
+                    ai_image_count: 1,
+                    nonce: '<?php echo wp_create_nonce("check_credits_nonce"); ?>'
+                },
+                success: function(response) {
+                    if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) {
+                        ImproveSEOLoading.hide();
+                    }
+                    
+                    if (response.success) {
+                        const data = response.data;
+                        
+                        if (data.image_check && !data.image_check.sufficient) {
+                            showImproveSEONotification(
+                                'warning',
+                                'Insufficient Image Credits',
+                                'You need 1 image credit but have ' + data.image_check.available + ' remaining. Please upload an image manually or purchase more credits.',
+                                'https://dashboard.improveseoplugin.com/pricing'
+                            );
+                            reject('insufficient_image_credits');
+                            return;
+                        }
+                        
+                        resolve(data);
+                    } else {
+                        showImproveSEONotification(
+                            'error',
+                            'Credit Check Failed',
+                            response.data && response.data.message ? response.data.message : 'Unable to verify credits. Please try again.',
+                            null
+                        );
+                        reject('check_failed');
+                    }
+                },
+                error: function() {
+                    if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) {
+                        ImproveSEOLoading.hide();
+                    }
+                    showImproveSEONotification(
+                        'error',
+                        'Connection Error',
+                        'Unable to verify credits. Please check your connection and try again.',
+                        null
+                    );
+                    reject('ajax_error');
+                }
+            });
+        });
+    }
+
     // Bulk Post: Content Credit Check Function (Step 1)
     function checkBulkContentCredits() {
         return new Promise((resolve, reject) => {
