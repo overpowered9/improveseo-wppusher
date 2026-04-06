@@ -1855,7 +1855,7 @@ function test_spintax(){
  */
 function improveseo_get_server_config() {
     return array(
-        'server_url' => 'https://imporve-seo-admin-server.onrender.com',
+        'server_url' => 'https://imporve-seo-admin-server-nzbm.onrender.com',
         'api_key' => get_option('improveseo_api_key'),
         'site_code' => get_option('improveseo_site_code')
     );

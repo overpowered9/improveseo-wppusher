@@ -257,7 +257,7 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 	}
 	
 	// Admin server configuration
-	$admin_server_url = 'https://imporve-seo-admin-server.onrender.com';
+	$admin_server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
     $api_endpoint = $admin_server_url . '/api/v1/generate/active';
 	
 	// Prepare request payload matching the /active route interface

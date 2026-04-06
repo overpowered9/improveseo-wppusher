@@ -289,7 +289,7 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
         }
         
         jQuery.ajax({
-            url: 'https://imporve-seo-admin-server.onrender.com/api/v1/generate/generatekeywordded',
+            url: 'https://imporve-seo-admin-server-nzbm.onrender.com/api/v1/generate/generatekeywordded',
             type: 'POST',
             contentType: 'application/json',
             headers: {

@@ -13,7 +13,7 @@ function test_improveseo_connection() {
     }
     
     // Use fixed server URL
-    $server_url = 'https://imporve-seo-admin-server.onrender.com';
+    $server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
     $api_key = sanitize_text_field($_POST['api_key']);
     $site_code = sanitize_text_field($_POST['site_code']);
     

@@ -927,7 +927,7 @@ function generateAIpopup()
 
             jQuery.ajax({
 
-                url: 'https://imporve-seo-admin-server.onrender.com/api/v1/generate/generatekeywordded',
+                url: 'https://imporve-seo-admin-server-nzbm.onrender.com/api/v1/generate/generatekeywordded',
 
                 type: 'POST',
 

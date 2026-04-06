@@ -1653,7 +1653,7 @@ function generateBulkAiImage($title, $AudienceData)
     }
     
     // Admin server configuration
-    $admin_server_url = 'https://imporve-seo-admin-server.onrender.com';
+    $admin_server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
     $api_endpoint = $admin_server_url . '/api/v1/generate/generateimage';
     
     $seed_title = 'ai_image_' . date('YmdHis');
@@ -1836,7 +1836,7 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 	my_plugin_log("Connecting to admin server for bulk generation...");
 	
 	// Admin server configuration
-	$admin_server_url = 'https://imporve-seo-admin-server.onrender.com';
+	$admin_server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
     $api_endpoint = $admin_server_url . '/api/v1/generate/active';
 	
 	// Prepare request payload matching the /active route interface

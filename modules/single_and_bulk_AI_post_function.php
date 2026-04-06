@@ -390,7 +390,7 @@ function check_bulk_credits_callback() {
 	}
 	
 	// Call ImproveSEO server to get user status with subscription info
-	$admin_server_url = 'https://imporve-seo-admin-server.onrender.com';
+	$admin_server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
 	$api_endpoint = $admin_server_url . '/api/v1/users/status';
 	
 	$response = wp_remote_get($api_endpoint, array(
@@ -516,7 +516,7 @@ function fetch_AI_image_callback()
         }
         
         // Admin server configuration
-        $admin_server_url = 'https://imporve-seo-admin-server.onrender.com';
+        $admin_server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
         $api_endpoint = $admin_server_url . '/api/v1/generate/generateimage';
         
         // Prepare request payload
