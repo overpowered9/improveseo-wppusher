@@ -239,6 +239,7 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
                         'task_name'       => $parent_row->name ?: 'Bulk Project #' . $bulktask_id,
                         'completed_tasks' => $done,
                         'failed_tasks'    => $canceled,
+                        'project_id'      => $bulktask_id,
                     ));
                 }
             }

@@ -776,6 +776,7 @@ function improveseo_dashboard() {
 				improveseo_notify_bulk_status('task_created', array(
 					'task_name'   => $name,
 					'total_tasks' => count($keywords),
+					'project_id'  => $project_id,
 				));
 			}
 		}
