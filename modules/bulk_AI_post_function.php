@@ -221,6 +221,27 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
                 // Otherwise, at least some content was generated - mark as Finished
                 $update_data['state'] = 'Finished';
             }
+
+            // Notify admin server — bulk task completed
+            // Guard: only send when the state is actually TRANSITIONING to terminal.
+            // sync() is called from multiple places (generateBulkAiContent, saveContentInTaskList x2,
+            // bulkprojects.php) so without this check the user would get duplicate emails.
+            if (function_exists('improveseo_notify_bulk_status')) {
+                $parent_row = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT name, state FROM {$wpdb->prefix}improveseo_bulktasks WHERE id = %d",
+                        $bulktask_id
+                    )
+                );
+                // Only notify if parent is NOT already in a terminal state
+                if ($parent_row && !in_array($parent_row->state, array('Finished', 'Cancelled'), true)) {
+                    improveseo_notify_bulk_status('task_completed', array(
+                        'task_name'       => $parent_row->name ?: 'Bulk Project #' . $bulktask_id,
+                        'completed_tasks' => $done,
+                        'failed_tasks'    => $canceled,
+                    ));
+                }
+            }
         }
         
         // Update the parent row with the recalculated count and state
@@ -231,6 +252,47 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
             array('%d', '%s', '%s'),
             array('%d')
         );
+    }
+}
+
+/**
+ * Fire-and-forget notification to the admin server for bulk task events.
+ * Failures are silently logged — never blocks task processing.
+ *
+ * @param string $event   'task_created' or 'task_completed'
+ * @param array  $payload Associative array merged into the request body.
+ */
+if (!function_exists('improveseo_notify_bulk_status')) {
+    function improveseo_notify_bulk_status($event, $payload = array()) {
+        try {
+            $api_key   = get_option('improveseo_api_key');
+            $site_code = get_option('improveseo_site_code');
+
+            if (empty($api_key) || empty($site_code)) {
+                return; // credentials not configured — skip silently
+            }
+
+            $admin_server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
+            $endpoint = $admin_server_url . '/api/v1/bulk-notifications/status';
+
+            $body = array_merge(array('event' => $event), $payload);
+
+            wp_remote_post($endpoint, array(
+                'headers'  => array(
+                    'x-api-key'     => $api_key,
+                    'x-site-code'   => $site_code,
+                    'Content-Type'  => 'application/json',
+                ),
+                'body'     => wp_json_encode($body),
+                'timeout'  => 5,
+                'blocking' => false, // non-blocking — fire and forget
+            ));
+        } catch (\Exception $e) {
+            // Never let notification errors affect bulk task processing
+            if (function_exists('my_plugin_log')) {
+                my_plugin_log('Bulk notification failed: ' . $e->getMessage());
+            }
+        }
     }
 }
 

@@ -770,6 +770,14 @@ function improveseo_dashboard() {
 				);
 				$detailsModel->create($detail_data);
 			}
+
+			// Notify admin server — bulk task created
+			if (function_exists('improveseo_notify_bulk_status')) {
+				improveseo_notify_bulk_status('task_created', array(
+					'task_name'   => $name,
+					'total_tasks' => count($keywords),
+				));
+			}
 		}
 
 		if (isset($_POST['create'])) {
