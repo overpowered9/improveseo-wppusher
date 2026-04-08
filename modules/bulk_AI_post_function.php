@@ -285,7 +285,7 @@ if (!function_exists('improveseo_notify_bulk_status')) {
                 ),
                 'body'     => wp_json_encode($body),
                 'timeout'  => 5,
-                'blocking' => false, // non-blocking — fire and forget
+                'blocking' => true, // must block — non-blocking requests get killed by wp_redirect/exit
             ));
         } catch (\Exception $e) {
             // Never let notification errors affect bulk task processing
