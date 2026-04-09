@@ -2478,38 +2478,12 @@ function multiPostData()
 			throw new Exception('Task insertion incomplete: ' . $tasks_inserted . '/' . count($keyword_lists) . ' tasks inserted');
 		}
 
-		if (!empty($notify_email)) {
-
-			$to = $notify_email; // Replace with the recipient's email address
-
-			$subject = "AI content generation notification";
-
-			$headers = array('Content-Type: text/plain; charset=UTF-8');
-
-
-
-			// Send the email
-
-			$email_content = '';
-
-			$email_content .= "Project successfully added:\n";
-
-			$email_content .= "Project Name: " . $project_name . "\n";
-
-			$email_content .= "Number of Keywords: " . count($keyword_lists) . "\n";
-
-			$email_content .= "Time estimation for complete: " . $timeTaken . "\n";
-
-			$email_content .= "State: In Process" . "\n";
-
-			$email_content .= "Created At: " . current_time('mysql') . "\n\n";
-
-			$email_content .= "<a href='" . $linkredirect . "' target='_blank'> Check status </a>" . "\n\n";
-
-
-
-			$mail_sent = wp_mail($to, $subject, $email_content, $headers);
-
+		if (function_exists('improveseo_notify_bulk_status')) {
+			improveseo_notify_bulk_status('task_created', array(
+				'task_name'   => $project_name,
+				'total_tasks' => count($keyword_lists),
+				'project_id'  => $lastid,
+			));
 		}
 
 		//wp_send_json_success(array('status' => 'false',"message"=>'here 1 : '. $wpdb->last_error  ));
