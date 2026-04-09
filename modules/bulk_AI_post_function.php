@@ -257,43 +257,52 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
 }
 
 /**
- * Fire-and-forget notification to the admin server for bulk task events.
- * Failures are silently logged — never blocks task processing.
+ * Send notification to the admin server for bulk task events.
+ * Returns true on success, false on failure. Errors are logged.
  *
  * @param string $event   'task_created' or 'task_completed'
  * @param array  $payload Associative array merged into the request body.
+ * @return bool  Whether the notification was sent successfully.
  */
 if (!function_exists('improveseo_notify_bulk_status')) {
     function improveseo_notify_bulk_status($event, $payload = array()) {
-        try {
-            $api_key   = get_option('improveseo_api_key');
-            $site_code = get_option('improveseo_site_code');
+        $api_key   = get_option('improveseo_api_key');
+        $site_code = get_option('improveseo_site_code');
 
-            if (empty($api_key) || empty($site_code)) {
-                return; // credentials not configured — skip silently
-            }
-
-            $admin_server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
-            $endpoint = $admin_server_url . '/api/v1/bulk-notifications/status';
-
-            $body = array_merge(array('event' => $event), $payload);
-
-            wp_remote_post($endpoint, array(
-                'headers'  => array(
-                    'x-api-key'     => $api_key,
-                    'x-site-code'   => $site_code,
-                    'Content-Type'  => 'application/json',
-                ),
-                'body'     => wp_json_encode($body),
-                'timeout'  => 5,
-                'blocking' => true, // must block — non-blocking requests get killed by wp_redirect/exit
-            ));
-        } catch (\Exception $e) {
-            // Never let notification errors affect bulk task processing
-            if (function_exists('my_plugin_log')) {
-                my_plugin_log('Bulk notification failed: ' . $e->getMessage());
-            }
+        if (empty($api_key) || empty($site_code)) {
+            my_plugin_log('[BulkNotify] Skipped — api_key or site_code empty');
+            return false;
         }
+
+        $admin_server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
+        $endpoint = $admin_server_url . '/api/v1/bulk-notifications/status';
+
+        $body = array_merge(array('event' => $event), $payload);
+
+        my_plugin_log('[BulkNotify] Sending ' . $event . ' to ' . $endpoint);
+        my_plugin_log('[BulkNotify] Body: ' . wp_json_encode($body));
+
+        $response = wp_remote_post($endpoint, array(
+            'headers'  => array(
+                'x-api-key'     => $api_key,
+                'x-site-code'   => $site_code,
+                'Content-Type'  => 'application/json',
+            ),
+            'body'     => wp_json_encode($body),
+            'timeout'  => 15,
+            'blocking' => true,
+        ));
+
+        if (is_wp_error($response)) {
+            my_plugin_log('[BulkNotify] WP_Error: ' . $response->get_error_message());
+            return false;
+        }
+
+        $code = wp_remote_retrieve_response_code($response);
+        $resp_body = wp_remote_retrieve_body($response);
+        my_plugin_log('[BulkNotify] Response ' . $code . ': ' . $resp_body);
+
+        return ($code >= 200 && $code < 300);
     }
 }
 
