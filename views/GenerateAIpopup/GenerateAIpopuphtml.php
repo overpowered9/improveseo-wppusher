@@ -1559,13 +1559,6 @@ global $ai_modal_type;
                                 <input type="text" style=" padding: 10px 20px !important;" class="form-control"
                                     id="project_name" name="project_name" placeholder="Enter project name">
                             </div>
-                            <div class="seo-form-field_multi">
-                                <label class="data-label_multi" style="padding: 0px 20px !important;"
-                                    for="notify_email">Email address for
-                                    notification</label>
-                                <input type="text" style=" padding: 10px 20px !important;" class="form-control"
-                                    id="notify_email" name="notify_email" placeholder="Enter your email here">
-                            </div>
                             <input type="submit" value="Submit" id="bulk_ai_post_submi_button">
                             <div class="seo-form-field_multi" style="padding-left: 20px;">
                                 <p class="font-20_multi"><strong>Note:</strong> Based on the selections you made, this

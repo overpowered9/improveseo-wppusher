@@ -2113,8 +2113,6 @@ function multiPostData()
 
 
 
-		$notify_email = $_POST['notify_email'];
-
 		$timeTaken = 2 * count($keyword_lists); // one post 3 mint
 
 		$linkredirect = home_url('/') . 'wp-admin/admin.php?page=improveseo_bulkprojects';
