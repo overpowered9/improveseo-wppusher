@@ -516,9 +516,7 @@ global $ai_modal_type;
 <div class="improveseo-notification-overlay" id="improveseoNotification">
     <div class="improveseo-notification-box">
         <div class="improveseo-notification-header">
-            <div class="improveseo-notification-icon" id="improveseoNotificationIcon">
-                ⚠️
-            </div>
+            <div class="improveseo-notification-icon" id="improveseoNotificationIcon"></div>
             <div class="improveseo-notification-title">
                 <h3 id="improveseoNotificationTitle">Notification</h3>
             </div>
@@ -2671,7 +2669,7 @@ global $ai_modal_type;
             if (!apiKey || !siteCode) {
                 showImproveSEONotification(
                     'error',
-                    '❌ Configuration Required',
+                    'Configuration Required',
                     'Please configure your API Key and Site Code in ImproveSEO settings first.',
                     null
                 );
@@ -2716,7 +2714,7 @@ global $ai_modal_type;
                         if (data.plan_check && !data.plan_check.allowed) {
                             showImproveSEONotification(
                                 'warning',
-                                '⚠️ Plan Upgrade Required',
+                                'Plan Upgrade Required',
                                 'Your current plan (' + data.plan_check.plan_name + ') does not support Bulk Posts. Please upgrade to access this feature.',
                                 'https://dashboard.improveseoplugin.com/pricing'
                             );
@@ -2743,7 +2741,7 @@ global $ai_modal_type;
                         // Content credits are sufficient!
                         showImproveSEONotification(
                             'success',
-                            ' Content Credits Available',
+                            'Content Credits Available',
                             'You have ' + data.content_check.available + ' content credits available for ' + keywordCount + ' posts. Proceeding to next step.'
                         );
                         resolve(data);
@@ -2751,7 +2749,7 @@ global $ai_modal_type;
                     } else {
                         showImproveSEONotification(
                             'error',
-                            '❌ Credit Check Failed',
+                            'Credit Check Failed',
                             response.data && response.data.message ? response.data.message : 'Unable to verify credits. Please try again.',
                             null
                         );
@@ -2765,7 +2763,7 @@ global $ai_modal_type;
                     
                     showImproveSEONotification(
                         'error',
-                        '❌ Connection Error',
+                        'Connection Error',
                         'Unable to verify credits. Please check your connection and try again.',
                         null
                     );
@@ -2785,7 +2783,7 @@ global $ai_modal_type;
             if (!apiKey || !siteCode) {
                 showImproveSEONotification(
                     'error',
-                    '❌ Configuration Required',
+                    'Configuration Required',
                     'Please configure your API Key and Site Code in ImproveSEO settings first.',
                     null
                 );
@@ -2871,7 +2869,7 @@ global $ai_modal_type;
                     } else {
                         showImproveSEONotification(
                             'error',
-                            '❌ Credit Check Failed',
+                            'Credit Check Failed',
                             response.data.error || 'Unable to verify credits. Please try again.',
                             null
                         );
@@ -2884,7 +2882,7 @@ global $ai_modal_type;
                     }
                     showImproveSEONotification(
                         'error',
-                        '❌ Connection Error',
+                        'Connection Error',
                         'Unable to connect to ImproveSEO server. Please check your internet connection and settings.',
                         null
                     );
@@ -2961,7 +2959,7 @@ global $ai_modal_type;
         if (!keywordListName || keywordListName === '' || keywordListName === 'none') {
             showImproveSEONotification(
                 'warning',
-                '⚠️ Keyword List Required',
+                'Keyword List Required',
                 'Please select a keyword list before submitting.',
                 null
             );
@@ -2971,7 +2969,7 @@ global $ai_modal_type;
         if (!keywordList || keywordList.trim() === '') {
             showImproveSEONotification(
                 'warning',
-                '⚠️ Empty Keyword List',
+                'Empty Keyword List',
                 'The selected keyword list is empty. Please select a list with keywords.',
                 null
             );
@@ -2982,7 +2980,7 @@ global $ai_modal_type;
         if (keywords.length === 0) {
             showImproveSEONotification(
                 'warning',
-                '⚠️ No Valid Keywords',
+                'No Valid Keywords',
                 'Please ensure your keyword list contains at least one valid keyword.',
                 null
             );
@@ -3317,19 +3315,20 @@ global $ai_modal_type;
       const messageEl = document.getElementById('improveseoNotificationMessage');
       const okBtn = document.getElementById('improveseoNotificationOk');
 
-      // Set icon based on type
+      // warning/error: CSS ::after renders the symbol — textContent must be empty to avoid double icon
+      // success/info: no ::after defined, so textContent carries the symbol
       const icons = {
-        warning: '⚠️',
-        error: '❌',
+        warning: '',
+        error: '',
         success: '✓',
-        info: 'ℹ️'
+        info: 'ℹ'
       };
 
       // Remove all type classes
       iconEl.classList.remove('warning', 'error', 'success', 'info');
       // Add current type class
       iconEl.classList.add(type);
-      iconEl.textContent = icons[type] || icons.warning;
+      iconEl.textContent = icons[type];
 
       // Set content
       titleEl.textContent = title;
@@ -3396,8 +3395,8 @@ global $ai_modal_type;
     
     // Set icon based on type - use Unicode symbols for better display
     const icons = {
-      warning: '⚠',
-      error: '', // Empty - we'll use CSS ::after for a clean X
+      warning: '', // CSS ::after handles the symbol
+      error: '',   // CSS ::after handles the symbol
       success: '✓',
       info: 'ℹ'
     };

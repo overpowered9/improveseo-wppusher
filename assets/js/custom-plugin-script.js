@@ -1125,7 +1125,7 @@ jQuery(document).ready(function ($) {
         if (typeof showImproveSEONotification !== 'undefined') {
           showImproveSEONotification(
             'error',
-            '❌ Connection Error',
+            'Connection Error',
             errorMsg,
             null
           );
