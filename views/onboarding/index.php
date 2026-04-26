@@ -1,0 +1,232 @@
+<?php
+/**
+ * ImproveSEO Onboarding Wizard — full-page view.
+ *
+ * This page hides the normal WP admin chrome so the wizard fills the screen.
+ * JavaScript (onboarding.js) drives all screen transitions.
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+?>
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+<meta charset="<?php bloginfo( 'charset' ); ?>">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><?php esc_html_e( 'ImproveSEO Setup', 'improve-seo' ); ?></title>
+<?php
+// Load WP admin styles (so wp_enqueue'd assets work)
+do_action( 'admin_print_styles' );
+do_action( 'admin_print_scripts' );
+?>
+<style>
+/* Hide the normal WP admin chrome on this page */
+#adminmenuwrap,
+#adminmenuback,
+#wpadminbar,
+#wpfooter,
+#update-nag,
+.update-nag {
+	display: none !important;
+}
+html.wp-toolbar {
+	padding-top: 0 !important;
+}
+#wpcontent,
+#wpbody-content {
+	padding: 0 !important;
+	margin: 0 !important;
+}
+</style>
+</head>
+<body class="wp-admin improveseo-onboarding-body">
+
+<div id="improveseo-onboarding-wrap">
+
+	<!-- ══════════════════ Screen 1 — Welcome ══════════════════ -->
+	<div class="iseo-screen" id="iseo-screen-1">
+		<div class="iseo-card">
+			<div class="iseo-logo">
+				<img src="<?php echo esc_url( IMPROVESEO_DIR . '/assets/images/logo.png' ); ?>" alt="ImproveSEO" onerror="this.style.display='none'">
+				<span class="iseo-logo-text">ImproveSEO</span>
+			</div>
+
+			<h1 class="iseo-headline">Start Your 14-Day Free Trial</h1>
+			<p class="iseo-subline">
+				Connect your WordPress site to your ImproveSEO account and unlock
+				AI-powered SEO content generation, bulk publishing, and keyword research.
+			</p>
+
+			<ul class="iseo-benefits">
+				<li><span class="iseo-check">✓</span> Unlimited AI articles during your trial</li>
+				<li><span class="iseo-check">✓</span> Auto-publish directly to WordPress</li>
+				<li><span class="iseo-check">✓</span> Full keyword research toolkit</li>
+				<li><span class="iseo-check">✓</span> No credit card required</li>
+			</ul>
+
+			<div id="iseo-popup-blocked-msg" class="iseo-alert iseo-alert-warning" style="display:none;">
+				<strong>Popup blocked!</strong> Please allow popups for this page and try again.
+			</div>
+
+			<button type="button" id="iseo-btn-create" class="iseo-btn iseo-btn-primary iseo-btn-large">
+				Create Free Account &amp; Connect
+			</button>
+			<button type="button" id="iseo-btn-login" class="iseo-btn iseo-btn-ghost">
+				I already have an account — Sign In
+			</button>
+
+			<p class="iseo-skip-line">
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_dashboard' ) ); ?>" id="iseo-skip-all">
+					Skip for now — I'll configure manually
+				</a>
+			</p>
+		</div>
+	</div><!-- /screen-1 -->
+
+	<!-- ══════════════════ Screen 2 — Connecting (popup open) ══════════════════ -->
+	<div class="iseo-screen" id="iseo-screen-2" style="display:none;">
+		<div class="iseo-card iseo-card-center">
+			<div class="iseo-spinner"></div>
+			<h2 class="iseo-headline" style="margin-top:24px;">Complete Setup in the Popup</h2>
+			<p class="iseo-subline">
+				A window has opened for your ImproveSEO account.<br>
+				<strong>Don't close this page</strong> — it will update automatically.
+			</p>
+
+			<div id="iseo-popup-closed-msg" class="iseo-alert iseo-alert-warning" style="display:none;">
+				The popup was closed before completing setup.
+				<button type="button" id="iseo-retry-btn" class="iseo-btn iseo-btn-ghost iseo-btn-sm">Try Again</button>
+			</div>
+
+			<a href="#" id="iseo-cancel-connect" class="iseo-link-muted">Cancel</a>
+		</div>
+	</div><!-- /screen-2 -->
+
+	<!-- ══════════════════ Screen 3 — Connected ══════════════════ -->
+	<div class="iseo-screen" id="iseo-screen-3" style="display:none;">
+		<div class="iseo-card iseo-card-center">
+			<div class="iseo-success-icon">✓</div>
+			<h2 class="iseo-headline">Account Connected!</h2>
+
+			<div id="iseo-s3-new">
+				<p class="iseo-subline">
+					Your <strong>14-day free trial</strong> is now active.
+					You have <strong id="iseo-days-remaining">14</strong> days to explore all features.
+				</p>
+			</div>
+			<div id="iseo-s3-reconnect" style="display:none;">
+				<p class="iseo-subline">
+					Your site has been reconnected to your account.
+					Existing plan credits apply.
+				</p>
+			</div>
+			<div id="iseo-s3-transferred" style="display:none;">
+				<p class="iseo-subline">
+					This website was previously on another account. It's now connected —
+					your existing plan applies.
+				</p>
+			</div>
+
+			<p id="iseo-welcome-name" class="iseo-welcome-name" style="display:none;">
+				Welcome, <span id="iseo-user-name"></span>!
+			</p>
+
+			<button type="button" id="iseo-btn-continue-setup" class="iseo-btn iseo-btn-primary iseo-btn-large">
+				Continue Setup →
+			</button>
+		</div>
+	</div><!-- /screen-3 -->
+
+	<!-- ══════════════════ Screen 4 — Business Setup ══════════════════ -->
+	<div class="iseo-screen" id="iseo-screen-4" style="display:none;">
+		<div class="iseo-card">
+			<h2 class="iseo-headline">Tell Us About Your Business</h2>
+			<p class="iseo-subline">
+				This helps ImproveSEO generate more relevant content for your site.
+			</p>
+
+			<form id="iseo-business-form" novalidate>
+				<div class="iseo-field">
+					<label for="iseo-business-type" class="iseo-label">Business Type</label>
+					<select id="iseo-business-type" name="business_type" class="iseo-select">
+						<option value="">— Select type —</option>
+						<option value="local_service">Local Service Business</option>
+						<option value="ecommerce">E-Commerce / Online Store</option>
+						<option value="blog">Blog / Content Site</option>
+						<option value="saas">SaaS / Software</option>
+						<option value="agency">Agency / Freelancer</option>
+						<option value="healthcare">Healthcare / Medical</option>
+						<option value="real_estate">Real Estate</option>
+						<option value="restaurant">Restaurant / Hospitality</option>
+						<option value="education">Education / Coaching</option>
+						<option value="other">Other</option>
+					</select>
+				</div>
+
+				<div class="iseo-field">
+					<label for="iseo-city" class="iseo-label">City / Location <span class="iseo-optional">(optional)</span></label>
+					<input type="text" id="iseo-city" name="city" class="iseo-input" placeholder="e.g. New York, London, Sydney">
+				</div>
+
+				<div class="iseo-field">
+					<label for="iseo-service" class="iseo-label">Main Service or Topic</label>
+					<input type="text" id="iseo-service" name="service" class="iseo-input" placeholder="e.g. Plumbing, Wedding Photography, Digital Marketing">
+				</div>
+
+				<div class="iseo-readonly-info">
+					<p><span class="iseo-label">Site Name:</span> <span id="iseo-ro-sitename"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></span></p>
+					<p><span class="iseo-label">Site URL:</span> <span id="iseo-ro-siteurl"><?php echo esc_html( home_url( '/' ) ); ?></span></p>
+				</div>
+
+				<div id="iseo-business-error" class="iseo-alert iseo-alert-error" style="display:none;"></div>
+
+				<div class="iseo-button-row">
+					<button type="submit" class="iseo-btn iseo-btn-primary">
+						Save &amp; Continue →
+					</button>
+					<button type="button" id="iseo-skip-business" class="iseo-btn iseo-btn-ghost">
+						Skip
+					</button>
+				</div>
+			</form>
+		</div>
+	</div><!-- /screen-4 -->
+
+	<!-- ══════════════════ Screen 5 — First Content ══════════════════ -->
+	<div class="iseo-screen" id="iseo-screen-5" style="display:none;">
+		<div class="iseo-card iseo-card-center">
+			<div class="iseo-rocket-icon">🚀</div>
+			<h2 class="iseo-headline">Let's Generate Your First SEO Article</h2>
+			<p class="iseo-subline">
+				Based on your setup, here's a suggested keyword to start with:
+			</p>
+
+			<div class="iseo-suggested-keyword">
+				<span id="iseo-suggested-kw">seo services in your city</span>
+			</div>
+
+			<p class="iseo-subline-sm">
+				This will be pre-filled in the article generator. You can change it at any time.
+			</p>
+
+			<a id="iseo-btn-first-content" href="#" class="iseo-btn iseo-btn-primary iseo-btn-large">
+				Generate First Article →
+			</a>
+			<br>
+			<a id="iseo-btn-dashboard" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_dashboard' ) ); ?>" class="iseo-link-muted">
+				Go to Dashboard
+			</a>
+		</div>
+	</div><!-- /screen-5 -->
+
+</div><!-- /#improveseo-onboarding-wrap -->
+
+<?php
+do_action( 'admin_print_footer_scripts' );
+wp_print_scripts( 'jquery' );
+wp_print_scripts( 'improveseo-onboarding' );
+?>
+</body>
+</html>

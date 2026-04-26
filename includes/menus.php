@@ -124,8 +124,13 @@ add_submenu_page(
 
     // add_submenu_page('improveseo_dashboard', 'Shortcodes', 'Shortcodes', 'manage_options','improveseo_shortcodes', 'custom_testimonials_settings');
 
-    
+    // Hidden onboarding wizard page — not shown in the sidebar nav (parent slug = null)
+    add_submenu_page( null, 'ImproveSEO Setup', '', 'manage_options', 'improveseo_onboarding', 'improveseo_onboarding_page' );
 
+}
+
+function improveseo_onboarding_page() {
+    include WT_PATH . '/views/onboarding/index.php';
 }
 
 

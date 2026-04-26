@@ -14,6 +14,7 @@ include_once 'includes/installer.php';
 
 include_once 'includes/api.php';
 
+include_once 'includes/onboarding.php';
 
 
 // Core parts

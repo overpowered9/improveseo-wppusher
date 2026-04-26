@@ -650,11 +650,31 @@ global $ai_modal_type;
                 <div class="data dataJS">
                     <!-- <form class="improve-seo-form-global"> -->
                     <input type="hidden" name="step_value" id="step_value" value="1">
+                    <?php
+                    // Pre-fill seed keyword when arriving from the onboarding wizard
+                    $prefill_keyword = '';
+                    if ( isset( $_GET['from'] ) && $_GET['from'] === 'onboarding' ) {
+                        $service = get_option( 'improveseo_business_service', '' );
+                        $city    = get_option( 'improveseo_business_city', '' );
+                        if ( $service ) {
+                            $prefill_keyword = trim( $service );
+                            if ( $city ) {
+                                $prefill_keyword .= ' in ' . trim( $city );
+                            }
+                        }
+                        $prefill_keyword = esc_attr( $prefill_keyword );
+                    }
+                    ?>
                     <div class="seo-form-field">
                         <label class="data-label" for="seed_keyword">Seed keyword</label>
                         <input type="text" class="form-control" placeholder="Enter Seed Keyword" id="seed_keyword"
-                            name="seed_keyword"></input>
+                            name="seed_keyword" value="<?php echo $prefill_keyword; ?>"></input>
                         <span id="error_seed_keyword" style="color: red;"></span>
+                        <?php if ( $prefill_keyword ) : ?>
+                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;margin-top:4px;">
+                            Pre-filled from your business setup — you can edit this.
+                        </span>
+                        <?php endif; ?>
                     </div>
                     <div class="seo-form-field">
                         <div class="title-tune">

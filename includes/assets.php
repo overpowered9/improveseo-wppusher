@@ -248,3 +248,47 @@ function improveseo_enqueue_front(){
 	wp_enqueue_style('improveseo-front', IMPROVESEO_DIR . '/assets/css/improveseo-front.css', array(), '2.0');
 
 }
+
+// ─── Onboarding wizard assets (only on the onboarding admin page) ─────────────
+
+add_action( 'admin_enqueue_scripts', 'improveseo_enqueue_onboarding_assets' );
+
+function improveseo_enqueue_onboarding_assets() {
+	if ( ! isset( $_GET['page'] ) || $_GET['page'] !== 'improveseo_onboarding' ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'improveseo-onboarding',
+		IMPROVESEO_DIR . '/assets/css/onboarding.css',
+		array(),
+		IMPROVESEO_VERSION
+	);
+
+	wp_enqueue_script(
+		'improveseo-onboarding',
+		IMPROVESEO_DIR . '/assets/js/onboarding.js',
+		array( 'jquery' ),
+		IMPROVESEO_VERSION,
+		true
+	);
+
+	$site_url    = home_url( '/' );
+	$parsed_host = parse_url( $site_url, PHP_URL_HOST );
+	$site_domain = $parsed_host ? preg_replace( '/^www\./i', '', strtolower( $parsed_host ) ) : '';
+
+	wp_localize_script(
+		'improveseo-onboarding',
+		'improveseoOnboarding',
+		array(
+			'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
+			'nonce'          => wp_create_nonce( 'improveseo_onboarding_nonce' ),
+			'siteDomain'     => $site_domain,
+			'siteUrl'        => $site_url,
+			'siteName'       => get_bloginfo( 'name' ),
+			'cmsConnectUrl'  => 'https://account.improveseoplugin.com/connect',
+			'dashboardUrl'   => admin_url( 'admin.php?page=improveseo_dashboard' ),
+			'firstContentUrl'=> admin_url( 'admin.php?page=improveseo_create_single&from=onboarding' ),
+		)
+	);
+}
