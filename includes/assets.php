@@ -1,5 +1,40 @@
 <?php
 
+// ─── Suppress third-party admin notices on all ImproveSEO pages ──────────────
+//
+// Runs at priority 1 on admin_head so it fires before other plugins register
+// their notice callbacks. We check the screen's base/parent_base because
+// get_current_screen() is reliable at this point (set during admin_init).
+//
+// Covered slugs:
+//   improveseo_dashboard, improveseo_posting, improveseo_create_single,
+//   improveseo_create_bulk, improveseo_projects, improveseo_bulkprojects,
+//   improveseo_lists, improveseo_keyword_generator, improveseo_settings,
+//   improveseo_onboarding  (and any future page whose base starts with "improveseo")
+add_action( 'admin_head', 'improveseo_suppress_foreign_notices', 1 );
+
+function improveseo_suppress_foreign_notices() {
+	$screen = get_current_screen();
+	if ( ! $screen ) {
+		return;
+	}
+
+	// Match any screen whose base or parent_base contains "improveseo"
+	$base        = $screen->base        ?? '';
+	$parent_base = $screen->parent_base ?? '';
+
+	if (
+		strpos( $base, 'improveseo' ) !== false ||
+		strpos( $parent_base, 'improveseo' ) !== false
+	) {
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'all_admin_notices' );
+		remove_all_actions( 'network_admin_notices' );
+	}
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 add_action( 'admin_enqueue_scripts', 'improveseo_enqueue_admin' );
 
 function improveseo_enqueue_admin(){
