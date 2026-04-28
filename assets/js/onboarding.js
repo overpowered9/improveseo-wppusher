@@ -80,9 +80,12 @@
     lastTab = tab || 'signup';
     hidePopupBlockedWarning();
 
+    // Pass this window's origin so the popup knows where to postMessage back.
+    // CMS_ORIGIN is the popup's own origin — incorrect as the target.
+    var wpOrigin = window.location.protocol + '//' + window.location.host;
     var connectUrl = cfg.cmsConnectUrl
       + '?site_domain=' + encodeURIComponent(cfg.siteDomain)
-      + '&origin='      + encodeURIComponent(CMS_ORIGIN)
+      + '&origin='      + encodeURIComponent(wpOrigin)
       + (tab === 'login' ? '&tab=0' : '&tab=1');
 
     var popupWidth  = 520;
