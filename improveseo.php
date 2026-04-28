@@ -1844,7 +1844,7 @@ class WC_Testimonial
 
 		wp_enqueue_style("poppins_fonts", "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
 
-		wp_enqueue_script('tmm_script_js', WT_URL . "/assets/js/wt-script.js", array('jquery'), IMPROVESEO_VERSION, true);
+		wp_enqueue_script('tmm_script_js', WT_URL . "/assets/js/wt-script.js", array('jquery'), improveseo_asset_ver('assets/js/wt-script.js'), true);
 
 		wp_enqueue_script('tmm_sweeetalertscript_js', WT_URL . "/assets/js/wt-sweetalert.js", array('jquery'));
 
@@ -2288,7 +2288,7 @@ class WC_Testimonial
 
 		wp_enqueue_style('tmm_stlye_css', WT_URL . "/css/wt-style.css", true);
 
-		wp_enqueue_script('tmm_script_js', WT_URL . "/js/wt-script.js", array('jquery'), IMPROVESEO_VERSION, true);
+		wp_enqueue_script('tmm_script_js', WT_URL . "/js/wt-script.js", array('jquery'), improveseo_asset_ver('js/wt-script.js'), true);
 
 
 

@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * Returns a cache-busting version string based on the file's last-modified time.
+ * This ensures that browsers always fetch the latest version after a cPanel upload.
+ * Falls back to IMPROVESEO_VERSION if the file cannot be stat'd.
+ *
+ * @param string $relative_path Path relative to the plugin root (e.g. 'assets/js/main.js').
+ * @return string
+ */
+function improveseo_asset_ver( $relative_path ) {
+	$abs = WT_PATH . '/' . ltrim( $relative_path, '/' );
+	return file_exists( $abs ) ? (string) filemtime( $abs ) : IMPROVESEO_VERSION;
+}
+
 add_action( 'admin_enqueue_scripts', 'improveseo_enqueue_admin' );
 
 function improveseo_enqueue_admin(){
@@ -25,7 +38,7 @@ function improveseo_enqueue_admin(){
 
 	//wp_enqueue_script('improveseo-bootstrap', IMPROVESEO_DIR . '/assets/js/bootstrap.min.js', array('jquery'), IMPROVESEO_VERSION, true);
 
-	wp_enqueue_script('improveseo-main', IMPROVESEO_DIR . '/assets/js/main.js', array('jquery'), IMPROVESEO_VERSION, true);
+	wp_enqueue_script('improveseo-main', IMPROVESEO_DIR . '/assets/js/main.js', array('jquery'), improveseo_asset_ver('assets/js/main.js'), true);
 
 	wp_localize_script('improveseo-main', 'main_ajax_vars', array(
 
@@ -37,11 +50,11 @@ function improveseo_enqueue_admin(){
 
 
 
-	wp_enqueue_script('improveseo-dialog', IMPROVESEO_DIR . '/assets/js/dialog.js', array('jquery'), IMPROVESEO_VERSION, true);
+	wp_enqueue_script('improveseo-dialog', IMPROVESEO_DIR . '/assets/js/dialog.js', array('jquery'), improveseo_asset_ver('assets/js/dialog.js'), true);
 
 
 
-	wp_enqueue_script('improveseo-posting', IMPROVESEO_DIR . '/assets/js/posting.js', array('jquery'), IMPROVESEO_VERSION, true);
+	wp_enqueue_script('improveseo-posting', IMPROVESEO_DIR . '/assets/js/posting.js', array('jquery'), improveseo_asset_ver('assets/js/posting.js'), true);
 
 	wp_localize_script('improveseo-posting', 'posting_ajax_vars', array(
 
@@ -53,21 +66,21 @@ function improveseo_enqueue_admin(){
 
 
 
-	wp_enqueue_script('improveseo-imagescraper', IMPROVESEO_DIR . '/assets/js/imagescraper.js', array('jquery'), IMPROVESEO_VERSION, true);
+	wp_enqueue_script('improveseo-imagescraper', IMPROVESEO_DIR . '/assets/js/imagescraper.js', array('jquery'), improveseo_asset_ver('assets/js/imagescraper.js'), true);
 
-	wp_enqueue_script('improveseo-videoscraper', IMPROVESEO_DIR . '/assets/js/videoscraper.js', array('jquery'), IMPROVESEO_VERSION, true);
+	wp_enqueue_script('improveseo-videoscraper', IMPROVESEO_DIR . '/assets/js/videoscraper.js', array('jquery'), improveseo_asset_ver('assets/js/videoscraper.js'), true);
 
-	wp_enqueue_script('improveseo-exif', IMPROVESEO_DIR . '/assets/js/exif.js', array('jquery'), IMPROVESEO_VERSION, true);
+	wp_enqueue_script('improveseo-exif', IMPROVESEO_DIR . '/assets/js/exif.js', array('jquery'), improveseo_asset_ver('assets/js/exif.js'), true);
 
-	wp_enqueue_script('improveseo-wordai', IMPROVESEO_DIR . '/assets/js/wordai.js', array('jquery'), IMPROVESEO_VERSION, true);
+	wp_enqueue_script('improveseo-wordai', IMPROVESEO_DIR . '/assets/js/wordai.js', array('jquery'), improveseo_asset_ver('assets/js/wordai.js'), true);
 
 	
 
-	wp_enqueue_script('improveseo-tree', IMPROVESEO_DIR . '/assets/js/jstree.min.js', array('jquery'), IMPROVESEO_VERSION, true);
+	wp_enqueue_script('improveseo-tree', IMPROVESEO_DIR . '/assets/js/jstree.min.js', array('jquery'), improveseo_asset_ver('assets/js/jstree.min.js'), true);
 
-	wp_enqueue_script('improveseo-notify', IMPROVESEO_DIR . '/assets/js/notify.js', array('jquery'), IMPROVESEO_VERSION, true);
+	wp_enqueue_script('improveseo-notify', IMPROVESEO_DIR . '/assets/js/notify.js', array('jquery'), improveseo_asset_ver('assets/js/notify.js'), true);
 
-	wp_enqueue_script('improveseo-popup', IMPROVESEO_DIR . '/assets/js/popup.js', array('jquery'), IMPROVESEO_VERSION, true);
+	wp_enqueue_script('improveseo-popup', IMPROVESEO_DIR . '/assets/js/popup.js', array('jquery'), improveseo_asset_ver('assets/js/popup.js'), true);
 
 	
 
@@ -75,7 +88,7 @@ function improveseo_enqueue_admin(){
 
 	
 
-	wp_enqueue_script('improveseo-modal',IMPROVESEO_DIR . '/assets/js/jquery.modal.min.js', array('jquery'), IMPROVESEO_VERSION, true);	
+	wp_enqueue_script('improveseo-modal',IMPROVESEO_DIR . '/assets/js/jquery.modal.min.js', array('jquery'), improveseo_asset_ver('assets/js/jquery.modal.min.js'), true);	
 
 	
 
@@ -209,9 +222,9 @@ function improveseo_enqueue_admin(){
 
 			
 
-			wp_enqueue_script('improveseo-caret-form', IMPROVESEO_DIR.'/assets/js/jquery.caret.js', array('jquery'), IMPROVESEO_VERSION, true);
+			wp_enqueue_script('improveseo-caret-form', IMPROVESEO_DIR.'/assets/js/jquery.caret.js', array('jquery'), improveseo_asset_ver('assets/js/jquery.caret.js'), true);
 
-			wp_enqueue_script('improveseo-form', IMPROVESEO_DIR.'/assets/js/form.js', array('jquery'), IMPROVESEO_VERSION, true);
+			wp_enqueue_script('improveseo-form', IMPROVESEO_DIR.'/assets/js/form.js', array('jquery'), improveseo_asset_ver('assets/js/form.js'), true);
 
 			wp_localize_script('improveseo-form', 'form_ajax_vars', array(
 
@@ -262,14 +275,14 @@ function improveseo_enqueue_onboarding_assets() {
 		'improveseo-onboarding',
 		IMPROVESEO_DIR . '/assets/css/onboarding.css',
 		array(),
-		IMPROVESEO_VERSION
+		improveseo_asset_ver('assets/css/onboarding.css')
 	);
 
 	wp_enqueue_script(
 		'improveseo-onboarding',
 		IMPROVESEO_DIR . '/assets/js/onboarding.js',
 		array( 'jquery' ),
-		IMPROVESEO_VERSION,
+		improveseo_asset_ver('assets/js/onboarding.js'),
 		true
 	);
 
