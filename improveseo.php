@@ -801,39 +801,9 @@ function improveseo_hide_other_notices()
 
 		$my_current_screen = get_current_screen();
 
-		$improve_seo_pages = array(
+		if ( isset( $my_current_screen->base ) && strpos( $my_current_screen->base, 'improveseo' ) !== false ) {
 
-			'toplevel_page_improveseo_dashboard',
-
-			'improve-seo_page_improveseo_posting',
-
-			'improve-seo_page_improveseo_projects',
-
-			'improve-seo_page_improveseo_shortcodes',
-
-			'improve-seo_page_improveseo_lists',
-
-			'improve-seo_page_improveseo_settings',
-
-			'improve-seo_page_improveseo_authors',
-
-			'improve-seo_page_improveseo_keyword_generator',
-
-			'improve-seo_page_improveseo_shortcode'
-
-		);
-
-
-
-		if (isset($my_current_screen->base)) {
-
-			if (in_array($my_current_screen->base, $improve_seo_pages)) {
-
-				echo '<style>.notice{ display:none !important;}</style>';
-
-			}
-
-
+			echo '<style>.notice{ display:none !important;}</style>';
 
 		}
 
