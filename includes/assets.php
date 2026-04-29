@@ -301,7 +301,7 @@ function improveseo_enqueue_onboarding_assets() {
 			'siteName'       => get_bloginfo( 'name' ),
 			'cmsConnectUrl'  => 'https://account.improveseoplugin.com/connect',
 			'dashboardUrl'   => admin_url( 'admin.php?page=improveseo_dashboard' ),
-			'firstContentUrl'=> admin_url( 'admin.php?page=improveseo_create_single&from=onboarding' ),
+			'firstContentUrl'=> admin_url( 'admin.php?page=improveseo_posting&from=onboarding' ),
 		)
 	);
 }

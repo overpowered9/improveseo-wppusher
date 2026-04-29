@@ -206,8 +206,8 @@
        BUILD TOOLTIP
     ───────────────────────────────────────────────────────── */
     function buildTooltip(step, index) {
-        var total   = STEPS.length;
-        var pct     = Math.round((index / (total - 1)) * 100);
+        var total   = STEPS.length + 1; // +1 for Step 1 shown on the card-choice page
+        var pct     = Math.round(((index + 1) / total) * 100);
         var showNext = (step.advance === 'next-btn' || step.advance === 'wizard-next');
         var isFinal  = (step.advance === 'final');
 
@@ -215,7 +215,7 @@
         html += '<div class="iseo-guide-progress"><div class="iseo-guide-progress-bar" style="width:' + pct + '%"></div></div>';
         html += '<div class="iseo-guide-header">';
         html += '<span class="iseo-guide-bot">&#x1F916;</span>';
-        html += '<span class="iseo-guide-step-counter">Step ' + (index + 1) + ' of ' + total + '</span>';
+        html += '<span class="iseo-guide-step-counter">Step ' + (index + 2) + ' of ' + total + '</span>';
         html += '</div>';
         html += '<div class="iseo-guide-title">' + step.title + '</div>';
         html += '<div class="iseo-guide-message">' + step.message + '</div>';
