@@ -53,7 +53,15 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 
 <?php improveseo\View::render('notices.notice'); ?>
 
-
+<?php if ( isset( $_GET['from'] ) && $_GET['from'] === 'onboarding' ) : ?>
+<div style="background:#e7f5ff;border-left:4px solid #0073aa;padding:14px 18px;margin:0 0 18px;border-radius:3px;display:flex;align-items:flex-start;gap:12px;">
+	<span style="font-size:22px;line-height:1;">🚀</span>
+	<div>
+		<strong style="display:block;margin-bottom:4px;">You're one step away from your first SEO article!</strong>
+		Enter a keyword in the <em>Seed Keyword</em> field below, then click <strong>Generate AI Content</strong> to create your first post.
+	</div>
+</div>
+<?php endif; ?>
 
 <?php View::startSection('content') ?>
 
@@ -437,5 +445,37 @@ jQuery(document).ready(function($) {
 	});
 })();
 </script>
+
+<?php
+// When arriving from the onboarding wizard, pre-fill #seed_keyword with the
+// suggested keyword that was built from the business details the user entered.
+if ( isset( $_GET['from'] ) && $_GET['from'] === 'onboarding' ) :
+	$_service = esc_js( get_option( 'improveseo_business_service', '' ) );
+	$_city    = esc_js( get_option( 'improveseo_business_city',    '' ) );
+	$_kw      = $_service ?: 'seo services';
+	if ( $_city ) $_kw .= ' in ' . $_city;
+?>
+<script>
+jQuery(document).ready(function($) {
+	var kw = <?php echo wp_json_encode( $_kw ); ?>;
+	if (kw) {
+		// Pre-fill on DOM ready (covers cases where the modal opens instantly)
+		$('#seed_keyword').val(kw);
+		// Also fill once the modal opens, in case it renders after this script
+		$(document).on('click', '#generate_ai_popup_open', function() {
+			setTimeout(function() { $('#seed_keyword').val(kw); }, 50);
+		});
+		// Fallback: poll briefly in case the modal auto-opens before the click handler fires
+		var _tries = 0;
+		var _poll = setInterval(function() {
+			if ($('#seed_keyword').length) {
+				if (!$('#seed_keyword').val()) $('#seed_keyword').val(kw);
+				if (++_tries >= 20) clearInterval(_poll);
+			}
+		}, 150);
+	}
+});
+</script>
+<?php endif; ?>
 
 <?php echo View::make('layouts.main') ?>

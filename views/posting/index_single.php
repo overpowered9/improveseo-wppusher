@@ -2,6 +2,13 @@
 
 use ImproveSEO\View;
 
+// When arriving from the onboarding wizard, skip the single/bulk selection screen
+// and go straight to the single post creation form, carrying the param forward.
+if ( isset( $_GET['from'] ) && $_GET['from'] === 'onboarding' ) {
+	wp_redirect( admin_url( 'admin.php?page=improveseo_posting&action=create_post_single&from=onboarding' ) );
+	exit;
+}
+
 if (isset($_POST['cat_name'])) {
 
 	$cat_slug = $_POST['cat_name'];
