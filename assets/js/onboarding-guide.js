@@ -137,6 +137,14 @@
         // Trigger modal open the same way normal flow does (button may be hidden but trigger works)
         setTimeout(function () {
             $('#generate_ai_popup_open').trigger('click');
+
+            // Fallback: shown.bs.modal may not fire in all Bootstrap versions.
+            // Poll for the modal becoming visible and start the guide then.
+            waitForVisible('#exampleModal1', function () {
+                if (currentStep === -1) {
+                    setTimeout(function () { showStep(0); }, 300);
+                }
+            }, 10);
         }, 100);
     }
 
