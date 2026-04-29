@@ -305,3 +305,31 @@ function improveseo_enqueue_onboarding_assets() {
 		)
 	);
 }
+
+// ─── Onboarding guide assets (single post creation page, from=onboarding) ─────
+
+add_action( 'admin_enqueue_scripts', 'improveseo_enqueue_guide_assets' );
+
+function improveseo_enqueue_guide_assets() {
+	if ( ! isset( $_GET['page'] ) || $_GET['page'] !== 'improveseo_posting' ) {
+		return;
+	}
+	if ( ! isset( $_GET['from'] ) || $_GET['from'] !== 'onboarding' ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'iseo-onboarding-guide',
+		IMPROVESEO_DIR . '/assets/css/onboarding-guide.css',
+		array(),
+		improveseo_asset_ver( 'assets/css/onboarding-guide.css' )
+	);
+
+	wp_enqueue_script(
+		'iseo-onboarding-guide',
+		IMPROVESEO_DIR . '/assets/js/onboarding-guide.js',
+		array( 'jquery' ),
+		improveseo_asset_ver( 'assets/js/onboarding-guide.js' ),
+		true
+	);
+}

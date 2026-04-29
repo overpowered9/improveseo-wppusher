@@ -54,13 +54,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 <?php improveseo\View::render('notices.notice'); ?>
 
 <?php if ( isset( $_GET['from'] ) && $_GET['from'] === 'onboarding' ) : ?>
-<div style="background:#e7f5ff;border-left:4px solid #0073aa;padding:14px 18px;margin:0 0 18px;border-radius:3px;display:flex;align-items:flex-start;gap:12px;">
-	<span style="font-size:22px;line-height:1;">🚀</span>
-	<div>
-		<strong style="display:block;margin-bottom:4px;">You're one step away from your first SEO article!</strong>
-		Enter a keyword in the <em>Seed Keyword</em> field below, then click <strong>Generate AI Content</strong> to create your first post.
-	</div>
-</div>
+<script>window.iseoGuideConfig = { active: true };</script>
 <?php endif; ?>
 
 <?php View::startSection('content') ?>
@@ -341,23 +335,26 @@ jQuery(document).ready(function($) {
         'visibility': 'hidden'
     });
     
-    // Auto-trigger single AI popup on page load with slight delay for smooth rendering
-    setTimeout(function() {
-        $('#generate_ai_popup_open').trigger('click');
-        
-        // Smoothly reveal the form after modal opens (remove inline display:none and fade in)
+    // Auto-trigger single AI popup on page load with slight delay for smooth rendering.
+    // In onboarding guide mode the guide controls the pace — skip the auto-open.
+    if (!window.iseoGuideConfig || !window.iseoGuideConfig.active) {
         setTimeout(function() {
-            $('.style_create_page_form')
-                .removeAttr('style')
-                .css({
-                    'opacity': '0',
-                    'visibility': 'visible'
-                })
-                .animate({
-                    'opacity': '1'
-                }, 400);
-        }, 350); // Wait for modal animation to complete
-    }, 100); // Small initial delay to ensure page is fully rendered
+            $('#generate_ai_popup_open').trigger('click');
+
+            // Smoothly reveal the form after modal opens (remove inline display:none and fade in)
+            setTimeout(function() {
+                $('.style_create_page_form')
+                    .removeAttr('style')
+                    .css({
+                        'opacity': '0',
+                        'visibility': 'visible'
+                    })
+                    .animate({
+                        'opacity': '1'
+                    }, 400);
+            }, 350); // Wait for modal animation to complete
+        }, 100); // Small initial delay to ensure page is fully rendered
+    }
     
     // Also handle manual button clicks
     $('#generate_ai_popup_open').on('click', function() {
