@@ -132,6 +132,14 @@
        INIT
     ───────────────────────────────────────────────────────── */
     function init() {
+        // The form starts hidden (display:none + opacity:0) and waits for the AI
+        // modal to complete. In guide mode we need the form visible from the start
+        // so that step-0's target (#generate_ai_popup_open) is reachable.
+        // The spotlight + body.iseo-guide-active dim everything except the target.
+        $('.style_create_page_form')
+            .removeAttr('style')
+            .css({ opacity: 1, visibility: 'visible' });
+
         $spotlight = $('<div id="iseo-guide-spotlight"></div>').appendTo('body');
         $tooltip   = $('<div id="iseo-guide-tooltip"></div>').appendTo('body');
         $('body').addClass('iseo-guide-active');

@@ -329,15 +329,15 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 
 <script>
 jQuery(document).ready(function($) {
-    // Ensure form starts completely hidden with opacity
-    $('.style_create_page_form').css({
-        'opacity': '0',
-        'visibility': 'hidden'
-    });
-    
-    // Auto-trigger single AI popup on page load with slight delay for smooth rendering.
-    // In onboarding guide mode the guide controls the pace — skip the auto-open.
+    // In onboarding guide mode the guide reveals and controls the form.
+    // In normal mode: hide the form, auto-open the AI modal, then reveal form.
     if (!window.iseoGuideConfig || !window.iseoGuideConfig.active) {
+        // Ensure form starts hidden with opacity
+        $('.style_create_page_form').css({
+            'opacity': '0',
+            'visibility': 'hidden'
+        });
+
         setTimeout(function() {
             $('#generate_ai_popup_open').trigger('click');
 
