@@ -27,92 +27,87 @@
     if (!window.iseoGuideConfig || !window.iseoGuideConfig.active) return;
 
     /* ── Constants ──────────────────────────────────────────── */
-    var FORM_PHASE_START = 11;
-    var STEP_APPROVE     = 7;
+    var FORM_PHASE_START = 10; // project-name step (after removing card-click step 0)
+    var STEP_APPROVE     = 6;  // approve step index
 
     /* ── Steps Definition ───────────────────────────────────── */
+    // Step 0 (card-choice page) is handled by index.php — guide starts here inside the modal.
     var STEPS = [
         /* 0 */ {
-            phase: 'page',  wizardStep: -1, target: '#generate_ai_popup_open',
-            title: 'Let\u2019s create your first article! \uD83D\uDE80',
-            message: 'Click the <strong>Generate AI Content</strong> button to open the content wizard. We\u2019ll guide you through each step.',
-            position: 'bottom', advance: 'click-target'
-        },
-        /* 1 */ {
             phase: 'modal', wizardStep: 0,  target: '#seed_keyword',
             title: 'Enter your Keyword',
             message: 'This is the main topic of your article. We\u2019ve pre-filled a keyword based on your business details \u2014 feel free to adjust it.',
             position: 'right', advance: 'next-btn'
         },
-        /* 2 */ {
+        /* 1 */ {
             phase: 'modal', wizardStep: 0,  target: '#seed_select',
             title: 'Choose Title Style',
             message: '<em>Use Keyword As Is</em> keeps it exact; <em>Create Best Title</em> lets the AI optimise the headline for SEO. Either works well.',
             position: 'right', advance: 'next-btn'
         },
-        /* 3 */ {
+        /* 2 */ {
             phase: 'modal', wizardStep: 0,  target: '#cotnt_type',
             title: 'Set Your Tone',
             message: 'Choose the writing style for your audience. <em>Professional</em> suits service businesses; <em>Informational</em> works well for how-to guides.',
             position: 'right', advance: 'wizard-next'
         },
-        /* 4 */ {
+        /* 3 */ {
             phase: 'modal', wizardStep: 1,  target: '#post_size',
             title: 'Article Length',
             message: 'Longer articles often rank better for competitive keywords. 1,200\u20132,400 words is a great starting point for most niches.',
             position: 'right', advance: 'wizard-next'
         },
-        /* 5 */ {
+        /* 4 */ {
             phase: 'modal', wizardStep: 2,  target: '#step-3',
             title: 'Add Images (Optional)',
             message: 'You can add AI-generated images or skip this step for now. Images help with engagement but are not required to publish.',
             position: 'top', advance: 'wizard-next'
         },
-        /* 6 */ {
+        /* 5 */ {
             phase: 'modal', wizardStep: 3,  target: '#generateapivalue',
             title: 'Generate your Article',
             message: 'Everything is set! Click <strong>Generate AI Post</strong> to create your article. This usually takes 20\u201360 seconds.',
             position: 'top', advance: 'click-target'
         },
-        /* 7 */ {
+        /* 6 */ {
             phase: 'modal', wizardStep: 3,  target: '#generateapi',
             title: 'Review & Approve',
             message: 'Your article is ready! Scroll up to review the content. When you\u2019re happy with it, click <strong>Approve Content</strong> to continue.',
             position: 'top', advance: 'click-target'
         },
-        /* 8 */ {
+        /* 7 */ {
             phase: 'modal', wizardStep: 4,  target: '#meta_title',
             title: 'SEO Meta Title',
             message: 'This title appears in Google search results. Keep it under 60 characters. The AI has suggested one \u2014 you can edit it freely.',
             position: 'right', advance: 'next-btn'
         },
-        /* 9 */ {
+        /* 8 */ {
             phase: 'modal', wizardStep: 4,  target: '#meta_descreption',
             title: 'Meta Description',
             message: 'A short description shown under your page title in Google. Keep it under 160 characters \u2014 make it compelling to increase clicks.',
             position: 'right', advance: 'next-btn'
         },
-        /* 10 */ {
+        /* 9 */ {
             phase: 'modal', wizardStep: 4,  target: '#step-5 input[type="button"]',
             title: 'Save & Continue',
             message: 'Happy with your SEO details? Click <strong>Submit</strong> to save them and return to the post editor.',
             position: 'top', advance: 'click-target'
         },
-        /* 11 */ {
+        /* 10 */ {
             phase: 'form',  wizardStep: -1, target: '.PostForm__name',
             title: 'Name Your Project',
             message: 'Give this project an internal name (e.g. <em>Homepage Blog Q1</em>). This is for your reference only \u2014 it won\u2019t be published.',
             position: 'bottom', advance: 'next-btn',
             formFocus: '.PostForm__name-wrap'
         },
-        /* 12 */ {
+        /* 11 */ {
             phase: 'form',  wizardStep: -1, target: '#title',
             title: 'Post Title',
             message: 'This is the public title of your article. The AI has pre-filled it from the generated content \u2014 you can edit it here.',
             position: 'bottom', advance: 'next-btn',
             formFocus: '.PostForm__title-wrap'
         },
-        /* 13 */ {
+        /* 12 */ {
             phase: 'form',  wizardStep: -1, target: 'button[name="create"]',
             title: 'Publish your Article! \uD83C\uDF89',
             message: 'You\u2019re all set! Click <strong>Create &amp; Publish Post</strong> to publish your first SEO-optimised article.',
@@ -122,7 +117,7 @@
     ];
 
     /* ── State ──────────────────────────────────────────────── */
-    var currentStep  = 0;
+    var currentStep  = -1; // -1 = waiting for modal to open (not yet started)
     var $spotlight   = null;
     var $tooltip     = null;
     var _waiting     = false; // true while polling for #generateapi
@@ -132,19 +127,17 @@
        INIT
     ───────────────────────────────────────────────────────── */
     function init() {
-        // The form starts hidden (display:none + opacity:0) and waits for the AI
-        // modal to complete. In guide mode we need the form visible from the start
-        // so that step-0's target (#generate_ai_popup_open) is reachable.
-        // The spotlight + body.iseo-guide-active dim everything except the target.
-        $('.style_create_page_form')
-            .removeAttr('style')
-            .css({ opacity: 1, visibility: 'visible' });
-
+        // Keep the form hidden exactly like normal flow.
+        // Auto-trigger the AI modal — guide starts inside it at step 0 (seed keyword).
         $spotlight = $('<div id="iseo-guide-spotlight"></div>').appendTo('body');
         $tooltip   = $('<div id="iseo-guide-tooltip"></div>').appendTo('body');
         $('body').addClass('iseo-guide-active');
         bindEvents();
-        showStep(0);
+
+        // Trigger modal open the same way normal flow does (button may be hidden but trigger works)
+        setTimeout(function () {
+            $('#generate_ai_popup_open').trigger('click');
+        }, 100);
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -214,7 +207,9 @@
        BUILD TOOLTIP
     ───────────────────────────────────────────────────────── */
     function buildTooltip(step, index) {
-        var total   = STEPS.length + 1; // +1 for Step 1 shown on the card-choice page
+        // total = 13 guide steps + 1 card-choice step = 14
+        var total   = STEPS.length + 1;
+        // index 0 = Step 2, index 12 = Step 14 (Step 1 is the card-choice page in index.php)
         var pct     = Math.round(((index + 1) / total) * 100);
         var showNext = (step.advance === 'next-btn' || step.advance === 'wizard-next');
         var isFinal  = (step.advance === 'final');
@@ -362,15 +357,16 @@
        BIND EVENTS
     ───────────────────────────────────────────────────────── */
     function bindEvents() {
-        // AI modal opens → advance from step 0 to step 1
+        // AI modal opens → start guide at step 0 (seed keyword)
         $(document).on('shown.bs.modal.iseoguide', '#exampleModal1', function () {
-            if (currentStep === 0) {
-                setTimeout(function () { showStep(1); }, 300);
+            if (currentStep === -1) {
+                setTimeout(function () { showStep(0); }, 300);
             }
         });
 
         // AI modal closes
         $(document).on('hidden.bs.modal.iseoguide', '#exampleModal1', function () {
+            if (currentStep < 0) return;             // modal closed before guide started
             if (currentStep >= FORM_PHASE_START) return; // Already in form phase
 
             if (currentStep >= STEP_APPROVE) {
@@ -391,21 +387,21 @@
             }
         });
 
-        // "Generate AI Post" clicked (step 6) → switch to waiting state
+        // "Generate AI Post" clicked (step 5) → switch to waiting state
         $(document).on('click.iseoguide', '#generateapivalue', function () {
-            if (currentStep !== 6) return;
+            if (currentStep !== 5) return;
             _waiting = true;
             showWaitingTooltip();
             waitForVisible('#generateapi', function () {
-                if (_waiting) showStep(7); // Approve step
+                if (_waiting) showStep(6); // Approve step
             }, 90);
         });
 
-        // "Approve Content" clicked (step 7) → advance to meta-title (step 8)
+        // "Approve Content" clicked (step 6) → advance to meta-title (step 7)
         $(document).on('click.iseoguide', '#generateapi', function () {
-            if (currentStep !== 7) return;
+            if (currentStep !== 6) return;
             // SmartWizard advances to Step 5 via saveData() → #nextStepButton
-            setTimeout(function () { showStep(8); }, 400);
+            setTimeout(function () { showStep(7); }, 400);
         });
 
         // Step 10: "Submit" in the meta step → saveFinalData() hides the modal
