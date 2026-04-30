@@ -70,7 +70,7 @@
             phase: 'modal', wizardStep: 0, target: '.step_one_approve_button',
             title: 'Approve the AI Title',
             message: 'Review the suggested title above. Happy with it? Click <strong>Approve</strong> to confirm and proceed.',
-            position: 'right', advance: 'click-target'
+            position: 'top', advance: 'click-target'
         },
         /* 4 */ {
             phase: 'modal', wizardStep: 0, target: '#cotnt_type',
@@ -121,10 +121,10 @@
             position: 'top', advance: 'wizard-next'
         },
         /* 12 */ {
-            phase: 'modal', wizardStep: 3, target: '#generateapivalue',
-            title: 'Generate your Article',
-            message: 'Everything is set! Click <strong>Generate AI Post</strong> to create your article. This usually takes 20\u201360 seconds.',
-            position: 'top', advance: 'click-target'
+            phase: 'modal', wizardStep: 3, target: '#showmydataindiv1',
+            title: 'Generating your Article \u23F3',
+            message: 'Your article is being written by AI. This may take 20\u201360 seconds \u2014 please wait.',
+            position: 'top', advance: 'auto-wait'
         },
         /* 13 */ {
             phase: 'modal', wizardStep: 3, target: '#nextStepButton',
@@ -241,6 +241,13 @@
         // Update form-focus classes
         updateFormFocus(step);
 
+        // Auto-wait steps: immediately show waiting state and start polling
+        if (step.advance === 'auto-wait') {
+            _waiting = true;
+            startAutoWait();
+            return;
+        }
+
         // Build tooltip content
         buildTooltip(step, index);
 
@@ -259,12 +266,11 @@
             $spotlight.hide();
             if ($target.length) {
                 $target.addClass('iseo-guide-highlight');
-                // Scroll first, then position tooltip AFTER animation completes
-                // so getBoundingClientRect() returns the final viewport coords.
-                scrollWithinModal($target, function () {
+                scrollWithinModal($target);
+                setTimeout(function () {
                     positionTooltip($target, step.position);
                     $tooltip.show();
-                });
+                }, 350); // 350 ms lets layout settle after DOM changes (e.g. title textarea expanding)
             } else {
                 $tooltip.show();
             }
@@ -323,6 +329,24 @@
         $tooltip.html(html);
         $tooltip.find('.iseo-guide-btn-next').off('click.guide').on('click.guide', onNextClicked);
         $tooltip.find('.iseo-guide-btn-skip').off('click.guide').on('click.guide', destroyGuide);
+    }
+
+    /* ─────────────────────────────────────────────────────────
+       START AUTO-WAIT (step 12: generation triggered automatically
+       by the modal when wizard advances to step 3)
+    ───────────────────────────────────────────────────────── */
+    function startAutoWait() {
+        showWaitingTooltip(
+            'Generating your Article \u23F3',
+            'Your article is being written by AI.<br><small>This may take 20\u201360 seconds \u2014 please wait.</small>',
+            65
+        );
+        waitForContent('#showmydataindiv1', function () {
+            if (_waiting) {
+                _waiting = false;
+                showStep(STEP_APPROVE_IDX); // → Review & Approve (wizard-next)
+            }
+        }, 90);
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -398,17 +422,12 @@
 
     /* ─────────────────────────────────────────────────────────
        SCROLL WITHIN MODAL (keep highlighted field visible)
-       callback fires after the scroll animation completes so
-       positionTooltip always gets the final element coords.
     ───────────────────────────────────────────────────────── */
-    function scrollWithinModal($target, callback) {
+    function scrollWithinModal($target) {
         var $body = $('#exampleModal1 .modal-body');
-        if (!$body.length || !$target.length) {
-            if (callback) callback();
-            return;
-        }
+        if (!$body.length || !$target.length) return;
         var offset = $target.offset().top - $body.offset().top + $body.scrollTop() - 60;
-        $body.stop(true).animate({ scrollTop: offset }, 200, callback || function () {});
+        $body.stop(true).animate({ scrollTop: offset }, 200);
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -505,67 +524,22 @@
             }
         });
 
-        /* ── Wizard Next button ─────────────────────────────── */
-        // For wizard-next steps the user must click the real Next button.
-        // The modal may run an async credit check before advancing the panel,
-        // so we cannot use a fixed timeout.  Instead we poll until the next
-        // step's target element becomes visible (i.e. the panel has switched),
-        // then advance the guide.
-        $(document).on('click.iseoguide', '#nextStepButton', function () {
+        /* ── SmartWizard step changed → advance guide for wizard-next steps ── */
+        // Using stepChanged.smartWizard instead of a click listener on #nextStepButton
+        // avoids event-propagation issues (modal's native handler can stop bubbling).
+        // stepChanged only fires AFTER the wizard actually moves forward, so we also
+        // get built-in validation: if the wizard refuses to advance (e.g. title not
+        // approved), the guide won't advance either.
+        $(document).on('stepChanged.smartWizard.iseoguide', function (e, anchorObject, stepIndex) {
             if (currentStep < 0 || currentStep >= STEPS.length) return;
             var step = STEPS[currentStep];
             if (step.advance !== 'wizard-next') return;
-
-            // Meta-submit step: saveFinalData() hides the modal via jQuery .hide().
-            // Reveal the form and start the form phase.
-            if (currentStep === STEP_META_SUBMIT) {
-                setTimeout(function () {
-                    if (currentStep >= FORM_PHASE_START) return;
-                    revealForm();
-                    showStep(FORM_PHASE_START);
-                }, 700);
-                return;
-            }
-
-            var capturedStep = currentStep;  // guard against re-entrant calls
-            var nextIndex    = capturedStep + 1;
-            if (nextIndex >= STEPS.length) { destroyGuide(); return; }
-
-            var nextTarget = STEPS[nextIndex].target;
-
-            // Step 11 (Add Media, "Generate AI Post" button): when the modal
-            // advances from the Media panel, updateButtonText(stepValue=4) fires
-            // jQuery("#generateapivalue").trigger("click") automatically.
-            // Skip step 12 ("click Generate") and go straight to the waiting
-            // state, polling for generated content in #showmydataindiv1.
-            if (capturedStep === 11) {
-                _waiting = true;
-                // Wait for the Generate panel to become visible (panel has switched)
-                waitForVisible('#generateapivalue', function () {
-                    if (currentStep !== capturedStep) return;
-                    showWaitingTooltip(
-                        'Generating your Article &#x23F3;',
-                        'Your article is being written by AI.<br><small>This may take 20\u201360 seconds \u2014 please wait.</small>',
-                        65
-                    );
-                    waitForContent('#showmydataindiv1', function () {
-                        if (_waiting) {
-                            _waiting = false;
-                            showStep(STEP_APPROVE_IDX); // → approve content (step 13)
-                        }
-                    }, 90);
-                }, 10);
-                return;
-            }
-
-            // Poll until the next panel's key element becomes visible.
-            // This naturally handles the async credit-check on step-0 → step-1
-            // transitions without needing to know how long the check takes.
-            waitForVisible(nextTarget, function () {
-                if (currentStep === capturedStep) {
-                    showStep(nextIndex);
-                }
-            }, 10); // max 10 s
+            // Guard: only react to forward movement from the expected wizard step
+            if (typeof stepIndex !== 'number' || stepIndex <= step.wizardStep) return;
+            // Step 16 (meta-submit) closes the modal instead of advancing the wizard;
+            // hidden.bs.modal handles the form-phase transition for that case.
+            if (currentStep === STEP_META_SUBMIT) return;
+            setTimeout(function () { showStep(currentStep + 1); }, 350);
         });
 
         /* ── Step 2: click #reload → wait for AI title ──────── */
@@ -597,23 +571,6 @@
         $(document).on('click.iseoguide', '#AI_image', function () {
             if (currentStep !== 10) return;
             setTimeout(function () { showStep(11); }, 200); // → media wizard-next
-        });
-
-        /* ── Step 12: click Generate AI Post ────────────────── */
-        $(document).on('click.iseoguide', '#generateapivalue', function () {
-            if (currentStep !== STEP_GENERATE_IDX) return;
-            _waiting = true;
-            showWaitingTooltip(
-                'Generating your Article &#x23F3;',
-                'Your article is being written by AI.<br><small>This may take 20\u201360 seconds \u2014 please wait.</small>',
-                65
-            );
-            waitForContent('#showmydataindiv1', function () {
-                if (_waiting) {
-                    _waiting = false;
-                    showStep(STEP_APPROVE_IDX); // → approve content (wizard-next)
-                }
-            }, 90);
         });
 
         /* ── Reposition on resize / scroll ──────────────────── */
