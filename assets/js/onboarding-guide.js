@@ -506,40 +506,36 @@
             }
         });
 
-        /* ── SmartWizard step advance ────────────────────────── */
-        // Listen to SmartWizard's 'showStep' event which fires AFTER the
-        // wizard DOM has updated. This avoids SmartWizard calling
-        // stopPropagation on #nextStepButton before our delegated handler
-        // can fire, and eliminates the 350ms race condition.
-        $('#smartwizard').on('showStep.iseoguide', function (e, anchorObject, newStepNumber) {
+        /* ── #nextStepButton click (all wizard-next steps) ──── */
+        // #nextStepButton is a custom button that drives .data.dataJS
+        // section switching — it does NOT advance SmartWizard.
+        // We listen directly on document for all wizard-next advances.
+        // For non-STEP_META_SUBMIT steps, the popup may switch sections
+        // asynchronously (credit-check on step 0), so we wait for the
+        // next step's target to become visible before advancing the guide.
+        $(document).on('click.iseoguide', '#nextStepButton', function () {
             if (currentStep < 0 || currentStep >= STEPS.length) return;
             var step = STEPS[currentStep];
             if (step.advance !== 'wizard-next') return;
 
-            // Only advance when the wizard moved forward to the expected next step
-            if (newStepNumber !== step.wizardStep + 1) return;
-
-            // Capture index now before any async work
-            var stepIndex = currentStep;
-            if (stepIndex === STEP_META_SUBMIT) {
-                // STEP_META_SUBMIT calls saveFinalData() — handled separately below
-                return;
+            if (currentStep === STEP_META_SUBMIT) {
+                // saveFinalData() hides the modal — reveal the post form
+                setTimeout(function () {
+                    if (currentStep >= FORM_PHASE_START) return;
+                    revealForm();
+                    showStep(FORM_PHASE_START);
+                }, 600);
+            } else {
+                // Capture index now to avoid closure-over-mutable-variable bug
+                var stepAtClick = currentStep;
+                var nextIdx     = stepAtClick + 1;
+                var nextTarget  = STEPS[nextIdx].target;
+                // Wait for the next section's target to become visible
+                // (popup sections switch asynchronously after credit check)
+                waitForVisible(nextTarget, function () {
+                    showStep(nextIdx);
+                }, 10);
             }
-            showStep(stepIndex + 1);
-        });
-
-        /* ── Meta-submit: saveFinalData path ─────────────────── */
-        // STEP_META_SUBMIT triggers saveFinalData() instead of a real
-        // wizard step change, so 'showStep' never fires for it.
-        // Detect via button click (SmartWizard does NOT stopPropagation
-        // on the last step since it has no further step to navigate to).
-        $(document).on('click.iseoguide', '#nextStepButton', function () {
-            if (currentStep !== STEP_META_SUBMIT) return;
-            setTimeout(function () {
-                if (currentStep >= FORM_PHASE_START) return;
-                revealForm();
-                showStep(FORM_PHASE_START);
-            }, 600);
         });
 
         /* ── Step 3: click #reload → wait for AI title ──────── */
@@ -614,7 +610,6 @@
         $('body').removeClass('iseo-guide-active iseo-guide-form-phase');
         $(window).off('.iseoguide');
         $(document).off('.iseoguide');
-        $('#smartwizard').off('.iseoguide');
         clearTimeout(_reposTmr);
     }
 
