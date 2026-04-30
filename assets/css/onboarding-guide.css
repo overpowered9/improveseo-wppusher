@@ -197,6 +197,22 @@ body.iseo-guide-form-phase .head-bar {
     pointer-events: auto;
 }
 
+/* ── Wizard-next hint bar ───────────────────────────────────────
+   Replaces the "Next →" button for steps where the user must
+   click the real wizard Next button. Renders as a small callout
+   strip above the actions row.                                   */
+.iseo-guide-wizard-hint {
+    font-size: 11.5px;
+    color: #0073aa;
+    background: #e8f4fb;
+    border-left: 3px solid #0073aa;
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+}
+.iseo-guide-wizard-hint strong { font-weight: 700; }
+
 /* ── Grey-out non-focused form fields in form phase ─────────── */
 body.iseo-guide-form-phase .PostForm__body-wrap,
 body.iseo-guide-form-phase #post_form_buttons,
