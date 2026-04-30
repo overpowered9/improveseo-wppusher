@@ -506,30 +506,24 @@
             }
         });
 
-        /* ── SmartWizard step changed → advance guide ───────── */
-        // SmartWizard may stopPropagation on #nextStepButton clicks, so we
-        // rely on stepChanged.smartWizard (fires after the wizard has navigated)
-        // for all wizard-next guide steps except the final meta-submit step.
-        $('#smartwizard').on('stepChanged.smartWizard.iseoguide', function () {
-            if (currentStep < 0) return;
-            var step = STEPS[currentStep];
-            if (step.advance !== 'wizard-next') return;
-            if (currentStep === STEP_META_SUBMIT) return; // handled by click below
-            setTimeout(function () { showStep(currentStep + 1); }, 200);
-        });
-
-        /* ── Wizard Next button (meta-submit only) ──────────── */
-        // The "Submit" button calls saveFinalData() which hides the modal
-        // directly (bypassing Bootstrap events), so we catch it via click.
+        /* ── Wizard Next button ─────────────────────────────── */
+        // For wizard-next steps the user must click the real Next button;
+        // guide advances when we detect that click.
         $(document).on('click.iseoguide', '#nextStepButton', function () {
-            if (currentStep !== STEP_META_SUBMIT) return;
+            if (currentStep < 0 || currentStep >= STEPS.length) return;
             var step = STEPS[currentStep];
             if (step.advance !== 'wizard-next') return;
-            setTimeout(function () {
-                if (currentStep >= FORM_PHASE_START) return;
-                revealForm();
-                showStep(FORM_PHASE_START);
-            }, 600);
+
+            if (currentStep === STEP_META_SUBMIT) {
+                // saveFinalData() will hide the modal — reveal the form
+                setTimeout(function () {
+                    if (currentStep >= FORM_PHASE_START) return;
+                    revealForm();
+                    showStep(FORM_PHASE_START);
+                }, 600);
+            } else {
+                setTimeout(function () { showStep(currentStep + 1); }, 350);
+            }
         });
 
         /* ── Step 3: click #reload → wait for AI title ──────── */
