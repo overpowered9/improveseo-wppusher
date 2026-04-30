@@ -327,8 +327,6 @@
         html += '</div></div>';
 
         $tooltip.html(html);
-        $tooltip.find('.iseo-guide-btn-next').off('click.guide').on('click.guide', onNextClicked);
-        $tooltip.find('.iseo-guide-btn-skip').off('click.guide').on('click.guide', destroyGuide);
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -343,7 +341,6 @@
         html += '<div class="iseo-guide-actions"><button class="iseo-guide-btn-skip" type="button">Skip guide</button></div>';
         html += '</div>';
         $tooltip.html(html).show();
-        $tooltip.find('.iseo-guide-btn-skip').off('click.guide').on('click.guide', destroyGuide);
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -415,13 +412,21 @@
     /* ─────────────────────────────────────────────────────────
        ON NEXT CLICKED  (tooltip "Next →" button — only for next-btn steps)
     ───────────────────────────────────────────────────────── */
-    function onNextClicked() {
+    function advanceGuideStep() {
         var step = STEPS[currentStep];
         if (step.advance === 'final') {
             destroyGuide();
         } else {
             showStep(currentStep + 1);
         }
+    }
+
+    function onNextClicked(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        advanceGuideStep();
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -479,6 +484,14 @@
     ───────────────────────────────────────────────────────── */
     function bindEvents() {
 
+        /* ── Guide tooltip buttons ─────────────────────────── */
+        $(document).on('click.iseoguide', '.iseo-guide-btn-next', onNextClicked);
+        $(document).on('click.iseoguide', '.iseo-guide-btn-skip', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            destroyGuide();
+        });
+
         /* ── Modal open ─────────────────────────────────────── */
         $(document).on('shown.bs.modal.iseoguide', '#exampleModal1', function () {
             if (currentStep === -1) {
@@ -522,7 +535,7 @@
                     showStep(FORM_PHASE_START);
                 }, 600);
             } else {
-                setTimeout(function () { showStep(currentStep + 1); }, 350);
+                advanceGuideStep();
             }
         });
 
