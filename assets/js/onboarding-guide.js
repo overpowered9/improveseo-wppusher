@@ -5,34 +5,35 @@
  * Only activates when window.iseoGuideConfig.active === true.
  *
  * Step 1 (card-choice page) is handled by index.php.
- * Steps 2–21 are handled here (indices 0–19 in STEPS array).
+ * Steps 2–22 are handled here (indices 0–20 in STEPS array).
  *
  * Wizard-step 0 (Keyword & Post Title):
  *   0  seed-keyword      (modal) #seed_keyword              next-btn
  *   1  title-type        (modal) #seed_select               next-btn      ← seed_option2 pre-selected
- *   2  title-generate    (modal) #reload                    click-target  ← click to generate AI title
- *   3  title-approve     (modal) .step_one_approve_button   click-target  ← click Approve checkbox
- *   4  tone              (modal) #cotnt_type                wizard-next   ← user clicks wizard Next
+ *   2  tone              (modal) #cotnt_type                next-btn      ← select before generating
+ *   3  title-generate    (modal) #reload                    click-target  ← click to generate AI title
+ *   4  title-approve     (modal) .step_one_approve_button   click-target  ← click Approve checkbox
+ *   5  title-next        (modal) #nextStepButton            wizard-next   ← glow Next after approval
  * Wizard-step 1 (Content Settings):
- *   5  article-size      (modal) #post_size                 next-btn
- *   6  point-of-view     (modal) #size                      next-btn
- *   7  language          (modal) #language                  next-btn
- *   8  details           (modal) #exampleFormControlTextarea next-btn
- *   9  call-to-action    (modal) #call_to_action            wizard-next   ← user clicks wizard Next
+ *   6  article-size      (modal) #post_size                 next-btn
+ *   7  point-of-view     (modal) #size                      next-btn
+ *   8  language          (modal) #language                  next-btn
+ *   9  details           (modal) #exampleFormControlTextarea next-btn
+ *   10 call-to-action    (modal) #call_to_action            wizard-next   ← user clicks wizard Next
  * Wizard-step 2 (Add Media):
- *   10 media-select      (modal) #AI_image                  click-target  ← click to select
- *   11 media-next        (modal) #nextStepButton            wizard-next   ← user clicks wizard Next
+ *   11 media-select      (modal) #AI_image                  click-target  ← click to select
+ *   12 media-next        (modal) #nextStepButton            wizard-next   ← user clicks wizard Next
  * Wizard-step 3 (Generate AI Content):
- *   12 generate-post     (modal) #generateapivalue          click-target  ← click to generate
- *   13 approve-content   (modal) #nextStepButton            wizard-next   ← "Approve Content" label
+ *   13 generate-post     (modal) #generateapivalue          click-target  ← click to generate
+ *   14 approve-content   (modal) #nextStepButton            wizard-next   ← "Approve Content" label
  * Wizard-step 4 (Meta Title & Description):
- *   14 meta-title        (modal) #meta_title                next-btn
- *   15 meta-desc         (modal) #meta_descreption          next-btn
- *   16 meta-submit       (modal) #nextStepButton            wizard-next   ← "Submit" label
+ *   15 meta-title        (modal) #meta_title                next-btn
+ *   16 meta-desc         (modal) #meta_descreption          next-btn
+ *   17 meta-submit       (modal) #nextStepButton            wizard-next   ← "Submit" label
  * Form phase:
- *   17 project-name      (form)  .PostForm__name            next-btn
- *   18 post-title        (form)  #title                     next-btn
- *   19 publish           (form)  button[name="create"]      final
+ *   18 project-name      (form)  .PostForm__name            next-btn
+ *   19 post-title        (form)  #title                     next-btn
+ *   20 publish           (form)  button[name="create"]      final
  */
 (function ($) {
     'use strict';
@@ -41,10 +42,10 @@
     if (!window.iseoGuideConfig || !window.iseoGuideConfig.active) return;
 
     /* ── Constants ──────────────────────────────────────────── */
-    var FORM_PHASE_START  = 17; // index of first form-phase step
-    var STEP_GENERATE_IDX = 12; // index of "Generate AI Post" click step
-    var STEP_APPROVE_IDX  = 13; // index of "Approve Content" wizard-next step
-    var STEP_META_SUBMIT  = 16; // index of meta "Submit" wizard-next step
+    var FORM_PHASE_START  = 18; // index of first form-phase step
+    var STEP_GENERATE_IDX = 13; // index of "Generate AI Post" click step
+    var STEP_APPROVE_IDX  = 14; // index of "Approve Content" wizard-next step
+    var STEP_META_SUBMIT  = 17; // index of meta "Submit" wizard-next step
 
     /* ── Steps Definition ───────────────────────────────────── */
     var STEPS = [
@@ -61,30 +62,36 @@
             position: 'right', advance: 'next-btn'
         },
         /* 2 */ {
+            phase: 'modal', wizardStep: 0, target: '#cotnt_type',
+            title: 'Set Your Tone of Voice',
+            message: 'Choose the writing style for your audience. <em>Professional</em> suits service businesses; <em>Informational</em> works well for how-to guides.',
+            position: 'right', advance: 'next-btn'
+        },
+        /* 3 */ {
             phase: 'modal', wizardStep: 0, target: '#reload',
-            title: 'Generate your AI Title',
+            title: 'Generate your Title',
             message: 'Click the <strong>Generate</strong> button to let the AI create an optimised title from your keyword.',
             position: 'right', advance: 'click-target'
         },
-        /* 3 */ {
+        /* 4 */ {
             phase: 'modal', wizardStep: 0, target: '.step_one_approve_button',
             title: 'Approve the AI Title',
             message: 'Review the suggested title above. Happy with it? Click <strong>Approve</strong> to confirm and proceed.',
             position: 'right', advance: 'click-target'
         },
-        /* 4 */ {
-            phase: 'modal', wizardStep: 0, target: '#cotnt_type',
-            title: 'Set Your Tone',
-            message: 'Choose the writing style for your audience. <em>Professional</em> suits service businesses; <em>Informational</em> works well for how-to guides.',
-            position: 'right', advance: 'wizard-next'
-        },
         /* 5 */ {
+            phase: 'modal', wizardStep: 0, target: '#nextStepButton',
+            title: 'Title Approved!',
+            message: 'Great! Now click <strong>Next \u2192</strong> below to move on to the content settings.',
+            position: 'top', advance: 'wizard-next'
+        },
+        /* 6 */ {
             phase: 'modal', wizardStep: 1, target: '#post_size',
             title: 'Article Length',
             message: 'Longer articles often rank better for competitive keywords. <em>Medium (1,200\u20132,400 words)</em> is a great starting point for most niches.',
             position: 'right', advance: 'next-btn'
         },
-        /* 6 */ {
+        /* 7 */ {
             phase: 'modal', wizardStep: 1, target: '#size',
             title: 'Point of View',
             message: 'Choose how the article addresses the reader. <em>Second Person (you, your)</em> is recommended for engaging, direct copy.',
@@ -287,7 +294,7 @@
        BUILD TOOLTIP
     ───────────────────────────────────────────────────────── */
     function buildTooltip(step, index) {
-        // Total = 20 guide steps + 1 card-choice step (handled by index.php) = 21
+        // Total = 21 guide steps + 1 card-choice step (handled by index.php) = 22
         var total      = STEPS.length + 1;
         var pct        = Math.round(((index + 1) / total) * 100);
         var isNextBtn  = (step.advance === 'next-btn');
@@ -519,9 +526,9 @@
             }
         });
 
-        /* ── Step 2: click #reload → wait for AI title ──────── */
+        /* ── Step 3: click #reload → wait for AI title ──────── */
         $(document).on('click.iseoguide', '#reload', function () {
-            if (currentStep !== 2) return;
+            if (currentStep !== 3) return;
             _waiting = true;
             showWaitingTooltip(
                 'Generating your AI Title &#x23F3;',
@@ -531,23 +538,23 @@
             waitForValue('#maintitlearea', function () {
                 if (_waiting) {
                     _waiting = false;
-                    showStep(3); // → approve title
+                    showStep(4); // → approve title
                 }
             }, 30);
         });
 
-        /* ── Step 3: approve title checkbox ─────────────────── */
+        /* ── Step 4: approve title checkbox ─────────────────── */
         $(document).on('change.iseoguide', '#checkbox_need', function () {
-            if (currentStep !== 3) return;
+            if (currentStep !== 4) return;
             if ($(this).is(':checked')) {
-                setTimeout(function () { showStep(4); }, 200); // → tone (wizard-next)
+                setTimeout(function () { showStep(5); }, 200); // → title-next (wizard-next glow on Next button)
             }
         });
 
-        /* ── Step 10: select AI image radio ─────────────────── */
+        /* ── Step 11: select AI image radio ─────────────────── */
         $(document).on('click.iseoguide', '#AI_image', function () {
-            if (currentStep !== 10) return;
-            setTimeout(function () { showStep(11); }, 200); // → media wizard-next
+            if (currentStep !== 11) return;
+            setTimeout(function () { showStep(12); }, 200); // → media wizard-next
         });
 
         /* ── Step 12: click Generate AI Post ────────────────── */

@@ -118,7 +118,7 @@ jQuery(function ($) {
         + '<div class="iseo-guide-progress"><div class="iseo-guide-progress-bar" style="width:0%"></div></div>'
         + '<div class="iseo-guide-header">'
         + '<span class="iseo-guide-bot">&#x1F916;</span>'
-        + '<span class="iseo-guide-step-counter">Step 1 of 21</span>'
+        + '<span class="iseo-guide-step-counter">Step 1 of 22</span>'
         + '</div>'
         + '<div class="iseo-guide-title">Let\u2019s create your first article! &#x1F680;</div>'
         + '<div class="iseo-guide-message">Click <strong>Create Single AI Post</strong> to begin. We\u2019ll guide you through each step of the process.</div>'
