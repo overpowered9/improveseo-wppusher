@@ -5,7 +5,7 @@
  * Only activates when window.iseoGuideConfig.active === true.
  *
  * Step 1 (card-choice page) is handled by index.php.
- * Steps 2–22 are handled here (indices 0–20 in STEPS array).
+ * Steps 2–21 are handled here (indices 0–19 in STEPS array).
  *
  * Wizard-step 0 (Keyword & Post Title):
  *   0  seed-keyword      (modal) #seed_keyword              next-btn
@@ -22,18 +22,17 @@
  *   10 call-to-action    (modal) #call_to_action            wizard-next   ← user clicks wizard Next
  * Wizard-step 2 (Add Media):
  *   11 media-select      (modal) #AI_image                  click-target  ← click to select
- *   12 media-next        (modal) #nextStepButton            wizard-next   ← user clicks wizard Next
+ *   12 media-next        (modal) #nextStepButton            wizard-next   ← "Generate AI Post" label; generation triggered automatically
  * Wizard-step 3 (Generate AI Content):
- *   13 generate-post     (modal) #generateapivalue          click-target  ← click to generate
- *   14 approve-content   (modal) #nextStepButton            wizard-next   ← "Approve Content" label
+ *   13 approve-content   (modal) #nextStepButton            wizard-next   ← "Approve Content" label
  * Wizard-step 4 (Meta Title & Description):
- *   15 meta-title        (modal) #meta_title                next-btn
- *   16 meta-desc         (modal) #meta_descreption          next-btn
- *   17 meta-submit       (modal) #nextStepButton            wizard-next   ← "Submit" label
+ *   14 meta-title        (modal) #meta_title                next-btn
+ *   15 meta-desc         (modal) #meta_descreption          next-btn
+ *   16 meta-submit       (modal) #nextStepButton            wizard-next   ← "Submit" label
  * Form phase:
- *   18 project-name      (form)  .PostForm__name            next-btn
- *   19 post-title        (form)  #title                     next-btn
- *   20 publish           (form)  button[name="create"]      final
+ *   17 project-name      (form)  .PostForm__name            next-btn
+ *   18 post-title        (form)  #title                     next-btn
+ *   19 publish           (form)  button[name="create"]      final
  */
 (function ($) {
     'use strict';
@@ -42,10 +41,10 @@
     if (!window.iseoGuideConfig || !window.iseoGuideConfig.active) return;
 
     /* ── Constants ──────────────────────────────────────────── */
-    var FORM_PHASE_START  = 18; // index of first form-phase step
-    var STEP_GENERATE_IDX = 13; // index of "Generate AI Post" click step
-    var STEP_APPROVE_IDX  = 14; // index of "Approve Content" wizard-next step
-    var STEP_META_SUBMIT  = 17; // index of meta "Submit" wizard-next step
+    var FORM_PHASE_START  = 17; // index of first form-phase step
+    var STEP_GENERATE_IDX = 12; // index where "Generate AI Post" is clicked (wizard-next triggers generation)
+    var STEP_APPROVE_IDX  = 13; // index of "Approve Content" wizard-next step
+    var STEP_META_SUBMIT  = 16; // index of meta "Submit" wizard-next step
 
     /* ── Steps Definition ───────────────────────────────────── */
     var STEPS = [
@@ -124,54 +123,49 @@
         /* 11 */ {
             phase: 'modal', wizardStep: 2, target: '#nextStepButton',
             title: 'Image Option Set',
-            message: 'Your image preference has been saved. Proceed to the content generation step.',
-            position: 'top', advance: 'wizard-next'
+            message: 'Your image preference has been saved. Click the <strong>Generate AI Post</strong> button below \u2014 the AI will write your article automatically.',
+            position: 'top', advance: 'wizard-next',
+            wizardHint: '&#8595; Click the <strong>Generate AI Post &#8594;</strong> button below to continue'
         },
         /* 12 */ {
-            phase: 'modal', wizardStep: 3, target: '#generateapivalue',
-            title: 'Generate your Article',
-            message: 'Everything is set! Click <strong>Generate AI Post</strong> to create your article. This usually takes 20\u201360 seconds.',
-            position: 'top', advance: 'click-target'
-        },
-        /* 13 */ {
             phase: 'modal', wizardStep: 3, target: '#nextStepButton',
             title: 'Review & Approve',
             message: 'Your article is ready! Scroll up in this window to read it. When you\u2019re happy, click the <strong>Approve Content</strong> button to continue.',
             position: 'top', advance: 'wizard-next'
         },
-        /* 14 */ {
+        /* 13 */ {
             phase: 'modal', wizardStep: 4, target: '#meta_title',
             title: 'SEO Meta Title',
             message: 'This title appears in Google search results. Keep it under 60 characters. The AI has suggested one \u2014 you can edit it freely.',
             position: 'right', advance: 'next-btn'
         },
-        /* 15 */ {
+        /* 14 */ {
             phase: 'modal', wizardStep: 4, target: '#meta_descreption',
             title: 'Meta Description',
             message: 'A short description shown under your page title in Google. Keep it under 160 characters \u2014 make it compelling to increase clicks.',
             position: 'right', advance: 'next-btn'
         },
-        /* 16 */ {
+        /* 15 */ {
             phase: 'modal', wizardStep: 4, target: '#nextStepButton',
             title: 'Save & Continue',
             message: 'Happy with your SEO details? Click the <strong>Submit</strong> button to save them and return to the post editor.',
             position: 'top', advance: 'wizard-next'
         },
-        /* 17 */ {
+        /* 16 */ {
             phase: 'form', wizardStep: -1, target: '.PostForm__name',
             title: 'Name Your Project',
             message: 'Give this project an internal name (e.g. <em>Homepage Blog Q1</em>). This is for your reference only \u2014 it won\u2019t be published.',
             position: 'bottom', advance: 'next-btn',
             formFocus: '.PostForm__name-wrap'
         },
-        /* 18 */ {
+        /* 17 */ {
             phase: 'form', wizardStep: -1, target: '#title',
             title: 'Post Title',
             message: 'This is the public title of your article. The AI has pre-filled it from the generated content \u2014 you can edit it here.',
             position: 'bottom', advance: 'next-btn',
             formFocus: '.PostForm__title-wrap'
         },
-        /* 19 */ {
+        /* 18 */ {
             phase: 'form', wizardStep: -1, target: 'button[name="create"]',
             title: 'Publish your Article! \uD83C\uDF89',
             message: 'You\u2019re all set! Click <strong>Create &amp; Publish Post</strong> to publish your first SEO-optimised article.',
@@ -323,7 +317,8 @@
 
         // wizard-next: instruct user to click the real Next button — no tooltip Next button
         if (isWizNext) {
-            html += '<div class="iseo-guide-wizard-hint">&#8595; Click the <strong>Next &#8594;</strong> button below to continue</div>';
+            var hintText = step.wizardHint || '&#8595; Click the <strong>Next &#8594;</strong> button below to continue';
+            html += '<div class="iseo-guide-wizard-hint">' + hintText + '</div>';
             if (step.pollTarget) {
                 // Hidden button — auto-triggered by poll when the modal panel changes
                 html += '<button class="iseo-guide-btn-next" type="button" style="display:none" aria-hidden="true">Next &#8594;</button>';
@@ -531,7 +526,21 @@
             if (step.advance !== 'wizard-next') return;
             if (step.pollTarget) return; // poll in showStep handles this step
 
-            if (currentStep === STEP_META_SUBMIT) {
+            if (currentStep === STEP_GENERATE_IDX) {
+                // User clicked "Generate AI Post" — popup auto-triggers generation; wait for content
+                _waiting = true;
+                showWaitingTooltip(
+                    'Generating your Article &#x23F3;',
+                    'Your article is being written by AI.<br><small>This may take 20\u201360 seconds \u2014 please wait.</small>',
+                    65
+                );
+                waitForContent('#showmydataindiv1', function () {
+                    if (_waiting) {
+                        _waiting = false;
+                        showStep(STEP_APPROVE_IDX);
+                    }
+                }, 90);
+            } else if (currentStep === STEP_META_SUBMIT) {
                 // saveFinalData() will hide the modal — reveal the form
                 setTimeout(function () {
                     if (currentStep >= FORM_PHASE_START) return;
@@ -588,23 +597,6 @@
                     showStep(12); // → media wizard-next
                 }
             }, 30);
-        });
-
-        /* ── Step 12: click Generate AI Post ────────────────── */
-        $(document).on('click.iseoguide', '#generateapivalue', function () {
-            if (currentStep !== STEP_GENERATE_IDX) return;
-            _waiting = true;
-            showWaitingTooltip(
-                'Generating your Article &#x23F3;',
-                'Your article is being written by AI.<br><small>This may take 20\u201360 seconds \u2014 please wait.</small>',
-                65
-            );
-            waitForContent('#showmydataindiv1', function () {
-                if (_waiting) {
-                    _waiting = false;
-                    showStep(STEP_APPROVE_IDX); // → approve content (wizard-next)
-                }
-            }, 90);
         });
 
         /* ── Reposition on resize / scroll ──────────────────── */
