@@ -83,7 +83,7 @@
             phase: 'modal', wizardStep: 0, target: '#nextStepButton',
             title: 'Title Approved!',
             message: 'Great! Now click <strong>Next \u2192</strong> below to move on to the content settings.',
-            position: 'top', advance: 'wizard-next'
+            position: 'top', advance: 'wizard-next', pollTarget: '#post_size'
         },
         /* 6 */ {
             phase: 'modal', wizardStep: 1, target: '#post_size',
@@ -251,6 +251,17 @@
         // Build tooltip content
         buildTooltip(step, index);
 
+        // For wizard-next steps with a pollTarget: watch for the next panel to appear
+        // and auto-trigger the hidden guide Next button — no click event dependency.
+        if (step.pollTarget) {
+            var pollIdx = index;
+            waitForVisible(step.pollTarget, function () {
+                if (currentStep === pollIdx) {
+                    $tooltip.find('.iseo-guide-btn-next').trigger('click');
+                }
+            }, 10);
+        }
+
         if (step.phase === 'page' || step.phase === 'form') {
             $spotlight.show();
             if ($target.length) {
@@ -313,6 +324,10 @@
         // wizard-next: instruct user to click the real Next button — no tooltip Next button
         if (isWizNext) {
             html += '<div class="iseo-guide-wizard-hint">&#8595; Click the <strong>Next &#8594;</strong> button below to continue</div>';
+            if (step.pollTarget) {
+                // Hidden button — auto-triggered by poll when the modal panel changes
+                html += '<button class="iseo-guide-btn-next" type="button" style="display:none" aria-hidden="true">Next &#8594;</button>';
+            }
         }
 
         html += '<div class="iseo-guide-actions">';
@@ -509,10 +524,12 @@
         /* ── Wizard Next button ─────────────────────────────── */
         // For wizard-next steps the user must click the real Next button;
         // guide advances when we detect that click.
+        // Steps with pollTarget are handled by the poll started in showStep — skip them here.
         $(document).on('click.iseoguide', '#nextStepButton', function () {
             if (currentStep < 0 || currentStep >= STEPS.length) return;
             var step = STEPS[currentStep];
             if (step.advance !== 'wizard-next') return;
+            if (step.pollTarget) return; // poll in showStep handles this step
 
             if (currentStep === STEP_META_SUBMIT) {
                 // saveFinalData() will hide the modal — reveal the form
