@@ -507,14 +507,17 @@
         });
 
         /* ── Wizard Next button ─────────────────────────────── */
-        // For wizard-next steps the user must click the real Next button;
-        // guide advances when we detect that click.
+        // For wizard-next steps the user must click the real Next button.
+        // Instead of a fixed timer, we poll until the next step's target
+        // element is actually visible — this naturally waits for any async
+        // work (e.g. credit check AJAX) to finish before advancing.
         $(document).on('click.iseoguide', '#nextStepButton', function () {
             if (currentStep < 0 || currentStep >= STEPS.length) return;
             var step = STEPS[currentStep];
             if (step.advance !== 'wizard-next') return;
 
-            if (currentStep === STEP_META_SUBMIT) {
+            var capturedStep = currentStep;
+            if (capturedStep === STEP_META_SUBMIT) {
                 // saveFinalData() will hide the modal — reveal the form
                 setTimeout(function () {
                     if (currentStep >= FORM_PHASE_START) return;
@@ -522,7 +525,13 @@
                     showStep(FORM_PHASE_START);
                 }, 600);
             } else {
-                setTimeout(function () { showStep(currentStep + 1); }, 350);
+                var nextIdx    = capturedStep + 1;
+                var nextTarget = STEPS[nextIdx].target;
+                waitForVisible(nextTarget, function () {
+                    if (currentStep === capturedStep) {
+                        showStep(nextIdx);
+                    }
+                }, 10);
             }
         });
 
