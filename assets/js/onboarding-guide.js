@@ -571,7 +571,23 @@
         /* ── Step 11: select AI image radio ─────────────────── */
         $(document).on('click.iseoguide', '#AI_image', function () {
             if (currentStep !== 11) return;
-            setTimeout(function () { showStep(12); }, 200); // → media wizard-next
+            // If an image URL is already cached (re-visit), advance immediately.
+            if ($('#AI-Image-uploaded-path').val()) {
+                setTimeout(function () { showStep(12); }, 200);
+                return;
+            }
+            _waiting = true;
+            showWaitingTooltip(
+                'Generating your AI Image &#x23F3;',
+                'The AI is creating an image for your article \u2014 please wait.',
+                40
+            );
+            waitForValue('#AI-Image-uploaded-path', function () {
+                if (_waiting) {
+                    _waiting = false;
+                    showStep(12); // → media wizard-next
+                }
+            }, 30);
         });
 
         /* ── Step 12: click Generate AI Post ────────────────── */
