@@ -475,6 +475,30 @@
     }
 
     /* ─────────────────────────────────────────────────────────
+       WAIT FOR WIZARD PANEL TO BECOME ACTIVE  (MutationObserver)
+       Fires when the next guide step's target element is visible,
+       which happens only after advanceSingleStep() runs in the popup.
+    ───────────────────────────────────────────────────────── */
+    function waitForWizardPanel(nextIndex, callback) {
+        var nextTarget = STEPS[nextIndex].target;
+        var container  = document.querySelector('.improveseo-bulk-ai');
+        if (!container) {
+            // No container found — fall back to polling
+            waitForVisible(nextTarget, callback, 10);
+            return;
+        }
+        var obs = new MutationObserver(function () {
+            if ($(nextTarget).is(':visible')) {
+                obs.disconnect();
+                callback();
+            }
+        });
+        obs.observe(container, { subtree: true, attributes: true, attributeFilter: ['class'] });
+        // Safety: disconnect after 10 s to avoid leaking observers
+        setTimeout(function () { obs.disconnect(); }, 10000);
+    }
+
+    /* ─────────────────────────────────────────────────────────
        BIND EVENTS
     ───────────────────────────────────────────────────────── */
     function bindEvents() {
@@ -507,14 +531,17 @@
         });
 
         /* ── Wizard Next button ─────────────────────────────── */
-        // For wizard-next steps the user must click the real Next button;
-        // guide advances when we detect that click.
+        // For wizard-next steps the user must click the real Next button.
+        // We observe the modal panels via MutationObserver so the guide
+        // advances only after advanceSingleStep() has actually run in the
+        // popup (i.e. after any async credit check completes).
         $(document).on('click.iseoguide', '#nextStepButton', function () {
             if (currentStep < 0 || currentStep >= STEPS.length) return;
             var step = STEPS[currentStep];
             if (step.advance !== 'wizard-next') return;
 
-            if (currentStep === STEP_META_SUBMIT) {
+            var capturedStep = currentStep;
+            if (capturedStep === STEP_META_SUBMIT) {
                 // saveFinalData() will hide the modal — reveal the form
                 setTimeout(function () {
                     if (currentStep >= FORM_PHASE_START) return;
@@ -522,7 +549,12 @@
                     showStep(FORM_PHASE_START);
                 }, 600);
             } else {
-                setTimeout(function () { showStep(currentStep + 1); }, 350);
+                var nextIdx = capturedStep + 1;
+                waitForWizardPanel(nextIdx, function () {
+                    if (currentStep === capturedStep) {
+                        showStep(nextIdx);
+                    }
+                });
             }
         });
 
