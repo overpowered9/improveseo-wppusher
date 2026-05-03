@@ -71,7 +71,7 @@
             phase: 'modal', wizardStep: 0, target: '#reload',
             title: 'Generate your Title',
             message: 'Click the <strong>Generate</strong> button to let the AI create an optimised title from your keyword.',
-            position: 'right', advance: 'click-target'
+            position: 'left', advance: 'click-target'
         },
         /* 4 */ {
             phase: 'modal', wizardStep: 0, target: '.step_one_approve_button',
@@ -83,7 +83,7 @@
             phase: 'modal', wizardStep: 0, target: '#nextStepButton',
             title: 'Title Approved!',
             message: 'Great! Now click <strong>Next \u2192</strong> below to move on to the content settings.',
-            position: 'top', advance: 'wizard-next', pollTarget: '#post_size'
+            position: 'left', advance: 'wizard-next', pollTarget: '#post_size'
         },
         /* 6 */ {
             phase: 'modal', wizardStep: 1, target: '#post_size',
@@ -119,7 +119,7 @@
             phase: 'modal', wizardStep: 1, target: '#nextStepButton',
             title: 'Content Settings Done!',
             message: 'All content settings are saved. Click the <strong>Next \u2192</strong> button below to move on to image selection.',
-            position: 'top', advance: 'wizard-next'
+            position: 'left', advance: 'wizard-next'
         },
         /* 12 */ {
             phase: 'modal', wizardStep: 2, target: '#AI_image',
@@ -131,14 +131,14 @@
             phase: 'modal', wizardStep: 2, target: '#nextStepButton',
             title: 'Image Option Set',
             message: 'Your image preference has been saved. Click the <strong>Generate AI Post</strong> button below \u2014 the AI will write your article automatically.',
-            position: 'top', advance: 'wizard-next',
+            position: 'left', advance: 'wizard-next',
             wizardHint: '&#8595; Click the <strong>Generate AI Post &#8594;</strong> button below to continue'
         },
         /* 14 */ {
             phase: 'modal', wizardStep: 3, target: '#nextStepButton',
             title: 'Review & Approve',
             message: 'Your article is ready! Scroll up in this window to read it. When you\u2019re happy, click the <strong>Approve Content</strong> button to continue.',
-            position: 'top', advance: 'wizard-next'
+            position: 'left', advance: 'wizard-next'
         },
         /* 15 */ {
             phase: 'modal', wizardStep: 4, target: '#meta_title',
@@ -156,7 +156,7 @@
             phase: 'modal', wizardStep: 4, target: '#nextStepButton',
             title: 'Save & Continue',
             message: 'Happy with your SEO details? Click the <strong>Submit</strong> button to save them and return to the post editor.',
-            position: 'top', advance: 'wizard-next'
+            position: 'left', advance: 'wizard-next'
         },
         /* 18 */ {
             phase: 'form', wizardStep: -1, target: '.PostForm__name',
