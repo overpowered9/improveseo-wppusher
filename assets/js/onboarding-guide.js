@@ -5,7 +5,7 @@
  * Only activates when window.iseoGuideConfig.active === true.
  *
  * Step 1 (card-choice page) is handled by index.php.
- * Steps 2–21 are handled here (indices 0–19 in STEPS array).
+ * Steps 2–22 are handled here (indices 0–20 in STEPS array).
  *
  * Wizard-step 0 (Keyword & Post Title):
  *   0  seed-keyword      (modal) #seed_keyword              next-btn
@@ -19,20 +19,21 @@
  *   7  point-of-view     (modal) #size                      next-btn
  *   8  language          (modal) #language                  next-btn
  *   9  details           (modal) #exampleFormControlTextarea next-btn
- *   10 call-to-action    (modal) #call_to_action            wizard-next   ← user clicks wizard Next
+ *   10 call-to-action    (modal) #call_to_action            next-btn      ← fill in CTA, click guide’s Next
+ *   11 cta-next          (modal) #nextStepButton            wizard-next   ← click modal Next to go to media
  * Wizard-step 2 (Add Media):
- *   11 media-select      (modal) #AI_image                  click-target  ← click to select
- *   12 media-next        (modal) #nextStepButton            wizard-next   ← "Generate AI Post" label; generation triggered automatically
+ *   12 media-select      (modal) #AI_image                  click-target  ← click to select
+ *   13 media-next        (modal) #nextStepButton            wizard-next   ← "Generate AI Post" label; generation triggered automatically
  * Wizard-step 3 (Generate AI Content):
- *   13 approve-content   (modal) #nextStepButton            wizard-next   ← "Approve Content" label
+ *   14 approve-content   (modal) #nextStepButton            wizard-next   ← "Approve Content" label
  * Wizard-step 4 (Meta Title & Description):
- *   14 meta-title        (modal) #meta_title                next-btn
- *   15 meta-desc         (modal) #meta_descreption          next-btn
- *   16 meta-submit       (modal) #nextStepButton            wizard-next   ← "Submit" label
+ *   15 meta-title        (modal) #meta_title                next-btn
+ *   16 meta-desc         (modal) #meta_descreption          next-btn
+ *   17 meta-submit       (modal) #nextStepButton            wizard-next   ← "Submit" label
  * Form phase:
- *   17 project-name      (form)  .PostForm__name            next-btn
- *   18 post-title        (form)  #title                     next-btn
- *   19 publish           (form)  button[name="create"]      final
+ *   18 project-name      (form)  .PostForm__name            next-btn
+ *   19 post-title        (form)  #title                     next-btn
+ *   20 publish           (form)  button[name="create"]      final
  */
 (function ($) {
     'use strict';
@@ -41,10 +42,10 @@
     if (!window.iseoGuideConfig || !window.iseoGuideConfig.active) return;
 
     /* ── Constants ──────────────────────────────────────────── */
-    var FORM_PHASE_START  = 17; // index of first form-phase step
-    var STEP_GENERATE_IDX = 12; // index where "Generate AI Post" is clicked (wizard-next triggers generation)
-    var STEP_APPROVE_IDX  = 13; // index of "Approve Content" wizard-next step
-    var STEP_META_SUBMIT  = 16; // index of meta "Submit" wizard-next step
+    var FORM_PHASE_START  = 18; // index of first form-phase step
+    var STEP_GENERATE_IDX = 13; // index where "Generate AI Post" is clicked (wizard-next triggers generation)
+    var STEP_APPROVE_IDX  = 14; // index of "Approve Content" wizard-next step
+    var STEP_META_SUBMIT  = 17; // index of meta "Submit" wizard-next step
 
     /* ── Steps Definition ───────────────────────────────────── */
     var STEPS = [
@@ -96,76 +97,82 @@
             message: 'Choose how the article addresses the reader. <em>Second Person (you, your)</em> is recommended for engaging, direct copy.',
             position: 'right', advance: 'next-btn'
         },
-        /* 7 */ {
+        /* 8 */ {
             phase: 'modal', wizardStep: 1, target: '#language',
             title: 'Content Language',
             message: 'Select the language and regional variant for your article. Match this to your target audience\u2019s location.',
             position: 'right', advance: 'next-btn'
         },
-        /* 8 */ {
+        /* 9 */ {
             phase: 'modal', wizardStep: 1, target: '#exampleFormControlTextarea',
             title: 'Details to Include',
             message: '(Optional) Add specific facts, services, or local details you want the AI to weave into the article. Leave blank to let the AI decide.',
             position: 'right', advance: 'next-btn'
         },
-        /* 9 */ {
+        /* 10 */ {
             phase: 'modal', wizardStep: 1, target: '#call_to_action',
             title: 'Call to Action',
-            message: '(Optional) Tell the AI what action you want readers to take \u2014 e.g. <em>Contact us for a free quote</em>.',
-            position: 'right', advance: 'wizard-next'
+            message: '(Optional) Tell the AI what action you want readers to take \u2014 e.g. <em>Contact us for a free quote</em>. When done, click <strong>Next \u2192</strong> to continue.',
+            position: 'right', advance: 'next-btn'
         },
-        /* 10 */ {
+        /* 11 */ {
+            phase: 'modal', wizardStep: 1, target: '#nextStepButton',
+            title: 'Content Settings Done!',
+            message: 'All content settings are saved. Click the <strong>Next \u2192</strong> button below to move on to image selection.',
+            position: 'top', advance: 'wizard-next'
+        },
+        /* 12 */ {
             phase: 'modal', wizardStep: 2, target: '#AI_image',
             title: 'Select Image Option',
             message: 'Click <strong>Generate AI Image Based on Title</strong> to automatically create an image for your article.',
             position: 'right', advance: 'click-target'
         },
-        /* 11 */ {
+        /* 13 */ {
             phase: 'modal', wizardStep: 2, target: '#nextStepButton',
             title: 'Image Option Set',
             message: 'Your image preference has been saved. Click the <strong>Generate AI Post</strong> button below \u2014 the AI will write your article automatically.',
             position: 'top', advance: 'wizard-next',
             wizardHint: '&#8595; Click the <strong>Generate AI Post &#8594;</strong> button below to continue'
         },
-        /* 12 */ {
+        /* 14 */ {
             phase: 'modal', wizardStep: 3, target: '#nextStepButton',
             title: 'Review & Approve',
             message: 'Your article is ready! Scroll up in this window to read it. When you\u2019re happy, click the <strong>Approve Content</strong> button to continue.',
             position: 'top', advance: 'wizard-next'
         },
-        /* 13 */ {
+        /* 15 */ {
             phase: 'modal', wizardStep: 4, target: '#meta_title',
             title: 'SEO Meta Title',
             message: 'This title appears in Google search results. Keep it under 60 characters. The AI has suggested one \u2014 you can edit it freely.',
             position: 'right', advance: 'next-btn'
         },
-        /* 14 */ {
+        /* 16 */ {
             phase: 'modal', wizardStep: 4, target: '#meta_descreption',
             title: 'Meta Description',
             message: 'A short description shown under your page title in Google. Keep it under 160 characters \u2014 make it compelling to increase clicks.',
             position: 'right', advance: 'next-btn'
         },
-        /* 15 */ {
+        /* 17 */ {
             phase: 'modal', wizardStep: 4, target: '#nextStepButton',
             title: 'Save & Continue',
             message: 'Happy with your SEO details? Click the <strong>Submit</strong> button to save them and return to the post editor.',
             position: 'top', advance: 'wizard-next'
         },
-        /* 16 */ {
+        /* 18 */ {
             phase: 'form', wizardStep: -1, target: '.PostForm__name',
             title: 'Name Your Project',
             message: 'Give this project an internal name (e.g. <em>Homepage Blog Q1</em>). This is for your reference only \u2014 it won\u2019t be published.',
             position: 'bottom', advance: 'next-btn',
             formFocus: '.PostForm__name-wrap'
         },
-        /* 17 */ {
+        /* 19 */ {
             phase: 'form', wizardStep: -1, target: '#title',
             title: 'Post Title',
             message: 'This is the public title of your article. The AI has pre-filled it from the generated content \u2014 you can edit it here.',
             position: 'bottom', advance: 'next-btn',
             formFocus: '.PostForm__title-wrap'
         },
-        /* 18 */ {
+        /* 20 */ {
             phase: 'form', wizardStep: -1, target: 'button[name="create"]',
             title: 'Publish your Article! \uD83C\uDF89',
             message: 'You\u2019re all set! Click <strong>Create &amp; Publish Post</strong> to publish your first SEO-optimised article.',
@@ -271,11 +278,10 @@
             $spotlight.hide();
             if ($target.length) {
                 $target.addClass('iseo-guide-highlight');
-                scrollWithinModal($target);
-                setTimeout(function () {
+                scrollWithinModal($target, function () {
                     positionTooltip($target, step.position);
                     $tooltip.show();
-                }, 120);
+                });
             } else {
                 $tooltip.show();
             }
@@ -372,7 +378,7 @@
     }
 
     /* ─────────────────────────────────────────────────────────
-       POSITION TOOLTIP
+       POSITION TOOLTIP  (with auto-flip when primary side overflows)
     ───────────────────────────────────────────────────────── */
     function positionTooltip($target, position) {
         if (!$target.length) {
@@ -383,30 +389,33 @@
         var ttW = 300;
         var ttH = $tooltip.outerHeight(true) || 230;
         var gap = 14;
-        var top, left;
+        var vw  = window.innerWidth;
+        var vh  = window.innerHeight;
+        var opposites = { right: 'left', left: 'right', top: 'bottom', bottom: 'top' };
 
-        switch (position) {
-            case 'bottom':
-                top  = r.bottom + gap;
-                left = r.left + r.width / 2 - ttW / 2;
-                break;
-            case 'top':
-                top  = r.top - ttH - gap;
-                left = r.left + r.width / 2 - ttW / 2;
-                break;
-            case 'right':
-                top  = r.top + r.height / 2 - ttH / 2;
-                left = r.right + gap;
-                break;
-            default: // left
-                top  = r.top + r.height / 2 - ttH / 2;
-                left = r.left - ttW - gap;
-                break;
+        function calcPos(pos) {
+            switch (pos) {
+                case 'bottom': return { top: r.bottom + gap,                  left: r.left + r.width / 2 - ttW / 2 };
+                case 'top':    return { top: r.top - ttH - gap,               left: r.left + r.width / 2 - ttW / 2 };
+                case 'right':  return { top: r.top + r.height / 2 - ttH / 2, left: r.right + gap };
+                default:       return { top: r.top + r.height / 2 - ttH / 2, left: r.left - ttW - gap };
+            }
+        }
+        function fits(p) {
+            return p.left >= 10 && p.left + ttW <= vw - 10 && p.top >= 10 && p.top + ttH <= vh - 10;
         }
 
-        var vw = window.innerWidth, vh = window.innerHeight;
-        top  = Math.max(10, Math.min(top,  vh - ttH - 10));
-        left = Math.max(10, Math.min(left, vw - ttW - 10));
+        var pos = calcPos(position);
+        if (!fits(pos)) {
+            var alt = calcPos(opposites[position] || 'top');
+            if (fits(alt)) {
+                pos      = alt;
+                position = opposites[position] || 'top';
+            }
+        }
+
+        var top  = Math.max(10, Math.min(pos.top,  vh - ttH - 10));
+        var left = Math.max(10, Math.min(pos.left, vw - ttW - 10));
 
         $tooltip.css({ top: top + 'px', left: left + 'px', width: ttW + 'px' });
         $tooltip.attr('data-pos', position);
@@ -414,12 +423,18 @@
 
     /* ─────────────────────────────────────────────────────────
        SCROLL WITHIN MODAL (keep highlighted field visible)
+       callback fires after scroll completes (or immediately if no scroll needed)
     ───────────────────────────────────────────────────────── */
-    function scrollWithinModal($target) {
+    function scrollWithinModal($target, callback) {
         var $body = $('#exampleModal1 .modal-body');
-        if (!$body.length || !$target.length) return;
+        // If target is outside the scrollable modal body (e.g. #nextStepButton in .btn-dev),
+        // skip scrolling entirely — just fire the callback with a small layout delay.
+        if (!$body.length || !$target.length || !$.contains($body[0], $target[0])) {
+            if (callback) setTimeout(callback, 60);
+            return;
+        }
         var offset = $target.offset().top - $body.offset().top + $body.scrollTop() - 60;
-        $body.stop(true).animate({ scrollTop: offset }, 200);
+        $body.stop(true).animate({ scrollTop: Math.max(0, offset) }, 180, callback || $.noop);
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -527,8 +542,12 @@
             if (step.pollTarget) return; // poll in showStep handles this step
 
             if (currentStep === STEP_GENERATE_IDX) {
-                // User clicked "Generate AI Post" — popup auto-triggers generation; wait for content
+                // User clicked "Generate AI Post" — popup auto-triggers generation; wait for content.
+                // The popup's own handler (which runs first) re-enables #nextStepButton and relabels it
+                // "Approve Content" — disable it after the call stack clears so users can't click
+                // it prematurely while the article is still being generated.
                 _waiting = true;
+                setTimeout(function () { $('#nextStepButton').prop('disabled', true); }, 0);
                 showWaitingTooltip(
                     'Generating your Article &#x23F3;',
                     'Your article is being written by AI.<br><small>This may take 20\u201360 seconds \u2014 please wait.</small>',
@@ -537,6 +556,7 @@
                 waitForContent('#showmydataindiv1', function () {
                     if (_waiting) {
                         _waiting = false;
+                        $('#nextStepButton').prop('disabled', false);
                         showStep(STEP_APPROVE_IDX);
                     }
                 }, 90);
@@ -579,10 +599,10 @@
 
         /* ── Step 11: select AI image radio ─────────────────── */
         $(document).on('click.iseoguide', '#AI_image', function () {
-            if (currentStep !== 11) return;
+            if (currentStep !== 12) return;
             // If an image URL is already cached (re-visit), advance immediately.
             if ($('#AI-Image-uploaded-path').val()) {
-                setTimeout(function () { showStep(12); }, 200);
+                setTimeout(function () { showStep(13); }, 200);
                 return;
             }
             _waiting = true;
@@ -594,7 +614,7 @@
             waitForValue('#AI-Image-uploaded-path', function () {
                 if (_waiting) {
                     _waiting = false;
-                    showStep(12); // → media wizard-next
+                    showStep(13); // \u2192 media wizard-next
                 }
             }, 30);
         });
