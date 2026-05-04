@@ -23,9 +23,9 @@
  *   11 cta-next          (modal) #nextStepButton            wizard-next   ← click modal Next to go to media
  * Wizard-step 2 (Add Media):
  *   12 media-select      (modal) #AI_image                  click-target  ← click to select
- *   13 generate-trigger  (modal) (auto-advance)             auto          ← silently clicks Next + waits for content; no guide UI shown
+ *   13 media-next        (modal) #nextStepButton            wizard-next   ← "Generate AI Post" label; generation triggered automatically
  * Wizard-step 3 (Generate AI Content):
- *   14 approve-content   (modal) #nextStepButton            wizard-next   ← glow only shown here, "Approve Content" label
+ *   14 approve-content   (modal) #nextStepButton            wizard-next   ← "Approve Content" label
  * Wizard-step 4 (Meta Title & Description):
  *   15 meta-title        (modal) #meta_title                next-btn
  *   16 meta-desc         (modal) #meta_descreption          next-btn
@@ -130,8 +130,9 @@
         /* 13 */ {
             phase: 'modal', wizardStep: 2, target: '#nextStepButton',
             title: 'Image Option Set',
-            message: 'Your image preference has been saved. The AI is about to generate your article.',
-            position: 'left', advance: 'auto'
+            message: 'Your image preference has been saved. Click the <strong>Generate AI Post</strong> button below \u2014 the AI will write your article automatically.',
+            position: 'left', advance: 'wizard-next',
+            wizardHint: '&#8595; Click the <strong>Generate AI Post &#8594;</strong> button below to continue'
         },
         /* 14 */ {
             phase: 'modal', wizardStep: 3, target: '#nextStepButton',
@@ -247,32 +248,6 @@
 
         // Update form-focus classes
         updateFormFocus(step);
-
-        // ── Step 13: auto-advance — no guide UI; silently advance popup + wait for generated content ──
-        if (index === STEP_GENERATE_IDX) {
-            _waiting = true;
-            $spotlight.hide();
-            showWaitingTooltip(
-                'Generating your Article &#x23F3;',
-                'Your article is being written by AI.<br><small>This may take 20\u201360 seconds \u2014 please wait.</small>',
-                65
-            );
-            // Programmatically advance the popup wizard (media → generation panel).
-            // The popup's handler calls updateButtonText() which auto-fires #generateapivalue (AJAX).
-            // Hide #nextStepButton (now re-labelled "Approve Content") until generation is done.
-            var $nextBtn = $('#nextStepButton');
-            $nextBtn.hide();
-            var nextBtnEl = $nextBtn[0];
-            if (nextBtnEl) nextBtnEl.click();
-            waitForContent('#showmydataindiv1', function () {
-                if (_waiting) {
-                    _waiting = false;
-                    $nextBtn.show();
-                    showStep(STEP_APPROVE_IDX);
-                }
-            }, 90);
-            return;
-        }
 
         // Build tooltip content
         buildTooltip(step, index);
@@ -566,7 +541,25 @@
             if (step.advance !== 'wizard-next') return;
             if (step.pollTarget) return; // poll in showStep handles this step
 
-            if (currentStep === STEP_META_SUBMIT) {
+            if (currentStep === STEP_GENERATE_IDX) {
+                // User clicked "Generate AI Post" — popup auto-triggers generation; wait for content.
+                // The popup's own handler re-enables and relabels #nextStepButton to "Approve Content".
+                // Hide the button completely during generation so it doesn't confuse the user.
+                _waiting = true;
+                setTimeout(function () { $('#nextStepButton').hide(); }, 0);
+                showWaitingTooltip(
+                    'Generating your Article &#x23F3;',
+                    'Your article is being written by AI.<br><small>This may take 20\u201360 seconds \u2014 please wait.</small>',
+                    65
+                );
+                waitForContent('#showmydataindiv1', function () {
+                    if (_waiting) {
+                        _waiting = false;
+                        $('#nextStepButton').show();
+                        showStep(STEP_APPROVE_IDX);
+                    }
+                }, 90);
+            } else if (currentStep === STEP_META_SUBMIT) {
                 // saveFinalData() will hide the modal — reveal the form
                 setTimeout(function () {
                     if (currentStep >= FORM_PHASE_START) return;
