@@ -542,12 +542,16 @@
             if (step.pollTarget) return; // poll in showStep handles this step
 
             if (currentStep === STEP_GENERATE_IDX) {
-                // User clicked "Generate AI Post" — popup auto-triggers generation; wait for content.
-                // The popup's own handler (which runs first) re-enables #nextStepButton and relabels it
-                // "Approve Content" — disable it after the call stack clears so users can't click
-                // it prematurely while the article is still being generated.
+                // User clicked "Generate AI Post".
+                // The popup's own handler immediately relabels #nextStepButton to "Approve Content"
+                // and fires #generateapivalue — same as the normal form flow.
+                // The guide just removes the highlight and shows the waiting tooltip;
+                // the button remains visible exactly as in the normal form.
+                // When content arrives, showStep(14) adds the glow to the now-labelled "Approve Content".
                 _waiting = true;
-                setTimeout(function () { $('#nextStepButton').prop('disabled', true); }, 0);
+                setTimeout(function () {
+                    $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
+                }, 0);
                 showWaitingTooltip(
                     'Generating your Article &#x23F3;',
                     'Your article is being written by AI.<br><small>This may take 20\u201360 seconds \u2014 please wait.</small>',
@@ -556,7 +560,6 @@
                 waitForContent('#showmydataindiv1', function () {
                     if (_waiting) {
                         _waiting = false;
-                        $('#nextStepButton').prop('disabled', false);
                         showStep(STEP_APPROVE_IDX);
                     }
                 }, 90);
