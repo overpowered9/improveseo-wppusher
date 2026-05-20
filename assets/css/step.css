@@ -20,21 +20,21 @@
  }
 
  .improveseo-bulk-ai .percent.completed .step {
-   color: #59c174;
+   color: #2EC4B6;
  }
 
  .improveseo-bulk-ai .percent.active .step {
-   color: #217BC9;
+   color: #1C7293;
  }
 
  .improveseo-bulk-ai .completed .circle {
-   border-color: #59c174;
-   background: linear-gradient(180deg, #70EA8F 0%, #469C5C 100%);
+   border-color: #2EC4B6;
+   background: linear-gradient(180deg, #2EC4B6 0%, #2EC4B6 100%);
    color: white;
  }
 
  .improveseo-bulk-ai .percent.active .circle {
-   background: linear-gradient(180deg, #2891EE 0%, #1E70B8 48%, #0061B6 100%);
+   background: linear-gradient(180deg, #1C7293 0%, #1C7293 48%, #1C7293 100%);
    color: white;
  }
 
@@ -91,7 +91,7 @@
 
  .improveseo-bulk-ai .step.active,
  .improveseo-bulk-ai .step.completed {
-   color: #217AC8;
+   color: #1C7293;
  }
 
  .improveseo-bulk-ai .step .circle {
@@ -117,7 +117,7 @@
 
  .improveseo-bulk-ai .step.completed .circle,
  .improveseo-bulk-ai .step.active .circle {
-   background-color: #217AC8;
+   background-color: #1C7293;
  }
 
  .improveseo-bulk-ai .percent .step p {
@@ -190,27 +190,27 @@
  }
 
  .improveseo-bulk-ai .title-btn button:nth-child(1) {
-   border: 1px solid #217BC9;
-   color: #217BC9;
+   border: 1px solid #1C7293;
+   color: #1C7293;
    transition: 0.34s;
  }
 
  .improveseo-bulk-ai .title-btn button:nth-child(1):hover,.improveseo-bulk-ai .title-btn button:nth-child(1):focus,.improveseo-bulk-ai .title-btn button:nth-child(1):focus-visible {
-   background: linear-gradient(180deg, #2891EE 0%, #1E70B8 48%, #0061B6 100%);
+   background: linear-gradient(180deg, #1C7293 0%, #1C7293 48%, #1C7293 100%);
    color: white;
    border: none !important;
    outline: none !important;
  }
 
  .improveseo-bulk-ai .title-btn button:nth-child(2) {
-   border: 1px solid #59c174;
-   color: #59c174;
+   border: 1px solid #2EC4B6;
+   color: #2EC4B6;
    transition: 0.34s;
  }
 
  .improveseo-bulk-ai .title-btn button:nth-child(2):hover {
-   border-color: #59c174;
-   background: linear-gradient(180deg, #70EA8F 0%, #469C5C 100%);
+   border-color: #2EC4B6;
+   background: linear-gradient(180deg, #2EC4B6 0%, #2EC4B6 100%);
    color: white;
  }
 
@@ -320,7 +320,7 @@
 
  .generate-data-widt-ai h3 {
    font-size: 24px;
-   color: #1E70B8;
+   color: #1C7293;
  }
 
 
@@ -352,13 +352,13 @@
 
  .improveseo-bulk-ai .btn-dev button {
    background: transparent;
-   color: #0061B6;
+   color: #1C7293;
    padding: 13px 30px;
    border-radius: 50px;
    cursor: pointer;
    font-size: 20px;
    outline: none;
-   border: 1px solid #0061B6;
+   border: 1px solid #1C7293;
    display: flex;
    justify-content: center;
    align-items: center;
@@ -373,7 +373,7 @@
  .improveseo-bulk-ai .btn-dev button:focus {
    color: white;
    outline: none;
-   background: linear-gradient(180deg, #2891EE 0%, #1E70B8 48%, #0061B6 100%);
+   background: linear-gradient(180deg, #1C7293 0%, #1C7293 48%, #1C7293 100%);
  }
 
  .improveseo-bulk-ai .btn-dev button:hover img,
@@ -394,7 +394,7 @@
  }
 
  .improveseo-bulk-ai .percent.active:after {
-   background-color: #217BC9;
+   background-color: #1C7293;
    content: "";
    position: absolute;
    top: 22px;
@@ -406,7 +406,7 @@
 
  .improveseo-bulk-ai .percent.completed::after {
    content: "";
-   background-color: #59c174;
+   background-color: #2EC4B6;
    content: "";
    position: absolute;
    top: 22px;
@@ -451,9 +451,9 @@
 
  .seo-slide-steps-fours .radio-container input[type="radio"]:checked+label {
    background: #ffffff;
-   color: #1E70B8;
+   color: #1C7293;
    box-shadow: 0px 4px 10px rgba(0, 123, 255, 0.3);
-   border: 1px solid #1E70B8;
+   border: 1px solid #1C7293;
    font-weight: 500;
  }
 
@@ -497,7 +497,7 @@
    top: 50%;
    width: 18px;
    height: 18px;
-   border: 1px solid #1E70B8;
+   border: 1px solid #1C7293;
    border-radius: 100%;
    background: #fff;
    transform: translateY(-50%);
@@ -509,7 +509,7 @@
    content: '';
    width: 12px;
    height: 12px;
-   background: linear-gradient(180deg, #2891EE 0%, #1E70B8 48%, #0061B6 100%);
+   background: linear-gradient(180deg, #1C7293 0%, #1C7293 48%, #1C7293 100%);
    position: absolute;
    left: 19px;
    top: 50%;
@@ -539,7 +539,7 @@
  .improve-seo-upload-box {
    width: 100%;
    max-width: 100%;
-   border: 2px dashed #1E70B8;
+   border: 2px dashed #1C7293;
    border-radius: 8px;
    display: flex;
    flex-direction: column;
@@ -561,8 +561,8 @@
 
  .improve-seo-upload-box label {
    background-color: #fff;
-   color: #0061B6;
-   border: 1px solid #0061B6;
+   color: #1C7293;
+   border: 1px solid #1C7293;
    padding: 8px 16px;
    cursor: pointer;
    font-size: 16px;
@@ -573,9 +573,9 @@
 
  .improve-seo-upload-box label:hover,
  .improve-seo-upload-box label:focus {
-   background-color: #0061B6;
+   background-color: #1C7293;
    color: #fff;
-   background: linear-gradient(100deg, #2891EE 0%, #0061B6 48%, #0061B6 100%);
+   background: linear-gradient(100deg, #1C7293 0%, #1C7293 48%, #1C7293 100%);
  }
 
  .seo-slide-steps-fours.bulk-boxx .radio-container [type="radio"]:not(:checked)+label,
@@ -660,9 +660,9 @@
  .seps-six .category-box .add-category button.add-button {
    background-image: none;
    background-color: #fff;
-   border: 1px solid #1E70B8;
+   border: 1px solid #1C7293;
    font-size: 18px;
-   color: #1E70B8;
+   color: #1C7293;
    padding: 5px 20px !important;
    max-width: fit-content;
    right: 10px;
@@ -699,14 +699,14 @@
    background-color: #fff;
    outline: none;
    border-radius: 60px;
-   color: #1E70B9;
-   border: 1px solid #1E70B9;
+   color: #1C7293;
+   border: 1px solid #1C7293;
    padding: 5px 10px;
    cursor: pointer;
  }
 
  .defines-saves form.improve-seo-form-global .seo-form-field select {
-   border-color: #2891EE;
+   border-color: #1C7293;
    background-image: url(../images/fluent_ios-arrow-24-filled.png);
  }
 
