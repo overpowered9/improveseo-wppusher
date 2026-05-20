@@ -198,6 +198,8 @@ jQuery("#generate_i_image").on("click", function () {
 
       jQuery("#prompt_image_div").css("display", "block");
 
+      jQuery("#generate_i_image").val("Re-Generate AI Image");
+
       jQuery("#loadingAIImage").hide();
     },
 
@@ -458,7 +460,10 @@ function copyAIFieldsToHiddenInputs() {
   jQuery("#ai_point_of_view_hidden").val(jQuery("select[name='point_of_view']").val() || "");
   jQuery("#ai_content_lang_hidden").val(jQuery("select[name='content_lang']").val() || jQuery("#language").val() || "");
   jQuery("#ai_details_to_include_hidden").val(jQuery("textarea[name='details_to_include']").val() || "");
-  jQuery("#ai_call_to_action_hidden").val(jQuery("#call_to_action").val() || "");
+  var _ctaText = jQuery("#call_to_action, #call_to_action_multi").first().val() || "";
+  var _ctaUrl  = jQuery("#cta_url, #cta_url_multi").first().val() || "";
+  var _ctaCombined = _ctaText + (_ctaUrl ? "\nCTA URL: " + _ctaUrl : "");
+  jQuery("#ai_call_to_action_hidden").val(_ctaCombined);
   jQuery("#ai_image_option_hidden").val(jQuery("input[name='aiImage']:checked").val() || "");
   jQuery("#ai_generated_title_hidden").val(jQuery("#AI_Title").val() || jQuery("#ai_title").val() || "");
   jQuery("#ai_for_testing_only_hidden").val(jQuery("#for_testing_only").is(":checked") ? "1" : "0");
@@ -753,6 +758,8 @@ function refreshAIImage() {
       );
 
       jQuery("#image-uploaded-path").val(response.data);
+
+      jQuery("#AIrefreshOption button").text("Re-Generate AI Image");
 
       jQuery("#loadingAIImage").hide();
     },

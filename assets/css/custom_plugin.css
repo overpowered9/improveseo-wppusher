@@ -37,9 +37,7 @@ margin-right: 10px;
 
 
 
-
 #langerror { color: #f00; }
-
 
 
 
@@ -86,35 +84,35 @@ font-size: 30px;
 
 
 
-.modal { 
+.modal {
 
 max-width: unset;
 
-} 
+}
 
-/*#exampleModal { 
+/*#exampleModal {
 
-z-index: 9999; 
+z-index: 9999;
 
 }*/
 
-.modal-backdrop { 
+.modal-backdrop {
 
 height:unset;
 
 }
 
-.input-group > .form-control { 
+.input-group > .form-control {
 
-width: 100%; 
+width: 100%;
 
 }
 
-#popupcontainer input[type=checkbox] { 
+#popupcontainer input[type=checkbox] {
 
-display:none 
+display:none
 
-} 
+}
 
 #getpopupselected {
 
@@ -124,75 +122,84 @@ margin: 20px 0;
 
 
 
-.overlay{
+.overlay {
 
-/* // margin :54px; */
+    display: none;
 
-display: none;
+    position: fixed;
 
-position: fixed;
+    top: 0;
 
-width: 100%;
+    left: 0;
 
-height: 100%;
+    width: 100%;
 
-/* // top: 209px; */
+    height: 100%;
 
-left: 0;
+    z-index: 999;
 
-z-index: 999;
+    border: none;
 
-background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loaderr.gif") center no-repeat; 
+    outline: none;
 
-}
+    box-shadow: none;
 
-
-
-.overlay_ai_data{
-
-/* // margin :54px; */
-
- display: none;
-
- position: fixed;
-
- width: 100%;
-
- height: 100%;
-
- /* // top: 209px; */
-
- left: 0;
-
- z-index: 999;
-
- background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loadingGif.gif") center no-repeat; 
+    background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loaderr.gif") center no-repeat;
 
 }
 
 
 
+.overlay_ai_data {
+
+    display: none;
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    z-index: 999;
+
+    border: none;
+
+    outline: none;
+
+    box-shadow: none;
+
+    background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loadingGif.gif") center no-repeat;
+
+}
 
 
-.overlay_ai_image{
 
- /* // margin :54px; */
+.overlay_ai_image {
 
-     display: none;
+    display: none;
 
-     position: fixed;
+    position: fixed;
 
-     width: 100%;
+    top: 0;
 
-     height: 100%;
+    left: 0;
 
-     /* // top: 209px; */
+    width: 100%;
 
-     left: 0;
+    height: 100%;
 
-     z-index: 999;
+    z-index: 999;
 
-     background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loadingImage.gif") center no-repeat; 
+    border: none;
 
- }
+    outline: none;
 
+    box-shadow: none;
+
+    background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loadingImage.gif") center no-repeat;
+
+}

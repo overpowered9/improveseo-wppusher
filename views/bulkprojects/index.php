@@ -129,11 +129,11 @@ if (isset($_GET['post_preview'])) {
 									</td>
 									<td data-label="Created At"> <?php
 									$date = new DateTime($project->created_at);
-									echo $date->format('d/m/Y H:i:s');
+									echo $date->format('m/d/Y H:i:s');
 									?></td>
 									<td data-label="Last Update"><?php
 									$date = new DateTime($project->updated_at);
-									echo $date->format('d/m/Y H:i:s');
+									echo $date->format('m/d/Y H:i:s');
 									?></td>
 									<td data-label="Publish Option"> <?php
 									if ($project->schedule_posts == 'draft_posts') {

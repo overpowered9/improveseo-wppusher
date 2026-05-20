@@ -78,7 +78,7 @@ $url .= $_SERVER['REQUEST_URI'];
 				<input type="hidden" name="noheader" value="true" />
 				<input type="hidden" name="main_id" value="<?php echo esc_attr($_GET['id']); ?>" />
 				<input type="hidden" value="bulk-delete-tasks" name="action">
-				<button type="submit" id="doaction" class="btn_delete action">Delete Selected Tasks</button>
+				<button type="submit" id="doaction" class="btn_delete action">Delete Selected Posts</button>
 			</div>
 			<div class="pagination">
 				<?php if ($page > 1): ?>
@@ -188,7 +188,7 @@ $url .= $_SERVER['REQUEST_URI'];
 									if ($project->status == 'Stoped' || $project->published_on == '0000-00-00 00:00:00' || empty($project->published_on)) {
 										echo 'N/A';
 									} else {
-										echo $project->published_on;
+										echo esc_html(date('m/d/Y H:i:s', strtotime($project->published_on)));
 									}
 									?> </td>
 									<td data-label="Post Status" class="status paused">									
@@ -443,7 +443,7 @@ $url .= $_SERVER['REQUEST_URI'];
 				return false;
 			}
 
-			return confirm('Are you sure you want to delete ' + checkedItems + ' selected task(s) and their associated posts? This action cannot be undone.');
+			return confirm('Are you sure you want to delete ' + checkedItems + ' selected post(s) and their associated data? This action cannot be undone.');
 		});
 	});
 </script>

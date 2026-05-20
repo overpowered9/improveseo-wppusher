@@ -21,8 +21,8 @@ $google_api_key = get_option('improveseo_google_api_key');
 		<!-- <h3>Add New Page</h3> -->
 		<div id="post-body-content">
 			<div class="PostForm__name-wrap input-group <?php if (Validator::hasError('name'))
-				echo 'PostForm--error' ?>">
-					<!-- <label class="form-label">Project name here</label> -->
+				echo 'PostForm--error' ?>" style="margin-top: 20px;">
+					<label class="form-label" style="display:block; font-weight:600; margin-bottom:5px;">Project Name</label>
 					<input type="text" name="name" class="PostForm__name form-control" placeholder="Project name here"
 						value="<?= Validator::old('name', $task->name) ?>" required>
 				<?php if (Validator::hasError('name')): ?>
@@ -32,7 +32,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 
 			<div class="PostForm__title-wrap input-group <?php if (Validator::hasError('title'))
 				echo ' PostForm--error' ?>">
-					<!-- <label class="form-label">Enter title here</label> -->
+					<label class="form-label" style="display:block; font-weight:600; margin-bottom:5px;">Post Title</label>
 					<input type="text" id="title" name="title" class="PostForm__title form-control"
 						placeholder="Enter title here" value="<?= Validator::old('title', $task->content['title']) ?>">
 				<?php if (Validator::hasError('title')): ?>
@@ -80,21 +80,22 @@ $google_api_key = get_option('improveseo_google_api_key');
 				<?php endif; ?>
 			</div>
 
+			<?php
+			$_isEditMode  = isset($_GET['action']) && $_GET['action'] === 'edit_post';
+			$_isPublished = isset($task) && $task->state === 'Published';
+			?>
 			<div id="post_form_buttons" class="PostForm__buttons">
 				<button name="create" type="submit" formtarget="_self"
-					class="btn styling_post_page_action_buttons btn-outline-primary"
-					onclick="return validateBeforeSubmit()">
-					<?php if ($_GET['action'] == 'edit_post'): ?>
-						Update project and posts
-					<?php else: ?>
-						Create & Publish Post
-					<?php endif; ?>
+					class="btn styling_post_page_action_buttons btn-outline-primary">
+					<?php echo $_isEditMode ? 'Publish Project and Post' : 'Create &amp; Publish Post'; ?>
 				</button>
+				<?php if ( ! $_isPublished ) : ?>
 				<button name="draft" type="submit" formtarget="_self"
-					class="btn styling_post_page_action_buttons btn-outline-primary"
-					onclick="return validateBeforeSubmit()">Save As Draft</button>
-				<button id="preview_on" type="submit" class="btn styling_post_page_action_buttons btn-outline-primary"
-					onclick="return validateBeforeSubmit()">Post preview</button>
+					class="btn styling_post_page_action_buttons btn-outline-primary">
+					<?php echo $_isEditMode ? 'Save Changes' : 'Save As Draft'; ?>
+				</button>
+				<?php endif; ?>
+				<button id="preview_on" type="button" class="btn styling_post_page_action_buttons btn-outline-primary">Post preview</button>
 				<input type="hidden" name="preview_id" id="preview_id" />
 				<input type="hidden" name="is_preview_available" id="is_preview_available" value="no" />
 			</div>

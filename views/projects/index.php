@@ -168,11 +168,11 @@ if (isset($_GET['post_preview'])) {
 									</td>
 									<td data-label="Created At"><?php
 									$date = new DateTime($project->created_at);
-									echo $date->format('d/m/Y H:i:s');
+									echo $date->format('m/d/Y H:i:s');
 									?></td>
 									<td data-label="Last Update"><?php
 									$date = new DateTime($project->updated_at);
-									echo $date->format('d/m/Y H:i:s');
+									echo $date->format('m/d/Y H:i:s');
 									?></td>
 									<td data-label="Status" class="status finished">
 
@@ -211,7 +211,7 @@ if (isset($_GET['post_preview'])) {
 										<?php if ($project->state == 'Draft'): ?>
 											<a href="<?= admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ?>"
 												style="width: 160px !important;"
-												class="styling_post_page_action_buttons">Continue</a>
+												class="styling_post_page_action_buttons">Edit Draft</a>
 										<?php endif; ?>
 									</td>
 									<td style="width: 4%;" scope="col" data-label="Action" class="actions-btn">

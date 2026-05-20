@@ -265,7 +265,7 @@ function btd_author_label($val) {
                         if (empty($task->published_on) || $task->published_on === '0000-00-00 00:00:00' || $task->status === 'Stoped') {
                             echo 'N/A';
                         } else {
-                            echo esc_html($task->published_on);
+                            echo esc_html(date('m/d/Y H:i:s', strtotime($task->published_on)));
                         }
                         ?>
                     </div>

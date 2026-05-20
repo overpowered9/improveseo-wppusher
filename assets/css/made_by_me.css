@@ -1483,8 +1483,9 @@ div#post-body-content {
 }
 
 .styling_post_page_action_buttons:hover {
-  background-color: #4181d4 !important;
+  background: linear-gradient(181deg, #2891EE 0%, #1E70B8 48%, #0061B6 100%) !important;
   color: white !important;
+  border-color: #1E70B8 !important;
 }
 
 .google-mobile-preview-pagename {

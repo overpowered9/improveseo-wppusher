@@ -830,17 +830,17 @@ global $ai_modal_type;
                         <span id="countContent"></span>
                     </div>
                     <div class="seo-form-field">
-                        <label for="sel1">Call to Action<a href="#" data-toggle="Information" title="Information">
+                        <label for="call_to_action">Call to Action Text<a href="#" data-toggle="Information" title="Information">
                                 <div class="dashicons dashicons-info-outline" aria-hidden="true"><br>
                                 </div>
                             </a></label>
-                        <!-- <textarea class="detail-text2" id="call_to_action" rows="6" name="call_to_action"
-                            onkeypress="return countContentCallToAction()" OnBlur="LimitText(this,1000,2)"
-                            placeholder="What action would you like the reader of your content to take?"></textarea> -->
                         <textarea class="form-control" id="call_to_action" rows="3" name="call_to_action"
                             onkeypress="return countContentCallToAction()" onblur="LimitText(this,1000,2)"
                             placeholder="What action would you like the reader of your content to take?"></textarea>
                         <span id="countContentCallToAction"></span>
+                        <label for="cta_url" style="display:block; margin-top:10px;">Call to Action URL <small style="color:#888; font-weight:normal;">(optional)</small></label>
+                        <input type="url" id="cta_url" name="cta_url" class="form-control"
+                            placeholder="https://example.com/contact" style="margin-top:4px;">
                     </div>
                 </div>
 
@@ -893,7 +893,7 @@ global $ai_modal_type;
                         <div id="AI_image_div" class="col-md-12" style="display:none;">
                             <div id="ai-image-display"></div>
                             <div class="form-group col-md-12" style="display: flex; justify-content: center; margin: 20px 0;" id="AIrefreshOption">
-                                <button type="button" class="style_next_button_in_popup" onclick="return refreshAIImage()" style="padding: 12px 30px !important;">Regenerate AI Image</button>
+                                <button type="button" class="style_next_button_in_popup" onclick="return refreshAIImage()" style="padding: 12px 30px !important;">Generate AI Image</button>
                                 <!-- <i class="fa fa-refresh" aria-hidden="true" onclick="return refreshAIImage()"
                                 style="cursor:pointer;"></i> -->
                             </div>
@@ -1262,16 +1262,19 @@ global $ai_modal_type;
 
                             <div class="row">
                                 <div class="form-group col-md-12">
-                                    <label style="padding-left:20px;" for="sel1">Call to action <a href="#"
+                                    <label style="padding-left:20px;" for="call_to_action_multi">Call to Action Text <a href="#"
                                             class="underline_none_for_a_tag" data-toggle="Information"
                                             title="Information">
                                             <div class="dashicons dashicons-info-outline" aria-hidden="true"><br>
                                             </div>
                                         </a></label>
-                                    <textarea class="form-control" id="call_to_action" rows="6" name="call_to_action"
+                                    <textarea class="form-control" id="call_to_action_multi" rows="6" name="call_to_action"
                                         onkeypress="return countContentCallToAction()" OnBlur="LimitText(this,1000,2)"
                                         style="max-width: 100% !important;"></textarea><span
                                         id="countContentCallToAction"></span>
+                                    <label for="cta_url_multi" style="display:block; margin-top:10px; padding-left:20px;">Call to Action URL <small style="color:#888; font-weight:normal;">(optional)</small></label>
+                                    <input type="url" id="cta_url_multi" name="cta_url" class="form-control"
+                                        placeholder="https://example.com/contact" style="margin-top:4px; max-width:100% !important;">
                                 </div>
 
                             </div>
