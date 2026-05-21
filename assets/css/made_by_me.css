@@ -2072,3 +2072,88 @@ form#pop_up_multi_form input[type=radio]:checked::before {
 .setting-upload-box span#file-name {
   position: relative !important;
 }
+
+/* Floating Help Button */
+#improveseo-help-fab {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+#improveseo-help-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #F77A59;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: background 0.2s, transform 0.2s;
+  outline: none;
+}
+
+#improveseo-help-btn:hover,
+#improveseo-help-btn:focus {
+  background: #0B132B;
+  transform: scale(1.08);
+}
+
+#improveseo-help-btn .dashicons {
+  color: #fff;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.improveseo-help-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.improveseo-help-menu.improveseo-help-menu--open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.improveseo-help-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  color: #1C7293 !important;
+  border: 1px solid #1C7293;
+  border-radius: 50px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none !important;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: background 0.18s, color 0.18s;
+}
+
+.improveseo-help-menu-item:hover {
+  background: #0B132B !important;
+  color: #fff !important;
+  border-color: #0B132B;
+}
+
+.improveseo-help-menu-item .dashicons {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}

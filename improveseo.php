@@ -133,6 +133,16 @@ add_filter('jpeg_quality', function ($arg) {
 
 });
 
+// On single post pages, suppress the theme's featured image display when the image
+// was set by ImproveSEO — it already appears inside the post content body.
+add_filter( 'post_thumbnail_html', 'improveseo_suppress_duplicate_featured_image', 10, 5 );
+function improveseo_suppress_duplicate_featured_image( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
+	if ( is_single() && get_post_meta( $post_id, '_improveseo_featured_image_set', true ) ) {
+		return '';
+	}
+	return $html;
+}
+
 
 
 //adding buttons to content editor
