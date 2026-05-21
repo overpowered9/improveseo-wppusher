@@ -440,10 +440,16 @@ if (isset($_GET['post_preview'])) {
 }
 
 
-if (isset($_GET['build_posts_id'])) { ?>
+if (isset($_GET['create_build_id'])) { ?>
 
 	<script type='text/javascript'>
-		update_project(<?= $_GET['build_posts_id'] ?>);
+		build_project(<?= intval($_GET['create_build_id']) ?>);
+	</script>
+
+<?php } elseif (isset($_GET['build_posts_id'])) { ?>
+
+	<script type='text/javascript'>
+		update_project(<?= intval($_GET['build_posts_id']) ?>);
 	</script>
 
 <?php } ?>

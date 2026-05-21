@@ -722,10 +722,10 @@ function improveseo_posting(){
 			FlashMessage::success('Project successfully saved. You can continue editing by pressing Continue button.');
 
 
-		} 
+		}
 
 
-		wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$project_id}&build_posts_id={$project_id}"));
+		wp_redirect(admin_url("admin.php?page=improveseo_projects&highlight={$project_id}&create_build_id={$project_id}"));
 
 
 		exit;

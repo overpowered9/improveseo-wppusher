@@ -2651,19 +2651,15 @@ function re_generate_post()
 	
 	my_plugin_log('re_generate_post: Starting regeneration | Task ID: ' . $id);
 	
-	// Clear old content and reset status to 'Pending' so cron can regenerate
-	$update_result = $wpdb->update(
-		$wpdb->prefix . 'improveseo_bulktasksdetails',
-		array(
-			'ai_content' => '',
-			'ai_title' => '',
-			'ai_image' => '',
-			'status' => 'Pending',
-			'updated_at' => current_time('mysql')
-		),
-		array('id' => $id),
-		array('%s', '%s', '%s', '%s', '%s'),
-		array('%d')
+	// Clear old content and post_id so saveContentInTaskList picks it up after cron regenerates.
+	// post_id must be set to SQL NULL (not 0/'') because saveContentInTaskList queries post_id IS NULL.
+	$update_result = $wpdb->query(
+		$wpdb->prepare(
+			"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
+			 SET ai_content = %s, ai_title = %s, ai_image = %s, post_id = NULL, status = %s, updated_at = %s
+			 WHERE id = %d",
+			'', '', '', 'Pending', current_time('mysql'), $id
+		)
 	);
 	
 	if ($update_result === false) {

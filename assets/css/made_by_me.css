@@ -1519,13 +1519,15 @@ div#post-body-content {
   display: flex;
   justify-content: center;
   align-items: center;
+  outline: none !important;
 }
 
 .step_one_approve_button input[type=checkbox] {
   display: none;
 }
 
-.step_one_approve_button:hover {
+.step_one_approve_button:hover,
+.step_one_approve_button:focus-visible {
   border-color: #2EC4B6 !important;
   background: #28b5aa !important;
   color: white !important;
@@ -2041,20 +2043,19 @@ form#pop_up_multi_form input[type=radio]:checked::before {
   justify-content: center !important;
   background: #1C7293 !important;
   color: #fff !important;
+  padding: 12px 28px !important;
+  outline: none !important;
 }
 
 .style_next_button_in_popup img {
   pointer-events: none;
+  filter: brightness(100);
 }
 
 .style_next_button_in_popup:hover,
 .style_next_button_in_popup:active,
-.style_next_button_in_popup:focus {
+.style_next_button_in_popup:focus-visible {
   background: #0B132B !important;
-}
-
-.style_next_button_in_popup img {
-  filter: brightness(100);
 }
 
 
@@ -2123,11 +2124,13 @@ form#pop_up_multi_form input[type=radio]:checked::before {
 
 #improveseo-help-btn .dashicons {
   color: #fff;
-  font-size: 22px;
-  width: auto !important;
-  height: auto !important;
-  line-height: 1 !important;
-  vertical-align: middle;
+  font-size: 22px !important;
+  width: 22px !important;
+  height: 22px !important;
+  line-height: 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .improveseo-help-menu {

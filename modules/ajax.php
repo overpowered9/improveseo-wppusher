@@ -607,8 +607,7 @@ function improveseo_create_bulk_category() {
     ));
 }
 
-// AJAX handler for regenerating bulk task content
-add_action('wp_ajax_re_generate_post', 'improveseo_re_generate_post');
+// Note: wp_ajax_re_generate_post is handled by re_generate_post() in bulk_AI_post_function.php
 function improveseo_re_generate_post() {
     global $wpdb;
     
