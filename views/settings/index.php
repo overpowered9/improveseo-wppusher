@@ -20,7 +20,7 @@ use ImproveSEO\View;
 
     <div class="seo-breadcumb">
         <div class="seo-text">
-           <p>Configure your ImproveSEO server settings to enable AI content generation. Get your API Key and Site Code from your <a href="http://localhost:3000" target="_blank">ImproveSEO Dashboard</a>.</p>          
+           <p>Configure your ImproveSEO server settings to enable AI content generation. Get your API Key and Site Code from your <a href="https://account.improveseoplugin.com/" target="_blank">ImproveSEO Dashboard</a>.</p>
         </div>
     </div>
     <div class="global-wrap">
@@ -69,6 +69,44 @@ use ImproveSEO\View;
                     </div>
                 </div>
                 
+                <!-- Business Details (Schema Markup & AI Personalisation) -->
+                <div class="seo-form-field" style="margin-top: 15px; border: 2px solid #28a745; background: #f7fcf8; padding: 15px; border-radius: 5px;">
+                    <h3 style="margin-top: 0; color: #155724;">Business Details</h3>
+                    <p style="color: #555; font-size: 13px; margin-bottom: 15px;">
+                        These details were collected during onboarding and are used for schema markup and AI content personalisation. Update them here at any time.
+                    </p>
+
+                    <div style="margin-bottom: 15px;">
+                        <label>Business Type</label>
+                        <select name="improveseo_business_type" style="width: 100%; max-width: 400px; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="">— Select type —</option>
+                            <option value="local_service" <?php selected( get_option('improveseo_business_type'), 'local_service' ); ?>>Local Service Business</option>
+                            <option value="ecommerce"     <?php selected( get_option('improveseo_business_type'), 'ecommerce'     ); ?>>E-Commerce / Online Store</option>
+                            <option value="blog"          <?php selected( get_option('improveseo_business_type'), 'blog'          ); ?>>Blog / Content Site</option>
+                            <option value="saas"          <?php selected( get_option('improveseo_business_type'), 'saas'          ); ?>>SaaS / Software</option>
+                            <option value="agency"        <?php selected( get_option('improveseo_business_type'), 'agency'        ); ?>>Agency / Freelancer</option>
+                            <option value="healthcare"    <?php selected( get_option('improveseo_business_type'), 'healthcare'    ); ?>>Healthcare / Medical</option>
+                            <option value="real_estate"   <?php selected( get_option('improveseo_business_type'), 'real_estate'   ); ?>>Real Estate</option>
+                            <option value="restaurant"    <?php selected( get_option('improveseo_business_type'), 'restaurant'    ); ?>>Restaurant / Hospitality</option>
+                            <option value="education"     <?php selected( get_option('improveseo_business_type'), 'education'     ); ?>>Education / Coaching</option>
+                            <option value="other"         <?php selected( get_option('improveseo_business_type'), 'other'         ); ?>>Other</option>
+                        </select>
+                        <span>Used for local schema markup type</span>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label>City / Location</label>
+                        <input type="text" placeholder="e.g. New York, London, Sydney" name="improveseo_business_city" value="<?php echo esc_attr( get_option('improveseo_business_city', '') ); ?>">
+                        <span>Used for local SEO targeting in AI-generated content</span>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label>Main Service or Topic</label>
+                        <input type="text" placeholder="e.g. Plumbing, Wedding Photography, Digital Marketing" name="improveseo_business_service" value="<?php echo esc_attr( get_option('improveseo_business_service', '') ); ?>">
+                        <span>Used as the default keyword seed for AI article generation</span>
+                    </div>
+                </div>
+
                 <!-- Connection Test Button -->
                 <div class="seo-form-field">
                     <button type="button" id="test_server_connection" class="button button-secondary">
@@ -111,49 +149,15 @@ use ImproveSEO\View;
 
     <div class="global-wrap seo-mt-30">
         <div class="local-seo">
-            <h2>Local SEO Countries</h2>
-            <p>Here you can select the countries that you would like included in the local SEO feature. 
-               It's recommended to only select the countries that you need as the files are fairly large. 
-               Upon selecting the desired country(s), the files will be downloaded from the ImprovedSEO cloud 
-               and be ready for use within 1-2 minutes.
-            </p>
-            <?php
-        $countries = ImproveSEO\Geo::getCountriesList();
-        $countryModel = new ImproveSEO\Models\Country();
-        $installedCountries = $countryModel->all('name');
-        $installed = array();
-        foreach ($installedCountries as $cc) {
-        $installed[] = $cc->name;
-        }
-        ?>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Country Name</th>
-                            <th>Filesize</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($countries as $country): ?>
-                        <tr>
-                            <td class="column-title column-primary has-row-actions" >
-                                <?= $country->country ?>
-                                <button type="button" class="toggle-row"><span class="screen-reader-text">Show more details</span></button>
-                            </td>
-                            <td data-colname="Filesize"><?= $country->size ?></td>
-                            <td data-colname="Action" class="actions-btn">
-                                <?php if (in_array($country->country, $installed)): ?>
-                                <a href="<?php echo admin_url("admin.php?page=improveseo_settings&action=delete_country&country={$country->code}&noheader=true"); ?>" class="btn btn-outline-danger">Delete</a>
-                                <?php else: ?>
-                                <a href="<?php echo admin_url("admin.php?page=improveseo_settings&action=add_country&country={$country->code}&noheader=true"); ?>" class="btn btn-outline-primary">Download</a>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+            <h2>ImproveSEO Account</h2>
+            <p>Manage your subscription, credits, support tickets, and website settings from your ImproveSEO dashboard.</p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;">
+                <a href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary">
+                    Open Dashboard &rarr;
+                </a>
+                <a href="https://account.improveseoplugin.com/support" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary">
+                    Support Tickets
+                </a>
             </div>
         </div>
     </div>

@@ -133,6 +133,11 @@ html.wp-toolbar {
 				Welcome, <span id="iseo-user-name"></span>!
 			</p>
 
+			<div class="iseo-credit-notice">
+				<span class="iseo-credit-icon">&#9432;</span>
+				<span>Each AI-generated article uses <strong>1 credit</strong>. Your trial credits reset every 30 days — no unexpected charges during the trial period.</span>
+			</div>
+
 			<button type="button" id="iseo-btn-continue-setup" class="iseo-btn iseo-btn-primary iseo-btn-large">
 				Continue Setup →
 			</button>
@@ -210,6 +215,11 @@ html.wp-toolbar {
 			<p class="iseo-subline-sm">
 				This will be pre-filled in the article generator. You can change it at any time.
 			</p>
+
+			<div class="iseo-guide-tip">
+				<span class="iseo-guide-tip-icon">&#x1F4A1;</span>
+				<span>A step-by-step guide will walk you through the article wizard — look for the <strong>?</strong> tooltips at each stage.</span>
+			</div>
 
 			<a id="iseo-btn-first-content" href="#" class="iseo-btn iseo-btn-primary iseo-btn-large">
 				Generate First Article →

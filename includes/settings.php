@@ -24,6 +24,11 @@ function improveseo_init_settings() {
 	register_setting('improveseo_settings', 'improveseo_api_key');
 	register_setting('improveseo_settings', 'improveseo_site_code');
 
+	// Business details (collected during onboarding, used for schema markup & AI content)
+	register_setting('improveseo_settings', 'improveseo_business_type',    array( 'sanitize_callback' => 'sanitize_text_field' ));
+	register_setting('improveseo_settings', 'improveseo_business_city',    array( 'sanitize_callback' => 'sanitize_text_field' ));
+	register_setting('improveseo_settings', 'improveseo_business_service', array( 'sanitize_callback' => 'sanitize_text_field' ));
+
 }
 
 

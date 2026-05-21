@@ -146,7 +146,7 @@ add_action('admin_menu', function () {
 
 
 
-    $submenu['improveseo_dashboard'][] = array('FAQ', 'manage_options', 'http://bit.ly/improveseofaq');
+    $submenu['improveseo_dashboard'][] = array('Support', 'manage_options', 'https://account.improveseoplugin.com/support');
 
 
 });

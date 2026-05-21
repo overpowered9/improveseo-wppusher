@@ -13,7 +13,7 @@
 
 <div id="improveseo-help-fab">
 	<div id="improveseo-help-menu" class="improveseo-help-menu" aria-hidden="true">
-		<a href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer" class="improveseo-help-menu-item">
+		<a href="https://account.improveseoplugin.com/support" target="_blank" rel="noopener noreferrer" class="improveseo-help-menu-item">
 			<span class="dashicons dashicons-sos"></span> Support
 		</a>
 		<a href="https://account.improveseoplugin.com/tutorial" target="_blank" rel="noopener noreferrer" class="improveseo-help-menu-item">
