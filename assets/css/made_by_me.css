@@ -2031,31 +2031,40 @@ form#pop_up_multi_form input[type=radio]:checked::before {
   object-fit: cover !important;
 }
 
+/* ── Next / Submit button in AI popup ── */
 .style_next_button_in_popup {
-  border: 1px solid #1C7293 !important;
-  border-radius: 50px !important;
-  font-weight: normal !important;
-  cursor: pointer !important;
-  font-size: 20px !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 5px !important;
-  justify-content: center !important;
-  background: #1C7293 !important;
-  color: #fff !important;
-  padding: 12px 28px !important;
-  outline: none !important;
+  background: #1C7293;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 10px 26px;
+  font-size: 20px;
+  font-family: inherit;
+  font-weight: 400;
+  line-height: 1.4;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  outline: none;
+  box-sizing: border-box;
+  transition: background 0.2s ease;
+  -webkit-appearance: none;
 }
-
-.style_next_button_in_popup img {
+/* All children non-interactive so the button's own area handles every click */
+.style_next_button_in_popup > * {
   pointer-events: none;
-  filter: brightness(100);
 }
-
+.style_next_button_in_popup img {
+  display: block;
+  height: 1em;
+  width: auto;
+  filter: brightness(10);
+}
 .style_next_button_in_popup:hover,
-.style_next_button_in_popup:active,
-.style_next_button_in_popup:focus-visible {
-  background: #0B132B !important;
+.style_next_button_in_popup:active {
+  background: #0B132B;
+  color: #fff;
 }
 
 
@@ -2099,38 +2108,38 @@ form#pop_up_multi_form input[type=radio]:checked::before {
   gap: 10px;
 }
 
+/* ── Help FAB button ── */
 #improveseo-help-btn {
+  position: relative;
   width: 52px;
   height: 52px;
   border-radius: 50%;
   background: #F77A59;
   border: none;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 0;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   transition: background 0.2s, transform 0.2s;
   outline: none;
   padding: 0;
 }
 
-#improveseo-help-btn:hover,
-#improveseo-help-btn:focus {
+#improveseo-help-btn:hover {
   background: #0B132B;
   transform: scale(1.08);
 }
 
+/* Absolute centering bypasses all dashicon font-metric quirks */
 #improveseo-help-btn .dashicons {
-  color: #fff;
-  font-size: 22px !important;
-  width: 22px !important;
-  height: 22px !important;
-  line-height: 22px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  color: #fff !important;
+  font-size: 20px !important;
+  width: auto !important;
+  height: auto !important;
+  line-height: 1 !important;
+  margin: 0 !important;
 }
 
 .improveseo-help-menu {
