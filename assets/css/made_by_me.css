@@ -2035,13 +2035,16 @@ form#pop_up_multi_form input[type=radio]:checked::before {
   font-weight: normal !important;
   cursor: pointer !important;
   font-size: 20px !important;
-  background-color: transparent !important;
   display: flex !important;
   align-items: center !important;
   gap: 5px !important;
   justify-content: center !important;
   background: #1C7293 !important;
   color: #fff !important;
+}
+
+.style_next_button_in_popup img {
+  pointer-events: none;
 }
 
 .style_next_button_in_popup:hover,
@@ -2073,6 +2076,16 @@ form#pop_up_multi_form input[type=radio]:checked::before {
   position: relative !important;
 }
 
+/* Single-post popup button row — same flex layout as .improveseo-bulk-ai_multi .btn-dev_multi */
+.btn-dev {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px 17px;
+  gap: 15px;
+}
+
 /* Floating Help Button */
 #improveseo-help-fab {
   position: fixed;
@@ -2095,9 +2108,11 @@ form#pop_up_multi_form input[type=radio]:checked::before {
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 0;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   transition: background 0.2s, transform 0.2s;
   outline: none;
+  padding: 0;
 }
 
 #improveseo-help-btn:hover,
@@ -2109,8 +2124,10 @@ form#pop_up_multi_form input[type=radio]:checked::before {
 #improveseo-help-btn .dashicons {
   color: #fff;
   font-size: 22px;
-  width: 22px;
-  height: 22px;
+  width: auto !important;
+  height: auto !important;
+  line-height: 1 !important;
+  vertical-align: middle;
 }
 
 .improveseo-help-menu {

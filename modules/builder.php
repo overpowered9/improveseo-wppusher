@@ -27,54 +27,6 @@ use ImproveSEO\ChannelManager;
 
 use ImproveSEO\Models\Shortcode;
 
-/**
- * Extract first image from content and set it as featured image
- * 
- * @param int $post_id Post ID
- * @param string $content Post content
- * @return void
- */
-function improveseo_set_featured_image( $post_id, $image_url ) {
-	if ( empty( $image_url ) || ! filter_var( $image_url, FILTER_VALIDATE_URL ) ) {
-		return;
-	}
-
-	// Use existing attachment if the image is already in the media library.
-	$attachment_id = attachment_url_to_postid( $image_url );
-
-	if ( ! $attachment_id ) {
-		// Image was saved directly to disk by generateBulkAiImage() — register it.
-		$upload_dir = wp_upload_dir();
-		$file_path  = str_replace( $upload_dir['baseurl'], $upload_dir['basedir'], $image_url );
-
-		if ( ! file_exists( $file_path ) ) {
-			return;
-		}
-
-		require_once ABSPATH . 'wp-admin/includes/image.php';
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/media.php';
-
-		$file_type    = wp_check_filetype( basename( $file_path ), null );
-		$attachment   = array(
-			'post_mime_type' => $file_type['type'],
-			'post_title'     => sanitize_file_name( pathinfo( $file_path, PATHINFO_FILENAME ) ),
-			'post_content'   => '',
-			'post_status'    => 'inherit',
-		);
-		$attachment_id = wp_insert_attachment( $attachment, $file_path, $post_id );
-
-		if ( is_wp_error( $attachment_id ) ) {
-			return;
-		}
-
-		wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $file_path ) );
-	}
-
-	set_post_thumbnail( $post_id, $attachment_id );
-	// Flag lets the frontend filter suppress theme-level duplication on single posts.
-	update_post_meta( $post_id, '_improveseo_featured_image_set', 1 );
-}
 
 
 
