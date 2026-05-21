@@ -2121,6 +2121,7 @@ form#pop_up_multi_form input[type=radio]:checked::before {
   transition: background 0.2s, transform 0.2s;
   outline: none;
   padding: 0;
+  overflow: hidden;
 }
 
 #improveseo-help-btn:hover {
@@ -2128,7 +2129,8 @@ form#pop_up_multi_form input[type=radio]:checked::before {
   transform: scale(1.08);
 }
 
-/* Absolute centering bypasses all dashicon font-metric quirks */
+/* Absolute centering bypasses all dashicon font-metric quirks.
+   pointer-events:none ensures any residual overflow never eats clicks. */
 #improveseo-help-btn .dashicons {
   position: absolute !important;
   top: 50% !important;
@@ -2136,10 +2138,11 @@ form#pop_up_multi_form input[type=radio]:checked::before {
   transform: translate(-50%, -50%) !important;
   color: #fff !important;
   font-size: 20px !important;
-  width: auto !important;
-  height: auto !important;
+  width: 20px !important;
+  height: 20px !important;
   line-height: 1 !important;
   margin: 0 !important;
+  pointer-events: none !important;
 }
 
 .improveseo-help-menu {
