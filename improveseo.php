@@ -138,34 +138,44 @@ function improveseo_set_featured_image( $post_id, $image_url ) {
 		return;
 	}
 
+	require_once ABSPATH . 'wp-admin/includes/image.php';
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	require_once ABSPATH . 'wp-admin/includes/media.php';
+
+	// Step 1: already in media library?
 	$attachment_id = attachment_url_to_postid( $image_url );
 
+	// Step 2: file already on disk but not registered — translate URL → path and register it.
 	if ( ! $attachment_id ) {
 		$upload_dir = wp_upload_dir();
 		$file_path  = str_replace( $upload_dir['baseurl'], $upload_dir['basedir'], $image_url );
 
-		if ( ! file_exists( $file_path ) ) {
-			return;
+		if ( file_exists( $file_path ) ) {
+			$file_type     = wp_check_filetype( basename( $file_path ), null );
+			$attachment_id = wp_insert_attachment(
+				array(
+					'post_mime_type' => $file_type['type'],
+					'post_title'     => sanitize_file_name( pathinfo( $file_path, PATHINFO_FILENAME ) ),
+					'post_content'   => '',
+					'post_status'    => 'inherit',
+				),
+				$file_path,
+				$post_id
+			);
+			if ( ! is_wp_error( $attachment_id ) ) {
+				wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $file_path ) );
+			} else {
+				$attachment_id = 0;
+			}
 		}
+	}
 
-		require_once ABSPATH . 'wp-admin/includes/image.php';
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/media.php';
-
-		$file_type    = wp_check_filetype( basename( $file_path ), null );
-		$attachment   = array(
-			'post_mime_type' => $file_type['type'],
-			'post_title'     => sanitize_file_name( pathinfo( $file_path, PATHINFO_FILENAME ) ),
-			'post_content'   => '',
-			'post_status'    => 'inherit',
-		);
-		$attachment_id = wp_insert_attachment( $attachment, $file_path, $post_id );
-
+	// Step 3: fallback — download fresh from URL (handles URL/domain mismatch or missing file).
+	if ( ! $attachment_id ) {
+		$attachment_id = media_sideload_image( $image_url, $post_id, null, 'id' );
 		if ( is_wp_error( $attachment_id ) ) {
 			return;
 		}
-
-		wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $file_path ) );
 	}
 
 	set_post_thumbnail( $post_id, $attachment_id );
