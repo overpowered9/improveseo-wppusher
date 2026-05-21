@@ -2031,54 +2031,40 @@ form#pop_up_multi_form input[type=radio]:checked::before {
   object-fit: cover !important;
 }
 
-/* ── Single-post AI modal — lift above the help FAB (z-index 99999) ── */
-#exampleModal1 {
-  z-index: 100001 !important;
-}
-
 /* ── Next / Submit button in AI popup ── */
 .style_next_button_in_popup {
   background: #1C7293;
   color: #fff;
   border: none;
   border-radius: 50px;
-  padding: 12px 28px;
+  padding: 10px 26px;
   font-size: 20px;
   font-family: inherit;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.4;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   outline: none;
   box-sizing: border-box;
-  transition: background 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 2px 8px rgba(28, 114, 147, 0.35);
+  transition: background 0.2s ease;
   -webkit-appearance: none;
-  position: relative;
-  z-index: 100002;
 }
 /* All children non-interactive so the button's own area handles every click */
 .style_next_button_in_popup > * {
   pointer-events: none;
 }
-/* brightness(0) converts any fill to black, invert(1) flips to white — reliable for any SVG colour */
 .style_next_button_in_popup img {
   display: block;
   height: 1em;
   width: auto;
-  filter: brightness(0) invert(1);
+  filter: brightness(10);
 }
 .style_next_button_in_popup:hover,
 .style_next_button_in_popup:active {
   background: #0B132B;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(11, 19, 43, 0.4);
-}
-.style_next_button_in_popup:hover img,
-.style_next_button_in_popup:active img {
-  filter: brightness(0) invert(1);
 }
 
 
@@ -2101,16 +2087,13 @@ form#pop_up_multi_form input[type=radio]:checked::before {
 }
 
 /* Single-post popup button row — same flex layout as .improveseo-bulk-ai_multi .btn-dev_multi */
-.btn-dev,
-.btn-dev_multi {
+.btn-dev {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px 30px 17px;
   gap: 15px;
-  position: relative;
-  z-index: 100002;
 }
 
 /* Floating Help Button */
