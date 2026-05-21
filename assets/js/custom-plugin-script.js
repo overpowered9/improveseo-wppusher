@@ -198,7 +198,7 @@ jQuery("#generate_i_image").on("click", function () {
 
       jQuery("#prompt_image_div").css("display", "block");
 
-      jQuery("#generate_i_image").val("Re-Generate AI Image");
+      jQuery("#generate_i_image").val("Regenerate Image");
 
       jQuery("#loadingAIImage").hide();
     },
@@ -757,9 +757,9 @@ function refreshAIImage() {
           "' alt='Uploaded Image' style='max-width: 100%'>"
       );
 
-      jQuery("#image-uploaded-path").val(response.data);
+      jQuery("#AI-Image-uploaded-path").val(response.data);
 
-      jQuery("#AIrefreshOption button").text("Re-Generate AI Image");
+      jQuery("#AIrefreshOption button").text("Regenerate Image");
 
       jQuery("#loadingAIImage").hide();
     },
