@@ -2195,8 +2195,9 @@ body.modal-open #improveseo-help-fab {
   height: 16px;
 }
 
-/* Single post modal category pills — hide checkbox, colour indicates selection */
-#single-modal-category-list .bulk-category-item input[type="checkbox"] {
+/* Category pills — hide checkbox tick, colour indicates selection */
+#single-modal-category-list .bulk-category-item input[type="checkbox"],
+#bulk-category-list .bulk-category-item input[type="checkbox"] {
   display: none !important;
   margin: 0 !important;
 }
