@@ -2059,14 +2059,15 @@ form#pop_up_multi_form input[type=radio]:checked::before {
   display: block;
   height: 1em;
   width: auto;
-  /* brightness(0) → collapses any fill to black; invert(1) → flips to white.
-     Works on any SVG colour, unlike brightness(10) which fails on non-dark fills. */
-  filter: brightness(0) invert(1);
 }
 .style_next_button_in_popup:hover,
 .style_next_button_in_popup:active {
   background: #0B132B;
   color: #fff;
+}
+.style_next_button_in_popup:hover img,
+.style_next_button_in_popup:active img {
+  filter: brightness(0) invert(1);
 }
 
 
