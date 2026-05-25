@@ -1279,7 +1279,11 @@ function improveseo_builder()
 
 			$post_id = wp_insert_post($post_array);
 
-			// improveseo_set_featured_image($post_id, $contentText);
+			if (!empty($options['set_featured_image']) && $options['set_featured_image'] === '1') {
+				if (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/', $contentText, $_fm)) {
+					improveseo_set_featured_image($post_id, $_fm[1]);
+				}
+			}
 
 
 			//$post_id = $wpdb->insert_id;
@@ -3273,7 +3277,11 @@ function improveseo_builder_update()
 
 			$post_id = wp_insert_post($post_array);
 
-			// improveseo_set_featured_image($post_id, $contentText);
+			if (!empty($options['set_featured_image']) && $options['set_featured_image'] === '1') {
+				if (preg_match('/<img[^>]+src=["\']([^"\']+)["\']/', $contentText, $_fm)) {
+					improveseo_set_featured_image($post_id, $_fm[1]);
+				}
+			}
 
 
 
