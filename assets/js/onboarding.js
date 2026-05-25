@@ -159,9 +159,14 @@
       },
       error: function (xhr, status) {
         var serverMsg = xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message;
-        var msg = (status === 'timeout')
-          ? 'Request timed out. Please check your connection and try again.'
-          : serverMsg || 'Connection error. Please try again.';
+        var msg;
+        if (status === 'timeout') {
+          msg = 'Request timed out. Please check your connection and try again.';
+        } else if (xhr.status === 403 && serverMsg && serverMsg.indexOf('Security') !== -1) {
+          msg = 'Your session has expired. Please refresh the page and try again.';
+        } else {
+          msg = serverMsg || 'Connection error. Please try again.';
+        }
         showErrorNotification(msg);
         showScreen(1);
       }
@@ -178,9 +183,16 @@
     $('#iseo-s3-new, #iseo-s3-reconnect, #iseo-s3-transferred').hide();
     if (status === 'new') {
       $('#iseo-s3-new').show();
-      var days = data.days_remaining !== null && data.days_remaining !== undefined
+      var days = (data.days_remaining !== null && data.days_remaining !== undefined)
         ? data.days_remaining : 14;
-      $('#iseo-days-remaining').text(days);
+      if (days === 0) {
+        $('#iseo-s3-new .iseo-subline').html(
+          'Your <strong>14-day free trial</strong> has ended. ' +
+          '<a href="' + cfg.dashboardUrl + '">Upgrade your plan</a> to continue using all features.'
+        );
+      } else {
+        $('#iseo-days-remaining').text(days);
+      }
     } else if (status === 'reconnect') {
       $('#iseo-s3-reconnect').show();
     } else {
@@ -272,6 +284,27 @@
   // ── Event bindings ───────────────────────────────────────────────────────────
 
   $(function () {
+
+    // ── Edge-case detection on page load ────────────────────────────────────
+    if (cfg.partialConnect) {
+      // One credential exists but not the other — something went wrong mid-connect
+      $('#iseo-partial-connect-msg').show();
+    }
+
+    if (cfg.isConnected) {
+      if (cfg.onboardingDone) {
+        // Fully set up — user manually navigated back; surface a notice and let
+        // them proceed to dashboard or reconnect if they need to switch accounts
+        $('#iseo-already-connected-msg').show();
+        $('#iseo-btn-create').text('Reconnect Account');
+        $('#iseo-btn-login').text('Sign In with a Different Account');
+      } else {
+        // Credentials are saved but the business form was never submitted.
+        // Skip the popup flow and go straight to the business setup screen.
+        showScreen(4);
+        return;
+      }
+    }
 
     // Screen 1: Create Free Account (opens popup at Sign Up tab)
     $('#iseo-btn-create').on('click', function () {

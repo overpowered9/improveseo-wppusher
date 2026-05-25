@@ -66,6 +66,17 @@ html.wp-toolbar {
 				<li><span class="iseo-check">✓</span> No credit card required</li>
 			</ul>
 
+			<div id="iseo-already-connected-msg" class="iseo-alert iseo-alert-info" style="display:none;">
+				<strong>Already connected!</strong> This site is already linked to ImproveSEO.
+				Use the buttons below if you need to switch or reconnect your account.
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_dashboard' ) ); ?>" class="iseo-alert-link">Go to Dashboard →</a>
+			</div>
+
+			<div id="iseo-partial-connect-msg" class="iseo-alert iseo-alert-warning" style="display:none;">
+				<strong>Incomplete connection detected.</strong> Your credentials appear partially saved.
+				Please connect your account again to fix this.
+			</div>
+
 			<div id="iseo-popup-blocked-msg" class="iseo-alert iseo-alert-warning" style="display:none;">
 				<strong>Popup blocked!</strong> Please allow popups for this page and try again.
 			</div>
@@ -73,7 +84,7 @@ html.wp-toolbar {
 			<button type="button" id="iseo-btn-create" class="iseo-btn iseo-btn-primary iseo-btn-large">
 				Create Free Account &amp; Connect
 			</button>
-			<button type="button" id="iseo-btn-login" class="iseo-btn iseo-btn-ghost">
+			<button type="button" id="iseo-btn-login" class="iseo-btn iseo-btn-ghost iseo-btn-large">
 				I already have an account — Sign In
 			</button>
 
@@ -224,7 +235,6 @@ html.wp-toolbar {
 			<a id="iseo-btn-first-content" href="#" class="iseo-btn iseo-btn-primary iseo-btn-large">
 				Generate First Article →
 			</a>
-			<br>
 			<a id="iseo-btn-dashboard" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_dashboard' ) ); ?>" class="iseo-link-muted">
 				Go to Dashboard
 			</a>

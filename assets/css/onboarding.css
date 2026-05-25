@@ -1,11 +1,12 @@
 /* ==========================================================================
    ImproveSEO Onboarding Wizard — Styles
    Scoped inside #improveseo-onboarding-wrap to avoid leaking into WP admin.
+   Brand palette: primary #1C7293 · dark #0B132B · mint #2EC4B6 · bg #FAFAFB
    ========================================================================== */
 
 /* ── Root layout ─────────────────────────────────────────────────────────── */
 .improveseo-onboarding-body {
-	background: #f0f2f5;
+	background: #FAFAFB;
 	margin: 0;
 	padding: 0;
 }
@@ -65,7 +66,7 @@
 .iseo-logo-text {
 	font-size: 20px;
 	font-weight: 700;
-	color: #1a1a2e;
+	color: #0B132B;
 	letter-spacing: -0.3px;
 }
 
@@ -73,7 +74,7 @@
 .iseo-headline {
 	font-size: 24px;
 	font-weight: 700;
-	color: #1a1a2e;
+	color: #0B132B;
 	margin: 0 0 12px;
 	line-height: 1.3;
 }
@@ -114,8 +115,8 @@
 	justify-content: center;
 	width: 20px;
 	height: 20px;
-	background: #e6f4ea;
-	color: #2e7d32;
+	background: #E0F7F5;
+	color: #2EC4B6;
 	border-radius: 50%;
 	font-size: 12px;
 	font-weight: 700;
@@ -144,14 +145,14 @@
 }
 
 .iseo-btn-primary {
-	background: #2563eb;
+	background: #1C7293;
 	color: #ffffff;
-	box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+	box-shadow: 0 2px 8px rgba(28, 114, 147, 0.3);
 }
 
 .iseo-btn-primary:hover:not(:disabled) {
-	background: #1d4ed8;
-	box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+	background: #155f7a;
+	box-shadow: 0 4px 12px rgba(28, 114, 147, 0.4);
 }
 
 .iseo-btn-primary:disabled {
@@ -161,12 +162,12 @@
 
 .iseo-btn-ghost {
 	background: transparent;
-	color: #2563eb;
-	border: 1.5px solid #2563eb;
+	color: #1C7293;
+	border: 1.5px solid #1C7293;
 }
 
 .iseo-btn-ghost:hover {
-	background: #eff6ff;
+	background: #EBF5F8;
 }
 
 .iseo-btn-large {
@@ -230,7 +231,7 @@
 	width: 56px;
 	height: 56px;
 	border: 4px solid #e3e8f0;
-	border-top-color: #2563eb;
+	border-top-color: #1C7293;
 	border-radius: 50%;
 	animation: iseoSpin 0.8s linear infinite;
 	margin: 0 auto 8px;
@@ -244,8 +245,8 @@
 .iseo-success-icon {
 	width: 64px;
 	height: 64px;
-	background: #e6f4ea;
-	color: #2e7d32;
+	background: #E0F7F5;
+	color: #2EC4B6;
 	border-radius: 50%;
 	font-size: 28px;
 	display: flex;
@@ -263,13 +264,13 @@
 
 /* ── Suggested keyword pill ──────────────────────────────────────────────── */
 .iseo-suggested-keyword {
-	background: #eff6ff;
-	border: 1.5px solid #bfdbfe;
+	background: #EBF5F8;
+	border: 1.5px solid #9ECFE6;
 	border-radius: 8px;
 	padding: 14px 20px;
 	font-size: 16px;
 	font-weight: 600;
-	color: #1e40af;
+	color: #155f7a;
 	margin: 0 0 12px;
 	word-break: break-word;
 }
@@ -288,6 +289,20 @@
 	font-size: 13px;
 	line-height: 1.5;
 	margin-bottom: 16px;
+}
+
+.iseo-alert-info {
+	background: #EBF5F8;
+	border: 1px solid #9ECFE6;
+	color: #155f7a;
+}
+
+.iseo-alert-link {
+	font-weight: 600;
+	text-decoration: underline;
+	color: inherit;
+	margin-left: 6px;
+	white-space: nowrap;
 }
 
 .iseo-alert-warning {
@@ -329,7 +344,7 @@
 	border: 1.5px solid #d1d5db;
 	border-radius: 8px;
 	background: #fff;
-	color: #1a1a2e;
+	color: #0B132B;
 	box-sizing: border-box;
 	transition: border-color 0.15s, box-shadow 0.15s;
 	-webkit-appearance: none;
@@ -339,8 +354,8 @@
 .iseo-input:focus,
 .iseo-select:focus {
 	outline: none;
-	border-color: #2563eb;
-	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+	border-color: #1C7293;
+	box-shadow: 0 0 0 3px rgba(28, 114, 147, 0.12);
 }
 
 .iseo-select {
@@ -378,12 +393,12 @@
 	display: flex;
 	align-items: flex-start;
 	gap: 10px;
-	background: #eff6ff;
-	border: 1px solid #bfdbfe;
+	background: #EBF5F8;
+	border: 1px solid #9ECFE6;
 	border-radius: 8px;
 	padding: 12px 16px;
 	font-size: 13px;
-	color: #1e40af;
+	color: #1C7293;
 	line-height: 1.5;
 	margin-bottom: 24px;
 	text-align: left;
@@ -400,12 +415,12 @@
 	display: flex;
 	align-items: flex-start;
 	gap: 10px;
-	background: #f0fdf4;
-	border: 1px solid #bbf7d0;
+	background: #EBF5F8;
+	border: 1px solid #9ECFE6;
 	border-radius: 8px;
 	padding: 12px 16px;
 	font-size: 13px;
-	color: #166534;
+	color: #1C7293;
 	line-height: 1.5;
 	margin-bottom: 20px;
 	text-align: left;

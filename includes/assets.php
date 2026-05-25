@@ -290,6 +290,9 @@ function improveseo_enqueue_onboarding_assets() {
 	$parsed_host = parse_url( $site_url, PHP_URL_HOST );
 	$site_domain = $parsed_host ? preg_replace( '/^www\./i', '', strtolower( $parsed_host ) ) : '';
 
+	$stored_api_key   = get_option( 'improveseo_api_key', '' );
+	$stored_site_code = get_option( 'improveseo_site_code', '' );
+
 	wp_localize_script(
 		'improveseo-onboarding',
 		'improveseoOnboarding',
@@ -302,6 +305,10 @@ function improveseo_enqueue_onboarding_assets() {
 			'cmsConnectUrl'  => 'https://account.improveseoplugin.com/connect',
 			'dashboardUrl'   => admin_url( 'admin.php?page=improveseo_dashboard' ),
 			'firstContentUrl'=> admin_url( 'admin.php?page=improveseo_posting&from=onboarding' ),
+			// Edge-case flags so JS can branch without extra AJAX
+			'isConnected'    => ! empty( $stored_api_key ) && ! empty( $stored_site_code ),
+			'onboardingDone' => get_option( 'improveseo_onboarding_complete', '0' ) === '1',
+			'partialConnect' => ( ! empty( $stored_api_key ) ) !== ( ! empty( $stored_site_code ) ),
 		)
 	);
 }
