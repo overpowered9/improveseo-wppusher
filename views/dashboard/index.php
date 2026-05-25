@@ -42,12 +42,6 @@ use ImproveSEO\View;
 			<a href="<?= admin_url('admin.php?page=improveseo_create_single') ?>">
 				<div class="module-icon justify-between m-0">
 					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon2.svg' ?>" alt="icon2">
-					<div class="module-toggle">
-						<label class="toggle-switch">
-							<input type="checkbox">
-							<span class="switch"></span>
-						</label>
-					</div>
 				</div>
 				<div class="line"></div>
 				<h3>Single AI Post </h3>
@@ -58,12 +52,6 @@ use ImproveSEO\View;
 			<a href="">
 				<div class="module-icon justify-between m-0">
 					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon1.svg' ?>" alt="icon1">
-					<div class="module-toggle">
-						<label class="toggle-switch">
-							<input type="checkbox">
-							<span class="switch"></span>
-						</label>
-					</div>
 				</div>
 				<div class="line"></div>
 				<h3>Meta</h3>
@@ -74,12 +62,6 @@ use ImproveSEO\View;
 			<a href="">
 				<div class="module-icon justify-between m-0">
 					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon3.svg' ?>" alt="icon3">
-					<div class="module-toggle">
-						<label class="toggle-switch">
-							<input type="checkbox">
-							<span class="switch"></span>
-						</label>
-					</div>
 				</div>
 				<div class="line"> </div>
 				<h3>Tutorials & FAQ</h3>
@@ -90,12 +72,6 @@ use ImproveSEO\View;
 			<a href="#">
 				<div class="module-icon justify-between m-0">
 					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon4.svg' ?>" alt="icon4">
-					<div class="module-toggle">
-						<label class="toggle-switch">
-							<input type="checkbox">
-							<span class="switch"></span>
-						</label>
-					</div>
 				</div>
 				<div class="line"> </div>
 				<h3>Support</h3>
@@ -106,12 +82,6 @@ use ImproveSEO\View;
 			<a href="<?= admin_url('admin.php?page=improveseo_create_bulk') ?>">
 				<div class="module-icon justify-between m-0">
 					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon5.svg' ?>" alt="icon5">
-					<div class="module-toggle">
-						<label class="toggle-switch">
-							<input type="checkbox">
-							<span class="switch"></span>
-						</label>
-					</div>
 				</div>
 				<div class="line"></div>
 				<h3>Bulk AI Posts </h3>
@@ -123,12 +93,6 @@ use ImproveSEO\View;
 			<a href="<?= admin_url('admin.php?page=improveseo_lists') ?>">
 				<div class="module-icon justify-between m-0">
 					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon6.svg' ?>" alt="icon6">
-					<div class="module-toggle">
-						<label class="toggle-switch">
-							<input type="checkbox">
-							<span class="switch"></span>
-						</label>
-					</div>
 				</div>
 				<div class="line"> </div>
 				<h3>Keyword Lists </h3>
@@ -140,12 +104,6 @@ use ImproveSEO\View;
 			<a href="<?= admin_url('admin.php?page=improveseo_keyword_generator') ?>">
 				<div class="module-icon justify-between m-0">
 					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon7.svg' ?>" alt="icon7">
-					<div class="module-toggle">
-						<label class="toggle-switch">
-							<input type="checkbox">
-							<span class="switch"></span>
-						</label>
-					</div>
 				</div>
 				<div class="line"> </div>
 				<h3>Keyword Generator </h3>

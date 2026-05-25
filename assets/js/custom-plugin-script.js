@@ -91,7 +91,7 @@ function GenerateCustomImage() {
             'warning',
             'Out of Credits',
             'You are out of image generation credits. Please purchase more credits to continue.',
-            'https://dashboard.improveseoplugin.com'
+            'https://account.improveseoplugin.com/'
           );
         } else {
           // Show error notification for other failures (500, network, etc.)
@@ -174,7 +174,7 @@ jQuery("#generate_i_image").on("click", function () {
             'warning',
             'Out of Credits',
             'You are out of image generation credits. Please purchase more credits to continue.',
-            'https://dashboard.improveseoplugin.com'
+            'https://account.improveseoplugin.com/'
           );
         } else {
           // Show error notification for other failures (500, network, etc.)
@@ -251,7 +251,7 @@ jQuery("#generateapivalue").on("click", function () {
             'error',
             'Out of Credits',
             'You are out of content generation credits. Please purchase more credits to continue.',
-            'https://dashboard.improveseoplugin.com'
+            'https://account.improveseoplugin.com/'
           );
         } else {
           showImproveSEONotification(
@@ -742,7 +742,7 @@ function refreshAIImage() {
             'warning',
             'Out of Credits',
             'You are out of image generation credits. Please purchase more credits to continue.',
-            'https://dashboard.improveseoplugin.com'
+            'https://account.improveseoplugin.com/'
           );
         } else {
           // Show error notification for other failures (500, network, etc.)
@@ -956,7 +956,7 @@ jQuery(document).ready(function (jQuery) {
                   'warning',
                   'Out of Credits',
                   'You are out of image generation credits. Please purchase more credits to continue.',
-                  'https://dashboard.improveseoplugin.com'
+                  'https://account.improveseoplugin.com/'
                 );
               } else {
                 // Show error notification for other failures (500, network, etc.)

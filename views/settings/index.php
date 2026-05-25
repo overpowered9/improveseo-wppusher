@@ -61,7 +61,7 @@ use ImproveSEO\View;
                     <div style="background: #e8f5e8; border: 1px solid #28a745; padding: 10px; border-radius: 3px; margin-top: 10px;">
                         
                         <strong>How to get credentials:</strong><br>
-                        1. Visit your <a href="https://dashboard.improveseoplugin.com" target="_blank">ImproveSEO Dashboard</a><br>
+                        1. Visit your <a href="https://account.improveseoplugin.com/" target="_blank">ImproveSEO Dashboard</a><br>
                         2. Copy your API Key from the Overview tab<br>
                         3. Go to Websites tab and add this domain<br>
                         4. Copy the Site Code and paste above<br>

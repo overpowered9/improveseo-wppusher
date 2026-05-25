@@ -2692,7 +2692,7 @@ global $ai_modal_type;
                     if (response.success) {
                         var d = response.data;
                         if (d.content_check && !d.content_check.sufficient) {
-                            showImproveSEONotification('warning', 'Insufficient Content Credits', 'You need 1 content credit but have ' + d.content_check.available + ' remaining. Please purchase more credits.', 'https://dashboard.improveseoplugin.com/pricing');
+                            showImproveSEONotification('warning', 'Insufficient Content Credits', 'You need 1 content credit but have ' + d.content_check.available + ' remaining. Please purchase more credits.', 'https://account.improveseoplugin.com//pricing');
                             reject('insufficient_content_credits');
                             return;
                         }
@@ -2768,7 +2768,7 @@ global $ai_modal_type;
                                 'warning',
                                 'Plan Upgrade Required',
                                 'Your current plan (' + data.plan_check.plan_name + ') does not support Bulk Posts. Please upgrade to access this feature.',
-                                'https://dashboard.improveseoplugin.com/pricing'
+                                'https://account.improveseoplugin.com//pricing'
                             );
                             reject('plan_restriction');
                             return;
@@ -2784,7 +2784,7 @@ global $ai_modal_type;
                                 'warning',
                                 'Insufficient Content Credits',
                                 msg,
-                                'https://dashboard.improveseoplugin.com/pricing'
+                                'https://account.improveseoplugin.com//pricing'
                             );
                             reject('insufficient_content_credits');
                             return;
@@ -2900,7 +2900,7 @@ global $ai_modal_type;
                                 'warning',
                                 '⚠️ Insufficient Image Credits',
                                 msg,
-                                'https://dashboard.improveseoplugin.com/pricing'
+                                'https://account.improveseoplugin.com//pricing'
                             );
                             reject('insufficient_image_credits');
                             return;
