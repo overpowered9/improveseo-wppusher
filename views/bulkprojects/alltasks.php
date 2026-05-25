@@ -67,11 +67,28 @@ $url .= $_SERVER['REQUEST_URI'];
 				<li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
 				<li><?php echo esc_html($project_name); ?></li>
 			</ul>
+		</div>
+		<?php $search = isset($search) ? $search : ''; ?>
+		<div class="iseo-search-sort-row">
+			<form method="GET" action="" class="iseo-search-form">
+				<input type="hidden" name="page" value="improveseo_bulkprojects">
+				<input type="hidden" name="action" value="viewAllTasks">
+				<input type="hidden" name="id" value="<?= esc_attr($id) ?>">
+				<input type="text" name="search" value="<?= esc_attr($search) ?>"
+					class="iseo-search-input" placeholder="Search posts by keyword...">
+				<div class="import-export-btn">
+					<button type="submit" class="active">Search</button>
+				</div>
+				<?php if ($search): ?>
+					<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . esc_attr($id)) ?>" class="iseo-clear-btn">&#x2715; Clear</a>
+				<?php endif; ?>
+			</form>
 			<div class="import-export-btn">
-			<button type="button" onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_create_bulk') ?>';"
-				class="active">Add New Project</button>
+				<button type="button" onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ?>';"
+					class="active">Add New Project</button>
+			</div>
 		</div>
-		</div>
+		<?php $_atbase = admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . ($search ? '&search=' . urlencode($search) : '')); ?>
 		<div class="actions">
 			<div>
 				<input type="hidden" name="page" value="improveseo_bulkprojects" />
@@ -83,7 +100,7 @@ $url .= $_SERVER['REQUEST_URI'];
 			<div class="pagination">
 				<?php if ($page > 1): ?>
 					<button type="button" class="prev pagination-btn"
-						onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . '&paged=' . ($page - 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
+						onclick="window.location.href='<?= esc_js($_atbase . '&paged=' . ($page - 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
 						&lt; Prev
 					</button>
 				<?php else: ?>
@@ -96,12 +113,12 @@ $url .= $_SERVER['REQUEST_URI'];
 						<button type="button" class="active"><?= $i ?></button>
 					<?php else: ?>
 						<button type="button"
-							onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?= $i ?></button>
+							onclick="window.location.href='<?= esc_js($_atbase . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?= $i ?></button>
 					<?php endif; ?>
 				<?php endfor; ?>
 				<?php if ($page < $pages): ?>
 					<button type="button" class="next pagination-btn"
-						onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . '&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
+						onclick="window.location.href='<?= esc_js($_atbase . '&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
 						Next &gt;
 					</button>
 				<?php else: ?>

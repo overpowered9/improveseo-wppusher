@@ -2202,6 +2202,11 @@ body.modal-open #improveseo-help-fab {
   gap: 16px;
   margin-bottom: 12px;
   flex-wrap: wrap;
+  padding: 0 20px 12px;   /* matches .box-top horizontal padding */
+}
+.iseo-search-sort-row .import-export-btn {
+  margin-left: auto;      /* push Add New to the far right */
+  flex-shrink: 0;
 }
 .iseo-search-form {
   display: flex;

@@ -261,19 +261,29 @@ function improveseo_bulkprojects()
 		}
 
 		// Filters
-		$id = isset($_GET['id']) ? $_GET['id'] : '';
-		$orderBy = isset($_GET['orderBy']) ? $_GET['orderBy'] : 'created_at';
-		$order = isset($_GET['order']) ? $_GET['order'] : 'DESC';
-		$highlight = isset($_GET['highlight']) ? $_GET['highlight'] : null;
-		$where = array();
+		$id      = isset($_GET['id'])      ? intval($_GET['id'])                                    : '';
+		$orderBy = isset($_GET['orderBy']) ? $_GET['orderBy']                                       : 'created_at';
+		$order   = isset($_GET['order'])   ? strtoupper($_GET['order'])                             : 'DESC';
+		$search  = isset($_GET['search'])  ? sanitize_text_field($_GET['search'])                   : '';
+		$highlight = isset($_GET['highlight']) ? $_GET['highlight']                                 : null;
+
+		$allowed_order_by = array('created_at', 'keyword_name', 'status');
+		if (!in_array($orderBy, $allowed_order_by)) $orderBy = 'created_at';
+		if (!in_array($order, array('ASC', 'DESC')))  $order   = 'DESC';
+
 		$params = array();
-		$sql = 'SELECT * FROM ' . $detailsTaskModel->getTable();
-		$sql .= ' WHERE `bulktask_id` = ' . $id;
-		$sqlTotal = 'SELECT COUNT(id) AS total FROM ' . $detailsTaskModel->getTable();
-		$sqlTotal .= ' WHERE `bulktask_id` = ' . $id;
+		$where_sql = '`bulktask_id` = %d';
+		$params[] = $id;
+
+		if ($search !== '') {
+			$where_sql .= ' AND `keyword_name` LIKE %s';
+			$params[] = '%' . $wpdb->esc_like($search) . '%';
+		}
+
+		$sql      = 'SELECT * FROM ' . $detailsTaskModel->getTable() . ' WHERE ' . $where_sql;
+		$sqlTotal = 'SELECT COUNT(id) AS total FROM ' . $detailsTaskModel->getTable() . ' WHERE ' . $where_sql;
 		$sqlTotal = $wpdb->prepare($sqlTotal, $params);
-		$sql .= " ORDER BY $orderBy $order";
-		$sql .= " LIMIT %d, %d";
+		$sql     .= " ORDER BY $orderBy $order LIMIT %d, %d";
 		$params[] = $offset;
 		$params[] = $limit;
 		$sql = $wpdb->prepare($sql, $params);
@@ -284,7 +294,7 @@ function improveseo_bulkprojects()
 		$total = $total_row->total;
 		$pages = ceil($total / $limit);
 		$page = floor($offset / $limit) + 1;
-		View::render('bulkprojects.alltasks', compact('projects', 'project_name', 'id', 'page', 'pages', 'total', 'order', 'orderBy', 'highlight'));
+		View::render('bulkprojects.alltasks', compact('projects', 'project_name', 'id', 'page', 'pages', 'total', 'order', 'orderBy', 'search', 'highlight'));
 
 	elseif ($action == 'viewAiContent'):
 		// Filters

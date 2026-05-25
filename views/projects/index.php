@@ -64,10 +64,6 @@ if (isset($_GET['post_preview'])) {
 			<li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
 			<li>Projects List</li>
 		</ul>
-		<div class="import-export-btn">
-			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_create_single') ?>';"
-				class="active">Add New</button>
-		</div>
 	</div>
 	<div class="iseo-search-sort-row">
 		<form method="GET" action="" class="iseo-search-form">
@@ -94,6 +90,10 @@ if (isset($_GET['post_preview'])) {
 				class="iseo-sort-pill<?= $orderBy === 'name' ? ' iseo-sort-on' : '' ?>">Name<?= $_name_arrow ?></a>
 			<a href="<?= esc_url($_sbase . '&orderBy=created_at&order=' . $_date_order) ?>"
 				class="iseo-sort-pill<?= $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?= $_date_arrow ?></a>
+		</div>
+		<div class="import-export-btn">
+			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_posting&action=create_post_single') ?>';"
+				class="active">Add New</button>
 		</div>
 	</div>
 	<div class="actions">

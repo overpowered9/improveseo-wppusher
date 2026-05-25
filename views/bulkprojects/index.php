@@ -37,13 +37,9 @@ if (isset($_GET['post_preview'])) {
 	</div>
 	<div class="box-top">
 		<ul class="breadcrumb-seo">
-			<li><a href="#">Improve SEO</a></li>
+			<li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
 			<li>Bulk Projects List</li>
 		</ul>
-		<div class="import-export-btn">
-			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_create_bulk') ?>';"
-				class="active">Add New Project</button>
-		</div>
 	</div>
 	<div class="iseo-search-sort-row">
 		<form method="GET" action="" class="iseo-search-form">
@@ -70,6 +66,10 @@ if (isset($_GET['post_preview'])) {
 				class="iseo-sort-pill<?= $orderBy === 'name' ? ' iseo-sort-on' : '' ?>">Name<?= $_bname_arrow ?></a>
 			<a href="<?= esc_url($_bsbase . '&orderBy=created_at&order=' . $_bdate_order) ?>"
 				class="iseo-sort-pill<?= $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?= $_bdate_arrow ?></a>
+		</div>
+		<div class="import-export-btn">
+			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ?>';"
+				class="active">Add New Project</button>
 		</div>
 	</div>
 	<div class="actions">
@@ -159,7 +159,7 @@ if (isset($_GET['post_preview'])) {
 											</label>
 
 											<span class="bkiseo-project-name" data-id="<?= esc_attr($project->id) ?>"><?= esc_html($project->name) ?></span>
-									<button class="bkiseo-rename-btn" data-id="<?= esc_attr($project->id) ?>" title="Rename project"
+									<button type="button" class="bkiseo-rename-btn" data-id="<?= esc_attr($project->id) ?>" title="Rename project"
 										style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#aaa;font-size:14px;line-height:1;margin-left:6px;">&#9998;</button>
 										</div>
 									</td>
@@ -273,7 +273,8 @@ if (isset($_GET['post_preview'])) {
 		});
 
 		// ── Inline rename ──
-		jQuery(document).on('click', '.bkiseo-rename-btn', function () {
+		jQuery(document).on('click', '.bkiseo-rename-btn', function (e) {
+			e.stopPropagation();
 			var btn      = jQuery(this);
 			var nameSpan = btn.siblings('.bkiseo-project-name');
 			var id       = btn.data('id');
