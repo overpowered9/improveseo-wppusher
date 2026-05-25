@@ -45,20 +45,32 @@ if (isset($_GET['post_preview'])) {
 				class="active">Add New Project</button>
 		</div>
 	</div>
-	<div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
-		<form method="GET" action="" style="display:flex; align-items:center; gap:8px; flex:1; min-width:200px; max-width:400px;">
+	<div class="iseo-search-sort-row">
+		<form method="GET" action="" class="iseo-search-form">
 			<input type="hidden" name="page" value="improveseo_bulkprojects">
-			<input type="hidden" name="orderBy" value="<?= esc_attr($orderBy) ?>">
-			<input type="hidden" name="order" value="<?= esc_attr($order) ?>">
 			<input type="text" name="search" value="<?= esc_attr($search) ?>"
-				placeholder="Search projects by name..."
-				style="flex:1; padding:8px 14px; border:1px solid #ddd; border-radius:50px; font-size:13px;">
-			<button type="submit" class="active" style="white-space:nowrap;">Search</button>
+				class="iseo-search-input" placeholder="Search projects by name...">
+			<div class="import-export-btn">
+				<button type="submit" class="active">Search</button>
+			</div>
 			<?php if ($search): ?>
-				<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order)) ?>"
-					style="font-size:12px; color:#888; white-space:nowrap;">Clear</a>
+				<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>" class="iseo-clear-btn">&#x2715; Clear</a>
 			<?php endif; ?>
 		</form>
+		<?php
+		$_bsbase = admin_url('admin.php?page=improveseo_bulkprojects&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
+		$_bname_order = ($orderBy === 'name' && $order === 'ASC') ? 'DESC' : 'ASC';
+		$_bdate_order = ($orderBy === 'created_at' && $order === 'ASC') ? 'DESC' : 'ASC';
+		$_bname_arrow = $orderBy === 'name' ? ($order === 'ASC' ? ' ↑' : ' ↓') : '';
+		$_bdate_arrow = $orderBy === 'created_at' ? ($order === 'ASC' ? ' ↑' : ' ↓') : '';
+		?>
+		<div class="iseo-sort-controls">
+			<span class="iseo-sort-label">Sort by</span>
+			<a href="<?= esc_url($_bsbase . '&orderBy=name&order=' . $_bname_order) ?>"
+				class="iseo-sort-pill<?= $orderBy === 'name' ? ' iseo-sort-on' : '' ?>">Name<?= $_bname_arrow ?></a>
+			<a href="<?= esc_url($_bsbase . '&orderBy=created_at&order=' . $_bdate_order) ?>"
+				class="iseo-sort-pill<?= $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?= $_bdate_arrow ?></a>
+		</div>
 	</div>
 	<div class="actions">
 		<div>

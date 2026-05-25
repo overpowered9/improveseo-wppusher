@@ -69,20 +69,32 @@ if (isset($_GET['post_preview'])) {
 				class="active">Add New</button>
 		</div>
 	</div>
-	<div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
-		<form method="GET" action="" style="display:flex; align-items:center; gap:8px; flex:1; min-width:200px; max-width:400px;">
+	<div class="iseo-search-sort-row">
+		<form method="GET" action="" class="iseo-search-form">
 			<input type="hidden" name="page" value="improveseo_projects">
-			<input type="hidden" name="orderBy" value="<?= esc_attr($orderBy) ?>">
-			<input type="hidden" name="order" value="<?= esc_attr($order) ?>">
 			<input type="text" name="search" value="<?= esc_attr($search) ?>"
-				placeholder="Search projects by name..."
-				style="flex:1; padding:8px 14px; border:1px solid #ddd; border-radius:50px; font-size:13px;">
-			<button type="submit" class="active" style="white-space:nowrap;">Search</button>
+				class="iseo-search-input" placeholder="Search projects by name...">
+			<div class="import-export-btn">
+				<button type="submit" class="active">Search</button>
+			</div>
 			<?php if ($search): ?>
-				<a href="<?= admin_url('admin.php?page=improveseo_projects&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order)) ?>"
-					style="font-size:12px; color:#888; white-space:nowrap;">Clear</a>
+				<a href="<?= admin_url('admin.php?page=improveseo_projects') ?>" class="iseo-clear-btn">&#x2715; Clear</a>
 			<?php endif; ?>
 		</form>
+		<?php
+		$_sbase = admin_url('admin.php?page=improveseo_projects&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
+		$_name_order  = ($orderBy === 'name' && $order === 'ASC') ? 'DESC' : 'ASC';
+		$_date_order  = ($orderBy === 'created_at' && $order === 'ASC') ? 'DESC' : 'ASC';
+		$_name_arrow  = $orderBy === 'name' ? ($order === 'ASC' ? ' ↑' : ' ↓') : '';
+		$_date_arrow  = $orderBy === 'created_at' ? ($order === 'ASC' ? ' ↑' : ' ↓') : '';
+		?>
+		<div class="iseo-sort-controls">
+			<span class="iseo-sort-label">Sort by</span>
+			<a href="<?= esc_url($_sbase . '&orderBy=name&order=' . $_name_order) ?>"
+				class="iseo-sort-pill<?= $orderBy === 'name' ? ' iseo-sort-on' : '' ?>">Name<?= $_name_arrow ?></a>
+			<a href="<?= esc_url($_sbase . '&orderBy=created_at&order=' . $_date_order) ?>"
+				class="iseo-sort-pill<?= $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?= $_date_arrow ?></a>
+		</div>
 	</div>
 	<div class="actions">
 		<div>
@@ -153,7 +165,7 @@ if (isset($_GET['post_preview'])) {
 					<table class="table project_table_listing">
 						<?php
 						// Build a base URL that preserves search and resets to page 1
-						$sort_base = admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
+						$sort_base = admin_url('admin.php?page=improveseo_projects&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
 						function iseo_sort_link($base, $col, $label, $currentCol, $currentOrder) {
 							$nextOrder = ($currentCol === $col && $currentOrder === 'ASC') ? 'DESC' : 'ASC';
 							$url = $base . '&orderBy=' . $col . '&order=' . $nextOrder;

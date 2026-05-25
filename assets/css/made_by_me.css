@@ -2195,6 +2195,91 @@ body.modal-open #improveseo-help-fab {
   height: 16px;
 }
 
+/* ── Search + Sort bar (Projects & Bulk Projects list pages) ── */
+.iseo-search-sort-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.iseo-search-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+  max-width: 440px;
+}
+.iseo-search-input {
+  flex: 1;
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.iseo-search-input:focus {
+  border-color: #1C7293;
+}
+.iseo-search-form .import-export-btn {
+  flex-shrink: 0;
+}
+.iseo-search-form .import-export-btn button {
+  font-size: 14px;
+  padding: 8px 18px;
+}
+.iseo-clear-btn {
+  font-size: 12px;
+  color: #aaa;
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 4px 8px;
+}
+.iseo-clear-btn:hover {
+  color: #1C7293;
+}
+.iseo-sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.iseo-sort-label {
+  font-size: 13px;
+  color: #888;
+  white-space: nowrap;
+  margin-right: 2px;
+}
+.iseo-sort-pill {
+  display: inline-block;
+  padding: 6px 14px;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  font-size: 13px;
+  color: #555;
+  text-decoration: none;
+  background: #fff;
+  white-space: nowrap;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.iseo-sort-pill:hover {
+  border-color: #1C7293;
+  color: #1C7293;
+}
+.iseo-sort-pill.iseo-sort-on {
+  border-color: #1C7293;
+  color: #1C7293;
+  background: #f0f8ff;
+  font-weight: 600;
+}
+@media (max-width: 600px) {
+  .iseo-search-sort-row { flex-direction: column; align-items: stretch; }
+  .iseo-search-form { max-width: 100%; }
+  .iseo-sort-controls { flex-wrap: wrap; }
+}
+
 /* Category pills — hide checkbox tick, colour indicates selection */
 #single-modal-category-list .bulk-category-item input[type="checkbox"],
 #bulk-category-list .bulk-category-item input[type="checkbox"] {
