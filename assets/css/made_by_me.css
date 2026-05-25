@@ -2194,3 +2194,9 @@ body.modal-open #improveseo-help-fab {
   width: 16px;
   height: 16px;
 }
+
+/* Single post modal category pills — hide checkbox, colour indicates selection */
+#single-modal-category-list .bulk-category-item input[type="checkbox"] {
+  display: none !important;
+  margin: 0 !important;
+}
