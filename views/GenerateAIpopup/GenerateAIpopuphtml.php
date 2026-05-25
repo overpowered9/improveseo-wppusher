@@ -952,6 +952,20 @@ global $ai_modal_type;
                                     id="generate_i_image" value="Generate AI Image" style="margin: 10px auto;" />
                             </div>
                         </div>
+
+                        <!-- Featured Image option -->
+                        <div class="iseo-featured-img-option">
+                            <label class="iseo-featured-img-label">
+                                <input type="checkbox" name="set_featured_image" value="1" id="set_featured_image_single" checked>
+                                <span>Set selected image as the post's Featured Image</span>
+                            </label>
+                            <details class="iseo-featured-img-details">
+                                <summary>Does your theme show the image twice?</summary>
+                                <p>Some WordPress themes automatically display the featured image at the top of the post, and the plugin also embeds the image inside the content body — causing it to appear twice.</p>
+                                <p><strong>To fix this:</strong> open your theme's Customizer or settings and look for an option like <em>"Hide featured image on single posts"</em> or <em>"Disable featured image in content."</em> Most major themes (Astra, GeneratePress, Divi, OceanWP, Kadence) include this toggle. Consult your theme's documentation for the exact location.</p>
+                            </details>
+                        </div>
+
                     </div>
 
                 </div>
@@ -1375,6 +1389,20 @@ global $ai_modal_type;
                                 <p> <strong> Note: </strong> a preview of the images is not available yet at this step. </p>
                             </div>
                         </div>
+
+                        <!-- Featured Image option -->
+                        <div class="iseo-featured-img-option">
+                            <label class="iseo-featured-img-label">
+                                <input type="checkbox" name="set_featured_image" value="1" id="set_featured_image_bulk" checked>
+                                <span>Set selected image as each post's Featured Image</span>
+                            </label>
+                            <details class="iseo-featured-img-details">
+                                <summary>Does your theme show the image twice?</summary>
+                                <p>Some WordPress themes automatically display the featured image at the top of the post, and the plugin also embeds the image inside the content body — causing it to appear twice.</p>
+                                <p><strong>To fix this:</strong> open your theme's Customizer or settings and look for an option like <em>"Hide featured image on single posts"</em> or <em>"Disable featured image in content."</em> Most major themes (Astra, GeneratePress, Divi, OceanWP, Kadence) include this toggle. Consult your theme's documentation for the exact location.</p>
+                            </details>
+                        </div>
+
                     </div>
                 </div>
 

@@ -486,6 +486,18 @@ function saveFinalData() {
 
   copyAIFieldsToHiddenInputs();
 
+  // Carry featured image opt-in to main form
+  var _fi = document.getElementById('set_featured_image_single');
+  var _fiExisting = document.getElementById('ai_set_featured_image_hidden');
+  if (!_fiExisting) {
+    _fiExisting = document.createElement('input');
+    _fiExisting.type = 'hidden';
+    _fiExisting.name = 'set_featured_image';
+    _fiExisting.id   = 'ai_set_featured_image_hidden';
+    document.getElementById('main_form').appendChild(_fiExisting);
+  }
+  _fiExisting.value = (_fi && _fi.checked) ? '1' : '0';
+
   var modalProjectName = document.getElementById('modal_project_name');
   if (modalProjectName && modalProjectName.value.trim()) {
     jQuery('.PostForm__name').val(modalProjectName.value.trim());
