@@ -77,7 +77,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 	<input type="hidden" name="ai_generated_title" id="ai_generated_title_hidden" />
 	<input type="hidden" name="ai_for_testing_only" id="ai_for_testing_only_hidden" value="0" />
     
-	<div class="style_create_page_form" style="display: none;">
+	<div class="style_create_page_form iseo-single-post-view" style="display: none;">
 		<div class="CreatePost improveseo_wrapper create_page_cont_1">
 
 			<section class="project-section d-flex flex-row  justify-content-between align-items-center pb-2">

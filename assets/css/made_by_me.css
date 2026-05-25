@@ -2195,6 +2195,9 @@ body.modal-open #improveseo-help-fab {
   height: 16px;
 }
 
+/* ── Single post form: hide Add Media / Add Shortcode / Generate AI Content toolbar ── */
+.iseo-single-post-view .wp-media-buttons { display: none !important; }
+
 /* ── Search + Sort bar (Projects & Bulk Projects list pages) ── */
 .iseo-search-sort-row {
   display: flex;
