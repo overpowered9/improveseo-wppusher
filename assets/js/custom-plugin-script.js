@@ -491,6 +491,23 @@ function saveFinalData() {
     jQuery('.PostForm__name').val(modalProjectName.value.trim());
   }
 
+  // Sync modal category selections → main form sidebar cats[]
+  var modalCats = document.querySelectorAll('#single-modal-category-list input[type="checkbox"]');
+  modalCats.forEach(function(cb) {
+    var termId  = cb.value;
+    var sidebar = document.querySelector('#main_form input[name="cats[]"][value="' + termId + '"]');
+    if (sidebar) {
+      sidebar.checked = cb.checked;
+    } else if (cb.checked) {
+      // Newly created category — not yet in sidebar, append hidden input
+      var hidden = document.createElement('input');
+      hidden.type  = 'hidden';
+      hidden.name  = 'cats[]';
+      hidden.value = termId;
+      document.getElementById('main_form').appendChild(hidden);
+    }
+  });
+
   jQuery("#exampleModal").hide();
 
   jQuery("#exampleModal1").hide();

@@ -998,12 +998,41 @@ global $ai_modal_type;
                     </div>
                 </div>
 
-                <!-- option 6 — Project Name -->
+                <!-- option 6 — Project Name & Category -->
                 <div class="data project-name-data">
                     <div class="seo-form-field">
                         <label for="modal_project_name">Project Name</label>
                         <input type="text" id="modal_project_name" name="modal_project_name" class="form-control" placeholder="Enter project name...">
-                        <span>Used to identify this post in your project list. Auto-filled from your keyword — you can edit it.</span>
+                        <span>Auto-filled from your keyword — you can edit it.</span>
+                    </div>
+
+                    <div class="category-selection-section" style="margin-top: 20px;">
+                        <h3 style="font-size:15px; font-weight:600; color:#23282d; margin-bottom:10px;">Assign Categories</h3>
+                        <div class="bulk-category-box" style="padding: 16px !important; margin-bottom: 0 !important;">
+                            <div class="bulk-category-list" id="single-modal-category-list" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+                                <?php
+                                $args = array("hide_empty" => 0, "type" => "post", "orderby" => "name", "order" => "ASC");
+                                $cats = get_categories($args);
+                                foreach ($cats as $category) {
+                                    $checked  = ($category->slug === 'improve-seo') ? 'checked' : '';
+                                    $disabled = ($category->slug === 'improve-seo') ? 'onclick="return false"' : '';
+                                    $style    = ($category->slug === 'improve-seo') ? ' style="background:#1E70B8;color:white;"' : '';
+                                    echo '<label class="bulk-category-item"' . $style . '>
+                                        <input type="checkbox" name="modal_single_cats[]" value="' . esc_attr($category->term_id) . '" ' . $checked . ' ' . $disabled . '>
+                                        <span>' . esc_html($category->name) . '</span>
+                                    </label>';
+                                }
+                                ?>
+                            </div>
+                            <div class="add-category-section">
+                                <h3 style="font-size:14px; font-weight:600; margin-bottom:10px;">Create New Category</h3>
+                                <div style="display:flex; gap:10px; align-items:center;">
+                                    <input type="text" id="new_category_name_single" placeholder="Enter category name">
+                                    <button type="button" id="add_category_single_btn">Add Category</button>
+                                </div>
+                                <p id="category_add_message_single" style="margin-top:8px; font-size:13px;"></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3267,6 +3296,63 @@ global $ai_modal_type;
                 e.preventDefault();
                 $('#add_category_bulk_btn').click();
             }
+        });
+
+        // ── Single post modal — category checkbox styling ──
+        $(document).on('change', '#single-modal-category-list input[type="checkbox"]', function() {
+            var label = $(this).closest('.bulk-category-item');
+            if ($(this).is(':checked')) {
+                label.css({ background: '#1E70B8', color: 'white', borderColor: '#1E70B8' });
+            } else {
+                label.css({ background: '', color: '', borderColor: '' });
+            }
+        });
+
+        // ── Single post modal — create new category ──
+        $('#add_category_single_btn').on('click', function() {
+            var categoryName = $('#new_category_name_single').val().trim();
+            var messageEl    = $('#category_add_message_single');
+            if (!categoryName) {
+                messageEl.text('Please enter a category name').css('color', '#dc3232');
+                return;
+            }
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'create_bulk_category',
+                    cat_name: categoryName,
+                    nonce: '<?php echo wp_create_nonce("create_category_nonce"); ?>'
+                },
+                beforeSend: function() {
+                    $('#add_category_single_btn').prop('disabled', true).text('Adding...');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        var newHtml = '<label class="bulk-category-item" style="background:#1E70B8;color:white;">' +
+                            '<input type="checkbox" name="modal_single_cats[]" value="' + response.data.term_id + '" checked ' +
+                            'data-new-cat="1" data-cat-name="' + $('<div>').text(response.data.name).html() + '">' +
+                            '<span>' + $('<div>').text(response.data.name).html() + '</span>' +
+                        '</label>';
+                        $('#single-modal-category-list').append(newHtml);
+                        $('#new_category_name_single').val('');
+                        messageEl.text('Category added!').css('color', '#46b450');
+                        setTimeout(function() { messageEl.text(''); }, 3000);
+                    } else {
+                        messageEl.text(response.data || 'Error creating category').css('color', '#dc3232');
+                    }
+                },
+                error: function() {
+                    messageEl.text('Error creating category. Please try again.').css('color', '#dc3232');
+                },
+                complete: function() {
+                    $('#add_category_single_btn').prop('disabled', false).text('Add Category');
+                }
+            });
+        });
+
+        $('#new_category_name_single').on('keypress', function(e) {
+            if (e.which === 13) { e.preventDefault(); $('#add_category_single_btn').click(); }
         });
     });
 </script>
