@@ -1538,57 +1538,9 @@ global $ai_modal_type;
                             </div>
                         </div>
 
-                        <h2 style="padding-left:20px;">Define Author Settings</h2>
-                        <div class="radio-container_multi seps-six-col_multi">
-                            <div class="groupAuthor-box_multi">
-                                <div class="improve-seo-form-global_multi gap30_multi">
-                                    <div class="seo-form-field_multi">
-                                        <label><input type="radio" name="assigning_authors" value="assigning_authors"
-                                                id="assigning_authors">&nbsp;&nbsp;Assign all posts of this project to
-                                            one author
-                                        </label>
-
-                                    </div>
-                                    <div class="seo-form-field_multi">
-                                        <!-- <div class="input-groupAuthor_multi"> -->
-                                        <div id="author_number" style="display:none">
-                                            <?php echo $all_auths; ?>
-                                        </div>
-                            
-                                        <!-- <input style="border: none !important;" type="text"
-                                                placeholder="Add Author Name">
-                                            <button
-                                                class="groupAuthor-add-btn_multi"><span>+</span><span>Add</span></button> -->
-                                        <!-- </div> -->
-                                    </div>
-                                </div>
-                                <div class="improve-seo-form-global_multi">
-                                    <div class="seo-form-field_multi only_for_step_6_radio"
-                                        style="min-width: 100% !important; display: flex !important; column-gap: 20px;">
-                                        <label class=" max_width_70%_ "> <input type="radio" name="assigning_authors"
-                                                value="assigning_multi_authors" id="assigning_multi_authors">
-                                            &nbsp;&nbsp;Assign all
-                                            posts of this project to a number of authors and distribute them evenly
-                                        </label>
-                                        <div id="authors_number" style="display:none">
-                                            <input type="number"
-                                                style="border: 1px solid #D2D2D2 !important;  padding: 8px 23px !important;"
-                                                name="authors_number" min="1" max="100" placeholder="Number of Authors">
-
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <img src="<?php echo WT_URL . '/assets/images/latest-images/nfo-filledss.svg' ?>"
-                                            alt="info">
-                                    </div>
-                                    <!-- <div class="seo-form-field_multi">
-                                        <div class="input-groupAuthor_multi">
-                                            <input type="text" placeholder="Add Author Name">
-                                            <button class="groupAuthor-add-btn_multi">+ Add</button>
-                                        </div>
-                                    </div> -->
-                                </div>
-                            </div>
+                        <h2 style="padding-left:20px;">Assign Author</h2>
+                        <div style="padding: 0 20px 20px;">
+                            <?php echo $all_auths; ?>
                         </div>
 
                         <!-- <h2 style="padding-left:20px;">Choose or Create Category</h2>
