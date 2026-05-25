@@ -56,22 +56,23 @@ function improveseo_add_menu_items()
 
 
 add_submenu_page('improveseo_dashboard', 'Posting', 'Create Posts', 'manage_options', 'improveseo_posting', 'improveseo_posting');
-add_submenu_page(
-        'improveseo_dashboard',
-        'Create Single Post',         // Page title
-        'Create Single Post',         // Menu title
+// Hidden — redundant with improveseo_posting index cards; pages still accessible via direct URL
+    add_submenu_page(
+        null,
+        'Create Single Post',
+        'Create Single Post',
         'manage_options',
-        'improveseo_create_single',   // Unique slug
+        'improveseo_create_single',
         function() {
             include_once WT_PATH . '/views/posting/index_single.php';
         }
     );
     add_submenu_page(
-        'improveseo_dashboard',
-        'Create Bulk Post',           // Page title
-        'Create Bulk Post',           // Menu title
+        null,
+        'Create Bulk Post',
+        'Create Bulk Post',
         'manage_options',
-        'improveseo_create_bulk',     // Unique slug
+        'improveseo_create_bulk',
         function() {
             include_once WT_PATH . '/views/posting/index_multipost.php';
         }
