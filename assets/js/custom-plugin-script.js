@@ -464,8 +464,17 @@ function copyAIFieldsToHiddenInputs() {
   var _ctaUrl  = jQuery("#cta_url, #cta_url_multi").first().val() || "";
   var _ctaCombined = _ctaText + (_ctaUrl ? "\nCTA URL: " + _ctaUrl : "");
   jQuery("#ai_call_to_action_hidden").val(_ctaCombined);
-  jQuery("#ai_image_option_hidden").val(jQuery("input[name='aiImage']:checked").val() || "");
-  jQuery("#ai_image_url_hidden").val(jQuery("#AI-Image-uploaded-path").val() || "");
+  var _aiImageOpt = jQuery("input[name='aiImage']:checked").val() || "";
+  jQuery("#ai_image_option_hidden").val(_aiImageOpt);
+  var _aiImageUrl = "";
+  if (_aiImageOpt === "AI_image") {
+    _aiImageUrl = jQuery("#AI-Image-uploaded-path").val() || "";
+  } else if (_aiImageOpt === "Manually_image") {
+    _aiImageUrl = jQuery("#manually-image-uploaded-path").val() || "";
+  } else if (_aiImageOpt === "manually_promt_image") {
+    _aiImageUrl = jQuery("#AI-Prompt-Image-uploaded-path").val() || "";
+  }
+  jQuery("#ai_image_url_hidden").val(_aiImageUrl);
   jQuery("#ai_generated_title_hidden").val(jQuery("#AI_Title").val() || jQuery("#ai_title").val() || "");
   jQuery("#ai_for_testing_only_hidden").val(jQuery("#for_testing_only").is(":checked") ? "1" : "0");
 }

@@ -135,20 +135,14 @@ function improveseo_posting(){
 
 
 			)) && !isset($_POST['draft'])) {
-				 			    // Use the POST value instead of global variable
-    $ai_modal_type2 = isset($_POST['ai_modal_type']) ? $_POST['ai_modal_type'] : '';
-    echo '<script>console.log("ai_modal_type from POST:", "' . esc_js($ai_modal_type2) . '");</script>';
-    
-    if ($ai_modal_type2 === 'single') {
-        wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post_single'));
-    } elseif ($ai_modal_type2 === 'bulk') {
-        wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post_bulk'));
-    } else {
-        wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post'));
-    }
-        
-        
-
+				$ai_modal_type2 = isset($_POST['ai_modal_type']) ? $_POST['ai_modal_type'] : '';
+				if ($ai_modal_type2 === 'single') {
+					wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post_single'));
+				} elseif ($ai_modal_type2 === 'bulk') {
+					wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post_bulk'));
+				} else {
+					wp_redirect(admin_url('admin.php?page=improveseo_posting&action=create_post'));
+				}
 				exit;
 
 

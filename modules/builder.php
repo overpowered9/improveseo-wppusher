@@ -1279,15 +1279,19 @@ function improveseo_builder()
 
 			$post_id = wp_insert_post($post_array);
 
-			if (!empty($options['set_featured_image']) && $options['set_featured_image'] === '1') {
-				// Prefer the URL saved directly from the wizard (avoids TinyMCE URL mangling).
-				// Fall back to extracting the first <img> src from the post content.
-				$_fi_url = !empty($options['ai_image_url']) ? $options['ai_image_url'] : '';
-				if (!$_fi_url && preg_match('/<img[^>]+src=["\']([^"\']+)["\']/', $contentText, $_fm)) {
-					$_fi_url = $_fm[1];
-				}
-				if ($_fi_url) {
-					improveseo_set_featured_image($post_id, $_fi_url);
+			if ($post_id && !empty($options['set_featured_image']) && $options['set_featured_image'] === '1') {
+				try {
+					// Prefer the URL saved directly from the wizard (avoids TinyMCE URL mangling).
+					// Fall back to extracting the first <img> src from the post content.
+					$_fi_url = !empty($options['ai_image_url']) ? $options['ai_image_url'] : '';
+					if (!$_fi_url && preg_match('/<img[^>]+src=["\']([^"\']+)["\']/', $contentText, $_fm)) {
+						$_fi_url = $_fm[1];
+					}
+					if ($_fi_url) {
+						improveseo_set_featured_image($post_id, $_fi_url);
+					}
+				} catch (\Throwable $_fi_err) {
+					// Featured image failure must never abort post creation.
 				}
 			}
 
@@ -3283,15 +3287,17 @@ function improveseo_builder_update()
 
 			$post_id = wp_insert_post($post_array);
 
-			if (!empty($options['set_featured_image']) && $options['set_featured_image'] === '1') {
-				// Prefer the URL saved directly from the wizard (avoids TinyMCE URL mangling).
-				// Fall back to extracting the first <img> src from the post content.
-				$_fi_url = !empty($options['ai_image_url']) ? $options['ai_image_url'] : '';
-				if (!$_fi_url && preg_match('/<img[^>]+src=["\']([^"\']+)["\']/', $contentText, $_fm)) {
-					$_fi_url = $_fm[1];
-				}
-				if ($_fi_url) {
-					improveseo_set_featured_image($post_id, $_fi_url);
+			if ($post_id && !empty($options['set_featured_image']) && $options['set_featured_image'] === '1') {
+				try {
+					$_fi_url = !empty($options['ai_image_url']) ? $options['ai_image_url'] : '';
+					if (!$_fi_url && preg_match('/<img[^>]+src=["\']([^"\']+)["\']/', $contentText, $_fm)) {
+						$_fi_url = $_fm[1];
+					}
+					if ($_fi_url) {
+						improveseo_set_featured_image($post_id, $_fi_url);
+					}
+				} catch (\Throwable $_fi_err) {
+					// Featured image failure must never abort post creation.
 				}
 			}
 
