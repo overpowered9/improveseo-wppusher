@@ -639,6 +639,13 @@ global $ai_modal_type;
                         <p>Media Title & <br>Description</p>
                     </div>
                 </div>
+
+                <div class="percent">
+                    <div class="step" id="step-6">
+                        <div class="circle">6</div>
+                        <p>Project <br>Name</p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -989,9 +996,15 @@ global $ai_modal_type;
                         <textarea id="meta_descreption" name="meta_descreption"
                             placeholder="Enter description...."></textarea>
                     </div>
-                    <!-- <input type="button" value="Submit" onclick="return saveFinalData()"> -->
+                </div>
 
-
+                <!-- option 6 — Project Name -->
+                <div class="data project-name-data">
+                    <div class="seo-form-field">
+                        <label for="modal_project_name">Project Name</label>
+                        <input type="text" id="modal_project_name" name="modal_project_name" class="form-control" placeholder="Enter project name...">
+                        <span>Used to identify this post in your project list. Auto-filled from your keyword — you can edit it.</span>
+                    </div>
                 </div>
             </div>
         </form>
@@ -2121,6 +2134,18 @@ global $ai_modal_type;
             forApproveValidation.style.display = "block";
         }
 
+        function autoPopulateProjectName() {
+            var nameInput = document.getElementById('modal_project_name');
+            if (!nameInput || nameInput.value.trim()) return;
+            var keyword = (document.getElementById('seed_keyword') || {}).value || '';
+            var now = new Date();
+            var mm = String(now.getMonth() + 1).padStart(2, '0');
+            var dd = String(now.getDate()).padStart(2, '0');
+            var yyyy = now.getFullYear();
+            var rand = Math.floor(100 + Math.random() * 900);
+            nameInput.value = (keyword ? keyword + ' ' : '') + mm + '/' + dd + '/' + yyyy + ' #' + rand;
+        }
+
         function updateButtonText() {
             const stepValue = parseInt(stepInput.value, 10);
             let buttonText = 'Next';
@@ -2132,9 +2157,13 @@ global $ai_modal_type;
                 nextStepButton.disabled = false;
                 jQuery("#generateapivalue").trigger("click");
             } else if (stepValue === 5) {
-                buttonText = 'Submit';
+                buttonText = 'Next';
                 nextStepButton.disabled = false;
             } else if (stepValue === 6) {
+                buttonText = 'Submit';
+                nextStepButton.disabled = false;
+                autoPopulateProjectName();
+            } else if (stepValue === 7) {
                 saveFinalData();
                 nextStepButton.disabled = true;
             }

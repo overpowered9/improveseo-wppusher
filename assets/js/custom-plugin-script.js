@@ -486,6 +486,11 @@ function saveFinalData() {
 
   copyAIFieldsToHiddenInputs();
 
+  var modalProjectName = document.getElementById('modal_project_name');
+  if (modalProjectName && modalProjectName.value.trim()) {
+    jQuery('.PostForm__name').val(modalProjectName.value.trim());
+  }
+
   jQuery("#exampleModal").hide();
 
   jQuery("#exampleModal1").hide();
