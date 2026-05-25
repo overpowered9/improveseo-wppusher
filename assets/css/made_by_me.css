@@ -2156,19 +2156,13 @@ body.modal-open #improveseo-help-fab {
 }
 
 .improveseo-help-menu {
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 8px;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(10px);
-  transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
 .improveseo-help-menu.improveseo-help-menu--open {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
+  display: flex;
 }
 
 .improveseo-help-menu-item {
