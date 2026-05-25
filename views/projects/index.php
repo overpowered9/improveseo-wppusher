@@ -69,14 +69,14 @@ if (isset($_GET['post_preview'])) {
 		<form method="GET" action="" class="iseo-search-form">
 			<input type="hidden" name="page" value="improveseo_projects">
 			<input type="text" name="search" value="<?= esc_attr($search) ?>"
-				class="iseo-search-input" placeholder="Search projects by name...">
-			<div class="import-export-btn">
-				<button type="submit" class="active">Search</button>
-			</div>
-			<?php if ($search): ?>
-				<a href="<?= admin_url('admin.php?page=improveseo_projects') ?>" class="iseo-clear-btn">&#x2715; Clear</a>
-			<?php endif; ?>
+				class="iseo-search-input" placeholder="Search Here">
+			<button type="submit" class="iseo-search-btn">
+				<img src="<?php echo WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ?>" alt="search">
+			</button>
 		</form>
+		<?php if ($search): ?>
+			<a href="<?= admin_url('admin.php?page=improveseo_projects') ?>" class="iseo-clear-btn">&#x2715; Clear</a>
+		<?php endif; ?>
 		<?php
 		$_sbase = admin_url('admin.php?page=improveseo_projects&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
 		$_name_order  = ($orderBy === 'name' && $order === 'ASC') ? 'DESC' : 'ASC';

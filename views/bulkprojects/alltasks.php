@@ -75,14 +75,14 @@ $url .= $_SERVER['REQUEST_URI'];
 				<input type="hidden" name="action" value="viewAllTasks">
 				<input type="hidden" name="id" value="<?= esc_attr($id) ?>">
 				<input type="text" name="search" value="<?= esc_attr($search) ?>"
-					class="iseo-search-input" placeholder="Search posts by keyword...">
-				<div class="import-export-btn">
-					<button type="submit" class="active">Search</button>
-				</div>
-				<?php if ($search): ?>
-					<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . esc_attr($id)) ?>" class="iseo-clear-btn">&#x2715; Clear</a>
-				<?php endif; ?>
+					class="iseo-search-input" placeholder="Search Here">
+				<button type="submit" class="iseo-search-btn">
+					<img src="<?php echo WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ?>" alt="search">
+				</button>
 			</form>
+			<?php if ($search): ?>
+				<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . esc_attr($id)) ?>" class="iseo-clear-btn">&#x2715; Clear</a>
+			<?php endif; ?>
 			<div class="import-export-btn">
 				<button type="button" onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ?>';"
 					class="active">Add New Project</button>
