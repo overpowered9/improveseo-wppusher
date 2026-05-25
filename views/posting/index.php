@@ -4,36 +4,6 @@ use ImproveSEO\View;
 
 $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 
-if (isset($_POST['cat_name'])) {
-
-	$cat_slug = $_POST['cat_name'];
-
-	$cat_slug = preg_replace('/\s*/', '-', $cat_slug);
-
-	$cat_slug = strtolower($cat_slug);
-
-	wp_insert_term(
-
-		// the name of the category
-
-		$_POST['cat_name'],
-
-		// the taxonomy, which in this case if category (don't change)
-
-		'category',
-
-		array(
-
-			// what to use in the url for term archive
-
-			'slug' => $_POST['cat_name'],
-
-		)
-
-	);
-
-}
-
 ?>
 
 
@@ -84,18 +54,6 @@ if (isset($_POST['cat_name'])) {
 			</div>
 		</div>
 
-		<div class="category-box category_improveseo">
-			<h3 class="category-title">Create Category</h3>
-			
-
-			<div class="add-category">
-				<form method="post">
-					<input type="text" placeholder="Write Here" name="cat_name" class="input-box" required>
-					<input type="submit" class="add-button" value="Add Category">
-					<!-- <button class="add-button">Add Category</button> -->
-				</form>
-			</div>
-		</div>
 	</div>
 </div>
 
