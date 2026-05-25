@@ -1573,6 +1573,7 @@ global $ai_modal_type;
                                     for="project_name">Project Name</label>
                                 <input type="text" style=" padding: 10px 20px !important;" class="form-control"
                                     id="project_name" name="project_name" placeholder="Enter project name">
+                                <span style="padding-left:20px; font-size:13px; color:#666;">Auto-filled from your keyword list — you can edit it.</span>
                             </div>
                             <input type="submit" value="Submit" id="bulk_ai_post_submi_button">
                             <div class="seo-form-field_multi" style="padding-left: 20px;">
@@ -2297,12 +2298,26 @@ global $ai_modal_type;
             });
         }
 
+        function autoPopulateBulkProjectName() {
+            var nameInput = document.getElementById('project_name');
+            if (!nameInput || nameInput.value.trim()) return;
+            var listName = jQuery('#keyword_list_name option:selected').text().trim();
+            if (!listName || listName === 'Select a Keyword List') listName = '';
+            var now = new Date();
+            var mm   = String(now.getMonth() + 1).padStart(2, '0');
+            var dd   = String(now.getDate()).padStart(2, '0');
+            var yyyy = now.getFullYear();
+            var rand = Math.floor(100 + Math.random() * 900);
+            nameInput.value = (listName ? listName + ' ' : '') + mm + '/' + dd + '/' + yyyy + ' #' + rand;
+        }
+
         function updateButtonText() {
             let buttonText = 'Next';
             const totalSteps = steps.length;
 
             if (currentStep === totalSteps - 1) { // Last step (step 6)
                 buttonText = 'Submit';
+                autoPopulateBulkProjectName();
             } else if (currentStep === totalSteps - 2) { // Last step (step 6)
                 var text = jQuery('#keyword_list').val();
 

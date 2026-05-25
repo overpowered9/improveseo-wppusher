@@ -201,11 +201,20 @@ function improveseo_bulkprojects()
 
 	if ($action == 'index'):
 		// Filters
-		$orderBy = isset($_GET['orderBy']) ? $_GET['orderBy'] : 'created_at';
-		$order = isset($_GET['order']) ? $_GET['order'] : 'DESC';
+		$allowed_order_by = array('created_at', 'name');
+		$orderBy   = (isset($_GET['orderBy']) && in_array($_GET['orderBy'], $allowed_order_by)) ? $_GET['orderBy'] : 'created_at';
+		$order     = (isset($_GET['order']) && in_array(strtoupper($_GET['order']), array('ASC','DESC'))) ? strtoupper($_GET['order']) : 'DESC';
+		$search    = isset($_GET['search']) ? sanitize_text_field($_GET['search']) : '';
 		$highlight = isset($_GET['highlight']) ? $_GET['highlight'] : null;
-		$where = array();
+
+		$where  = array();
 		$params = array();
+
+		if ($search !== '') {
+			$where[]  = 'name LIKE %s';
+			$params[] = '%' . $wpdb->esc_like($search) . '%';
+		}
+
 		$sql = 'SELECT * FROM ' . $model->getTable();
 		if (sizeof($where)) {
 			$sql .= ' WHERE ' . implode(' AND ', $where);
@@ -214,7 +223,11 @@ function improveseo_bulkprojects()
 		if (sizeof($where)) {
 			$sqlTotal .= ' WHERE ' . implode(' AND ', $where);
 		}
-		$sqlTotal = $wpdb->prepare($sqlTotal, $params);
+
+		if ($params) {
+			$sqlTotal = $wpdb->prepare($sqlTotal, $params);
+		}
+
 		$sql .= " ORDER BY $orderBy $order";
 		$sql .= " LIMIT %d, %d";
 		$params[] = $offset;
@@ -227,7 +240,7 @@ function improveseo_bulkprojects()
 		$total = $total_row->total;
 		$pages = ceil($total / $limit);
 		$page = floor($offset / $limit) + 1;
-		View::render('bulkprojects.index', compact('projects', 'page', 'pages', 'total', 'order', 'orderBy', 'highlight'));
+		View::render('bulkprojects.index', compact('projects', 'page', 'pages', 'total', 'order', 'orderBy', 'search', 'highlight'));
 
 	elseif ($action == 'viewAllTasks'):
 		if (isset($_GET['id'])) {

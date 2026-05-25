@@ -69,13 +69,28 @@ if (isset($_GET['post_preview'])) {
 				class="active">Add New</button>
 		</div>
 	</div>
+	<div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
+		<form method="GET" action="" style="display:flex; align-items:center; gap:8px; flex:1; min-width:200px; max-width:400px;">
+			<input type="hidden" name="page" value="improveseo_projects">
+			<input type="hidden" name="orderBy" value="<?= esc_attr($orderBy) ?>">
+			<input type="hidden" name="order" value="<?= esc_attr($order) ?>">
+			<input type="text" name="search" value="<?= esc_attr($search) ?>"
+				placeholder="Search projects by name..."
+				style="flex:1; padding:8px 14px; border:1px solid #ddd; border-radius:50px; font-size:13px;">
+			<button type="submit" class="active" style="white-space:nowrap;">Search</button>
+			<?php if ($search): ?>
+				<a href="<?= admin_url('admin.php?page=improveseo_projects&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order)) ?>"
+					style="font-size:12px; color:#888; white-space:nowrap;">Clear</a>
+			<?php endif; ?>
+		</form>
+	</div>
 	<div class="actions">
 		<div>
 			<button type="button" class="btn_delete" id="bulk-delete-btn">Delete Selected Projects</button>
 		</div>
 		<div class="pagination">
 			<?php if ($page > 1): ?>
-				<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=' . ($page - 1)) ?>"
+				<a href="<?= admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page - 1)) ?>"
 					class="prev pagination-btn">
 					< Prev</a>
 					<?php else: ?>
@@ -90,7 +105,7 @@ if (isset($_GET['post_preview'])) {
 
 							// Show first page if we're not showing it
 							if ($start_page > 1): ?>
-								<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=1') ?>"
+								<a href="<?= admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=1') ?>"
 									class="pagination-btn">1</a>
 								<?php if ($start_page > 2): ?>
 									<span class="pagination-btn">...</span>
@@ -101,7 +116,7 @@ if (isset($_GET['post_preview'])) {
 								<?php if ($i == $page): ?>
 									<button class="pagination-btn active"><?= $i ?></button>
 								<?php else: ?>
-									<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=' . $i) ?>"
+									<a href="<?= admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $i) ?>"
 										class="pagination-btn"><?= $i ?></a>
 								<?php endif; ?>
 							<?php endfor; ?>
@@ -112,12 +127,12 @@ if (isset($_GET['post_preview'])) {
 								<?php if ($end_page < $pages - 1): ?>
 									<span class="pagination-btn">...</span>
 								<?php endif; ?>
-								<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=' . $pages) ?>"
+								<a href="<?= admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $pages) ?>"
 									class="pagination-btn"><?= $pages ?></a>
 							<?php endif; ?>
 
 							<?php if ($page < $pages): ?>
-								<a href="<?= admin_url('admin.php?page=improveseo_projects&paged=' . ($page + 1)) ?>"
+								<a href="<?= admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page + 1)) ?>"
 									class="next pagination-btn">Next ></a>
 							<?php else: ?>
 								<span class="next pagination-btn disabled">Next ></span>
@@ -136,6 +151,19 @@ if (isset($_GET['post_preview'])) {
 
 				<div class="table-responsive">
 					<table class="table project_table_listing">
+						<?php
+						// Build a base URL that preserves search and resets to page 1
+						$sort_base = admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
+						function iseo_sort_link($base, $col, $label, $currentCol, $currentOrder) {
+							$nextOrder = ($currentCol === $col && $currentOrder === 'ASC') ? 'DESC' : 'ASC';
+							$url = $base . '&orderBy=' . $col . '&order=' . $nextOrder;
+							$arrow = '';
+							if ($currentCol === $col) {
+								$arrow = $currentOrder === 'ASC' ? ' ↑' : ' ↓';
+							}
+							return '<a href="' . esc_url($url) . '" style="color:inherit; text-decoration:none; white-space:nowrap;">' . esc_html($label) . $arrow . '</a>';
+						}
+						?>
 						<thead>
 							<tr>
 								<th>
@@ -143,9 +171,9 @@ if (isset($_GET['post_preview'])) {
 										<input type="checkbox" id="cb-select-all">
 										<div class="checkbox__checkmark"></div>
 									</label>
-									<h4> Name </h4>
+									<h4><?= iseo_sort_link($sort_base, 'name', 'Name', $orderBy, $order) ?></h4>
 								</th>
-								<th>Created At</th>
+								<th><?= iseo_sort_link($sort_base, 'created_at', 'Created At', $orderBy, $order) ?></th>
 								<th>Last Update</th>
 								<th>Status</th>
 								<td></td>

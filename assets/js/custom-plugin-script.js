@@ -491,20 +491,29 @@ function saveFinalData() {
     jQuery('.PostForm__name').val(modalProjectName.value.trim());
   }
 
-  // Sync modal category selections → main form sidebar cats[]
-  var modalCats = document.querySelectorAll('#single-modal-category-list input[type="checkbox"]');
-  modalCats.forEach(function(cb) {
-    var termId  = cb.value;
+  // Sync modal category selections → main form cats[]
+  // Remove any hidden inputs from a previous sync to avoid duplicates
+  document.querySelectorAll('#main_form input[data-from-modal]').forEach(function(el) {
+    el.parentNode.removeChild(el);
+  });
+  // Disable sidebar cats[] checkboxes so they don't double-submit alongside hidden inputs
+  document.querySelectorAll('#main_form input[name="cats[]"]').forEach(function(el) {
+    el.disabled = true;
+  });
+  var _modalForm = document.getElementById('main_form');
+  document.querySelectorAll('#single-modal-category-list input[type="checkbox"]').forEach(function(cb) {
+    var termId = cb.value;
+    // Mirror selection visually on the sidebar
     var sidebar = document.querySelector('#main_form input[name="cats[]"][value="' + termId + '"]');
-    if (sidebar) {
-      sidebar.checked = cb.checked;
-    } else if (cb.checked) {
-      // Newly created category — not yet in sidebar, append hidden input
+    if (sidebar) sidebar.checked = cb.checked;
+    // Guarantee submission via hidden input for every checked modal category
+    if (cb.checked) {
       var hidden = document.createElement('input');
-      hidden.type  = 'hidden';
-      hidden.name  = 'cats[]';
+      hidden.type = 'hidden';
+      hidden.name = 'cats[]';
       hidden.value = termId;
-      document.getElementById('main_form').appendChild(hidden);
+      hidden.setAttribute('data-from-modal', '1');
+      _modalForm.appendChild(hidden);
     }
   });
 

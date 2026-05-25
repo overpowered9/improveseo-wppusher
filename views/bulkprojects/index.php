@@ -45,6 +45,21 @@ if (isset($_GET['post_preview'])) {
 				class="active">Add New Project</button>
 		</div>
 	</div>
+	<div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
+		<form method="GET" action="" style="display:flex; align-items:center; gap:8px; flex:1; min-width:200px; max-width:400px;">
+			<input type="hidden" name="page" value="improveseo_bulkprojects">
+			<input type="hidden" name="orderBy" value="<?= esc_attr($orderBy) ?>">
+			<input type="hidden" name="order" value="<?= esc_attr($order) ?>">
+			<input type="text" name="search" value="<?= esc_attr($search) ?>"
+				placeholder="Search projects by name..."
+				style="flex:1; padding:8px 14px; border:1px solid #ddd; border-radius:50px; font-size:13px;">
+			<button type="submit" class="active" style="white-space:nowrap;">Search</button>
+			<?php if ($search): ?>
+				<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order)) ?>"
+					style="font-size:12px; color:#888; white-space:nowrap;">Clear</a>
+			<?php endif; ?>
+		</form>
+	</div>
 	<div class="actions">
 		<div>
 			<button type="button" class="btn_delete" onclick="handleBulkDelete()" disabled style="opacity: 0.5;">Delete
@@ -53,7 +68,7 @@ if (isset($_GET['post_preview'])) {
 		<div class="pagination">
 			<?php if ($page > 1): ?>
 				<button class="prev pagination-btn"
-					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&paged=' . ($page - 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
+					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page - 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
 					&lt; Prev
 				</button>
 			<?php else: ?>
@@ -67,13 +82,13 @@ if (isset($_GET['post_preview'])) {
 					<button class="active"><?= $i ?></button>
 				<?php else: ?>
 					<button
-						onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?= $i ?></button>
+						onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?= $i ?></button>
 				<?php endif; ?>
 			<?php endfor; ?>
 
 			<?php if ($page < $pages): ?>
 				<button class="next pagination-btn"
-					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
+					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
 					Next &gt;
 				</button>
 			<?php else: ?>
@@ -93,23 +108,32 @@ if (isset($_GET['post_preview'])) {
 			<div class="project-lists">
 				<div class="table-responsive">
 					<table class="table project_table_listing">
-						<thead>
-							<tr>
-								<th>
-									<label class="checkbox style-c" for="cb-select-all">
-										<input type="checkbox" id="cb-select-all">
-										<div class="checkbox__checkmark"></div>
-									</label>
-									<h4> Name </h4>
-								</th>
-								<th> Post Count </th>
-								<th>Created At</th>
-								<th>Last Update</th>
-								<th> Publish Option </th>
-								<th>Status</th>
-								<th>Action</th>
-							</tr>
-						</thead>
+						<?php
+					$sort_base = admin_url('admin.php?page=improveseo_bulkprojects&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
+					function bkiseo_sort_link($base, $col, $label, $currentCol, $currentOrder) {
+						$nextOrder = ($currentCol === $col && $currentOrder === 'ASC') ? 'DESC' : 'ASC';
+						$url = $base . '&orderBy=' . $col . '&order=' . $nextOrder;
+						$arrow = ($currentCol === $col) ? ($currentOrder === 'ASC' ? ' ↑' : ' ↓') : '';
+						return '<a href="' . esc_url($url) . '" style="color:inherit;text-decoration:none;white-space:nowrap;">' . esc_html($label) . $arrow . '</a>';
+					}
+					?>
+					<thead>
+						<tr>
+							<th>
+								<label class="checkbox style-c" for="cb-select-all">
+									<input type="checkbox" id="cb-select-all">
+									<div class="checkbox__checkmark"></div>
+								</label>
+								<h4><?= bkiseo_sort_link($sort_base, 'name', 'Name', $orderBy, $order) ?></h4>
+							</th>
+							<th> Post Count </th>
+							<th><?= bkiseo_sort_link($sort_base, 'created_at', 'Created At', $orderBy, $order) ?></th>
+							<th>Last Update</th>
+							<th> Publish Option </th>
+							<th>Status</th>
+							<th>Action</th>
+						</tr>
+					</thead>
 						<tbody>
 							<?php foreach ($projects as $project): ?>
 								<tr <?= $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
@@ -122,7 +146,9 @@ if (isset($_GET['post_preview'])) {
 												<div class="checkbox__checkmark"></div>
 											</label>
 
-											<h4> <?= $project->name ?> </h4>
+											<span class="bkiseo-project-name" data-id="<?= esc_attr($project->id) ?>"><?= esc_html($project->name) ?></span>
+									<button class="bkiseo-rename-btn" data-id="<?= esc_attr($project->id) ?>" title="Rename project"
+										style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#aaa;font-size:14px;line-height:1;margin-left:6px;">&#9998;</button>
 										</div>
 									</td>
 									<td data-label="Post Count" style="text-align:center;"><?= $project->number_of_tasks ?>
@@ -232,6 +258,65 @@ if (isset($_GET['post_preview'])) {
 			}
 
 			updateDeleteButton();
+		});
+
+		// ── Inline rename ──
+		jQuery(document).on('click', '.bkiseo-rename-btn', function () {
+			var btn      = jQuery(this);
+			var nameSpan = btn.siblings('.bkiseo-project-name');
+			var id       = btn.data('id');
+			var current  = nameSpan.text().trim();
+
+			// Already editing
+			if (btn.data('editing')) return;
+			btn.data('editing', true);
+
+			var input  = jQuery('<input type="text" class="bkiseo-rename-input">').val(current)
+				.css({ padding:'4px 8px', border:'1px solid #1C7293', borderRadius:'4px', fontSize:'13px', minWidth:'160px' });
+			var save   = jQuery('<button type="button" class="bkiseo-rename-save active" style="margin-left:6px;padding:4px 10px;font-size:12px;">Save</button>');
+			var cancel = jQuery('<button type="button" class="bkiseo-rename-cancel" style="margin-left:4px;padding:4px 10px;font-size:12px;background:none;border:1px solid #ccc;border-radius:50px;cursor:pointer;">Cancel</button>');
+
+			nameSpan.hide();
+			btn.hide();
+			nameSpan.after(input, save, cancel);
+			input.focus().select();
+
+			function stopEdit() {
+				input.remove(); save.remove(); cancel.remove();
+				nameSpan.show(); btn.show();
+				btn.data('editing', false);
+			}
+
+			cancel.on('click', stopEdit);
+
+			save.on('click', function () {
+				var newName = input.val().trim();
+				if (!newName) { input.focus(); return; }
+				save.prop('disabled', true).text('Saving…');
+				jQuery.post(ajaxurl, {
+					action: 'rename_bulk_project',
+					id:     id,
+					name:   newName,
+					nonce:  '<?php echo wp_create_nonce("rename_bulk_project_nonce"); ?>'
+				}, function (res) {
+					if (res.success) {
+						nameSpan.text(res.data.name);
+					}
+					stopEdit();
+				}).fail(stopEdit);
+			});
+
+			input.on('keydown', function (e) {
+				if (e.which === 13) save.trigger('click');
+				if (e.which === 27) stopEdit();
+			});
+		});
+
+		// Show pencil on row hover
+		jQuery(document).on('mouseenter', '.bkiseo-rename-btn', function () {
+			jQuery(this).css('color', '#1C7293');
+		}).on('mouseleave', '.bkiseo-rename-btn', function () {
+			jQuery(this).css('color', '#aaa');
 		});
 
 		function handleBulkDelete() {
