@@ -74,6 +74,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 	<input type="hidden" name="ai_details_to_include" id="ai_details_to_include_hidden" />
 	<input type="hidden" name="ai_call_to_action" id="ai_call_to_action_hidden" />
 	<input type="hidden" name="ai_image_option" id="ai_image_option_hidden" />
+	<input type="hidden" name="ai_image_url" id="ai_image_url_hidden" />
 	<input type="hidden" name="ai_generated_title" id="ai_generated_title_hidden" />
 	<input type="hidden" name="ai_for_testing_only" id="ai_for_testing_only_hidden" value="0" />
     

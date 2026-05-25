@@ -668,6 +668,8 @@ function improveseo_dashboard() {
 
 				'ai_image_option',
 
+				'ai_image_url',
+
 				'ai_generated_title',
 
 				'ai_for_testing_only',

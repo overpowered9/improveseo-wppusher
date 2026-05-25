@@ -1375,8 +1375,7 @@ function saveContentInTaskList()
 			} else {
 				my_plugin_log('saveContentInTaskList: ✅ WordPress post created successfully | Post ID: ' . $post_id . ' | Task ID: ' . $task_id);
 
-				// Set AI image as featured image and suppress theme duplication via _improveseo_featured_image_set meta.
-				if ( ! empty( $decoded_image ) && filter_var( $decoded_image, FILTER_VALIDATE_URL ) ) {
+				if ( ! empty( $decoded_image ) ) {
 					improveseo_set_featured_image( $post_id, $decoded_image );
 				}
 			}

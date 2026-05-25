@@ -465,6 +465,7 @@ function copyAIFieldsToHiddenInputs() {
   var _ctaCombined = _ctaText + (_ctaUrl ? "\nCTA URL: " + _ctaUrl : "");
   jQuery("#ai_call_to_action_hidden").val(_ctaCombined);
   jQuery("#ai_image_option_hidden").val(jQuery("input[name='aiImage']:checked").val() || "");
+  jQuery("#ai_image_url_hidden").val(jQuery("#AI-Image-uploaded-path").val() || "");
   jQuery("#ai_generated_title_hidden").val(jQuery("#AI_Title").val() || jQuery("#ai_title").val() || "");
   jQuery("#ai_for_testing_only_hidden").val(jQuery("#for_testing_only").is(":checked") ? "1" : "0");
 }

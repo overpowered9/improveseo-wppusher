@@ -134,7 +134,19 @@ add_filter('jpeg_quality', function ($arg) {
 });
 
 function improveseo_set_featured_image( $post_id, $image_url ) {
-	if ( empty( $image_url ) || ! filter_var( $image_url, FILTER_VALIDATE_URL ) ) {
+	if ( empty( $image_url ) ) {
+		return;
+	}
+
+	// TinyMCE converts absolute URLs to root-relative (e.g. /wp-content/uploads/…).
+	// Restore the full URL so FILTER_VALIDATE_URL and media functions work correctly.
+	if ( substr( $image_url, 0, 2 ) === '//' ) {
+		$image_url = 'https:' . $image_url;
+	} elseif ( $image_url[0] === '/' ) {
+		$image_url = home_url( $image_url );
+	}
+
+	if ( ! filter_var( $image_url, FILTER_VALIDATE_URL ) ) {
 		return;
 	}
 
@@ -146,11 +158,16 @@ function improveseo_set_featured_image( $post_id, $image_url ) {
 	$attachment_id = attachment_url_to_postid( $image_url );
 
 	// Step 2: file already on disk but not registered — translate URL → path and register it.
+	// Normalise scheme so http/https mismatch doesn't break str_replace.
 	if ( ! $attachment_id ) {
-		$upload_dir = wp_upload_dir();
-		$file_path  = str_replace( $upload_dir['baseurl'], $upload_dir['basedir'], $image_url );
+		$upload_dir   = wp_upload_dir();
+		$baseurl      = $upload_dir['baseurl'];
+		$basedir      = $upload_dir['basedir'];
+		$norm_url     = preg_replace( '#^https?://#', '', $image_url );
+		$norm_base    = preg_replace( '#^https?://#', '', $baseurl );
+		$file_path    = str_replace( $norm_base, $basedir, $norm_url );
 
-		if ( file_exists( $file_path ) ) {
+		if ( $file_path !== $norm_url && file_exists( $file_path ) ) {
 			$file_type     = wp_check_filetype( basename( $file_path ), null );
 			$attachment_id = wp_insert_attachment(
 				array(
@@ -170,7 +187,7 @@ function improveseo_set_featured_image( $post_id, $image_url ) {
 		}
 	}
 
-	// Step 3: fallback — download fresh from URL (handles URL/domain mismatch or missing file).
+	// Step 3: fallback — download fresh from URL (handles domain mismatch or missing file).
 	if ( ! $attachment_id ) {
 		$attachment_id = media_sideload_image( $image_url, $post_id, null, 'id' );
 		if ( is_wp_error( $attachment_id ) ) {
@@ -179,17 +196,6 @@ function improveseo_set_featured_image( $post_id, $image_url ) {
 	}
 
 	set_post_thumbnail( $post_id, $attachment_id );
-	update_post_meta( $post_id, '_improveseo_featured_image_set', 1 );
-}
-
-// On single post pages, suppress the theme's featured image display when the image
-// was set by ImproveSEO — it already appears inside the post content body.
-add_filter( 'post_thumbnail_html', 'improveseo_suppress_duplicate_featured_image', 10, 5 );
-function improveseo_suppress_duplicate_featured_image( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
-	if ( is_single() && get_post_meta( $post_id, '_improveseo_featured_image_set', true ) ) {
-		return '';
-	}
-	return $html;
 }
 
 
