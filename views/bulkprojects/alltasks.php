@@ -51,61 +51,62 @@ $url .= $_SERVER['REQUEST_URI'];
 		<h1> ImproveSEO | 2.0.11 </h1>
 		<span>Pro</span>
 	</div>
-	<div class="box-top">
-		<ul class="breadcrumb-seo">
-			<li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Improve SEO</a></li>
-			<li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
-			<li><?php echo esc_html($project_name); ?></li>
-		</ul>
-	</div>
-	<?php $search = isset($search) ? $search : ''; ?>
-	<div class="iseo-search-sort-row">
-		<form method="GET" action="" class="iseo-search-form">
-			<input type="hidden" name="page" value="improveseo_bulkprojects">
-			<input type="hidden" name="action" value="viewAllTasks">
-			<input type="hidden" name="id" value="<?= esc_attr($id) ?>">
-			<input type="text" name="search" value="<?= esc_attr($search) ?>"
-				class="iseo-search-input" placeholder="Search Here">
-			<button type="submit" class="iseo-search-btn">
-				<img src="<?php echo WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ?>" alt="search">
-			</button>
-		</form>
-		<?php if ($search): ?>
-			<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . esc_attr($id)) ?>" class="iseo-clear-btn">&#x2715; Clear</a>
-		<?php endif; ?>
-		<?php
-		$_atsbase        = admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . '&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
-		$_atkw_order     = ($orderBy === 'keyword_name' && $order === 'ASC') ? 'DESC' : 'ASC';
-		$_atdate_order   = ($orderBy === 'created_at'   && $order === 'ASC') ? 'DESC' : 'ASC';
-		$_atstatus_order = ($orderBy === 'status'       && $order === 'ASC') ? 'DESC' : 'ASC';
-		$_atkw_arrow     = $orderBy === 'keyword_name' ? ($order === 'ASC' ? ' ↑' : ' ↓') : '';
-		$_atdate_arrow   = $orderBy === 'created_at'   ? ($order === 'ASC' ? ' ↑' : ' ↓') : '';
-		$_atstatus_arrow = $orderBy === 'status'       ? ($order === 'ASC' ? ' ↑' : ' ↓') : '';
-		?>
-		<div class="iseo-sort-controls">
-			<span class="iseo-sort-label">Sort by</span>
-			<a href="<?= esc_url($_atsbase . '&orderBy=keyword_name&order=' . $_atkw_order) ?>"
-				class="iseo-sort-pill<?= $orderBy === 'keyword_name' ? ' iseo-sort-on' : '' ?>">Keyword<?= $_atkw_arrow ?></a>
-			<a href="<?= esc_url($_atsbase . '&orderBy=created_at&order=' . $_atdate_order) ?>"
-				class="iseo-sort-pill<?= $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?= $_atdate_arrow ?></a>
-			<a href="<?= esc_url($_atsbase . '&orderBy=status&order=' . $_atstatus_order) ?>"
-				class="iseo-sort-pill<?= $orderBy === 'status' ? ' iseo-sort-on' : '' ?>">Status<?= $_atstatus_arrow ?></a>
-		</div>
-		<div class="import-export-btn">
-			<button type="button" onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ?>';"
-				class="active">Add New Project</button>
-		</div>
-	</div>
-	<?php
-	$_atbase = admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . ($search ? '&search=' . urlencode($search) : '') . ($orderBy !== 'created_at' ? '&orderBy=' . urlencode($orderBy) : '') . ($order !== 'DESC' ? '&order=' . urlencode($order) : ''));
-	$is_preview = 'no';
-	if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true') {
-		$is_preview = 'yes';
-	}
-	?>
 	<form method="post">
+		<?php
+		$is_preview = 'no';
+		if (isset($_GET['post_preview'])) {
+			if ($_GET['post_preview'] == 'true') {
+				$is_preview = 'yes';
+			}
+		} ?>
 		<input type="hidden" name="is_preview_available" id="is_preview_available" value="<?php echo $is_preview; ?>" />
 		<?php wp_nonce_field('bulk_delete_tasks', 'bulk_delete_nonce'); ?>
+		<div class="box-top">
+			<ul class="breadcrumb-seo">
+				<li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Improve SEO</a></li>
+				<li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
+				<li><?php echo esc_html($project_name); ?></li>
+			</ul>
+		</div>
+		<?php $search = isset($search) ? $search : ''; ?>
+		<div class="iseo-search-sort-row">
+			<form method="GET" action="" class="iseo-search-form">
+				<input type="hidden" name="page" value="improveseo_bulkprojects">
+				<input type="hidden" name="action" value="viewAllTasks">
+				<input type="hidden" name="id" value="<?= esc_attr($id) ?>">
+				<input type="text" name="search" value="<?= esc_attr($search) ?>"
+					class="iseo-search-input" placeholder="Search Here">
+				<button type="submit" class="iseo-search-btn">
+					<img src="<?php echo WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ?>" alt="search">
+				</button>
+			</form>
+			<?php if ($search): ?>
+				<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . esc_attr($id)) ?>" class="iseo-clear-btn">&#x2715; Clear</a>
+			<?php endif; ?>
+			<?php
+			$_atsbase       = admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . '&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
+			$_atkw_order    = ($orderBy === 'keyword_name' && $order === 'ASC') ? 'DESC' : 'ASC';
+			$_atdate_order  = ($orderBy === 'created_at'  && $order === 'ASC') ? 'DESC' : 'ASC';
+			$_atstatus_order = ($orderBy === 'status'     && $order === 'ASC') ? 'DESC' : 'ASC';
+			$_atkw_arrow    = $orderBy === 'keyword_name' ? ($order === 'ASC' ? ' ↑' : ' ↓') : '';
+			$_atdate_arrow  = $orderBy === 'created_at'  ? ($order === 'ASC' ? ' ↑' : ' ↓') : '';
+			$_atstatus_arrow = $orderBy === 'status'     ? ($order === 'ASC' ? ' ↑' : ' ↓') : '';
+			?>
+			<div class="iseo-sort-controls">
+				<span class="iseo-sort-label">Sort by</span>
+				<a href="<?= esc_url($_atsbase . '&orderBy=keyword_name&order=' . $_atkw_order) ?>"
+					class="iseo-sort-pill<?= $orderBy === 'keyword_name' ? ' iseo-sort-on' : '' ?>">Keyword<?= $_atkw_arrow ?></a>
+				<a href="<?= esc_url($_atsbase . '&orderBy=created_at&order=' . $_atdate_order) ?>"
+					class="iseo-sort-pill<?= $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?= $_atdate_arrow ?></a>
+				<a href="<?= esc_url($_atsbase . '&orderBy=status&order=' . $_atstatus_order) ?>"
+					class="iseo-sort-pill<?= $orderBy === 'status' ? ' iseo-sort-on' : '' ?>">Status<?= $_atstatus_arrow ?></a>
+			</div>
+			<div class="import-export-btn">
+				<button type="button" onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ?>';"
+					class="active">Add New Project</button>
+			</div>
+		</div>
+		<?php $_atbase = admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . ($search ? '&search=' . urlencode($search) : '') . ($orderBy !== 'created_at' ? '&orderBy=' . urlencode($orderBy) : '') . ($order !== 'DESC' ? '&order=' . urlencode($order) : '')); ?>
 		<div class="actions">
 			<div>
 				<input type="hidden" name="page" value="improveseo_bulkprojects" />

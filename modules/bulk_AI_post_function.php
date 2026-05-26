@@ -1374,10 +1374,6 @@ function saveContentInTaskList()
 				return false;
 			} else {
 				my_plugin_log('saveContentInTaskList: ✅ WordPress post created successfully | Post ID: ' . $post_id . ' | Task ID: ' . $task_id);
-
-				if ( ! empty( $decoded_image ) ) {
-					improveseo_set_featured_image( $post_id, $decoded_image );
-				}
 			}
 
 

@@ -464,17 +464,7 @@ function copyAIFieldsToHiddenInputs() {
   var _ctaUrl  = jQuery("#cta_url, #cta_url_multi").first().val() || "";
   var _ctaCombined = _ctaText + (_ctaUrl ? "\nCTA URL: " + _ctaUrl : "");
   jQuery("#ai_call_to_action_hidden").val(_ctaCombined);
-  var _aiImageOpt = jQuery("input[name='aiImage']:checked").val() || "";
-  jQuery("#ai_image_option_hidden").val(_aiImageOpt);
-  var _aiImageUrl = "";
-  if (_aiImageOpt === "AI_image") {
-    _aiImageUrl = jQuery("#AI-Image-uploaded-path").val() || "";
-  } else if (_aiImageOpt === "Manually_image") {
-    _aiImageUrl = jQuery("#manually-image-uploaded-path").val() || "";
-  } else if (_aiImageOpt === "manually_promt_image") {
-    _aiImageUrl = jQuery("#AI-Prompt-Image-uploaded-path").val() || "";
-  }
-  jQuery("#ai_image_url_hidden").val(_aiImageUrl);
+  jQuery("#ai_image_option_hidden").val(jQuery("input[name='aiImage']:checked").val() || "");
   jQuery("#ai_generated_title_hidden").val(jQuery("#AI_Title").val() || jQuery("#ai_title").val() || "");
   jQuery("#ai_for_testing_only_hidden").val(jQuery("#for_testing_only").is(":checked") ? "1" : "0");
 }
@@ -495,18 +485,6 @@ function saveFinalData() {
   jQuery("#custom-description").val(meta_descreption);
 
   copyAIFieldsToHiddenInputs();
-
-  // Carry featured image opt-in to main form
-  var _fi = document.getElementById('set_featured_image_single');
-  var _fiExisting = document.getElementById('ai_set_featured_image_hidden');
-  if (!_fiExisting) {
-    _fiExisting = document.createElement('input');
-    _fiExisting.type = 'hidden';
-    _fiExisting.name = 'set_featured_image';
-    _fiExisting.id   = 'ai_set_featured_image_hidden';
-    document.getElementById('main_form').appendChild(_fiExisting);
-  }
-  _fiExisting.value = (_fi && _fi.checked) ? '1' : '0';
 
   var modalProjectName = document.getElementById('modal_project_name');
   if (modalProjectName && modalProjectName.value.trim()) {
