@@ -419,17 +419,24 @@ function crop_image_programmatically($image_path, $crop_width, $crop_height, $cr
 
 
 
-// Schedule the cron job
+// Ensure cronjob_request_event is scheduled. Safe to call repeatedly.
+// Logs only when it had to (re)schedule, so this isn't noisy.
+function improveseo_ensure_cron_scheduled()
+{
+	if (wp_next_scheduled('cronjob_request_event')) {
+		return;
+	}
+	$ok = wp_schedule_event(time(), 'two_minutes', 'cronjob_request_event');
+	if (false === $ok) {
+		my_plugin_log('IMPROVESEO CRON: wp_schedule_event returned FALSE for cronjob_request_event');
+	} else {
+		my_plugin_log('IMPROVESEO CRON: cronjob_request_event was missing; rescheduled');
+	}
+}
 
 function activate_my_plugin()
 {
-
-	if (!wp_next_scheduled('cronjob_request_event')) {
-
-		wp_schedule_event(time(), 'two_minutes', 'cronjob_request_event');
-
-	}
-
+	improveseo_ensure_cron_scheduled();
 }
 
 
@@ -475,6 +482,10 @@ function custom_cron_intervals($schedules)
 }
 
 add_filter('cron_schedules', 'custom_cron_intervals');
+
+// Self-heal: if the cron event vanished from wp_options, restore it on next request.
+// Runs on init (after cron_schedules filter is registered) so the 'two_minutes' interval is available.
+add_action('init', 'improveseo_ensure_cron_scheduled');
 
 
 

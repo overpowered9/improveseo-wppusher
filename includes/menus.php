@@ -99,6 +99,17 @@ add_submenu_page('improveseo_dashboard', 'Posting', 'Create Posts', 'manage_opti
 
     add_submenu_page('improveseo_dashboard', 'Settings', 'Settings', 'manage_options', 'improveseo_settings', 'improveseo_settings');
 
+    add_submenu_page(
+        'improveseo_dashboard',
+        'Cron Status',
+        'Cron Status',
+        'manage_options',
+        'improveseo_cron_status',
+        function () {
+            include_once WT_PATH . '/views/cron-status.php';
+        }
+    );
+
 
     // add_submenu_page('improveseo_dashboard', 'Authors', 'Authors', 'manage_options', 'improveseo_authors', 'improveseo_authors');
 
