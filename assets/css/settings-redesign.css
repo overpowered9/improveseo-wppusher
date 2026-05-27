@@ -1,0 +1,490 @@
+/* ============================================================
+   ImproveSEO Settings Page — Premium Redesign
+   Scope: .iseo-settings-page
+   Brand: Minimal · Modern · Trustworthy · Calm
+   ============================================================ */
+
+/* ── Page Scaffold ─────────────────────────────────────────── */
+.iseo-settings-page {
+    max-width: 820px;
+    padding: 4px 0 48px;
+    color: #0B132B;
+}
+
+/* ── Intro Banner ──────────────────────────────────────────── */
+.iseo-intro-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #EBF5FB;
+    border-left: 4px solid #1C7293;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    line-height: 1.55;
+}
+
+.iseo-intro-banner p {
+    margin: 0 !important;
+    font-size: 13.5px;
+    color: #2D4A5E;
+}
+
+.iseo-intro-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: #1C7293;
+}
+
+.iseo-intro-banner a {
+    color: #1C7293;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.iseo-intro-banner a:hover {
+    text-decoration: underline;
+}
+
+/* ── Main Settings Container ───────────────────────────────── */
+.iseo-settings-container {
+    background: #FFFFFF;
+    border-radius: 14px;
+    border: 1px solid #E9EDF2;
+    box-shadow: 0 1px 12px rgba(11, 19, 43, 0.07), 0 1px 3px rgba(11, 19, 43, 0.04);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+/* ── Identity Bar ──────────────────────────────────────────── */
+.iseo-identity-bar {
+    display: flex;
+    align-items: center;
+    padding: 14px 24px;
+    background: #FAFAFB;
+    border-bottom: 1px solid #E9EDF2;
+}
+
+.iseo-identity-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.iseo-identity-bar img {
+    height: 26px !important;
+    width: auto !important;
+    display: block;
+}
+
+.iseo-brand-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0B132B;
+    letter-spacing: -0.01em;
+}
+
+.iseo-version {
+    font-size: 12px;
+    color: #9CA3AF;
+    font-weight: 400;
+}
+
+.iseo-badge-pro {
+    background: #1C7293;
+    color: #fff !important;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.8;
+    display: inline-block;
+}
+
+/* ── Form Top Bar: breadcrumb + save ───────────────────────── */
+.iseo-form-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 24px;
+    background: #fff;
+    border-bottom: 1px solid #E9EDF2;
+}
+
+.iseo-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: #9CA3AF;
+    margin: 0;
+    padding: 0;
+}
+
+.iseo-breadcrumb a {
+    color: #1C7293;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.iseo-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.iseo-breadcrumb-sep {
+    color: #D1D5DB;
+    font-size: 15px;
+    line-height: 1;
+}
+
+/* ── Card Sections (inside .iseo-settings-container) ───────── */
+.iseo-card-section {
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.iseo-card-section:last-of-type {
+    border-bottom: none;
+}
+
+/* ── Standalone Card (outside container) ──────────────────── */
+.iseo-standalone-card {
+    background: #FFFFFF;
+    border-radius: 14px;
+    border: 1px solid #E9EDF2;
+    box-shadow: 0 1px 12px rgba(11, 19, 43, 0.07), 0 1px 3px rgba(11, 19, 43, 0.04);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+/* ── Card Header ───────────────────────────────────────────── */
+.iseo-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 20px 24px 16px;
+}
+
+.iseo-card-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.iseo-icon-server  { background: #EBF5FB; color: #1C7293; }
+.iseo-icon-business { background: #ECFDF5; color: #059669; }
+.iseo-icon-account  { background: #F5F3FF; color: #7C3AED; }
+
+.iseo-card-header-text {
+    flex: 1;
+    min-width: 0;
+    padding-top: 1px;
+}
+
+.iseo-card-title {
+    font-size: 14.5px !important;
+    font-weight: 600 !important;
+    color: #0B132B !important;
+    margin: 0 0 4px !important;
+    padding: 0 !important;
+    line-height: 1.35 !important;
+}
+
+.iseo-card-subtitle {
+    font-size: 13px !important;
+    color: #6B7280 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.5 !important;
+    font-weight: 400 !important;
+}
+
+/* ── Card Body ─────────────────────────────────────────────── */
+.iseo-card-body {
+    padding: 4px 24px 22px;
+}
+
+/* ── Field Groups ──────────────────────────────────────────── */
+.iseo-field-group {
+    margin-bottom: 18px;
+}
+
+.iseo-field-group:last-child {
+    margin-bottom: 0;
+}
+
+/* ── Labels ────────────────────────────────────────────────── */
+.iseo-settings-page .iseo-label {
+    display: block !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    margin: 0 0 6px !important;
+    padding: 0 !important;
+    line-height: 1.4 !important;
+}
+
+/* ── Input Fields — override pill-shape from form.improve-seo-form-global ── */
+.iseo-settings-page .iseo-input,
+.iseo-settings-page .iseo-select {
+    display: block !important;
+    width: 100% !important;
+    height: 42px !important;
+    padding: 0 14px !important;
+    font-size: 13.5px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    color: #1F2937 !important;
+    background: #FAFAFA !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
+    outline: none !important;
+    box-shadow: none !important;
+    line-height: 42px !important;
+}
+
+.iseo-settings-page .iseo-input::placeholder {
+    color: #9CA3AF !important;
+    font-size: 13px !important;
+    opacity: 1 !important;
+}
+
+.iseo-settings-page .iseo-input:focus,
+.iseo-settings-page .iseo-select:focus {
+    border-color: #1C7293 !important;
+    background: #fff !important;
+    box-shadow: 0 0 0 3px rgba(28, 114, 147, 0.1) !important;
+    outline: none !important;
+}
+
+/* ── Select Dropdown ───────────────────────────────────────── */
+.iseo-settings-page .iseo-select {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    background-size: 16px 16px !important;
+    padding-right: 38px !important;
+    cursor: pointer !important;
+    line-height: normal !important;
+}
+
+/* ── Helper Text ───────────────────────────────────────────── */
+.iseo-helper-text {
+    display: block;
+    font-size: 12px;
+    color: #9CA3AF;
+    margin-top: 5px;
+    line-height: 1.45;
+    padding: 0;
+}
+
+/* ── Guide Block (credentials instructions) ────────────────── */
+.iseo-guide-block {
+    background: #F0FDF9;
+    border: 1px solid #BBF7D0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 20px;
+}
+
+.iseo-guide-title {
+    font-size: 13px !important;
+    color: #065F46 !important;
+    margin: 0 0 8px !important;
+    padding: 0 !important;
+    font-weight: 600 !important;
+    line-height: 1.4 !important;
+}
+
+.iseo-guide-steps {
+    margin: 0 !important;
+    padding-left: 20px !important;
+    font-size: 12.5px !important;
+    color: #047857 !important;
+    line-height: 1.8 !important;
+}
+
+.iseo-guide-steps a {
+    color: #1C7293;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.iseo-guide-steps a:hover {
+    text-decoration: underline;
+}
+
+/* ── Card Footer ───────────────────────────────────────────── */
+.iseo-card-footer {
+    padding: 14px 24px 18px;
+    background: #FAFAFB;
+    border-top: 1px solid #F3F4F6;
+}
+
+/* ── Save Changes Button (Primary) ────────────────────────── */
+.iseo-settings-page input[type="submit"].iseo-btn-save,
+.iseo-settings-page .iseo-btn-save {
+    background: #1C7293 !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 9px 20px !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    font-family: inherit !important;
+    cursor: pointer !important;
+    transition: background 0.15s ease, box-shadow 0.15s ease !important;
+    line-height: 1.4 !important;
+    display: inline-block !important;
+    box-shadow: 0 1px 3px rgba(28, 114, 147, 0.3) !important;
+    outline: none !important;
+    text-decoration: none !important;
+    margin: 0 !important;
+}
+
+.iseo-settings-page input[type="submit"].iseo-btn-save:hover,
+.iseo-settings-page input[type="submit"].iseo-btn-save:focus,
+.iseo-settings-page .iseo-btn-save:hover {
+    background: #155E77 !important;
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(28, 114, 147, 0.4) !important;
+}
+
+/* ── Test Connection Button (Secondary/Outlined) ───────────── */
+.iseo-settings-page .iseo-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    color: #1C7293;
+    border: 1.5px solid #1C7293;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    line-height: 1.4;
+    text-decoration: none;
+}
+
+.iseo-settings-page .iseo-btn-secondary:hover {
+    background: #1C7293;
+    color: #fff;
+}
+
+.iseo-settings-page .iseo-btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: transparent !important;
+    color: #1C7293 !important;
+}
+
+/* ── Account Primary Button ────────────────────────────────── */
+.iseo-settings-page .iseo-btn-primary {
+    display: inline-block;
+    background: #1C7293;
+    color: #fff !important;
+    border: 1.5px solid #1C7293;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 13.5px;
+    font-weight: 600;
+    font-family: inherit;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    line-height: 1.4;
+}
+
+.iseo-settings-page .iseo-btn-primary:hover,
+.iseo-settings-page .iseo-btn-primary:focus {
+    background: #155E77 !important;
+    border-color: #155E77 !important;
+    color: #fff !important;
+    text-decoration: none !important;
+}
+
+/* ── Account Outlined Button ───────────────────────────────── */
+.iseo-settings-page .iseo-btn-outlined {
+    display: inline-block;
+    background: transparent;
+    color: #1C7293 !important;
+    border: 1.5px solid #1C7293;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 13.5px;
+    font-weight: 500;
+    font-family: inherit;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    line-height: 1.4;
+}
+
+.iseo-settings-page .iseo-btn-outlined:hover,
+.iseo-settings-page .iseo-btn-outlined:focus {
+    background: #1C7293 !important;
+    color: #fff !important;
+    text-decoration: none !important;
+}
+
+/* ── Account Actions Area ──────────────────────────────────── */
+.iseo-account-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 0 24px 24px;
+}
+
+/* ── Connection Status Messages ────────────────────────────── */
+.iseo-connection-status {
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.iseo-status-success {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: #065F46;
+    padding: 12px 14px;
+    background: #F0FDF9;
+    border: 1px solid #A7F3D0;
+    border-radius: 8px;
+    line-height: 1.55;
+}
+
+.iseo-status-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: #991B1B;
+    padding: 12px 14px;
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    border-radius: 8px;
+    line-height: 1.55;
+}
+
+.iseo-status-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #92400E;
+    padding: 12px 14px;
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-radius: 8px;
+    line-height: 1.55;
+}

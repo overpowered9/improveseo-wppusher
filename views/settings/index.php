@@ -18,67 +18,101 @@ use ImproveSEO\View;
 
 <h1 class="hidden">Improve SEO Settings</h1>
 
-    <div class="seo-breadcumb">
-        <div class="seo-text">
-           <p>Configure your ImproveSEO server settings to enable AI content generation. Get your API Key and Site Code from your <a href="https://account.improveseoplugin.com/" target="_blank">ImproveSEO Dashboard</a>.</p>
-        </div>
-    </div>
-    <div class="global-wrap">
-        <div class="head-bar">
-            <img src="<?php echo WT_URL.'/assets/images/latest-images/seo-latest-logo.svg'?>" alt="project-list-logo"> 
-            <h1> ImproveSEO | 2.0.11 </h1>
-            <span>Pro</span>
-        </div>
-        <form class="improve-seo-form-global" method="post" action="options.php">
-        <div class="box-top" style="display: flex; justify-content: space-between; align-items: center;">
-            <ul class="breadcrumb-seo">
-                <li>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#">Improve SEO</a></li>
-                <li>Settings</li>
-            </ul>
-            <div class="import-export-btn" style="margin: 0px !important;">
-                    <input type="submit" class="active setting_submit"  value="<?php _e('Save Changes') ?>" ></input>
-                </div>
-        </div>
-        <div class="improve-seo-form-box"  style="padding-top: 0px !important;">
-            <?php settings_fields('improveseo_settings'); ?>
-                
-                <!-- ImproveSEO Server Configuration -->
-                <div class="seo-form-field" style="margin-top: 0px !important; border: 2px solid #007cba; background: #f7f9fc; padding: 15px; border-radius: 5px;">
-                    <h3 style="margin-top: 0; color: #007cba;">🚀 ImproveSEO Server Settings</h3>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label> API Key </label>
-                        <input type="text" placeholder="Your API Key from ImproveSEO Dashboard" name="improveseo_api_key" value="<?php echo get_option('improveseo_api_key'); ?>" > 
-                        <span>Get this from your ImproveSEO Dashboard overview tab</span>
-                    </div>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label> Site Code </label>
-                        <input type="text" placeholder="Your Site Code from ImproveSEO Dashboard" name="improveseo_site_code" value="<?php echo get_option('improveseo_site_code'); ?>" > 
-                        <span>Get this from your ImproveSEO Dashboard websites tab</span>
-                    </div>
-                    
-                    <div style="background: #e8f5e8; border: 1px solid #28a745; padding: 10px; border-radius: 3px; margin-top: 10px;">
-                        
-                        <strong>How to get credentials:</strong><br>
-                        1. Visit your <a href="https://account.improveseoplugin.com/" target="_blank">ImproveSEO Dashboard</a><br>
-                        2. Copy your API Key from the Overview tab<br>
-                        3. Go to Websites tab and add this domain<br>
-                        4. Copy the Site Code and paste above<br>
-                        5. Save settings and start generating content!
-                    </div>
-                </div>
-                
-                <!-- Business Details (Schema Markup & AI Personalisation) -->
-                <div class="seo-form-field" style="margin-top: 15px; border: 2px solid #28a745; background: #f7fcf8; padding: 15px; border-radius: 5px;">
-                    <h3 style="margin-top: 0; color: #155724;">Business Details</h3>
-                    <p style="color: #555; font-size: 13px; margin-bottom: 15px;">
-                        These details were collected during onboarding and are used for schema markup and AI content personalisation. Update them here at any time.
-                    </p>
+<div class="iseo-settings-page">
 
-                    <div style="margin-bottom: 15px;">
-                        <label>Business Type</label>
-                        <select name="improveseo_business_type" style="width: 100%; max-width: 400px; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px;">
+    <!-- Intro guidance banner -->
+    <div class="iseo-intro-banner">
+        <svg class="iseo-intro-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <p>Configure your ImproveSEO server settings to enable AI content generation. Get your API Key and Site Code from your <a href="https://account.improveseoplugin.com/" target="_blank">ImproveSEO Dashboard</a>.</p>
+    </div>
+
+    <!-- Main Settings Panel -->
+    <div class="iseo-settings-container">
+
+        <!-- Plugin Identity Bar -->
+        <div class="iseo-identity-bar">
+            <div class="iseo-identity-brand">
+                <img src="<?php echo WT_URL.'/assets/images/latest-images/seo-latest-logo.svg'?>" alt="ImproveSEO">
+                <span class="iseo-brand-name">ImproveSEO</span>
+                <span class="iseo-version">2.0.11</span>
+                <span class="iseo-badge-pro">Pro</span>
+            </div>
+        </div>
+
+        <form class="improve-seo-form-global iseo-settings-form" method="post" action="options.php">
+            <?php settings_fields('improveseo_settings'); ?>
+
+            <!-- Form top bar: breadcrumb navigation + save button -->
+            <div class="iseo-form-topbar">
+                <nav class="iseo-breadcrumb" aria-label="Settings breadcrumb">
+                    <a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+                    <span class="iseo-breadcrumb-sep">›</span>
+                    <span>Settings</span>
+                </nav>
+                <input type="submit" class="iseo-btn-save active setting_submit" value="<?php _e('Save Changes') ?>">
+            </div>
+
+            <!-- ── Section 1: Server Connection ──────────────── -->
+            <div class="iseo-card-section">
+                <div class="iseo-card-header">
+                    <div class="iseo-card-icon iseo-icon-server">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                    </div>
+                    <div class="iseo-card-header-text">
+                        <h3 class="iseo-card-title">ImproveSEO Server Settings</h3>
+                        <p class="iseo-card-subtitle">Connect your site to the ImproveSEO AI engine to start generating content.</p>
+                    </div>
+                </div>
+                <div class="iseo-card-body">
+
+                    <div class="iseo-field-group">
+                        <label class="iseo-label" for="iseo_api_key">API Key</label>
+                        <input type="text" id="iseo_api_key" class="iseo-input" placeholder="Your API Key from ImproveSEO Dashboard" name="improveseo_api_key" value="<?php echo esc_attr( get_option('improveseo_api_key') ); ?>">
+                        <span class="iseo-helper-text">Get this from your ImproveSEO Dashboard overview tab</span>
+                    </div>
+
+                    <div class="iseo-field-group">
+                        <label class="iseo-label" for="iseo_site_code">Site Code</label>
+                        <input type="text" id="iseo_site_code" class="iseo-input" placeholder="Your Site Code from ImproveSEO Dashboard" name="improveseo_site_code" value="<?php echo esc_attr( get_option('improveseo_site_code') ); ?>">
+                        <span class="iseo-helper-text">Get this from your ImproveSEO Dashboard websites tab</span>
+                    </div>
+
+                    <div class="iseo-guide-block">
+                        <p class="iseo-guide-title"><strong>How to get credentials:</strong></p>
+                        <ol class="iseo-guide-steps">
+                            <li>Visit your <a href="https://account.improveseoplugin.com/" target="_blank">ImproveSEO Dashboard</a></li>
+                            <li>Copy your API Key from the Overview tab</li>
+                            <li>Go to Websites tab and add this domain</li>
+                            <li>Copy the Site Code and paste above</li>
+                            <li>Save settings and start generating content!</li>
+                        </ol>
+                    </div>
+
+                </div>
+                <div class="iseo-card-footer">
+                    <button type="button" id="test_server_connection" class="iseo-btn-secondary">
+                        🔌 Test Server Connection
+                    </button>
+                    <div id="connection_status" class="iseo-connection-status"></div>
+                </div>
+            </div>
+
+            <!-- ── Section 2: Business Details ───────────────── -->
+            <div class="iseo-card-section">
+                <div class="iseo-card-header">
+                    <div class="iseo-card-icon iseo-icon-business">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    </div>
+                    <div class="iseo-card-header-text">
+                        <h3 class="iseo-card-title">Business Details</h3>
+                        <p class="iseo-card-subtitle">These details were collected during onboarding and are used for schema markup and AI content personalisation. Update them here at any time.</p>
+                    </div>
+                </div>
+                <div class="iseo-card-body">
+
+                    <div class="iseo-field-group">
+                        <label class="iseo-label" for="iseo_business_type">Business Type</label>
+                        <select id="iseo_business_type" name="improveseo_business_type" class="iseo-select">
                             <option value="">— Select type —</option>
                             <option value="local_service" <?php selected( get_option('improveseo_business_type'), 'local_service' ); ?>>Local Service Business</option>
                             <option value="ecommerce"     <?php selected( get_option('improveseo_business_type'), 'ecommerce'     ); ?>>E-Commerce / Online Store</option>
@@ -91,76 +125,58 @@ use ImproveSEO\View;
                             <option value="education"     <?php selected( get_option('improveseo_business_type'), 'education'     ); ?>>Education / Coaching</option>
                             <option value="other"         <?php selected( get_option('improveseo_business_type'), 'other'         ); ?>>Other</option>
                         </select>
-                        <span>Used for local schema markup type</span>
+                        <span class="iseo-helper-text">Used for local schema markup type</span>
                     </div>
 
-                    <div style="margin-bottom: 15px;">
-                        <label>City / Location</label>
-                        <input type="text" placeholder="e.g. New York, London, Sydney" name="improveseo_business_city" value="<?php echo esc_attr( get_option('improveseo_business_city', '') ); ?>">
-                        <span>Used for local SEO targeting in AI-generated content</span>
+                    <div class="iseo-field-group">
+                        <label class="iseo-label" for="iseo_business_city">City / Location</label>
+                        <input type="text" id="iseo_business_city" class="iseo-input" placeholder="e.g. New York, London, Sydney" name="improveseo_business_city" value="<?php echo esc_attr( get_option('improveseo_business_city', '') ); ?>">
+                        <span class="iseo-helper-text">Used for local SEO targeting in AI-generated content</span>
                     </div>
 
-                    <div style="margin-bottom: 15px;">
-                        <label>Main Service or Topic</label>
-                        <input type="text" placeholder="e.g. Plumbing, Wedding Photography, Digital Marketing" name="improveseo_business_service" value="<?php echo esc_attr( get_option('improveseo_business_service', '') ); ?>">
-                        <span>Used as the default keyword seed for AI article generation</span>
+                    <div class="iseo-field-group">
+                        <label class="iseo-label" for="iseo_business_service">Main Service or Topic</label>
+                        <input type="text" id="iseo_business_service" class="iseo-input" placeholder="e.g. Plumbing, Wedding Photography, Digital Marketing" name="improveseo_business_service" value="<?php echo esc_attr( get_option('improveseo_business_service', '') ); ?>">
+                        <span class="iseo-helper-text">Used as the default keyword seed for AI article generation</span>
                     </div>
-                </div>
 
-                <!-- Connection Test Button -->
-                <div class="seo-form-field">
-                    <button type="button" id="test_server_connection" class="button button-secondary">
-                        🔌 Test Server Connection
-                    </button>
-                    <div id="connection_status" style="margin-top: 10px;"></div>
                 </div>
+            </div>
 
-                <!-- Legacy Settings (Hidden but kept for compatibility) -->
-                <div style="display: none;">
-                    <div class="seo-form-field">
-                        <label> Chat GPT Key (Legacy - Hidden) </label>
-                        <input type="text" placeholder="Ex. sadfe456fds2v1xczv86s65g4s5fd4gr6e5tge5r4g54321xc86dssdfewtwerPP" name="improveseo_chatgpt_api_key" value="<?php echo get_option('improveseo_chatgpt_api_key'); ?>" > 
-                    </div>
+            <!-- Legacy Settings (hidden — kept for backwards compatibility) -->
+            <div style="display: none;">
+                <div class="seo-form-field">
+                    <label> Chat GPT Key (Legacy - Hidden) </label>
+                    <input type="text" placeholder="Ex. sadfe456fds2v1xczv86s65g4s5fd4gr6e5tge5r4g54321xc86dssdfewtwerPP" name="improveseo_chatgpt_api_key" value="<?php echo get_option('improveseo_chatgpt_api_key'); ?>">
                 </div>
+            </div>
 
-                <!-- Commented out irrelevant fields for now
-                <div class="seo-form-field" style="margin-top: 0px !important;">
-                    <label> Pixabay API Key </label>
-                    <input type="text" placeholder="Ex. 236548568" name="improveseo_pixabay_key" value="<?php echo get_option('improveseo_pixabay_key'); ?>" > 
-                    <span> How to Get a Free Pixabay API Key: </span>
-                </div> 
-                <div class="seo-form-field">
-                    <label> Google API Key </label>
-                    <input type="text" placeholder="Ex. 23654856845" name="improveseo_google_api_key" value="<?php echo get_option('improveseo_google_api_key'); ?>" > 
-                    <span> How to Get a Free Google Maps API Key: </span>
-                </div>
-                <div class="seo-form-field">
-                    <label> Word AI Email </label>
-                    <input type="text" placeholder="Ex. Ex." name="improveseo_word_ai_email" value="<?php echo get_option('improveseo_word_ai_email'); ?>"  > 
-                </div>
-                <div class="seo-form-field">
-                    <label> Word AI Password </label>
-                    <input type="text" placeholder="Ex. Ex." name="improveseo_word_ai_pass" value="<?php echo get_option('improveseo_word_ai_pass'); ?>"  > 
-                </div>
-                -->          
-            </form>     
-        </div>  
-    </div>
+        </form>
 
-    <div class="global-wrap seo-mt-30">
-        <div class="local-seo">
-            <h2>ImproveSEO Account</h2>
-            <p>Manage your subscription, credits, support tickets, and website settings from your ImproveSEO dashboard.</p>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;">
-                <a href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary">
-                    Open Dashboard &rarr;
-                </a>
-                <a href="https://account.improveseoplugin.com/support" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary">
-                    Support Tickets
-                </a>
+    </div><!-- .iseo-settings-container -->
+
+    <!-- ── Section 3: Account & Subscription ──────────────── -->
+    <div class="iseo-standalone-card iseo-account-card">
+        <div class="iseo-card-header">
+            <div class="iseo-card-icon iseo-icon-account">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+            <div class="iseo-card-header-text">
+                <h3 class="iseo-card-title">ImproveSEO Account</h3>
+                <p class="iseo-card-subtitle">Manage your subscription, credits, support tickets, and website settings from your ImproveSEO dashboard.</p>
             </div>
         </div>
+        <div class="iseo-account-actions">
+            <a href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer" class="iseo-btn-primary">
+                Open Dashboard &rarr;
+            </a>
+            <a href="https://account.improveseoplugin.com/support" target="_blank" rel="noopener noreferrer" class="iseo-btn-outlined">
+                Support Tickets
+            </a>
+        </div>
     </div>
+
+</div><!-- .iseo-settings-page -->
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -168,29 +184,29 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('test_server_connection').addEventListener('click', function() {
         const button = this;
         const statusDiv = document.getElementById('connection_status');
-        
+
         // Get form values (server URL is fixed)
         const apiKey = document.querySelector('input[name="improveseo_api_key"]').value;
         const siteCode = document.querySelector('input[name="improveseo_site_code"]').value;
-        
+
         // Validate inputs
         if (!apiKey || !siteCode) {
-            statusDiv.innerHTML = '<div style="color: #dc3545; padding: 10px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 3px;">❌ Please fill in API Key and Site Code first.</div>';
+            statusDiv.innerHTML = '<div class="iseo-status-error">❌ Please fill in API Key and Site Code first.</div>';
             return;
         }
-        
+
         // Show loading
         button.disabled = true;
         button.textContent = '🔄 Testing Connection...';
-        statusDiv.innerHTML = '<div style="color: #856404; padding: 10px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 3px;">⏳ Testing connection to ImproveSEO server...</div>';
-        
+        statusDiv.innerHTML = '<div class="iseo-status-loading">⏳ Testing connection to ImproveSEO server...</div>';
+
         // Test connection using WordPress AJAX
         const data = new FormData();
         data.append('action', 'test_improveseo_connection');
         data.append('api_key', apiKey);
         data.append('site_code', siteCode);
         data.append('nonce', '<?php echo wp_create_nonce("test_connection_nonce"); ?>');
-        
+
         fetch('<?php echo admin_url("admin-ajax.php"); ?>', {
             method: 'POST',
             body: data
@@ -199,24 +215,24 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(result => {
             button.disabled = false;
             button.textContent = '🔌 Test Server Connection';
-            
+
             if (result.success) {
                 statusDiv.innerHTML = `
-                    <div style="color: #155724; padding: 10px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 3px;">
-                        ✅ <strong>Connection Successful!</strong><br>
-                        📊 Credits: ${result.data.credits ? 
-                            `Images: ${result.data.credits.images}, Content: ${result.data.credits.content}, Keywords: ${result.data.credits.keywords}` : 
+                    <div class="iseo-status-success">
+                        ✅ <div><strong>Connection Successful!</strong><br>
+                        📊 Credits: ${result.data.credits ?
+                            `Images: ${result.data.credits.images}, Content: ${result.data.credits.content}, Keywords: ${result.data.credits.keywords}` :
                             'Available'}<br>
                         🔑 User: ${result.data.user || 'Authenticated'}<br>
-                        🌐 Server: ${result.data.server || 'Connected'}
+                        🌐 Server: ${result.data.server || 'Connected'}</div>
                     </div>
                 `;
             } else {
                 statusDiv.innerHTML = `
-                    <div style="color: #721c24; padding: 10px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 3px;">
-                        ❌ <strong>Connection Failed!</strong><br>
+                    <div class="iseo-status-error">
+                        ❌ <div><strong>Connection Failed!</strong><br>
                         Error: ${result.data.error || 'Unknown error'}<br>
-                        Please check your settings and try again.
+                        Please check your settings and try again.</div>
                     </div>
                 `;
             }
@@ -225,10 +241,10 @@ document.addEventListener('DOMContentLoaded', function() {
             button.disabled = false;
             button.textContent = '🔌 Test Server Connection';
             statusDiv.innerHTML = `
-                <div style="color: #721c24; padding: 10px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 3px;">
-                    ❌ <strong>Connection Test Failed!</strong><br>
+                <div class="iseo-status-error">
+                    ❌ <div><strong>Connection Test Failed!</strong><br>
                     Error: ${error.message}<br>
-                    Please check your server URL and network connection.
+                    Please check your server URL and network connection.</div>
                 </div>
             `;
         });
