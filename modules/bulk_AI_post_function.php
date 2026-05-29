@@ -1374,6 +1374,22 @@ function saveContentInTaskList()
 				return false;
 			} else {
 				my_plugin_log('saveContentInTaskList: ✅ WordPress post created successfully | Post ID: ' . $post_id . ' | Task ID: ' . $task_id);
+
+				// ── Featured image (bulk) ───────────────────────────────────────
+				if (
+					get_option( 'improveseo_featured_images_enabled', '0' ) &&
+					get_option( 'improveseo_featured_images_bulk',    '0' ) &&
+					isset( $decoded_image ) &&
+					filter_var( $decoded_image, FILTER_VALIDATE_URL )
+				) {
+					$att_id = improveseo_set_featured_image_from_url( $post_id, $decoded_image, $post_title );
+					if ( $att_id ) {
+						my_plugin_log( 'saveContentInTaskList: ✅ Featured image set | Post ID: ' . $post_id . ' | Attachment ID: ' . $att_id );
+					} else {
+						my_plugin_log( 'saveContentInTaskList: ⚠️ Featured image failed | Post ID: ' . $post_id . ' | Image URL: ' . $decoded_image );
+					}
+				}
+				// ───────────────────────────────────────────────────────────────
 			}
 
 

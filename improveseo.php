@@ -823,6 +823,74 @@ function improveseo_hide_other_notices()
 
 
 
+/**
+ * Registers an already-downloaded image in WP uploads as a media attachment
+ * and sets it as the featured image (post thumbnail) for the given post.
+ *
+ * Only accepts local uploads URLs — skips remote URLs to avoid double-downloading.
+ *
+ * @param int    $post_id    The post to attach the thumbnail to.
+ * @param string $image_url  A URL inside wp-content/uploads, e.g. from generateBulkAiImage().
+ * @param string $post_title Used as the attachment title; falls back to filename.
+ * @return int|false  Attachment ID on success, false on any failure.
+ */
+function improveseo_set_featured_image_from_url( $post_id, $image_url, $post_title = '' ) {
+	if ( empty( $image_url ) || empty( $post_id ) ) {
+		return false;
+	}
+
+	require_once ABSPATH . 'wp-admin/includes/image.php';
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	require_once ABSPATH . 'wp-admin/includes/media.php';
+
+	$upload_info = wp_upload_dir();
+	$base_url    = untrailingslashit( $upload_info['baseurl'] );
+	$base_dir    = untrailingslashit( $upload_info['basedir'] );
+
+	// Only handle files that are already in the local uploads directory.
+	if ( strpos( $image_url, $base_url ) !== 0 ) {
+		error_log( 'improveseo_set_featured_image_from_url: not a local uploads URL, skipping — ' . $image_url );
+		return false;
+	}
+
+	$relative  = ltrim( substr( $image_url, strlen( $base_url ) ), '/' );
+	$file_path = $base_dir . '/' . $relative;
+
+	if ( ! file_exists( $file_path ) ) {
+		error_log( 'improveseo_set_featured_image_from_url: file not found at ' . $file_path );
+		return false;
+	}
+
+	$file_type = wp_check_filetype( basename( $file_path ) );
+	if ( empty( $file_type['type'] ) ) {
+		error_log( 'improveseo_set_featured_image_from_url: unrecognised mime type for ' . $file_path );
+		return false;
+	}
+
+	$attachment = array(
+		'post_mime_type' => $file_type['type'],
+		'post_title'     => sanitize_text_field( $post_title ?: pathinfo( $file_path, PATHINFO_FILENAME ) ),
+		'post_content'   => '',
+		'post_status'    => 'inherit',
+	);
+
+	$attachment_id = wp_insert_attachment( $attachment, $file_path, $post_id );
+
+	if ( is_wp_error( $attachment_id ) ) {
+		error_log( 'improveseo_set_featured_image_from_url: wp_insert_attachment error — ' . $attachment_id->get_error_message() );
+		return false;
+	}
+
+	$metadata = wp_generate_attachment_metadata( $attachment_id, $file_path );
+	wp_update_attachment_metadata( $attachment_id, $metadata );
+
+	$result = set_post_thumbnail( $post_id, $attachment_id );
+	error_log( 'improveseo_set_featured_image_from_url: ' . ( $result ? '✅ set' : '❌ failed' ) . ' | post=' . $post_id . ' attachment=' . $attachment_id );
+
+	return $result ? $attachment_id : false;
+}
+
+
 /***************************************************/
 
 /***************** Generate AI Post ****************/

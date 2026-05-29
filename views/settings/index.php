@@ -188,6 +188,8 @@ use ImproveSEO\View;
         <div class="iseo-col-sidebar">
 
             <!-- Content Features Card -->
+            <form class="iseo-features-form" method="post" action="options.php">
+                <?php settings_fields('improveseo_settings'); ?>
             <div class="iseo-standalone-card iseo-features-card">
                 <div class="iseo-card-header">
                     <div class="iseo-card-icon iseo-icon-image">
@@ -209,7 +211,8 @@ use ImproveSEO\View;
                                 <span class="iseo-toggle-desc">Automatically generate &amp; attach a featured image to AI-created posts.</span>
                             </div>
                             <label class="iseo-toggle-switch" aria-label="Enable Featured Images">
-                                <input type="checkbox" id="iseo_featured_images_enabled" name="iseo_featured_images_enabled" value="1">
+                                <input type="hidden" name="improveseo_featured_images_enabled" value="0">
+                                <input type="checkbox" id="iseo_featured_images_enabled" name="improveseo_featured_images_enabled" value="1" <?php checked( get_option( 'improveseo_featured_images_enabled', '0' ), '1' ); ?>>
                                 <span class="iseo-toggle-track"></span>
                             </label>
                         </div>
@@ -223,7 +226,8 @@ use ImproveSEO\View;
                                     <span class="iseo-toggle-desc">Apply when running bulk post generation projects.</span>
                                 </div>
                                 <label class="iseo-toggle-switch" aria-label="Enable for Bulk Posts">
-                                    <input type="checkbox" id="iseo_featured_images_bulk" name="iseo_featured_images_bulk" value="1">
+                                    <input type="hidden" name="improveseo_featured_images_bulk" value="0">
+                                    <input type="checkbox" id="iseo_featured_images_bulk" name="improveseo_featured_images_bulk" value="1" <?php checked( get_option( 'improveseo_featured_images_bulk', '0' ), '1' ); ?>>
                                     <span class="iseo-toggle-track"></span>
                                 </label>
                             </div>
@@ -234,7 +238,8 @@ use ImproveSEO\View;
                                     <span class="iseo-toggle-desc">Apply when generating a single post at a time.</span>
                                 </div>
                                 <label class="iseo-toggle-switch" aria-label="Enable for Single Post">
-                                    <input type="checkbox" id="iseo_featured_images_single" name="iseo_featured_images_single" value="1">
+                                    <input type="hidden" name="improveseo_featured_images_single" value="0">
+                                    <input type="checkbox" id="iseo_featured_images_single" name="improveseo_featured_images_single" value="1" <?php checked( get_option( 'improveseo_featured_images_single', '0' ), '1' ); ?>>
                                     <span class="iseo-toggle-track"></span>
                                 </label>
                             </div>
@@ -243,8 +248,12 @@ use ImproveSEO\View;
 
                     </div><!-- .iseo-toggle-group -->
 
+                    <div class="iseo-features-save">
+                        <input type="submit" class="iseo-btn-save active setting_submit" value="<?php _e('Save Changes') ?>">
+                    </div>
                 </div>
             </div><!-- .iseo-features-card -->
+            </form><!-- .iseo-features-form -->
 
         </div><!-- .iseo-col-sidebar -->
 

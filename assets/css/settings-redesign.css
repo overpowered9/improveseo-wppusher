@@ -650,3 +650,19 @@
 .iseo-toggle-last {
     padding-bottom: 12px;
 }
+
+/* Save button row inside the features sidebar card */
+.iseo-features-save {
+    padding: 14px 24px 20px;
+    border-top: 1px solid #F3F4F6;
+}
+
+.iseo-features-save input[type="submit"] {
+    width: 100%;
+    text-align: center;
+}
+
+/* Features form wrapper — no visual chrome, just structurally needed */
+.iseo-features-form {
+    display: contents;
+}
