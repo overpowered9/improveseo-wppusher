@@ -993,7 +993,7 @@ global $ai_modal_type;
                         <input type="text" id="meta_title" name="meta_title" placeholder="Enter title..." />
                     </div>
                     <div class="seo-form-field">
-                        <label for="meta_descreption">Meta Descripttion</label>
+                        <label for="meta_descreption">Meta Description</label>
                         <textarea id="meta_descreption" name="meta_descreption"
                             placeholder="Enter description...."></textarea>
                     </div>
