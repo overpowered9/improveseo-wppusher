@@ -109,17 +109,19 @@ wp_send_json_success(array("search_data" => $search_data, "content" => $content,
 
 function generateMetaDescreption($aigeneratedtitle, $seed_keyword, $content = '')
 {
-
-	$question = "Create an SEO optimized meta description. max length of description should be 70-80 characters including spaces. Meta description is based on the blog post title `" . $aigeneratedtitle . "`, the keyword `" . $seed_keyword . "` and the blog post content i.e. " . $content . ".";
-
-	return ChatGPTCall($question);
-
+	return improveseo_call_auxiliary_api( 'meta_description', array(
+		'seed_keyword' => (string) $seed_keyword,
+		'title'        => (string) $aigeneratedtitle,
+		'content'      => (string) $content,
+	) );
 }
+
 function generateMetaTitle($aigeneratedtitle, $seed_keyword)
 {
-	$question = "Create an SEO optimized meta title based on the blog post title `" . $aigeneratedtitle . "` and the keyword `" . $seed_keyword . "`. max length of title should be 50-60 characters including spaces.
-	";
-	return ChatGPTCall($question);
+	return improveseo_call_auxiliary_api( 'meta_title', array(
+		'seed_keyword' => (string) $seed_keyword,
+		'title'        => (string) $aigeneratedtitle,
+	) );
 }
 
 

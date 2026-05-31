@@ -1,7 +1,58 @@
 <?php
 
+/**
+ * Call the ImproveSEO admin server's /auxiliary endpoint.
+ *
+ * Used for small supporting GPT calls (meta title, meta description, audience data)
+ * that previously hit OpenAI directly via improveseo_chatgpt_api_key. The server
+ * route does not charge credits; it only requires a valid API key + site code.
+ *
+ * @param string $type    'meta_title' | 'meta_description' | 'audience_data'
+ * @param array  $payload Extra fields: seed_keyword (required), title, content
+ * @return string Generated text, or '' on any failure (logged via error_log).
+ */
+function improveseo_call_auxiliary_api( $type, array $payload = array() ) {
+	$api_key   = get_option( 'improveseo_api_key' );
+	$site_code = get_option( 'improveseo_site_code' );
 
+	if ( empty( $api_key ) || empty( $site_code ) ) {
+		error_log( 'improveseo_call_auxiliary_api: missing API key or site code; cannot call /auxiliary' );
+		return '';
+	}
 
+	$admin_server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
+	$endpoint         = $admin_server_url . '/api/v1/generate/auxiliary';
+
+	$body = array_merge( array( 'type' => $type ), $payload );
+
+	$response = wp_remote_post( $endpoint, array(
+		'headers' => array(
+			'Content-Type' => 'application/json',
+			'Accept'       => 'application/json',
+			'X-API-Key'    => $api_key,
+			'X-Site-Code'  => $site_code,
+		),
+		'body'    => wp_json_encode( $body ),
+		'timeout' => 60,
+	) );
+
+	if ( is_wp_error( $response ) ) {
+		error_log( 'improveseo_call_auxiliary_api: HTTP error for type=' . $type . ' — ' . $response->get_error_message() );
+		return '';
+	}
+
+	$status = wp_remote_retrieve_response_code( $response );
+	$raw    = wp_remote_retrieve_body( $response );
+	$data   = json_decode( $raw, true );
+
+	if ( $status !== 200 || ! is_array( $data ) || empty( $data['success'] ) ) {
+		$err = is_array( $data ) && isset( $data['error'] ) ? $data['error'] : 'unknown';
+		error_log( 'improveseo_call_auxiliary_api: failure type=' . $type . ' | status=' . $status . ' | error=' . $err );
+		return '';
+	}
+
+	return isset( $data['data']['text'] ) ? (string) $data['data']['text'] : '';
+}
 
 
 function replace_content($content, $remove)

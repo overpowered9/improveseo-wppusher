@@ -1467,121 +1467,13 @@ function saveContentInTaskList()
 // End of saveContentInTaskList function
 
 function getAudienceData($seed_keyword)
-
 {
-
-	global $wpdb, $user_ID;
-
-
-
-	// Your OpenAI API key
-
-	$apiKey = get_option('improveseo_chatgpt_api_key');
-
-
-
-	// The endpoint URL for OpenAI chat completions API (replace with the correct endpoint)
-
-	$apiUrl = 'https://api.openai.com/v1/chat/completions';
-
-
-
-	$promptForAudienceData = 'Assume someone enters the keyword ' . $seed_keyword . ' into a search engine. Analyze the following characteristics: 1. [demographic information] 2. [tone preferences] 3. [reading level preference] 4. [emotional needs/pain points]. This information will be used to create content that is specifically appealing to such people. Do not give content recommendations yet. As an output, write just information for characteristics without any explanation or introduction.';
-
-
-
-	// Your chat messages
-
-	$messages = [
-
-		// ['role' => 'system', 'content' => 'You are a helpful assistant.'],
-
-		['role' => 'user', 'content' => $promptForAudienceData]
-
-		// ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
-
-	];
-
-
-
-
-
-	// Additional parameters, including language setting (replace with actual parameters)
-
-	$data = [
-
-		'messages' => $messages,
-
-		'model' => "gpt-4o"
-
-
-
-		//'language' => 'fr',  // Specify the result language as French
-
-	];
-
-
-
-	// Set up cURL
-
-	$ch = curl_init($apiUrl);
-
-
-
-	// Set cURL options
-
-	curl_setopt($ch, CURLOPT_POST, 1);
-
-	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-	curl_setopt($ch, CURLOPT_HTTPHEADER, [
-
-		'Content-Type: application/json',
-
-		'Authorization: Bearer ' . $apiKey,
-
-	]);
-
-
-
-	// Execute the cURL request
-
-	$response = curl_exec($ch);
-
-
-
-	// Check for cURL errors
-
-	if (curl_errno($ch)) {
-
-		echo 'Curl error: ' . curl_error($ch);
-
-	}
-
-	// Close cURL session
-
-	curl_close($ch);
-
-
-
-	// Decode and display the response
-
-	$result = json_decode($response, true);
-
-
-
-	if (!empty($result['choices'][0]['message']['content'])) {
-
-		return $result['choices'][0]['message']['content'];
-
-	} else {
-
-		return 0;
-
-	}
-
+	$text = improveseo_call_auxiliary_api( 'audience_data', array(
+		'seed_keyword' => (string) $seed_keyword,
+	) );
+
+	// Preserve historical contract: empty -> 0 (some callers check loosely).
+	return $text !== '' ? $text : 0;
 }
 
 function bulkAiTitle($getAudienceData, $question, $keyword_name, $tone_of_voice)
