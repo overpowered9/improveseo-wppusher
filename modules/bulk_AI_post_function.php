@@ -2442,23 +2442,27 @@ function generateAIMeta()
 
 
 function multi_form_data()
-
 {
-	$keyword_id = $_REQUEST['project_name'];
-	$keyword_list = $_REQUEST['keyword_list'];
-	$content_type = $_REQUEST['contenttype'];
+	$keyword_id   = isset( $_REQUEST['keyword_id'] )   ? sanitize_text_field( $_REQUEST['keyword_id'] )     : '';
+	$keyword_list = isset( $_REQUEST['keyword_list'] )  ? sanitize_textarea_field( $_REQUEST['keyword_list'] ) : '';
+	$content_type = isset( $_REQUEST['content_type'] )  ? sanitize_text_field( $_REQUEST['content_type'] )   : '';
+
 	$proj_name = '';
-	$get_keyworddata = get_option('swsaved_keywords_with_results_' . $keyword_id);
-	$proj_name = isset($get_keyworddata['proj_name']) ? $get_keyworddata['proj_name'] : '';
-	$proj_name .= esc_html($proj_name);
+	if ( $keyword_id ) {
+		$get_keyworddata = get_option( 'swsaved_keywords_with_results_' . $keyword_id );
+		$proj_name       = isset( $get_keyworddata['proj_name'] ) ? esc_html( $get_keyworddata['proj_name'] ) : '';
+	}
 
-	$result = generateTitle_mutli($proj_name, $keyword_list, $content_type);
-	$content = preg_replace('~^[\'"]?(.*?)[\'"]?$~', '$1', $result['choices'][0]['message']['content']);
+	$result = generateTitle_mutli( $proj_name, $keyword_list, $content_type );
 
-	echo str_replace("'", '`', $content);
+	if ( ! is_array( $result ) || empty( $result['choices'][0]['message']['content'] ) ) {
+		echo 'Error: Could not generate context. Please check your API key and try again.';
+		die();
+	}
 
-	die($output);
-
+	$content = preg_replace( '~^[\'"]?(.*?)[\'"]?$~', '$1', $result['choices'][0]['message']['content'] );
+	echo str_replace( "'", '`', $content );
+	die();
 }
 
 

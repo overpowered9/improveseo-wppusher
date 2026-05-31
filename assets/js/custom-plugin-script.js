@@ -1330,7 +1330,7 @@ function SaveResultsButton() {
 
   var keyword_list = jQuery("#keyword_list").val();
 
-  var content_type = jQuery("#contenttype").val();
+  var content_type = jQuery('#pop_up_multi_form [name="content_type"]').val() || '';
 
   // Show loading message and disable button
   jQuery("#exampleFormControlTextarea1").text("Wait! Generating content...");
