@@ -226,7 +226,12 @@ $url .= $_SERVER['REQUEST_URI'];
 										<?php if($project->status == 'Stoped') {
 											echo '<span style="color: #ff4d4f; font-weight: 600;">Canceled</span>';
 										} else if($project->state == 'Published' && $project->post_id) {
-											echo 'Published';
+											$iseo_post_url = get_permalink($project->post_id);
+											if ($iseo_post_url) {
+												echo '<a href="' . esc_url($iseo_post_url) . '" target="_blank" rel="noopener" title="View published post">Published</a>';
+											} else {
+												echo 'Published';
+											}
 										} else if($project->state == 'Draft') {
 											echo 'Draft';
 										} else if($project->state == 'Scheduled') {
@@ -291,6 +296,13 @@ $url .= $_SERVER['REQUEST_URI'];
 															Details</a>
 													</span>
 
+													<?php $iseo_live_url = !empty($project->post_id) ? get_permalink($project->post_id) : '';
+													if ($project->state == 'Published' && $iseo_live_url) { ?>
+														<span class="primary">
+															<a class="popup-link" target="_blank" rel="noopener"
+																href="<?php echo esc_url($iseo_live_url); ?>">View Post</a>
+														</span>
+													<?php } ?>
 													<?php if (!empty($project->post_id)) {
 														$edit_link = admin_url('post.php?action=edit&post=' . $project->post_id); ?>
 														<span class="primary">
