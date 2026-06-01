@@ -306,6 +306,70 @@ if (!function_exists('improveseo_notify_bulk_status')) {
     }
 }
 
+/**
+ * Remove orphaned preview projects and their draft posts.
+ *
+ * A preview is normally cleaned up the moment its popup window closes
+ * (preview_delete_ajax). This sweep is the safety net for cases where that
+ * never ran — popup blocked, tab crashed, build stalled, etc.
+ *
+ * Deletion is deliberately constrained so it can NEVER touch real content:
+ *   - the project must carry the dedicated state 'Preview'
+ *     (real projects are Draft / Published / Updated / Building — never that), and
+ *   - it must be older than 30 minutes (an actively-open preview is left alone), and
+ *   - a post is only removed when it is simultaneously a draft, flagged with
+ *     postmeta _improveseo_preview = '1', AND linked to that preview project.
+ * No genuine post or project can satisfy that combination.
+ */
+function improveseo_sweep_preview_orphans()
+{
+	global $wpdb;
+
+	$tasks_table = $wpdb->prefix . 'improveseo_tasks';
+
+	// created_at is written with NOW() in AbstractModel::create(), so compare
+	// against NOW() here too — consistent regardless of the DB server timezone.
+	$preview_ids = $wpdb->get_col(
+		"SELECT id FROM {$tasks_table}
+		 WHERE state = 'Preview'
+		   AND created_at < (NOW() - INTERVAL 30 MINUTE)"
+	);
+
+	if (empty($preview_ids)) {
+		return;
+	}
+
+	$removed_posts = 0;
+
+	foreach ($preview_ids as $preview_id) {
+		$post_ids = $wpdb->get_col($wpdb->prepare(
+			"SELECT p.ID
+			 FROM {$wpdb->posts} p
+			 INNER JOIN {$wpdb->postmeta} link ON link.post_id = p.ID
+				 AND link.meta_key = 'improveseo_project_id' AND link.meta_value = %s
+			 INNER JOIN {$wpdb->postmeta} flag ON flag.post_id = p.ID
+				 AND flag.meta_key = '_improveseo_preview' AND flag.meta_value = '1'
+			 WHERE p.post_status = 'draft'",
+			$preview_id
+		));
+
+		foreach ($post_ids as $post_id) {
+			// force delete: skip trash and clear the post's meta too.
+			wp_delete_post($post_id, true);
+			$removed_posts++;
+		}
+
+		// Only ever delete the row if it is still a Preview project.
+		$wpdb->delete($tasks_table, array('id' => $preview_id, 'state' => 'Preview'));
+	}
+
+	my_plugin_log(sprintf(
+		'IMPROVESEO PREVIEW SWEEP: removed %d orphaned preview project(s) and %d draft post(s).',
+		count($preview_ids),
+		$removed_posts
+	));
+}
+
 function CronjobRequest()
 
 {
@@ -347,6 +411,9 @@ function CronjobRequest()
 
 	//error_log('This is a log message : '.current_time('mysql'));
 	
+	// Safety-net cleanup for previews whose popup-close handler never fired.
+	improveseo_sweep_preview_orphans();
+
 	my_plugin_log("=== CRON JOB COMPLETED ===");
 
 }

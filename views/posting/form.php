@@ -118,6 +118,9 @@ $google_api_key = get_option('improveseo_google_api_key');
 						preview</button>
 					&nbsp; &nbsp;
 					<button id="close_win" class="button button-primary" onclick="changeWin()">Switch preview</button>
+					<br><br>
+					<small style="color:#666;">This preview is temporary and is not published to your live
+						site. It is removed automatically within 30 minutes.</small>
 				</div>
 			</div>
 

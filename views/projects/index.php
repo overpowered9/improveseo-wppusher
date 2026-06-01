@@ -24,14 +24,19 @@ function get_post_by_project_id($project_id)
 	return null;
 }
 
-if (isset($_GET['post_preview'])) {
-	if ($_GET['post_preview'] == 'true') {
-		$project = $projects[0];
-		if ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
-			$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
-			header("Location:" . $export_url);
-			exit;
-		}
+if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_GET['preview_id'])) {
+	global $wpdb;
+	$preview_id = intval($_GET['preview_id']);
+	// Only ever act on a genuine preview project, identified by the dedicated
+	// 'Preview' state — never on a real Draft/Published/Updated project.
+	$preview_project = $wpdb->get_row($wpdb->prepare(
+		"SELECT id, state, iteration, max_iterations FROM {$wpdb->prefix}improveseo_tasks WHERE id = %d AND state = 'Preview'",
+		$preview_id
+	));
+	if ($preview_project && (int) $preview_project->iteration >= (int) $preview_project->max_iterations) {
+		$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$preview_project->id}&noheader=true");
+		header("Location:" . $export_url);
+		exit;
 	}
 }
 
@@ -462,20 +467,21 @@ if (isset($_GET['post_preview'])) {
 <!-- Building Post Preview -->
 <?php
 
-if (isset($_GET['post_preview'])) {
+if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_GET['preview_id'])) {
 
-	if ($_GET['post_preview'] == 'true') {
+	global $wpdb;
+	$preview_id = intval($_GET['preview_id']);
+	$preview_project = $wpdb->get_row($wpdb->prepare(
+		"SELECT id, state, iteration, max_iterations FROM {$wpdb->prefix}improveseo_tasks WHERE id = %d AND state = 'Preview'",
+		$preview_id
+	));
 
-		$project = $projects[0];
-		if ($project->state == 'Published' && $project->iteration < $project->max_iterations) { ?>
+	if ($preview_project && (int) $preview_project->iteration < (int) $preview_project->max_iterations) { ?>
 
-			<script type="text/javascript">
-				build_project(<?php echo $project->id ?>);
-			</script>
-			<?php
-		} elseif ($project->state == 'Published' && $project->iteration == $project->max_iterations) {
-			$export_url = admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id={$project->id}&noheader=true");
-		}
+		<script type="text/javascript">
+			build_project(<?php echo (int) $preview_project->id ?>);
+		</script>
+		<?php
 	}
 }
 

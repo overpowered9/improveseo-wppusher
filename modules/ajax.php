@@ -526,7 +526,9 @@ function improveseo_generate_preview(){
 			'options' => base64_encode(json_encode($options_data)),
 
 
-			'state' => isset($_POST['draft']) ? 'Draft' : 'Published',
+			// Preview projects are transient: a dedicated state lets the cron
+			// sweep identify and remove only preview rows, never real projects.
+			'state' => 'Preview',
 
 
 			'iteration' => 0,
@@ -538,7 +540,8 @@ function improveseo_generate_preview(){
 			//'max_iterations' => max($iterations) * $geo_iterations
 
 
-			'max_iterations' => $max,
+			// A preview only needs one representative post, not the whole project.
+			'max_iterations' => 1,
 
 
 			'cats' => json_encode($_POST['cats'])

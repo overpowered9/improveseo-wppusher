@@ -148,6 +148,10 @@ function improveseo_projects()
     $where  = array();
     $params = array();
 
+    // Hide transient preview projects from the listing — they are short-lived
+    // drafts cleaned up automatically and should never appear as real projects.
+    $where[] = "state <> 'Preview'";
+
     if ($search !== '') {
       $where[]  = 'name LIKE %s';
       $params[] = '%' . $wpdb->esc_like($search) . '%';
@@ -295,22 +299,32 @@ function improveseo_projects()
     exit;
 
   elseif ($action == 'export_preview_url'):
-    $id = $_GET['id'];
+    $id = intval($_GET['id']);
 
     @set_time_limit(0);
 
-    $urls = [];
-    $posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
-    foreach ($posts as $post) {
-      $url = get_permalink($post->post_id);
-      $url .= "?id=" . $id;
-      array_push($urls, $url);
+    $post_ids = $wpdb->get_col($wpdb->prepare(
+      "SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s",
+      $id
+    ));
+
+    // No preview post was generated (still building, or already swept). Fail
+    // gracefully instead of fataling on array_rand() with an empty array.
+    if (empty($post_ids)) {
+      wp_die(
+        'The preview is still being generated or has already expired. Please close this window and click "Post preview" again. Previews are automatically removed after 30 minutes.',
+        'Preview not ready',
+        array('response' => 200, 'back_link' => false)
+      );
     }
 
-    $preview_url_key = array_rand($urls, 1);
-    $preview_url = $urls[$preview_url_key];
+    $preview_post_id = $post_ids[array_rand($post_ids)];
 
-    header("location: $preview_url");
+    // Preview posts are drafts, so they are only viewable through WordPress'
+    // nonce'd preview link — shown exactly as they would look, never published.
+    $preview_url = get_preview_post_link($preview_post_id, array('id' => $id));
+
+    header("location: " . $preview_url);
     exit;
 
 

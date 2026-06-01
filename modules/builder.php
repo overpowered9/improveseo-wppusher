@@ -1219,7 +1219,12 @@ function improveseo_builder()
 
 		error_log( 'improveseo_builder: pre-insert check | exists=' . ( improveseo_wp_exist_post_by_title( $titleText ) ? '1' : '0' ) . ' | title="' . substr( (string) $titleText, 0, 80 ) . '"' );
 
-		if (!improveseo_wp_exist_post_by_title($titleText)) {
+		// Preview drafts must always be generated, even when a published post
+		// with the same title already exists (e.g. previewing edits to a live
+		// post). Real builds keep skipping duplicate titles as before.
+		$is_preview_build = isset($project->state) && $project->state === 'Preview';
+
+		if ($is_preview_build || !improveseo_wp_exist_post_by_title($titleText)) {
 
 
 
@@ -1273,7 +1278,11 @@ function improveseo_builder()
 				'post_date' => $post_date,
 
 
-				'post_status' => (strtotime($post_date) <= time() ? 'publish' : 'future')
+				// Preview builds must never go public: force draft so the post is
+				// only viewable through WordPress' nonce'd preview link.
+				'post_status' => (isset($project->state) && $project->state === 'Preview')
+					? 'draft'
+					: (strtotime($post_date) <= time() ? 'publish' : 'future')
 
 
 			);
@@ -1409,6 +1418,12 @@ function improveseo_builder()
 
 
 			add_post_meta($post_id, 'improveseo_project_id', $project->id);
+
+			// Flag preview-generated posts so the cron sweep can target them
+			// precisely and never touch a real draft.
+			if (isset($project->state) && $project->state === 'Preview') {
+				add_post_meta($post_id, '_improveseo_preview', '1');
+			}
 
 
 
@@ -3240,7 +3255,12 @@ function improveseo_builder_update()
 
 		error_log( 'improveseo_builder: pre-insert check | exists=' . ( improveseo_wp_exist_post_by_title( $titleText ) ? '1' : '0' ) . ' | title="' . substr( (string) $titleText, 0, 80 ) . '"' );
 
-		if (!improveseo_wp_exist_post_by_title($titleText)) {
+		// Preview drafts must always be generated, even when a published post
+		// with the same title already exists (e.g. previewing edits to a live
+		// post). Real builds keep skipping duplicate titles as before.
+		$is_preview_build = isset($project->state) && $project->state === 'Preview';
+
+		if ($is_preview_build || !improveseo_wp_exist_post_by_title($titleText)) {
 
 
 
@@ -3294,7 +3314,11 @@ function improveseo_builder_update()
 				'post_date' => $post_date,
 
 
-				'post_status' => (strtotime($post_date) <= time() ? 'publish' : 'future')
+				// Preview builds must never go public: force draft so the post is
+				// only viewable through WordPress' nonce'd preview link.
+				'post_status' => (isset($project->state) && $project->state === 'Preview')
+					? 'draft'
+					: (strtotime($post_date) <= time() ? 'publish' : 'future')
 
 
 			);
@@ -3429,6 +3453,12 @@ function improveseo_builder_update()
 
 
 			add_post_meta($post_id, 'improveseo_project_id', $project->id);
+
+			// Flag preview-generated posts so the cron sweep can target them
+			// precisely and never touch a real draft.
+			if (isset($project->state) && $project->state === 'Preview') {
+				add_post_meta($post_id, '_improveseo_preview', '1');
+			}
 
 
 
