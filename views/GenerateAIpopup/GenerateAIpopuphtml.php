@@ -123,6 +123,48 @@ global $ai_modal_type;
         color: #f00;
     }
 
+    /* Step 4 content preview: image on the left (sticky, small), article on the right */
+    .iseo-preview-layout {
+        display: flex;
+        gap: 24px;
+        align-items: flex-start;
+    }
+
+    .iseo-preview-media {
+        flex: 0 0 260px;
+        max-width: 260px;
+        position: sticky;
+        top: 0;
+        align-self: flex-start;
+    }
+
+    .iseo-preview-media img {
+        max-width: 100% !important;
+        max-height: 220px;
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .iseo-preview-body {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    @media (max-width: 768px) {
+        .iseo-preview-layout {
+            flex-direction: column;
+        }
+
+        .iseo-preview-media {
+            position: static;
+            flex-basis: auto;
+            max-width: 100%;
+            align-self: center;
+        }
+    }
+
 
     .multi-upload-gallery span {
         height: 100px;

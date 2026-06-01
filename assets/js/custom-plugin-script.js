@@ -352,7 +352,10 @@ jQuery("#generateapivalue").on("click", function () {
       );
 
       jQuery("#showmydataindiv1").html(
-        Image_use + "<br><br><br>" + modifiedHtmlContent
+        '<div class="iseo-preview-layout">' +
+          '<div class="iseo-preview-media">' + Image_use + "</div>" +
+          '<div class="iseo-preview-body">' + modifiedHtmlContent + "</div>" +
+        "</div>"
       );
 
       jQuery("#showmydataindiv1").css("display", "block");
