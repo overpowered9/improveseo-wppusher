@@ -302,6 +302,11 @@ $url .= $_SERVER['REQUEST_URI'];
 															<a class="popup-link" target="_blank" rel="noopener"
 																href="<?php echo esc_url($iseo_live_url); ?>">View Post</a>
 														</span>
+													<?php } else if ($project->state == 'Scheduled') { ?>
+														<span class="primary">
+															<a class="popup-link disabled" href="#" style="color:#999; cursor:not-allowed;"
+																title="The post has not been published yet" onclick="return false;">View Post</a>
+														</span>
 													<?php } ?>
 													<?php if (!empty($project->post_id)) {
 														$edit_link = admin_url('post.php?action=edit&post=' . $project->post_id); ?>
