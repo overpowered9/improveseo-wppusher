@@ -168,7 +168,7 @@
             jQuery('#is_preview_available').val('yes');
             jQuery('#preview_id').val(response.project_id);
              myWindow = window.open('about:blank','Popup_Window','toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=200,height=200,left = 5000,top = 5000');
-             myWindow.location.href= form_ajax_vars.admin_url + "?page=improveseo_projects&post_preview=true";
+             myWindow.location.href= form_ajax_vars.admin_url + "?page=improveseo_projects&post_preview=true&preview_id=" + response.project_id;
              setTimeout(function(){ 
                 jQuery('#wh_prev_modal_1').hide();
                 jQuery('#wh_prev_modal_2').show();
