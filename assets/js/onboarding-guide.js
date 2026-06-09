@@ -29,11 +29,11 @@
  * Wizard-step 4 (Meta Title & Description):
  *   15 meta-title        (modal) #meta_title                next-btn
  *   16 meta-desc         (modal) #meta_descreption          next-btn
- *   17 meta-submit       (modal) #nextStepButton            wizard-next   ← "Submit" label
- * Form phase:
- *   18 project-name      (form)  .PostForm__name            next-btn
- *   19 post-title        (form)  #title                     next-btn
- *   20 publish           (form)  button[name="create"]      final
+ *   17 meta-next         (modal) #nextStepButton            wizard-next   ← "Next" label; advances to Project Name panel (pollTarget)
+ * Wizard-step 5 (Project Name & Categories):
+ *   18 project-name      (modal) #modal_project_name        next-btn
+ *   19 categories        (modal) .category-selection-section next-btn
+ *   20 submit            (modal) #nextStepButton            final         ← "Submit" label; publishes via saveFinalData()
  */
 (function ($) {
     'use strict';
@@ -42,10 +42,9 @@
     if (!window.iseoGuideConfig || !window.iseoGuideConfig.active) return;
 
     /* ── Constants ──────────────────────────────────────────── */
-    var FORM_PHASE_START  = 18; // index of first form-phase step
     var STEP_GENERATE_IDX = 13; // index where "Generate AI Post" is clicked (wizard-next triggers generation)
     var STEP_APPROVE_IDX  = 14; // index of "Approve Content" wizard-next step
-    var STEP_META_SUBMIT  = 17; // index of meta "Submit" wizard-next step
+    var STEP_SUBMIT_IDX   = 20; // index of final "Submit" step (publishes via saveFinalData(), closes modal & redirects)
 
     /* ── Steps Definition ───────────────────────────────────── */
     var STEPS = [
@@ -154,30 +153,27 @@
         },
         /* 17 */ {
             phase: 'modal', wizardStep: 4, target: '#nextStepButton',
-            title: 'Save & Continue',
-            message: 'Happy with your SEO details? Click the <strong>Submit</strong> button to save them and return to the post editor.',
-            position: 'left', advance: 'wizard-next'
+            title: 'SEO Details Done!',
+            message: 'Happy with your SEO title and description? Click <strong>Next \u2192</strong> below to continue to your project name.',
+            position: 'left', advance: 'wizard-next', pollTarget: '#modal_project_name'
         },
         /* 18 */ {
-            phase: 'form', wizardStep: -1, target: '.PostForm__name',
-            title: 'Name Your Project',
-            message: 'Give this project an internal name (e.g. <em>Homepage Blog Q1</em>). This is for your reference only \u2014 it won\u2019t be published.',
-            position: 'bottom', advance: 'next-btn',
-            formFocus: '.PostForm__name-wrap'
+            phase: 'modal', wizardStep: 5, target: '#modal_project_name',
+            title: 'Check the Project Name',
+            message: 'We\u2019ve auto-filled an internal name from your keyword \u2014 it\u2019s for your reference only and won\u2019t be published. Give it a quick read, edit it if you like, then click <strong>Next \u2192</strong>.',
+            position: 'bottom', advance: 'next-btn'
         },
         /* 19 */ {
-            phase: 'form', wizardStep: -1, target: '#title',
-            title: 'Post Title',
-            message: 'This is the public title of your article. The AI has pre-filled it from the generated content \u2014 you can edit it here.',
-            position: 'bottom', advance: 'next-btn',
-            formFocus: '.PostForm__title-wrap'
+            phase: 'modal', wizardStep: 5, target: '.category-selection-section',
+            title: 'Assign a Category',
+            message: 'Choose one or more categories to organise this post. <em>Improve SEO</em> is selected by default \u2014 you can pick others or create a new one below. When done, click <strong>Next \u2192</strong>.',
+            position: 'top', advance: 'next-btn'
         },
         /* 20 */ {
-            phase: 'form', wizardStep: -1, target: 'button[name="create"]',
+            phase: 'modal', wizardStep: 5, target: '#nextStepButton',
             title: 'Publish your Article! \uD83C\uDF89',
-            message: 'You\u2019re all set! Click <strong>Create &amp; Publish Post</strong> to publish your first SEO-optimised article.',
-            position: 'top', advance: 'final',
-            formFocus: '#post_form_buttons'
+            message: 'You\u2019re all set! Click the <strong>Submit</strong> button below to publish your first SEO-optimised article.',
+            position: 'left', advance: 'final'
         }
     ];
 
@@ -219,15 +215,6 @@
         if ($sel.length && $sel.val() === 'seed_option1') {
             $sel.val('seed_option2').trigger('change');
         }
-    }
-
-    /* ─────────────────────────────────────────────────────────
-       REVEAL FORM (called when modal closes after generation)
-    ───────────────────────────────────────────────────────── */
-    function revealForm() {
-        $('.style_create_page_form')
-            .removeAttr('style')
-            .css({ opacity: '1', visibility: 'visible' });
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -514,21 +501,14 @@
 
         /* ── Modal close ────────────────────────────────────── */
         $(document).on('hidden.bs.modal.iseoguide', '#exampleModal1', function () {
-            if (currentStep < 0 || currentStep >= FORM_PHASE_START) return;
-
-            if (currentStep >= STEP_GENERATE_IDX) {
-                // Modal closed after generation started → transition to form phase
-                setTimeout(function () {
-                    if (currentStep >= FORM_PHASE_START) return; // already handled
-                    revealForm();
-                    showStep(FORM_PHASE_START);
-                }, 350);
-            } else {
-                // Modal closed before guide reached generation — hide guide UI
-                $tooltip.hide();
-                $spotlight.hide();
-                $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
-            }
+            if (currentStep < 0) return;
+            // The final "Submit" step publishes via saveFinalData(), which hides the
+            // modal and redirects — let that happen without touching the guide.
+            if (currentStep >= STEP_SUBMIT_IDX) return;
+            // Modal dismissed early (before publishing) — hide the guide UI.
+            $tooltip.hide();
+            $spotlight.hide();
+            $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
         });
 
         /* ── Wizard Next button ─────────────────────────────── */
@@ -563,13 +543,6 @@
                         showStep(STEP_APPROVE_IDX);
                     }
                 }, 90);
-            } else if (currentStep === STEP_META_SUBMIT) {
-                // saveFinalData() will hide the modal — reveal the form
-                setTimeout(function () {
-                    if (currentStep >= FORM_PHASE_START) return;
-                    revealForm();
-                    showStep(FORM_PHASE_START);
-                }, 600);
             } else {
                 setTimeout(function () { showStep(currentStep + 1); }, 350);
             }
