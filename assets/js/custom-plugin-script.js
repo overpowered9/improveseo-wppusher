@@ -1281,16 +1281,33 @@ function generateAITitle() {
       console.log("" + data);
 
       jQuery("#loader").hide();
-      
+
       // Hide loading popup
       if (typeof ImproveSEOLoading !== 'undefined') {
         ImproveSEOLoading.hide();
       }
 
+      // The server echoes the title directly; an empty body means the auxiliary
+      // call failed (e.g. missing API key/site code, or the server route errored).
+      // A 200 with empty text isn't caught by .fail(), so surface it here instead
+      // of silently dropping a blank title into the field.
+      var generatedTitle = (typeof data === 'string') ? data.trim() : '';
+      if (!generatedTitle) {
+        if (typeof ImproveSEONotification !== 'undefined') {
+          ImproveSEONotification.error(
+            'We couldn\'t generate a title. Please check your ImproveSEO connection in Settings and try again.',
+            'Title Generation Failed'
+          );
+        } else {
+          alert("We couldn't generate a title. Please try again.");
+        }
+        return;
+      }
+
       // jQuery("#maintitle").html(" <div class=\'resultdata\'><textarea id=\'maintitlearea\' name=\'maintitlearea\' class=\'form-control\' rows=\'3\' cols=\'70\'>" + data + "</textarea></div>");
-      jQuery("#maintitlearea").val(data);
-      jQuery("#aigeneratedtitle").val(data);
-      
+      jQuery("#maintitlearea").val(generatedTitle);
+      jQuery("#aigeneratedtitle").val(generatedTitle);
+
       // Update button text to Regenerate after first generation
       jQuery("#reload-btn-text").text("Regenerate");
 
