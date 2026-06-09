@@ -19,10 +19,15 @@
   // Expected postMessage origin
   var CMS_ORIGIN = 'https://account.improveseoplugin.com';
 
+  // localStorage key the redirected popup sets once the connect completes, so an
+  // orphaned opener tab (Safari/Google path) can move forward instead of spinning.
+  var CONNECT_DONE_KEY = 'improveseo_connect_done';
+
   // ── State ───────────────────────────────────────────────────────────────────
   var connectPopup     = null;
   var pollTimer        = null;
   var messageListener  = null;
+  var storageListener  = null;
   var lastTab          = 'signup';
   var businessData     = { service: '', city: '' };
 
@@ -66,9 +71,17 @@
     }
   }
 
+  function removeStorageListener() {
+    if (storageListener) {
+      window.removeEventListener('storage', storageListener);
+      storageListener = null;
+    }
+  }
+
   function resetToScreen1() {
     stopPolling();
     removeMessageListener();
+    removeStorageListener();
     connectPopup = null;
     hidePopupClosedWarning();
     showScreen(1);
@@ -138,16 +151,33 @@
 
       stopPolling();
       removeMessageListener();
+      removeStorageListener();
 
       exchangeToken(event.data.connect_token, event.data.trial_status);
     };
     window.addEventListener('message', messageListener);
+
+    // Same-origin cross-tab fallback: when the popup completes via the redirect
+    // path (Safari/Google), this tab never gets the postMessage. The redirected
+    // popup sets CONNECT_DONE_KEY in localStorage instead; reload to move forward
+    // (credentials are saved server-side, so we land on the next onboarding step).
+    removeStorageListener();
+    storageListener = function (event) {
+      if (event.key === CONNECT_DONE_KEY && event.newValue) {
+        stopPolling();
+        removeMessageListener();
+        removeStorageListener();
+        window.location.reload();
+      }
+    };
+    window.addEventListener('storage', storageListener);
 
     // Poll every 500ms to detect if the popup was closed early
     pollTimer = setInterval(function () {
       if (connectPopup && connectPopup.closed) {
         stopPolling();
         removeMessageListener();
+        removeStorageListener();
         showPopupClosedWarning();
       }
     }, 500);
@@ -167,6 +197,10 @@
       timeout: 25000,
       success: function (response) {
         if (response.success) {
+          // Signal any orphaned opener tab (Safari/Google redirect path) that the
+          // connect finished. Harmless on the normal path — storage events don't
+          // fire in the same tab that sets the value.
+          try { localStorage.setItem(CONNECT_DONE_KEY, String(Date.now())); } catch (e) { /* ignore */ }
           populateScreen3(response.data, trialStatusFromMessage);
           showScreen(3);
         } else {
@@ -364,6 +398,7 @@
       e.preventDefault();
       stopPolling();
       removeMessageListener();
+      removeStorageListener();
       if (connectPopup && !connectPopup.closed) {
         connectPopup.close();
       }
