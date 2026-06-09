@@ -351,11 +351,14 @@ jQuery("#generateapivalue").on("click", function () {
         Image_use + "<br><br><br>" + modifiedHtmlContent
       );
 
+      var hasPreviewImage = jQuery.trim(Image_use) !== "";
       jQuery("#showmydataindiv1").html(
-        '<div class="iseo-preview-layout">' +
-          '<div class="iseo-preview-media">' + Image_use + "</div>" +
-          '<div class="iseo-preview-body">' + modifiedHtmlContent + "</div>" +
-        "</div>"
+        hasPreviewImage
+          ? '<div class="iseo-preview-layout">' +
+              '<div class="iseo-preview-media">' + Image_use + "</div>" +
+              '<div class="iseo-preview-body">' + modifiedHtmlContent + "</div>" +
+            "</div>"
+          : '<div class="iseo-preview-body">' + modifiedHtmlContent + "</div>"
       );
 
       jQuery("#showmydataindiv1").css("display", "block");

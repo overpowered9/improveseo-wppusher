@@ -104,23 +104,28 @@ $google_api_key = get_option('improveseo_google_api_key');
 
 
 			<!-- HTML modal for preview button -->
-			<div id="preview_popup" class="modal" style="text-align:center">
+			<div id="preview_popup" class="modal" style="text-align:center; width:90%; max-width:1100px;">
 				<div id="wh_prev_modal_1">
 					<?php $gif_src = IMPROVESEO_DIR . '/assets/images/loader.gif' ?>
 					<b style="font-size:20px">Generating preview</b>
 					<br /><br />
 					<img id="preview_rcube" src="<?= $gif_src ?>" width="200">
 				</div>
-				<div id="wh_prev_modal_2">
-					<b style="font-size:18px">Close preview to continue editing the project</b>
-					<br><br>
-					<button id="open_win" class="button button-primary" onclick="closeWin()" rel="modal:close">Close
-						preview</button>
-					&nbsp; &nbsp;
-					<button id="close_win" class="button button-primary" onclick="changeWin()">Switch preview</button>
-					<br><br>
-					<small style="color:#666;">This preview is temporary and is not published to your live
-						site. It is removed automatically within 30 minutes.</small>
+				<div id="wh_prev_modal_2" style="display:none;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+						<b style="font-size:18px">Post preview</b>
+						<span>
+							<button type="button" id="close_win" class="button" onclick="changeWin()">Open in new
+								tab</button>
+							&nbsp;
+							<button type="button" id="open_win" class="button button-primary"
+								onclick="closeWin()">Close preview</button>
+						</span>
+					</div>
+					<iframe id="preview_iframe" src="about:blank" title="Post preview"
+						style="width:100%; height:70vh; border:1px solid #ddd; border-radius:6px; background:#fff;"></iframe>
+					<small style="color:#666; display:block; margin-top:8px;">This preview is temporary and is not
+						published to your live site. It is removed automatically within 30 minutes.</small>
 				</div>
 			</div>
 
