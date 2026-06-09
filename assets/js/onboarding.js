@@ -74,6 +74,19 @@
     showScreen(1);
   }
 
+  // This onboarding page's own URL, used as the popup's redirect-fallback target.
+  // Strips the hash and any stale connect token so we never loop or leak it.
+  function currentReturnUrl() {
+    try {
+      var u = new URL(window.location.href);
+      u.hash = '';
+      u.searchParams.delete('improveseo_connect_token');
+      return u.toString();
+    } catch (e) {
+      return window.location.href.split('#')[0];
+    }
+  }
+
   // ── Popup flow ───────────────────────────────────────────────────────────────
 
   function openConnectPopup(tab) {
@@ -83,9 +96,16 @@
     // Pass this window's origin so the popup knows where to postMessage back.
     // CMS_ORIGIN is the popup's own origin — incorrect as the target.
     var wpOrigin = window.location.protocol + '//' + window.location.host;
+
+    // Safari/WebKit drops window.opener after the popup's Google OAuth redirect,
+    // which breaks postMessage. Give the popup a return URL so it can hand the
+    // single-use connect token back via a top-level redirect as a fallback.
+    var returnUrl = currentReturnUrl();
+
     var connectUrl = cfg.cmsConnectUrl
       + '?site_domain=' + encodeURIComponent(cfg.siteDomain)
       + '&origin='      + encodeURIComponent(wpOrigin)
+      + '&return_url='  + encodeURIComponent(returnUrl)
       + (tab === 'login' ? '&tab=0' : '&tab=1');
 
     var popupWidth  = 520;
@@ -284,6 +304,23 @@
   // ── Event bindings ───────────────────────────────────────────────────────────
 
   $(function () {
+
+    // ── Redirect-fallback: popup handed the token back via the URL ───────────
+    // When window.opener is lost (Safari after the Google OAuth redirect), the
+    // CMS popup redirects this page to itself with ?improveseo_connect_token=…
+    // instead of using postMessage. Detect it, scrub the URL, and exchange.
+    try {
+      var _params = new URLSearchParams(window.location.search);
+      var _redirectToken = _params.get('improveseo_connect_token');
+      if (_redirectToken) {
+        _params.delete('improveseo_connect_token');
+        var _qs    = _params.toString();
+        var _clean = window.location.pathname + (_qs ? '?' + _qs : '');
+        window.history.replaceState({}, document.title, _clean);
+        showScreen(2);
+        exchangeToken(_redirectToken);
+      }
+    } catch (e) { /* URLSearchParams unsupported — ignore, postMessage path still works */ }
 
     // ── Edge-case detection on page load ────────────────────────────────────
     if (cfg.partialConnect) {
