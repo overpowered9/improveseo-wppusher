@@ -95,6 +95,12 @@ function improveseo_onboarding_exchange_token() {
 	update_option( 'improveseo_api_key',  sanitize_text_field( $data['api_key'] ) );
 	update_option( 'improveseo_site_code', sanitize_text_field( $data['site_code'] ) );
 
+	// Store the ImproveSEO account email so UI (e.g. the bulk wizard) can tell the
+	// user which address completion notifications are sent to.
+	if ( ! empty( $data['email'] ) ) {
+		update_option( 'improveseo_account_email', sanitize_email( $data['email'] ) );
+	}
+
 	// Store trial info (used on Screen 3 and the credit banner)
 	if ( ! empty( $data['trial_ends_at'] ) ) {
 		update_option( 'improveseo_trial_ends_at', sanitize_text_field( $data['trial_ends_at'] ) );

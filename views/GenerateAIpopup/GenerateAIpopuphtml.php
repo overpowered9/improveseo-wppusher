@@ -1626,6 +1626,16 @@ global $ai_modal_type;
                                     approximately [ <span id="keywordtime"></span> hr ] to
                                     complete.</p>
                             </div>
+                            <?php $iseo_acc_email = get_option( 'improveseo_account_email' ); ?>
+                            <div class="seo-form-field_multi" style="padding-left: 20px;">
+                                <p class="font-20_multi" style="color:#0061B6;">
+                                    <strong>Heads up:</strong> Posts generate in the background, so you can safely close
+                                    this window. We&rsquo;ll email you<?php echo $iseo_acc_email
+                                        ? ' at <strong>' . esc_html( $iseo_acc_email ) . '</strong>'
+                                        : ' at the address registered to your ImproveSEO account'; ?>
+                                    when the project is finished.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
