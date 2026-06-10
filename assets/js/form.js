@@ -5,29 +5,6 @@
         
     },2000);  */
     $(document).ready(function(){
-        if(tinymce.activeEditor!=null){
-            tinymce.activeEditor.on('keydown', function(e) {
-                if(!$.modal.isActive()){
-                    var full_content = tinyMCE.activeEditor.selection.getStart().textContent;
-                    var length = full_content.length;
-                    if(e.keyCode==50){
-                        
-                        var last_char = full_content.charAt((length-1));
-                        if($.trim(last_char)==""){
-                            e.preventDefault();
-                            $("#shortcode_popup").modal({
-                                escapeClose: false,
-                                fadeDuration: 1000,
-                                fadeDelay: 0.35,
-                                keyboard: false,
-                                focus: true
-                            });
-                        }
-                    }
-                }
-            });
-        }
-        
         $('#shortcode_popup').on($.modal.OPEN, function(event, modal) {
             $('#improveseo_shortcode_type').focus();
             $('#improveseo_shortcode_type').val('');
