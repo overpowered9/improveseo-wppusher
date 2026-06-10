@@ -147,9 +147,37 @@
             jQuery('#is_preview_available').val('yes');
             jQuery('#preview_id').val(response.project_id);
             var preview_url = form_ajax_vars.admin_url + "?page=improveseo_projects&post_preview=true&preview_id=" + response.project_id;
-            jQuery('#preview_iframe').attr('src', preview_url);
-            jQuery('#wh_prev_modal_1').hide();
-            jQuery('#wh_prev_modal_2').show();
+            var $iframe = jQuery('#preview_iframe');
+
+            // The preview URL first lands on the builder/projects page, which generates
+            // the post and then redirects to the real WP preview link. Keep the
+            // "Generating preview" spinner up (the iframe still loads/builds while
+            // hidden) and only reveal it once it has navigated off the builder page,
+            // so the user never sees the wp-admin Projects List flash.
+            var revealPreview = function() {
+                clearTimeout(previewFallback);
+                $iframe.off('load.iseoPreview');
+                jQuery('#wh_prev_modal_1').hide();
+                jQuery('#wh_prev_modal_2').show();
+            };
+            // Safety net: if building stalls, reveal whatever is there after 90s
+            // rather than spinning forever.
+            var previewFallback = setTimeout(revealPreview, 90000);
+
+            $iframe.off('load.iseoPreview').on('load.iseoPreview', function() {
+                var onBuilderPage = true;
+                try {
+                    onBuilderPage = $iframe[0].contentWindow.location.href.indexOf('page=improveseo_projects') !== -1;
+                } catch (e) {
+                    // Same-origin, so this should not throw; reveal to be safe.
+                    onBuilderPage = false;
+                }
+                if (!onBuilderPage) {
+                    revealPreview();
+                }
+            });
+
+            $iframe.attr('src', preview_url);
          },
          error: function() {
             jQuery('#wh_prev_modal_1').html('<b style="color:#c0392b; font-size:18px;">Could not generate preview. Please close this and try again.</b><br><br><button type="button" class="button button-primary" onclick="closeWin()">Close</button>');
@@ -172,7 +200,7 @@ function preview_delete_ajax(prev_id){
  }
  function closeWin() {
      var preview_id = jQuery('#preview_id').val();
-     jQuery('#preview_iframe').attr('src', 'about:blank');
+     jQuery('#preview_iframe').off('load.iseoPreview').attr('src', 'about:blank');
      jQuery.modal.close();
      if (preview_id) {
          preview_delete_ajax(preview_id);
