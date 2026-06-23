@@ -5,35 +5,36 @@
  * Only activates when window.iseoGuideConfig.active === true.
  *
  * Step 1 (card-choice page) is handled by index.php.
- * Steps 2–22 are handled here (indices 0–20 in STEPS array).
+ * Steps 2–23 are handled here (indices 0–21 in STEPS array).
  *
  * Wizard-step 0 (Keyword & Post Title):
  *   0  seed-keyword      (modal) #seed_keyword              next-btn
- *   1  title-type        (modal) #seed_select               next-btn      ← seed_option2 pre-selected
- *   2  tone              (modal) #cotnt_type                next-btn      ← select before generating
- *   3  title-generate    (modal) #reload                    click-target  ← click to generate AI title
- *   4  title-approve     (modal) .step_one_approve_button   click-target  ← click Approve checkbox
- *   5  title-next        (modal) #nextStepButton            wizard-next   ← glow Next after approval
+ *   1  niche             (modal) #niche_select              next-btn      ← business niche (new), pre-selected from setup
+ *   2  title-type        (modal) #seed_select               next-btn      ← seed_option2 pre-selected
+ *   3  tone              (modal) #cotnt_type                next-btn      ← select before generating
+ *   4  title-generate    (modal) #reload                    click-target  ← click to generate AI title
+ *   5  title-approve     (modal) .step_one_approve_button   click-target  ← click Approve checkbox
+ *   6  title-next        (modal) #nextStepButton            wizard-next   ← glow Next after approval
  * Wizard-step 1 (Content Settings):
- *   6  article-size      (modal) #post_size                 next-btn
- *   7  point-of-view     (modal) #size                      next-btn
- *   8  language          (modal) #language                  next-btn
- *   9  details           (modal) #exampleFormControlTextarea next-btn
- *   10 call-to-action    (modal) #call_to_action            next-btn      ← fill in CTA, click guide’s Next
- *   11 cta-next          (modal) #nextStepButton            wizard-next   ← click modal Next to go to media
+ *   7  article-size      (modal) #post_size                 next-btn
+ *   8  point-of-view     (modal) #size                      next-btn
+ *   9  language          (modal) #language                  next-btn
+ *   10 details           (modal) #exampleFormControlTextarea next-btn
+ *   11 call-to-action    (modal) #call_to_action            next-btn      ← fill in CTA, click guide’s Next
+ *   12 cta-next          (modal) #nextStepButton            wizard-next   ← click modal Next to go to media
  * Wizard-step 2 (Add Media):
- *   12 media-select      (modal) #AI_image                  click-target  ← click to select
- *   13 media-next        (modal) #nextStepButton            wizard-next   ← "Generate AI Post" label; generation triggered automatically
+ *   13 media-select      (modal) #AI_image                  click-target  ← click to select
+ *   14 media-next        (modal) #nextStepButton            wizard-next   ← "Generate AI Post" label; generation triggered automatically
  * Wizard-step 3 (Generate AI Content):
- *   14 approve-content   (modal) #nextStepButton            wizard-next   ← "Approve Content" label
+ *   15 approve-content   (modal) #nextStepButton            wizard-next   ← "Approve Content" label
  * Wizard-step 4 (Meta Title & Description):
- *   15 meta-title        (modal) #meta_title                next-btn
- *   16 meta-desc         (modal) #meta_descreption          next-btn
- *   17 meta-next         (modal) #nextStepButton            wizard-next   ← "Next" label; advances to Project Name panel (pollTarget)
+ *   16 meta-title        (modal) #meta_title                next-btn
+ *   17 meta-desc         (modal) #meta_descreption          next-btn
+ *   18 meta-next         (modal) #nextStepButton            wizard-next   ← "Next" label; advances to Project Name panel (pollTarget)
  * Wizard-step 5 (Project Name & Categories):
- *   18 project-name      (modal) #modal_project_name        next-btn
- *   19 categories        (modal) .category-selection-section next-btn
- *   20 submit            (modal) #nextStepButton            final         ← "Submit" label; publishes via saveFinalData()
+ *   19 project-name      (modal) #modal_project_name        next-btn
+ *   20 categories        (modal) .category-selection-section next-btn
+ *   21 submit            (modal) #nextStepButton            final         ← "Submit" label; publishes via saveFinalData()
  */
 (function ($) {
     'use strict';
@@ -42,9 +43,9 @@
     if (!window.iseoGuideConfig || !window.iseoGuideConfig.active) return;
 
     /* ── Constants ──────────────────────────────────────────── */
-    var STEP_GENERATE_IDX = 13; // index where "Generate AI Post" is clicked (wizard-next triggers generation)
-    var STEP_APPROVE_IDX  = 14; // index of "Approve Content" wizard-next step
-    var STEP_SUBMIT_IDX   = 20; // index of final "Submit" step (publishes via saveFinalData(), closes modal & redirects)
+    var STEP_GENERATE_IDX = 14; // index where "Generate AI Post" is clicked (wizard-next triggers generation)
+    var STEP_APPROVE_IDX  = 15; // index of "Approve Content" wizard-next step
+    var STEP_SUBMIT_IDX   = 21; // index of final "Submit" step (publishes via saveFinalData(), closes modal & redirects)
 
     /* ── Steps Definition ───────────────────────────────────── */
     var STEPS = [
@@ -55,121 +56,127 @@
             position: 'right', advance: 'next-btn'
         },
         /* 1 */ {
+            phase: 'modal', wizardStep: 0, target: '#niche_select',
+            title: 'Pick your Business Niche',
+            message: 'Choose the niche that best matches your business. This tailors the writing style, article structure, and cover-image look to your industry. We\u2019ve pre-selected one from your setup \u2014 adjust if needed.',
+            position: 'right', advance: 'next-btn'
+        },
+        /* 2 */ {
             phase: 'modal', wizardStep: 0, target: '#seed_select',
             title: 'Choose Title Style',
             message: 'We\u2019ve selected <strong>Create Best Title from Keyword</strong> \u2014 the AI will craft an SEO-optimised headline for you. You can change this if you prefer.',
             position: 'right', advance: 'next-btn'
         },
-        /* 2 */ {
+        /* 3 */ {
             phase: 'modal', wizardStep: 0, target: '#cotnt_type',
             title: 'Set Your Tone of Voice',
             message: 'Choose the writing style for your audience. <em>Professional</em> suits service businesses; <em>Informational</em> works well for how-to guides.',
             position: 'right', advance: 'next-btn'
         },
-        /* 3 */ {
+        /* 4 */ {
             phase: 'modal', wizardStep: 0, target: '#reload',
             title: 'Generate your Title',
             message: 'Click the <strong>Generate</strong> button to let the AI create an optimised title from your keyword.',
             position: 'left', advance: 'click-target'
         },
-        /* 4 */ {
+        /* 5 */ {
             phase: 'modal', wizardStep: 0, target: '.step_one_approve_button',
             title: 'Approve the AI Title',
             message: 'Review the suggested title above. Happy with it? Click <strong>Approve</strong> to confirm and proceed.',
             position: 'right', advance: 'click-target'
         },
-        /* 5 */ {
+        /* 6 */ {
             phase: 'modal', wizardStep: 0, target: '#nextStepButton',
             title: 'Title Approved!',
             message: 'Great! Now click <strong>Next \u2192</strong> below to move on to the content settings.',
             position: 'left', advance: 'wizard-next', pollTarget: '#post_size'
         },
-        /* 6 */ {
+        /* 7 */ {
             phase: 'modal', wizardStep: 1, target: '#post_size',
             title: 'Article Length',
             message: 'Longer articles often rank better for competitive keywords. <em>Medium (1,200\u20132,400 words)</em> is a great starting point for most niches.',
             position: 'right', advance: 'next-btn'
         },
-        /* 7 */ {
+        /* 8 */ {
             phase: 'modal', wizardStep: 1, target: '#size',
             title: 'Point of View',
             message: 'Choose how the article addresses the reader. <em>Second Person (you, your)</em> is recommended for engaging, direct copy.',
             position: 'right', advance: 'next-btn'
         },
-        /* 8 */ {
+        /* 9 */ {
             phase: 'modal', wizardStep: 1, target: '#language',
             title: 'Content Language',
             message: 'Select the language and regional variant for your article. Match this to your target audience\u2019s location.',
             position: 'right', advance: 'next-btn'
         },
-        /* 9 */ {
+        /* 10 */ {
             phase: 'modal', wizardStep: 1, target: '#exampleFormControlTextarea',
             title: 'Details to Include',
             message: '(Optional) Add specific facts, services, or local details you want the AI to weave into the article. Leave blank to let the AI decide.',
             position: 'right', advance: 'next-btn'
         },
-        /* 10 */ {
+        /* 11 */ {
             phase: 'modal', wizardStep: 1, target: '#call_to_action',
             title: 'Call to Action',
             message: '(Optional) Tell the AI what action you want readers to take \u2014 e.g. <em>Contact us for a free quote</em>. When done, click <strong>Next \u2192</strong> to continue.',
             position: 'right', advance: 'next-btn'
         },
-        /* 11 */ {
+        /* 12 */ {
             phase: 'modal', wizardStep: 1, target: '#nextStepButton',
             title: 'Content Settings Done!',
             message: 'All content settings are saved. Click the <strong>Next \u2192</strong> button below to move on to image selection.',
             position: 'left', advance: 'wizard-next'
         },
-        /* 12 */ {
+        /* 13 */ {
             phase: 'modal', wizardStep: 2, target: '#AI_image',
             title: 'Select Image Option',
             message: 'Click <strong>Generate AI Image Based on Title</strong> to automatically create an image for your article.',
             position: 'right', advance: 'click-target'
         },
-        /* 13 */ {
+        /* 14 */ {
             phase: 'modal', wizardStep: 2, target: '#nextStepButton',
             title: 'Image Option Set',
             message: 'Your image preference has been saved. Click the <strong>Generate AI Post</strong> button below \u2014 the AI will write your article automatically.',
             position: 'left', advance: 'wizard-next',
             wizardHint: '&#8595; Click the <strong>Generate AI Post &#8594;</strong> button below to continue'
         },
-        /* 14 */ {
+        /* 15 */ {
             phase: 'modal', wizardStep: 3, target: '#nextStepButton',
             title: 'Review & Approve',
             message: 'Your article is ready! Scroll up in this window to read it. When you\u2019re happy, click the <strong>Approve Content</strong> button to continue.',
             position: 'left', advance: 'wizard-next'
         },
-        /* 15 */ {
+        /* 16 */ {
             phase: 'modal', wizardStep: 4, target: '#meta_title',
             title: 'SEO Meta Title',
             message: 'This title appears in Google search results. Keep it under 60 characters. The AI has suggested one \u2014 you can edit it freely.',
             position: 'right', advance: 'next-btn'
         },
-        /* 16 */ {
+        /* 17 */ {
             phase: 'modal', wizardStep: 4, target: '#meta_descreption',
             title: 'Meta Description',
             message: 'A short description shown under your page title in Google. Keep it under 160 characters \u2014 make it compelling to increase clicks.',
             position: 'right', advance: 'next-btn'
         },
-        /* 17 */ {
+        /* 18 */ {
             phase: 'modal', wizardStep: 4, target: '#nextStepButton',
             title: 'SEO Details Done!',
             message: 'Happy with your SEO title and description? Click <strong>Next \u2192</strong> below to continue to your project name.',
             position: 'left', advance: 'wizard-next', pollTarget: '#modal_project_name'
         },
-        /* 18 */ {
+        /* 19 */ {
             phase: 'modal', wizardStep: 5, target: '#modal_project_name',
             title: 'Check the Project Name',
             message: 'We\u2019ve auto-filled an internal name from your keyword \u2014 it\u2019s for your reference only and won\u2019t be published. Give it a quick read, edit it if you like, then click <strong>Next \u2192</strong>.',
             position: 'bottom', advance: 'next-btn'
         },
-        /* 19 */ {
+        /* 20 */ {
             phase: 'modal', wizardStep: 5, target: '.category-selection-section',
             title: 'Assign a Category',
             message: 'Choose one or more categories to organise this post. <em>Improve SEO</em> is selected by default \u2014 you can pick others or create a new one below. When done, click <strong>Next \u2192</strong>.',
             position: 'top', advance: 'next-btn'
         },
-        /* 20 */ {
+        /* 21 */ {
             phase: 'modal', wizardStep: 5, target: '#nextStepButton',
             title: 'Publish your Article! \uD83C\uDF89',
             message: 'You\u2019re all set! Click the <strong>Submit</strong> button below to publish your first SEO-optimised article.',
@@ -527,7 +534,7 @@
                 // and fires #generateapivalue — same as the normal form flow.
                 // The guide just removes the highlight and shows the waiting tooltip;
                 // the button remains visible exactly as in the normal form.
-                // When content arrives, showStep(14) adds the glow to the now-labelled "Approve Content".
+                // When content arrives, showStep(STEP_APPROVE_IDX) adds the glow to the now-labelled "Approve Content".
                 _waiting = true;
                 setTimeout(function () {
                     $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
@@ -548,9 +555,9 @@
             }
         });
 
-        /* ── Step 3: click #reload → wait for AI title ──────── */
+        /* ── Step 4: click #reload → wait for AI title ──────── */
         $(document).on('click.iseoguide', '#reload', function () {
-            if (currentStep !== 3) return;
+            if (currentStep !== 4) return;
             _waiting = true;
             showWaitingTooltip(
                 'Generating your AI Title &#x23F3;',
@@ -560,25 +567,25 @@
             waitForValue('#maintitlearea', function () {
                 if (_waiting) {
                     _waiting = false;
-                    showStep(4); // → approve title
+                    showStep(5); // → approve title
                 }
             }, 30);
         });
 
-        /* ── Step 4: approve title checkbox ─────────────────── */
+        /* ── Step 5: approve title checkbox ─────────────────── */
         $(document).on('change.iseoguide', '#checkbox_need', function () {
-            if (currentStep !== 4) return;
+            if (currentStep !== 5) return;
             if ($(this).is(':checked')) {
-                setTimeout(function () { showStep(5); }, 200); // → title-next (wizard-next glow on Next button)
+                setTimeout(function () { showStep(6); }, 200); // → title-next (wizard-next glow on Next button)
             }
         });
 
-        /* ── Step 11: select AI image radio ─────────────────── */
+        /* ── Step 12: select AI image radio ─────────────────── */
         $(document).on('click.iseoguide', '#AI_image', function () {
-            if (currentStep !== 12) return;
+            if (currentStep !== 13) return;
             // If an image URL is already cached (re-visit), advance immediately.
             if ($('#AI-Image-uploaded-path').val()) {
-                setTimeout(function () { showStep(13); }, 200);
+                setTimeout(function () { showStep(14); }, 200);
                 return;
             }
             _waiting = true;
@@ -590,7 +597,7 @@
             waitForValue('#AI-Image-uploaded-path', function () {
                 if (_waiting) {
                     _waiting = false;
-                    showStep(13); // \u2192 media wizard-next
+                    showStep(14); // \u2192 media wizard-next
                 }
             }, 30);
         });
