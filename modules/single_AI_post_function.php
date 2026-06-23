@@ -57,6 +57,30 @@ function getaaldata()
 
 	}
 
+	// ----- v2 fields -----
+	$niche = ( isset( $arr['niche'] ) && $arr['niche'] !== '' ) ? sanitize_text_field( $arr['niche'] ) : 'general_blog';
+	$cta_url = isset( $arr['cta_url'] ) ? trim( $arr['cta_url'] ) : '';
+
+	// Bridge the freeform "Details to Include" + tone into labelled niche_data for the v2 writer.
+	$niche_data = array();
+	if ( ! empty( $details_to_include ) ) {
+		$niche_data['details'] = $details_to_include;
+	}
+	if ( ! empty( $voice_tone ) ) {
+		$niche_data['preferred_tone'] = $voice_tone;
+	}
+
+	// Build a brand profile from the onboarding business setup (optional, enriches local SEO).
+	$brand_profile = array();
+	$bp_city    = get_option( 'improveseo_business_city', '' );
+	$bp_service = get_option( 'improveseo_business_service', '' );
+	if ( $bp_city ) {
+		$brand_profile['location'] = array( 'city' => $bp_city );
+	}
+	if ( $bp_service ) {
+		$brand_profile['services'] = array( $bp_service );
+	}
+
 	$generation_result = createAIpost2(
 
 		$seed_keyword,
@@ -83,7 +107,15 @@ function getaaldata()
 
 		$details_to_include,
 
-		$for_testing_only
+		$for_testing_only,
+
+		$niche,
+
+		$niche_data,
+
+		$brand_profile,
+
+		$cta_url
 
 	);
 
@@ -237,17 +269,14 @@ function ChatGPTCall($question)
 
 
 }
-function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '')
+function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '', $niche = 'general_blog', $niche_data = array(), $brand_profile = array(), $cta_url = '')
 {
 	global $wpdb, $user_ID;
-	
-	// Get audience data from cookie (same as original function)
-	$AudienceData = $_COOKIE['AudienceData'];
-	
+
 	// Get API credentials from WordPress options
 	$api_key = get_option('improveseo_api_key');
 	$site_code = get_option('improveseo_site_code');
-	
+
 	// Validate credentials
 	if (empty($api_key) || empty($site_code)) {
 		error_log("createAIpost2 Error: Missing API credentials. Please configure API Key and Site Code in settings.");
@@ -257,35 +286,31 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 			'meta_description' => ''
 		);
 	}
-	
-	// Admin server configuration
+
+	// Admin server configuration — v2 Claude content route
 	$admin_server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
-    $api_endpoint = $admin_server_url . '/api/v1/generate/active';
-	
-	// Prepare request payload matching the /active route interface
+    $api_endpoint = $admin_server_url . '/api/v1/content-v2/article';
+
+	// Prepare request payload matching the /content-v2/article (GenerateV2Params) interface.
 	$payload = array(
 		'seed_keyword' => $seed_keyword,
-		'keyword_selection' => $keyword_selection,
-		'seed_options' => $seed_options,
+		'niche' => $niche ?: 'general_blog',
+		'title' => $title,
 		'nos_of_words' => $nos_of_words,
 		'content_lang' => $content_lang,
-		'voice_tone' => $voice_tone,
-		'point_of_view' => $point_of_view,
-		'title' => $title,
 		'call_to_action' => $call_to_action,
-		'details_to_include' => $details_to_include,
-		'for_testing_only' => intval($for_testing_only),
-		'audienceData' => $AudienceData,
-		'useActivePrompts' => true,
-		'customPrompts' => new stdClass(), // Empty object
-		'templateVariables' => array(
-			'seed_keyword' => $seed_keyword,
-			'context' => $details_to_include,
-			'audience_data' => $AudienceData,
-			'meta_title' => $title ?: $seed_keyword,
-			'whats_next_content' => $call_to_action
-		)
+		'humanize' => true,
 	);
+	// niche_data must serialize as a JSON object (not an array) when present.
+	if (!empty($niche_data)) {
+		$payload['niche_data'] = (object) $niche_data;
+	}
+	if (!empty($brand_profile)) {
+		$payload['brand_profile'] = $brand_profile;
+	}
+	if (!empty($cta_url)) {
+		$payload['cta_url'] = $cta_url;
+	}
 	
 	// Set up cURL for HTTP request to admin server
 	$ch = curl_init($api_endpoint);
@@ -365,7 +390,10 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 	
 	$content_final = $result['data']['content'];
 	$meta_title = isset($result['data']['meta_title']) ? $result['data']['meta_title'] : '';
-	$meta_description = isset($result['data']['meta_descreption']) ? $result['data']['meta_descreption'] : '';
+	// v2 returns the correctly-spelled key; keep the legacy fallback for safety.
+	$meta_description = isset($result['data']['meta_description'])
+		? $result['data']['meta_description']
+		: (isset($result['data']['meta_descreption']) ? $result['data']['meta_descreption'] : '');
 	
 	// Add styling like original function
 	$content_final = '<div class="main-content-section-improveseo">' . $content_final . '</div>';

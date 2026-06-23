@@ -71,6 +71,11 @@ function GenerateCustomImage() {
 
   formData.append("title", title);
 
+  // Route the single-wizard cover image through the v2 (OpenAI) path with the selected niche.
+  formData.append("niche", jQuery("#niche_select").val() || "");
+
+  formData.append("use_v2", "1");
+
   jQuery.ajax({
     url: ajaxurl,
 
@@ -153,6 +158,11 @@ jQuery("#generate_i_image").on("click", function () {
   formData.append("seed_title", seed_title);
 
   formData.append("noedit", 1);
+
+  // Custom-prompt image also uses the v2 (OpenAI) path; the raw prompt is passed through verbatim.
+  formData.append("niche", jQuery("#niche_select").val() || "");
+
+  formData.append("use_v2", "1");
 
   jQuery.ajax({
     url: ajaxurl,
@@ -753,6 +763,12 @@ function refreshAIImage() {
   formData.append("action", "fetch_AI_image");
 
   formData.append("title", title);
+
+  // v2 (OpenAI) cover image: send the selected niche and flag the v2 path. The PHP handler falls
+  // back to the legacy Flux flow when use_v2 is absent, so other image triggers are unaffected.
+  formData.append("niche", jQuery("#niche_select").val() || "");
+
+  formData.append("use_v2", "1");
 
   jQuery.ajax({
     url: ajaxurl,

@@ -725,6 +725,48 @@ global $ai_modal_type;
                         </span>
                         <?php endif; ?>
                     </div>
+                    <?php
+                    // Pre-select the niche from the onboarding business type when it maps cleanly.
+                    $iseo_prefill_niche = '';
+                    $iseo_bt = strtolower( (string) get_option( 'improveseo_business_type', '' ) );
+                    foreach ( array( 'hvac','plumbing','electrical','roofing','landscaping','dental','medical','restaurant','fitness','beauty','mortgage','realestate','ecommerce' ) as $iseo_nk ) {
+                        if ( $iseo_bt && strpos( $iseo_bt, $iseo_nk ) !== false ) { $iseo_prefill_niche = $iseo_nk; break; }
+                    }
+                    ?>
+                    <div class="seo-form-field">
+                        <label class="data-label" for="niche_select">Business niche</label>
+                        <select id="niche_select" name="niche" class="form-control custom-selcected" style="max-width:100% !important;">
+                            <?php
+                            $iseo_niches = array(
+                                'hvac' => 'HVAC / Heating & Cooling',
+                                'plumbing' => 'Plumbing',
+                                'electrical' => 'Electrical',
+                                'roofing' => 'Roofing / Exterior',
+                                'landscaping' => 'Landscaping / Tree Service',
+                                'dental' => 'Dental / Orthodontics',
+                                'medical' => 'Medical / Health Clinic',
+                                'personal_injury_law' => 'Personal Injury Law',
+                                'family_law' => 'Family Law',
+                                'realestate' => 'Real Estate Agent / Broker',
+                                'mortgage' => 'Mortgage / Finance',
+                                'restaurant' => 'Restaurant / Cafe',
+                                'fitness' => 'Fitness / Personal Training',
+                                'beauty' => 'Beauty / Salon / Spa',
+                                'pet_services' => 'Pet Services / Vet',
+                                'ecommerce' => 'Ecommerce / Product Review',
+                                'general_blog' => 'General Blog / Digital Content',
+                                'other' => 'Other',
+                            );
+                            $iseo_selected = $iseo_prefill_niche ? $iseo_prefill_niche : 'general_blog';
+                            foreach ( $iseo_niches as $iseo_val => $iseo_label ) {
+                                printf( '<option value="%s"%s>%s</option>', esc_attr( $iseo_val ), selected( $iseo_selected, $iseo_val, false ), esc_html( $iseo_label ) );
+                            }
+                            ?>
+                        </select>
+                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;margin-top:4px;">
+                            Drives the writing style, structure and cover-image look for your niche.
+                        </span>
+                    </div>
                     <div class="seo-form-field">
                         <div class="title-tune">
                             <div class="title">

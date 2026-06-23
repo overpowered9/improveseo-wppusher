@@ -568,20 +568,35 @@ function fetch_AI_image_callback()
         
         // Admin server configuration
         $admin_server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
-        $api_endpoint = $admin_server_url . '/api/v1/generate/generateimage';
-        
-        // Prepare request payload
-        $payload = array(
-            'title' => $title,
-            'noedit' => $noedit,
-            'seed_title' => $seed_title,
-            'width' => 1024,
-            'height' => 768
-        );
-        
-        // If noedit mode, send the raw prompt
-        if ($noedit) {
-            $payload['prompt'] = $title;
+
+        // The single-post wizard sends use_v2/niche → OpenAI v2 image route. Everything else
+        // (bulk, keyword, manual flows) stays on the legacy Flux route, untouched.
+        $use_v2_image = !empty($_POST['use_v2']) || !empty($_POST['niche']);
+
+        if ($use_v2_image) {
+            $api_endpoint = $admin_server_url . '/api/v1/content-v2/image';
+            $payload = array(
+                'niche'   => isset($_POST['niche']) && $_POST['niche'] !== '' ? sanitize_text_field($_POST['niche']) : 'general_blog',
+                'title'   => $title,
+                'size'    => '1536x1024',
+                'quality' => 'medium',
+            );
+            $bp_city = get_option('improveseo_business_city', '');
+            if ($bp_city) { $payload['city'] = $bp_city; }
+            // noedit: pass the raw prompt straight to the image model (v2 uses it verbatim)
+            if ($noedit) { $payload['prompt'] = $title; }
+        } else {
+            $api_endpoint = $admin_server_url . '/api/v1/generate/generateimage';
+            $payload = array(
+                'title' => $title,
+                'noedit' => $noedit,
+                'seed_title' => $seed_title,
+                'width' => 1024,
+                'height' => 768
+            );
+            if ($noedit) {
+                $payload['prompt'] = $title;
+            }
         }
         
         // Set up cURL for HTTP request to admin server
@@ -638,27 +653,34 @@ function fetch_AI_image_callback()
             wp_die();
         }
         
-        // Extract image URL from successful response
-        if (!isset($result['data']['image_url'])) {
-            error_log("fetch_AI_image Missing Image URL: " . $response);
-            wp_send_json_error('No image URL returned from generation server.');
+        // Acquire image bytes. A hosted URL (Flux, or v2 when Supabase hosting is configured) is
+        // downloaded; otherwise the v2 route returns a base64 data URI we decode directly.
+        $img = isset($result['data']) ? $result['data'] : array();
+        $image_url = isset($img['image_url']) ? $img['image_url'] : '';
+        $data_uri  = isset($img['data_uri']) ? $img['data_uri'] : '';
+
+        $upload_dir = wp_upload_dir();
+        $image_data = false;
+
+        if (!empty($image_url)) {
+            $ch = curl_init($image_url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+            $image_data = curl_exec($ch);
+            curl_close($ch);
+        } elseif (!empty($data_uri)) {
+            $comma = strpos($data_uri, ',');
+            $b64 = ($comma !== false) ? substr($data_uri, $comma + 1) : $data_uri;
+            $image_data = base64_decode($b64);
+        } else {
+            error_log("fetch_AI_image Missing image_url/data_uri: " . $response);
+            wp_send_json_error('No image returned from generation server.');
             wp_die();
         }
-        
-        $image_url = $result['data']['image_url'];
-        
-        // Download the image from admin server and save to WordPress uploads
-        $upload_dir = wp_upload_dir();
-        
-        $ch = curl_init($image_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-        $image_data = curl_exec($ch);
-        curl_close($ch);
-        
+
         if (!$image_data) {
-            error_log("fetch_AI_image Error: Failed to download image from URL: " . $image_url);
+            error_log("fetch_AI_image Error: Failed to obtain image bytes.");
             wp_send_json_error('Error fetching generated image.');
             wp_die();
         }
