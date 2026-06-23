@@ -582,18 +582,20 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 		} else {
 
-			$ai_title = '';
+			// Unknown option — fall back to keyword so title is never empty
+			my_plugin_log('generateBulkAiContent: Unknown select_exisiting_options value "' . $value->select_exisiting_options . '" for task ' . $id . ' — using keyword as title fallback');
+			$ai_title = $value->keyword_name;
 
 		}
-	
-	// ✅ TITLE SANITIZATION: Remove double quotes from titles
-	// This prevents issues with:
-	// - Titles breaking HTML attributes
-	// - SQL query problems with quotes
-	// - API responses that wrap titles in quotes
-	// Applied to all title sources: keyword_name, bulkAiTitle (normal/question), and empty fallback
+
 		$ai_title = str_replace('"', '', $ai_title);
 		$ai_title = trim($ai_title, '"');
+
+		// Final safety net: if title is still empty after all attempts, use keyword directly
+		if (empty($ai_title)) {
+			my_plugin_log('generateBulkAiContent: Title still empty after generation for task ' . $id . ' — forcing keyword as title');
+			$ai_title = $value->keyword_name;
+		}
 
 		my_plugin_log('generateBulkAiContent: Generated title for task ' . $id . ': "' . $ai_title . '"');
 
@@ -661,21 +663,20 @@ function generateBulkAiContent($id = '', $regenerate = '')
 		return false;
 	}
 	
-	// ✅ Image validation - if image generation was requested, it must succeed
-	// ai_image field should NEVER be NULL after generation attempt
+	// Image validation - if image generation was requested but failed, reset to Pending for retry
 	if ($value->aiImage == 'AI_image_one' && empty($imageURL)) {
-		my_plugin_log('generateBulkAiContent: CRITICAL ERROR - Image generation failed and returned empty for task ' . $id . '. Cannot proceed with NULL image.');
-		
-		// Keep in Processing state - manual intervention or retry with different image option
+		my_plugin_log('generateBulkAiContent: Image generation failed for task ' . $id . '. Saving title, resetting status to Pending for retry.');
+
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
-				 SET status = %s WHERE id = %d",
-				'Processing',
+				 SET status = %s, ai_title = %s WHERE id = %d",
+				'Pending',
+				$ai_title,
 				$id
 			)
 		);
-		
+
 		return false;
 	}
 
