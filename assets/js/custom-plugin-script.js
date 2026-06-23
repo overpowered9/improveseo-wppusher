@@ -984,6 +984,11 @@ jQuery(document).ready(function (jQuery) {
 
         formData.append("title", title);
 
+        // Primary single-wizard cover image (AI_image radio) → v2 (OpenAI) path with the niche.
+        formData.append("niche", jQuery("#niche_select").val() || "");
+
+        formData.append("use_v2", "1");
+
         jQuery.ajax({
           url: ajaxurl,
 
