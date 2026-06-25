@@ -31,7 +31,7 @@ function getaaldata()
 
 
 
-	$details_to_include = $arr['details_to_include'];
+	$details_to_include = isset($arr['details_to_include']) ? $arr['details_to_include'] : '';
 
 	$content_lang = $arr['content_lang'];
 
@@ -61,9 +61,18 @@ function getaaldata()
 	$niche = ( isset( $arr['niche'] ) && $arr['niche'] !== '' ) ? sanitize_text_field( $arr['niche'] ) : 'general_blog';
 	$cta_url = isset( $arr['cta_url'] ) ? trim( $arr['cta_url'] ) : '';
 
-	// Bridge the freeform "Details to Include" + tone into labelled niche_data for the v2 writer.
+	// Collect the structured per-niche fields (rendered in Step 2, named nd_<id>) into labelled
+	// niche_data for the v2 writer. Falls back to the legacy freeform details field if present.
 	$niche_data = array();
-	if ( ! empty( $details_to_include ) ) {
+	foreach ( $arr as $nd_key => $nd_val ) {
+		if ( strpos( $nd_key, 'nd_' ) === 0 ) {
+			$nd_val = is_array( $nd_val ) ? implode( ', ', $nd_val ) : trim( (string) $nd_val );
+			if ( $nd_val !== '' ) {
+				$niche_data[ substr( $nd_key, 3 ) ] = sanitize_text_field( $nd_val );
+			}
+		}
+	}
+	if ( empty( $niche_data ) && ! empty( $details_to_include ) ) {
 		$niche_data['details'] = $details_to_include;
 	}
 	if ( ! empty( $voice_tone ) ) {

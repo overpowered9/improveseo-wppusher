@@ -19,7 +19,7 @@
  *   7  article-size      (modal) #post_size                 next-btn
  *   8  point-of-view     (modal) #size                      next-btn
  *   9  language          (modal) #language                  next-btn
- *   10 details           (modal) #exampleFormControlTextarea next-btn
+ *   10 niche-details      (modal) #niche_fields_container    next-btn      ← dynamic per-niche fields
  *   11 call-to-action    (modal) #call_to_action            next-btn      ← fill in CTA, click guide’s Next
  *   12 cta-next          (modal) #nextStepButton            wizard-next   ← click modal Next to go to media
  * Wizard-step 2 (Add Media):
@@ -110,9 +110,9 @@
             position: 'right', advance: 'next-btn'
         },
         /* 10 */ {
-            phase: 'modal', wizardStep: 1, target: '#exampleFormControlTextarea',
-            title: 'Details to Include',
-            message: '(Optional) Add specific facts, services, or local details you want the AI to weave into the article. Leave blank to let the AI decide.',
+            phase: 'modal', wizardStep: 1, target: '#niche_fields_container',
+            title: 'Add Niche Details',
+            message: '(Optional) These prompts adapt to your niche. Add real specifics — pricing, a local detail, a recent result — to make the article concrete and locally relevant. Your business name and location come from Settings automatically.',
             position: 'right', advance: 'next-btn'
         },
         /* 11 */ {

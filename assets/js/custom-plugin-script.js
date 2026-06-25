@@ -635,7 +635,9 @@ function generateAIMetaJs() {
 }
 
 function countContent() {
-  var val = document.getElementById("exampleFormControlTextarea").value;
+  var _ccEl = document.getElementById("exampleFormControlTextarea");
+  if (!_ccEl) return; // field replaced by dynamic niche fields
+  var val = _ccEl.value;
 
   var wordCounterwithoutSpace = 0;
 
@@ -2299,4 +2301,135 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
     });
+});
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Niche-specific detail fields (Step 2)
+   Renders 3-4 labelled inputs based on the Business Niche chosen in Step 1.
+   Each input is named nd_<id> and is collected into niche_data by getaaldata.
+   ────────────────────────────────────────────────────────────────────────── */
+window.ISEO_NICHE_FIELDS = {
+  hvac: [
+    { id: "pricing", label: "Your pricing range for this service", ph: "e.g. AC replacement runs $3,800-$6,200 depending on unit size" },
+    { id: "local_detail", label: "Local climate or seasonal context", ph: "e.g. In Phoenix, units work harder and fail sooner than the national average" },
+    { id: "real_result", label: "A real job result you can reference (optional)", ph: "e.g. Most emergency calls this summer were capacitor failures" },
+    { id: "differentiator", label: "What makes your service different (optional)", ph: "e.g. Same-day service, no emergency fees, licensed master tech" }
+  ],
+  plumbing: [
+    { id: "pricing", label: "Typical pricing for this job", ph: "e.g. Most emergency calls run $180-$350 depending on the issue" },
+    { id: "local_detail", label: "Local context", ph: "e.g. Older homes here have galvanised pipes that fail suddenly" },
+    { id: "real_result", label: "A real job you can reference (optional)", ph: "e.g. We cleared 40+ burst-pipe calls after the last freeze" },
+    { id: "differentiator", label: "What makes you different (optional)", ph: "e.g. Licensed master plumber on every job, no subcontractors" }
+  ],
+  electrical: [
+    { id: "services", label: "Services to feature", ph: "e.g. Panel upgrades, EV charger installs, troubleshooting" },
+    { id: "safety", label: "A safety or code angle", ph: "e.g. Older panels in this area often fail inspection" },
+    { id: "differentiator", label: "What makes you different (optional)", ph: "e.g. Upfront flat-rate pricing, same-day diagnostics" }
+  ],
+  roofing: [
+    { id: "pricing", label: "Typical project cost range", ph: "e.g. Full replacement $8,000-$14,000 for a 2,000 sq ft home" },
+    { id: "local_detail", label: "Local weather or material context", ph: "e.g. Hail damage is our most common claim job here" },
+    { id: "trust_signal", label: "A trust or proof signal", ph: "e.g. GAF Master Elite contractor, 500+ roofs locally" }
+  ],
+  landscaping: [
+    { id: "services", label: "Services to feature", ph: "e.g. Tree removal, seasonal cleanup, irrigation" },
+    { id: "local_detail", label: "Local or seasonal context", ph: "e.g. Spring storms drop a lot of limbs in this area" },
+    { id: "differentiator", label: "What makes you different (optional)", ph: "e.g. Licensed arborist on staff, free estimates" }
+  ],
+  dental: [
+    { id: "procedures", label: "Procedures you want to feature", ph: "e.g. Invisalign, implants, same-day emergency appointments" },
+    { id: "insurance", label: "Insurance or payment options", ph: "e.g. Delta Dental, 0% CareCredit financing" },
+    { id: "patient_concern", label: "Main patient concern to address", ph: "e.g. Anxiety, we offer sedation options" }
+  ],
+  medical: [
+    { id: "services", label: "Services or specialties to feature", ph: "e.g. Same-day sick visits, chronic care, telehealth" },
+    { id: "insurance", label: "Insurance or payment options", ph: "e.g. Most major insurers, transparent self-pay pricing" },
+    { id: "patient_concern", label: "Main patient concern to address", ph: "e.g. Wait times, we offer online scheduling" }
+  ],
+  personal_injury_law: [
+    { id: "case_types", label: "Case types you handle", ph: "e.g. Car accidents, slip-and-fall, workplace injury" },
+    { id: "fee", label: "Fee structure", ph: "e.g. No fee unless we win" },
+    { id: "proof", label: "A proof or result signal (optional)", ph: "e.g. Recovered millions for local clients, free case review" }
+  ],
+  family_law: [
+    { id: "case_types", label: "Matters you handle", ph: "e.g. Divorce, custody, support modifications" },
+    { id: "approach", label: "Your approach", ph: "e.g. We aim to settle without court when possible" },
+    { id: "fee", label: "Consultation or fee detail (optional)", ph: "e.g. Free 30-minute consultation, flat fees for uncontested cases" }
+  ],
+  realestate: [
+    { id: "market", label: "Local market detail", ph: "e.g. Median home price and how fast homes sell here" },
+    { id: "focus", label: "Who you help", ph: "e.g. First-time buyers, sellers, relocations" },
+    { id: "differentiator", label: "What makes you different (optional)", ph: "e.g. 15 years in this market, free home valuation" }
+  ],
+  mortgage: [
+    { id: "products", label: "Loan products to feature", ph: "e.g. FHA, VA, first-time buyer programs" },
+    { id: "rates", label: "A rate or cost angle", ph: "e.g. We shop multiple lenders to find the best rate" },
+    { id: "differentiator", label: "What makes you different (optional)", ph: "e.g. Local underwriting, close in 21 days" }
+  ],
+  restaurant: [
+    { id: "cuisine", label: "Cuisine or signature dishes", ph: "e.g. Wood-fired pizza, house-made pasta" },
+    { id: "local_detail", label: "Local angle", ph: "e.g. We source produce from farms 20 miles out" },
+    { id: "offer", label: "An offer or detail (optional)", ph: "e.g. Happy hour 4-6pm, private events" }
+  ],
+  fitness: [
+    { id: "services", label: "Programs you offer", ph: "e.g. 1-on-1 coaching, small group, nutrition plans" },
+    { id: "audience", label: "Who you train", ph: "e.g. Busy parents, beginners, post-injury recovery" },
+    { id: "result", label: "A real client result (optional)", ph: "e.g. Helped a client lose 30 lbs in 4 months" }
+  ],
+  beauty: [
+    { id: "services", label: "Services to feature", ph: "e.g. Balayage, gel manicures, facials" },
+    { id: "specialty", label: "Your specialty", ph: "e.g. Color correction, sensitive-skin facials" },
+    { id: "offer", label: "An offer or detail (optional)", ph: "e.g. First-visit discount, online booking" }
+  ],
+  pet_services: [
+    { id: "services", label: "Services to feature", ph: "e.g. Grooming, boarding, wellness exams" },
+    { id: "approach", label: "Your approach", ph: "e.g. Fear-free handling, small daily groups" },
+    { id: "differentiator", label: "What makes you different (optional)", ph: "e.g. Vet on-site, webcam access for owners" }
+  ],
+  ecommerce: [
+    { id: "product", label: "Product or category this article covers", ph: "e.g. The product or collection this article is about" },
+    { id: "benefit", label: "Key benefit or differentiator", ph: "e.g. What makes it better than the alternatives" },
+    { id: "proof", label: "Proof or social proof (optional)", ph: "e.g. 4.8 stars across 2,000 reviews" }
+  ],
+  general_blog: [
+    { id: "personal_exp", label: "Your personal experience with this topic", ph: "e.g. I have tested 6 of these tools over the past year" },
+    { id: "opinion", label: "Your honest opinion or contrarian take", ph: "e.g. Most advice on this is wrong, here is what I actually found" },
+    { id: "result", label: "A specific result or example to include", ph: "e.g. This approach took my open rate from 18% to 31%" }
+  ]
+};
+
+window.ISEO_NICHE_FIELDS_DEFAULT = [
+  { id: "detail", label: "Key detail to include", ph: "A specific fact, service, or angle for this article" },
+  { id: "local_detail", label: "Local or audience context (optional)", ph: "Location, season, or who this is for" },
+  { id: "proof", label: "A real result or example (optional)", ph: "Something that shows real, first-hand experience" }
+];
+
+window.iseoRenderNicheFields = function (niche) {
+  var container = document.getElementById("niche_fields_container");
+  if (!container) return;
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
+  var fields = (window.ISEO_NICHE_FIELDS && window.ISEO_NICHE_FIELDS[niche]) || window.ISEO_NICHE_FIELDS_DEFAULT;
+  var html = "";
+  for (var i = 0; i < fields.length; i++) {
+    var f = fields[i];
+    html += '<div class="seo-form-field iseo-niche-field">'
+      + '<label for="nd_' + esc(f.id) + '">' + esc(f.label) + "</label>"
+      + '<input type="text" class="form-control" id="nd_' + esc(f.id) + '" name="nd_' + esc(f.id) + '" placeholder="' + esc(f.ph) + '">'
+      + "</div>";
+  }
+  // Always-available freeform catch-all.
+  html += '<div class="seo-form-field iseo-niche-field">'
+    + '<label for="nd_extra">Anything else to include (optional)</label>'
+    + '<textarea class="form-control" id="nd_extra" name="nd_extra" rows="2" placeholder="Any other specifics for this article."></textarea>'
+    + "</div>";
+  container.innerHTML = html;
+};
+
+jQuery(document).ready(function () {
+  var sel = document.getElementById("niche_select");
+  if (!sel) return;
+  window.iseoRenderNicheFields(sel.value);
+  sel.addEventListener("change", function () {
+    window.iseoRenderNicheFields(sel.value);
+  });
 });

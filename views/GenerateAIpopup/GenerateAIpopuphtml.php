@@ -906,18 +906,12 @@ global $ai_modal_type;
 
                     </div>
                     <div class="seo-form-field">
-                        <label for="sel1">Article-specific details <small style="color:#888;font-weight:normal;">(optional)</small> <a href="#"
-                                data-toggle="Add only what is unique to THIS article. Keep it aligned with the keyword and title."
-                                title="Add only what is unique to THIS article. Keep it aligned with the keyword and title.">
-                                <div class="dashicons dashicons-info-outline" aria-hidden="true"><br>
-                                </div>
-                            </a></label>
-                        <textarea class="form-control" id="exampleFormControlTextarea" rows="3"
-                            name="details_to_include" onkeypress="return countContent()" onblur="LimitText(this,1500,1)"
-                            placeholder="Anything specific to this article — a current promotion, a recent job, a seasonal angle, or a point to emphasise. No need to repeat your business name, location, or services."></textarea>
-                        <span id="countContent"></span>
+                        <label>Details for this article <small style="color:#888;font-weight:normal;">(optional &mdash; tailored to your niche)</small></label>
+                        <!-- Niche-specific fields are rendered here by iseoRenderNicheFields() based on the
+                             Business Niche selected in Step 1. Each input is named nd_<id> and flows into niche_data. -->
+                        <div id="niche_fields_container" class="niche-fields"></div>
                         <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;margin-top:4px;">
-                            Your business name, location and services are pulled from <strong>Settings &rarr; Business Details</strong> automatically.
+                            These prompts adapt to your niche. Your business name, location and services come from <strong>Settings &rarr; Business Details</strong> automatically.
                         </span>
                     </div>
                     <div class="seo-form-field">
