@@ -906,19 +906,19 @@ global $ai_modal_type;
 
                     </div>
                     <div class="seo-form-field">
-                        <label for="sel1">Details to Include <a href="#"
-                                data-toggle="Please ensure the information you input aligns with the Main Keyword and Title. For example, information about dogs should not be added if you are writing about roofing."
-                                title="Please ensure the information you input aligns with the Main Keyword and Title. For example, information about dogs should not be added if you are writing about roofing.">
+                        <label for="sel1">Article-specific details <small style="color:#888;font-weight:normal;">(optional)</small> <a href="#"
+                                data-toggle="Add only what is unique to THIS article. Keep it aligned with the keyword and title."
+                                title="Add only what is unique to THIS article. Keep it aligned with the keyword and title.">
                                 <div class="dashicons dashicons-info-outline" aria-hidden="true"><br>
                                 </div>
                             </a></label>
-                        <!-- <textarea class="detail-text" id="exampleFormControlTextarea" rows="6" name="details_to_include"
-                            onkeypress="return countContent()" OnBlur="LimitText(this,1000,1)"
-                            placeholder="Any details you want to include in the content? Example: 'focus on the services that my nail salon 'Goddess Nail Bar' offers : manicures, pedicures, and nail enhancements like acrylics or gel nails, also consider local and cultural details about Brooklyn, NY, where my nail salon is located"></textarea> -->
                         <textarea class="form-control" id="exampleFormControlTextarea" rows="3"
                             name="details_to_include" onkeypress="return countContent()" onblur="LimitText(this,1500,1)"
-                            placeholder="Any details you want to include in the content? Example: 'focus on the services that my nail salon 'Goddess Nail Bar' offers : manicures, pedicures, and nail enhancements like acrylics or gel nails, also consider local and cultural details about Brooklyn, NY, where my nail salon is located"></textarea>
+                            placeholder="Anything specific to this article — a current promotion, a recent job, a seasonal angle, or a point to emphasise. No need to repeat your business name, location, or services."></textarea>
                         <span id="countContent"></span>
+                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;margin-top:4px;">
+                            Your business name, location and services are pulled from <strong>Settings &rarr; Business Details</strong> automatically.
+                        </span>
                     </div>
                     <div class="seo-form-field">
                         <label for="call_to_action">Call to Action Text<a href="#" data-toggle="Information" title="Information">
