@@ -607,12 +607,27 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 
 
+	// ----- v2 fields (one niche for the whole batch, derived from the business setup) -----
+	$iseo_bt = strtolower((string) get_option('improveseo_business_type', ''));
+	$iseo_niche = 'general_blog';
+	foreach (array('hvac','plumbing','electrical','roofing','landscaping','dental','medical','restaurant','fitness','beauty','mortgage','realestate','ecommerce') as $iseo_nk) {
+		if ($iseo_bt && strpos($iseo_bt, $iseo_nk) !== false) { $iseo_niche = $iseo_nk; break; }
+	}
+	$iseo_niche_data = array();
+	if (!empty($value->details_to_include)) { $iseo_niche_data['details'] = $value->details_to_include; }
+	if (!empty($value->tone_of_voice))      { $iseo_niche_data['preferred_tone'] = $value->tone_of_voice; }
+	$iseo_brand_profile = array();
+	$iseo_bp_city    = get_option('improveseo_business_city', '');
+	$iseo_bp_service = get_option('improveseo_business_service', '');
+	if ($iseo_bp_city)    { $iseo_brand_profile['location'] = array('city' => $iseo_bp_city); }
+	if ($iseo_bp_service) { $iseo_brand_profile['services'] = array($iseo_bp_service); }
+
 	// ✅ STEP 3: Generate AI Image
 	my_plugin_log('generateBulkAiContent: Starting image generation for task ' . $id . ' | Image option: ' . $value->aiImage);
-	
+
 	if ($value->aiImage == 'AI_image_one') {
 
-		$imageURL = generateBulkAiImage($ai_title, $getAudienceData);
+		$imageURL = generateBulkAiImage($ai_title, $getAudienceData, $iseo_niche);
 		
 		// Check if image generation failed (returns false)
 		if ($imageURL === false) {
@@ -636,7 +651,7 @@ function generateBulkAiContent($id = '', $regenerate = '')
 	
 	$keyword_selection = '';
 
-	$generation_result = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, $value->point_of_view, $value->details_to_include, $value->call_to_action, $value->details_to_include);
+	$generation_result = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, $value->point_of_view, $ai_title, $value->call_to_action, $value->details_to_include, '', $iseo_niche, $iseo_niche_data, $iseo_brand_profile, '');
 
 	// Extract content from the result array
 	$AI_Content = $generation_result['content'];
@@ -1692,32 +1707,33 @@ function bulkAiTitle($getAudienceData, $question, $keyword_name, $tone_of_voice)
 
 }
 
-function generateBulkAiImage($title, $AudienceData)
+function generateBulkAiImage($title, $AudienceData, $niche = 'general_blog')
 {
     // Get API credentials from WordPress options
     $api_key = get_option('improveseo_api_key');
     $site_code = get_option('improveseo_site_code');
-    
+
     // Validate credentials
     if (empty($api_key) || empty($site_code)) {
         error_log("generateBulkAiImage Error: Missing API credentials");
         return false; // ✅ Return false instead of error string
     }
-    
-    // Admin server configuration
+
+    // Admin server configuration — v2 OpenAI image route
     $admin_server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
-    $api_endpoint = $admin_server_url . '/api/v1/generate/generateimage';
-    
+    $api_endpoint = $admin_server_url . '/api/v1/content-v2/image';
+
     $seed_title = 'ai_image_' . date('YmdHis');
-    
-    // Prepare request payload
+
+    // Prepare request payload for the v2 image route (documentary niche templates)
     $payload = array(
-        'title' => $title,
-        'noedit' => false,
-        'seed_title' => $seed_title,
-        'width' => 1024,
-        'height' => 768
+        'niche'   => $niche ?: 'general_blog',
+        'title'   => $title,
+        'size'    => '1536x1024',
+        'quality' => 'medium',
     );
+    $bp_city = get_option('improveseo_business_city', '');
+    if ($bp_city) { $payload['city'] = $bp_city; }
     
     error_log("generateBulkAiImage: Calling API for title: " . $title);
     
@@ -1787,36 +1803,40 @@ function generateBulkAiImage($title, $AudienceData)
         return false; // ✅ Return false if success is not true
     }
     
-    // ✅ ONLY extract image URL if status is 200 AND success is true
-    if (!isset($result['data']['image_url']) || empty($result['data']['image_url'])) {
-        error_log("generateBulkAiImage Missing Image URL in response data");
-        return false; // ✅ Return false if image URL is missing
-    }
-    
-    $image_url = $result['data']['image_url'];
-    error_log("generateBulkAiImage: Image URL received: " . $image_url);
-    
-    // Validate that image_url is a proper URL
-    if (!filter_var($image_url, FILTER_VALIDATE_URL)) {
-        error_log("generateBulkAiImage: Invalid URL format: " . $image_url);
-        return false; // ✅ Return false if URL is invalid
-    }
-    
-    // Download the image and save to WordPress uploads
+    // v2 returns a hosted image_url only when Supabase hosting is configured; otherwise a base64
+    // data_uri. Support both: download a URL, or decode the data URI directly.
+    $data = isset($result['data']) ? $result['data'] : array();
+    $image_url = isset($data['image_url']) ? $data['image_url'] : '';
+    $data_uri  = isset($data['data_uri']) ? $data['data_uri'] : '';
+
     $upload_dir = wp_upload_dir();
-    
-    $ch = curl_init($image_url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    $image_data = curl_exec($ch);
-    $download_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    
-    if (!$image_data || $download_status !== 200) {
-        error_log("generateBulkAiImage Error: Failed to download image from URL: " . $image_url . " (HTTP " . $download_status . ")");
-        return false; // ✅ Return false on download failure
+    $image_data = false;
+
+    if (!empty($image_url) && filter_var($image_url, FILTER_VALIDATE_URL)) {
+        $ch = curl_init($image_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $image_data = curl_exec($ch);
+        $download_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if (!$image_data || $download_status !== 200) {
+            error_log("generateBulkAiImage Error: Failed to download image from URL: " . $image_url . " (HTTP " . $download_status . ")");
+            return false;
+        }
+    } elseif (!empty($data_uri)) {
+        $comma = strpos($data_uri, ',');
+        $b64 = ($comma !== false) ? substr($data_uri, $comma + 1) : $data_uri;
+        $image_data = base64_decode($b64);
+    } else {
+        error_log("generateBulkAiImage Missing image_url/data_uri in response data");
+        return false;
+    }
+
+    if (!$image_data) {
+        error_log("generateBulkAiImage Error: Failed to obtain image bytes.");
+        return false;
     }
     
     error_log("generateBulkAiImage: Image downloaded successfully (" . strlen($image_data) . " bytes)");
@@ -1859,15 +1879,12 @@ function generateBulkAiImage($title, $AudienceData)
         return false; // ✅ Return false on save failure
     }
 }
-function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '')
+function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '', $niche = 'general_blog', $niche_data = array(), $brand_profile = array(), $cta_url = '')
 {
 	global $wpdb, $user_ID;
-	
+
 	my_plugin_log("createAIpost2bulk called for keyword: " . $seed_keyword);
-	
-	// Get audience data from cookie (same as original function)
-	$AudienceData = isset($_COOKIE['AudienceData']) ? $_COOKIE['AudienceData'] : '';
-	
+
 	// Get API credentials from WordPress options
 	$api_key = get_option('improveseo_api_key');
 	$site_code = get_option('improveseo_site_code');
@@ -1887,34 +1904,29 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 	
 	my_plugin_log("Connecting to admin server for bulk generation...");
 	
-	// Admin server configuration
+	// Admin server configuration — v2 Claude content route
 	$admin_server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
-    $api_endpoint = $admin_server_url . '/api/v1/generate/active';
-	
-	// Prepare request payload matching the /active route interface
+    $api_endpoint = $admin_server_url . '/api/v1/content-v2/article';
+
+	// Prepare request payload matching the /content-v2/article (GenerateV2Params) interface.
 	$payload = array(
 		'seed_keyword' => $seed_keyword,
-		'keyword_selection' => $keyword_selection,
-		'seed_options' => $seed_options,
+		'niche' => $niche ?: 'general_blog',
+		'title' => $title,
 		'nos_of_words' => $nos_of_words,
 		'content_lang' => $content_lang,
-		'voice_tone' => $voice_tone,
-		'point_of_view' => $point_of_view,
-		'title' => $title,
 		'call_to_action' => $call_to_action,
-		'details_to_include' => $details_to_include,
-		'for_testing_only' => intval($for_testing_only),
-		'audienceData' => $AudienceData,
-		'useActivePrompts' => true,
-		'customPrompts' => new stdClass(), // Empty object
-		'templateVariables' => array(
-			'seed_keyword' => $seed_keyword,
-			'context' => $details_to_include,
-			'audience_data' => $AudienceData,
-			'meta_title' => $title ?: $seed_keyword,
-			'whats_next_content' => $call_to_action
-		)
+		'humanize' => true,
 	);
+	if (!empty($niche_data)) {
+		$payload['niche_data'] = (object) $niche_data;
+	}
+	if (!empty($brand_profile)) {
+		$payload['brand_profile'] = $brand_profile;
+	}
+	if (!empty($cta_url)) {
+		$payload['cta_url'] = $cta_url;
+	}
 	
 	// Set up cURL for HTTP request to admin server
 	$ch = curl_init($api_endpoint);
@@ -1994,7 +2006,10 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 	
 	$content_final = $result['data']['content'];
 	$meta_title = isset($result['data']['meta_title']) ? $result['data']['meta_title'] : '';
-	$meta_description = isset($result['data']['meta_descreption']) ? $result['data']['meta_descreption'] : '';
+	// v2 returns the correctly-spelled key; keep the legacy fallback for safety.
+	$meta_description = isset($result['data']['meta_description'])
+		? $result['data']['meta_description']
+		: (isset($result['data']['meta_descreption']) ? $result['data']['meta_descreption'] : '');
 	
 	
 	
