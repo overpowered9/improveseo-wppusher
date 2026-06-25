@@ -100,9 +100,9 @@ html.wp-toolbar {
 	<div class="iseo-screen" id="iseo-screen-2" style="display:none;">
 		<div class="iseo-card iseo-card-center">
 			<div class="iseo-spinner"></div>
-			<h2 class="iseo-headline" style="margin-top:24px;">Complete Setup in the Popup</h2>
+			<h2 class="iseo-headline" style="margin-top:24px;">Complete Setup in the New Tab</h2>
 			<p class="iseo-subline">
-				A window has opened for your ImproveSEO account.<br>
+				A new tab has opened for your ImproveSEO account.<br>
 				<strong>Don't close this page</strong> — it will update automatically.
 			</p>
 

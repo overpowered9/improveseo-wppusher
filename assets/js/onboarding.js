@@ -121,18 +121,11 @@
       + '&return_url='  + encodeURIComponent(returnUrl)
       + (tab === 'login' ? '&tab=0' : '&tab=1');
 
-    var popupWidth  = 520;
-    var popupHeight = 680;
-    var left = Math.max(0, Math.round((screen.width  - popupWidth)  / 2));
-    var top  = Math.max(0, Math.round((screen.height - popupHeight) / 2));
-
-    connectPopup = window.open(
-      connectUrl,
-      'improveseo_connect',
-      'width=' + popupWidth  + ',height=' + popupHeight +
-      ',left=' + left + ',top=' + top +
-      ',scrollbars=yes,resizable=yes'
-    );
+    // Open as a new tab (no window-features string). Popup windows are treated as
+    // a restricted context by Safari/Chrome: OAuth flows inside them are blocked
+    // when the CMS page tries to open a second popup (e.g. Google login). A tab
+    // is a full navigation context so nested popups are allowed.
+    connectPopup = window.open(connectUrl, 'improveseo_connect');
 
     // Edge case: popup was blocked by the browser
     if (!connectPopup || connectPopup.closed) {
