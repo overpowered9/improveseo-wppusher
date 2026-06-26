@@ -112,6 +112,10 @@ html.wp-toolbar {
 			</div>
 
 			<a href="#" id="iseo-cancel-connect" class="iseo-link-muted">Cancel</a>
+
+			<p class="iseo-subline-sm" style="margin-top:20px;">
+				Tab not working? <a href="#" id="iseo-connect-in-window">Connect in this window instead &rarr;</a>
+			</p>
 		</div>
 	</div><!-- /screen-2 -->
 

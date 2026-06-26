@@ -29,6 +29,7 @@
   var messageListener  = null;
   var storageListener  = null;
   var lastTab          = 'signup';
+  var lastConnectUrl   = '';
   var businessData     = { service: '', city: '' };
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -120,6 +121,9 @@
       + '&origin='      + encodeURIComponent(wpOrigin)
       + '&return_url='  + encodeURIComponent(returnUrl)
       + (tab === 'login' ? '&tab=0' : '&tab=1');
+
+    // Store so the "connect in this window" fallback can reuse it.
+    lastConnectUrl = connectUrl;
 
     // Open as a new tab (no window-features string). Popup windows are treated as
     // a restricted context by Safari/Chrome: OAuth flows inside them are blocked
@@ -404,6 +408,18 @@
     $(document).on('click', '#iseo-retry-btn', function () {
       hidePopupClosedWarning();
       openConnectPopup(lastTab);
+    });
+
+    // Screen 2: "Connect in this window" fallback — redirects the current page to
+    // the CMS connect URL. On return, the CMS adds ?improveseo_connect_token= to
+    // return_url and the token-handling code on page load picks it up automatically.
+    // This path avoids all cross-tab postMessage / localStorage communication,
+    // fixing the issue on browsers where window.opener is silently null.
+    $('#iseo-connect-in-window').on('click', function (e) {
+      e.preventDefault();
+      if (lastConnectUrl) {
+        window.location.href = lastConnectUrl;
+      }
     });
 
     // Screen 3: Continue Setup
