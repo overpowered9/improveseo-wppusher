@@ -915,18 +915,18 @@ jQuery(document).ready(function (jQuery) {
         processData: false,
 
         success: function (response) {
-          //var aigeneratedtitle_op = jQuery('#aigeneratedtitle').val();
-
+          var promptTopic = (response && response.data) ? response.data : title;
           jQuery("#manually_promt_for_image").val(
-            "You should come up with the cover image for an article. The image should be a very high quality shooting from a distance, high detail, photorealistic, image resolution is  800 pixels, cinematic. Do not include any text on the image. Using the following information generate an image. " +
-              response.data +
-              ""
+            "You should come up with the cover image for an article. The image should be a very high quality shooting from a distance, high detail, photorealistic, image resolution is 800 pixels, cinematic. Do not include any text on the image. Article title: " +
+              promptTopic
           );
         },
 
         error: function () {
-          alert("Error uploading image.");
-
+          jQuery("#manually_promt_for_image").val(
+            "You should come up with the cover image for an article. The image should be a very high quality shooting from a distance, high detail, photorealistic, image resolution is 800 pixels, cinematic. Do not include any text on the image. Article title: " +
+              title
+          );
           jQuery("#loadingAIImage").hide();
         },
       });

@@ -519,26 +519,15 @@ add_action('wp_ajax_getPromptForImages', 'getPromptForImages');
 
 
 function getPromptForImages()
-
-
 {
-
-
-	if (!empty($_POST['title'])) {
-
-
-		$title = $_POST['title'];
-
-
-		$basicImagePromptResponse = ImageBasicPrompt($title);
-
-
-		wp_send_json_success($basicImagePromptResponse);
-
-
+	if ( ! empty( $_POST['title'] ) ) {
+		$title                    = sanitize_text_field( wp_unslash( $_POST['title'] ) );
+		$basicImagePromptResponse = ImageBasicPrompt( $title );
+		wp_send_json_success( $basicImagePromptResponse );
+	} else {
+		wp_send_json_error( array( 'message' => 'Title is required.' ) );
 	}
-
-
+	wp_die();
 }
 
 

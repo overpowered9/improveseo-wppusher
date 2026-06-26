@@ -880,6 +880,7 @@ global $ai_modal_type;
                             <div class="seo-form-field">
                                 <label for="size">Point of Views</label>
                                 <select class="content-opt custom-selcected" name="point_of_view" id="size">
+                                    <option value="none">None</option>
                                     <option value="First person singular (I,me,my,mine)">First person singular
                                         (I, me, my, mine)
                                     </option>
@@ -923,9 +924,11 @@ global $ai_modal_type;
                             onkeypress="return countContentCallToAction()" onblur="LimitText(this,1000,2)"
                             placeholder="What action would you like the reader of your content to take?"></textarea>
                         <span id="countContentCallToAction"></span>
-                        <label for="cta_url" style="display:block; margin-top:10px;">Call to Action URL <small style="color:#888; font-weight:normal;">(optional)</small></label>
+                    </div>
+                    <div class="seo-form-field">
+                        <label for="cta_url">Call to Action URL <small style="color:#888; font-weight:normal;">(optional)</small></label>
                         <input type="url" id="cta_url" name="cta_url" class="form-control"
-                            placeholder="https://example.com/contact" style="margin-top:4px;">
+                            placeholder="https://example.com/contact">
                     </div>
                 </div>
 
