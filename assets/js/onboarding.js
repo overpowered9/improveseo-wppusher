@@ -24,13 +24,14 @@
   var CONNECT_DONE_KEY = 'improveseo_connect_done';
 
   // ── State ───────────────────────────────────────────────────────────────────
-  var connectPopup     = null;
-  var pollTimer        = null;
-  var messageListener  = null;
-  var storageListener  = null;
-  var lastTab          = 'signup';
-  var lastConnectUrl   = '';
-  var businessData     = { service: '', city: '' };
+  var connectPopup      = null;
+  var pollTimer         = null;
+  var messageListener   = null;
+  var storageListener   = null;
+  var fallbackTimer     = null;
+  var lastTab           = 'signup';
+  var lastConnectUrl    = '';
+  var businessData      = { service: '', city: '' };
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -65,6 +66,24 @@
     }
   }
 
+  function startFallbackTimer() {
+    clearFallbackTimer();
+    $('#iseo-connect-fallback-box').hide();
+    // After 20 s with no token, surface the prominent "connect in this window" box.
+    // This catches Safari users who are staring at a stuck CMS tab.
+    fallbackTimer = setTimeout(function () {
+      $('#iseo-connect-fallback-box').fadeIn(300);
+    }, 20000);
+  }
+
+  function clearFallbackTimer() {
+    if (fallbackTimer) {
+      clearTimeout(fallbackTimer);
+      fallbackTimer = null;
+    }
+    $('#iseo-connect-fallback-box').hide();
+  }
+
   function removeMessageListener() {
     if (messageListener) {
       window.removeEventListener('message', messageListener);
@@ -83,6 +102,7 @@
     stopPolling();
     removeMessageListener();
     removeStorageListener();
+    clearFallbackTimer();
     connectPopup = null;
     hidePopupClosedWarning();
     showScreen(1);
@@ -139,6 +159,7 @@
     }
 
     showScreen(2);
+    startFallbackTimer();
 
     // Listen for the connect_token postMessage from the CMS popup
     messageListener = function (event) {
@@ -183,6 +204,7 @@
   // ── Token exchange ───────────────────────────────────────────────────────────
 
   function exchangeToken(token, trialStatusFromMessage) {
+    clearFallbackTimer();
     $.ajax({
       url:    cfg.ajaxUrl,
       method: 'POST',
@@ -410,17 +432,19 @@
       openConnectPopup(lastTab);
     });
 
-    // Screen 2: "Connect in this window" fallback — redirects the current page to
-    // the CMS connect URL. On return, the CMS adds ?improveseo_connect_token= to
-    // return_url and the token-handling code on page load picks it up automatically.
-    // This path avoids all cross-tab postMessage / localStorage communication,
-    // fixing the issue on browsers where window.opener is silently null.
-    $('#iseo-connect-in-window').on('click', function (e) {
+    // Screen 2: "Connect in this window" — both the small link and the timed
+    // prominent button redirect the current page to the CMS connect URL. On
+    // return the CMS appends ?improveseo_connect_token= to return_url and the
+    // page-load handler picks it up without any cross-tab communication.
+    function doConnectInWindow(e) {
       e.preventDefault();
       if (lastConnectUrl) {
+        clearFallbackTimer();
         window.location.href = lastConnectUrl;
       }
-    });
+    }
+    $('#iseo-connect-in-window').on('click', doConnectInWindow);
+    $(document).on('click', '#iseo-connect-in-window-btn', doConnectInWindow);
 
     // Screen 3: Continue Setup
     $('#iseo-btn-continue-setup').on('click', function () {

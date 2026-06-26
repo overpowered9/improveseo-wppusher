@@ -96,26 +96,35 @@ html.wp-toolbar {
 		</div>
 	</div><!-- /screen-1 -->
 
-	<!-- ══════════════════ Screen 2 — Connecting (popup open) ══════════════════ -->
+	<!-- ══════════════════ Screen 2 — Connecting (tab open) ══════════════════ -->
 	<div class="iseo-screen" id="iseo-screen-2" style="display:none;">
 		<div class="iseo-card iseo-card-center">
 			<div class="iseo-spinner"></div>
 			<h2 class="iseo-headline" style="margin-top:24px;">Complete Setup in the New Tab</h2>
 			<p class="iseo-subline">
 				A new tab has opened for your ImproveSEO account.<br>
-				<strong>Don't close this page</strong> — it will update automatically.
+				<strong>Don't close this page</strong> — it will update automatically once you finish in the tab.
 			</p>
 
 			<div id="iseo-popup-closed-msg" class="iseo-alert iseo-alert-warning" style="display:none;">
-				The popup was closed before completing setup.
+				The tab was closed before completing setup.
 				<button type="button" id="iseo-retry-btn" class="iseo-btn iseo-btn-ghost iseo-btn-sm">Try Again</button>
 			</div>
 
-			<a href="#" id="iseo-cancel-connect" class="iseo-link-muted">Cancel</a>
-
-			<p class="iseo-subline-sm" style="margin-top:20px;">
+			<!-- Always-visible small fallback link -->
+			<p class="iseo-subline-sm">
 				Tab not working? <a href="#" id="iseo-connect-in-window">Connect in this window instead &rarr;</a>
 			</p>
+
+			<!-- Shown after 20 s if no token arrives — prominent for Safari/Mac users -->
+			<div id="iseo-connect-fallback-box" class="iseo-alert iseo-alert-info" style="display:none; margin-top:8px; text-align:left;">
+				<strong>Tab taking a while?</strong> Safari and some browsers block the connection flow in a separate tab.
+				<button type="button" id="iseo-connect-in-window-btn" class="iseo-btn iseo-btn-primary iseo-btn-large" style="margin-top:12px;">
+					Connect in This Window Instead &rarr;
+				</button>
+			</div>
+
+			<a href="#" id="iseo-cancel-connect" class="iseo-link-muted">Cancel</a>
 		</div>
 	</div><!-- /screen-2 -->
 
