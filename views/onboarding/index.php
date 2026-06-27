@@ -53,14 +53,14 @@ html.wp-toolbar {
 				<span class="iseo-logo-text">ImproveSEO</span>
 			</div>
 
-			<h1 class="iseo-headline">Start Your 14-Day Free Trial</h1>
+			<h1 class="iseo-headline">Connect &amp; Get Free Credits</h1>
 			<p class="iseo-subline">
 				Connect your WordPress site to your ImproveSEO account and unlock
 				AI-powered SEO content generation, bulk publishing, and keyword research.
 			</p>
 
 			<ul class="iseo-benefits">
-				<li><span class="iseo-check">✓</span> Unlimited AI articles during your trial</li>
+				<li><span class="iseo-check">✓</span> Free starter credits to try it out</li>
 				<li><span class="iseo-check">✓</span> Auto-publish directly to WordPress</li>
 				<li><span class="iseo-check">✓</span> Full keyword research toolkit</li>
 				<li><span class="iseo-check">✓</span> No credit card required</li>
@@ -136,20 +136,20 @@ html.wp-toolbar {
 
 			<div id="iseo-s3-new">
 				<p class="iseo-subline">
-					Your <strong>14-day free trial</strong> is now active.
-					You have <strong id="iseo-days-remaining">14</strong> days to explore all features.
+					<strong>Free starter credits</strong> have been added to your account so you can
+					try things out right away. No time limit — use them whenever you like.
 				</p>
 			</div>
 			<div id="iseo-s3-reconnect" style="display:none;">
 				<p class="iseo-subline">
 					Your site has been reconnected to your account.
-					Existing plan credits apply.
+					Your existing credits apply.
 				</p>
 			</div>
-			<div id="iseo-s3-transferred" style="display:none;">
+			<div id="iseo-s3-none" style="display:none;">
 				<p class="iseo-subline">
-					This website was previously on another account. It's now connected —
-					your existing plan applies.
+					<!-- Filled in by onboarding.js based on trial_reason -->
+					Your account has already used its free credits.
 				</p>
 			</div>
 
@@ -159,7 +159,7 @@ html.wp-toolbar {
 
 			<div class="iseo-credit-notice">
 				<span class="iseo-credit-icon">&#9432;</span>
-				<span>Each AI-generated article uses <strong>1 credit</strong>. Your trial credits reset every 30 days — no unexpected charges during the trial period.</span>
+				<span>Each AI-generated article uses <strong>1 credit</strong>. When your free credits run out, upgrade any time — no surprise charges.</span>
 			</div>
 
 			<button type="button" id="iseo-btn-continue-setup" class="iseo-btn iseo-btn-primary iseo-btn-large">
