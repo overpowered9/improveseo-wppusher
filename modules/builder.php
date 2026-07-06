@@ -824,7 +824,7 @@ function improveseo_builder()
 		// Images EXIF
 
 
-		if (isset($options['exif_locations'])) {
+		if (isset($options['exif_locations']) && !(isset($project->state) && $project->state === 'Preview')) { // skip EXIF baking for throwaway previews
 
 
 			if (isset($options['use_post_location'])) {
@@ -1340,6 +1340,7 @@ function improveseo_builder()
 			try {
 				if (
 					$post_id && ! is_wp_error( $post_id ) &&
+					! ( isset( $project->state ) && $project->state === 'Preview' ) && // skip for throwaway previews
 					get_option( 'improveseo_featured_images_enabled', '0' ) &&
 					get_option( 'improveseo_featured_images_single',  '0' ) &&
 					preg_match( '/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $contentText, $img_match )
@@ -2860,7 +2861,7 @@ function improveseo_builder_update()
 		// Images EXIF
 
 
-		if (isset($options['exif_locations'])) {
+		if (isset($options['exif_locations']) && !(isset($project->state) && $project->state === 'Preview')) { // skip EXIF baking for throwaway previews
 
 
 			if (isset($options['use_post_location'])) {
@@ -3375,6 +3376,7 @@ function improveseo_builder_update()
 			try {
 				if (
 					$post_id && ! is_wp_error( $post_id ) &&
+					! ( isset( $project->state ) && $project->state === 'Preview' ) && // skip for throwaway previews
 					get_option( 'improveseo_featured_images_enabled', '0' ) &&
 					get_option( 'improveseo_featured_images_single',  '0' ) &&
 					preg_match( '/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $contentText, $img_match )
