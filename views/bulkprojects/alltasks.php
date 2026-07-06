@@ -109,7 +109,7 @@ $url .= $_SERVER['REQUEST_URI'];
 				<input type="hidden" name="noheader" value="true" />
 				<input type="hidden" name="main_id" value="<?php echo esc_attr($_GET['id']); ?>" />
 				<input type="hidden" value="bulk-delete-tasks" name="action">
-				<button type="submit" id="doaction" class="btn_delete action">Delete Selected Posts</button>
+				<button type="submit" id="doaction" class="btn_delete action" disabled style="opacity: 0.5;">Delete Selected Posts</button>
 			</div>
 			<div class="pagination">
 				<?php if ($page > 1): ?>
@@ -468,6 +468,7 @@ $url .= $_SERVER['REQUEST_URI'];
 		$('#cb-select-all').on('change', function () {
 			var isChecked = $(this).prop('checked');
 			$('input[name="project_ids[]"]').prop('checked', isChecked);
+			updateDeleteButtonState();
 		});
 
 		$('input[name="project_ids[]"]').on('change', function () {
@@ -481,7 +482,19 @@ $url .= $_SERVER['REQUEST_URI'];
 			} else {
 				$('#cb-select-all').prop('indeterminate', true);
 			}
+			updateDeleteButtonState();
 		});
+
+		function updateDeleteButtonState() {
+			var checkedCount = $('input[name="project_ids[]"]:checked').length;
+			if (checkedCount > 0) {
+				$('#doaction').prop('disabled', false).css('opacity', '1').text('Delete ' + checkedCount + ' Selected Post' + (checkedCount > 1 ? 's' : ''));
+			} else {
+				$('#doaction').prop('disabled', true).css('opacity', '0.5').text('Delete Selected Posts');
+			}
+		}
+
+		updateDeleteButtonState();
 
 		$('#doaction').on('click', function (e) {
 			var checkedItems = $('input[name="project_ids[]"]:checked').length;
