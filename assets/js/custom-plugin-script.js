@@ -893,6 +893,13 @@ jQuery(document).ready(function (jQuery) {
         }
       }
 
+      if (!title) {
+        title =
+          jQuery("#seed_keyword").val() ||
+          jQuery("#maintitlearea").val() ||
+          "";
+      }
+
       jQuery("#manually_promt_for_image").val(
         "Please wait while we prepare the prompts for you...."
       );
@@ -915,7 +922,10 @@ jQuery(document).ready(function (jQuery) {
         processData: false,
 
         success: function (response) {
-          var promptTopic = (response && response.data) ? response.data : title;
+          var promptTopic =
+            response && typeof response.data === "string" && response.data
+              ? response.data
+              : title;
           jQuery("#manually_promt_for_image").val(
             "You should come up with the cover image for an article. The image should be a very high quality shooting from a distance, high detail, photorealistic, image resolution is 800 pixels, cinematic. Do not include any text on the image. Article title: " +
               promptTopic

@@ -37,7 +37,7 @@ wp_enqueue_script(
 
 	array('jquery'),
 
-	'1.5',
+	filemtime(plugin_dir_path(__FILE__) . 'assets/js/custom-plugin-script.js'),
 
 	true
 
@@ -913,7 +913,7 @@ wp_enqueue_script(
 
 	array('jquery'), // Dependencies (optional)
 
-	'1.3.6', // Script version (optional)
+	filemtime(plugin_dir_path(__FILE__) . 'assets/js/custom-plugin-script.js'), // Script version (optional)
 
 	true // Load script in footer
 
