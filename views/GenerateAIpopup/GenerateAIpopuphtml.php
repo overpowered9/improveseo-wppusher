@@ -1386,19 +1386,24 @@ global $ai_modal_type;
 
                             <div class="row">
                                 <div class="form-group col-md-12">
-                                    <label style="padding-left:20px;" for="call_to_action_multi">Call to Action Text <a href="#"
-                                            class="underline_none_for_a_tag" data-toggle="Information"
-                                            title="Information">
-                                            <div class="dashicons dashicons-info-outline" aria-hidden="true"><br>
-                                            </div>
-                                        </a></label>
-                                    <textarea class="form-control" id="call_to_action_multi" rows="6" name="call_to_action"
-                                        onkeypress="return countContentCallToAction()" OnBlur="LimitText(this,1000,2)"
-                                        style="max-width: 100% !important;"></textarea><span
-                                        id="countContentCallToAction"></span>
-                                    <label for="cta_url_multi" style="display:block; margin-top:10px; padding-left:20px;">Call to Action URL <small style="color:#888; font-weight:normal;">(optional)</small></label>
-                                    <input type="url" id="cta_url_multi" name="cta_url" class="form-control"
-                                        placeholder="https://example.com/contact" style="margin-top:4px; max-width:100% !important;">
+                                    <div class="seo-form-field">
+                                        <label for="call_to_action_multi">Call to Action Text<a href="#"
+                                                class="underline_none_for_a_tag" data-toggle="Information"
+                                                title="Information">
+                                                <div class="dashicons dashicons-info-outline" aria-hidden="true"><br>
+                                                </div>
+                                            </a></label>
+                                        <textarea class="form-control" id="call_to_action_multi" rows="3" name="call_to_action"
+                                            onkeypress="return countContentCallToAction()" onblur="LimitText(this,1000,2)"
+                                            placeholder="What action would you like the reader of your content to take?"
+                                            style="max-width: 100% !important;"></textarea><span
+                                            id="countContentCallToAction"></span>
+                                    </div>
+                                    <div class="seo-form-field" style="margin-top:30px;">
+                                        <label for="cta_url_multi">Call to Action URL <small style="color:#888; font-weight:normal;">(optional)</small></label>
+                                        <input type="url" id="cta_url_multi" name="cta_url" class="form-control"
+                                            placeholder="https://example.com/contact" style="max-width:100% !important;">
+                                    </div>
                                 </div>
 
                             </div>
