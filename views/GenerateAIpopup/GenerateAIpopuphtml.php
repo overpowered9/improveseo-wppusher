@@ -1663,22 +1663,22 @@ global $ai_modal_type;
                                     id="project_name" name="project_name" placeholder="Enter project name">
                                 <span style="padding-left:20px; font-size:13px; color:#666;">Auto-filled from your keyword list — you can edit it.</span>
                             </div>
+                            <?php $iseo_acc_email = get_option( 'improveseo_account_email' ); ?>
+                            <div class="seo-form-field_multi" style="padding-left: 20px;">
+                                <p class="font-20_multi" style="color:#0061B6;">
+                                    <strong>Next:</strong> Once you click the submit button below, all posts within this
+                                    project will be generated in the background. We&rsquo;ll email you<?php echo $iseo_acc_email
+                                        ? ' at <strong>' . esc_html( $iseo_acc_email ) . '</strong>'
+                                        : ' at the address registered to your ImproveSEO account'; ?>
+                                    when they are finished.
+                                </p>
+                            </div>
                             <input type="submit" value="Submit" id="bulk_ai_post_submi_button">
                             <div class="seo-form-field_multi" style="padding-left: 20px;">
                                 <p class="font-20_multi"><strong>Note:</strong> Based on the selections you made, this
                                     project will generate [ <span id="keywordcounts"></span> ] AI posts. This will take
                                     approximately [ <span id="keywordtime"></span> hr ] to
                                     complete.</p>
-                            </div>
-                            <?php $iseo_acc_email = get_option( 'improveseo_account_email' ); ?>
-                            <div class="seo-form-field_multi" style="padding-left: 20px;">
-                                <p class="font-20_multi" style="color:#0061B6;">
-                                    <strong>Heads up:</strong> Posts generate in the background, so you can safely close
-                                    this window. We&rsquo;ll email you<?php echo $iseo_acc_email
-                                        ? ' at <strong>' . esc_html( $iseo_acc_email ) . '</strong>'
-                                        : ' at the address registered to your ImproveSEO account'; ?>
-                                    when the project is finished.
-                                </p>
                             </div>
                         </div>
                     </div>
