@@ -119,10 +119,9 @@ function improveseo_onboarding_exchange_token() {
 			'user_name'      => isset( $data['user_name'] ) ? sanitize_text_field( $data['user_name'] ) : '',
 			'trial_ends_at'  => isset( $data['trial_ends_at'] ) ? $data['trial_ends_at'] : null,
 			'days_remaining' => $days_remaining,
-			// Trial outcome recorded on the connect token at issue time. This makes the
-			// redirect-fallback path (no postMessage) show the correct screen 3 variant.
+			// Recorded on the connect token at issue time so the redirect-fallback
+			// path (no postMessage) shows the correct screen 3 variant.
 			'trial_status'   => isset( $data['trial_status'] ) ? sanitize_text_field( $data['trial_status'] ) : null,
-			'trial_reason'   => isset( $data['trial_reason'] ) ? sanitize_text_field( $data['trial_reason'] ) : null,
 		)
 	);
 }

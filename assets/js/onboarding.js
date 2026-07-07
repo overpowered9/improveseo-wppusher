@@ -171,7 +171,7 @@
       removeMessageListener();
       removeStorageListener();
 
-      exchangeToken(event.data.connect_token, event.data.trial_status, event.data.trial_reason);
+      exchangeToken(event.data.connect_token, event.data.trial_status);
     };
     window.addEventListener('message', messageListener);
 
@@ -203,7 +203,7 @@
 
   // ── Token exchange ───────────────────────────────────────────────────────────
 
-  function exchangeToken(token, trialStatusFromMessage, trialReasonFromMessage) {
+  function exchangeToken(token, trialStatusFromMessage) {
     clearFallbackTimer();
     $.ajax({
       url:    cfg.ajaxUrl,
@@ -220,7 +220,7 @@
           // connect finished. Harmless on the normal path — storage events don't
           // fire in the same tab that sets the value.
           try { localStorage.setItem(CONNECT_DONE_KEY, String(Date.now())); } catch (e) { /* ignore */ }
-          populateScreen3(response.data, trialStatusFromMessage, trialReasonFromMessage);
+          populateScreen3(response.data, trialStatusFromMessage);
           showScreen(3);
         } else {
           var msg = (response.data && response.data.message)
@@ -248,27 +248,26 @@
 
   // ── Screen 3 population ──────────────────────────────────────────────────────
 
-  function populateScreen3(data, trialStatus, trialReason) {
+  function populateScreen3(data, trialStatus) {
     // Prefer trial_status from the exchange response; fall back to the postMessage value.
     var status = data.trial_status || trialStatus || 'new';
-    var reason = data.trial_reason || trialReason || null;
 
-    // Show the correct message variant. 'none' = connected but not eligible for the
-    // one-time free credits (account or this site already used them).
-    $('#iseo-s3-new, #iseo-s3-reconnect, #iseo-s3-none').hide();
-    if (status === 'new') {
-      $('#iseo-s3-new').show();
-    } else if (status === 'reconnect') {
+    $('#iseo-s3-new, #iseo-s3-reconnect').hide();
+    if (status === 'reconnect') {
       $('#iseo-s3-reconnect').show();
     } else {
-      // 'none' (or unknown) — already used free credits
-      var msg = (reason === 'domain_used')
-        ? 'This website has already used its free credits. '
-        : 'Your account has already used its free credits. ';
-      $('#iseo-s3-none .iseo-subline').html(
-        msg + '<a href="' + cfg.dashboardUrl + '">Upgrade your plan</a> to keep generating content.'
-      );
-      $('#iseo-s3-none').show();
+      // 'new' — trial started at signup; show how many days are left.
+      var days = (data.days_remaining !== null && data.days_remaining !== undefined)
+        ? data.days_remaining : 7;
+      if (days === 0) {
+        $('#iseo-s3-new .iseo-subline').html(
+          'Your <strong>free trial</strong> has ended. ' +
+          '<a href="' + cfg.dashboardUrl + '">Upgrade your plan</a> to keep generating content.'
+        );
+      } else {
+        $('#iseo-days-remaining').text(days);
+      }
+      $('#iseo-s3-new').show();
     }
 
     // Show welcome name if provided
