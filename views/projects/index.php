@@ -192,7 +192,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 								</th>
 								<th><?= iseo_sort_link($sort_base, 'created_at', 'Created At', $orderBy, $order) ?></th>
 								<th>Last Update</th>
-								<th>Status</th>
+								<th>Post Status</th>
 								<td></td>
 								<th>Action</th>
 							</tr>
@@ -226,11 +226,11 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 											echo 'Draft';
 										else {
 											if ($project->iteration >= $project->max_iterations)
-												echo '<p class="post-fd">Finished</p>';
+												echo '<p class="post-fd">Published</p>';
 											else {
 												$updated = strtotime($project->updated_at);
 												if ($project->deleted_at == '1970-01-01 11:11:11')
-													echo '<p class="post-fd">Stopped</p>';
+													echo '<p class="post-fd">Canceled</p>';
 												elseif (time() - $updated > 1200)
 													echo '<p class="post-fd">Paused</p>';
 												else

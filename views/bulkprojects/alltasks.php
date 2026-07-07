@@ -183,7 +183,7 @@ $url .= $_SERVER['REQUEST_URI'];
 								</th>
 								<th>Language</th>
 								<th>Size</th>
-								<th>Content Status </th>
+								<th>Processing</th>
 								<th>Publish Date</th>
 								<th>Post Status</th>
 								<th> </th>
@@ -204,15 +204,15 @@ $url .= $_SERVER['REQUEST_URI'];
 									</td>
 									<td data-label="Language"><?= $project->content_lang ?></td>
 									<td data-label="Size"><?= $project->nos_of_words ?></td>
-									<td data-label="Content Status" class="status finished"><?php
-									if ($project->status == 'Draft') {
-										echo 'Draft';
+									<td data-label="Processing" class="status finished"><?php
+									if ($project->status == 'Processing') {
+										echo 'Generating';
 									} else if ($project->status == 'Done') {
-										echo 'Done';
+										echo 'Completed';
 								} else if ($project->status == 'Stoped') {
 									echo '<span style="color: #ff4d4f; font-weight: 600;">Canceled</span>';
 									} else {
-										echo $project->status;
+										echo 'Queued';
 									}
 									?> </td>
 									<td data-label="Publish Date"> <?php
@@ -225,6 +225,8 @@ $url .= $_SERVER['REQUEST_URI'];
 									<td data-label="Post Status" class="status paused">									
 										<?php if($project->status == 'Stoped') {
 											echo '<span style="color: #ff4d4f; font-weight: 600;">Canceled</span>';
+										} else if($project->status != 'Done') {
+											echo 'Pending Creation';
 										} else if($project->state == 'Published' && $project->post_id) {
 											$iseo_post_url = get_permalink($project->post_id);
 											if ($iseo_post_url) {
@@ -237,7 +239,7 @@ $url .= $_SERVER['REQUEST_URI'];
 										} else if($project->state == 'Scheduled') {
 											echo 'Scheduled';
 										} else {
-											echo 'Pending';
+											echo 'Pending Creation';
 										}
 										?>
 									</td>

@@ -141,8 +141,8 @@ if (isset($_GET['post_preview'])) {
 							<th> Post Count </th>
 							<th><?= bkiseo_sort_link($sort_base, 'created_at', 'Created At', $orderBy, $order) ?></th>
 							<th>Last Update</th>
-							<th> Publish Option </th>
-							<th>Status</th>
+							<th> Publish Mode </th>
+							<th>Project Status</th>
 							<th>Action</th>
 						</tr>
 					</thead>
@@ -173,22 +173,20 @@ if (isset($_GET['post_preview'])) {
 									$date = new DateTime($project->updated_at);
 									echo $date->format('m/d/Y H:i:s');
 									?></td>
-									<td data-label="Publish Option"> <?php
+									<td data-label="Publish Mode"> <?php
 									if ($project->schedule_posts == 'draft_posts') {
-										echo 'Draft';
+										echo 'Save as Drafts';
 									} else if ($project->schedule_posts == 'schedule_all_posts') {
-										echo 'Publish All';
+										echo 'Publish Now';
 									} else {
-										echo 'Publish : ' . $project->number_of_post_schedule . ' Post / ' . $project->schedule_frequency;
+										echo 'Schedule: ' . $project->number_of_post_schedule . ' Post / ' . $project->schedule_frequency;
 									}
 									?> </td>
-								<td data-label="Status" class="status finished"><?php
-								if ($project->state == 'Stopped')
+								<td data-label="Project Status" class="status finished"><?php
+								if ($project->state == 'Stopped' || $project->state == 'Cancelled')
 									echo '<span style="color: #ff4d4f; font-weight: 600;">Canceled</span>';
 								elseif ($project->state == 'Finished')
-									echo '<p class="post-fd">Finished</p>';
-								elseif ($project->state == 'Draft')
-									echo 'Draft';
+									echo '<p class="post-fd">Completed</p>';
 								else
 									echo 'Processing';
 								?></td>
