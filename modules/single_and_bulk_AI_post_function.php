@@ -55,6 +55,66 @@ function improveseo_call_auxiliary_api( $type, array $payload = array() ) {
 }
 
 
+/**
+ * Fetch the ImproveSEO account email from the admin server using the stored
+ * API key + site code. This is the exact address bulk completion notifications
+ * are sent to (the server resolves it from the same credentials), so the UI
+ * always shows the real recipient instead of a stale/hardcoded value.
+ *
+ * Cached in a transient to avoid a blocking HTTP call on every render. Falls
+ * back to the stored improveseo_account_email option when the server can't be
+ * reached, and keeps that option in sync as a durable offline fallback.
+ *
+ * @param bool $force Bypass the cache and re-fetch.
+ * @return string The account email, or '' if it can't be determined.
+ */
+function improveseo_get_account_email( $force = false ) {
+	$cached = get_transient( 'improveseo_account_email_cache' );
+	if ( ! $force && ! empty( $cached ) ) {
+		return $cached;
+	}
+
+	$api_key   = get_option( 'improveseo_api_key' );
+	$site_code = get_option( 'improveseo_site_code' );
+
+	// No credentials yet — best we can do is any previously stored value.
+	if ( empty( $api_key ) || empty( $site_code ) ) {
+		return (string) get_option( 'improveseo_account_email', '' );
+	}
+
+	$response = wp_remote_get(
+		'https://imporve-seo-admin-server-nzbm.onrender.com/api/v1/users/status',
+		array(
+			'headers' => array(
+				'x-api-key'   => $api_key,
+				'x-site-code' => $site_code,
+				'Accept'      => 'application/json',
+			),
+			'timeout' => 15,
+		)
+	);
+
+	// Server unreachable — fall back to the last known value.
+	if ( is_wp_error( $response ) ) {
+		return (string) get_option( 'improveseo_account_email', '' );
+	}
+
+	$data  = json_decode( wp_remote_retrieve_body( $response ), true );
+	$email = ( is_array( $data ) && ! empty( $data['email'] ) && is_email( $data['email'] ) )
+		? sanitize_email( $data['email'] )
+		: '';
+
+	if ( $email ) {
+		set_transient( 'improveseo_account_email_cache', $email, 6 * HOUR_IN_SECONDS );
+		update_option( 'improveseo_account_email', $email ); // durable offline fallback
+		return $email;
+	}
+
+	// Reached the server but no email came back — use any stored value.
+	return (string) get_option( 'improveseo_account_email', '' );
+}
+
+
 function replace_content($content, $remove)
 
 

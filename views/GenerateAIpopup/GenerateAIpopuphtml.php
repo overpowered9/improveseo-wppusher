@@ -1663,7 +1663,9 @@ global $ai_modal_type;
                                     id="project_name" name="project_name" placeholder="Enter project name">
                                 <span style="padding-left:20px; font-size:13px; color:#666;">Auto-filled from your keyword list — you can edit it.</span>
                             </div>
-                            <?php $iseo_acc_email = get_option( 'improveseo_account_email' ); ?>
+                            <?php $iseo_acc_email = function_exists( 'improveseo_get_account_email' )
+                                ? improveseo_get_account_email()
+                                : get_option( 'improveseo_account_email' ); ?>
                             <div class="seo-form-field_multi" style="padding-left: 20px;">
                                 <p class="font-20_multi" style="color:#0061B6;">
                                     <strong>Next:</strong> Once you click the submit button below, all posts within this
