@@ -285,7 +285,7 @@ function ImageBasicPrompt($title)
 	$apiKey = get_option('improveseo_chatgpt_api_key');
 
 
-	$imageBasicPrompt = "‘I need help creating a Dalle image prompt for an article based on the title: " . $title . ". Provide the description without any further explanation. Don not include the word 'prompt'.";
+	$imageBasicPrompt = "Write a one-paragraph scene description for the cover photo of a blog article titled: \"" . $title . "\". Describe one concrete, real-world scene that clearly shows the article's specific subject: name the main subject, the setting, and two or three supporting details. Keep it under 80 words. Plain visual description only - no camera or style words, no text or logos in the scene. Reply with the description only, no explanation, no quotation marks, and do not use the word 'prompt'.";
 
 
 	// Your chat messages

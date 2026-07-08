@@ -2,6 +2,17 @@ var $ = jQuery;
 
 var ajaxUrl = standred_var.ajax_url;
 
+// Starting template for the "Generate AI Image - Edit Prompt" textarea. The user edits this text
+// and it is sent verbatim to the image model, so it must read as a clean, structured image prompt.
+function buildEditableImagePrompt(subject) {
+  return (
+    "Cover photo for a blog article.\n\n" +
+    "Subject: " + subject + "\n\n" +
+    "Style: documentary photography, natural light, muted slightly desaturated colours, shot on a 50mm lens with shallow depth of field and faint film grain, candid and authentic real-world scene, not staged or studio.\n\n" +
+    "Rules: no text, logos, signs or watermarks anywhere in the image; no studio lighting, neon, glow effects or digital overlays; show people only from behind, from the side or at a distance — or include no people at all."
+  );
+}
+
 function getShortCodeDetails(value) {
   alert(value);
 
@@ -927,15 +938,17 @@ jQuery(document).ready(function (jQuery) {
               ? response.data
               : title;
           jQuery("#manually_promt_for_image").val(
-            "You should come up with the cover image for an article. The image should be a very high quality shooting from a distance, high detail, photorealistic, image resolution is 800 pixels, cinematic. Do not include any text on the image. Article title: " +
-              promptTopic
+            buildEditableImagePrompt(promptTopic)
           );
         },
 
         error: function () {
           jQuery("#manually_promt_for_image").val(
-            "You should come up with the cover image for an article. The image should be a very high quality shooting from a distance, high detail, photorealistic, image resolution is 800 pixels, cinematic. Do not include any text on the image. Article title: " +
-              title
+            buildEditableImagePrompt(
+              'The most concrete, recognisable subject of an article titled "' +
+                title +
+                '".'
+            )
           );
           jQuery("#loadingAIImage").hide();
         },
@@ -1821,11 +1834,11 @@ jQuery(document).ready(function () {
           //var aigeneratedtitle_op = jQuery('#aigeneratedtitle').val();
 
           jQuery("#manually_promt_for_image").val(
-            "You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. You should come up with the cover image for the article that will be engaging and interesting for the reader who is described in the audience data and search provided word or phrase. Image should be Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. Using the following information generate an image.<br> Main keyword: seed-keyword Title of the article is '" +
-              aigeneratedtitle_op +
-              "' <br> Audience data:  '" +
-              AudienceData +
-              "'"
+            buildEditableImagePrompt(
+              'The most concrete, recognisable subject of an article titled "' +
+                aigeneratedtitle_op +
+                '".'
+            )
           );
 
           //jQuery('#manually_promt_for_image').val('Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. The theme is `'+aigeneratedtitle_op+'`');
@@ -1937,11 +1950,11 @@ jQuery(document).ready(function () {
           // var aigeneratedtitle_op = jQuery('#aigeneratedtitle').val();
 
           jQuery("#manually_promt_for_image").val(
-            "You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. You should come up with the cover image for the article that will be engaging and interesting for the reader who is described in the audience data and search provided word or phrase. Image should be Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. Using the following information generate an image.<br> Main keyword: seed-keyword Title of the article is '" +
-              aigeneratedtitle_op +
-              "' <br> Audience data:  '" +
-              AudienceData +
-              "'"
+            buildEditableImagePrompt(
+              'The most concrete, recognisable subject of an article titled "' +
+                aigeneratedtitle_op +
+                '".'
+            )
           );
 
           //jQuery('#manually_promt_for_image').val('Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. The theme is `'+aigeneratedtitle_op+'`');
