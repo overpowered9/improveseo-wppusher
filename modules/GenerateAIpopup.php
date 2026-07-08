@@ -556,17 +556,11 @@ function generateAIpopup()
 
                     var allKeywords = <?php echo json_encode($all_keywords); ?>;
 
-                    var keywordCount = allKeywords[selectedOption].split('\n').length;
-
-                    var keywordMin = keywordCount * 3;
-
-                    var keywordTime = (keywordMin / 60).toFixed(2);
-
-
+                    var keywordCount = allKeywords[selectedOption].split('\n').filter(function (k) { return k.trim() !== ''; }).length;
 
                     jQuery('#keywordcounts').text(keywordCount);
 
-                    jQuery('#keywordtime').text(keywordTime);
+                    jQuery('#keywordtime').text(window.formatEstimatedTime(keywordCount));
 
                     jQuery('#keyword_list').val(allKeywords[selectedOption]);
 

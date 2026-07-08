@@ -1698,11 +1698,27 @@ global $ai_modal_type;
                             </script>
                             <input type="submit" value="Submit" id="bulk_ai_post_submi_button">
                             <div class="seo-form-field_multi" style="padding-left: 20px;">
-                                <p class="font-20_multi"><strong>Note:</strong> Based on the selections you made, this
-                                    project will generate [ <span id="keywordcounts"></span> ] AI posts. This will take
-                                    approximately [ <span id="keywordtime"></span> hr ] to
-                                    complete.</p>
+                                <p class="font-20_multi"><strong>Note:</strong> Based on your selections, this project
+                                    will generate <span id="keywordcounts">0</span> AI posts. Generation runs in the
+                                    background and should take up to <span id="keywordtime">a few minutes</span>.</p>
                             </div>
+                            <script>
+                            // Estimated time = number of posts × an upper-bound of ~3 minutes each,
+                            // shown as a human-readable maximum ("X minutes" / "H hours M minutes")
+                            // rather than a fractional-hour value like "0.2 hr".
+                            window.formatEstimatedTime = function (postCount) {
+                                var MAX_MINUTES_PER_POST = 3;
+                                var total = Math.max(1, Math.ceil((parseInt(postCount, 10) || 0) * MAX_MINUTES_PER_POST));
+                                if (total < 60) {
+                                    return total + (total === 1 ? ' minute' : ' minutes');
+                                }
+                                var hours = Math.floor(total / 60);
+                                var mins = total % 60;
+                                var out = hours + (hours === 1 ? ' hour' : ' hours');
+                                if (mins > 0) { out += ' ' + mins + (mins === 1 ? ' minute' : ' minutes'); }
+                                return out;
+                            };
+                            </script>
                         </div>
                     </div>
                 </div>
@@ -2453,15 +2469,9 @@ global $ai_modal_type;
                 // Count the non-empty lines
                 var keywordCount = nonEmptyLines.length;
 
-                // Calculate the minimum time and format it in minutes
-                var keywordMin = keywordCount * 3;
-
-                // Convert the time to hours and format to two decimal places
-                var keywordTime = (keywordMin / 60).toFixed(2);
-
                 // Update the text in the elements
                 jQuery('#keywordcounts').text(keywordCount);
-                jQuery('#keywordtime').text(keywordTime);
+                jQuery('#keywordtime').text(window.formatEstimatedTime(keywordCount));
             }
 
             nextButton.innerHTML = `${buttonText} <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>" alt="arrow-right">`;
@@ -3492,12 +3502,10 @@ global $ai_modal_type;
             
             if (allKeywords[selectedOption]) {
                 // Data exists in cache - use it immediately
-                var keywordCount = allKeywords[selectedOption].split('\n').length;
-                var keywordMin = keywordCount * 3;
-                var keywordTime = (keywordMin / 60).toFixed(2);
+                var keywordCount = allKeywords[selectedOption].split('\n').filter(function (k) { return k.trim() !== ''; }).length;
 
                 jQuery('#keywordcounts').text(keywordCount);
-                jQuery('#keywordtime').text(keywordTime);
+                jQuery('#keywordtime').text(window.formatEstimatedTime(keywordCount));
                 jQuery('#keyword_list').val(allKeywords[selectedOption]);
             } else {
                 // Data not in cache (newly created list) - fetch from server
@@ -3512,7 +3520,7 @@ global $ai_modal_type;
                     success: function(response) {
                         if (response.success) {
                             jQuery('#keywordcounts').text(response.data.count);
-                            jQuery('#keywordtime').text(response.data.time);
+                            jQuery('#keywordtime').text(window.formatEstimatedTime(response.data.count));
                             jQuery('#keyword_list').val(response.data.keywords);
                             
                             // Cache it for next time
