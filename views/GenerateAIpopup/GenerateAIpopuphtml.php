@@ -430,6 +430,8 @@ global $ai_modal_type;
         font-size: 15px;
         color: #50575e;
         line-height: 1.6;
+        /* Render \n in notification messages as line breaks (credit breakdowns). */
+        white-space: pre-line;
     }
 
     .improveseo-notification-footer {
@@ -2788,7 +2790,7 @@ global $ai_modal_type;
                     if (response.success) {
                         var d = response.data;
                         if (d.content_check && !d.content_check.sufficient) {
-                            showImproveSEONotification('warning', 'Insufficient Content Credits', 'You need 1 content credit but have ' + d.content_check.available + ' remaining. Please purchase more credits.', 'https://account.improveseoplugin.com//pricing');
+                            showImproveSEONotification('warning', 'Not Enough Content Credits', 'Content credits required: 1\nCredits available now: ' + d.content_check.available + '\n\nYou don\'t have enough credits to generate this post. Please purchase more to continue.', 'https://account.improveseoplugin.com//pricing');
                             reject('insufficient_content_credits');
                             return;
                         }
@@ -2872,13 +2874,17 @@ global $ai_modal_type;
                         
                         // Check 2: Content credits insufficient
                         if (data.content_check && !data.content_check.sufficient) {
-                            const msg = 'You need ' + keywordCount + ' content credits but only have ' + 
-                                       data.content_check.available + ' remaining. Please reduce keywords to ' + 
-                                       data.content_check.available + ' or purchase more credits.';
-                            
+                            const shortBy = keywordCount - data.content_check.available;
+                            const msg =
+                                'Content credits required: ' + keywordCount + '\n' +
+                                'Credits available now: ' + data.content_check.available + '\n' +
+                                'Short by: ' + shortBy + '\n\n' +
+                                'Reduce your keyword list to ' + data.content_check.available +
+                                ' post(s), or purchase more credits to continue.';
+
                             showImproveSEONotification(
                                 'warning',
-                                'Insufficient Content Credits',
+                                'Not Enough Content Credits',
                                 msg,
                                 'https://account.improveseoplugin.com//pricing'
                             );
@@ -2886,13 +2892,20 @@ global $ai_modal_type;
                             return;
                         }
                         
-                        // Content credits are sufficient!
-                        showImproveSEONotification(
-                            'success',
-                            'Content Credits Available',
-                            'You have ' + data.content_check.available + ' content credits available for ' + keywordCount + ' posts. Proceeding to next step.'
-                        );
-                        resolve(data);
+                        // Content credits are sufficient — confirm before advancing.
+                        // resolve() runs on OK/close so the wizard only moves forward
+                        // once the user acknowledges the credit usage.
+                        ImproveSEONotification.show({
+                            type: 'success',
+                            title: 'Confirm Content Generation',
+                            message:
+                                'Content credits required: ' + keywordCount + '\n' +
+                                'Credits available now: ' + data.content_check.available + '\n' +
+                                'Remaining after generation: ' + (data.content_check.available - keywordCount) + '\n\n' +
+                                'Click OK to confirm and continue.',
+                            buttonText: 'OK',
+                            onClose: function () { resolve(data); }
+                        });
                         
                     } else {
                         showImproveSEONotification(
@@ -2987,33 +3000,41 @@ global $ai_modal_type;
                             const needed = data.image_check.needed;
                             const available = data.image_check.available;
                             const shortage = needed - available;
-                            
-                            const msg = 'You selected AI image generation for ' + needed + ' keywords but only have ' + 
-                                       available + ' image credits remaining. Please change ' + shortage + 
-                                       ' keyword(s) to "Upload Image" or purchase more credits.';
-                            
+
+                            const msg =
+                                'Image credits required: ' + needed + '\n' +
+                                'Credits available now: ' + available + '\n' +
+                                'Short by: ' + shortage + '\n\n' +
+                                'Switch ' + shortage + ' keyword(s) to "Upload Image", or purchase more credits to continue.';
+
                             showImproveSEONotification(
                                 'warning',
-                                '⚠️ Insufficient Image Credits',
+                                'Not Enough Image Credits',
                                 msg,
                                 'https://account.improveseoplugin.com//pricing'
                             );
                             reject('insufficient_image_credits');
                             return;
                         }
-                        
-                        // Image credits are sufficient!
-                        if (aiImageCount > 0) {
-                            showImproveSEONotification(
-                                'success',
-                                '✅ Image Credits Available',
-                                'You have ' + data.image_check.available + ' image credits available for ' + aiImageCount + ' AI images. Proceeding to next step.'
-                            );
-                        }
-                        
-                        // All checks passed
+
+                        // Image credits are sufficient.
                         console.log('✅ Image credit check passed:', data);
-                        resolve(data);
+                        if (aiImageCount > 0) {
+                            // Confirm before advancing — OK gates the step change.
+                            ImproveSEONotification.show({
+                                type: 'success',
+                                title: 'Confirm AI Image Generation',
+                                message:
+                                    'Image credits required: ' + aiImageCount + '\n' +
+                                    'Credits available now: ' + data.image_check.available + '\n' +
+                                    'Remaining after generation: ' + (data.image_check.available - aiImageCount) + '\n\n' +
+                                    'Click OK to confirm and continue.',
+                                buttonText: 'OK',
+                                onClose: function () { resolve(data); }
+                            });
+                        } else {
+                            resolve(data);
+                        }
                     } else {
                         showImproveSEONotification(
                             'error',
@@ -3090,7 +3111,7 @@ global $ai_modal_type;
         if (!projectName || projectName.trim() === '') {
             showImproveSEONotification(
                 'warning',
-                '⚠️ Project Name Required',
+                'Project Name Required',
                 'Please enter a project name for this bulk task before submitting.',
                 null
             );
@@ -3539,6 +3560,11 @@ global $ai_modal_type;
       titleEl.textContent = title;
       messageEl.textContent = message;
       okBtn.textContent = buttonText;
+
+      // Clear any onclick handler left by showImproveSEONotification() (a separate
+      // system that assigns okBtn.onclick). Without this, a prior modal's handler
+      // would still fire alongside ours on the same OK button.
+      okBtn.onclick = null;
 
       // Show overlay
       overlay.classList.add('active');
