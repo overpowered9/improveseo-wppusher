@@ -3452,6 +3452,27 @@ global $ai_modal_type;
                             '<span>' + $('<div>').text(response.data.name).html() + '</span>' +
                         '</label>';
                         $('#single-modal-category-list').append(newHtml);
+
+                        // Also add it to the project form's Categories sidebar as a real,
+                        // checked checkbox — the sidebar is rendered from get_categories() at
+                        // page load, so a category created afterwards would otherwise be missing
+                        // there and not carried over to the saved project. This makes a new
+                        // category behave exactly like a pre-existing one.
+                        try {
+                            var firstSidebarCat = document.querySelector('#main_form input[name="cats[]"]');
+                            var sidebarContainer = firstSidebarCat ? firstSidebarCat.closest('.inside') : null;
+                            if (sidebarContainer &&
+                                !sidebarContainer.querySelector('input[name="cats[]"][value="' + response.data.term_id + '"]')) {
+                                var safeName = $('<div>').text(response.data.name).html();
+                                $(sidebarContainer).append(
+                                    "<div class='input-group cta-check m-0'><span>" +
+                                    "<input checked id='" + response.data.term_id + "' type='checkbox' value='" +
+                                    response.data.term_id + "' name='cats[]'>" +
+                                    "<label for='" + response.data.term_id + "'>" + safeName + "</label></span></div>"
+                                );
+                            }
+                        } catch (e) { /* sidebar not present on this page — modal selection still applies */ }
+
                         $('#new_category_name_single').val('');
                         messageEl.text('Category added!').css('color', '#46b450');
                         setTimeout(function() { messageEl.text(''); }, 3000);
