@@ -1665,18 +1665,37 @@ global $ai_modal_type;
                                     id="project_name" name="project_name" placeholder="Enter project name">
                                 <span style="padding-left:20px; font-size:13px; color:#666;">Auto-filled from your keyword list — you can edit it.</span>
                             </div>
-                            <?php $iseo_acc_email = function_exists( 'improveseo_get_account_email' )
-                                ? improveseo_get_account_email()
-                                : get_option( 'improveseo_account_email' ); ?>
                             <div class="seo-form-field_multi" style="padding-left: 20px;">
                                 <p class="font-20_multi" style="color:#0061B6;">
                                     <strong>Next:</strong> Once you click the submit button below, all posts within this
-                                    project will be generated in the background. We&rsquo;ll email you<?php echo $iseo_acc_email
-                                        ? ' at <strong>' . esc_html( $iseo_acc_email ) . '</strong>'
-                                        : ' at the address registered to your ImproveSEO account'; ?>
+                                    project will be generated in the background. We&rsquo;ll email you at
+                                    <strong id="iseo-notif-email">the address registered to your ImproveSEO account</strong>
                                     when they are finished.
                                 </p>
                             </div>
+                            <script>
+                            // Fill the notification email live from the server so it's never a
+                            // stale/hardcoded value baked into (possibly cached) page HTML.
+                            (function () {
+                                function run() {
+                                    var el = document.getElementById('iseo-notif-email');
+                                    if (!el || typeof jQuery === 'undefined' || typeof ajaxurl === 'undefined') { return; }
+                                    jQuery.post(ajaxurl, {
+                                        action: 'improveseo_get_notification_email',
+                                        nonce: '<?php echo esc_js( wp_create_nonce('improveseo_notif_email_nonce') ); ?>'
+                                    }).done(function (resp) {
+                                        if (resp && resp.success && resp.data && resp.data.email) {
+                                            el.textContent = resp.data.email;
+                                        }
+                                    });
+                                }
+                                if (document.readyState === 'loading') {
+                                    document.addEventListener('DOMContentLoaded', run);
+                                } else {
+                                    run();
+                                }
+                            })();
+                            </script>
                             <input type="submit" value="Submit" id="bulk_ai_post_submi_button">
                             <div class="seo-form-field_multi" style="padding-left: 20px;">
                                 <p class="font-20_multi"><strong>Note:</strong> Based on the selections you made, this

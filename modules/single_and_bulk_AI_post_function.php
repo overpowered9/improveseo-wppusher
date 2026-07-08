@@ -65,10 +65,12 @@ function improveseo_call_auxiliary_api( $type, array $payload = array() ) {
  * back to the stored improveseo_account_email option when the server can't be
  * reached, and keeps that option in sync as a durable offline fallback.
  *
- * @param bool $force Bypass the cache and re-fetch.
+ * @param bool $force   Bypass the cache and re-fetch.
+ * @param int  $timeout HTTP timeout in seconds. Callers on a background/AJAX path
+ *                      can pass a larger value to ride out a server cold start.
  * @return string The account email, or '' if it can't be determined.
  */
-function improveseo_get_account_email( $force = false ) {
+function improveseo_get_account_email( $force = false, $timeout = 15 ) {
 	$cached = get_transient( 'improveseo_account_email_cache' );
 	if ( ! $force && ! empty( $cached ) ) {
 		return $cached;
@@ -90,7 +92,7 @@ function improveseo_get_account_email( $force = false ) {
 				'x-site-code' => $site_code,
 				'Accept'      => 'application/json',
 			),
-			'timeout' => 15,
+			'timeout' => max( 5, (int) $timeout ),
 		)
 	);
 

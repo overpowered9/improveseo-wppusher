@@ -65,6 +65,29 @@ function test_improveseo_connection() {
 }
 
 
+// Return the ImproveSEO account email the bulk-completion notification is sent to.
+// Fetched live from the admin server (via the stored API key + site code) so the
+// wizard never shows a stale/hardcoded address. Called client-side so a slow/cold
+// server can't block page render and the value can't be frozen into cached HTML.
+add_action('wp_ajax_improveseo_get_notification_email', 'improveseo_ajax_get_notification_email');
+
+function improveseo_ajax_get_notification_email() {
+    if ( ! current_user_can('manage_options') ) {
+        wp_send_json_error(array('email' => ''), 403);
+    }
+    if ( ! isset($_POST['nonce']) || ! wp_verify_nonce( sanitize_text_field(wp_unslash($_POST['nonce'])), 'improveseo_notif_email_nonce' ) ) {
+        wp_send_json_error(array('email' => ''), 403);
+    }
+
+    // Longer timeout than the render path — this runs async, so it can ride out a cold start.
+    $email = function_exists('improveseo_get_account_email')
+        ? improveseo_get_account_email(true, 30)
+        : (string) get_option('improveseo_account_email', '');
+
+    wp_send_json_success(array('email' => is_email($email) ? $email : ''));
+}
+
+
 add_action('wp_ajax_improveseo_get_shortcodes', 'improveseo_get_shortcodes');
 
 
