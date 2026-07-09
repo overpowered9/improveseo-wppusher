@@ -2,3 +2,4 @@
 modules/backup_bulk.php
 .claude/settings.local.json
 /.claude
+*.xlsx
