@@ -189,7 +189,7 @@ use ImproveSEO\View;
 
             <!-- Content Features Card -->
             <form class="iseo-features-form" method="post" action="options.php">
-                <?php settings_fields('improveseo_settings'); ?>
+                <?php settings_fields('improveseo_feature_settings'); ?>
             <div class="iseo-standalone-card iseo-features-card">
                 <div class="iseo-card-header">
                     <div class="iseo-card-icon iseo-icon-image">

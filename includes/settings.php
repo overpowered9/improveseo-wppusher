@@ -30,9 +30,15 @@ function improveseo_init_settings() {
 	register_setting('improveseo_settings', 'improveseo_business_service', array( 'sanitize_callback' => 'sanitize_text_field' ));
 
 	// Featured image toggles
-	register_setting('improveseo_settings', 'improveseo_featured_images_enabled', array( 'sanitize_callback' => 'absint' ));
-	register_setting('improveseo_settings', 'improveseo_featured_images_bulk',    array( 'sanitize_callback' => 'absint' ));
-	register_setting('improveseo_settings', 'improveseo_featured_images_single',  array( 'sanitize_callback' => 'absint' ));
+	// NOTE: these live in their own settings group because they are saved from a
+	// SEPARATE <form> in the settings sidebar. options.php nulls out every option
+	// registered in a group that is missing from the submitted form, so keeping
+	// these in 'improveseo_settings' would wipe the API key / site code (and vice
+	// versa) whenever one form was saved. A dedicated group keeps the two forms
+	// from clobbering each other.
+	register_setting('improveseo_feature_settings', 'improveseo_featured_images_enabled', array( 'sanitize_callback' => 'absint' ));
+	register_setting('improveseo_feature_settings', 'improveseo_featured_images_bulk',    array( 'sanitize_callback' => 'absint' ));
+	register_setting('improveseo_feature_settings', 'improveseo_featured_images_single',  array( 'sanitize_callback' => 'absint' ));
 
 }
 
