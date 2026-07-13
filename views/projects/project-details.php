@@ -23,8 +23,12 @@ use ImproveSEO\View;
 <?php
 // Helper to display a value or N/A
 function pd_val($arr, $key, $default = 'N/A') {
-    if (!is_array($arr)) return $default;
-    return isset($arr[$key]) && $arr[$key] !== '' ? esc_html($arr[$key]) : $default;
+    if (!is_array($arr) || !isset($arr[$key])) return $default;
+    // Trim leading/trailing whitespace — stored details/CTA text often carries
+    // blank lines that, under white-space: pre-wrap, push the text to the
+    // bottom of the field. Internal line breaks are preserved.
+    $val = trim((string) $arr[$key]);
+    return $val === '' ? $default : esc_html($val);
 }
 
 // Friendly labels for stored values

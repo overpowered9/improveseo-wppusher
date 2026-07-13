@@ -28,8 +28,12 @@ use ImproveSEO\View;
 <?php
 // Helper to display a value or fallback
 function btd_val($val, $default = 'N/A') {
-    if ($val === null || $val === '') return $default;
-    return esc_html($val);
+    if ($val === null) return $default;
+    // Trim leading/trailing whitespace — stored details/CTA text often carries
+    // blank lines that, under white-space: pre-wrap, push the text to the
+    // bottom of the field. Internal line breaks are preserved.
+    $val = trim((string) $val);
+    return $val === '' ? $default : esc_html($val);
 }
 
 function btd_tone_label($val) {
