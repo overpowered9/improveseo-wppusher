@@ -271,6 +271,23 @@
    font-family: "Poppins", serif;
  }
 
+ /* This is the highest-specificity layer that governs the wizard fields, so the
+    rounding has to be declared here too — otherwise Bootstrap's .form-control
+    (border-radius: .25rem, loaded in the modal) leaks through on fields like the
+    Call to Action text/URL and they stop matching the pill inputs above them.
+    Text inputs/selects are pills; textareas keep the softer radius used elsewhere. */
+ .improveseo-bulk-ai form.improve-seo-form-global input[type="text"],
+ .improveseo-bulk-ai form.improve-seo-form-global select,
+ .improveseo-bulk-ai_multi form.pop_up_multi_form input[type="text"],
+ .improveseo-bulk-ai_multi form.pop_up_multi_form select {
+   border-radius: 50px;
+ }
+
+ .improveseo-bulk-ai form.improve-seo-form-global textarea,
+ .improveseo-bulk-ai_multi form.pop_up_multi_form textarea {
+   border-radius: 15px;
+ }
+
  .improveseo-bulk-ai .detail-text {
    height: 150px;
    border-radius: 10px;
