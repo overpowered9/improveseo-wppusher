@@ -19,7 +19,7 @@ use ImproveSEO\View;
 &raquo;
 <?php endif; ?>
 
-<span>Task Details</span>
+<span>Post Details</span>
 
 <?php View::endSection('breadcrumbs') ?>
 
@@ -38,9 +38,20 @@ function btd_tone_label($val) {
 
 function btd_seed_option_label($val) {
     $map = array(
-        'seed_option1' => 'Use Keyword As-Is in Title',
-        'seed_option2' => 'Create Best Title from Keyword',
-        'seed_option3' => 'Create Best Question from Keyword',
+        'seed_option1' => 'Exact Keyword as Title',
+        'seed_option2' => 'Smart Title (AI-Generated)',
+        'seed_option3' => 'Question-Style Title (AI-Generated)',
+    );
+    return isset($map[$val]) ? $map[$val] : btd_val($val);
+}
+
+function btd_pov_label($val) {
+    $map = array(
+        'Whatever is suited to keyword'          => 'Auto (AI Decides)',
+        'Second Person (you,your,yours)'         => 'Speaking to the Reader ("you", "your")',
+        'First person plural (we,us,our,ours)'   => 'Business Voice ("we", "our")',
+        'First person singular (I,me,my,mine)'   => 'Personal Voice ("I", "my")',
+        'none'                                   => 'Auto (AI Decides)',
     );
     return isset($map[$val]) ? $map[$val] : btd_val($val);
 }
@@ -60,10 +71,26 @@ function btd_image_label($val) {
 
 function btd_schedule_label($val) {
     $map = array(
-        'schedule_all_posts' => 'Schedule All Posts',
-        'publish_immediately' => 'Publish Immediately',
+        'schedule_all_posts'        => 'Publish Now',
+        'publish_immediately'       => 'Publish Now',
+        'draft_posts'               => 'Save As Draft',
+        'schedule_posts_input_wise' => 'Schedule',
     );
     return isset($map[$val]) ? $map[$val] : btd_val($val);
+}
+
+// Combine schedule frequency + posts-per-schedule into a human phrase like "2 posts/day".
+// Only meaningful when the schedule type is an actual publishing schedule.
+function btd_schedule_cadence($task) {
+    if ($task->schedule_posts !== 'schedule_posts_input_wise') {
+        return 'N/A';
+    }
+    $count = intval($task->number_of_post_schedule);
+    if ($count < 1) {
+        return 'N/A';
+    }
+    $unit = ($task->schedule_frequency === 'per_week') ? 'week' : 'day';
+    return $count . ' post' . ($count === 1 ? '' : 's') . '/' . $unit;
 }
 
 function btd_author_label($val) {
@@ -166,7 +193,7 @@ function btd_author_label($val) {
 <div class="global-wrap">
     <div class="head-bar">
         <img src="<?php echo WT_URL . '/assets/images/latest-images/seo-latest-logo.svg' ?>" alt="project-list-logo">
-        <h1>ImproveSEO | Task Details</h1>
+        <h1>ImproveSEO | Post Details</h1>
     </div>
     <div class="box-top">
         <ul class="breadcrumb-seo">
@@ -180,16 +207,11 @@ function btd_author_label($val) {
         <div class="import-export-btn">
             <?php if ($task->bulktask_id): ?>
                 <a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>" style="text-decoration:none;">
-                    <button>← Back to Tasks</button>
+                    <button>← Back to Post List</button>
                 </a>
             <?php else: ?>
                 <a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>" style="text-decoration:none;">
                     <button>← Back to Bulk Projects</button>
-                </a>
-            <?php endif; ?>
-            <?php if (!empty($task->ai_content)): ?>
-                <a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAiContent&id=' . $task->id) ?>" target="_blank" style="text-decoration:none;">
-                    <button>View AI Content</button>
                 </a>
             <?php endif; ?>
             <?php if ($associated_post && $post_url): ?>
@@ -265,7 +287,7 @@ function btd_author_label($val) {
                         if (empty($task->published_on) || $task->published_on === '0000-00-00 00:00:00' || $task->status === 'Stoped') {
                             echo 'N/A';
                         } else {
-                            echo esc_html(date('m/d/Y H:i:s', strtotime($task->published_on)));
+                            echo esc_html(date('M j, Y g:i A', strtotime($task->published_on)));
                         }
                         ?>
                     </div>
@@ -315,7 +337,7 @@ function btd_author_label($val) {
                 <div class="btd-row">
                     <div class="btd-label">Point of View</div>
                     <div class="btd-value <?= empty($task->point_of_view) ? 'na' : '' ?>">
-                        <?= btd_val($task->point_of_view) ?>
+                        <?= btd_pov_label($task->point_of_view) ?>
                     </div>
                 </div>
                 <div class="btd-row">
@@ -339,6 +361,39 @@ function btd_author_label($val) {
             </div>
         </div>
 
+        <!-- Card: SEO Information -->
+        <?php
+        $btd_meta_title = '';
+        $btd_meta_desc  = '';
+        if (!empty($task->post_id)) {
+            $btd_meta_title = get_post_meta($task->post_id, '_yoast_wpseo_title', true);
+            $btd_meta_desc  = get_post_meta($task->post_id, '_yoast_wpseo_metadesc', true);
+        }
+        ?>
+        <div class="btd-card">
+            <div class="btd-card-header">SEO Information</div>
+            <div class="btd-card-body">
+                <div class="btd-row">
+                    <div class="btd-label">Focus Keyword</div>
+                    <div class="btd-value <?= empty($task->keyword_name) ? 'na' : '' ?>">
+                        <?= btd_val($task->keyword_name) ?>
+                    </div>
+                </div>
+                <div class="btd-row" style="flex-direction: column;">
+                    <div class="btd-label" style="margin-bottom: 6px;">Meta Title</div>
+                    <div class="btd-value <?= empty($btd_meta_title) ? 'na' : '' ?>">
+                        <?= !empty($btd_meta_title) ? esc_html($btd_meta_title) : 'Auto-generated on publish' ?>
+                    </div>
+                </div>
+                <div class="btd-row" style="flex-direction: column;">
+                    <div class="btd-label" style="margin-bottom: 6px;">Meta Description</div>
+                    <div class="btd-value <?= empty($btd_meta_desc) ? 'na' : '' ?>">
+                        <?= !empty($btd_meta_desc) ? esc_html($btd_meta_desc) : 'Auto-generated on publish' ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Card 3: Details & Call to Action -->
         <div class="btd-card">
             <div class="btd-card-header">Details & Call to Action</div>
@@ -353,6 +408,16 @@ function btd_author_label($val) {
                     <div class="btd-label" style="margin-bottom: 6px;">Call to Action</div>
                     <div class="btd-value <?= empty($task->call_to_action) ? 'na' : '' ?>" style="white-space: pre-wrap;">
                         <?= btd_val($task->call_to_action) ?>
+                    </div>
+                </div>
+                <div class="btd-row" style="flex-direction: column; margin-top: 8px;">
+                    <div class="btd-label" style="margin-bottom: 6px;">Call to Action URL</div>
+                    <div class="btd-value <?= empty($task->cta_url) ? 'na' : '' ?>">
+                        <?php if (!empty($task->cta_url)): ?>
+                            <a href="<?= esc_url($task->cta_url) ?>" target="_blank" rel="noopener"><?= esc_html($task->cta_url) ?></a>
+                        <?php else: ?>
+                            N/A
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -370,25 +435,14 @@ function btd_author_label($val) {
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Schedule Frequency</div>
-                    <div class="btd-value <?= empty($task->schedule_frequency) ? 'na' : '' ?>">
-                        <?= btd_val($task->schedule_frequency) ?>
-                    </div>
-                </div>
-                <div class="btd-row">
-                    <div class="btd-label"># Posts per Schedule</div>
-                    <div class="btd-value <?= empty($task->number_of_post_schedule) ? 'na' : '' ?>">
-                        <?= btd_val($task->number_of_post_schedule) ?>
-                    </div>
-                </div>
-                <div class="btd-row">
-                    <div class="btd-label">Author Assignment</div>
-                    <div class="btd-value <?= empty($task->assigning_authors) ? 'na' : '' ?>">
-                        <?= btd_author_label($task->assigning_authors) ?>
+                    <?php $btd_cadence = btd_schedule_cadence($task); ?>
+                    <div class="btd-value <?= $btd_cadence === 'N/A' ? 'na' : '' ?>">
+                        <?= esc_html($btd_cadence) ?>
                     </div>
                 </div>
                 <?php if (!empty($task->assigning_authors_value)): ?>
                 <div class="btd-row">
-                    <div class="btd-label">Assigned Author ID</div>
+                    <div class="btd-label">Assigned Author</div>
                     <div class="btd-value">
                         <?php
                         $author = get_user_by('id', intval($task->assigning_authors_value));
@@ -424,10 +478,6 @@ function btd_author_label($val) {
                         }
                         ?>
                     </div>
-                </div>
-                <div class="btd-row">
-                    <div class="btd-label">Published by Plugin</div>
-                    <div class="btd-value"><?= $task->is_published_by_plugin ? 'Yes' : 'No' ?></div>
                 </div>
             </div>
         </div>
