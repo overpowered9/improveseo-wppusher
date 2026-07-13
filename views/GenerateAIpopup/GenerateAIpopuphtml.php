@@ -2328,6 +2328,18 @@ global $ai_modal_type;
         }
 
         nextStepButton.addEventListener("click", () => {
+            // Require a seed keyword before leaving step 1 — nothing downstream works without it.
+            if (currentStep === 0) {
+                const seedKeywordInput = document.getElementById('seed_keyword');
+                const seedKeywordError = document.getElementById('error_seed_keyword');
+                if (!seedKeywordInput || !seedKeywordInput.value.trim()) {
+                    if (seedKeywordError) seedKeywordError.innerText = 'Please enter a seed keyword.';
+                    seedKeywordInput && seedKeywordInput.focus();
+                    return;
+                }
+                if (seedKeywordError) seedKeywordError.innerText = '';
+            }
+
             // Enforce AI title approval: if in AI title generation mode (seed_select not 'seed_option1')
             // and approval checkbox not checked, show popup and move title to editable prompt.
             if (currentStep === 0 && seedSelect && seedSelect.value !== 'seed_option1' && !approve_content_check_box.checked) {
