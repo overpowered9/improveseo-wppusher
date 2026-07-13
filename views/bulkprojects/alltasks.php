@@ -47,7 +47,7 @@ $url .= $_SERVER['REQUEST_URI'];
 <div class="global-wrap">
 
 	<div class="head-bar">
-		<img src="<?php echo WT_URL . '/assets/images/project-list-logo.png' ?>" alt="project-list-logo">
+		<img src="<?php echo WT_URL . '/assets/images/latest-images/seo-latest-logo.svg'; ?>" alt="project-list-logo">
 		<h1> ImproveSEO | 2.0.11 </h1>
 		<span>Pro</span>
 	</div>
@@ -278,17 +278,13 @@ $url .= $_SERVER['REQUEST_URI'];
 															onclick="return confirm('This will delete the existing content and regenerate from scratch. Continue?')">Re-Generate Content</a>
 													</span>
 												<?php } ?>
-													<?php if (!empty($project->ai_content)) { ?>
+													<?php // "View AI content" is only useful for Drafts (to review before publishing).
+													// Published/Scheduled posts are viewed via "View Post" instead.
+													if ($project->state == 'Draft' && !empty($project->ai_content)) { ?>
 														<span class="primary">
 															<a class="popup-link" class="submitdelete" target="_blank"
 																href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAiContent&id=' . $project->id) ?>">View AI
 																content</a>
-														</span>
-													<?php } else { ?>
-														<span class="primary">
-															<a class="popup-link" class="submitdelete" target="_blank" href="#"
-																onclick="alert('Post is not generated yet. Please wait'); return false;">View
-																AI content</a>
 														</span>
 													<?php } ?>
 
@@ -298,16 +294,13 @@ $url .= $_SERVER['REQUEST_URI'];
 															Details</a>
 													</span>
 
-													<?php $iseo_live_url = !empty($project->post_id) ? get_permalink($project->post_id) : '';
-													if ($project->state == 'Published' && $iseo_live_url) { ?>
+													<?php // View Post is enabled for both Published and Scheduled posts
+													// (a scheduled post already has a permalink to preview).
+													$iseo_live_url = !empty($project->post_id) ? get_permalink($project->post_id) : '';
+													if (($project->state == 'Published' || $project->state == 'Scheduled') && $iseo_live_url) { ?>
 														<span class="primary">
 															<a class="popup-link" target="_blank" rel="noopener"
 																href="<?php echo esc_url($iseo_live_url); ?>">View Post</a>
-														</span>
-													<?php } else if ($project->state == 'Scheduled') { ?>
-														<span class="primary">
-															<a class="popup-link disabled" href="#" style="color:#999; cursor:not-allowed;"
-																title="The post has not been published yet" onclick="return false;">View Post</a>
 														</span>
 													<?php } ?>
 													<?php if (!empty($project->post_id)) {

@@ -97,13 +97,19 @@ function btd_schedule_cadence($task) {
     return $count . ' post' . ($count === 1 ? '' : 's') . '/' . $unit;
 }
 
-function btd_author_label($val) {
+// Content-generation status vocabulary, matching the "Processing" column on the
+// View All Posts screen so the same post never reads differently in two places.
+function btd_content_status_label($status) {
     $map = array(
-        'assigning_authors' => 'Assigned Author',
-        'random_authors' => 'Random Authors',
+        'Done'       => 'Completed',
+        'Processing' => 'Generating',
+        'Pending'    => 'Queued',
+        'Stoped'     => 'Canceled',
+        'Draft'      => 'Completed',
     );
-    return isset($map[$val]) ? $map[$val] : btd_val($val);
+    return isset($map[$status]) ? $map[$status] : 'Queued';
 }
+
 ?>
 
 <style>
@@ -268,20 +274,39 @@ function btd_author_label($val) {
                         elseif ($status === 'Stoped') $badge = 'btd-badge-stoped';
                         elseif ($status === 'Draft') $badge = 'btd-badge-draft';
                         ?>
-                        <span class="btd-badge <?= $badge ?>"><?= $status === 'Stoped' ? 'Canceled' : esc_html($status) ?></span>
+                        <span class="btd-badge <?= $badge ?>"><?= esc_html(btd_content_status_label($status)) ?></span>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Post Status</div>
                     <div class="btd-value">
                         <?php
-                        $state = $task->state;
-                        $state_badge = 'btd-badge-pending';
-                        if ($state === 'Published') $state_badge = 'btd-badge-published';
-                        elseif ($state === 'Draft') $state_badge = 'btd-badge-draft';
-                        elseif ($state === 'Scheduled') $state_badge = 'btd-badge-scheduled';
+                        // Same rule as the View All Posts screen: the post doesn't exist until
+                        // content generation finishes, so status gates what Post Status can be.
+                        if ($task->status === 'Stoped') {
+                            $post_status_label = 'Canceled';
+                            $state_badge = 'btd-badge-stoped';
+                        } elseif ($task->status !== 'Done') {
+                            $post_status_label = 'Pending Creation';
+                            $state_badge = 'btd-badge-pending';
+                        } else {
+                            $state = $task->state;
+                            if ($state === 'Published') {
+                                $post_status_label = 'Published';
+                                $state_badge = 'btd-badge-published';
+                            } elseif ($state === 'Draft') {
+                                $post_status_label = 'Draft';
+                                $state_badge = 'btd-badge-draft';
+                            } elseif ($state === 'Scheduled') {
+                                $post_status_label = 'Scheduled';
+                                $state_badge = 'btd-badge-scheduled';
+                            } else {
+                                $post_status_label = 'Pending Creation';
+                                $state_badge = 'btd-badge-pending';
+                            }
+                        }
                         ?>
-                        <span class="btd-badge <?= $state_badge ?>"><?= esc_html($state ?: 'Pending') ?></span>
+                        <span class="btd-badge <?= $state_badge ?>"><?= esc_html($post_status_label) ?></span>
                     </div>
                 </div>
                 <div class="btd-row">

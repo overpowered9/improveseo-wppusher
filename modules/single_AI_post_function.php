@@ -60,6 +60,11 @@ function getaaldata()
 	// ----- v2 fields -----
 	$niche = ( isset( $arr['niche'] ) && $arr['niche'] !== '' ) ? sanitize_text_field( $arr['niche'] ) : 'general_blog';
 	$cta_url = isset( $arr['cta_url'] ) ? trim( $arr['cta_url'] ) : '';
+	// Normalize so an unschemed URL like "example.com" becomes "https://example.com"
+	// and anything invalid is dropped rather than breaking generation.
+	if ( $cta_url !== '' && function_exists( 'improveseo_normalize_cta_url' ) ) {
+		$cta_url = improveseo_normalize_cta_url( $cta_url );
+	}
 
 	// Collect the structured per-niche fields (rendered in Step 2, named nd_<id>) into labelled
 	// niche_data for the v2 writer. Falls back to the legacy freeform details field if present.

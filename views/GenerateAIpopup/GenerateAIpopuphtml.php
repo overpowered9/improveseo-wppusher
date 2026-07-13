@@ -929,7 +929,7 @@ global $ai_modal_type;
                     </div>
                     <div class="seo-form-field">
                         <label for="cta_url">Call to Action URL <small style="color:#888; font-weight:normal;">(optional)</small></label>
-                        <input type="url" id="cta_url" name="cta_url" class="form-control"
+                        <input type="text" id="cta_url" name="cta_url" class="form-control"
                             placeholder="https://example.com/contact">
                     </div>
                 </div>
@@ -1320,16 +1320,13 @@ global $ai_modal_type;
                                 <span id="error_cotnt_type" style="color: red;"></span>
                                 <div class="form-group col-md-1"></div>
                             </div>
-                            <label style="padding-left:20px;" for="existing_select"> Select</label>
+                            <label style="padding-left:20px;" for="existing_select">Select Title Type</label>
                             <select id="existing_select" name="select_exisiting_options" class="form-control"
                                 style="max-width: 100% !important; width: 100%;    padding: 10px 20px !important;">
                                 <!-- <option value="">Select</option> -->
-                                <option value="seed_option1">USE KEYWORD AS IS IN TITLE [A.I. will build
-                                    content]</option>
-                                <option value="seed_option2">CREATE BEST TITLE FROM KEYWORD [A.I. will
-                                    choose/build content]</option>
-                                <option value="seed_option3">CREATE BEST QUESTION FROM KEYWORD [A.I. will
-                                    choose/build content]</option>
+                                <option value="seed_option2">Smart Title (AI-Generated)</option>
+                                <option value="seed_option3">Question-Style Title (AI-Generated)</option>
+                                <option value="seed_option1">Exact Keyword as Title</option>
                             </select>
                             <span id="error_existing_select" style="color: red;"></span>
                             <div class="form-group col-md-12" style="padding: 20px 0px !important;">
@@ -1397,16 +1394,10 @@ global $ai_modal_type;
                                     <select class="form-control" name="point_of_view"
                                         style="max-width: 100% !important;  padding: 10px 20px !important;">
 
-                                        <option value="Whatever is suited to keyword">None
-                                        </option>
-                                        <option value="First person singular (I,me,my,mine)">First person singular
-                                            (I, me, my, mine)
-                                        </option>
-                                        <option value="First person plural (we,us,our,ours)">First person plural
-                                            (we, us, our, ours)</option>
-                                        <option value="Second Person (you,your,yours)">Second Person
-                                            (you, your, yours)</option>
-
+                                        <option value="Whatever is suited to keyword">Auto (AI Decides)</option>
+                                        <option value="Second Person (you,your,yours)">Speaking to the Reader ("you", "your")</option>
+                                        <option value="First person plural (we,us,our,ours)">Business Voice ("we", "our")</option>
+                                        <option value="First person singular (I,me,my,mine)">Personal Voice ("I", "my")</option>
 
                                     </select>
                                 </div>
@@ -1441,8 +1432,9 @@ global $ai_modal_type;
                                     </div>
                                     <div class="seo-form-field" style="margin-top:30px;">
                                         <label for="cta_url_multi">Call to Action URL <small style="color:#888; font-weight:normal;">(optional)</small></label>
-                                        <input type="url" id="cta_url_multi" name="cta_url" class="form-control"
+                                        <input type="text" id="cta_url_multi" name="cta_url" class="form-control"
                                             placeholder="https://example.com/contact" style="max-width:100% !important;">
+                                        <span id="error_cta_url_multi" style="color:red; display:block; padding-left:20px;"></span>
                                     </div>
                                 </div>
 
@@ -2636,13 +2628,23 @@ global $ai_modal_type;
                 return; // Don't proceed automatically
             }
             
+            // Normalize + validate the Call to Action URL when leaving Step 2 (index 1).
+            // Without this, an unschemed URL (e.g. "example.com") that used to sit in a
+            // type="url" field silently blocked native form submission, leaving the final
+            // "Processing..." button stuck forever.
+            if (currentStep === 1) {
+                if (!normalizeAndValidateCtaUrl('#cta_url_multi', '#error_cta_url_multi')) {
+                    return;
+                }
+            }
+
             if (currentStep < steps.length - 1) { // Only go up to step 6
                 currentStep++;
                 updateSteps();
                 updateDataDisplay();
                 updateButtonText();
                 prevButton.disabled = false;
-                
+
                 // Generate keyword image options when moving to Step 3 (index 2)
                 if (currentStep === 2) {
                     generateKeywordImageOptionsForBulk();
@@ -2714,7 +2716,7 @@ global $ai_modal_type;
             const trimmedKeyword = keyword.trim();
             
             const html = `
-                <div class="keyword-image-row" style="padding: 15px; border: 1px solid #ddd; margin-bottom: 15px; border-radius: 5px; background: #f9f9f9;">
+                <div class="keyword-image-row" style="padding: 15px; border: 1px solid #ddd; margin-bottom: 15px; border-radius: 12px; background: #f9f9f9;">
                     <div style="margin-bottom: 10px;">
                         <strong style="font-size: 14px; color: #23282d;">Keyword:</strong> 
                         <span style="color: #555;">${trimmedKeyword}</span>
@@ -2729,7 +2731,7 @@ global $ai_modal_type;
                             Upload Image
                         </label>
                     </div>
-                    <div class="upload-section-${index}" style="display: none; padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-radius: 3px; margin-top: 10px;">
+                    <div class="upload-section-${index}" style="display: none; padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; margin-top: 10px;">
                         <input type="file" class="keyword-upload-input" data-index="${index}" accept="image/*" 
                                style="margin-bottom: 10px; padding: 5px;">
                         <div class="preview-${index}" style="margin: 10px 0;"></div>
@@ -3234,9 +3236,54 @@ global $ai_modal_type;
             );
             return false;
         }
-        
+
         return true;
     }
+
+    // Normalize a Call-to-Action URL in place and validate it.
+    // - Empty is allowed (the field is optional) → returns true.
+    // - A bare host like "example.com/contact" is upgraded to "https://example.com/contact".
+    // - If it still doesn't look like a valid URL, shows an inline error and returns false
+    //   so the wizard stays put instead of the submit button hanging on "Processing...".
+    window.normalizeAndValidateCtaUrl = function (inputSelector, errorSelector) {
+        var $input = jQuery(inputSelector);
+        var $error = jQuery(errorSelector);
+        if (!$input.length) { return true; }
+        if ($error.length) { $error.text(''); }
+
+        var raw = (($input.val() || '') + '').trim();
+        if (raw === '') { $input.val(''); return true; } // optional
+
+        // Add a scheme when the user typed a bare domain.
+        var normalized = raw;
+        if (!/^https?:\/\//i.test(normalized)) {
+            normalized = normalized.replace(/^\/+/, '');
+            normalized = 'https://' + normalized;
+        }
+
+        var valid = false;
+        try {
+            var u = new URL(normalized);
+            // Require a dotted host (or localhost) so "https://foo" is rejected.
+            valid = (u.protocol === 'http:' || u.protocol === 'https:') &&
+                    (/\./.test(u.hostname) || u.hostname === 'localhost');
+        } catch (e) {
+            valid = false;
+        }
+
+        if (!valid) {
+            var msg = 'Please enter a valid URL (e.g. https://example.com/contact).';
+            if ($error.length) {
+                $error.text(msg);
+            } else {
+                showImproveSEONotification('warning', 'Invalid Call to Action URL', msg, null);
+            }
+            return false;
+        }
+
+        $input.val(normalized); // write the normalized value back so the server stores it clean
+        return true;
+    };
 </script>
 
 <script>

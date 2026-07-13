@@ -224,7 +224,7 @@ body::-webkit-scrollbar-thumb:hover {
 .improveseo-bulk-ai_multi .improveseo-sections_multi {
   padding: 20px 30px 70px;
   position: relative;
-  background-color: #E9EDF2;
+  background-color: #F6F8FA;
 }
 
 .improveseo-bulk-ai_multi .data_multi {
@@ -1975,6 +1975,35 @@ div#ai-image-generating {
 
 form#pop_up_multi_form label {
   font-size: 18px;
+}
+
+/* Field headers in the bulk wizard should read the same as the single wizard's
+   field labels: same grey colour, size and left padding. Scoped to actual field
+   labels only (NOT category pills or schedule radio labels, which are also <label>). */
+form#pop_up_multi_form .form-group > label,
+form#pop_up_multi_form .seo-form-field > label,
+form#pop_up_multi_form .seo-form-field_multi > label,
+form#pop_up_multi_form #tone_of_voice > label,
+form#pop_up_multi_form label[for="existing_select"],
+form#pop_up_multi_form label[for="keyword_list_name"] {
+  color: rgba(80, 87, 94, 0.8);
+  font-size: 18px;
+  padding: 0 20px 5px;
+  margin: 0;
+}
+
+/* Section headers inside the bulk wizard (Select Category / Publish steps) should read
+   the same as the single wizard's field labels: same colour, size and left alignment. */
+.improveseo-bulk-ai_multi .category-selection-section h2,
+.improveseo-bulk-ai_multi .category-selection-section h3,
+.improveseo-bulk-ai_multi .seps-six_multi > h2,
+.improveseo-bulk-ai_multi .bulk-category-box h3 {
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  color: rgba(80, 87, 94, 0.8) !important;
+  padding-left: 20px;
+  margin-bottom: 12px;
+  text-align: left;
 }
 
 .max_width_70 {

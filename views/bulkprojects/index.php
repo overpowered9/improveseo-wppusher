@@ -179,7 +179,9 @@ if (isset($_GET['post_preview'])) {
 									} else if ($project->schedule_posts == 'schedule_all_posts') {
 										echo 'Publish Now';
 									} else {
-										echo 'Schedule: ' . $project->number_of_post_schedule . ' Post / ' . $project->schedule_frequency;
+											$pm_count = intval($project->number_of_post_schedule);
+											$pm_unit  = ($project->schedule_frequency == 'per_week') ? 'week' : 'day';
+											echo 'Schedule (' . $pm_count . ' post' . ($pm_count === 1 ? '' : 's') . '/' . $pm_unit . ')';
 									}
 									?> </td>
 								<td data-label="Project Status" class="status finished"><?php
