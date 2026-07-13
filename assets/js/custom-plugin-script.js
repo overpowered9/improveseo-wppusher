@@ -751,9 +751,9 @@ function LimitText(ref, iLength, textareaid) {
 
 function refreshAIImage() {
   // Single source of truth for the "AI image from title" cover generation.
-  // Triggered by the panel's Generate / Regenerate button. Uses an inline
-  // skeleton in the preview (no full-screen overlay) and disables the button
-  // while the request is in flight.
+  // Triggered by the panel's Generate / Regenerate button. Shows the same
+  // #loadingAIImage GIF used by the custom-prompt path while the request is in
+  // flight, and disables the button to prevent double submits.
   var $btn = jQuery("#AIrefreshOption button");
   var $preview = jQuery("#iseo-preview-title");
   var $hint = jQuery("#AIrefreshOption .iseo-hint");
@@ -773,7 +773,8 @@ function refreshAIImage() {
 
   var originalText = $btn.text();
   $btn.prop("disabled", true).text("Generating…");
-  $preview.addClass("iseo-loading").removeClass("has-image");
+  $preview.removeClass("has-image");
+  jQuery("#loadingAIImage").show();
   $hint.removeClass("ok").text("Generating your cover image… this can take a few seconds.");
 
   var formData = new FormData();
@@ -790,7 +791,7 @@ function refreshAIImage() {
     contentType: false,
     processData: false,
     success: function (response) {
-      $preview.removeClass("iseo-loading");
+      jQuery("#loadingAIImage").hide();
       $btn.prop("disabled", false);
 
       if (response.success === false) {
@@ -823,7 +824,7 @@ function refreshAIImage() {
       $hint.addClass("ok").text("Cover image ready. 1 image credit used.");
     },
     error: function () {
-      $preview.removeClass("iseo-loading");
+      jQuery("#loadingAIImage").hide();
       $btn.prop("disabled", false).text(originalText);
       $hint.removeClass("ok").text("Costs 1 image credit when you press Generate.");
       showImproveSEONotification(

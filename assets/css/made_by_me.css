@@ -2475,16 +2475,6 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
 .improveseo-bulk-ai .iseo-preview-empty svg { width: 34px; height: 34px; opacity: .5; margin-bottom: 8px; }
 .improveseo-bulk-ai .iseo-preview.has-image .iseo-preview-empty { display: none; }
 
-/* Inline skeleton while generating — replaces the full-screen overlay for this step */
-.improveseo-bulk-ai .iseo-preview.iseo-loading .iseo-preview-empty,
-.improveseo-bulk-ai .iseo-preview.iseo-loading #ai-image-display { visibility: hidden; }
-.improveseo-bulk-ai .iseo-preview.iseo-loading::after {
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(100deg, transparent 20%, rgba(30, 112, 184, 0.16) 45%, transparent 70%);
-  background-size: 220% 100%; animation: iseoShimmer 1.2s ease-in-out infinite;
-}
-@keyframes iseoShimmer { from { background-position: 180% 0; } to { background-position: -60% 0; } }
-
 .improveseo-bulk-ai .iseo-panel-controls { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .improveseo-bulk-ai .iseo-for-line { font-size: 13px; color: rgba(80, 87, 94, 0.7); font-family: "Poppins", serif; }
 .improveseo-bulk-ai .iseo-for-line b { color: #23282d; font-weight: 600; }
@@ -2499,5 +2489,4 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .improveseo-bulk-ai .iseo-media-card { transition: none; }
-  .improveseo-bulk-ai .iseo-preview.iseo-loading::after { animation: none; }
 }
