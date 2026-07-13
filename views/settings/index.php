@@ -212,7 +212,7 @@ use ImproveSEO\View;
                             </div>
                             <label class="iseo-toggle-switch" aria-label="Enable Featured Images">
                                 <input type="hidden" name="improveseo_featured_images_enabled" value="0">
-                                <input type="checkbox" id="iseo_featured_images_enabled" name="improveseo_featured_images_enabled" value="1" <?php checked( get_option( 'improveseo_featured_images_enabled', '0' ), '1' ); ?>>
+                                <input type="checkbox" id="iseo_featured_images_enabled" name="improveseo_featured_images_enabled" value="1" <?php checked( get_option( 'improveseo_featured_images_enabled', '1' ), '1' ); ?>>
                                 <span class="iseo-toggle-track"></span>
                             </label>
                         </div>
@@ -227,7 +227,7 @@ use ImproveSEO\View;
                                 </div>
                                 <label class="iseo-toggle-switch" aria-label="Enable for Bulk Posts">
                                     <input type="hidden" name="improveseo_featured_images_bulk" value="0">
-                                    <input type="checkbox" id="iseo_featured_images_bulk" name="improveseo_featured_images_bulk" value="1" <?php checked( get_option( 'improveseo_featured_images_bulk', '0' ), '1' ); ?>>
+                                    <input type="checkbox" id="iseo_featured_images_bulk" name="improveseo_featured_images_bulk" value="1" <?php checked( get_option( 'improveseo_featured_images_bulk', '1' ), '1' ); ?>>
                                     <span class="iseo-toggle-track"></span>
                                 </label>
                             </div>
@@ -239,7 +239,7 @@ use ImproveSEO\View;
                                 </div>
                                 <label class="iseo-toggle-switch" aria-label="Enable for Single Post">
                                     <input type="hidden" name="improveseo_featured_images_single" value="0">
-                                    <input type="checkbox" id="iseo_featured_images_single" name="improveseo_featured_images_single" value="1" <?php checked( get_option( 'improveseo_featured_images_single', '0' ), '1' ); ?>>
+                                    <input type="checkbox" id="iseo_featured_images_single" name="improveseo_featured_images_single" value="1" <?php checked( get_option( 'improveseo_featured_images_single', '1' ), '1' ); ?>>
                                     <span class="iseo-toggle-track"></span>
                                 </label>
                             </div>
@@ -263,6 +263,36 @@ use ImproveSEO\View;
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+
+    // ── Featured-image toggle cascade ─────────────────────
+    // Main toggle drives both sub-toggles; the sub-toggles drive the main
+    // back. Rules:
+    //   • Main ON/OFF  → both subs follow the main.
+    //   • A sub turns ON → main turns ON (the other sub is left untouched).
+    //   • Both subs OFF  → main turns OFF.
+    (function() {
+        var main = document.getElementById('iseo_featured_images_enabled');
+        var subs = [
+            document.getElementById('iseo_featured_images_bulk'),
+            document.getElementById('iseo_featured_images_single')
+        ];
+        if (!main || subs.some(function(s) { return !s; })) return;
+
+        main.addEventListener('change', function() {
+            subs.forEach(function(sub) { sub.checked = main.checked; });
+        });
+
+        subs.forEach(function(sub) {
+            sub.addEventListener('change', function() {
+                if (sub.checked) {
+                    main.checked = true;
+                } else if (subs.every(function(s) { return !s.checked; })) {
+                    main.checked = false;
+                }
+            });
+        });
+    })();
+
     // Test server connection
     document.getElementById('test_server_connection').addEventListener('click', function() {
         const button = this;
