@@ -137,7 +137,7 @@
         /* 14 */ {
             phase: 'modal', wizardStep: 2, target: 'label[for="AI_image"]',
             title: 'Select Image Option',
-            message: 'Click <strong>Generate AI Image Based on Title</strong> to automatically create a cover image for your article.',
+            message: 'Pick <strong>AI image from title</strong> — the quickest option. We’ll create a cover from your article title. You can switch methods anytime before generating.',
             position: 'right', advance: 'click-target'
         },
         /* 15 */ {
@@ -618,16 +618,17 @@
             }
             _waiting = true;
             showWaitingTooltip(
-                'Generating your AI Image &#x23F3;',
-                'The AI is creating an image for your article \u2014 please wait.',
-                40
+                'Now create your image',
+                'Click the <strong>Generate AI image</strong> button in the panel \u2014 we\u2019ll continue automatically once your cover is ready. (Uses 1 image credit.)',
+                60
             );
+            // Resolves when refreshAIImage() fills the hidden path after the user presses Generate.
             waitForValue('#AI-Image-uploaded-path', function () {
                 if (_waiting) {
                     _waiting = false;
                     showStep(15); // \u2192 media-next (wizard-next)
                 }
-            }, 30);
+            }, 90);
         });
 
         /* ── Reposition on resize / scroll ──────────────────── */

@@ -750,54 +750,52 @@ function LimitText(ref, iLength, textareaid) {
 }
 
 function refreshAIImage() {
-  jQuery("#loadingAIImage").show();
-  // jQuery("#hide_older_genrated_image_on_step3").style.display="none";
+  // Single source of truth for the "AI image from title" cover generation.
+  // Triggered by the panel's Generate / Regenerate button. Uses an inline
+  // skeleton in the preview (no full-screen overlay) and disables the button
+  // while the request is in flight.
+  var $btn = jQuery("#AIrefreshOption button");
+  var $preview = jQuery("#iseo-preview-title");
+  var $hint = jQuery("#AIrefreshOption .iseo-hint");
 
-  // create AI image
-
-  //var title = jQuery("#aigeneratedtitle").val();
+  if ($btn.prop("disabled")) return false;
 
   var seed_select = jQuery("#seed_select").val();
-
+  var title;
   if (seed_select == "seed_option1") {
-    var title = jQuery("#seed_keyword").val();
+    title = jQuery("#seed_keyword").val();
   } else {
-    var maintitlearea = jQuery("#maintitlearea").val();
-
-    if (maintitlearea == "") {
-      var title = jQuery("#aigeneratedtitle").val();
-    } else {
-      var title = maintitlearea;
-    }
+    title = jQuery("#maintitlearea").val() || jQuery("#aigeneratedtitle").val();
+  }
+  if (!title) {
+    title = jQuery("#seed_keyword").val() || "";
   }
 
+  var originalText = $btn.text();
+  $btn.prop("disabled", true).text("Generating…");
+  $preview.addClass("iseo-loading").removeClass("has-image");
+  $hint.removeClass("ok").text("Generating your cover image… this can take a few seconds.");
+
   var formData = new FormData();
-
   formData.append("action", "fetch_AI_image");
-
   formData.append("title", title);
-
-  // v2 (OpenAI) cover image: send the selected niche and flag the v2 path. The PHP handler falls
-  // back to the legacy Flux flow when use_v2 is absent, so other image triggers are unaffected.
+  // v2 (OpenAI) cover image with the selected niche; PHP falls back to legacy Flux when use_v2 is absent.
   formData.append("niche", jQuery("#niche_select").val() || "");
-
   formData.append("use_v2", "1");
 
   jQuery.ajax({
     url: ajaxurl,
-
     type: "POST",
-
     data: formData,
-
     contentType: false,
-
     processData: false,
-
     success: function (response) {
-      // Check for insufficient credits error (HTTP 402)
+      $preview.removeClass("iseo-loading");
+      $btn.prop("disabled", false);
+
       if (response.success === false) {
-        jQuery("#loadingAIImage").hide();
+        $btn.text(originalText);
+        $hint.removeClass("ok").text("Costs 1 image credit when you press Generate.");
         if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits'))) {
           showImproveSEONotification(
             'warning',
@@ -806,7 +804,6 @@ function refreshAIImage() {
             'https://account.improveseoplugin.com/'
           );
         } else {
-          // Show error notification for other failures (500, network, etc.)
           showImproveSEONotification(
             'error',
             'Image Generation Failed',
@@ -816,25 +813,26 @@ function refreshAIImage() {
         }
         return;
       }
-      
+
       jQuery("#ai-image-display").html(
-        "<img src='" +
-          response.data +
-          "' alt='Uploaded Image' style='max-width: 100%'>"
+        "<img src='" + response.data + "' alt='AI cover image' style='max-width:100%'>"
       );
-
       jQuery("#AI-Image-uploaded-path").val(response.data);
-
-      jQuery("#AIrefreshOption button").text("Regenerate Image");
-
-      jQuery("#loadingAIImage").hide();
+      $preview.addClass("has-image");
+      $btn.text("Regenerate image");
+      $hint.addClass("ok").text("Cover image ready. 1 image credit used.");
     },
-
     error: function () {
-      alert("Error uploading image.");
-
-      jQuery("#loadingAIImage").hide();
-    },
+      $preview.removeClass("iseo-loading");
+      $btn.prop("disabled", false).text(originalText);
+      $hint.removeClass("ok").text("Costs 1 image credit when you press Generate.");
+      showImproveSEONotification(
+        'error',
+        'Image Generation Failed',
+        'Unable to generate image. Please try again.',
+        null
+      );
+    }
   });
 
   // Prevent form submission when called via inline onclick="return refreshAIImage()"
@@ -865,210 +863,88 @@ function getCookie(cname) {
 
 jQuery(document).ready(function (jQuery) {
   jQuery("input[type='radio'][name='aiImage']").change(function () {
-    jQuery("#loadingImage").show();
+    // Selecting a method only reveals its panel. Nothing generates on select -
+    // AI images are created when the user presses the panel's Generate button.
+    jQuery("#AI_image_div, #manually_image_div, #Prompt_to_create_Dalle_Image").css("display", "none");
+    jQuery("#prompt_image_div").css("display", "none");
 
     if (this.value == "Manually_image") {
-      /* 2 section display none */
-
-      jQuery("#AI_image_div").css("display", "none");
-
-      jQuery("#prompt_image_div").css("display", "none");
-
-      jQuery("#Prompt_to_create_Dalle_Image").css("display", "none");
-
       jQuery("#manually_image_div").css("display", "block");
+      if (typeof SeedShow === "function") SeedShow();
+
     } else if (this.value == "manually_promt_image") {
-      jQuery("#AI_image_div").css("display", "none");
+      jQuery("#Prompt_to_create_Dalle_Image").css("display", "block");
 
       var aipromtval = jQuery("#AI-Prompt-Image-uploaded-path").val();
-
-      if (aipromtval != "") {
+      if (aipromtval) {
         jQuery("#prompt_image_div").css("display", "block");
       }
 
-      jQuery("#Prompt_to_create_Dalle_Image").css("display", "block");
-
-      jQuery("#manually_image_div").css("display", "none");
-
+      // Pre-fill the editable prompt from the article title (no image generated here).
       var seed_select = jQuery("#seed_select").val();
-
+      var title;
       if (seed_select == "seed_option1") {
-        var title = jQuery("#seed_keyword").val();
+        title = jQuery("#seed_keyword").val();
       } else {
-        var maintitlearea = jQuery("#maintitlearea").val();
-
-        if (maintitlearea == "") {
-          var title = jQuery("#aigeneratedtitle").val();
-        } else {
-          var title = maintitlearea;
-        }
+        title = jQuery("#maintitlearea").val() || jQuery("#aigeneratedtitle").val();
       }
-
       if (!title) {
-        title =
-          jQuery("#seed_keyword").val() ||
-          jQuery("#maintitlearea").val() ||
-          "";
+        title = jQuery("#seed_keyword").val() || jQuery("#maintitlearea").val() || "";
       }
 
       jQuery("#manually_promt_for_image").val(
         "Please wait while we prepare the prompts for you...."
       );
 
-      var formData = new FormData();
-
-      formData.append("action", "getPromptForImages");
-
-      formData.append("title", title);
+      var promptForm = new FormData();
+      promptForm.append("action", "getPromptForImages");
+      promptForm.append("title", title);
 
       jQuery.ajax({
         url: ajaxurl,
-
         type: "POST",
-
-        data: formData,
-
+        data: promptForm,
         contentType: false,
-
         processData: false,
-
         success: function (response) {
           var promptTopic =
             response && typeof response.data === "string" && response.data
               ? response.data
               : title;
-          jQuery("#manually_promt_for_image").val(
-            buildEditableImagePrompt(promptTopic)
-          );
+          jQuery("#manually_promt_for_image").val(buildEditableImagePrompt(promptTopic));
         },
-
         error: function () {
           jQuery("#manually_promt_for_image").val(
             buildEditableImagePrompt(
-              'The most concrete, recognisable subject of an article titled "' +
-                title +
-                '".'
+              'The most concrete, recognisable subject of an article titled "' + title + '".'
             )
           );
-          jQuery("#loadingAIImage").hide();
-        },
+        }
       });
-
-      // var aigeneratedtitle_op = jQuery("#aigeneratedtitle").val();
-
-      /* var maintitlearea = jQuery('#maintitlearea').val();
-
-             if(maintitlearea=='') {
-
-                 var AudienceData = getCookie('AudienceData');
-
-                 var aigeneratedtitle_op = jQuery('#aigeneratedtitle').val();
-
-                 jQuery("#manually_promt_for_image").val("You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. You should come up with the cover image for the article that will be engaging and interesting for the reader who is described in the audience data and search provided word or phrase. Image should be Very high quality shooting from a distance, high detail, photorealistic, image resolution 2146 pixels, cinematic. Using the following information generate an image.<br> Main keyword: seed-keyword Title of the article is '"+aigeneratedtitle_op+"' <br> Audience data:  '"+AudienceData+"'");
-
-             }*/
 
       jQuery("#manually_promt_for_image").css("display", "block");
 
-      jQuery("#AI_image_div").css("display", "none");
     } else if (this.value == "AI_image") {
       jQuery("#AI_image_div").css("display", "block");
+      if (typeof SeedHide === "function") SeedHide();
 
-      jQuery("#prompt_image_div").css("display", "none");
-
-      jQuery("#Prompt_to_create_Dalle_Image").css("display", "none");
-
-      jQuery("#Manually_image_div").css("display", "none");
-
-      var image_uploaded_path = jQuery("#AI-Image-uploaded-path").val();
-
-      if (image_uploaded_path == "") {
-        jQuery("#loadingAIImage").show();
-
-        // create AI image
-
-        //var title = jQuery("#aigeneratedtitle").val();
-
-        var seed_select = jQuery("#seed_select").val();
-
-        if (seed_select == "seed_option1") {
-          var title = jQuery("#seed_keyword").val();
-        } else {
-          var maintitlearea = jQuery("#maintitlearea").val();
-
-          if (maintitlearea == "") {
-            var title = jQuery("#aigeneratedtitle").val();
-          } else {
-            var title = maintitlearea;
-          }
+      // Reflect any previously generated image; never auto-generate on select.
+      var existingPath = jQuery("#AI-Image-uploaded-path").val();
+      if (existingPath) {
+        if (!jQuery("#ai-image-display img").length) {
+          jQuery("#ai-image-display").html(
+            "<img src='" + existingPath + "' alt='AI cover image' style='max-width:100%'>"
+          );
         }
-
-        var formData = new FormData();
-
-        formData.append("action", "fetch_AI_image");
-
-        formData.append("title", title);
-
-        // Primary single-wizard cover image (AI_image radio) → v2 (OpenAI) path with the niche.
-        formData.append("niche", jQuery("#niche_select").val() || "");
-
-        formData.append("use_v2", "1");
-
-        jQuery.ajax({
-          url: ajaxurl,
-
-          type: "POST",
-
-          data: formData,
-
-          contentType: false,
-
-          processData: false,
-
-          success: function (response) {
-            // Check for insufficient credits error (HTTP 402)
-            if (response.success === false) {
-              jQuery("#loadingAIImage").hide();
-              if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits'))) {
-                showImproveSEONotification(
-                  'warning',
-                  'Out of Credits',
-                  'You are out of image generation credits. Please purchase more credits to continue.',
-                  'https://account.improveseoplugin.com/'
-                );
-              } else {
-                // Show error notification for other failures (500, network, etc.)
-                showImproveSEONotification(
-                  'error',
-                  'Image Generation Failed',
-                  'Unable to generate image. If you experience errors too often, please contact support.',
-                  'mailto:support@improveseoplugin.com?subject=Image%20Generation%20Error'
-                );
-              }
-              return;
-            }
-            
-            jQuery("#ai-image-display").html(
-              "<img src='" +
-                response.data +
-                "' alt='Uploaded Image' style='max-width: 100%'>"
-            );
-
-            jQuery("#AI-Image-uploaded-path").val(response.data);
-
-            jQuery("#loadingAIImage").hide();
-          },
-
-          error: function () {
-            alert("Error uploading image.");
-
-            jQuery("#loadingAIImage").hide();
-          },
-        });
+        jQuery("#iseo-preview-title").addClass("has-image");
+        jQuery("#AIrefreshOption button").text("Regenerate image");
+        jQuery("#AIrefreshOption .iseo-hint").addClass("ok").text("Cover image ready. 1 image credit used.");
+      } else {
+        jQuery("#iseo-preview-title").removeClass("has-image");
+        jQuery("#AIrefreshOption button").text("Generate AI image");
+        jQuery("#AIrefreshOption .iseo-hint").removeClass("ok").text("Costs 1 image credit when you press Generate.");
       }
     }
-
-    jQuery("#loadingImage").hide();
   });
 });
 
