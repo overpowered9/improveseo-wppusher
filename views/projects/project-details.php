@@ -34,16 +34,22 @@ function pd_tone_label($val) {
 
 function pd_seed_option_label($val) {
     $map = array(
-        'seed_option1' => 'Use Keyword As-Is in Title',
-        'seed_option2' => 'Create Best Title from Keyword',
-        'seed_option3' => 'Create Best Question from Keyword',
+        'seed_option1' => 'Exact Keyword as Title',
+        'seed_option2' => 'Smart Title (AI-Generated)',
+        'seed_option3' => 'Question-Style Title (AI-Generated)',
     );
     return isset($map[$val]) ? $map[$val] : ($val ?: 'N/A');
 }
 
 function pd_pov_label($val) {
     if (!$val) return 'N/A';
-    return esc_html($val);
+    $map = array(
+        'none'                                 => 'Auto (AI Decides)',
+        'Second Person (you,your,yours)'       => 'Speaking to the Reader ("you", "your")',
+        'First person plural (we,us,our,ours)' => 'Business Voice ("we", "our")',
+        'First person singular (I,me,my,mine)' => 'Personal Voice ("I", "my")',
+    );
+    return isset($map[$val]) ? $map[$val] : esc_html($val);
 }
 
 function pd_image_label($val) {
@@ -285,18 +291,6 @@ function pd_image_label($val) {
                         <?= pd_image_label(isset($options['ai_image_option']) ? $options['ai_image_option'] : '') ?>
                     </div>
                 </div>
-                <div class="pd-row">
-                    <div class="pd-label">AI Generated Title</div>
-                    <div class="pd-value <?= pd_val($options, 'ai_generated_title') === 'N/A' ? 'na' : '' ?>">
-                        <?= pd_val($options, 'ai_generated_title') ?>
-                    </div>
-                </div>
-                <div class="pd-row">
-                    <div class="pd-label">Testing Only</div>
-                    <div class="pd-value">
-                        <?= (isset($options['ai_for_testing_only']) && $options['ai_for_testing_only'] === '1') ? 'Yes' : 'No' ?>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -387,7 +381,13 @@ function pd_image_label($val) {
             <div class="pd-card-body">
                 <?php if (isset($content['content']) && $content['content']): ?>
                     <div class="pd-content-preview">
-                        <?= wp_kses_post($content['content']) ?>
+                        <?php
+                        // Strip the inline <style> block the generator appends to posts —
+                        // wp_kses_post removes the tags but would otherwise leave the raw
+                        // CSS text (e.g. "p {padding-bottom: 2px !important;}") visible here.
+                        $preview_html = preg_replace('#<style\b[^>]*>.*?</style>#is', '', $content['content']);
+                        echo wp_kses_post($preview_html);
+                        ?>
                     </div>
                 <?php else: ?>
                     <p class="na" style="margin: 0; font-style: italic; color: #a7aaad;">No content stored in project.</p>

@@ -284,7 +284,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 													<?php endif; ?>
 												</li>
 												<li><a href="<?= admin_url('admin.php?page=improveseo_projects&action=view_details&id=' . $project->id) ?>" style="max-width: max-content !important;"
-														class="popup-link">Project Details</a></li>
+														class="popup-link">View Details</a></li>
 												<li><a target="_blank"
 														href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true") ?>"
 														style="max-width: max-content !important;" class="popup-link">Edit
