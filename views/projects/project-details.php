@@ -350,40 +350,72 @@ function pd_image_label($val) {
         <div class="pd-card">
             <div class="pd-card-header">SEO & Additional Settings</div>
             <div class="pd-card-body">
+                <?php
+                // The single-post wizard does not store these into the project
+                // options, so pull them from the generated post instead: real
+                // permalink and tags always exist, and meta title/description
+                // come from the SEO plugin's meta when set. Fall back sensibly.
+                $pd_post_id    = $associated_post ? $associated_post->ID : 0;
+                $pd_meta_title = $pd_post_id ? get_post_meta($pd_post_id, '_yoast_wpseo_title', true) : '';
+                $pd_meta_desc  = $pd_post_id ? get_post_meta($pd_post_id, '_yoast_wpseo_metadesc', true) : '';
+                if ($pd_meta_title === '' && isset($options['custom_title']))       $pd_meta_title = trim((string) $options['custom_title']);
+                if ($pd_meta_title === '' && $associated_post)                      $pd_meta_title = $associated_post->post_title;
+                if ($pd_meta_desc === ''  && isset($options['custom_description'])) $pd_meta_desc  = trim((string) $options['custom_description']);
+
+                $pd_focus_kw = isset($options['ai_seed_keyword']) ? trim((string) $options['ai_seed_keyword']) : '';
+                if ($pd_focus_kw === '' && isset($options['custom_keywords'])) $pd_focus_kw = trim((string) $options['custom_keywords']);
+
+                $pd_tags = array();
+                if ($pd_post_id) {
+                    $pd_terms = wp_get_post_tags($pd_post_id);
+                    if (is_array($pd_terms)) {
+                        foreach ($pd_terms as $pd_term) $pd_tags[] = $pd_term->name;
+                    }
+                }
+                if (empty($pd_tags) && isset($options['tags']) && trim((string) $options['tags']) !== '') {
+                    $pd_tags = array_map('trim', explode(',', $options['tags']));
+                }
+                ?>
                 <div class="pd-row">
                     <div class="pd-label">Meta Title</div>
-                    <div class="pd-value <?= pd_val($options, 'custom_title') === 'N/A' ? 'na' : '' ?>">
-                        <?= pd_val($options, 'custom_title') ?>
+                    <div class="pd-value <?= $pd_meta_title === '' ? 'na' : '' ?>">
+                        <?= $pd_meta_title !== '' ? esc_html($pd_meta_title) : 'Auto-generated on publish' ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Meta Description</div>
-                    <div class="pd-value <?= pd_val($options, 'custom_description') === 'N/A' ? 'na' : '' ?>">
-                        <?= pd_val($options, 'custom_description') ?>
+                    <div class="pd-value <?= $pd_meta_desc === '' ? 'na' : '' ?>">
+                        <?= $pd_meta_desc !== '' ? esc_html($pd_meta_desc) : 'Auto-generated on publish' ?>
                     </div>
                 </div>
                 <div class="pd-row">
-                    <div class="pd-label">Meta Keywords</div>
-                    <div class="pd-value <?= pd_val($options, 'custom_keywords') === 'N/A' ? 'na' : '' ?>">
-                        <?= pd_val($options, 'custom_keywords') ?>
+                    <div class="pd-label">Focus Keyword</div>
+                    <div class="pd-value <?= $pd_focus_kw === '' ? 'na' : '' ?>">
+                        <?= $pd_focus_kw !== '' ? esc_html($pd_focus_kw) : 'N/A' ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Permalink</div>
-                    <div class="pd-value <?= pd_val($options, 'permalink') === 'N/A' ? 'na' : '' ?>">
-                        <?= pd_val($options, 'permalink') ?>
+                    <div class="pd-value <?= $post_url ? '' : 'na' ?>">
+                        <?php if ($post_url): ?>
+                            <a href="<?= esc_url($post_url) ?>" target="_blank" rel="noopener"><?= esc_html($post_url) ?></a>
+                        <?php else: ?>
+                            N/A
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Tags</div>
-                    <div class="pd-value <?= pd_val($options, 'tags') === 'N/A' ? 'na' : '' ?>">
-                        <?= pd_val($options, 'tags') ?>
+                    <div class="pd-value <?= empty($pd_tags) ? 'na' : '' ?>">
+                        <?= !empty($pd_tags) ? esc_html(implode(', ', $pd_tags)) : 'None' ?>
                     </div>
                 </div>
+                <?php if (intval($project->max_iterations) > 1): // single-post projects always cap at 1 ?>
                 <div class="pd-row">
                     <div class="pd-label">Max Posts</div>
-                    <div class="pd-value"><?= pd_val($options, 'max_posts', '1') ?></div>
+                    <div class="pd-value"><?= intval($project->max_iterations) ?></div>
                 </div>
+                <?php endif; ?>
                 <?php if (isset($options['dripfeed_type'])): ?>
                 <div class="pd-row">
                     <div class="pd-label">Dripfeed</div>
