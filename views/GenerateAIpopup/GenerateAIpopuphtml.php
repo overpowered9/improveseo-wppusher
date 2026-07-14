@@ -195,7 +195,7 @@ global $ai_modal_type;
         align-items: center;
         padding: 10px 18px;
         background: white;
-        border: 2px solid #1E70B8;
+        border: 2px solid #1C7293;
         border-radius: 25px;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -205,7 +205,7 @@ global $ai_modal_type;
     }
     
     .bulk-category-item:hover {
-        border-color: #1E70B8;
+        border-color: #1C7293;
         background: #f0f8ff;
         box-shadow: 0 3px 8px rgba(30, 112, 184, 0.15);
         transform: translateY(-1px);
@@ -220,7 +220,7 @@ global $ai_modal_type;
     }
     
     .bulk-category-item input[type="checkbox"]:checked {
-        accent-color: #1E70B8;
+        accent-color: #1C7293;
     }
     
     .category-selection-section h2 {
@@ -268,12 +268,12 @@ global $ai_modal_type;
     
     .add-category-section button {
         padding: 12px 30px !important;
-        border: 1px solid #1E70B8 !important;
+        border: 1px solid #1C7293 !important;
         border-radius: 50px !important;
         font-weight: normal !important;
         cursor: pointer !important;
         font-size: 20px !important;
-        background: linear-gradient(181deg, #2891EE 0%, #1E70B8 48%, #0061B6 100%) !important;
+        background: #1C7293 !important;
         color: #fff !important;
         display: inline-flex !important;
         align-items: center !important;
@@ -284,7 +284,7 @@ global $ai_modal_type;
     }
     
     .add-category-section button:hover {
-        background: linear-gradient(80deg, #2891EE 0%, #1E70B8 48%, #0061B6 100%) !important;
+        background: #0B132B !important;
         transform: translateY(-1px);
         box-shadow: 0 3px 12px rgba(30, 112, 184, 0.25) !important;
     }
@@ -1138,7 +1138,7 @@ global $ai_modal_type;
                                 foreach ($cats as $category) {
                                     $checked  = ($category->slug === 'improve-seo') ? 'checked' : '';
                                     $disabled = ($category->slug === 'improve-seo') ? 'onclick="return false"' : '';
-                                    $style    = ($category->slug === 'improve-seo') ? ' style="background:#1E70B8;color:white;"' : '';
+                                    $style    = ($category->slug === 'improve-seo') ? ' style="background:#1C7293;color:white;"' : '';
                                     echo '<label class="bulk-category-item"' . $style . '>
                                         <input type="checkbox" name="modal_single_cats[]" value="' . esc_attr($category->term_id) . '" ' . $checked . ' ' . $disabled . '>
                                         <span>' . esc_html($category->name) . '</span>
@@ -3415,15 +3415,15 @@ global $ai_modal_type;
             const label = $(this).closest('.bulk-category-item');
             if ($(this).is(':checked')) {
                 label.css({
-                    'background': '#1E70B8',
+                    'background': '#1C7293',
                     'color': 'white',
-                    'border': '2px solid #1E70B8'
+                    'border': '2px solid #1C7293'
                 });
             } else {
                 label.css({
                     'background': 'white',
                     'color': '#333',
-                    'border': '2px solid #1E70B8'
+                    'border': '2px solid #1C7293'
                 });
             }
         });
@@ -3431,9 +3431,9 @@ global $ai_modal_type;
         // Initialize checked categories styling
         $('.bulk-category-item input[type="checkbox"]:checked').each(function() {
             $(this).closest('.bulk-category-item').css({
-                'background': '#1E70B8',
+                'background': '#1C7293',
                 'color': 'white',
-                'border': '2px solid #1E70B8'
+                'border': '2px solid #1C7293'
             });
         });
         
@@ -3462,7 +3462,7 @@ global $ai_modal_type;
                 success: function(response) {
                     if (response.success) {
                         // Add new category to the list - using CSS class like pre-existing categories
-                        const newCategoryHtml = '<label class="bulk-category-item" style="background: #1E70B8; color: white;">' +
+                        const newCategoryHtml = '<label class="bulk-category-item" style="background: #1C7293; color: white;">' +
                             '<input type="checkbox" name="cats[]" value="' + response.data.term_id + '" checked>' +
                             '<span>' + response.data.name + '</span>' +
                         '</label>';
@@ -3474,7 +3474,7 @@ global $ai_modal_type;
                             const label = $(this).closest('.bulk-category-item');
                             if ($(this).is(':checked')) {
                                 label.css({
-                                    'background': '#1E70B8',
+                                    'background': '#1C7293',
                                     'color': 'white'
                                 });
                             } else {
@@ -3516,7 +3516,7 @@ global $ai_modal_type;
         $(document).on('change', '#single-modal-category-list input[type="checkbox"]', function() {
             var label = $(this).closest('.bulk-category-item');
             if ($(this).is(':checked')) {
-                label.css({ background: '#1E70B8', color: 'white', borderColor: '#1E70B8' });
+                label.css({ background: '#1C7293', color: 'white', borderColor: '#1C7293' });
             } else {
                 label.css({ background: '', color: '', borderColor: '' });
             }
@@ -3543,7 +3543,7 @@ global $ai_modal_type;
                 },
                 success: function(response) {
                     if (response.success) {
-                        var newHtml = '<label class="bulk-category-item" style="background:#1E70B8;color:white;">' +
+                        var newHtml = '<label class="bulk-category-item" style="background:#1C7293;color:white;">' +
                             '<input type="checkbox" name="modal_single_cats[]" value="' + response.data.term_id + '" checked ' +
                             'data-new-cat="1" data-cat-name="' + $('<div>').text(response.data.name).html() + '">' +
                             '<span>' + $('<div>').text(response.data.name).html() + '</span>' +
