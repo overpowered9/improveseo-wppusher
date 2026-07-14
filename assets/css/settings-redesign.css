@@ -579,9 +579,10 @@
 .iseo-info-tip-bubble {
     position: absolute;
     top: calc(100% + 9px);
-    left: 50%;
-    transform: translateX(-50%) translateY(-4px);
-    width: 260px;
+    right: -6px;
+    left: auto;
+    transform: translateY(-4px);
+    width: 240px;
     max-width: 68vw;
     padding: 11px 13px;
     background: #1F2937;
@@ -611,8 +612,7 @@
     content: '';
     position: absolute;
     bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 9px;
     border: 6px solid transparent;
     border-bottom-color: #1F2937;
 }
@@ -620,7 +620,7 @@
 .iseo-info-tip:focus .iseo-info-tip-bubble {
     opacity: 1;
     visibility: visible;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
 }
 
 /* ── The toggle switch itself ──────────────────────────────── */
