@@ -356,8 +356,8 @@ function pd_image_label($val) {
                 // permalink and tags always exist, and meta title/description
                 // come from the SEO plugin's meta when set. Fall back sensibly.
                 $pd_post_id    = $associated_post ? $associated_post->ID : 0;
-                $pd_meta_title = $pd_post_id ? get_post_meta($pd_post_id, '_yoast_wpseo_title', true) : '';
-                $pd_meta_desc  = $pd_post_id ? get_post_meta($pd_post_id, '_yoast_wpseo_metadesc', true) : '';
+                $pd_meta_title = $pd_post_id ? trim((string) get_post_meta($pd_post_id, '_yoast_wpseo_title', true)) : '';
+                $pd_meta_desc  = $pd_post_id ? trim((string) get_post_meta($pd_post_id, '_yoast_wpseo_metadesc', true)) : '';
                 if ($pd_meta_title === '' && isset($options['custom_title']))       $pd_meta_title = trim((string) $options['custom_title']);
                 if ($pd_meta_title === '' && $associated_post)                      $pd_meta_title = $associated_post->post_title;
                 if ($pd_meta_desc === ''  && isset($options['custom_description'])) $pd_meta_desc  = trim((string) $options['custom_description']);
