@@ -558,6 +558,11 @@
 }
 
 /* ── Info icon + hover tooltip ─────────────────────────────── */
+/* Let the tooltip escape the card rather than being clipped by its
+   overflow:hidden (the sidebar card is only ~300px wide). */
+.iseo-features-card {
+    overflow: visible;
+}
 .iseo-info-tip {
     position: relative;
     display: inline-flex;
