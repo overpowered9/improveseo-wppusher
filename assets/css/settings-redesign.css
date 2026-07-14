@@ -121,7 +121,7 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
     line-height: 1.8;
-    display: inline-block;
+    display: none;
 }
 
 /* ── Form Top Bar: breadcrumb + save ───────────────────────── */
