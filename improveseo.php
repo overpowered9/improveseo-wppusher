@@ -824,13 +824,18 @@ function improveseo_hide_other_notices()
 
 
 /**
- * Registers an already-downloaded image in WP uploads as a media attachment
- * and sets it as the featured image (post thumbnail) for the given post.
+ * Registers an image as a media attachment and sets it as the featured image
+ * (post thumbnail) for the given post. The hero image is honoured regardless of
+ * how it got there — AI-generated or user-uploaded.
  *
- * Only accepts local uploads URLs — skips remote URLs to avoid double-downloading.
+ * Accepts three URL shapes and never silently drops a valid hero:
+ *   1. A full URL inside this site's uploads dir → registered from the file on disk.
+ *   2. A protocol-relative ("//host/…") or root-relative ("/wp-content/…") URL
+ *      → normalised to an absolute URL first, then handled as (1) or (3).
+ *   3. Any other (remote) URL → downloaded into uploads via media_sideload_image().
  *
  * @param int    $post_id    The post to attach the thumbnail to.
- * @param string $image_url  A URL inside wp-content/uploads, e.g. from generateBulkAiImage().
+ * @param string $image_url  Hero image URL (local uploads, root-relative, or remote).
  * @param string $post_title Used as the attachment title; falls back to filename.
  * @return int|false  Attachment ID on success, false on any failure.
  */
@@ -847,42 +852,62 @@ function improveseo_set_featured_image_from_url( $post_id, $image_url, $post_tit
 	$base_url    = untrailingslashit( $upload_info['baseurl'] );
 	$base_dir    = untrailingslashit( $upload_info['basedir'] );
 
-	// Only handle files that are already in the local uploads directory.
-	if ( strpos( $image_url, $base_url ) !== 0 ) {
-		error_log( 'improveseo_set_featured_image_from_url: not a local uploads URL, skipping — ' . $image_url );
-		return false;
+	// Normalise relative URLs to absolute so both the local-file check below and
+	// the remote sideload fallback receive a fully-qualified URL.
+	if ( strpos( $image_url, '//' ) === 0 ) {
+		$image_url = ( is_ssl() ? 'https:' : 'http:' ) . $image_url; // protocol-relative
+	} elseif ( strpos( $image_url, '/' ) === 0 ) {
+		$image_url = home_url( $image_url );                          // root-relative
 	}
 
-	$relative  = ltrim( substr( $image_url, strlen( $base_url ) ), '/' );
-	$file_path = $base_dir . '/' . $relative;
-
-	if ( ! file_exists( $file_path ) ) {
-		error_log( 'improveseo_set_featured_image_from_url: file not found at ' . $file_path );
-		return false;
+	// --- Case 1: the file already lives in this site's uploads directory ------
+	$local_file_path = '';
+	if ( strpos( $image_url, $base_url ) === 0 ) {
+		$relative  = ltrim( substr( $image_url, strlen( $base_url ) ), '/' );
+		$candidate = $base_dir . '/' . $relative;
+		if ( file_exists( $candidate ) ) {
+			$local_file_path = $candidate;
+		}
 	}
 
-	$file_type = wp_check_filetype( basename( $file_path ) );
-	if ( empty( $file_type['type'] ) ) {
-		error_log( 'improveseo_set_featured_image_from_url: unrecognised mime type for ' . $file_path );
-		return false;
+	if ( $local_file_path ) {
+		$file_type = wp_check_filetype( basename( $local_file_path ) );
+		if ( empty( $file_type['type'] ) ) {
+			error_log( 'improveseo_set_featured_image_from_url: unrecognised mime type for ' . $local_file_path );
+			return false;
+		}
+
+		$attachment = array(
+			'post_mime_type' => $file_type['type'],
+			'post_title'     => sanitize_text_field( $post_title ?: pathinfo( $local_file_path, PATHINFO_FILENAME ) ),
+			'post_content'   => '',
+			'post_status'    => 'inherit',
+		);
+
+		$attachment_id = wp_insert_attachment( $attachment, $local_file_path, $post_id );
+
+		if ( is_wp_error( $attachment_id ) ) {
+			error_log( 'improveseo_set_featured_image_from_url: wp_insert_attachment error — ' . $attachment_id->get_error_message() );
+			return false;
+		}
+
+		$metadata = wp_generate_attachment_metadata( $attachment_id, $local_file_path );
+		wp_update_attachment_metadata( $attachment_id, $metadata );
+	} else {
+		// --- Case 3: remote (or non-resident) URL — download into uploads -----
+		if ( ! filter_var( $image_url, FILTER_VALIDATE_URL ) ) {
+			error_log( 'improveseo_set_featured_image_from_url: not a valid URL, skipping — ' . $image_url );
+			return false;
+		}
+
+		$desc          = $post_title ? sanitize_text_field( $post_title ) : null;
+		$attachment_id = media_sideload_image( $image_url, $post_id, $desc, 'id' );
+
+		if ( is_wp_error( $attachment_id ) ) {
+			error_log( 'improveseo_set_featured_image_from_url: media_sideload_image error — ' . $attachment_id->get_error_message() . ' | url=' . $image_url );
+			return false;
+		}
 	}
-
-	$attachment = array(
-		'post_mime_type' => $file_type['type'],
-		'post_title'     => sanitize_text_field( $post_title ?: pathinfo( $file_path, PATHINFO_FILENAME ) ),
-		'post_content'   => '',
-		'post_status'    => 'inherit',
-	);
-
-	$attachment_id = wp_insert_attachment( $attachment, $file_path, $post_id );
-
-	if ( is_wp_error( $attachment_id ) ) {
-		error_log( 'improveseo_set_featured_image_from_url: wp_insert_attachment error — ' . $attachment_id->get_error_message() );
-		return false;
-	}
-
-	$metadata = wp_generate_attachment_metadata( $attachment_id, $file_path );
-	wp_update_attachment_metadata( $attachment_id, $metadata );
 
 	$result = set_post_thumbnail( $post_id, $attachment_id );
 	error_log( 'improveseo_set_featured_image_from_url: ' . ( $result ? '✅ set' : '❌ failed' ) . ' | post=' . $post_id . ' attachment=' . $attachment_id );
