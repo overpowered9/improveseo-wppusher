@@ -40,8 +40,7 @@ use ImproveSEO\View;
                     <div class="iseo-identity-brand">
                         <img src="<?php echo WT_URL.'/assets/images/latest-images/seo-latest-logo.svg'?>" alt="ImproveSEO">
                         <span class="iseo-brand-name">ImproveSEO</span>
-                        <span class="iseo-version">2.0.11</span>
-                        <span class="iseo-badge-pro">Pro</span>
+                        <span class="iseo-version"><?php echo esc_html( defined('IMPROVESEO_VERSION') ? IMPROVESEO_VERSION : '' ); ?></span>
                     </div>
                 </div>
 
@@ -73,23 +72,23 @@ use ImproveSEO\View;
 
                             <div class="iseo-field-group">
                                 <label class="iseo-label" for="iseo_api_key">API Key</label>
-                                <input type="text" id="iseo_api_key" class="iseo-input" placeholder="Your API Key from ImproveSEO Dashboard" name="improveseo_api_key" value="<?php echo esc_attr( get_option('improveseo_api_key') ); ?>">
-                                <span class="iseo-helper-text">Get this from your ImproveSEO Dashboard overview tab</span>
+                                <input type="text" id="iseo_api_key" class="iseo-input" placeholder="Paste your API Key here" name="improveseo_api_key" value="<?php echo esc_attr( get_option('improveseo_api_key') ); ?>">
+                                <span class="iseo-helper-text">Find your API Key in your ImproveSEO Dashboard &rarr; Settings tab</span>
                             </div>
 
                             <div class="iseo-field-group">
                                 <label class="iseo-label" for="iseo_site_code">Site Code</label>
-                                <input type="text" id="iseo_site_code" class="iseo-input" placeholder="Your Site Code from ImproveSEO Dashboard" name="improveseo_site_code" value="<?php echo esc_attr( get_option('improveseo_site_code') ); ?>">
-                                <span class="iseo-helper-text">Get this from your ImproveSEO Dashboard websites tab</span>
+                                <input type="text" id="iseo_site_code" class="iseo-input" placeholder="Paste your Site Code here" name="improveseo_site_code" value="<?php echo esc_attr( get_option('improveseo_site_code') ); ?>">
+                                <span class="iseo-helper-text">Find your Site Code in your ImproveSEO Dashboard &rarr; Websites tab</span>
                             </div>
 
                             <div class="iseo-guide-block">
-                                <p class="iseo-guide-title"><strong>How to get credentials:</strong></p>
+                                <p class="iseo-guide-title"><strong>How to Get API Key &amp; Site Code - Step by Step</strong></p>
                                 <ol class="iseo-guide-steps">
                                     <li>Visit your <a href="https://account.improveseoplugin.com/" target="_blank">ImproveSEO Dashboard</a></li>
-                                    <li>Copy your API Key from the Overview tab</li>
-                                    <li>Go to Websites tab and add this domain</li>
-                                    <li>Copy the Site Code and paste above</li>
+                                    <li><strong>API Key:</strong> Go to the Settings tab, copy your API Key and paste above</li>
+                                    <li><strong>Site Code:</strong> Go to the Websites tab and add the domain you want to connect</li>
+                                    <li>A Site Code will be generated, copy the Site Code and paste above</li>
                                     <li>Save settings and start generating content!</li>
                                 </ol>
                             </div>
@@ -111,7 +110,7 @@ use ImproveSEO\View;
                             </div>
                             <div class="iseo-card-header-text">
                                 <h3 class="iseo-card-title">Business Details</h3>
-                                <p class="iseo-card-subtitle">These details were collected during onboarding and are used for schema markup and AI content personalisation. Update them here at any time.</p>
+                                <p class="iseo-card-subtitle">These details were collected during onboarding and are used for schema markup and AI content personalization. Update them here at any time.</p>
                             </div>
                         </div>
                         <div class="iseo-card-body">
@@ -207,8 +206,17 @@ use ImproveSEO\View;
 
                         <div class="iseo-toggle-row iseo-toggle-main">
                             <div class="iseo-toggle-info">
-                                <span class="iseo-toggle-label">Enable Featured Images</span>
-                                <span class="iseo-toggle-desc">Automatically generate &amp; attach a featured image to AI-created posts.</span>
+                                <span class="iseo-toggle-label">
+                                    Enable Featured Images
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a Featured Image?">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble" role="tooltip">
+                                            <strong>What is a Featured Image?</strong>
+                                            This is the main image WordPress uses to represent your post — in blog listings, social media shares, and sometimes at the top of the post itself. By default, we set your hero image as the Featured Image. If your theme already displays the hero image inside the post, turn this off to avoid showing it twice.
+                                        </span>
+                                    </span>
+                                </span>
+                                <span class="iseo-toggle-desc">Automatically attach main post image (AI generated or uploaded) as WP featured image to AI-created posts.</span>
                             </div>
                             <label class="iseo-toggle-switch" aria-label="Enable Featured Images">
                                 <input type="hidden" name="improveseo_featured_images_enabled" value="0">
