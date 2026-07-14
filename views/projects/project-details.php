@@ -113,6 +113,12 @@ function pd_image_label($val) {
         color: #50575e;
         font-size: 13px;
     }
+    /* Stacked rows switch to flex-direction: column, where the label's
+       `flex: 0 0 160px` basis applies to HEIGHT — forcing a 160px-tall label
+       that shoves the value far down. Reset to natural height when stacked. */
+    .pd-row[style*="column"] .pd-label {
+        flex: 0 0 auto;
+    }
     .pd-value {
         flex: 1;
         color: #1d2327;

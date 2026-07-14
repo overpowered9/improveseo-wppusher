@@ -156,6 +156,12 @@ function btd_content_status_label($status) {
         color: #50575e;
         font-size: 13px;
     }
+    /* Stacked rows switch to flex-direction: column, where the label's
+       `flex: 0 0 170px` basis applies to HEIGHT — forcing a 170px-tall label
+       that shoves the value far down. Reset to natural height when stacked. */
+    .btd-row[style*="column"] .btd-label {
+        flex: 0 0 auto;
+    }
     .btd-value {
         flex: 1;
         color: #1d2327;
