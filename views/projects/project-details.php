@@ -139,6 +139,7 @@ function pd_image_label($val) {
     .pd-badge-published { background: #d4edda; color: #155724; }
     .pd-badge-draft { background: #fff3cd; color: #856404; }
     .pd-badge-stopped { background: #f8d7da; color: #721c24; }
+    .pd-badge-scheduled { background: #cce5ff; color: #004085; }
     .pd-full-width {
         grid-column: 1 / -1;
     }
@@ -199,22 +200,44 @@ function pd_image_label($val) {
                     <div class="pd-label">Status</div>
                     <div class="pd-value">
                         <?php
+                        // Prefer the real WordPress post status (Published / Draft / Scheduled)
+                        // when a post exists. The builder writes the project state 'Updated' on
+                        // completion — that is not a user edit, so a live published post would
+                        // otherwise read "Updated". Fall back to the project state when there is
+                        // no associated post yet.
                         $state = $project->state;
                         $badge_class = 'pd-badge-draft';
-                        if ($state === 'Published') $badge_class = 'pd-badge-published';
-                        if ($project->deleted_at && $project->deleted_at !== '0000-00-00 00:00:00') $badge_class = 'pd-badge-stopped';
+                        if ($project->deleted_at && $project->deleted_at !== '0000-00-00 00:00:00') {
+                            $status_label = 'Stopped';
+                            $badge_class  = 'pd-badge-stopped';
+                        } elseif ($associated_post) {
+                            switch ($associated_post->post_status) {
+                                case 'publish': $status_label = 'Published'; $badge_class = 'pd-badge-published'; break;
+                                case 'future':  $status_label = 'Scheduled'; $badge_class = 'pd-badge-scheduled'; break;
+                                case 'private': $status_label = 'Private';   $badge_class = 'pd-badge-published'; break;
+                                case 'pending': $status_label = 'Pending';   $badge_class = 'pd-badge-draft';     break;
+                                case 'draft':   $status_label = 'Draft';     $badge_class = 'pd-badge-draft';     break;
+                                default:        $status_label = ucfirst($associated_post->post_status);          break;
+                            }
+                        } else {
+                            // No post yet — normalise the completion state to Published.
+                            $status_label = ($state === 'Published' || $state === 'Updated') ? 'Published' : ($state ?: 'Draft');
+                            if ($status_label === 'Published') $badge_class = 'pd-badge-published';
+                        }
                         ?>
-                        <span class="pd-badge <?= $badge_class ?>"><?= esc_html($state) ?></span>
+                        <span class="pd-badge <?= $badge_class ?>"><?= esc_html($status_label) ?></span>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Post Type</div>
                     <div class="pd-value"><?= isset($content['post_type']) ? ucfirst(esc_html($content['post_type'])) : 'N/A' ?></div>
                 </div>
+                <?php if (intval($project->max_iterations) > 1): // single-post projects are always 1/1 — only meaningful for multi-post ?>
                 <div class="pd-row">
                     <div class="pd-label">Progress</div>
                     <div class="pd-value"><?= intval($project->iteration) ?> / <?= intval($project->max_iterations) ?> posts</div>
                 </div>
+                <?php endif; ?>
                 <div class="pd-row">
                     <div class="pd-label">Categories</div>
                     <div class="pd-value">
