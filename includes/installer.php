@@ -7,7 +7,7 @@
 global $improveseo_db_version;
 
 
-$improveseo_db_version = '0.9';
+$improveseo_db_version = '0.8';
 
 
 

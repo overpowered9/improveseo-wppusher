@@ -651,7 +651,7 @@ function generateBulkAiContent($id = '', $regenerate = '')
 	
 	$keyword_selection = '';
 
-	$generation_result = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, $value->point_of_view, $ai_title, $value->call_to_action, $value->details_to_include, '', $iseo_niche, $iseo_niche_data, $iseo_brand_profile, (isset($value->cta_url) ? $value->cta_url : ''));
+	$generation_result = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, $value->point_of_view, $ai_title, $value->call_to_action, $value->details_to_include, '', $iseo_niche, $iseo_niche_data, $iseo_brand_profile, '');
 
 	// Extract content from the result array
 	$AI_Content = $generation_result['content'];
@@ -2244,7 +2244,13 @@ function multiPostData()
 
 					$call_to_action = (!empty($_POST['call_to_action'])) ? $_POST['call_to_action'] : "";
 
+					// Fold the normalized CTA URL into call_to_action so it's stored and reaches
+					// the generator without needing a separate DB column (avoids the
+					// "Unknown column 'cta_url'" failure on installs where the column is missing).
 					$cta_url = (!empty($_POST['cta_url'])) ? improveseo_normalize_cta_url($_POST['cta_url']) : "";
+					if ($cta_url !== "") {
+						$call_to_action = trim($call_to_action . "\n\nCTA URL: " . $cta_url);
+					}
 
 					$nos_of_words = (!empty($_POST['nos_of_words'])) ? $_POST['nos_of_words'] : "";
 
@@ -2428,8 +2434,6 @@ function multiPostData()
 						'point_of_view' => $point_of_view,
 
 						'call_to_action' => $call_to_action,
-
-						'cta_url' => $cta_url,
 
 						'nos_of_words' => $nos_of_words,
 

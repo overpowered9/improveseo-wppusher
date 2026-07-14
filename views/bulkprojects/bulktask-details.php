@@ -445,16 +445,6 @@ function btd_content_status_label($status) {
                         <?= btd_val($task->call_to_action) ?>
                     </div>
                 </div>
-                <div class="btd-row" style="flex-direction: column; margin-top: 8px;">
-                    <div class="btd-label" style="margin-bottom: 6px;">Call to Action URL</div>
-                    <div class="btd-value <?= empty($task->cta_url) ? 'na' : '' ?>">
-                        <?php if (!empty($task->cta_url)): ?>
-                            <a href="<?= esc_url($task->cta_url) ?>" target="_blank" rel="noopener"><?= esc_html($task->cta_url) ?></a>
-                        <?php else: ?>
-                            N/A
-                        <?php endif; ?>
-                    </div>
-                </div>
             </div>
         </div>
 
