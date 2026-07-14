@@ -1478,6 +1478,52 @@ div#post-body-content {
   border-color: #0B132B !important;
 }
 
+/* Step 3 per-keyword "Upload Image": style the native file input so its
+   "Choose file" button matches the plugin's outline action buttons
+   (.styling_post_page_action_buttons). The two pseudo-elements are kept in
+   SEPARATE rules on purpose — grouping them invalidates the rule in browsers
+   that only understand one of them. */
+.keyword-upload-input {
+  font-size: 15px;
+  color: #50575e;
+}
+.keyword-upload-input::file-selector-button {
+  color: #1C7293;
+  border: 1px solid #1C7293;
+  border-radius: 50px;
+  background-color: transparent;
+  font-weight: normal;
+  font-size: 15px;
+  padding: 9px 22px;
+  margin-right: 12px;
+  cursor: pointer;
+  font-family: "Poppins", serif;
+  transition: all 0.25s ease;
+}
+.keyword-upload-input::file-selector-button:hover {
+  background: #0B132B;
+  color: #fff;
+  border-color: #0B132B;
+}
+.keyword-upload-input::-webkit-file-upload-button {
+  color: #1C7293;
+  border: 1px solid #1C7293;
+  border-radius: 50px;
+  background-color: transparent;
+  font-weight: normal;
+  font-size: 15px;
+  padding: 9px 22px;
+  margin-right: 12px;
+  cursor: pointer;
+  font-family: "Poppins", serif;
+  transition: all 0.25s ease;
+}
+.keyword-upload-input::-webkit-file-upload-button:hover {
+  background: #0B132B;
+  color: #fff;
+  border-color: #0B132B;
+}
+
 .google-mobile-preview-pagename {
   margin-top: 20px !important;
 }
