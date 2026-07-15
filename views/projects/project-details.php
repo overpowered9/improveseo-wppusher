@@ -170,9 +170,16 @@ function pd_image_label($val) {
             <a href="<?= admin_url('admin.php?page=improveseo_projects') ?>" style="text-decoration:none;">
                 <button>← Back to Projects</button>
             </a>
-            <a href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true") ?>" target="_blank" style="text-decoration:none;">
-                <button class="active">Edit Project</button>
-            </a>
+            <?php $edit_link = $associated_post ? get_edit_post_link($associated_post->ID, 'raw') : ''; ?>
+            <?php if ($edit_link): ?>
+                <a href="<?= esc_url($edit_link) ?>" target="_blank" style="text-decoration:none;">
+                    <button class="active">Edit Post</button>
+                </a>
+            <?php elseif ($project->state === 'Draft'): ?>
+                <a href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}") ?>" style="text-decoration:none;">
+                    <button class="active">Edit Draft</button>
+                </a>
+            <?php endif; ?>
             <?php if ($associated_post && $post_url): ?>
                 <a href="<?= esc_url($post_url) ?>" target="_blank" style="text-decoration:none;">
                     <button>View Post</button>

@@ -145,6 +145,53 @@ function improveseo_onboarding_page() {
     include WT_PATH . '/views/onboarding/index.php';
 }
 
+/**
+ * The plugin editor edits a project, not a post. Once a project has built its
+ * WordPress post that post is the source of truth, so saving through the plugin
+ * editor runs improveseo_builder_update(), which deletes the post and rebuilds
+ * it from the project — throwing away anything edited in WordPress. Hand those
+ * projects off to the real post editor; the plugin editor stays for drafts,
+ * which have no post yet.
+ *
+ * Runs on admin_init because the page callback fires after the admin header is
+ * printed, and wp_redirect() cannot send headers by then.
+ */
+function improveseo_redirect_edit_post_to_wp() {
+    if (!isset($_GET['page'], $_GET['action'], $_GET['id'])) return;
+    if ($_GET['page'] !== 'improveseo_dashboard' || $_GET['action'] !== 'edit_post') return;
+    if (!current_user_can('manage_options')) return;
+
+    global $wpdb;
+
+    $post_id = $wpdb->get_var($wpdb->prepare(
+        "SELECT post_id FROM {$wpdb->postmeta}
+         WHERE meta_key = 'improveseo_project_id' AND meta_value = %s
+         LIMIT 1",
+        intval($_GET['id'])
+    ));
+
+    $post = $post_id ? get_post($post_id) : null;
+
+    if ($post && $post->post_status !== 'trash' && current_user_can('edit_post', $post->ID)) {
+        $edit_link = get_edit_post_link($post->ID, 'raw');
+
+        if ($edit_link) {
+            wp_safe_redirect($edit_link);
+            exit;
+        }
+    }
+
+    // No post to hand off to. Without '&update=true' this is the draft editor,
+    // which is still the right place — let it render. With it, the form posts to
+    // do_update_post and rebuilds on save, so refuse rather than fall through.
+    if (isset($_GET['update'])) {
+        ImproveSEO\FlashMessage::message('That project has no WordPress post to edit yet.', 'error');
+        wp_safe_redirect(admin_url('admin.php?page=improveseo_projects'));
+        exit;
+    }
+}
+add_action('admin_init', 'improveseo_redirect_edit_post_to_wp');
+
 
 
 

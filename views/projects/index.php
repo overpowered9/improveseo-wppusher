@@ -285,11 +285,14 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 												</li>
 												<li><a href="<?= admin_url('admin.php?page=improveseo_projects&action=view_details&id=' . $project->id) ?>" style="max-width: max-content !important;"
 														class="popup-link">View Details</a></li>
+												<?php $edit_link = $associated_post ? get_edit_post_link($associated_post->ID, 'raw') : ''; ?>
+												<?php if ($edit_link): ?>
 												<li><a target="_blank"
-														href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}&update=true") ?>"
+														href="<?= esc_url($edit_link) ?>"
 														style="max-width: max-content !important;" class="popup-link">Edit
 														Post</a>
 												</li>
+												<?php endif; ?>
 												<li style="margin: 0px !important;"><a target="_blank"
 														href="<?= admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ?>"
 														style="max-width: max-content !important;"
