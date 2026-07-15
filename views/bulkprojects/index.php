@@ -74,8 +74,7 @@ if (isset($_GET['post_preview'])) {
 	</div>
 	<div class="actions">
 		<div>
-			<button type="button" class="btn_delete" onclick="handleBulkDelete()" disabled style="opacity: 0.5;">Delete
-				Selected Projects</button>
+			<button type="button" id="bulk-delete-btn" class="btn_delete" onclick="handleBulkDelete()" disabled style="opacity: 0.5;">Delete Selected Projects</button>
 		</div>
 		<div class="pagination">
 			<?php if ($page > 1): ?>
@@ -243,6 +242,7 @@ if (isset($_GET['post_preview'])) {
 		jQuery(document).ready(function ($) {
 			$('#cb-select-all').click(function (e) {
 				$("input[name='project_ids[]']").prop('checked', $(this).prop('checked'));
+				$(this).prop('indeterminate', false);
 				updateDeleteButton();
 			});
 
@@ -253,12 +253,12 @@ if (isset($_GET['post_preview'])) {
 
 			function updateDeleteButton() {
 				const checkedCount = $("input[name='project_ids[]']:checked").length;
-				const deleteBtn = $('.btn_delete');
+				const deleteBtn = $('#bulk-delete-btn');
 
 				if (checkedCount > 0) {
-					deleteBtn.prop('disabled', false).css('opacity', '1');
+					deleteBtn.prop('disabled', false).css('opacity', '1').text('Delete ' + checkedCount + ' Selected Project' + (checkedCount > 1 ? 's' : ''));
 				} else {
-					deleteBtn.prop('disabled', true).css('opacity', '0.5');
+					deleteBtn.prop('disabled', true).css('opacity', '0.5').text('Delete Selected Projects');
 				}
 			}
 
@@ -267,6 +267,7 @@ if (isset($_GET['post_preview'])) {
 				const checkedCheckboxes = $("input[name='project_ids[]']:checked").length;
 
 				$('#cb-select-all').prop('checked', totalCheckboxes === checkedCheckboxes);
+				$('#cb-select-all').prop('indeterminate', checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes);
 			}
 
 			updateDeleteButton();
