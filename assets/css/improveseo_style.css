@@ -843,6 +843,16 @@ select.select-control {
 
 
 
+.project-heading img {
+
+    height: 41px;
+
+    width: auto;
+
+}
+
+
+
 .project-heading h1 {
 
     font-family: 'Poppins', sans-serif;

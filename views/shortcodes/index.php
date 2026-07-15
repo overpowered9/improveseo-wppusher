@@ -16,7 +16,7 @@ use ImproveSEO\View;
 <div class="shortcode improveseo_wrapper p-3 p-lg-4">
 	<section class="project-section border-bottom d-flex flex-row  justify-content-between align-items-center pb-2">
 		<div class="project-heading d-flex flex-row align-items-center">
-			<img class="mr-2" src="<?php echo WT_URL.'/assets/images/project-list-logo.png'?>" alt="ImproveSeo">
+			<img class="mr-2" src="<?php echo WT_URL.'/assets/images/latest-images/seo-latest-logo.svg'?>" alt="ImproveSeo">
 			<h1>Shortcodes List</h1>
 		</div>
 		<a href="<?= admin_url('admin.php?page=improveseo_shortcodes&action=create') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>

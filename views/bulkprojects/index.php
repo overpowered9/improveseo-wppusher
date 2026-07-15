@@ -33,7 +33,6 @@ if (isset($_GET['post_preview'])) {
 	<div class="head-bar">
 		<img src="<?php echo WT_URL . '/assets/images/latest-images/seo-latest-logo.svg'; ?>" alt="project-list-logo">
 		<h1> ImproveSEO | 2.0.11 </h1>
-		<span>Pro</span>
 	</div>
 	<div class="box-top">
 		<ul class="breadcrumb-seo">
