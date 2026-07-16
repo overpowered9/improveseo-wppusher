@@ -309,10 +309,19 @@ $url .= $_SERVER['REQUEST_URI'];
 																href="<?php echo $edit_link; ?>">Edit
 																Post Content</a>
 														</span>
+													<?php } elseif (!empty($project->ai_content)) {
+														// Drafts never get a WordPress post, so edit the generated
+														// content in place — Publish builds the post from it.
+														$edit_link = admin_url('admin.php?page=improveseo_bulkprojects&action=edit_ai_content&id=' . $project->id); ?>
+														<span class="primary">
+															<a class="popup-link"
+																href="<?php echo esc_url($edit_link); ?>">Edit
+																Post Content</a>
+														</span>
 													<?php } else { ?>
 														<span class="primary">
 															<a class="popup-link" class="submitdelete" target="_blank" href="#"
-																onclick="alert('Post is not generated yet. Please wait'); return false;">Edit
+																onclick="alert('Content is not generated yet. Please wait'); return false;">Edit
 																Post Content</a>
 														</span>
 													<?php } ?>

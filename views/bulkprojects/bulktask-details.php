@@ -239,6 +239,11 @@ function btd_content_status_label($status) {
                 <a href="<?= admin_url('post.php?action=edit&post=' . $task->post_id) ?>" target="_blank" style="text-decoration:none;">
                     <button>Edit Post</button>
                 </a>
+            <?php elseif (!empty($task->ai_content)): ?>
+                <?php // Drafts never get a WordPress post, so edit the generated content in place. ?>
+                <a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=edit_ai_content&id=' . $task->id) ?>" style="text-decoration:none;">
+                    <button>Edit Post Content</button>
+                </a>
             <?php endif; ?>
         </div>
     </div>

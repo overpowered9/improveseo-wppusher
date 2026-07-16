@@ -315,6 +315,64 @@ function improveseo_bulkprojects()
 		$page = 1;
 		View::render('bulkprojects.viewAIContent', compact('projects', 'id', 'page', 'pages', 'order', 'orderBy', 'highlight'));
 
+	elseif ($action == 'edit_ai_content'):
+		// Drafts never get a WordPress post (the post-creation query in
+		// saveContentInTaskList only picks up Scheduled/Published), so the
+		// generated content is the only thing there is to edit until publish.
+		$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+		$task = $wpdb->get_row($wpdb->prepare(
+			"SELECT * FROM `{$wpdb->prefix}improveseo_bulktasksdetails` WHERE id = %d",
+			$id
+		));
+
+		if (!$task) {
+			wp_die('Task not found.');
+		}
+
+		// Once a post exists it is the source of truth — edit it in WordPress.
+		if (!empty($task->post_id) && get_post($task->post_id)) {
+			wp_die('This task already has a WordPress post. Edit it in the WordPress editor instead.');
+		}
+
+		View::render('bulkprojects.edit-ai-content', compact('task'));
+
+	elseif ($action == 'save_ai_content'):
+		$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+		if (!current_user_can('manage_options')) {
+			wp_die('You are not allowed to edit this content.');
+		}
+
+		check_admin_referer('improveseo_save_ai_content_' . $id);
+
+		$task = $wpdb->get_row($wpdb->prepare(
+			"SELECT bulktask_id FROM `{$wpdb->prefix}improveseo_bulktasksdetails` WHERE id = %d",
+			$id
+		));
+
+		if (!$task) {
+			wp_die('Task not found.');
+		}
+
+		// Content only: state and status are deliberately left alone, so saving a
+		// draft never publishes it or re-enters the generation queue.
+		$wpdb->update(
+			$wpdb->prefix . 'improveseo_bulktasksdetails',
+			array(
+				'ai_title'   => sanitize_text_field(wp_unslash(isset($_POST['ai_title']) ? $_POST['ai_title'] : '')),
+				'ai_content' => base64_encode(wp_kses_post(wp_unslash(isset($_POST['ai_content']) ? $_POST['ai_content'] : ''))),
+				'updated_at' => current_time('mysql'),
+			),
+			array('id' => $id),
+			array('%s', '%s', '%s'),
+			array('%d')
+		);
+
+		FlashMessage::success('Content saved. The task is still a draft — use Publish when you are ready.');
+		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id . '&highlight=' . $id));
+		exit;
+
 	elseif ($action == 'delete'):
 		$id = $_GET['id'];
 		// Delete all posts from this project
