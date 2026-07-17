@@ -842,6 +842,11 @@ function generateBulkAiContent($id = '', $regenerate = '')
 					'post_content' => base64_decode($AI_Content),
 				);
 				wp_update_post($post_update);
+
+				// Refresh the SEO meta too so the regenerated post's title/description
+				// stay in sync with the new content (improveseo_custom_* + active SEO plugin).
+				improveseo_write_seo_meta($value->post_id, $meta_title, $meta_description);
+
 				my_plugin_log('generateBulkAiContent: WordPress post updated successfully');
 			}
 		}
