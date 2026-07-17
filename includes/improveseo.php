@@ -7051,380 +7051,66 @@ jQuery(document).ready(function() {
 
 
 <script>
-
-
-   var displayKeywords = [];
-
-
-   var results = {};
-
-
-   var initialKeywords = 0;
-
-
-   var doWork = false;
-
-
-   var queryKeywords = [];
-
-
-   var queryKeywordsIndex = 0;
-
-
-   var queryflag = false;
-
+   var maxKeywords = 30; // Limit keywords to 30
 
    function generate()
-
-
    {
+   console.log("🟡 IMPROVESEO.PHP: generate() called from includes/improveseo.php");
 
-
-   if(doWork == false) {
-
-
-   queryKeywords = [];
-
-
-   queryKeywordsIndex = 0;
-
-
-   displayKeywords = [];
-
-
-   results = {'': 1, ' ': 1, '  ': 1};
-
-
-   var ks = jQuery('#input').val().split("\n");
-
-
-   var i = 0;
-
-
-   for(i = 0; i < ks.length; i++) {
-
-
-   queryKeywords[queryKeywords.length] = ks[i];
-
-
-   displayKeywords[displayKeywords.length] = ks[i];
-
-
-   var j = 0;
-
-
-   for(j = 0; j < 26; j++) {
-
-
-   var chr = String.fromCharCode(97 + j);
-
-
-   var currentx = ks[i] + ' ' + chr;
-
-
-   queryKeywords[queryKeywords.length] = currentx;
-
-
-   results[currentx] = 1;
-
-
+   var seed = (jQuery('#input').val() || '').trim();
+   if (!seed) {
+   alert('Please enter a seed keyword first.');
+   return;
    }
 
-
+   var apiKey = '<?php echo esc_js(get_option("improveseo_api_key")); ?>';
+   var siteCode = '<?php echo esc_js(get_option("improveseo_site_code")); ?>';
+   if (!apiKey || !siteCode) {
+   alert('Missing API credentials. Please configure API Key and Site Code in settings.');
+   return;
    }
 
-
-   initialKeywords = displayKeywords.length;
-
-
-   doWork = true;
-
-
-   jQuery('#startjob').val('Stop');
-
-
+   var btn = jQuery('#startjob');
+   if (btn.prop('disabled')) {
+   return;
    }
-
-
-   else {
-
-
-   doWork = false;
-
-
-   jQuery('#startjob').val('Start');
-
-
-   }
-
-
-   }
-
-
-   function tick()
-
-
-   {
-
-
-   if(doWork == true && queryflag == false) {
-
-
-   if(queryKeywordsIndex < queryKeywords.length) {
-
-
-   var currentKw = queryKeywords[queryKeywordsIndex];
-
-
-   query(currentKw);
-
-
-   queryKeywordsIndex++;
-
-
-   }
-
-
-   else {
-
-
-   if (initialKeywords != displayKeywords.length) {
-
-
-   doWork = false;
-
-
-   jQuery('#startjob').val('Start');
-
-
-   }
-
-
-   else {
-
-
-   queryKeywordsIndex = 0;
-
-
-   }
-
-
-   }
-
-
-   }
-
-
-   }
-
-
-   function query(keyword)
-
-
-   {
-
-
-   var querykeyword = keyword;
-
-
-   var queryresult = '';
-
-
-   queryflag = true;
-
+   var originalLabel = btn.val();
+   btn.prop('disabled', true).val('Generating...');
 
    jQuery.ajax({
-
-
-   url: 'https://suggestqueries.google.com/complete/search',
-
-
-   jsonp: 'jsonp',
-
-
-   dataType: 'jsonp',
-
-
-   data: {
-
-
-   q: querykeyword,
-
-
-   client: 'chrome'
-
-
+   url: 'https://imporve-seo-admin-server-nzbm.onrender.com/api/v1/generate/generatekeyword',
+   type: 'POST',
+   contentType: 'application/json',
+   timeout: 90000,
+   headers: {
+   'X-API-Key': apiKey,
+   'X-Site-Code': siteCode
    },
-
-
-   success: function(res) {
-
-
-   var retList = res[1];
-
-
-   for(var i = 0; i < retList.length; i++) {
-
-
-   var currents = clean(retList[i]);
-
-
-   if(results[currents] != 1) {
-
-
-   results[currents] = 1;
-
-
-   displayKeywords[displayKeywords.length] = clean(retList[i]);
-
-
-   queryKeywords[queryKeywords.length] = currents;
-
-
-   for(var j = 0; j < 26; j++) {
-
-
-   var chr = String.fromCharCode(97 + j);
-
-
-   var currentx = currents + ' ' + chr;
-
-
-   queryKeywords[queryKeywords.length] = currentx;
-
-
-   results[currentx] = 1;
-
-
+   data: JSON.stringify({
+   seed_keyword: seed,
+   count: maxKeywords
+   }),
+   success: function(response) {
+   var keywords = (response.data && response.data.keywords) || [];
+   jQuery('#output').val(keywords.join('\n'));
+   console.log('✅ ' + keywords.length + ' keywords generated (1 credit deducted server-side)');
+   },
+   error: function(xhr, status, error) {
+   console.error('❌ Keyword generation failed:', status, error, xhr.responseText);
+   var serverError = (xhr.responseJSON && xhr.responseJSON.error) || '';
+   if (xhr.status === 402) {
+   alert(serverError || 'Insufficient keyword credits. Please upgrade your plan or buy credits.');
+   } else if (xhr.status === 401) {
+   alert('Authentication failed. Please check your API credentials in settings.');
+   } else {
+   alert(serverError || 'Keyword generation failed. Please try again.');
    }
-
-
+   },
+   complete: function() {
+   btn.prop('disabled', false).val(originalLabel);
    }
-
-
-   }
-
-
-   display();
-
-
-   var textarea = document.getElementById("input");
-
-
-   textarea.scrollTop = textarea.scrollHeight;
-
-
-   queryflag = false;
-
-
-   }
-
-
    });
-
-
    }
-
-
-   function clean(input)
-
-
-   {
-
-
-   var val = input;
-
-
-   val = val.replace("\\u003cb\\u003e", "");
-
-
-   val = val.replace("\\u003c\\/b\\u003e", "");
-
-
-   val = val.replace("\\u003c\\/b\\u003e", "");
-
-
-   val = val.replace("\\u003cb\\u003e", "");
-
-
-   val = val.replace("\\u003c\\/b\\u003e", "");
-
-
-   val = val.replace("\\u003cb\\u003e", "");
-
-
-   val = val.replace("\\u003cb\\u003e", "");
-
-
-   val = val.replace("\\u003c\\/b\\u003e", "");
-
-
-   val = val.replace("\\u0026amp;", "&");
-
-
-   val = val.replace("\\u003cb\\u003e", "");
-
-
-   val = val.replace("\\u0026", "");
-
-
-   val = val.replace("\\u0026#39;", "'");
-
-
-   val = val.replace("#39;", "'");
-
-
-   val = val.replace("\\u003c\\/b\\u003e", "");
-
-
-   val = val.replace("\\u2013", "2013");
-
-
-   if (val.length > 4 && val.substring(0, 4) == "http") val = "";
-
-
-   return val;
-
-
-   }
-
-
-   function display()
-
-
-   {
-
-
-   var sb = '';
-
-
-   var outputKeywords = displayKeywords;
-
-
-   for (var i = 0; i < outputKeywords.length; i++) {
-
-
-   sb += outputKeywords[i];
-
-
-   sb += '\n';
-
-
-   }
-
-
-   jQuery('#output').val(sb);
-
-
-   }
-
-
-   window.setInterval(tick, 750);
-
-
-
-
-
 </script>
 
 
