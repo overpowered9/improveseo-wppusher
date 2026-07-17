@@ -1112,9 +1112,20 @@ jQuery(document).ready(function ($) {
 });
 
 function resetSmartWizard() {
-  // Destroy the existing SmartWizard instance
+  var $wizard = jQuery("#smartwizard");
 
-  jQuery("#smartwizard").smartWizard("destroy");
+  // Nothing to reset on pages without the wizard (this file loads on every
+  // plugin admin page), or if the SmartWizard plugin script isn't present.
+  if (!$wizard.length || typeof $wizard.smartWizard !== "function") return;
+
+  // Destroy the existing SmartWizard instance. On first load there is none —
+  // SmartWizard's destroy throws on an uninitialised element, which crashed
+  // every page load since this call runs on document ready.
+  try {
+    $wizard.smartWizard("destroy");
+  } catch (e) {
+    // Not initialised yet — fine, we're about to initialise it fresh.
+  }
 
   // Reinitialize the SmartWizard plugin
 
