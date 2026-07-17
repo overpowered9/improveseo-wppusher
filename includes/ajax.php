@@ -50,9 +50,15 @@ function test_improveseo_connection() {
     if ($status_code === 200) {
         $result = json_decode($body, true);
         wp_send_json_success(array(
-            'server' => 'Connected successfully',
-            'user' => isset($result['user']) ? $result['user'] : 'Authenticated',
-            'credits' => isset($result['credits']) ? $result['credits'] : null
+            'server'         => 'Connected successfully',
+            'user'           => isset($result['user']) ? $result['user'] : 'Authenticated',
+            'email'          => isset($result['email']) ? $result['email'] : null,
+            'credits'        => isset($result['credits']) ? $result['credits'] : null,
+            // Richer plan/trial/credit context (added server-side) so the settings panel can
+            // explain the account state. Null-safe: older servers simply omit these.
+            'credit_details' => isset($result['credit_details']) ? $result['credit_details'] : null,
+            'plan'           => isset($result['plan']) ? $result['plan'] : null,
+            'trial'          => isset($result['trial']) ? $result['trial'] : null,
         ));
     } else {
         $error_data = json_decode($body, true);

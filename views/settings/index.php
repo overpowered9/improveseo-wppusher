@@ -301,6 +301,83 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     })();
 
+    // Build the connection-test status panel — mirrors the dashboard's plan/credit view.
+    // Null-safe: if the server omits the richer plan/trial/credit_details fields (older
+    // build), it falls back to the flat credit totals.
+    function renderConnectionPanel(d) {
+        d = d || {};
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        var plan = d.plan || null;
+        var trial = d.trial || null;
+        var cd = d.credit_details || null;
+
+        // Plan / trial status line + badge.
+        var badgeText, badgeColor, statusLine;
+        if (plan && plan.is_paid) {
+            badgeText = esc(plan.name || 'Paid') + ' plan';
+            badgeColor = '#0f7b6c';
+            statusLine = 'Active subscription — full access.';
+        } else if (trial && trial.expired) {
+            badgeText = 'Trial ended';
+            badgeColor = '#b3521a';
+            statusLine = 'Your free trial has ended. Upgrade to restore full access — any credits you purchased remain usable.';
+        } else if (trial && trial.active) {
+            badgeText = 'Free Trial';
+            badgeColor = '#0f7b6c';
+            var days = (trial.days_remaining != null) ? trial.days_remaining : null;
+            var ends = trial.ends_at ? new Date(trial.ends_at).toLocaleDateString() : '';
+            statusLine = 'Free trial active'
+                + (days != null ? ' — ' + days + ' day' + (days === 1 ? '' : 's') + ' left' : '')
+                + (ends ? ' (ends ' + esc(ends) + ')' : '') + '.';
+        } else {
+            badgeText = plan ? esc(plan.name || 'Free') : 'Connected';
+            badgeColor = '#0f7b6c';
+            statusLine = 'Account connected.';
+        }
+
+        // Credit rows — prefer the plan/purchased breakdown, fall back to flat totals.
+        var types = [['content', 'Content'], ['images', 'Images'], ['keywords', 'Keyword lists']];
+        var rows = types.map(function(t) {
+            var key = t[0], label = t[1];
+            var total = '—', breakdown = '';
+            if (cd && cd[key]) {
+                total = cd[key].total;
+                var pr = cd[key].plan_remaining, pu = cd[key].purchased_remaining;
+                if (pr != null && pu != null) {
+                    breakdown = '<span style="color:#6b7280;font-weight:400;"> (' + pr + ' plan + ' + pu + ' purchased)</span>';
+                }
+            } else if (d.credits && d.credits[key] != null) {
+                total = d.credits[key];
+            }
+            return '<div style="display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;">'
+                 + '<span style="color:#374151;">' + label + '</span>'
+                 + '<span style="font-weight:700;color:#111827;">' + total + breakdown + '</span>'
+                 + '</div>';
+        }).join('');
+
+        var who = esc(d.email || d.user || 'Authenticated');
+
+        return ''
+          + '<div style="border:1px solid #d5e5e2;background:#f6faf9;border-radius:10px;padding:14px 16px;margin-top:10px;">'
+          +   '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
+          +     '<span style="color:#0f7b6c;font-size:16px;">✅</span>'
+          +     '<strong style="color:#111827;">Connected</strong>'
+          +     '<span style="margin-left:auto;background:' + badgeColor + ';color:#fff;font-size:11px;font-weight:700;letter-spacing:.03em;padding:3px 9px;border-radius:9999px;">' + badgeText + '</span>'
+          +   '</div>'
+          +   '<div style="color:#4b5563;font-size:13px;margin-bottom:12px;line-height:1.5;">' + statusLine + '</div>'
+          +   '<div style="border-top:1px solid #e5eeec;padding-top:10px;">'
+          +     '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#6b7280;text-transform:uppercase;margin-bottom:6px;">Credits</div>'
+          +     rows
+          +   '</div>'
+          +   '<div style="border-top:1px solid #e5eeec;margin-top:10px;padding-top:8px;font-size:12px;color:#6b7280;">Account: ' + who + ' · Server: ' + esc(d.server || 'Connected') + '</div>'
+          + '</div>';
+    }
+
     // Test server connection
     document.getElementById('test_server_connection').addEventListener('click', function() {
         const button = this;
@@ -338,16 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = '🔌 Test Server Connection';
 
             if (result.success) {
-                statusDiv.innerHTML = `
-                    <div class="iseo-status-success">
-                        ✅ <div><strong>Connection Successful!</strong><br>
-                        📊 Credits: ${result.data.credits ?
-                            `Images: ${result.data.credits.images}, Content: ${result.data.credits.content}, Keywords: ${result.data.credits.keywords}` :
-                            'Available'}<br>
-                        🔑 User: ${result.data.user || 'Authenticated'}<br>
-                        🌐 Server: ${result.data.server || 'Connected'}</div>
-                    </div>
-                `;
+                statusDiv.innerHTML = renderConnectionPanel(result.data);
             } else {
                 statusDiv.innerHTML = `
                     <div class="iseo-status-error">

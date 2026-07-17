@@ -684,7 +684,13 @@ function fetch_AI_image_callback()
         // Check HTTP status
         if ($http_status !== 200) {
             error_log("fetch_AI_image HTTP Error: Status $http_status, Response: " . $response);
-            wp_send_json_error("Image generation server returned error status: $http_status");
+            // Forward the server's own message (e.g. the trial-ended vs out-of-credits copy)
+            // so the UI can say what actually happened instead of showing a bare status code.
+            $err_body = json_decode($response, true);
+            $err_msg  = ( is_array($err_body) && ! empty($err_body['error']) )
+                ? $err_body['error']
+                : "Image generation server returned error status: $http_status";
+            wp_send_json_error($err_msg);
             wp_die();
         }
         

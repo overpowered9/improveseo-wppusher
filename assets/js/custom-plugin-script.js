@@ -2,6 +2,26 @@ var $ = jQuery;
 
 var ajaxUrl = standred_var.ajax_url;
 
+// A 402 from the server means either "trial has ended" or plain "out of credits" — two
+// different problems with two different fixes. The server sends its own message, so key
+// off that rather than the bare status code, and tell the user which one they hit.
+// Credits the user purchased keep working after the trial ends, hence the wording.
+function improveseoIsTrialEnded(msg) {
+  return typeof msg === 'string' && /trial has ended|trial ended/i.test(msg);
+}
+
+function improveseoShowCreditNotice(msg, kind) {
+  var trialEnded = improveseoIsTrialEnded(msg);
+  showImproveSEONotification(
+    'warning',
+    trialEnded ? 'Free Trial Ended' : 'Out of Credits',
+    trialEnded
+      ? 'Your free trial has ended. Upgrade your plan to keep generating — any credits you purchased are still usable.'
+      : 'You are out of ' + (kind === 'content' ? 'content' : 'image') + ' generation credits. Please purchase more credits to continue.',
+    'https://account.improveseoplugin.com/'
+  );
+}
+
 // Starting template for the "Generate AI Image - Edit Prompt" textarea. The user edits this text
 // and it is sent verbatim to the image model, so it must read as a clean, structured image prompt.
 function buildEditableImagePrompt(subject) {
@@ -102,13 +122,8 @@ function GenerateCustomImage() {
       // Check for insufficient credits error (HTTP 402)
       if (response.success === false) {
         jQuery("#loadingAIImage").hide();
-        if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits'))) {
-          showImproveSEONotification(
-            'warning',
-            'Out of Credits',
-            'You are out of image generation credits. Please purchase more credits to continue.',
-            'https://account.improveseoplugin.com/'
-          );
+        if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits') || response.data.includes('trial'))) {
+          improveseoShowCreditNotice(response.data, 'image');
         } else {
           // Show error notification for other failures (500, network, etc.)
           showImproveSEONotification(
@@ -190,13 +205,8 @@ jQuery("#generate_i_image").on("click", function () {
       // Check for insufficient credits error (HTTP 402)
       if (response.success === false) {
         jQuery("#loadingAIImage").hide();
-        if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits'))) {
-          showImproveSEONotification(
-            'warning',
-            'Out of Credits',
-            'You are out of image generation credits. Please purchase more credits to continue.',
-            'https://account.improveseoplugin.com/'
-          );
+        if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits') || response.data.includes('trial'))) {
+          improveseoShowCreditNotice(response.data, 'image');
         } else {
           // Show error notification for other failures (500, network, etc.)
           showImproveSEONotification(
@@ -267,13 +277,8 @@ jQuery("#generateapivalue").on("click", function () {
       // Check for insufficient credits error
       if (response.success === false || response.data.content?.includes('Error: Content generation server returned error status: 402')) {
         jQuery("#loadingAIData").hide();
-        if (response.data.content?.includes('402') || response.data.content?.includes('Insufficient') || response.data.content?.includes('credits')) {
-          showImproveSEONotification(
-            'error',
-            'Out of Credits',
-            'You are out of content generation credits. Please purchase more credits to continue.',
-            'https://account.improveseoplugin.com/'
-          );
+        if (response.data.content?.includes('402') || response.data.content?.includes('Insufficient') || response.data.content?.includes('credits') || response.data.content?.includes('trial')) {
+          improveseoShowCreditNotice(response.data.content, 'content');
         } else {
           showImproveSEONotification(
             'error',
@@ -797,13 +802,8 @@ function refreshAIImage() {
       if (response.success === false) {
         $btn.text(originalText);
         $hint.removeClass("ok").text("Costs 1 image credit when you press Generate.");
-        if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits'))) {
-          showImproveSEONotification(
-            'warning',
-            'Out of Credits',
-            'You are out of image generation credits. Please purchase more credits to continue.',
-            'https://account.improveseoplugin.com/'
-          );
+        if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits') || response.data.includes('trial'))) {
+          improveseoShowCreditNotice(response.data, 'image');
         } else {
           showImproveSEONotification(
             'error',

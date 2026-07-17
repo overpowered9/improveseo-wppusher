@@ -1965,8 +1965,12 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 	// Check HTTP status
 	if ($http_status !== 200) {
 		error_log("createAIpost2 HTTP Error: Status $http_status, Response: " . $response);
+		// Keep the legacy prefix (the admin JS matches on it) and append the server's own
+		// message, so a trial-ended block reads differently from plain out-of-credits.
+		$err_body = json_decode($response, true);
+		$err_msg  = ( is_array($err_body) && ! empty($err_body['error']) ) ? ' — ' . $err_body['error'] : '';
 		return array(
-			'content' => "Error: Content generation server returned error status: $http_status",
+			'content' => "Error: Content generation server returned error status: $http_status" . $err_msg,
 			'meta_title' => '',
 			'meta_description' => ''
 		);
