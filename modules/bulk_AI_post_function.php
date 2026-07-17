@@ -775,9 +775,9 @@ function generateBulkAiContent($id = '', $regenerate = '')
         $update_result = $wpdb->query(
             $wpdb->prepare(
                 "UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
-                 SET status = %s, ai_title = %s, ai_content = %s, ai_image = %s
+                 SET status = %s, ai_title = %s, ai_content = %s, ai_image = %s, meta_title = %s, meta_description = %s
                  WHERE id = %d",
-                'Done', $ai_title, $AI_Content, $imageURL, $id
+                'Done', $ai_title, $AI_Content, $imageURL, $meta_title, $meta_description, $id
             )
         );
 		
@@ -1479,6 +1479,15 @@ function saveContentInTaskList()
 				// ───────────────────────────────────────────────────────────────
 			}
 
+
+			// Write the AI-generated SEO meta onto the post: the plugin's own
+			// improveseo_custom_* keys (shown on the post details page) plus the
+			// active SEO plugin's fields so the live post carries real static meta.
+			// Older tasks (pre-migration) have NULL/absent meta and are safely skipped.
+			$new_meta_title = isset($value->meta_title) ? $value->meta_title : '';
+			$new_meta_desc  = isset($value->meta_description) ? $value->meta_description : '';
+			improveseo_write_seo_meta($post_id, $new_meta_title, $new_meta_desc);
+			my_plugin_log('saveContentInTaskList: Wrote SEO meta to post ' . $post_id . ' | Meta title: ' . $new_meta_title);
 
 			// Replace with your desired tags
 

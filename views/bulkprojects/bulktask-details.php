@@ -403,12 +403,15 @@ function btd_content_status_label($status) {
 
         <!-- Card: SEO Information -->
         <?php
-        $btd_meta_title = '';
-        $btd_meta_desc  = '';
-        if (!empty($task->post_id)) {
-            $btd_meta_title = get_post_meta($task->post_id, '_yoast_wpseo_title', true);
-            $btd_meta_desc  = get_post_meta($task->post_id, '_yoast_wpseo_metadesc', true);
-        }
+        // Prefer the meta the AI generated and stored with the task; fall back to
+        // the live post's SEO meta (active plugin or improveseo_custom_*) for posts
+        // created before this was persisted.
+        $btd_meta_title = isset($task->meta_title) ? trim((string) $task->meta_title) : '';
+        $btd_meta_desc  = isset($task->meta_description) ? trim((string) $task->meta_description) : '';
+        if ($btd_meta_title === '' && !empty($task->post_id)) $btd_meta_title = improveseo_get_seo_meta($task->post_id, 'title');
+        if ($btd_meta_desc === ''  && !empty($task->post_id)) $btd_meta_desc  = improveseo_get_seo_meta($task->post_id, 'desc');
+        // "Auto-generated on publish" only makes sense before a post exists.
+        $btd_seo_placeholder = !empty($task->post_id) ? 'Not set' : 'Auto-generated on publish';
         ?>
         <div class="btd-card">
             <div class="btd-card-header">SEO Information</div>
@@ -421,14 +424,14 @@ function btd_content_status_label($status) {
                 </div>
                 <div class="btd-row" style="flex-direction: column;">
                     <div class="btd-label" style="margin-bottom: 6px;">Meta Title</div>
-                    <div class="btd-value <?= empty($btd_meta_title) ? 'na' : '' ?>">
-                        <?= !empty($btd_meta_title) ? esc_html($btd_meta_title) : 'Auto-generated on publish' ?>
+                    <div class="btd-value <?= $btd_meta_title === '' ? 'na' : '' ?>">
+                        <?= $btd_meta_title !== '' ? esc_html($btd_meta_title) : esc_html($btd_seo_placeholder) ?>
                     </div>
                 </div>
                 <div class="btd-row" style="flex-direction: column;">
                     <div class="btd-label" style="margin-bottom: 6px;">Meta Description</div>
-                    <div class="btd-value <?= empty($btd_meta_desc) ? 'na' : '' ?>">
-                        <?= !empty($btd_meta_desc) ? esc_html($btd_meta_desc) : 'Auto-generated on publish' ?>
+                    <div class="btd-value <?= $btd_meta_desc === '' ? 'na' : '' ?>">
+                        <?= $btd_meta_desc !== '' ? esc_html($btd_meta_desc) : esc_html($btd_seo_placeholder) ?>
                     </div>
                 </div>
             </div>

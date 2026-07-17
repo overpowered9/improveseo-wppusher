@@ -839,6 +839,84 @@ function improveseo_hide_other_notices()
  * @param string $post_title Used as the attachment title; falls back to filename.
  * @return int|false  Attachment ID on success, false on any failure.
  */
+/**
+ * Read a post's SEO title / description / focus keyword from whichever source
+ * has it: the active SEO plugin (Yoast, RankMath, SEOPress) or the plugin's own
+ * improveseo_custom_* meta. Returns '' when nothing is set.
+ *
+ * @param int    $post_id
+ * @param string $what  'title' | 'desc' | 'focuskw'
+ */
+function improveseo_get_seo_meta( $post_id, $what ) {
+	if ( empty( $post_id ) ) {
+		return '';
+	}
+	$keys = array(
+		'title'   => array( '_yoast_wpseo_title', 'rank_math_title', '_seopress_titles_title', 'improveseo_custom_title' ),
+		'desc'    => array( '_yoast_wpseo_metadesc', 'rank_math_description', '_seopress_titles_desc', 'improveseo_custom_description' ),
+		'focuskw' => array( '_yoast_wpseo_focuskw', 'rank_math_focus_keyword', '_seopress_analysis_target_kw', 'improveseo_custom_keywords' ),
+	);
+	if ( ! isset( $keys[ $what ] ) ) {
+		return '';
+	}
+	foreach ( $keys[ $what ] as $key ) {
+		$value = trim( (string) get_post_meta( $post_id, $key, true ) );
+		if ( $value !== '' ) {
+			if ( $what === 'focuskw' ) {
+				$parts = preg_split( '/[,|]/', $value );
+				return trim( $parts[0] );
+			}
+			return $value;
+		}
+	}
+	return '';
+}
+
+/**
+ * Store a generated meta title / description on a post. Always writes the
+ * plugin's own improveseo_custom_* keys (used by the project/post detail pages)
+ * and mirrors into whichever SEO plugin is active so the live post gets real,
+ * static meta instead of the plugin's on-the-fly template output.
+ */
+function improveseo_write_seo_meta( $post_id, $meta_title, $meta_desc ) {
+	if ( empty( $post_id ) ) {
+		return;
+	}
+	$meta_title = trim( (string) $meta_title );
+	$meta_desc  = trim( (string) $meta_desc );
+	if ( $meta_title === '' && $meta_desc === '' ) {
+		return;
+	}
+
+	// Plugin's own copy — drives the details pages regardless of SEO plugin.
+	if ( $meta_title !== '' ) {
+		update_post_meta( $post_id, 'improveseo_custom_title', $meta_title );
+	}
+	if ( $meta_desc !== '' ) {
+		update_post_meta( $post_id, 'improveseo_custom_description', $meta_desc );
+	}
+
+	// Mirror into the active SEO plugin(s) so the live post carries real meta.
+	$targets = array();
+	if ( defined( 'WPSEO_VERSION' ) || function_exists( 'YoastSEO' ) ) {
+		$targets[] = array( '_yoast_wpseo_title', '_yoast_wpseo_metadesc' );
+	}
+	if ( defined( 'RANK_MATH_VERSION' ) || class_exists( 'RankMath' ) ) {
+		$targets[] = array( 'rank_math_title', 'rank_math_description' );
+	}
+	if ( defined( 'SEOPRESS_VERSION' ) || function_exists( 'seopress_init' ) ) {
+		$targets[] = array( '_seopress_titles_title', '_seopress_titles_desc' );
+	}
+	foreach ( $targets as $pair ) {
+		if ( $meta_title !== '' ) {
+			update_post_meta( $post_id, $pair[0], $meta_title );
+		}
+		if ( $meta_desc !== '' ) {
+			update_post_meta( $post_id, $pair[1], $meta_desc );
+		}
+	}
+}
+
 function improveseo_set_featured_image_from_url( $post_id, $image_url, $post_title = '' ) {
 	if ( empty( $image_url ) || empty( $post_id ) ) {
 		return false;

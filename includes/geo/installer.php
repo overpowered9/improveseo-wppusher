@@ -149,6 +149,8 @@ $sql = "CREATE TABLE IF NOT EXISTS $table_name (
   `ai_title` text DEFAULT NULL,
   `ai_content` longtext DEFAULT NULL,
   `ai_image` text DEFAULT NULL,
+  `meta_title` text DEFAULT NULL,
+  `meta_description` text DEFAULT NULL,
   `published_on` varchar(12) DEFAULT NULL,
   `post_id` int(11) DEFAULT NULL,
   `status` varchar(20) DEFAULT 'pending',
