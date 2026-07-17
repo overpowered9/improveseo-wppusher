@@ -729,10 +729,36 @@ global $ai_modal_type;
                     </div>
                     <?php
                     // Pre-select the niche from the onboarding business type when it maps cleanly.
+                    // Token => niche key; first substring match of the business type wins.
                     $iseo_prefill_niche = '';
                     $iseo_bt = strtolower( (string) get_option( 'improveseo_business_type', '' ) );
-                    foreach ( array( 'hvac','plumbing','electrical','roofing','landscaping','dental','medical','restaurant','fitness','beauty','mortgage','realestate','ecommerce' ) as $iseo_nk ) {
-                        if ( $iseo_bt && strpos( $iseo_bt, $iseo_nk ) !== false ) { $iseo_prefill_niche = $iseo_nk; break; }
+                    if ( $iseo_bt ) {
+                        $iseo_niche_tokens = array(
+                            'hvac' => 'hvac', 'heating' => 'hvac', 'cooling' => 'hvac',
+                            'plumb' => 'plumbing',
+                            'electric' => 'electrical',
+                            'roof' => 'roofing',
+                            'contractor' => 'contractor', 'remodel' => 'contractor', 'construction' => 'contractor',
+                            'landscap' => 'landscaping', 'tree service' => 'landscaping',
+                            'pest' => 'home_services', 'cleaning' => 'home_services', 'locksmith' => 'home_services', 'moving' => 'home_services',
+                            'dental' => 'dental', 'dentist' => 'dental', 'orthodont' => 'dental',
+                            'medical' => 'medical', 'clinic' => 'medical',
+                            'wellness' => 'wellness', 'chiropract' => 'wellness', 'massage' => 'wellness',
+                            'fitness' => 'fitness', 'personal train' => 'fitness', 'gym' => 'fitness',
+                            'beauty' => 'beauty', 'salon' => 'beauty', ' spa' => 'beauty',
+                            'vet' => 'pet_services', 'pet ' => 'pet_services',
+                            'auto repair' => 'auto_repair', 'body shop' => 'auto_repair', 'automotive' => 'auto_repair',
+                            'legal' => 'legal_services', 'attorney' => 'legal_services', 'lawyer' => 'legal_services', 'law firm' => 'legal_services',
+                            'real estate' => 'realestate', 'realestate' => 'realestate', 'realtor' => 'realestate',
+                            'mortgage' => 'mortgage', 'insurance' => 'mortgage', 'financ' => 'mortgage',
+                            'account' => 'accounting', 'bookkeep' => 'accounting', 'tax prep' => 'accounting',
+                            'tutor' => 'education', 'test prep' => 'education', 'education' => 'education',
+                            'restaurant' => 'restaurant', 'cafe' => 'restaurant', 'bakery' => 'restaurant',
+                            'ecommerce' => 'ecommerce', 'e-commerce' => 'ecommerce',
+                        );
+                        foreach ( $iseo_niche_tokens as $iseo_tok => $iseo_nk ) {
+                            if ( strpos( $iseo_bt, $iseo_tok ) !== false ) { $iseo_prefill_niche = $iseo_nk; break; }
+                        }
                     }
                     ?>
                     <div class="seo-form-field">
@@ -744,17 +770,22 @@ global $ai_modal_type;
                                 'plumbing' => 'Plumbing',
                                 'electrical' => 'Electrical',
                                 'roofing' => 'Roofing / Exterior',
+                                'contractor' => 'Contractor / Remodeling / Construction',
                                 'landscaping' => 'Landscaping / Tree Service',
+                                'home_services' => 'Home Services (Pest Control, Cleaning, Locksmith, Moving, etc.)',
                                 'dental' => 'Dental / Orthodontics',
                                 'medical' => 'Medical / Health Clinic',
-                                'personal_injury_law' => 'Personal Injury Law',
-                                'family_law' => 'Family Law',
-                                'realestate' => 'Real Estate Agent / Broker',
-                                'mortgage' => 'Mortgage / Finance',
-                                'restaurant' => 'Restaurant / Cafe',
+                                'wellness' => 'Wellness / Chiropractic / Massage',
                                 'fitness' => 'Fitness / Personal Training',
                                 'beauty' => 'Beauty / Salon / Spa',
                                 'pet_services' => 'Pet Services / Vet',
+                                'auto_repair' => 'Auto Repair / Body Shop',
+                                'legal_services' => 'Legal Services (Personal Injury, Family Law, etc.)',
+                                'realestate' => 'Real Estate Agent / Broker',
+                                'mortgage' => 'Financial Services (Mortgage, Insurance, etc.)',
+                                'accounting' => 'Accounting / Bookkeeping / Tax',
+                                'education' => 'Tutoring / Test Prep / Education',
+                                'restaurant' => 'Restaurant / Cafe / Bakery',
                                 'ecommerce' => 'Ecommerce / Product Review',
                                 'general_blog' => 'General Blog / Digital Content',
                                 'other' => 'Other',
@@ -768,6 +799,11 @@ global $ai_modal_type;
                         <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;margin-top:4px;">
                             Drives the writing style, structure and cover-image look for your niche.
                         </span>
+                    </div>
+                    <div class="seo-form-field" id="niche_other_wrap" style="display:none;">
+                        <label class="data-label" for="niche_other">What's your niche?</label>
+                        <input type="text" class="form-control" placeholder="e.g. Wedding photography, solar installation, boat rentals"
+                            id="niche_other" name="niche_other">
                     </div>
                     <div class="seo-form-field">
                         <div class="title-tune">

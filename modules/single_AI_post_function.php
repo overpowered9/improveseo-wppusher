@@ -59,6 +59,14 @@ function getaaldata()
 
 	// ----- v2 fields -----
 	$niche = ( isset( $arr['niche'] ) && $arr['niche'] !== '' ) ? sanitize_text_field( $arr['niche'] ) : 'general_blog';
+	// "Other" niche: pass the user's typed-in niche through so the writer gets real
+	// signal instead of the literal string "other".
+	if ( $niche === 'other' && isset( $arr['niche_other'] ) ) {
+		$niche_custom = sanitize_text_field( $arr['niche_other'] );
+		if ( $niche_custom !== '' ) {
+			$niche = $niche_custom;
+		}
+	}
 	$cta_url = isset( $arr['cta_url'] ) ? trim( $arr['cta_url'] ) : '';
 	// Normalize so an unschemed URL like "example.com" becomes "https://example.com"
 	// and anything invalid is dropped rather than breaking generation.

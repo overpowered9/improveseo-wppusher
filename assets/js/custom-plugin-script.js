@@ -103,7 +103,7 @@ function GenerateCustomImage() {
   formData.append("title", title);
 
   // Route the single-wizard cover image through the v2 (OpenAI) path with the selected niche.
-  formData.append("niche", jQuery("#niche_select").val() || "");
+  formData.append("niche", window.iseoSelectedNiche());
 
   formData.append("use_v2", "1");
 
@@ -186,7 +186,7 @@ jQuery("#generate_i_image").on("click", function () {
   formData.append("noedit", 1);
 
   // Custom-prompt image also uses the v2 (OpenAI) path; the raw prompt is passed through verbatim.
-  formData.append("niche", jQuery("#niche_select").val() || "");
+  formData.append("niche", window.iseoSelectedNiche());
 
   formData.append("use_v2", "1");
 
@@ -786,7 +786,7 @@ function refreshAIImage() {
   formData.append("action", "fetch_AI_image");
   formData.append("title", title);
   // v2 (OpenAI) cover image with the selected niche; PHP falls back to legacy Flux when use_v2 is absent.
-  formData.append("niche", jQuery("#niche_select").val() || "");
+  formData.append("niche", window.iseoSelectedNiche());
   formData.append("use_v2", "1");
 
   jQuery.ajax({
@@ -2242,6 +2242,16 @@ window.ISEO_NICHE_FIELDS = {
     { id: "local_detail", label: "Local weather or material context", ph: "e.g. Hail damage is our most common claim job here" },
     { id: "trust_signal", label: "A trust or proof signal", ph: "e.g. GAF Master Elite contractor, 500+ roofs locally" }
   ],
+  contractor: [
+    { id: "services", label: "Projects you take on", ph: "e.g. Kitchen remodels, additions, whole-home renovations" },
+    { id: "pricing", label: "Typical project cost range", ph: "e.g. Kitchen remodels here run $25,000-$60,000" },
+    { id: "trust_signal", label: "A trust or proof signal (optional)", ph: "e.g. Licensed GC, 20 years local, 300+ completed projects" }
+  ],
+  home_services: [
+    { id: "services", label: "Services to feature", ph: "e.g. Quarterly pest control, deep cleaning, emergency lockouts" },
+    { id: "local_detail", label: "Local or seasonal context", ph: "e.g. Ant season peaks here in June" },
+    { id: "differentiator", label: "What makes you different (optional)", ph: "e.g. Background-checked techs, same-day service" }
+  ],
   landscaping: [
     { id: "services", label: "Services to feature", ph: "e.g. Tree removal, seasonal cleanup, irrigation" },
     { id: "local_detail", label: "Local or seasonal context", ph: "e.g. Spring storms drop a lot of limbs in this area" },
@@ -2257,15 +2267,20 @@ window.ISEO_NICHE_FIELDS = {
     { id: "insurance", label: "Insurance or payment options", ph: "e.g. Most major insurers, transparent self-pay pricing" },
     { id: "patient_concern", label: "Main patient concern to address", ph: "e.g. Wait times, we offer online scheduling" }
   ],
-  personal_injury_law: [
-    { id: "case_types", label: "Case types you handle", ph: "e.g. Car accidents, slip-and-fall, workplace injury" },
-    { id: "fee", label: "Fee structure", ph: "e.g. No fee unless we win" },
-    { id: "proof", label: "A proof or result signal (optional)", ph: "e.g. Recovered millions for local clients, free case review" }
+  wellness: [
+    { id: "services", label: "Services to feature", ph: "e.g. Chiropractic adjustments, deep tissue massage, acupuncture" },
+    { id: "patient_concern", label: "Main client concern to address", ph: "e.g. Chronic back pain from desk work" },
+    { id: "differentiator", label: "What makes you different (optional)", ph: "e.g. Direct insurance billing, evening appointments" }
   ],
-  family_law: [
-    { id: "case_types", label: "Matters you handle", ph: "e.g. Divorce, custody, support modifications" },
-    { id: "approach", label: "Your approach", ph: "e.g. We aim to settle without court when possible" },
-    { id: "fee", label: "Consultation or fee detail (optional)", ph: "e.g. Free 30-minute consultation, flat fees for uncontested cases" }
+  auto_repair: [
+    { id: "services", label: "Services to feature", ph: "e.g. Brakes, diagnostics, collision repair" },
+    { id: "pricing", label: "A pricing or cost angle", ph: "e.g. Free estimates, brake jobs from $250" },
+    { id: "trust_signal", label: "A trust or proof signal (optional)", ph: "e.g. ASE-certified techs, 3-year parts warranty" }
+  ],
+  legal_services: [
+    { id: "case_types", label: "Practice areas and case types you handle", ph: "e.g. Personal injury, divorce and custody, estate planning" },
+    { id: "fee", label: "Fee structure", ph: "e.g. No fee unless we win, free 30-minute consultation" },
+    { id: "proof", label: "A proof or result signal (optional)", ph: "e.g. Recovered millions for local clients, 25 years in practice" }
   ],
   realestate: [
     { id: "market", label: "Local market detail", ph: "e.g. Median home price and how fast homes sell here" },
@@ -2273,9 +2288,19 @@ window.ISEO_NICHE_FIELDS = {
     { id: "differentiator", label: "What makes you different (optional)", ph: "e.g. 15 years in this market, free home valuation" }
   ],
   mortgage: [
-    { id: "products", label: "Loan products to feature", ph: "e.g. FHA, VA, first-time buyer programs" },
-    { id: "rates", label: "A rate or cost angle", ph: "e.g. We shop multiple lenders to find the best rate" },
+    { id: "products", label: "Products or services to feature", ph: "e.g. FHA loans, life insurance, retirement planning" },
+    { id: "rates", label: "A rate or cost angle", ph: "e.g. We shop multiple lenders and carriers for the best rate" },
     { id: "differentiator", label: "What makes you different (optional)", ph: "e.g. Local underwriting, close in 21 days" }
+  ],
+  accounting: [
+    { id: "services", label: "Services to feature", ph: "e.g. Small-business bookkeeping, tax prep, payroll" },
+    { id: "audience", label: "Who you serve", ph: "e.g. Contractors and trades businesses under $5M revenue" },
+    { id: "differentiator", label: "What makes you different (optional)", ph: "e.g. Flat monthly pricing, year-round support" }
+  ],
+  education: [
+    { id: "subjects", label: "Subjects or tests you cover", ph: "e.g. SAT/ACT prep, algebra, reading intervention" },
+    { id: "result", label: "A result you can reference", ph: "e.g. Students gain 150+ SAT points on average" },
+    { id: "format", label: "Format and availability (optional)", ph: "e.g. Online 1-on-1, small groups at our center" }
   ],
   restaurant: [
     { id: "cuisine", label: "Cuisine or signature dishes", ph: "e.g. Wood-fired pizza, house-made pasta" },
@@ -2336,11 +2361,24 @@ window.iseoRenderNicheFields = function (niche) {
   container.innerHTML = html;
 };
 
+/* Effective niche for API payloads: the typed-in niche when "Other" is chosen, else the selected key. */
+window.iseoSelectedNiche = function () {
+  var val = jQuery("#niche_select").val() || "";
+  if (val === "other") {
+    var custom = jQuery.trim(jQuery("#niche_other").val() || "");
+    if (custom) return custom;
+  }
+  return val;
+};
+
 jQuery(document).ready(function () {
   var sel = document.getElementById("niche_select");
   if (!sel) return;
-  window.iseoRenderNicheFields(sel.value);
-  sel.addEventListener("change", function () {
+  var otherWrap = document.getElementById("niche_other_wrap");
+  function syncNicheUI() {
     window.iseoRenderNicheFields(sel.value);
-  });
+    if (otherWrap) otherWrap.style.display = sel.value === "other" ? "" : "none";
+  }
+  syncNicheUI();
+  sel.addEventListener("change", syncNicheUI);
 });
