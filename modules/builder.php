@@ -1442,10 +1442,11 @@ function improveseo_builder()
 
 
 
-				add_post_meta($post_id, 'improveseo_custom_title', $customTitleText);
-
-
-				// add_post_meta($post_id, '_yoast_wpseo_title', $customTitleText); // Yoast SEO
+				// Write the meta title onto the post: plugin's own improveseo_custom_title
+				// plus the active SEO plugin (Yoast/RankMath/SEOPress), mirroring bulk.
+				// update_post_meta (inside the helper) is idempotent — no duplicate rows
+				// on regeneration, unlike the previous add_post_meta.
+				improveseo_write_seo_meta($post_id, $customTitleText, '');
 
 
 			}
@@ -1460,10 +1461,9 @@ function improveseo_builder()
 
 
 
-				add_post_meta($post_id, 'improveseo_custom_description', $customDescriptionText);
-
-
-				// add_post_meta($post_id, '_yoast_wpseo_metadesc', $customDescriptionText);
+				// Write the meta description onto the post: plugin's own
+				// improveseo_custom_description plus the active SEO plugin, mirroring bulk.
+				improveseo_write_seo_meta($post_id, '', $customDescriptionText);
 
 
 			}
@@ -3478,10 +3478,11 @@ function improveseo_builder_update()
 
 
 
-				add_post_meta($post_id, 'improveseo_custom_title', $customTitleText);
-
-
-				// add_post_meta($post_id, '_yoast_wpseo_title', $customTitleText); // Yoast SEO
+				// Write the meta title onto the post: plugin's own improveseo_custom_title
+				// plus the active SEO plugin (Yoast/RankMath/SEOPress), mirroring bulk.
+				// update_post_meta (inside the helper) is idempotent — no duplicate rows
+				// on regeneration, unlike the previous add_post_meta.
+				improveseo_write_seo_meta($post_id, $customTitleText, '');
 
 
 			}
@@ -3496,10 +3497,9 @@ function improveseo_builder_update()
 
 
 
-				add_post_meta($post_id, 'improveseo_custom_description', $customDescriptionText);
-
-
-				// add_post_meta($post_id, '_yoast_wpseo_metadesc', $customDescriptionText);
+				// Write the meta description onto the post: plugin's own
+				// improveseo_custom_description plus the active SEO plugin, mirroring bulk.
+				improveseo_write_seo_meta($post_id, '', $customDescriptionText);
 
 
 			}
