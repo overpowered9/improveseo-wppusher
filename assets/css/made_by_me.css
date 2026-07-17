@@ -729,7 +729,18 @@ p.font-20_multi {
 .seo-slide-steps-fours_multi .radio-container_multi.seps-six-col_multi {
   flex-direction: column;
   padding-left: 20px;
-  margin-bottom: 30px;
+  /* Same 14px gap below the options group as between the options themselves. */
+  margin-bottom: 14px;
+}
+
+/* Both step-6 headings ("Define Save & Publish Preference" and "Assign Author")
+   sit 14px above the content they label and carry no extra top margin, so the
+   whole step shares one vertical rhythm. The extra container class raises
+   specificity above the shared header rule (which sets margin-bottom: 12px and
+   appears later in this file), so these margins win regardless of order. */
+.improveseo-bulk-ai_multi .seo-slide-steps-fours_multi.seps-six_multi > h2 {
+  margin-top: 0 !important;
+  margin-bottom: 14px !important;
 }
 
 .seps-six_multi h2 {
@@ -1208,8 +1219,12 @@ li {
   flex-direction: column;
   justify-content: center;
   align-items: start;
-  gap: 10px;
-  margin-top: 20px;
+  /* Uniform vertical rhythm for the Publish Preference step: this inter-option
+     gap matches the heading->option and option->Assign-Author gaps. The old
+     20px margin-top is dropped so the heading->first-option gap is governed
+     only by the heading's own margin-bottom (also 14px). */
+  gap: 14px;
+  margin-top: 0;
 }
 
 /* Each radio button container */
