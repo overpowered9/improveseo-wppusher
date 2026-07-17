@@ -126,14 +126,18 @@ body::-webkit-scrollbar-thumb:hover {
   color: #1C7293;
 }
 
-.improveseo-bulk-ai_multi .completed_multi .circle_multi {
+/* Completed/active step circles. These need the .percent_multi qualifier: the
+   generic ".step_multi .circle_multi { background-color:#D9D9D9 }" rule below has
+   the same specificity but comes later, so a lower-specificity completed rule
+   loses and the finished steps render grey instead of teal. */
+.improveseo-bulk-ai_multi .percent_multi.completed_multi .circle_multi {
   border-color: #2EC4B6;
-  background: #2EC4B6;
+  background-color: #2EC4B6;
   color: white;
 }
 
 .improveseo-bulk-ai_multi .percent_multi.active_multi .circle_multi {
-  background: #1C7293;
+  background-color: #1C7293;
   color: white;
 }
 
@@ -355,12 +359,21 @@ p.font-20_multi {
   text-align: center;
 }
 
+/* One consistent field metric for every text input / select in the bulk wizard.
+   Individual fields carry their own inline "padding: 10px 20px !important", so
+   padding alone can't be relied on for height (the CTA URL field has no inline
+   padding and used to collapse). A fixed height + border-box makes them all
+   identical regardless of what padding each field declares. */
 .improveseo-bulk-ai_multi form#pop_up_multi_form input[type="text"],
+.improveseo-bulk-ai_multi form#pop_up_multi_form input[type="number"],
 .improveseo-bulk-ai_multi form#pop_up_multi_form select {
   padding: 0px 20px !important;
   font-size: 18px !important;
   border: 1px solid #D2D2D2 !important;
   font-family: "Poppins", serif;
+  height: 52px !important;
+  box-sizing: border-box !important;
+  border-radius: 50px !important;
 }
 
 .improveseo-bulk-ai_multi form#pop_up_multi_form textarea {
@@ -710,8 +723,12 @@ p.font-20_multi {
   color: rgba(33, 37, 47, 0.8);
 }
 
+/* Match the 20px inset used by ".seps-six_multi h2" and the Assign Author block,
+   so the "Define Save & Publish Preference" heading and the radio options it
+   labels share exactly the same left edge. */
 .seo-slide-steps-fours_multi .radio-container_multi.seps-six-col_multi {
   flex-direction: column;
+  padding-left: 20px;
   margin-bottom: 30px;
 }
 

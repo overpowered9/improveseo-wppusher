@@ -251,28 +251,28 @@ global $ai_modal_type;
         margin-top: 20px;
     }
     
+    /* Height/border/radius/font come from the shared bulk-field rule in
+       made_by_me.css so this input matches every other field in the wizard. */
     .add-category-section input[type="text"] {
         flex: 1;
-        padding: 12px 18px !important;
-        border: 2px solid #e0e0e0 !important;
-        border-radius: 25px !important;
-        font-size: 14px !important;
         transition: all 0.3s ease;
     }
-    
+
     .add-category-section input[type="text"]:focus {
         outline: none;
-        border-color: #0073aa !important;
-        box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1);
+        border-color: #1C7293 !important;
+        box-shadow: 0 0 0 3px rgba(28, 114, 147, 0.1);
     }
     
     .add-category-section button {
-        padding: 12px 30px !important;
+        padding: 0 30px !important;
+        height: 52px !important;
+        box-sizing: border-box !important;
         border: 1px solid #1C7293 !important;
         border-radius: 50px !important;
         font-weight: normal !important;
         cursor: pointer !important;
-        font-size: 20px !important;
+        font-size: 18px !important;
         background: #1C7293 !important;
         color: #fff !important;
         display: inline-flex !important;
@@ -1448,7 +1448,7 @@ global $ai_modal_type;
                     <div class="seo-slide-steps-fours_multi bulk-boxx_multi">
                         <!-- New per-keyword image selection container -->
                         <div id="keyword-image-selection-container" style="display:none; padding: 20px;">
-                            <h3 style="margin-bottom: 20px; color: #23282d;">Select Image Method for Each Keyword</h3>
+                            <h3 style="margin-bottom: 20px; font-size: 18px; font-weight: 500; color: rgba(80, 87, 94, 0.8);">Select Image Method for Each Keyword</h3>
                             <div id="keyword-image-list">
                                 <!-- Will be populated dynamically when Step 3 loads -->
                             </div>
@@ -2718,15 +2718,15 @@ global $ai_modal_type;
             const html = `
                 <div class="keyword-image-row" style="padding: 15px; border: 1px solid #ddd; margin-bottom: 15px; border-radius: 12px; background: #f9f9f9;">
                     <div style="margin-bottom: 10px;">
-                        <strong style="font-size: 14px; color: #23282d;">Keyword:</strong> 
-                        <span style="color: #555;">${trimmedKeyword}</span>
+                        <strong style="font-size: 16px; color: rgba(80, 87, 94, 0.8);">Keyword:</strong>
+                        <span style="font-size: 16px; color: rgba(80, 87, 94, 0.8);">${trimmedKeyword}</span>
                     </div>
                     <div class="image-method-radio" style="margin-bottom: 10px;">
-                        <label style="margin-right: 20px; cursor: pointer; display: inline-flex; align-items: center;">
+                        <label style="margin-right: 20px; cursor: pointer; display: inline-flex; align-items: center; font-size: 16px; color: rgba(80, 87, 94, 0.8);">
                             <input type="radio" name="image_method_${index}" value="AI_image_one" checked style="margin-right: 5px;">
                             Generate Image Using AI
                         </label>
-                        <label style="cursor: pointer; display: inline-flex; align-items: center;">
+                        <label style="cursor: pointer; display: inline-flex; align-items: center; font-size: 16px; color: rgba(80, 87, 94, 0.8);">
                             <input type="radio" name="image_method_${index}" value="Multiple_images" style="margin-right: 5px;">
                             Upload Image
                         </label>
