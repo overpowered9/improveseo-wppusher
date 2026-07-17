@@ -67,6 +67,32 @@ function pd_image_label($val) {
     );
     return isset($map[$val]) ? $map[$val] : ($val ? esc_html($val) : 'N/A');
 }
+
+// Resolve SEO title/description/focus keyword from the live post. Checks the
+// active SEO plugin's meta first (Yoast, RankMath, SEOPress), then the plugin's
+// own keys — the builder stores spintax-resolved values as improveseo_custom_*
+// on every generated post (see modules/builder.php). Returns '' when nothing set.
+function pd_seo_meta($post_id, $what) {
+    if (!$post_id) return '';
+    $keys = array(
+        'title'   => array('_yoast_wpseo_title', 'rank_math_title', '_seopress_titles_title', 'improveseo_custom_title'),
+        'desc'    => array('_yoast_wpseo_metadesc', 'rank_math_description', '_seopress_titles_desc', 'improveseo_custom_description'),
+        'focuskw' => array('_yoast_wpseo_focuskw', 'rank_math_focus_keyword', '_seopress_analysis_target_kw', 'improveseo_custom_keywords'),
+    );
+    if (!isset($keys[$what])) return '';
+    foreach ($keys[$what] as $k) {
+        $v = trim((string) get_post_meta($post_id, $k, true));
+        if ($v !== '') {
+            // Focus keyword: some plugins store a comma/pipe list — show the first.
+            if ($what === 'focuskw') {
+                $parts = preg_split('/[,|]/', $v);
+                return trim($parts[0]);
+            }
+            return $v;
+        }
+    }
+    return '';
+}
 ?>
 
 <style>
@@ -199,9 +225,10 @@ function pd_image_label($val) {
                     <div class="pd-label">Project Name</div>
                     <div class="pd-value"><?= esc_html($project->name) ?></div>
                 </div>
+                <?php $pd_title = (isset($content['title']) && $content['title'] !== '') ? $content['title'] : ($associated_post ? $associated_post->post_title : ''); ?>
                 <div class="pd-row">
                     <div class="pd-label">Post Title</div>
-                    <div class="pd-value"><?= isset($content['title']) && $content['title'] ? esc_html($content['title']) : '<span class="na">N/A</span>' ?></div>
+                    <div class="pd-value <?= $pd_title === '' ? 'na' : '' ?>"><?= $pd_title !== '' ? esc_html($pd_title) : 'N/A' ?></div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Status</div>
@@ -235,9 +262,10 @@ function pd_image_label($val) {
                         <span class="pd-badge <?= $badge_class ?>"><?= esc_html($status_label) ?></span>
                     </div>
                 </div>
+                <?php $pd_post_type = (isset($content['post_type']) && $content['post_type'] !== '') ? $content['post_type'] : ($associated_post ? $associated_post->post_type : ''); ?>
                 <div class="pd-row">
                     <div class="pd-label">Post Type</div>
-                    <div class="pd-value"><?= isset($content['post_type']) ? ucfirst(esc_html($content['post_type'])) : 'N/A' ?></div>
+                    <div class="pd-value <?= $pd_post_type === '' ? 'na' : '' ?>"><?= $pd_post_type !== '' ? ucfirst(esc_html($pd_post_type)) : 'N/A' ?></div>
                 </div>
                 <?php if (intval($project->max_iterations) > 1): // single-post projects are always 1/1 — only meaningful for multi-post ?>
                 <div class="pd-row">
@@ -249,19 +277,25 @@ function pd_image_label($val) {
                     <div class="pd-label">Categories</div>
                     <div class="pd-value">
                         <?php
-                        $cat_ids = json_decode($project->cats, true);
-                        if (!empty($cat_ids) && is_array($cat_ids)) {
-                            $cat_names = array();
-                            foreach ($cat_ids as $cat_id) {
-                                $cat = get_category($cat_id);
-                                if ($cat && !is_wp_error($cat)) {
-                                    $cat_names[] = esc_html($cat->name);
+                        $cat_names = array();
+                        // Prefer the live post's real categories; the project's stored
+                        // IDs are only the wizard's original picks and can be stale.
+                        if ($associated_post) {
+                            $pd_post_cats = wp_get_post_terms($associated_post->ID, 'category', array('fields' => 'names'));
+                            if (is_array($pd_post_cats)) $cat_names = $pd_post_cats;
+                        }
+                        if (empty($cat_names)) {
+                            $cat_ids = json_decode($project->cats, true);
+                            if (!empty($cat_ids) && is_array($cat_ids)) {
+                                foreach ($cat_ids as $cat_id) {
+                                    $cat = get_category($cat_id);
+                                    if ($cat && !is_wp_error($cat)) {
+                                        $cat_names[] = $cat->name;
+                                    }
                                 }
                             }
-                            echo implode(', ', $cat_names) ?: '<span class="na">None</span>';
-                        } else {
-                            echo '<span class="na">None</span>';
                         }
+                        echo !empty($cat_names) ? esc_html(implode(', ', $cat_names)) : '<span class="na">None</span>';
                         ?>
                     </div>
                 </div>
@@ -286,9 +320,23 @@ function pd_image_label($val) {
         </div>
 
         <!-- Card 2: AI Content Settings -->
+        <?php
+        // These are generation-time settings — the WordPress post stores none of
+        // them, so they are only ever available from the project's saved options.
+        // When none were recorded (older posts / other create flows), show one
+        // honest line instead of a column of N/A that reads like a loading bug.
+        $pd_ai_keys = array('ai_seed_keyword', 'ai_seed_options', 'ai_content_type', 'ai_nos_of_words', 'ai_point_of_view', 'ai_content_lang', 'ai_image_option');
+        $pd_has_ai = false;
+        foreach ($pd_ai_keys as $pd_k) {
+            if (isset($options[$pd_k]) && trim((string) $options[$pd_k]) !== '') { $pd_has_ai = true; break; }
+        }
+        ?>
         <div class="pd-card">
             <div class="pd-card-header">AI Content Settings</div>
             <div class="pd-card-body">
+                <?php if (!$pd_has_ai): ?>
+                <p class="na" style="margin: 0; font-style: italic; color: #a7aaad;">These generation settings weren't recorded for this post.</p>
+                <?php else: ?>
                 <div class="pd-row">
                     <div class="pd-label">Seed Keyword</div>
                     <div class="pd-value <?= pd_val($options, 'ai_seed_keyword') === 'N/A' ? 'na' : '' ?>">
@@ -331,6 +379,7 @@ function pd_image_label($val) {
                         <?= pd_image_label(isset($options['ai_image_option']) ? $options['ai_image_option'] : '') ?>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -360,39 +409,37 @@ function pd_image_label($val) {
                 <?php
                 // The single-post wizard does not store these into the project
                 // options, so pull them from the generated post instead: real
-                // permalink and tags always exist, and meta title/description
-                // come from the SEO plugin's meta when set. Fall back sensibly.
+                // permalink and tags always exist, and title/description/keyword
+                // come from the active SEO plugin's meta or the plugin's own
+                // improveseo_custom_* meta (see pd_seo_meta). Fall back sensibly.
                 $pd_post_id    = $associated_post ? $associated_post->ID : 0;
-                $pd_meta_title = $pd_post_id ? trim((string) get_post_meta($pd_post_id, '_yoast_wpseo_title', true)) : '';
-                $pd_meta_desc  = $pd_post_id ? trim((string) get_post_meta($pd_post_id, '_yoast_wpseo_metadesc', true)) : '';
-                if ($pd_meta_title === '' && isset($options['custom_title']))       $pd_meta_title = trim((string) $options['custom_title']);
-                if ($pd_meta_title === '' && $associated_post)                      $pd_meta_title = $associated_post->post_title;
-                if ($pd_meta_desc === ''  && isset($options['custom_description'])) $pd_meta_desc  = trim((string) $options['custom_description']);
 
-                $pd_focus_kw = isset($options['ai_seed_keyword']) ? trim((string) $options['ai_seed_keyword']) : '';
+                $pd_meta_title = pd_seo_meta($pd_post_id, 'title');
+                if ($pd_meta_title === '' && isset($options['custom_title'])) $pd_meta_title = trim((string) $options['custom_title']);
+                if ($pd_meta_title === '' && $associated_post)                $pd_meta_title = $associated_post->post_title;
+
+                $pd_meta_desc = pd_seo_meta($pd_post_id, 'desc');
+                if ($pd_meta_desc === '' && isset($options['custom_description'])) $pd_meta_desc = trim((string) $options['custom_description']);
+                if ($pd_meta_desc === '' && $associated_post)                     $pd_meta_desc = trim((string) $associated_post->post_excerpt);
+
+                $pd_focus_kw = pd_seo_meta($pd_post_id, 'focuskw');
+                if ($pd_focus_kw === '' && isset($options['ai_seed_keyword'])) $pd_focus_kw = trim((string) $options['ai_seed_keyword']);
                 if ($pd_focus_kw === '' && isset($options['custom_keywords'])) $pd_focus_kw = trim((string) $options['custom_keywords']);
 
-                $pd_tags = array();
-                if ($pd_post_id) {
-                    $pd_terms = wp_get_post_tags($pd_post_id);
-                    if (is_array($pd_terms)) {
-                        foreach ($pd_terms as $pd_term) $pd_tags[] = $pd_term->name;
-                    }
-                }
-                if (empty($pd_tags) && isset($options['tags']) && trim((string) $options['tags']) !== '') {
-                    $pd_tags = array_map('trim', explode(',', $options['tags']));
-                }
+                // "Auto-generated on publish" only makes sense before a post exists.
+                // Once a post is live with no SEO meta set, "Not set" is the truth.
+                $pd_seo_placeholder = $associated_post ? 'Not set' : 'Auto-generated on publish';
                 ?>
                 <div class="pd-row">
                     <div class="pd-label">Meta Title</div>
                     <div class="pd-value <?= $pd_meta_title === '' ? 'na' : '' ?>">
-                        <?= $pd_meta_title !== '' ? esc_html($pd_meta_title) : 'Auto-generated on publish' ?>
+                        <?= $pd_meta_title !== '' ? esc_html($pd_meta_title) : esc_html($pd_seo_placeholder) ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Meta Description</div>
                     <div class="pd-value <?= $pd_meta_desc === '' ? 'na' : '' ?>">
-                        <?= $pd_meta_desc !== '' ? esc_html($pd_meta_desc) : 'Auto-generated on publish' ?>
+                        <?= $pd_meta_desc !== '' ? esc_html($pd_meta_desc) : esc_html($pd_seo_placeholder) ?>
                     </div>
                 </div>
                 <div class="pd-row">
@@ -409,12 +456,6 @@ function pd_image_label($val) {
                         <?php else: ?>
                             N/A
                         <?php endif; ?>
-                    </div>
-                </div>
-                <div class="pd-row">
-                    <div class="pd-label">Tags</div>
-                    <div class="pd-value <?= empty($pd_tags) ? 'na' : '' ?>">
-                        <?= !empty($pd_tags) ? esc_html(implode(', ', $pd_tags)) : 'None' ?>
                     </div>
                 </div>
                 <?php if (intval($project->max_iterations) > 1): // single-post projects always cap at 1 ?>
