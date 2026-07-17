@@ -179,7 +179,9 @@ if (isset($_GET['post_preview'])) {
 									} else {
 											$pm_count = intval($project->number_of_post_schedule);
 											$pm_unit  = ($project->schedule_frequency == 'per_week') ? 'week' : 'day';
-											echo 'Schedule (' . $pm_count . ' post' . ($pm_count === 1 ? '' : 's') . '/' . $pm_unit . ')';
+											// "Schedule" on its own line; keep the "(1 post/day)" part together
+											// so it never wraps to "(1 / post/day)".
+											echo 'Schedule<br><span style="white-space:nowrap;">(' . $pm_count . ' post' . ($pm_count === 1 ? '' : 's') . '/' . $pm_unit . ')</span>';
 									}
 									?> </td>
 								<td data-label="Project Status" class="status finished"><?php
