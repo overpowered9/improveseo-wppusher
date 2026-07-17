@@ -771,7 +771,11 @@ function generateBulkAiContent($id = '', $regenerate = '')
 		// DO NOT modify state - it represents user's original publishing intent
 		// Only update status to 'Done' when content is ready
 		my_plugin_log('generateBulkAiContent: Saving generated content for task ' . $id . ' | Setting status to Done');
-		
+
+		// Self-heal: make sure the meta columns exist before writing to them, in
+		// case the dbDelta migration didn't add them on this install.
+		improveseo_ensure_bulk_meta_columns();
+
         $update_result = $wpdb->query(
             $wpdb->prepare(
                 "UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`

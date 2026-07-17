@@ -917,6 +917,56 @@ function improveseo_write_seo_meta( $post_id, $meta_title, $meta_desc ) {
 	}
 }
 
+/**
+ * Ensure the bulk task table has the meta_title / meta_description columns.
+ *
+ * dbDelta (the version-gated installer path) is unreliable at ALTERing an
+ * existing table to add columns, and once it bumps improveseo_db_version it
+ * won't retry — leaving live sites with the new code but not the new columns.
+ * This runs an explicit, idempotent ALTER and is safe to call on every request:
+ * a one-row option short-circuits it once the columns are confirmed present.
+ */
+function improveseo_ensure_bulk_meta_columns() {
+	global $wpdb;
+
+	if ( get_option( 'improveseo_bulk_meta_cols' ) === 'ready' ) {
+		return;
+	}
+
+	$table = $wpdb->prefix . 'improveseo_bulktasksdetails';
+
+	// Brand-new install: the table itself may not exist yet — bail quietly.
+	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+		return;
+	}
+
+	$cols = $wpdb->get_col( "SHOW COLUMNS FROM `$table`" );
+	if ( ! is_array( $cols ) ) {
+		return;
+	}
+
+	$adds = array();
+	if ( ! in_array( 'meta_title', $cols, true ) ) {
+		$adds[] = "ADD COLUMN `meta_title` TEXT NULL DEFAULT NULL";
+	}
+	if ( ! in_array( 'meta_description', $cols, true ) ) {
+		$adds[] = "ADD COLUMN `meta_description` TEXT NULL DEFAULT NULL";
+	}
+
+	if ( ! empty( $adds ) ) {
+		$wpdb->query( "ALTER TABLE `$table` " . implode( ', ', $adds ) );
+		if ( function_exists( 'my_plugin_log' ) ) {
+			my_plugin_log( 'improveseo_ensure_bulk_meta_columns: added ' . implode( ', ', $adds ) . ( $wpdb->last_error ? ' | MySQL Error: ' . $wpdb->last_error : ' | OK' ) );
+		}
+		$cols = $wpdb->get_col( "SHOW COLUMNS FROM `$table`" );
+	}
+
+	// Only mark ready once both columns are confirmed present.
+	if ( is_array( $cols ) && in_array( 'meta_title', $cols, true ) && in_array( 'meta_description', $cols, true ) ) {
+		update_option( 'improveseo_bulk_meta_cols', 'ready' );
+	}
+}
+
 function improveseo_set_featured_image_from_url( $post_id, $image_url, $post_title = '' ) {
 	if ( empty( $image_url ) || empty( $post_id ) ) {
 		return false;

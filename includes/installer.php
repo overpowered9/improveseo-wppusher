@@ -348,6 +348,13 @@ function improveseo_install() {
 
 	include_once 'geo/installer.php';
 
+	// Explicitly ensure the bulk task meta columns exist — dbDelta above is
+	// unreliable at adding columns to an already-existing table.
+	if ( function_exists( 'improveseo_ensure_bulk_meta_columns' ) ) {
+		delete_option( 'improveseo_bulk_meta_cols' ); // force a fresh check
+		improveseo_ensure_bulk_meta_columns();
+	}
+
 
 	
 
