@@ -1612,6 +1612,17 @@ div#post-body-content {
   color: white !important;
 }
 
+/* Dropdown chevron for the wizard selects (Business Niche, Title Type, Tone of
+   voice, etc.). style.css already declares this but pointed at a moved image
+   (select-arrow-up.svg lives under latest-images/), so the arrow 404'd.
+   Re-declared here because this file is versioned by filemtime and reaches
+   cached browsers. */
+form.improve-seo-form-global select {
+  background-image: url(../images/latest-images/select-arrow-up.svg);
+  background-position: center right 13px;
+  background-repeat: no-repeat;
+}
+
 /* Generate/Regenerate and Approve buttons: force their icon images white on
    hover/focus so they stay visible against the filled hover background. */
 .improveseo-bulk-ai .title-btn button:hover img,
