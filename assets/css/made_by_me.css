@@ -109,6 +109,109 @@ body::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
 
+/* --- Step 4 content preview -------------------------------------------------
+   The server returns finished HTML; this styles it inside the wizard so the
+   preview mirrors the published post (heading hierarchy, even paragraph
+   spacing, readable tables) instead of the unstyled dump it used to be. */
+#showmydataindiv1 {
+  background: #ffffff;
+  padding: 24px 28px;
+  border: 1px solid #e2e6ea;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.iseo-preview-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.iseo-preview-media {
+  flex: 0 0 240px;
+  max-width: 240px;
+}
+
+.iseo-preview-media img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.iseo-preview-body {
+  flex: 1 1 320px;
+  min-width: 0;
+  color: #2b2b2b;
+  font-size: 16px;
+  line-height: 1.7;
+  word-wrap: break-word;
+}
+
+.iseo-preview-body h1,
+.iseo-preview-body h2,
+.iseo-preview-body h3,
+.iseo-preview-body h4 {
+  color: #1a1a1a;
+  line-height: 1.3;
+  font-weight: 700;
+  margin: 1.6em 0 0.5em;
+}
+
+.iseo-preview-body h1:first-child,
+.iseo-preview-body h2:first-child,
+.iseo-preview-body h3:first-child {
+  margin-top: 0;
+}
+
+.iseo-preview-body h1 { font-size: 30px; }
+.iseo-preview-body h2 { font-size: 24px; }
+.iseo-preview-body h3 { font-size: 20px; }
+.iseo-preview-body h4 { font-size: 17px; }
+
+.iseo-preview-body p {
+  margin: 0 0 1.1em;
+}
+
+.iseo-preview-body ul,
+.iseo-preview-body ol {
+  margin: 0 0 1.1em;
+  padding-left: 1.4em;
+}
+
+.iseo-preview-body li {
+  margin-bottom: 0.4em;
+}
+
+.iseo-preview-body img {
+  max-width: 100%;
+  height: auto;
+}
+
+.iseo-preview-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.3em;
+  font-size: 15px;
+}
+
+.iseo-preview-body th,
+.iseo-preview-body td {
+  border: 1px solid #dce0e4;
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.iseo-preview-body th {
+  background: #f4f6f8;
+  font-weight: 600;
+}
+
+.iseo-preview-body tr:nth-child(even) td {
+  background: #fafbfc;
+}
+
 /* New CSS with _multi appended */
 .improveseo-bulk-ai_multi {
   max-width: 1170px;

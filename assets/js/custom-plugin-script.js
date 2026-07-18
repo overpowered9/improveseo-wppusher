@@ -345,7 +345,14 @@ jQuery("#generateapivalue").on("click", function () {
 
       //var textContent = "This is a sample text.\nThis is another line of text.";
 
-      var htmlContent = textToHtml(content);
+      // The v2 content route already returns finished HTML (wrapped in
+      // .main-content-section-improveseo). Running it through textToHtml() — which
+      // was built for the legacy plain-text route — wraps the whole document in a
+      // <p> and turns every source newline into an empty paragraph, corrupting
+      // headings, tables and spacing. Feeding that broken markup to the preview
+      // (dumped verbatim) and to TinyMCE (which silently repairs it) is exactly
+      // why the preview and the saved post looked different. Use the HTML as-is.
+      var htmlContent = content;
 
       //console.log(htmlContent);
 
