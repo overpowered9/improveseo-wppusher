@@ -2123,6 +2123,17 @@ form#popup_form .for_approve_content_validation_error {
   padding-left: 0;
 }
 
+/* "Details for this article" heads the niche-details section, so it reads as a
+   section header (same treatment as .iseo-media-head h2) instead of blending in
+   with the ordinary field labels around it. The <small> suffix keeps its muted
+   inline-hint look. */
+form#popup_form .seo-form-field > label.iseo-details-head {
+  font-size: 20px;
+  font-weight: 600;
+  color: #23282d;
+  margin-top: 10px;
+}
+
 .max_width_70 {
   max-width: 70% !important;
 }

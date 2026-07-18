@@ -940,7 +940,7 @@ global $ai_modal_type;
 
                     </div>
                     <div class="seo-form-field">
-                        <label>Details for this article <small style="color:#888;font-weight:normal;">(optional &mdash; tailored to your niche)</small></label>
+                        <label class="iseo-details-head">Details for this article <small style="color:#888;font-weight:normal;margin-left:6px;">(optional &mdash; tailored to your niche)</small></label>
                         <!-- Niche-specific fields are rendered here by iseoRenderNicheFields() based on the
                              Business Niche selected in Step 1. Each input is named nd_<id> and flows into niche_data. -->
                         <div id="niche_fields_container" class="niche-fields"></div>
@@ -959,9 +959,10 @@ global $ai_modal_type;
                         <span id="countContentCallToAction"></span>
                     </div>
                     <div class="seo-form-field">
-                        <label for="cta_url">Call to Action URL <small style="color:#888; font-weight:normal;">(optional)</small></label>
+                        <label for="cta_url">Call to Action URL <small style="color:#888; font-weight:normal; margin-left:6px;">(optional)</small></label>
                         <input type="text" id="cta_url" name="cta_url" class="form-control"
                             placeholder="https://example.com/contact">
+                        <span id="error_cta_url" style="color:red; display:block;"></span>
                     </div>
                 </div>
 
@@ -1462,7 +1463,7 @@ global $ai_modal_type;
                                             id="countContentCallToAction"></span>
                                     </div>
                                     <div class="seo-form-field" style="margin-top:30px;">
-                                        <label for="cta_url_multi">Call to Action URL <small style="color:#888; font-weight:normal;">(optional)</small></label>
+                                        <label for="cta_url_multi">Call to Action URL <small style="color:#888; font-weight:normal; margin-left:6px;">(optional)</small></label>
                                         <input type="text" id="cta_url_multi" name="cta_url" class="form-control"
                                             placeholder="https://example.com/contact" style="max-width:100% !important;">
                                         <span id="error_cta_url_multi" style="color:red; display:block; padding-left:20px;"></span>
@@ -2440,6 +2441,13 @@ global $ai_modal_type;
                         nextStepButton.disabled = false;
                         nextStepButton.innerHTML = savedHTML;
                     });
+                return;
+            }
+
+            // Normalize + validate the Call to Action URL when leaving Step 2 (index 1) —
+            // same gate as the bulk wizard: a bare domain gets https:// prepended and
+            // written back; an invalid URL shows an inline error and keeps the wizard here.
+            if (currentStep === 1 && !normalizeAndValidateCtaUrl('#cta_url', '#error_cta_url')) {
                 return;
             }
 
