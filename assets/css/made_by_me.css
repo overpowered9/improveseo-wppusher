@@ -2085,6 +2085,23 @@ form#pop_up_multi_form label[for="keyword_list_name"] {
   text-align: left;
 }
 
+/* Single wizard: field labels sit flush with their inputs so every label, input
+   and hint text shares the same left edge (.seo-form-field label in style.css
+   indents labels 20px, but the input boxes and hint text have no indent).
+   Scoped to actual field labels only — approve buttons, media cards and
+   category pills keep their own spacing. */
+form#popup_form .seo-form-field > label,
+form#popup_form .title-tune .title > label,
+form#popup_form .title-tune .tune > label,
+form#popup_form .generate-title .title-input > label {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+form#popup_form .for_approve_content_validation_error {
+  padding-left: 0;
+}
+
 .max_width_70 {
   max-width: 70% !important;
 }
