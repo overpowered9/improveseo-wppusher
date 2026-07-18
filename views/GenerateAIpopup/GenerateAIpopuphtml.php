@@ -2344,7 +2344,14 @@ global $ai_modal_type;
             } else if (stepValue === 4) {
                 buttonText = 'Approve Content';
                 nextStepButton.disabled = false;
-                jQuery("#generateapivalue").trigger("click");
+                // Auto-generate only the first time we land on Step 4. If content already
+                // exists (the user navigated back from a later step), preserve it instead
+                // of regenerating — same as every other input the wizard keeps. The user
+                // can still re-run it via the panel's "Re-Generate AI Post" button.
+                var existingAIContent = jQuery("#showmydataindiv1").html();
+                if (!existingAIContent || !existingAIContent.trim()) {
+                    jQuery("#generateapivalue").trigger("click");
+                }
             } else if (stepValue === 5) {
                 buttonText = 'Next';
                 nextStepButton.disabled = false;
