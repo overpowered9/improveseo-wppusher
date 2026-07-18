@@ -2610,13 +2610,30 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
 .improveseo-bulk-ai .iseo-hint { font-size: 12.5px; color: rgba(80, 87, 94, 0.6); font-family: "Poppins", serif; }
 .improveseo-bulk-ai .iseo-hint.ok { color: #2E9E6B; }
 
-/* "AI Image From Title" — large image preview, button underneath. No placeholder box;
-   the preview only appears once an image has actually been generated. */
-.improveseo-bulk-ai .iseo-title-preview { display: none; margin: 16px 0; }
-.improveseo-bulk-ai .iseo-title-preview.has-image { display: block; }
-.improveseo-bulk-ai .iseo-title-preview #ai-image-display img {
-  width: 100%; height: auto; display: block; border-radius: 12px; border: 1px solid #e4e7ec;
+/* Cover images keep their compact, consistent preview in every method; clicking any
+   generated/uploaded image opens it enlarged in the lightbox below. */
+.improveseo-bulk-ai #ai-image-display img,
+.improveseo-bulk-ai #ai-with-prompt-image-display img,
+.improveseo-bulk-ai #manually-image-display img { cursor: zoom-in; }
+
+/* Fullscreen lightbox shared by all three cover-image methods. */
+.iseo-lightbox {
+  position: fixed; inset: 0; z-index: 1000000; display: none;
+  align-items: center; justify-content: center; padding: 32px;
+  background: rgba(15, 23, 32, 0.82); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
 }
+.iseo-lightbox.open { display: flex; }
+.iseo-lightbox img {
+  max-width: 92vw; max-height: 88vh; width: auto; height: auto;
+  border-radius: 12px; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45); cursor: default;
+}
+.iseo-lightbox-close {
+  position: absolute; top: 22px; right: 26px; width: 44px; height: 44px;
+  border: none; border-radius: 50%; background: rgba(255, 255, 255, 0.16); color: #fff;
+  font-size: 26px; line-height: 1; cursor: pointer; display: grid; place-items: center;
+  transition: background 0.15s ease;
+}
+.iseo-lightbox-close:hover { background: rgba(255, 255, 255, 0.32); }
 
 @media (max-width: 860px) {
   .improveseo-bulk-ai .iseo-media-methods { grid-template-columns: 1fr; }

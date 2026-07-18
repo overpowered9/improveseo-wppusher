@@ -633,6 +633,14 @@ global $ai_modal_type;
     <div id="loadingAIData" style="display:none;" class="overlay_ai_data"></div>
 
     <div id="loadingAIImage" style="display:none;" class="overlay_ai_image"></div>
+
+    <!-- Shared lightbox: clicking any generated/uploaded cover image opens it enlarged here.
+         Close via the X, clicking the backdrop, or pressing Escape. -->
+    <div id="iseoImageLightbox" class="iseo-lightbox" role="dialog" aria-modal="true" aria-label="Enlarged image">
+        <button type="button" class="iseo-lightbox-close" id="iseoLightboxClose" aria-label="Close">&times;</button>
+        <img id="iseoLightboxImg" src="" alt="Enlarged cover image">
+    </div>
+
     <div class="improveseo-bulk-ai">
         <div class="singlepost-title">
             <h1> <img src="<?php echo WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ?>"
@@ -1041,13 +1049,21 @@ global $ai_modal_type;
                         </div> -->
 
                         <div id="AI_image_div" class="iseo-media-panel" style="display:none;">
-                            <div class="iseo-for-line">A cover image will be generated from your article title.</div>
-                            <div class="iseo-title-preview" id="iseo-preview-title">
-                                <div id="ai-image-display"></div>
-                            </div>
-                            <div class="iseo-btn-row" id="AIrefreshOption">
-                                <button type="button" class="style_next_button_in_popup" onclick="return refreshAIImage()" style="padding: 12px 30px !important;">Generate AI image</button>
-                                <span class="iseo-hint">Costs 1 image credit when you press Generate.</span>
+                            <div class="iseo-panel-grid">
+                                <div class="iseo-preview" id="iseo-preview-title">
+                                    <div class="iseo-preview-empty">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 16-5-5L5 20"/></svg>
+                                        <span>Your cover image will appear here</span>
+                                    </div>
+                                    <div id="ai-image-display"></div>
+                                </div>
+                                <div class="iseo-panel-controls">
+                                    <div class="iseo-for-line">A cover image will be generated from your article title.</div>
+                                    <div class="iseo-btn-row" id="AIrefreshOption">
+                                        <button type="button" class="style_next_button_in_popup" onclick="return refreshAIImage()" style="padding: 12px 30px !important;">Generate AI image</button>
+                                        <span class="iseo-hint">Costs 1 image credit when you press Generate.</span>
+                                    </div>
+                                </div>
                             </div>
                             <input type="hidden" id="AI-Image-uploaded-path" name="AI-Image-uploaded-path">
                         </div>

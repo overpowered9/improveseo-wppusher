@@ -949,6 +949,49 @@ jQuery(document).ready(function (jQuery) {
   });
 });
 
+// Cover-image lightbox: clicking any generated/uploaded cover image (from title,
+// custom prompt, or upload) opens it enlarged. Close via the X, the backdrop, or Escape.
+jQuery(document).ready(function (jQuery) {
+  var $lightbox = jQuery("#iseoImageLightbox");
+  var $lightboxImg = jQuery("#iseoLightboxImg");
+
+  // Move the lightbox to <body> so its position:fixed / z-index escape the modal's
+  // stacking context and any transformed ancestors.
+  if ($lightbox.length && !$lightbox.parent().is("body")) {
+    $lightbox.appendTo("body");
+  }
+
+  function openImageLightbox(src) {
+    if (!src) return;
+    $lightboxImg.attr("src", src);
+    $lightbox.addClass("open");
+  }
+
+  function closeImageLightbox() {
+    $lightbox.removeClass("open");
+    $lightboxImg.attr("src", "");
+  }
+
+  jQuery(document).on(
+    "click",
+    "#ai-image-display img, #ai-with-prompt-image-display img, #manually-image-display img",
+    function () {
+      openImageLightbox(jQuery(this).attr("src"));
+    }
+  );
+
+  jQuery("#iseoLightboxClose").on("click", closeImageLightbox);
+
+  // Clicking the backdrop (outside the image) closes; clicking the image itself does not.
+  $lightbox.on("click", function (e) {
+    if (e.target === this) closeImageLightbox();
+  });
+
+  jQuery(document).on("keydown", function (e) {
+    if (e.key === "Escape" && $lightbox.hasClass("open")) closeImageLightbox();
+  });
+});
+
 jQuery(document).ready(function (jQuery) {
   jQuery("#upload-image-button").on("change", function () {
     jQuery("#loadingImage").show();
