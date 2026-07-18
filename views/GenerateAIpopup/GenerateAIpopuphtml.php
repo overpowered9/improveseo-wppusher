@@ -1169,7 +1169,7 @@ global $ai_modal_type;
                     </div>
 
                     <div class="category-selection-section" style="margin-top: 20px;">
-                        <h3 style="font-size:15px; font-weight:600; color:#23282d; margin-bottom:10px;">Assign Categories</h3>
+                        <h3 style="font-size:18px; font-weight:400; color:rgba(80,87,94,0.8); margin-bottom:10px; text-align:left;">Assign Categories</h3>
                         <div class="bulk-category-box" style="padding: 16px !important; margin-bottom: 0 !important;">
                             <div class="bulk-category-list" id="single-modal-category-list" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
                                 <?php
@@ -1187,7 +1187,7 @@ global $ai_modal_type;
                                 ?>
                             </div>
                             <div class="add-category-section">
-                                <h3 style="font-size:14px; font-weight:600; margin-bottom:10px;">Create New Category</h3>
+                                <h3 style="font-size:18px; font-weight:400; color:rgba(80,87,94,0.8); margin-bottom:10px; text-align:left;">Create New Category</h3>
                                 <div style="display:flex; gap:10px; align-items:center;">
                                     <input type="text" id="new_category_name_single" placeholder="Enter category name">
                                     <button type="button" id="add_category_single_btn">Add Category</button>
