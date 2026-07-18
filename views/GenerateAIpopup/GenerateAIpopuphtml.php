@@ -810,13 +810,10 @@ global $ai_modal_type;
                             <div class="title">
                                 <label for="seed_options">Select Title Type</label>
                                 <select id="seed_select" name="seed_options" id="title" class="custom-selcected">
-                                    
-                                    <option value="seed_option1">USE KEYWORD AS IS IN TITLE [A.I. will build
-                                        content]</option>
-                                    <option value="seed_option2">CREATE BEST TITLE FROM KEYWORD [A.I. will
-                                        choose/build content]</option>
-                                    <option value="seed_option3">CREATE BEST QUESTION FROM KEYWORD [A.I. will
-                                        choose/build content]</option>
+
+                                    <option value="seed_option2">Smart Title (AI-Generated)</option>
+                                    <option value="seed_option3">Question-Style Title (AI-Generated)</option>
+                                    <option value="seed_option1">Exact Keyword as Title</option>
                                 </select>
                             </div>
                             <span id="error_seed_select" style="color: red;"></span>
@@ -846,7 +843,9 @@ global $ai_modal_type;
                     <div style="clear: both"> </div>
                     
                     <div style="clear: both"> </div>
-                    <div class="seo-form-field hide_on_seed_option1 " style="display: none;">
+                    <!-- Visible by default: the default title type is Smart Title (seed_option2),
+                         which needs the Generate/Approve area. JS hides it for Exact Keyword. -->
+                    <div class="seo-form-field hide_on_seed_option1 ">
                         <div class="generate-title">
                             <div class="title-input">
                                 <label for="Generate">AI Generated Title</label>

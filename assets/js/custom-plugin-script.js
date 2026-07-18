@@ -1175,8 +1175,8 @@ function generateAITitle() {
         alert("Please enter seed keyword.");
       }
       jQuery("#loader").hide();
-      jQuery(".hide_on_seed_option1").hide();
-      jQuery("#gettitle").hide();
+      // Keep the Generate/Approve area visible — it now shows by default, and
+      // hiding it here would leave the user no way to retry after the warning.
       return; // do not call API without seed keyword
     } else {
       // Clear any previous error

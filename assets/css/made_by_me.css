@@ -1612,6 +1612,16 @@ div#post-body-content {
   color: white !important;
 }
 
+/* Generate/Regenerate and Approve buttons: force their icon images white on
+   hover/focus so they stay visible against the filled hover background. */
+.improveseo-bulk-ai .title-btn button:hover img,
+.improveseo-bulk-ai .title-btn button:focus img,
+.improveseo-bulk-ai .title-btn button:focus-visible img,
+.step_one_approve_button:hover img,
+.step_one_approve_button:focus-visible img {
+  filter: brightness(0) invert(1);
+}
+
 .form-control {
   height: auto !important;
 }
