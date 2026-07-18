@@ -2610,6 +2610,14 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
 .improveseo-bulk-ai .iseo-hint { font-size: 12.5px; color: rgba(80, 87, 94, 0.6); font-family: "Poppins", serif; }
 .improveseo-bulk-ai .iseo-hint.ok { color: #2E9E6B; }
 
+/* "AI Image From Title" — large image preview, button underneath. No placeholder box;
+   the preview only appears once an image has actually been generated. */
+.improveseo-bulk-ai .iseo-title-preview { display: none; margin: 16px 0; }
+.improveseo-bulk-ai .iseo-title-preview.has-image { display: block; }
+.improveseo-bulk-ai .iseo-title-preview #ai-image-display img {
+  width: 100%; height: auto; display: block; border-radius: 12px; border: 1px solid #e4e7ec;
+}
+
 @media (max-width: 860px) {
   .improveseo-bulk-ai .iseo-media-methods { grid-template-columns: 1fr; }
   .improveseo-bulk-ai .iseo-panel-grid { grid-template-columns: 1fr; }

@@ -985,7 +985,7 @@ global $ai_modal_type;
                                 <span class="iseo-media-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
                                 <span class="iseo-media-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.9 5.1L19 9l-5.1 1.9L12 16l-1.9-5.1L5 9l5.1-1.9L12 2z"/><path d="M19 13l.9 2.4L22 16l-2.1.9L19 19l-.9-2.1L16 16l2.1-.6L19 13z"/></svg></span>
                                 <span class="iseo-media-copy">
-                                    <span class="iseo-media-title">AI image from title</span>
+                                    <span class="iseo-media-title">AI Image From Title</span>
                                     <span class="iseo-media-desc">Fastest &mdash; we write the prompt from your title and generate a cover for you.</span>
                                 </span>
                                 <span class="iseo-media-cost"><span class="iseo-cost-dot"></span>Uses 1 image credit</span>
@@ -996,7 +996,7 @@ global $ai_modal_type;
                                 <span class="iseo-media-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
                                 <span class="iseo-media-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></span>
                                 <span class="iseo-media-copy">
-                                    <span class="iseo-media-title">AI image, custom prompt</span>
+                                    <span class="iseo-media-title">AI Image - Custom Prompt</span>
                                     <span class="iseo-media-desc">We draft a prompt from your title &mdash; edit it your way, then generate.</span>
                                 </span>
                                 <span class="iseo-media-cost"><span class="iseo-cost-dot"></span>Uses 1 image credit</span>
@@ -1041,21 +1041,13 @@ global $ai_modal_type;
                         </div> -->
 
                         <div id="AI_image_div" class="iseo-media-panel" style="display:none;">
-                            <div class="iseo-panel-grid">
-                                <div class="iseo-preview" id="iseo-preview-title">
-                                    <div class="iseo-preview-empty">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 16-5-5L5 20"/></svg>
-                                        <span>Your cover image will appear here</span>
-                                    </div>
-                                    <div id="ai-image-display"></div>
-                                </div>
-                                <div class="iseo-panel-controls">
-                                    <div class="iseo-for-line">A cover image will be generated from your article title.</div>
-                                    <div class="iseo-btn-row" id="AIrefreshOption">
-                                        <button type="button" class="style_next_button_in_popup" onclick="return refreshAIImage()" style="padding: 12px 30px !important;">Generate AI image</button>
-                                        <span class="iseo-hint">Costs 1 image credit when you press Generate.</span>
-                                    </div>
-                                </div>
+                            <div class="iseo-for-line">A cover image will be generated from your article title.</div>
+                            <div class="iseo-title-preview" id="iseo-preview-title">
+                                <div id="ai-image-display"></div>
+                            </div>
+                            <div class="iseo-btn-row" id="AIrefreshOption">
+                                <button type="button" class="style_next_button_in_popup" onclick="return refreshAIImage()" style="padding: 12px 30px !important;">Generate AI image</button>
+                                <span class="iseo-hint">Costs 1 image credit when you press Generate.</span>
                             </div>
                             <input type="hidden" id="AI-Image-uploaded-path" name="AI-Image-uploaded-path">
                         </div>
