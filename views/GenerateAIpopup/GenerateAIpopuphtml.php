@@ -915,16 +915,12 @@ global $ai_modal_type;
 
                         <div class="step-opton-col">
                             <div class="seo-form-field">
-                                <label for="size">Point of Views</label>
+                                <label for="size">Point of View</label>
                                 <select class="content-opt custom-selcected" name="point_of_view" id="size">
-                                    <option value="none">None</option>
-                                    <option value="First person singular (I,me,my,mine)">First person singular
-                                        (I, me, my, mine)
-                                    </option>
-                                    <option value="First person plural (we,us,our,ours)">First person plural
-                                        (we, us, our, ours)</option>
-                                    <option value="Second Person (you,your,yours)">Second Person
-                                        (you, your, yours)</option>
+                                    <option value="none">Auto (AI Decides)</option>
+                                    <option value="Second Person (you,your,yours)">Speaking to the Reader ("you", "your")</option>
+                                    <option value="First person plural (we,us,our,ours)">Business Voice ("we", "our")</option>
+                                    <option value="First person singular (I,me,my,mine)">Personal Voice ("I", "my")</option>
 
                                 </select>
                             </div>
