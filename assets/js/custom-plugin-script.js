@@ -384,14 +384,17 @@ jQuery("#generateapivalue").on("click", function () {
         Image_use + "<br><br><br>" + modifiedHtmlContent
       );
 
+      // Append the image into the content flow (image first, then the article) so the
+      // preview mirrors the saved post structure (Image_use + content) instead of a
+      // separate side column. A single scroll region, no sticky/floated media.
       var hasPreviewImage = jQuery.trim(Image_use) !== "";
       jQuery("#showmydataindiv1").html(
-        hasPreviewImage
-          ? '<div class="iseo-preview-layout">' +
-              '<div class="iseo-preview-media">' + Image_use + "</div>" +
-              '<div class="iseo-preview-body">' + modifiedHtmlContent + "</div>" +
-            "</div>"
-          : '<div class="iseo-preview-body">' + modifiedHtmlContent + "</div>"
+        '<div class="iseo-preview-body">' +
+          (hasPreviewImage
+            ? '<div class="iseo-preview-media">' + Image_use + "</div>"
+            : "") +
+          modifiedHtmlContent +
+        "</div>"
       );
 
       jQuery("#showmydataindiv1").css("display", "block");
