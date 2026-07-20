@@ -1049,20 +1049,14 @@ global $ai_modal_type;
                         </div> -->
 
                         <div id="AI_image_div" class="iseo-media-panel" style="display:none;">
-                            <div class="iseo-panel-grid">
-                                <div class="iseo-preview" id="iseo-preview-title">
-                                    <div class="iseo-preview-empty">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 16-5-5L5 20"/></svg>
-                                        <span>Your cover image will appear here</span>
-                                    </div>
+                            <div class="iseo-title-gen">
+                                <div class="iseo-for-line iseo-title-lead">A cover image will be generated from your article title.</div>
+                                <div class="iseo-title-image" id="iseo-preview-title">
                                     <div id="ai-image-display"></div>
                                 </div>
-                                <div class="iseo-panel-controls">
-                                    <div class="iseo-for-line">A cover image will be generated from your article title.</div>
-                                    <div class="iseo-btn-row" id="AIrefreshOption">
-                                        <button type="button" class="style_next_button_in_popup" onclick="return refreshAIImage()" style="padding: 12px 30px !important;">Generate AI image</button>
-                                        <span class="iseo-hint">Costs 1 image credit when you press Generate.</span>
-                                    </div>
+                                <div class="iseo-title-actions" id="AIrefreshOption">
+                                    <button type="button" class="style_next_button_in_popup" onclick="return refreshAIImage()" style="padding: 12px 30px !important;">Generate AI image</button>
+                                    <span class="iseo-hint">Costs 1 image credit when you press Generate.</span>
                                 </div>
                             </div>
                             <input type="hidden" id="AI-Image-uploaded-path" name="AI-Image-uploaded-path">

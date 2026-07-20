@@ -2699,15 +2699,15 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
 .improveseo-bulk-ai .iseo-preview #ai-image-display img {
   width: 100%; height: 100%; object-fit: cover; display: block;
 }
-/* Once an image exists: fit it to the container width at its natural height instead of
-   cover-cropping top and bottom. A tall image simply overflows and is clipped (acceptable). */
-.improveseo-bulk-ai .iseo-preview.has-image {
-  aspect-ratio: auto; max-height: 340px; display: block;
-  background: transparent; border-style: solid; border-color: #e4e7ec;
-}
-.improveseo-bulk-ai .iseo-preview.has-image #ai-image-display { position: static; }
-.improveseo-bulk-ai .iseo-preview.has-image #ai-image-display img {
-  width: 100%; height: auto; object-fit: initial;
+/* "AI Image From Title" uses the same single-column pattern as the other two cover
+   methods: centered lead text, the generated image shown inline, then a centered
+   Generate/Regenerate button. The image only appears once one has been generated. */
+.improveseo-bulk-ai .iseo-title-gen { text-align: center; }
+.improveseo-bulk-ai .iseo-title-lead { margin-bottom: 16px; }
+.improveseo-bulk-ai .iseo-title-image { display: none; margin: 0 auto 16px; }
+.improveseo-bulk-ai .iseo-title-image.has-image { display: block; }
+.improveseo-bulk-ai .iseo-title-actions {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
 }
 .improveseo-bulk-ai .iseo-preview-empty {
   text-align: center; color: rgba(80, 87, 94, 0.55); padding: 16px; font-size: 12.5px;
@@ -2723,11 +2723,14 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
 .improveseo-bulk-ai .iseo-hint { font-size: 12.5px; color: rgba(80, 87, 94, 0.6); font-family: "Poppins", serif; }
 .improveseo-bulk-ai .iseo-hint.ok { color: #2E9E6B; }
 
-/* Cover images keep their compact, consistent preview in every method; clicking any
-   generated/uploaded image opens it enlarged in the lightbox below. */
+/* Generated/uploaded cover images render identically in every method: centered,
+   fit to width, rounded, and click-to-enlarge via the lightbox. */
 .improveseo-bulk-ai #ai-image-display img,
 .improveseo-bulk-ai #ai-with-prompt-image-display img,
-.improveseo-bulk-ai #manually-image-display img { cursor: zoom-in; }
+.improveseo-bulk-ai #manually-image-display img {
+  cursor: zoom-in; display: block; max-width: 100%; height: auto;
+  margin: 0 auto; border-radius: 12px; border: 1px solid #e4e7ec;
+}
 
 /* Fullscreen lightbox shared by all three cover-image methods. */
 .iseo-lightbox {
