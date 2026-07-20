@@ -494,18 +494,17 @@ function saveFinalData() {
   document.querySelectorAll('#main_form input[data-from-modal]').forEach(function(el) {
     el.parentNode.removeChild(el);
   });
-  // Disable sidebar cats[] checkboxes so they don't double-submit alongside hidden inputs
-  document.querySelectorAll('#main_form input[name="cats[]"]').forEach(function(el) {
-    el.disabled = true;
-  });
   var _modalForm = document.getElementById('main_form');
   document.querySelectorAll('#single-modal-category-list input[type="checkbox"]').forEach(function(cb) {
     var termId = cb.value;
-    // Mirror selection visually on the sidebar
+    // Prefer the real sidebar checkbox: mirror the modal selection onto it so it
+    // both submits and stays user-editable on the main form. Only fall back to a
+    // hidden input when there is no matching sidebar checkbox (e.g. a category
+    // created inside the modal), which avoids double-submitting the same term.
     var sidebar = document.querySelector('#main_form input[name="cats[]"][value="' + termId + '"]');
-    if (sidebar) sidebar.checked = cb.checked;
-    // Guarantee submission via hidden input for every checked modal category
-    if (cb.checked) {
+    if (sidebar) {
+      sidebar.checked = cb.checked;
+    } else if (cb.checked) {
       var hidden = document.createElement('input');
       hidden.type = 'hidden';
       hidden.name = 'cats[]';
