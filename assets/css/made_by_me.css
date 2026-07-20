@@ -127,7 +127,12 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .iseo-preview-media img {
+  /* Bound BOTH dimensions so a large/tall user upload can't fill the pane and push
+     the article down (AI images are fixed squares; uploads are arbitrary). width/height
+     auto keeps the aspect ratio; the container centers it. */
   max-width: 100%;
+  max-height: 380px;
+  width: auto;
   height: auto;
   border-radius: 8px;
 }
