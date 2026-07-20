@@ -2334,7 +2334,11 @@ global $ai_modal_type;
             let buttonText = 'Next';
 
             if (stepValue === 3) {
-                buttonText = 'Generate AI Post';
+                // On the Add Media step this button normally kicks off generation. But if content
+                // was already generated (the user navigated back here), advancing to Step 4 won't
+                // regenerate — so label it 'Next' to reflect that no generation will happen.
+                var generatedArticle = jQuery("#showmydataindiv1").data("articleHtml");
+                buttonText = (generatedArticle && jQuery.trim(generatedArticle)) ? 'Next' : 'Generate AI Post';
             } else if (stepValue === 4) {
                 buttonText = 'Approve Content';
                 nextStepButton.disabled = false;
@@ -2345,6 +2349,10 @@ global $ai_modal_type;
                 var existingAIContent = jQuery("#showmydataindiv1").html();
                 if (!existingAIContent || !existingAIContent.trim()) {
                     jQuery("#generateapivalue").trigger("click");
+                } else if (typeof recomposePreviewWithCurrentImage === 'function') {
+                    // Content is preserved, but the cover image may have changed in Step 3 —
+                    // re-composite the preview + saved content with the current image selection.
+                    recomposePreviewWithCurrentImage();
                 }
             } else if (stepValue === 5) {
                 buttonText = 'Next';

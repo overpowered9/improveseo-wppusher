@@ -310,96 +310,11 @@ jQuery("#generateapivalue").on("click", function () {
 
       jQuery("#generateapivalue").val("Re-Generate AI Post");
 
-      var AI_image = document.getElementById("AI_image"); //.val();
-
-      var Manually_image = document.getElementById("Manually_image"); //.val();
-
-      var manually_promt_image = document.getElementById(
-        "manually_promt_image"
-      ); //.val();
-
-      var Image_use = "";
-
-      if (AI_image.checked) {
-        Image_use = jQuery("#ai-image-display").html();
-      }
-
-      if (Manually_image.checked) {
-        Image_use = jQuery("#manually-image-display").html();
-      }
-
-      if (manually_promt_image.checked) {
-        Image_use = jQuery("#ai-with-prompt-image-display").html();
-      }
-
-      Image_use = Image_use.replace(
-        'style="max-width: 100%"',
-        'style="max-width: 100%"'
-      );
-
-      // Get the HTML content of the element
-
-      //var htmlContent = content;
-
-      // Example usage
-
-      //var textContent = "This is a sample text.\nThis is another line of text.";
-
-      // The v2 content route already returns finished HTML (wrapped in
-      // .main-content-section-improveseo). Running it through textToHtml() — which
-      // was built for the legacy plain-text route — wraps the whole document in a
-      // <p> and turns every source newline into an empty paragraph, corrupting
-      // headings, tables and spacing. Feeding that broken markup to the preview
-      // (dumped verbatim) and to TinyMCE (which silently repairs it) is exactly
-      // why the preview and the saved post looked different. Use the HTML as-is.
-      var htmlContent = content;
-
-      //console.log(htmlContent);
-
-      // Use a regular expression to replace ** with <h2> and **** with </h2>
-
-      //     // Add line break if a hyphen is found in the content (for **)
-
-      // modifiedHtmlContent = modifiedHtmlContent.replace(/\*\*(.*?)-(.*?)\*\*/g, '<h2 style="margin-top:50px">jQuery1<br>jQuery2</h2>');
-
-      // // Add line break if a hyphen is found in the content (for ****)
-
-      // modifiedHtmlContent = modifiedHtmlContent.replace(/\*\*\*\*(.*?)-(.*?)\*\*\*\*/g, '</h2>jQuery1<br>jQuery2<h2 style="margin-top:50px">');
-
-      // var htmlContent1 = htmlContent.split('****').join('</h2>');
-
-      // var htmlContent2 = htmlContent1.split('**').join('<h2 style="margin-top:50px">');
-
-      // var modifiedHtmlContent = htmlContent2.split('-').join('<br>');
-
-      // var modifiedHtmlContent0 = htmlContent.replace(/\*\*(.*?)\*\*/g, '<h2 style="margin-top:50px">jQuery1</h2>');
-
-      // var modifiedHtmlContent1 = modifiedHtmlContent0.replace(/\*\*\*\*(.*?)\*\*\*\*/g, '</h2>jQuery1<h2 style="margin-top:50px">');
-
-      var modifiedHtmlContent = htmlContent; //modifiedHtmlContent1.replace(/-(.*?)-/g, '<br>jQuery1<br>');
-
-      // Update the HTML content of the element with the modified content
-
-      jQuery("#showmydataindivText").val(
-        Image_use + "<br><br><br>" + modifiedHtmlContent
-      );
-
-      // Append the image into the content flow (image first, then the article) so the
-      // preview mirrors the saved post structure (Image_use + content) instead of a
-      // separate side column. A single scroll region, no sticky/floated media.
-      var hasPreviewImage = jQuery.trim(Image_use) !== "";
-      jQuery("#showmydataindiv1").html(
-        '<div class="iseo-preview-body">' +
-          (hasPreviewImage
-            ? '<div class="iseo-preview-media">' + Image_use + "</div>"
-            : "") +
-          modifiedHtmlContent +
-        "</div>"
-      );
-
-      jQuery("#showmydataindiv1").css("display", "block");
-
-      jQuery("#showmydataindiv1").css("height", "700px");
+      // Composite the generated article with the currently-selected Step 3 cover image into the
+      // preview + the hidden textarea that gets saved. renderGeneratedPreview() stashes the raw
+      // article HTML so a later image change (Step 3) can be re-composited without regenerating.
+      // The v2 route already returns finished HTML, so it is used as-is (no textToHtml wrapping).
+      renderGeneratedPreview(content);
 
       jQuery("#meta_title").val(meta_title);
 
@@ -456,6 +371,47 @@ jQuery("#generateapivalue").on("click", function () {
 
 function textToHtml(text) {
   return "<p>" + text.replace(/\n/g, "</p><p>") + "</p>";
+}
+
+// Read the cover-image HTML for whichever Step 3 image option is currently selected.
+// Returns "" when the selected option has no image yet.
+function getSelectedPreviewImageHtml() {
+  var ai = document.getElementById("AI_image");
+  var manual = document.getElementById("Manually_image");
+  var promptImg = document.getElementById("manually_promt_image");
+  var img = "";
+  if (ai && ai.checked) img = jQuery("#ai-image-display").html();
+  else if (manual && manual.checked) img = jQuery("#manually-image-display").html();
+  else if (promptImg && promptImg.checked) img = jQuery("#ai-with-prompt-image-display").html();
+  return jQuery.trim(img || "");
+}
+
+// Render the generated article into the Step 4 preview + the hidden textarea that gets saved,
+// compositing the currently-selected cover image on top (image first, then the article, matching
+// the saved post). The raw article HTML is stashed on the preview node so a later image change
+// in Step 3 can be re-composited via recomposePreviewWithCurrentImage() without regenerating.
+function renderGeneratedPreview(articleHtml) {
+  articleHtml = articleHtml || "";
+  var $preview = jQuery("#showmydataindiv1");
+  $preview.data("articleHtml", articleHtml);
+  var imageHtml = getSelectedPreviewImageHtml();
+  jQuery("#showmydataindivText").val(imageHtml + "<br><br><br>" + articleHtml);
+  $preview.html(
+    '<div class="iseo-preview-body">' +
+      (imageHtml ? '<div class="iseo-preview-media">' + imageHtml + "</div>" : "") +
+      articleHtml +
+    "</div>"
+  );
+  $preview.css({ display: "block", height: "700px" });
+}
+
+// Re-composite the already-generated article with the currently-selected Step 3 image, without
+// calling the generation API. Used when the user returns to Step 4 after changing the cover image.
+// No-op if nothing has been generated yet.
+function recomposePreviewWithCurrentImage() {
+  var articleHtml = jQuery("#showmydataindiv1").data("articleHtml");
+  if (!articleHtml || !jQuery.trim(articleHtml)) return;
+  renderGeneratedPreview(articleHtml);
 }
 
 function convertToHtml(content) {
