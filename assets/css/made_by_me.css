@@ -2714,13 +2714,19 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
 .improveseo-bulk-ai .iseo-hint { font-size: 12.5px; color: rgba(80, 87, 94, 0.6); font-family: "Poppins", serif; }
 .improveseo-bulk-ai .iseo-hint.ok { color: #2E9E6B; }
 
-/* Generated/uploaded cover images render identically in every method: centered,
-   fit to width, rounded, and click-to-enlarge via the lightbox. */
+/* Generated/uploaded cover images render identically in every method: a small,
+   centered thumbnail that opens full-size in the lightbox when clicked. Capping the
+   container (not the img) keeps the JS-inlined max-width:100% meaning 100% of 320px. */
+.improveseo-bulk-ai #ai-image-display,
+.improveseo-bulk-ai #ai-with-prompt-image-display,
+.improveseo-bulk-ai #manually-image-display {
+  max-width: 320px; margin: 0 auto;
+}
 .improveseo-bulk-ai #ai-image-display img,
 .improveseo-bulk-ai #ai-with-prompt-image-display img,
 .improveseo-bulk-ai #manually-image-display img {
-  cursor: zoom-in; display: block; max-width: 100%; height: auto;
-  margin: 0 auto; border-radius: 12px; border: 1px solid #e4e7ec;
+  cursor: zoom-in; display: block; width: 100%; height: auto;
+  border-radius: 12px; border: 1px solid #e4e7ec;
 }
 
 /* Fullscreen lightbox shared by all three cover-image methods. */
