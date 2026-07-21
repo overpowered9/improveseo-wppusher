@@ -2260,14 +2260,11 @@ global $ai_modal_type;
                     // Always enable for seed_option1
                     nextStepButton.disabled = false;
                 } else {
-                    // For other options, check checkbox state
-                    // nextStepButton.disabled = !approve_content_check_box.checked;
-                    // Only show validation error if user has interacted
-                    if (hasInteracted && !approve_content_check_box.checked) {
-                        showValidationError();
-                    } else {
-                        resetValidationUI();
-                    }
+                    // For other options that require AI title approval, keep the button
+                    // enabled but do NOT surface the approval message here — that would fire
+                    // prematurely on title-type selection. The message is only shown when the
+                    // user actually clicks Next without approving (see nextStepButton handler).
+                    resetValidationUI();
                 }
             } else {
                 // For steps other than 0, always enable
@@ -2382,11 +2379,10 @@ global $ai_modal_type;
             seedSelect.addEventListener("change", function () {
                 hasInteracted = true; // Mark as interacted when seed changes
                 if (currentStep === 0) {
-                    if (this.value !== "seed_option1" && !approve_content_check_box.checked) {
-                        showValidationError();
-                    } else {
-                        resetValidationUI();
-                    }
+                    // Changing the title type should never surface the "Approve AI generated
+                    // title" message on its own — that's premature. Clear any stale error and
+                    // defer the approval gate to the Next click.
+                    resetValidationUI();
                     updateNextButtonState();
                 }
             });
