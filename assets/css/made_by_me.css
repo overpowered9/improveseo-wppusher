@@ -1722,6 +1722,16 @@ form.improve-seo-form-global select {
   background-repeat: no-repeat;
 }
 
+/* Point of View select: its longest option ("Speaking to the Reader (you, your)")
+   ran right up against the dropdown arrow. The arrow is pinned near the right edge
+   by `.wp-core-ui select`, so widen the field and give the text extra right padding
+   to keep a clear gap between the selected label and the chevron. */
+#popup_form #size {
+  padding-right: 48px !important;
+  max-width: 30rem;
+  width: 100%;
+}
+
 /* Generate/Regenerate and Approve buttons: force their icon images white on
    hover/focus so they stay visible against the filled hover background. */
 .improveseo-bulk-ai .title-btn button:hover img,
