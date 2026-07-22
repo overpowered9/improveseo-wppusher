@@ -2265,6 +2265,18 @@ form#popup_form .step-opton2-content-box {
   height: auto;
 }
 
+/* Even with height:auto the row rendered ~155px tall because each column's
+   .seo-form-field carries the base 30px top/bottom margin, leaving a large empty
+   band below the selects (right above "Details for this article"). The mobile
+   breakpoint already zeroes this; trim the desktop BOTTOM margin so the row is
+   shorter and the heading rises to sit just under the selects. The top margin is
+   left intact so the labels keep their breathing room from the content above.
+   Combined with the heading's own 4px top margin this leaves a small ~12px gap —
+   close, but not touching. */
+form#popup_form .step-opton2-content-box .step-opton-col .seo-form-field {
+  margin-bottom: 8px;
+}
+
 /* With the dead space gone, this top margin IS the gap above "Details for this
    article" — a clear, deterministic separation from the selects row, kept well
    under the ~30px gap below (the first niche field's inherited 30px top margin)
