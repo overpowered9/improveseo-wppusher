@@ -1728,13 +1728,13 @@ form.improve-seo-form-global select {
    itself by giving it more flex, taking the room from the short Language column
    ("English (US)"), and keep extra right padding so the label clears the chevron. */
 .step-opton2-content-box .step-opton-col:nth-child(2) { /* Point of View */
-  flex: 1.6;
+  flex: 1.8;
 }
 .step-opton2-content-box .step-opton-col:nth-child(3) { /* Select Language */
-  flex: 0.8;
+  flex: 0.7;
 }
 #popup_form #size {
-  padding-right: 48px !important;
+  padding-right: 56px !important;
   width: 100%;
 }
 
