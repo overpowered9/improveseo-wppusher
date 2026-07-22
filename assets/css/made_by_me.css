@@ -1734,15 +1734,12 @@ form.improve-seo-form-global select {
   flex: 0.7;
 }
 #popup_form #size {
-  /* Chevron sits at "right 13px"; this right padding is where the selected value
-     is clipped, so it sets the gap between the sentence and the arrow. Bumped up
-     for a clearly visible gap, with ellipsis so a clipped long option reads as
-     "…" instead of running straight into the chevron. */
-  padding-right: 68px !important;
+  /* Chevron sits at "right 13px"; keep just enough right padding for the value to
+     clear the arrow. No ellipsis/clipping here — the widened column (flex 1.8
+     above) gives the longest option enough room, so the full text shows in the
+     field instead of being truncated to "…". */
+  padding-right: 30px !important;
   width: 100%;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
 }
 
 /* Generate/Regenerate and Approve buttons: force their icon images white on
