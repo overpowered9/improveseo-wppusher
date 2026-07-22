@@ -2771,13 +2771,16 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
 .improveseo-bulk-ai .iseo-hint { font-size: 12.5px; color: rgba(80, 87, 94, 0.6); font-family: "Poppins", serif; }
 .improveseo-bulk-ai .iseo-hint.ok { color: #2E9E6B; }
 
-/* Generated/uploaded cover images render identically in every method: a small,
-   centered thumbnail that opens full-size in the lightbox when clicked. Capping the
-   container (not the img) keeps the JS-inlined max-width:100% meaning 100% of 320px. */
+/* Generated/uploaded cover images render identically in every method: a large,
+   centered preview that opens full-size in the lightbox when clicked. Capping the
+   container (not the img) keeps the JS-inlined max-width:100% meaning 100% of this
+   width, and width:100% below lets it scale down on narrow panels. Raised from the
+   old 320px thumbnail so the "AI Image From Title" (and the other methods) show a
+   properly large preview. */
 .improveseo-bulk-ai #ai-image-display,
 .improveseo-bulk-ai #ai-with-prompt-image-display,
 .improveseo-bulk-ai #manually-image-display {
-  max-width: 320px; margin: 0 auto;
+  max-width: 560px; margin: 0 auto;
 }
 .improveseo-bulk-ai #ai-image-display img,
 .improveseo-bulk-ai #ai-with-prompt-image-display img,
