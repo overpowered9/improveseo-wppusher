@@ -1734,8 +1734,15 @@ form.improve-seo-form-global select {
   flex: 0.7;
 }
 #popup_form #size {
-  padding-right: 56px !important;
+  /* Chevron sits at "right 13px"; this right padding is where the selected value
+     is clipped, so it sets the gap between the sentence and the arrow. Bumped up
+     for a clearly visible gap, with ellipsis so a clipped long option reads as
+     "…" instead of running straight into the chevron. */
+  padding-right: 68px !important;
   width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 /* Generate/Regenerate and Approve buttons: force their icon images white on
