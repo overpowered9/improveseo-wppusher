@@ -1096,6 +1096,7 @@ global $ai_modal_type;
                                     src="<?php echo WT_URL . '/assets/images/83d0e43cd6c5b0bd5633c1a8567f877a.jpeg' ?>"
                                     alt="ep_arrow-rights"> -->
                                     <div id="prompt_image_div" class="col-md-12" style="display:none;">
+                                        <div class="iseo-for-line iseo-title-lead">Click the image below to view it at full size.</div>
                                         <div id="ai-with-prompt-image-display" style="margin-bottom: 10px;"></div>
 
                                         <input type="hidden" id="AI-Prompt-Image-uploaded-path"
