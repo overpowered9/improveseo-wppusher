@@ -947,7 +947,7 @@ global $ai_modal_type;
                         </div>
 
                     </div>
-                    <div class="seo-form-field">
+                    <div class="seo-form-field iseo-details-block">
                         <label class="iseo-details-head">Details for this article <small style="color:#888;font-weight:normal;margin-left:6px;">(optional &mdash; tailored to your niche)</small></label>
                         <!-- Niche-specific fields are rendered here by iseoRenderNicheFields() based on the
                              Business Niche selected in Step 1. Each input is named nd_<id> and flows into niche_data. -->

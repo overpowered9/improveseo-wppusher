@@ -2253,7 +2253,17 @@ form#popup_form .seo-form-field > label.iseo-details-head {
   font-size: 20px;
   font-weight: 600;
   color: #23282d;
-  margin-top: 10px;
+  margin-top: 0;
+}
+
+/* "Details for this article" should sit closer to the selects row above it than
+   to the first niche field ("Key detail to include") below it. The block's
+   default 30px top margin (plus the old 10px label margin) made the gap above
+   larger than the gap below; tighten the top so the heading reads as belonging
+   to the fields beneath it. The 30px bottom margin is kept so the block still
+   separates cleanly from Call to Action. */
+form#popup_form .iseo-details-block {
+  margin-top: 8px;
 }
 
 .max_width_70 {
