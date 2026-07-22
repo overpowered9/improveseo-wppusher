@@ -71,22 +71,19 @@ global $ai_modal_type;
         // top: 209px;
         left: 0;
         z-index: 999;
-        /* Nudge the 400x400 gif 80px below centre so the whole loading unit sits a
-           little lower, opening up clear space ABOVE the note (toward the top of the
-           screen). The note is anchored to match, just above the gif. */
-        background: rgb(255, 255, 255) url("<?php echo $image_url1; ?>") 50% calc(50% + 80px) no-repeat;
+        /* Keep the 400x400 gif centred in the overlay. */
+        background: rgb(255, 255, 255) url("<?php echo $image_url1; ?>") center no-repeat;
 
     }
 
-    /* Reassuring time estimate shown just above the content-generation spinner. The
-       gif is shifted 80px below centre (see .overlay_ai_data), so its top edge sits
-       120px above centre; place the note ~20px above that (140px above centre). This
-       keeps a small gap to the animation while the freed space opens up ABOVE the
-       note, toward the top of the screen. */
+    /* Reassuring time estimate shown just above the centred content-generation
+       spinner. The gif is 400x400 centred, so its top edge sits 200px above centre;
+       place the note ~10px above that (210px above centre) for a small gap, trimming
+       the space above the note versus the earlier lowered position. */
     .overlay_ai_data .iseo-loading-note {
         position: absolute;
         left: 50%;
-        bottom: calc(50% + 140px);
+        bottom: calc(50% + 210px);
         transform: translateX(-50%);
         margin: 0;
         width: 90%;
