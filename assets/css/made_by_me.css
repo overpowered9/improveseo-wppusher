@@ -2732,9 +2732,22 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
 .improveseo-bulk-ai .iseo-media-radio:checked + .iseo-media-card .iseo-media-check { opacity: 1; transform: scale(1); }
 .improveseo-bulk-ai .iseo-media-radio:checked + .iseo-media-card .iseo-media-icon { background: #1E70B8; color: #fff; }
 
-/* Contextual panel shown for the selected method */
+/* Contextual panel shown for the selected method. A shared min-height keeps all
+   three method panels the same size so switching options doesn't resize the card:
+   the "AI Image - Custom Prompt" panel (7-row textarea) is the tallest, so match
+   that. Panels only exceed this once a large cover image has been generated. */
 .improveseo-bulk-ai .iseo-media-panel {
   margin-top: 18px; background: #fff; border: 1px solid #e4e7ec; border-radius: 14px; padding: 22px;
+  min-height: 400px;
+}
+/* The "AI Image From Title" panel holds little before a cover is generated, so
+   center its content within the shared height instead of leaving it at the top.
+   (400px min-height minus the panel's 22px top/bottom padding = 356px.) */
+.improveseo-bulk-ai #AI_image_div .iseo-title-gen {
+  min-height: 356px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .improveseo-bulk-ai .iseo-panel-grid {
   display: grid; grid-template-columns: 320px 1fr; gap: 22px; align-items: center;
