@@ -2253,19 +2253,24 @@ form#popup_form .seo-form-field > label.iseo-details-head {
   margin-top: 0;
 }
 
-/* "Details for this article" should sit closer to the selects row above it than
-   to the first niche field ("Key detail to include") below it. The selects row
-   (.step-opton2-content-box) is a fixed 100px-tall flex box centered vertically,
-   so it leaves ~26px of empty dead space below the selects. Added to the block's
-   own top margin, that made the gap above the heading larger than the ~30px gap
-   below (the first niche field's inherited 30px top margin). Drop the block's own
-   top margin to 0 so the only gap above the heading is the selects box's small
-   built-in dead space (~10-12px) — a clear, visible gap that stays smaller than
-   the gap below. (8px read as too large, -10px pulled the heading flush against
-   the selects; 0 sits between the two.) The 30px bottom margin is kept so the
-   block still separates cleanly from Call to Action. */
+/* The selects row (.step-opton2-content-box) is a fixed 100px-tall flex box with
+   the selects centered vertically. Because the row is taller than its content, it
+   leaves an unpredictable slab of empty "dead space" below the selects — and that
+   dead space is what a top margin on the heading has to fight, so the same margin
+   value reads as a big gap one moment and touching the next. Kill the root cause:
+   let the row shrink to its content (height:auto — the same value the mobile
+   breakpoint already uses for this box) so there is NO dead space. Now the gap
+   above the heading is exactly the heading's own top margin, nothing else. */
+form#popup_form .step-opton2-content-box {
+  height: auto;
+}
+
+/* With the dead space gone, this top margin IS the gap above "Details for this
+   article" — a clear, deterministic separation from the selects row, kept well
+   under the ~30px gap below (the first niche field's inherited 30px top margin)
+   so the heading still groups with the fields beneath it. */
 form#popup_form .iseo-details-block {
-  margin-top: 0;
+  margin-top: 16px;
 }
 
 .max_width_70 {
