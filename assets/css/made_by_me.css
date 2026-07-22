@@ -2258,12 +2258,14 @@ form#popup_form .seo-form-field > label.iseo-details-head {
    (.step-opton2-content-box) is a fixed 100px-tall flex box centered vertically,
    so it leaves ~26px of empty dead space below the selects. Added to the block's
    own top margin, that made the gap above the heading larger than the ~30px gap
-   below (the first niche field's inherited 30px top margin). Pull the heading up
-   into that transparent, borderless dead space with a negative top margin so the
-   gap above is clearly smaller than the gap below. The 30px bottom margin is kept
-   so the block still separates cleanly from Call to Action. */
+   below (the first niche field's inherited 30px top margin). Drop the block's own
+   top margin to 0 so the only gap above the heading is the selects box's small
+   built-in dead space (~10-12px) — a clear, visible gap that stays smaller than
+   the gap below. (8px read as too large, -10px pulled the heading flush against
+   the selects; 0 sits between the two.) The 30px bottom margin is kept so the
+   block still separates cleanly from Call to Action. */
 form#popup_form .iseo-details-block {
-  margin-top: -10px;
+  margin-top: 0;
 }
 
 .max_width_70 {
