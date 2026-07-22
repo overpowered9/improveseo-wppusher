@@ -2270,7 +2270,7 @@ form#popup_form .step-opton2-content-box {
    under the ~30px gap below (the first niche field's inherited 30px top margin)
    so the heading still groups with the fields beneath it. */
 form#popup_form .iseo-details-block {
-  margin-top: 16px;
+  margin-top: 8px;
 }
 
 .max_width_70 {
