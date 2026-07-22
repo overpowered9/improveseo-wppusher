@@ -1050,7 +1050,7 @@ global $ai_modal_type;
 
                         <div id="AI_image_div" class="iseo-media-panel" style="display:none;">
                             <div class="iseo-title-gen">
-                                <div class="iseo-for-line iseo-title-lead">A cover image will be generated from your article title.</div>
+                                <div class="iseo-for-line iseo-title-lead">Click the image below to view it at full size.</div>
                                 <div class="iseo-title-image" id="iseo-preview-title">
                                     <div id="ai-image-display"></div>
                                 </div>

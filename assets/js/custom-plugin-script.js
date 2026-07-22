@@ -744,9 +744,6 @@ function refreshAIImage() {
   var originalText = $btn.text();
   $btn.prop("disabled", true).text("Generating…");
   $preview.removeClass("has-image");
-  // While (re)generating there is no image to click, so show the default lead text;
-  // it switches to the "click to enlarge" hint once a cover is successfully returned.
-  jQuery("#AI_image_div .iseo-title-lead").text("A cover image will be generated from your article title.");
   jQuery("#loadingAIImage").show();
   $hint.removeClass("ok").text("Generating your cover image… this can take a few seconds.");
 
@@ -788,8 +785,6 @@ function refreshAIImage() {
       );
       jQuery("#AI-Image-uploaded-path").val(response.data);
       $preview.addClass("has-image");
-      // A cover now exists and is click-to-enlarge, so point the user at it.
-      jQuery("#AI_image_div .iseo-title-lead").text("Click the image below to view it at full size.");
       $btn.text("Regenerate image");
       $hint.addClass("ok").text("Cover image ready. 1 image credit used.");
     },
@@ -908,12 +903,10 @@ jQuery(document).ready(function (jQuery) {
           );
         }
         jQuery("#iseo-preview-title").addClass("has-image");
-        jQuery("#AI_image_div .iseo-title-lead").text("Click the image below to view it at full size.");
         jQuery("#AIrefreshOption button").text("Regenerate image");
         jQuery("#AIrefreshOption .iseo-hint").addClass("ok").text("Cover image ready. 1 image credit used.");
       } else {
         jQuery("#iseo-preview-title").removeClass("has-image");
-        jQuery("#AI_image_div .iseo-title-lead").text("A cover image will be generated from your article title.");
         jQuery("#AIrefreshOption button").text("Generate AI image");
         jQuery("#AIrefreshOption .iseo-hint").removeClass("ok").text("Costs 1 image credit when you press Generate.");
       }
