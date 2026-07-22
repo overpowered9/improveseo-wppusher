@@ -77,12 +77,13 @@ global $ai_modal_type;
 
     /* Reassuring time estimate shown above the content-generation spinner. The gif
        (Writing-Optimization.gif) is 400x400 and centered in this full-screen overlay,
-       so anchor the note to the overlay's vertical centre and lift it just past the
-       gif's 200px half-height (+20px gap) — keeping a consistent gap on any screen. */
+       so anchor the note to the overlay's vertical centre and lift it past the gif's
+       200px half-height plus a comfortable ~60px gap so the note isn't glued to the
+       animation — keeping a consistent gap on any screen height. */
     .overlay_ai_data .iseo-loading-note {
         position: absolute;
         left: 50%;
-        bottom: calc(50% + 220px);
+        bottom: calc(50% + 260px);
         transform: translateX(-50%);
         margin: 0;
         width: 90%;
