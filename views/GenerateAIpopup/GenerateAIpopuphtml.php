@@ -193,12 +193,20 @@ global $ai_modal_type;
         gap: 14px;
     }
     .iseo-content-actions-top {
-        display: none;               /* revealed once content exists (.is-visible) */
-        justify-content: flex-end;   /* top-right of the content */
-        margin: 0 0 16px;
+        display: none;                 /* revealed once content exists (.is-visible) */
+        flex-direction: column;        /* the two buttons stacked one above the other */
+        align-items: flex-end;         /* on the right side of the content */
+        gap: 8px;
+        margin: 0 0 12px;
     }
     .iseo-content-actions-top.is-visible {
         display: flex;
+    }
+    /* Compact buttons for the top-right stack; the pair below stays full size. */
+    .iseo-content-actions-top .iseo-content-btn {
+        width: 165px;
+        padding: 7px 16px !important;
+        font-size: 14px !important;
     }
     .iseo-content-actions-bottom {
         display: flex;
