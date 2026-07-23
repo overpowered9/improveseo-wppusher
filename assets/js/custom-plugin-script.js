@@ -243,6 +243,12 @@ jQuery("#generate_i_image").on("click", function () {
 });
 
 jQuery("#generateapivalue").on("click", function () {
+  // Regenerating (content already generated) spends another content credit, so warn
+  // and let the user confirm first. The first "Generate" is expected, so it skips this.
+  var alreadyGenerated = !!jQuery.trim(jQuery("#showmydataindiv1").data("articleHtml") || "");
+  if (alreadyGenerated && !confirm("This will use 1 content credit. Continue?")) {
+    return;
+  }
   console.log("Debug Message when gen ai is clicked");
   jQuery("#loadingAIData").show();
 
