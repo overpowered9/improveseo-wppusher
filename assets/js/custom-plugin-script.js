@@ -289,6 +289,54 @@ jQuery(document).on("input keyup change", "#meta_descreption", function () {
 });
 jQuery(function () { iseoUpdateAllMetaCounters(); });
 
+// If a meta value fails the length check, RERUN the meta prompt (generateAIMeta) to get
+// a fresh one and re-check — up to a few times. Only if it still won't fit after the
+// reruns do we clamp on a word boundary as a last-resort guarantee. This makes
+// "check fails -> rerun the prompt" happen on the client too, so it works even if the
+// server-side guard isn't in effect.
+function iseoRerunMetaIfOverLimit(triesLeft) {
+  triesLeft = (typeof triesLeft === "number") ? triesLeft : 3;
+
+  var titleOver = (jQuery("#meta_title").val() || "").length > 60;
+  var descOver = (jQuery("#meta_descreption").val() || "").length > 160;
+  if (!titleOver && !descOver) return; // check passes — nothing to do
+
+  if (triesLeft <= 0) {
+    // Reruns exhausted — clamp on a word boundary as the final guarantee.
+    jQuery("#meta_title").val(iseoClampMetaLength(jQuery("#meta_title").val(), 60));
+    jQuery("#meta_descreption").val(iseoClampMetaLength(jQuery("#meta_descreption").val(), 160));
+    iseoUpdateAllMetaCounters();
+    return;
+  }
+
+  var maintitle = jQuery("#maintitlearea").val();
+  var aigeneratedtitle = maintitle ? maintitle : jQuery("#aigeneratedtitle").val();
+  var seedkeyword = jQuery("#seed_keyword").val();
+
+  jQuery.post(ajaxurl, {
+    action: "generateAIMeta",
+    aigeneratedtitle: aigeneratedtitle,
+    seedkeyword: seedkeyword,
+  }).done(function (response) {
+    if (response && response.data) {
+      // Replace only the field(s) that failed the check with the freshly rerun value.
+      if (titleOver && response.data.title != null) {
+        jQuery("#meta_title").val(jQuery.trim(response.data.title));
+      }
+      if (descOver && response.data.descreption != null) {
+        jQuery("#meta_descreption").val(jQuery.trim(response.data.descreption));
+      }
+      iseoUpdateAllMetaCounters();
+    }
+    iseoRerunMetaIfOverLimit(triesLeft - 1); // re-check; rerun again if still over
+  }).fail(function () {
+    // Endpoint failed — clamp as the final guarantee.
+    jQuery("#meta_title").val(iseoClampMetaLength(jQuery("#meta_title").val(), 60));
+    jQuery("#meta_descreption").val(iseoClampMetaLength(jQuery("#meta_descreption").val(), 160));
+    iseoUpdateAllMetaCounters();
+  });
+}
+
 jQuery("#generateapivalue").on("click", function () {
   // Regenerating (content already generated) spends another content credit, so warn
   // and let the user confirm first. The first "Generate" is expected, so it skips this.
@@ -369,11 +417,15 @@ jQuery("#generateapivalue").on("click", function () {
       // The v2 route already returns finished HTML, so it is used as-is (no textToHtml wrapping).
       renderGeneratedPreview(content);
 
-      jQuery("#meta_title").val(iseoClampMetaLength(meta_title, 60));
+      jQuery("#meta_title").val(jQuery.trim(meta_title == null ? "" : String(meta_title)));
 
-      jQuery("#meta_descreption").val(iseoClampMetaLength(meta_descreption, 160));
+      jQuery("#meta_descreption").val(jQuery.trim(meta_descreption == null ? "" : String(meta_descreption)));
 
       iseoUpdateAllMetaCounters();
+
+      // If the generated meta fails the length check, rerun the meta prompt (then clamp
+      // as a last resort). The live counter reflects each attempt.
+      iseoRerunMetaIfOverLimit(3);
 
       //tinymce.activeEditor.insertContent(content);
 
