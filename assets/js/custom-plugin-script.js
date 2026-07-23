@@ -395,13 +395,12 @@ function renderGeneratedPreview(articleHtml) {
   var $preview = jQuery("#showmydataindiv1");
   $preview.data("articleHtml", articleHtml);
   var imageHtml = getSelectedPreviewImageHtml();
-  jQuery("#showmydataindivText").val(imageHtml + "<br><br><br>" + articleHtml);
-  $preview.html(
-    '<div class="iseo-preview-body">' +
-      (imageHtml ? '<div class="iseo-preview-media">' + imageHtml + "</div>" : "") +
-      articleHtml +
-    "</div>"
-  );
+  // Render the preview from the EXACT markup that is stored as the post content, so
+  // the preview is a true 1:1 of the final post (cover image inline + the already
+  // server-processed article) rather than a separately-styled preview.
+  var postHtml = imageHtml + "<br><br><br>" + articleHtml;
+  jQuery("#showmydataindivText").val(postHtml);
+  $preview.html(postHtml);
   // Let the preview grow to fit the whole article instead of a fixed-height,
   // inner-scrolling frame — the full content is shown and the page scrolls normally.
   $preview.css({ display: "block", height: "auto" });
