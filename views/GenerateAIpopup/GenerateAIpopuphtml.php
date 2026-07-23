@@ -1006,7 +1006,7 @@ global $ai_modal_type;
 
                         <div class="iseo-media-head">
                             <h2>Add your cover image</h2>
-                            <p>Choose how you want the cover image created. Nothing is generated until you press <b>Generate</b>.</p>
+                            <p>Choose how you want the cover image created.</p>
                         </div>
 
                         <div class="iseo-media-methods" role="radiogroup" aria-label="Cover image method">
