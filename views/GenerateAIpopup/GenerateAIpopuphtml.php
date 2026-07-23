@@ -185,6 +185,42 @@ global $ai_modal_type;
         }
     }
 
+    /* Step 4 preview laid out as ONE post in three stacked "fields": the title, then the
+       cover image, then the content (without its title). Spacing (not borders) separates
+       them so they read as a single post, and the image sits in its own field instead of
+       floating over the text. Each field is dynamic-height (fits its own content). */
+    .iseo-post-field {
+        margin: 0;
+    }
+    .iseo-post-title {
+        margin: 0 0 16px;              /* grows to 1 or 2 lines as needed */
+    }
+    .iseo-post-title h1,
+    .iseo-post-title h2 {
+        margin: 0;
+        font-size: 30px;
+        line-height: 1.25;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+    .iseo-post-image {
+        margin: 0 0 20px;             /* sizes to the image */
+    }
+    .iseo-post-image img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
+    .iseo-post-content {
+        color: #2b2b2b;
+    }
+    /* The article's own title heading is shown in the title field above, so hide any
+       leftover top heading inside the content field to avoid a duplicate title. */
+    .iseo-post-content > .main-content-section-improveseo > h1:first-child {
+        display: none;
+    }
+
     /* Step 4 Approve / Regenerate controls. The same pair appears at the top-right of
        the content (hidden until content exists) and below it. All four buttons share
        one class so they are exactly the same size. */

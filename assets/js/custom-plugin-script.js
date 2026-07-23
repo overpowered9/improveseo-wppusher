@@ -395,12 +395,37 @@ function renderGeneratedPreview(articleHtml) {
   var $preview = jQuery("#showmydataindiv1");
   $preview.data("articleHtml", articleHtml);
   var imageHtml = getSelectedPreviewImageHtml();
-  // Render the preview from the EXACT markup that is stored as the post content, so
-  // the preview is a true 1:1 of the final post (cover image inline + the already
-  // server-processed article) rather than a separately-styled preview.
-  var postHtml = imageHtml + "<br><br><br>" + articleHtml;
-  jQuery("#showmydataindivText").val(postHtml);
-  $preview.html(postHtml);
+
+  // Split the server article into its title (the first <h1>) and the body without it.
+  // The preview then reads as one post laid out in three stacked fields — title, cover
+  // image, then the content (without its title) — which keeps the image out of the text
+  // flow instead of floating on top of it. Falls back to the entered title if the
+  // article has no <h1>.
+  var $article = jQuery("<div>").html(articleHtml);
+  var $h1 = $article.find("h1").first();
+  var titleHtml = "";
+  if ($h1.length) {
+    titleHtml = $h1.prop("outerHTML");
+    $h1.remove();
+  } else {
+    var t = jQuery.trim(
+      jQuery("#maintitlearea").val() || jQuery("#aigeneratedtitle").val() || jQuery("#ai_title").val() || ""
+    );
+    if (t) titleHtml = "<h1>" + t + "</h1>";
+  }
+  var bodyHtml = $article.html();
+
+  // Saved post content mirrors the same order (title, image, body) so the published
+  // post matches the preview. The title stays in the content once (just moved above the
+  // image) — the WordPress post title is set separately from the same title.
+  jQuery("#showmydataindivText").val(titleHtml + imageHtml + bodyHtml);
+
+  // Preview: three stacked fields that visually form a single post.
+  $preview.html(
+    (titleHtml ? '<div class="iseo-post-field iseo-post-title">' + titleHtml + "</div>" : "") +
+    (imageHtml ? '<div class="iseo-post-field iseo-post-image">' + imageHtml + "</div>" : "") +
+    '<div class="iseo-post-field iseo-post-content">' + bodyHtml + "</div>"
+  );
   // Let the preview grow to fit the whole article instead of a fixed-height,
   // inner-scrolling frame — the full content is shown and the page scrolls normally.
   $preview.css({ display: "block", height: "auto" });
