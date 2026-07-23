@@ -192,12 +192,18 @@ global $ai_modal_type;
         align-items: center;
         gap: 14px;
     }
+    /* Anchor the floating top-right stack to the content box. */
+    .generate-data { position: relative; }
     .iseo-content-actions-top {
         display: none;                 /* revealed once content exists (.is-visible) */
+        position: absolute;            /* float at the top-right, beside the content */
+        top: 0;
+        right: 0;
+        z-index: 5;
         flex-direction: column;        /* the two buttons stacked one above the other */
         align-items: flex-end;         /* on the right side of the content */
         gap: 8px;
-        margin: 0 0 12px;
+        margin: 0;
     }
     .iseo-content-actions-top.is-visible {
         display: flex;
