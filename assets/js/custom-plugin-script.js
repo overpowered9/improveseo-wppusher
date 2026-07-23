@@ -266,7 +266,7 @@ function iseoUpdateMetaCounter(fieldSel, counterSel) {
   var max = parseInt($counter.attr("data-max"), 10) || 60;
   var min = parseInt($counter.attr("data-min"), 10) || 0;
   var len = ($field.val() || "").length;
-  $counter.removeClass("is-ideal is-over");
+  $counter.removeClass("is-ideal is-over is-under");
   var mark = "";
   if (len > max) {
     $counter.addClass("is-over");
@@ -274,6 +274,8 @@ function iseoUpdateMetaCounter(fieldSel, counterSel) {
   } else if (len >= min) {
     $counter.addClass("is-ideal");
     mark = "✓ "; // ✓ within the ideal range — check passes
+  } else if (len > 0) {
+    $counter.addClass("is-under"); // amber — valid but under the ideal range (too short)
   }
   $counter.text(mark + len + " / " + max);
 }
@@ -1298,6 +1300,12 @@ function resetSmartWizard() {
 
       showPreviousButton: true, // show/hide a Previous button
     },
+  });
+
+  // Refresh the meta character counters whenever a step is shown (e.g. arriving at the
+  // Meta Title & Description step), so the check reflects the current values.
+  jQuery("#smartwizard").off("showStep.iseometa").on("showStep.iseometa", function () {
+    if (typeof iseoUpdateAllMetaCounters === "function") iseoUpdateAllMetaCounters();
   });
 
   // Go to the first step

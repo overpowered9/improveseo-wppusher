@@ -221,17 +221,19 @@ global $ai_modal_type;
         display: none;
     }
 
-    /* Live character counter + pass/fail check under each meta field. */
+    /* Live character counter + pass/fail check under each meta field. Colours use
+       !important so admin/theme styles can't wash them out. */
     .iseo-meta-count {
-        display: inline-block;
+        display: inline-block !important;
         margin-top: 6px;
-        font-size: 13px;
-        font-weight: 600;
-        color: #6b7280;                 /* under the ideal range (still valid) */
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #6b7280 !important;               /* empty field — neutral */
         font-family: "Poppins", sans-serif;
     }
-    .iseo-meta-count.is-ideal { color: #2E9E6B; }  /* within the ideal range — check passes */
-    .iseo-meta-count.is-over  { color: #d92d20; }  /* over the limit — check fails */
+    .iseo-meta-count.is-ideal { color: #2E9E6B !important; }  /* ideal range — check passes */
+    .iseo-meta-count.is-over  { color: #d92d20 !important; }  /* over the limit — check fails */
+    .iseo-meta-count.is-under { color: #b45309 !important; }  /* under the ideal — too short */
 
     /* Step 4 Approve / Regenerate controls. The same pair appears at the top-right of
        the content (hidden until content exists) and below it. All four buttons share
