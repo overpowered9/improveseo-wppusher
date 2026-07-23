@@ -1145,7 +1145,7 @@ global $ai_modal_type;
                         <textarea class="form-control" id="showmydataindivText" rows="1" style="opacity: 0;"></textarea>
 
                         <div id="showmydataindiv1" name="showmydataindiv1"
-                            style="display: block;max-width: 100%;overflow-y: scroll; "></div>
+                            style="display: block;max-width: 100%;"></div>
                         <input type="hidden" name="ai_tittle" id="ai_title" />
                         <div
                             style="text-align: center; display: flex; justify-content: center; align-items: center; gap: 10px; margin: 20px;">

@@ -402,7 +402,9 @@ function renderGeneratedPreview(articleHtml) {
       articleHtml +
     "</div>"
   );
-  $preview.css({ display: "block", height: "700px" });
+  // Let the preview grow to fit the whole article instead of a fixed-height,
+  // inner-scrolling frame — the full content is shown and the page scrolls normally.
+  $preview.css({ display: "block", height: "auto" });
 }
 
 // Re-composite the already-generated article with the currently-selected Step 3 image, without
