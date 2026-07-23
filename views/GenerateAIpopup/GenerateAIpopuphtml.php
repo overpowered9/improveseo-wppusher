@@ -210,11 +210,14 @@ global $ai_modal_type;
         color: #fff !important;
         border: 1px solid #1C7293 !important;
         border-radius: 50px !important;
-        padding: 11px 30px !important;
+        padding: 11px 20px !important;
         font-size: 18px !important;
         font-weight: 500 !important;
         line-height: 1.4 !important;
-        min-width: 200px;
+        /* Fixed width + border-box so every button is exactly the same size,
+           regardless of label length ("Approve Content" vs "Regenerate Content"). */
+        width: 235px;
+        box-sizing: border-box !important;
         text-align: center;
         cursor: pointer !important;
         font-family: "Poppins", sans-serif;
