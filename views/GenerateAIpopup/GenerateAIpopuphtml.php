@@ -192,27 +192,38 @@ global $ai_modal_type;
         align-items: center;
         gap: 14px;
     }
-    /* Anchor the floating top-right stack to the content box. */
-    .generate-data { position: relative; }
+    /* Two-column content preview: the article fills the left column, the action
+       stack sits in a right-hand column beside it (not above/overlapping it). */
+    .iseo-preview-row {
+        display: flex;
+        align-items: flex-start;       /* stack aligns with the top of the content */
+        gap: 24px;
+    }
+    .iseo-preview-row > #showmydataindiv1 {
+        flex: 1 1 auto;
+        min-width: 0;                  /* let the article shrink, not overflow */
+    }
     .iseo-content-actions-top {
         display: none;                 /* revealed once content exists (.is-visible) */
-        position: absolute;            /* float at the top-right, beside the content */
-        top: 0;
-        right: 0;
-        z-index: 5;
+        flex: 0 0 auto;                /* fixed right-hand column */
         flex-direction: column;        /* the two buttons stacked one above the other */
-        align-items: flex-end;         /* on the right side of the content */
-        gap: 8px;
+        align-items: stretch;
+        gap: 10px;
         margin: 0;
     }
     .iseo-content-actions-top.is-visible {
         display: flex;
     }
-    /* Compact buttons for the top-right stack; the pair below stays full size. */
+    /* Compact buttons for the right-hand stack; the pair below stays full size. */
     .iseo-content-actions-top .iseo-content-btn {
-        width: 165px;
-        padding: 7px 16px !important;
+        width: 180px;
+        padding: 8px 16px !important;
         font-size: 14px !important;
+    }
+    @media (max-width: 768px) {
+        /* On small screens drop the side column; the full-size pair below serves. */
+        .iseo-preview-row { display: block; }
+        .iseo-content-actions-top { display: none !important; }
     }
     .iseo-content-actions-bottom {
         display: flex;
@@ -1204,18 +1215,20 @@ global $ai_modal_type;
 
                         <textarea class="form-control" id="showmydataindivText" rows="1" style="opacity: 0;"></textarea>
 
-                        <!-- Approve / Regenerate actions at the top-right of the generated content.
-                             Hidden until renderGeneratedPreview() adds .is-visible (content exists). -->
-                        <div class="iseo-content-actions iseo-content-actions-top">
-                            <input type="button" class="iseo-content-btn iseo-approve-content"
-                                value="Approve Content" onclick="return saveData();" />
-                            <input type="button" class="iseo-content-btn iseo-regenerate-content"
-                                value="Regenerate Content"
-                                onclick="jQuery('#generateapivalue').trigger('click'); return false;" />
+                        <!-- Two-column layout: the content preview fills the left column and the
+                             Approve / Regenerate stack sits in a right-hand column beside it (revealed
+                             once content exists via .is-visible). -->
+                        <div class="iseo-preview-row">
+                            <div id="showmydataindiv1" name="showmydataindiv1"
+                                style="display: block;max-width: 100%;"></div>
+                            <div class="iseo-content-actions iseo-content-actions-top">
+                                <input type="button" class="iseo-content-btn iseo-approve-content"
+                                    value="Approve Content" onclick="return saveData();" />
+                                <input type="button" class="iseo-content-btn iseo-regenerate-content"
+                                    value="Regenerate Content"
+                                    onclick="jQuery('#generateapivalue').trigger('click'); return false;" />
+                            </div>
                         </div>
-
-                        <div id="showmydataindiv1" name="showmydataindiv1"
-                            style="display: block;max-width: 100%;"></div>
                         <input type="hidden" name="ai_tittle" id="ai_title" />
 
                         <span style="display:none;"><input type="checkbox" value="1" id="for_testing_only" name="for_testing_only"></span>
