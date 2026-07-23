@@ -257,6 +257,38 @@ function iseoClampMetaLength(text, max) {
   return cut.replace(/[\s,;:]+$/, "");
 }
 
+// Live character counter + pass/fail check under each meta field. Shows "len / max",
+// green with a check when within the ideal range, red with a cross when over the limit.
+function iseoUpdateMetaCounter(fieldSel, counterSel) {
+  var $field = jQuery(fieldSel);
+  var $counter = jQuery(counterSel);
+  if (!$field.length || !$counter.length) return;
+  var max = parseInt($counter.attr("data-max"), 10) || 60;
+  var min = parseInt($counter.attr("data-min"), 10) || 0;
+  var len = ($field.val() || "").length;
+  $counter.removeClass("is-ideal is-over");
+  var mark = "";
+  if (len > max) {
+    $counter.addClass("is-over");
+    mark = "✗ "; // ✗ over the limit — check fails
+  } else if (len >= min) {
+    $counter.addClass("is-ideal");
+    mark = "✓ "; // ✓ within the ideal range — check passes
+  }
+  $counter.text(mark + len + " / " + max);
+}
+function iseoUpdateAllMetaCounters() {
+  iseoUpdateMetaCounter("#meta_title", "#meta_title_count");
+  iseoUpdateMetaCounter("#meta_descreption", "#meta_descreption_count");
+}
+jQuery(document).on("input keyup change", "#meta_title", function () {
+  iseoUpdateMetaCounter("#meta_title", "#meta_title_count");
+});
+jQuery(document).on("input keyup change", "#meta_descreption", function () {
+  iseoUpdateMetaCounter("#meta_descreption", "#meta_descreption_count");
+});
+jQuery(function () { iseoUpdateAllMetaCounters(); });
+
 jQuery("#generateapivalue").on("click", function () {
   // Regenerating (content already generated) spends another content credit, so warn
   // and let the user confirm first. The first "Generate" is expected, so it skips this.
@@ -340,6 +372,8 @@ jQuery("#generateapivalue").on("click", function () {
       jQuery("#meta_title").val(iseoClampMetaLength(meta_title, 60));
 
       jQuery("#meta_descreption").val(iseoClampMetaLength(meta_descreption, 160));
+
+      iseoUpdateAllMetaCounters();
 
       //tinymce.activeEditor.insertContent(content);
 
@@ -665,6 +699,8 @@ function generateAIMetaJs() {
       jQuery("#meta_title").val(iseoClampMetaLength(response.data.title, 60));
 
       jQuery("#meta_descreption").val(iseoClampMetaLength(response.data.descreption, 160));
+
+      iseoUpdateAllMetaCounters();
     });
 }
 

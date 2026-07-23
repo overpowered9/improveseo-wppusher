@@ -221,6 +221,18 @@ global $ai_modal_type;
         display: none;
     }
 
+    /* Live character counter + pass/fail check under each meta field. */
+    .iseo-meta-count {
+        display: inline-block;
+        margin-top: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #6b7280;                 /* under the ideal range (still valid) */
+        font-family: "Poppins", sans-serif;
+    }
+    .iseo-meta-count.is-ideal { color: #2E9E6B; }  /* within the ideal range — check passes */
+    .iseo-meta-count.is-over  { color: #d92d20; }  /* over the limit — check fails */
+
     /* Step 4 Approve / Regenerate controls. The same pair appears at the top-right of
        the content (hidden until content exists) and below it. All four buttons share
        one class so they are exactly the same size. */
@@ -1303,11 +1315,13 @@ global $ai_modal_type;
                     <div class="seo-form-field">
                         <label for="meta_title">Meta Title</label>
                         <input type="text" id="meta_title" name="meta_title" placeholder="Enter title..." />
+                        <span class="iseo-meta-count" id="meta_title_count" data-max="60" data-min="50">0 / 60</span>
                     </div>
                     <div class="seo-form-field">
                         <label for="meta_descreption">Meta Description</label>
                         <textarea id="meta_descreption" name="meta_descreption"
                             placeholder="Enter description...."></textarea>
+                        <span class="iseo-meta-count" id="meta_descreption_count" data-max="160" data-min="150">0 / 160</span>
                     </div>
                 </div>
 
