@@ -154,6 +154,11 @@ if (empty($meta_descreption)) {
 	$meta_descreption = generateMetaDescreption($arr['ai_tittle'], $arr['seed_keyword'], $content);
 }
 
+// Meta description must stay within the SEO limit (ideal 150–160, hard max 160 chars).
+// If it's over, rerun the meta-description prompt a few times; a final word-boundary
+// trim guarantees it is never above the limit.
+$meta_descreption = improveseo_enforce_meta_description_length($meta_descreption, $search_data, $seed_keyword, $content);
+
 //$content = convert_emails_to_links($content);
 
 // $content = convert_urls_to_links($content);
@@ -168,6 +173,43 @@ function generateMetaDescreption($aigeneratedtitle, $seed_keyword, $content = ''
 		'title'        => (string) $aigeneratedtitle,
 		'content'      => (string) $content,
 	) );
+}
+
+/**
+ * Keep a meta description within the SEO limit (ideal 150–160, hard max 160 chars).
+ * If it is over the limit, rerun the meta-description prompt up to $max_tries times
+ * (the auxiliary route does not charge credits). As a final guard, trim to $max on a
+ * word boundary so the result is never above the limit.
+ */
+function improveseo_enforce_meta_description_length( $meta, $title, $seed_keyword, $content, $max = 160, $max_tries = 3 )
+{
+	$meta   = trim( (string) $meta );
+	$strlen = function ( $s ) { return function_exists( 'mb_strlen' ) ? mb_strlen( $s ) : strlen( $s ); };
+
+	// Rerun the meta-description prompt until it fits, or we run out of tries.
+	$tries = 0;
+	while ( $strlen( $meta ) > $max && $tries < $max_tries ) {
+		$tries++;
+		$regen = trim( (string) generateMetaDescreption( $title, $seed_keyword, $content ) );
+		if ( $regen === '' ) {
+			break; // API returned nothing; stop and fall through to the trim guard
+		}
+		$meta = $regen;
+	}
+
+	// Final safety net: never exceed the limit — trim to $max, then back to the last
+	// full word, and drop any dangling punctuation so it still reads cleanly.
+	if ( $strlen( $meta ) > $max ) {
+		$cut   = function_exists( 'mb_substr' ) ? mb_substr( $meta, 0, $max ) : substr( $meta, 0, $max );
+		$cut   = rtrim( $cut );
+		$space = function_exists( 'mb_strrpos' ) ? mb_strrpos( $cut, ' ' ) : strrpos( $cut, ' ' );
+		if ( $space !== false && $space >= ( $max - 40 ) ) {
+			$cut = function_exists( 'mb_substr' ) ? mb_substr( $cut, 0, $space ) : substr( $cut, 0, $space );
+		}
+		$meta = rtrim( $cut, " ,;:" );
+	}
+
+	return $meta;
 }
 
 function generateMetaTitle($aigeneratedtitle, $seed_keyword)
