@@ -2575,9 +2575,17 @@ function generateAIMeta()
 
 	$out = [];
 
-	$out['title'] = generateMetaTitle($aigeneratedtitle, $seed_keyword);
+	// Enforce the SEO length limits (title <=60, description <=160): rerun the prompt if
+	// over the limit, then trim as a final guard — same helpers as the Step 4 flow.
+	$title_raw = generateMetaTitle($aigeneratedtitle, $seed_keyword);
+	$desc_raw  = generateMetaDescreption($aigeneratedtitle, $seed_keyword);
 
-	$out['descreption'] = generateMetaDescreption($aigeneratedtitle, $seed_keyword);
+	$out['title'] = function_exists('improveseo_enforce_meta_title_length')
+		? improveseo_enforce_meta_title_length($title_raw, $aigeneratedtitle, $seed_keyword)
+		: $title_raw;
+	$out['descreption'] = function_exists('improveseo_enforce_meta_description_length')
+		? improveseo_enforce_meta_description_length($desc_raw, $aigeneratedtitle, $seed_keyword, '')
+		: $desc_raw;
 
 	wp_send_json_success($out);
 

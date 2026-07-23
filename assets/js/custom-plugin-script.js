@@ -242,6 +242,21 @@ jQuery("#generate_i_image").on("click", function () {
   });
 });
 
+// Final client-side guard so the meta fields are never over the SEO limit (title <=60,
+// description <=160). The server reruns the prompt to get a good one; this only trims on
+// a word boundary if a value still comes back over the limit, guaranteeing the saved
+// field is compliant regardless of the server response.
+function iseoClampMetaLength(text, max) {
+  text = jQuery.trim(text == null ? "" : String(text));
+  if (text.length <= max) return text;
+  var cut = text.slice(0, max);
+  var lastSpace = cut.lastIndexOf(" ");
+  if (lastSpace >= max - 40) {
+    cut = cut.slice(0, lastSpace);
+  }
+  return cut.replace(/[\s,;:]+$/, "");
+}
+
 jQuery("#generateapivalue").on("click", function () {
   // Regenerating (content already generated) spends another content credit, so warn
   // and let the user confirm first. The first "Generate" is expected, so it skips this.
@@ -322,9 +337,9 @@ jQuery("#generateapivalue").on("click", function () {
       // The v2 route already returns finished HTML, so it is used as-is (no textToHtml wrapping).
       renderGeneratedPreview(content);
 
-      jQuery("#meta_title").val(meta_title);
+      jQuery("#meta_title").val(iseoClampMetaLength(meta_title, 60));
 
-      jQuery("#meta_descreption").val(meta_descreption);
+      jQuery("#meta_descreption").val(iseoClampMetaLength(meta_descreption, 160));
 
       //tinymce.activeEditor.insertContent(content);
 
@@ -647,9 +662,9 @@ function generateAIMetaJs() {
     .success(function (response) {
       console.log(response);
 
-      jQuery("#meta_title").val(response.data.title);
+      jQuery("#meta_title").val(iseoClampMetaLength(response.data.title, 60));
 
-      jQuery("#meta_descreption").val(response.data.descreption);
+      jQuery("#meta_descreption").val(iseoClampMetaLength(response.data.descreption, 160));
     });
 }
 
