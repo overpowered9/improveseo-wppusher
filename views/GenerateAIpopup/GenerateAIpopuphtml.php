@@ -1144,6 +1144,17 @@ global $ai_modal_type;
 
                         <textarea class="form-control" id="showmydataindivText" rows="1" style="opacity: 0;"></textarea>
 
+                        <!-- Approve / Regenerate actions at the top-right of the generated content.
+                             Hidden until renderGeneratedPreview() reveals them (content exists). -->
+                        <div class="iseo-content-actions iseo-content-actions-top"
+                            style="display:none; justify-content:flex-end; align-items:center; gap:12px; margin:0 0 14px;">
+                            <input type="button" class="styling_post_page_action_buttons2 iseo-approve-content"
+                                value="Approve Content" onclick="return saveData();" />
+                            <input type="button" class="styling_post_page_action_buttons iseo-regenerate-content"
+                                value="Regenerate Content"
+                                onclick="jQuery('#generateapivalue').trigger('click'); return false;" />
+                        </div>
+
                         <div id="showmydataindiv1" name="showmydataindiv1"
                             style="display: block;max-width: 100%;"></div>
                         <input type="hidden" name="ai_tittle" id="ai_title" />
@@ -1156,8 +1167,13 @@ global $ai_modal_type;
                                 <!-- <label for="for_testing_only">For Testing Only</label> -->
                             </span><br>
 
+                            <!-- Same Approve / Regenerate pair kept below the content preview.
+                                 Approve is revealed with the content; Regenerate is the existing
+                                 generate button (#generateapivalue), relabelled after generation. -->
+                            <input type="button" class="styling_post_page_action_buttons2 iseo-approve-content"
+                                value="Approve Content" onclick="return saveData();" style="display:none;" />
 
-                            <input type="button" name="genaipost" class="styling_post_page_action_buttons"
+                            <input type="button" name="genaipost" class="styling_post_page_action_buttons iseo-regenerate-content"
                                 id="generateapivalue" value="Generate AI Post" />
                             <input type="hidden" name="AI_Title" id="AI_Title">
                             <input type="hidden" name="AI_descreption" id="AI_descreption">

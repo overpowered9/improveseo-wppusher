@@ -308,7 +308,7 @@ jQuery("#generateapivalue").on("click", function () {
 
       jQuery("#generateapi").css("display", "block");
 
-      jQuery("#generateapivalue").val("Re-Generate AI Post");
+      jQuery("#generateapivalue").val("Regenerate Content");
 
       // Composite the generated article with the currently-selected Step 3 cover image into the
       // preview + the hidden textarea that gets saved. renderGeneratedPreview() stashes the raw
@@ -405,6 +405,11 @@ function renderGeneratedPreview(articleHtml) {
   // Let the preview grow to fit the whole article instead of a fixed-height,
   // inner-scrolling frame — the full content is shown and the page scrolls normally.
   $preview.css({ display: "block", height: "auto" });
+
+  // Content now exists — reveal the Approve / Regenerate controls (the top-right
+  // toolbar and the bottom Approve button; the bottom Regenerate is #generateapivalue).
+  jQuery(".iseo-content-actions-top").css("display", "flex");
+  jQuery(".iseo-approve-content").show();
 }
 
 // Re-composite the already-generated article with the currently-selected Step 3 image, without
