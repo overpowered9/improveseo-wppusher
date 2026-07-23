@@ -199,7 +199,7 @@ global $ai_modal_type;
         align-items: flex-start;       /* stack aligns with the top of the content */
         gap: 24px;
     }
-    .iseo-preview-row > #showmydataindiv1 {
+    .iseo-preview-main {               /* left column: content card + the bottom button row */
         flex: 1 1 auto;
         min-width: 0;                  /* let the article shrink, not overflow */
     }
@@ -227,15 +227,17 @@ global $ai_modal_type;
     }
     .iseo-content-actions-bottom {
         display: flex !important;
+        flex-wrap: wrap;               /* wrap on very narrow cards */
         justify-content: center !important;
         align-items: center !important;
         gap: 12px !important;
-        margin: 20px 0 8px;
+        margin: 20px 0 8px;            /* directly under the content card */
     }
-    /* Bottom buttons match the compact size of the top-right stack and sit close
-       together (margin:0 defeats any inherited spacing that spreads them apart). */
+    /* Bottom buttons: compact (same as the top-right stack) and close together. The
+       fixed width keeps the group well within the card, and margin:0 defeats any
+       inherited spacing that would spread or widen them. */
     .iseo-content-actions-bottom .iseo-content-btn {
-        width: 180px;
+        width: 180px !important;
         padding: 8px 16px !important;
         font-size: 14px !important;
         margin: 0 !important;
@@ -1229,8 +1231,23 @@ global $ai_modal_type;
                              Approve / Regenerate stack sits in a right-hand column beside it (revealed
                              once content exists via .is-visible). -->
                         <div class="iseo-preview-row">
-                            <div id="showmydataindiv1" name="showmydataindiv1"
-                                style="display: block;max-width: 100%;"></div>
+                            <div class="iseo-preview-main">
+                                <div id="showmydataindiv1" name="showmydataindiv1"
+                                    style="display: block;max-width: 100%;"></div>
+
+                                <!-- Same Approve / Regenerate pair kept directly below the content card,
+                                     inside the left column so the group is aligned with the card width
+                                     and can never overflow it. Approve is revealed with the content
+                                     (is-hidden removed by renderGeneratedPreview); Regenerate is the
+                                     existing generate button (#generateapivalue), relabelled after the
+                                     first generation. -->
+                                <div class="iseo-content-actions iseo-content-actions-bottom">
+                                    <input type="button" class="iseo-content-btn iseo-approve-content is-hidden"
+                                        value="Approve Content" onclick="return saveData();" />
+                                    <input type="button" name="genaipost" class="iseo-content-btn iseo-regenerate-content"
+                                        id="generateapivalue" value="Generate AI Post" />
+                                </div>
+                            </div>
                             <div class="iseo-content-actions iseo-content-actions-top">
                                 <input type="button" class="iseo-content-btn iseo-approve-content"
                                     value="Approve Content" onclick="return saveData();" />
@@ -1240,19 +1257,7 @@ global $ai_modal_type;
                             </div>
                         </div>
                         <input type="hidden" name="ai_tittle" id="ai_title" />
-
                         <span style="display:none;"><input type="checkbox" value="1" id="for_testing_only" name="for_testing_only"></span>
-
-                        <!-- Same Approve / Regenerate pair kept below the content preview. Approve is
-                             revealed with the content (is-hidden removed by renderGeneratedPreview);
-                             Regenerate is the existing generate button (#generateapivalue), relabelled
-                             "Regenerate Content" after the first generation. -->
-                        <div class="iseo-content-actions iseo-content-actions-bottom">
-                            <input type="button" class="iseo-content-btn iseo-approve-content is-hidden"
-                                value="Approve Content" onclick="return saveData();" />
-                            <input type="button" name="genaipost" class="iseo-content-btn iseo-regenerate-content"
-                                id="generateapivalue" value="Generate AI Post" />
-                        </div>
                         <input type="hidden" name="AI_Title" id="AI_Title">
                         <input type="hidden" name="AI_descreption" id="AI_descreption">
                     </div>
