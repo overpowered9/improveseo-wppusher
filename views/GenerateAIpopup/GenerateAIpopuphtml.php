@@ -235,6 +235,18 @@ global $ai_modal_type;
     .iseo-meta-count.is-over  { color: #d92d20 !important; }  /* over the limit — check fails */
     .iseo-meta-count.is-under { color: #b45309 !important; }  /* under the ideal — too short */
 
+    /* Disclaimer under the meta description: other SEO plugins may override these. */
+    .iseo-meta-note {
+        margin: 12px 0 0;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #6b7280;
+        font-family: "Poppins", sans-serif;
+    }
+    .iseo-meta-note strong { color: #23282d; }
+    .iseo-meta-note a { color: #1C7293; font-weight: 600; text-decoration: underline; }
+    .iseo-meta-note a:hover { color: #0B132B; }
+
     /* Step 4 Approve / Regenerate controls. The same pair appears at the top-right of
        the content (hidden until content exists) and below it. All four buttons share
        one class so they are exactly the same size. */
@@ -1325,6 +1337,12 @@ global $ai_modal_type;
                             placeholder="Enter description...."></textarea>
                         <span class="iseo-meta-count" id="meta_descreption_count" data-max="160" data-min="150">0 / 160</span>
                     </div>
+                    <p class="iseo-meta-note">
+                        <strong>Note:</strong> If you have another SEO plugin installed on this website, the
+                        meta title and meta description for this post might be generated according to those SEO
+                        plugins, and may differ and override the meta title and description above.
+                        <a href="https://account.improveseoplugin.com/tutorial" target="_blank" rel="noopener noreferrer">Learn More</a>
+                    </p>
                 </div>
 
                 <!-- option 6 — Project Name & Category -->
