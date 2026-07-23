@@ -185,6 +185,49 @@ global $ai_modal_type;
         }
     }
 
+    /* Step 4 Approve / Regenerate controls. The same pair appears at the top-right of
+       the content (hidden until content exists) and below it. All four buttons share
+       one class so they are exactly the same size. */
+    .iseo-content-actions {
+        align-items: center;
+        gap: 14px;
+    }
+    .iseo-content-actions-top {
+        display: none;               /* revealed once content exists (.is-visible) */
+        justify-content: flex-end;   /* top-right of the content */
+        margin: 0 0 16px;
+    }
+    .iseo-content-actions-top.is-visible {
+        display: flex;
+    }
+    .iseo-content-actions-bottom {
+        display: flex;
+        justify-content: center;
+        margin: 24px 0 8px;
+    }
+    .iseo-content-btn {
+        background: #1C7293 !important;
+        color: #fff !important;
+        border: 1px solid #1C7293 !important;
+        border-radius: 50px !important;
+        padding: 11px 30px !important;
+        font-size: 18px !important;
+        font-weight: 500 !important;
+        line-height: 1.4 !important;
+        min-width: 200px;
+        text-align: center;
+        cursor: pointer !important;
+        font-family: "Poppins", sans-serif;
+    }
+    .iseo-content-btn:hover {
+        background: #0B132B !important;
+        border-color: #0B132B !important;
+        color: #fff !important;
+    }
+    .iseo-content-btn.is-hidden {
+        display: none !important;
+    }
+
 
     .multi-upload-gallery span {
         height: 100px;
@@ -1145,12 +1188,11 @@ global $ai_modal_type;
                         <textarea class="form-control" id="showmydataindivText" rows="1" style="opacity: 0;"></textarea>
 
                         <!-- Approve / Regenerate actions at the top-right of the generated content.
-                             Hidden until renderGeneratedPreview() reveals them (content exists). -->
-                        <div class="iseo-content-actions iseo-content-actions-top"
-                            style="display:none; justify-content:flex-end; align-items:center; gap:12px; margin:0 0 14px;">
-                            <input type="button" class="styling_post_page_action_buttons2 iseo-approve-content"
+                             Hidden until renderGeneratedPreview() adds .is-visible (content exists). -->
+                        <div class="iseo-content-actions iseo-content-actions-top">
+                            <input type="button" class="iseo-content-btn iseo-approve-content"
                                 value="Approve Content" onclick="return saveData();" />
-                            <input type="button" class="styling_post_page_action_buttons iseo-regenerate-content"
+                            <input type="button" class="iseo-content-btn iseo-regenerate-content"
                                 value="Regenerate Content"
                                 onclick="jQuery('#generateapivalue').trigger('click'); return false;" />
                         </div>
@@ -1158,26 +1200,21 @@ global $ai_modal_type;
                         <div id="showmydataindiv1" name="showmydataindiv1"
                             style="display: block;max-width: 100%;"></div>
                         <input type="hidden" name="ai_tittle" id="ai_title" />
-                        <div
-                            style="text-align: center; display: flex; justify-content: center; align-items: center; gap: 10px; margin: 20px;">
-                            <!-- <input type="button" value="Approve Content" class="btn btn-primary" onclick="return saveData()"
-                            id="generateapi" style="display:none;" style="margin: 0px 0px -37px 0px;"> -->
 
-                            <span><input type="checkbox" value="1" id="for_testing_only" name="for_testing_only">
-                                <!-- <label for="for_testing_only">For Testing Only</label> -->
-                            </span><br>
+                        <span style="display:none;"><input type="checkbox" value="1" id="for_testing_only" name="for_testing_only"></span>
 
-                            <!-- Same Approve / Regenerate pair kept below the content preview.
-                                 Approve is revealed with the content; Regenerate is the existing
-                                 generate button (#generateapivalue), relabelled after generation. -->
-                            <input type="button" class="styling_post_page_action_buttons2 iseo-approve-content"
-                                value="Approve Content" onclick="return saveData();" style="display:none;" />
-
-                            <input type="button" name="genaipost" class="styling_post_page_action_buttons iseo-regenerate-content"
+                        <!-- Same Approve / Regenerate pair kept below the content preview. Approve is
+                             revealed with the content (is-hidden removed by renderGeneratedPreview);
+                             Regenerate is the existing generate button (#generateapivalue), relabelled
+                             "Regenerate Content" after the first generation. -->
+                        <div class="iseo-content-actions iseo-content-actions-bottom">
+                            <input type="button" class="iseo-content-btn iseo-approve-content is-hidden"
+                                value="Approve Content" onclick="return saveData();" />
+                            <input type="button" name="genaipost" class="iseo-content-btn iseo-regenerate-content"
                                 id="generateapivalue" value="Generate AI Post" />
-                            <input type="hidden" name="AI_Title" id="AI_Title">
-                            <input type="hidden" name="AI_descreption" id="AI_descreption">
                         </div>
+                        <input type="hidden" name="AI_Title" id="AI_Title">
+                        <input type="hidden" name="AI_descreption" id="AI_descreption">
                     </div>
                 </div>
                 <!-- option 5 -->

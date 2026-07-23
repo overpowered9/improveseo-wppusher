@@ -406,10 +406,11 @@ function renderGeneratedPreview(articleHtml) {
   // inner-scrolling frame — the full content is shown and the page scrolls normally.
   $preview.css({ display: "block", height: "auto" });
 
-  // Content now exists — reveal the Approve / Regenerate controls (the top-right
-  // toolbar and the bottom Approve button; the bottom Regenerate is #generateapivalue).
-  jQuery(".iseo-content-actions-top").css("display", "flex");
-  jQuery(".iseo-approve-content").show();
+  // Content now exists — reveal the Approve / Regenerate controls: the top-right
+  // toolbar and the bottom Approve button (the bottom Regenerate is #generateapivalue,
+  // always visible). Class toggles avoid inline-display conflicts.
+  jQuery(".iseo-content-actions-top").addClass("is-visible");
+  jQuery(".iseo-approve-content").removeClass("is-hidden");
 }
 
 // Re-composite the already-generated article with the currently-selected Step 3 image, without
