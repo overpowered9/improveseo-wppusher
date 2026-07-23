@@ -226,9 +226,19 @@ global $ai_modal_type;
         .iseo-content-actions-top { display: none !important; }
     }
     .iseo-content-actions-bottom {
-        display: flex;
-        justify-content: center;
-        margin: 24px 0 8px;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 12px !important;
+        margin: 20px 0 8px;
+    }
+    /* Bottom buttons match the compact size of the top-right stack and sit close
+       together (margin:0 defeats any inherited spacing that spreads them apart). */
+    .iseo-content-actions-bottom .iseo-content-btn {
+        width: 180px;
+        padding: 8px 16px !important;
+        font-size: 14px !important;
+        margin: 0 !important;
     }
     .iseo-content-btn {
         background: #1C7293 !important;
