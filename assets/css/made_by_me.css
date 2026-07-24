@@ -2829,3 +2829,36 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
 @media (prefers-reduced-motion: reduce) {
   .improveseo-bulk-ai .iseo-media-card { transition: none; }
 }
+
+/* Post-preview popup action buttons ("Open in new tab" / "Close preview"): round and
+   in the plugin's blue (#1C7293), overriding WordPress's default square grey/blue
+   .button styles. "Open in new tab" is the outline variant, "Close preview" filled. */
+#preview_popup .iseo-preview-action {
+  border-radius: 50px !important;
+  padding: 7px 22px !important;
+  height: auto !important;
+  line-height: 1.5 !important;
+  font-weight: 600 !important;
+  border: 1.5px solid #1C7293 !important;
+  background: #fff !important;
+  color: #1C7293 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  cursor: pointer;
+}
+#preview_popup .iseo-preview-action:hover,
+#preview_popup .iseo-preview-action:focus {
+  background: #1C7293 !important;
+  color: #fff !important;
+  border-color: #1C7293 !important;
+}
+#preview_popup .iseo-preview-action--primary {
+  background: #1C7293 !important;
+  color: #fff !important;
+}
+#preview_popup .iseo-preview-action--primary:hover,
+#preview_popup .iseo-preview-action--primary:focus {
+  background: #0B132B !important;
+  border-color: #0B132B !important;
+  color: #fff !important;
+}

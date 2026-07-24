@@ -115,10 +115,10 @@ $google_api_key = get_option('improveseo_google_api_key');
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
 						<b style="font-size:18px">Post preview</b>
 						<span>
-							<button type="button" id="close_win" class="button" onclick="changeWin()">Open in new
+							<button type="button" id="close_win" class="button iseo-preview-action" onclick="changeWin()">Open in new
 								tab</button>
 							&nbsp;
-							<button type="button" id="open_win" class="button button-primary"
+							<button type="button" id="open_win" class="button button-primary iseo-preview-action iseo-preview-action--primary"
 								onclick="closeWin()">Close preview</button>
 						</span>
 					</div>
