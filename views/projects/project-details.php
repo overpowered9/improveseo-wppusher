@@ -140,17 +140,23 @@ function pd_seo_meta($post_id, $what) {
         font-size: 13px;
         text-align: left;
     }
-    /* Stacked rows switch to flex-direction: column, where the label's
-       `flex: 0 0 160px` basis applies to HEIGHT — forcing a 160px-tall label
-       that shoves the value far down. Reset both to natural height and align the
-       content to the top-left when stacked. */
-    .pd-row[style*="column"] {
-        align-items: stretch;
+    /* Stacked label/value rows (Details & CTA). In a flex COLUMN the label's
+       `flex: 0 0 160px` basis applies to HEIGHT (a 160px-tall label shoves the value
+       down); reset both to natural height, and keep the value full-width, top and
+       left-aligned so N/A / text never sits centred or pushed down. */
+    .pd-row-stacked {
+        flex-direction: column;
+        align-items: flex-start;
         justify-content: flex-start;
     }
-    .pd-row[style*="column"] .pd-label,
-    .pd-row[style*="column"] .pd-value {
+    .pd-row-stacked .pd-label {
         flex: 0 0 auto;
+        text-align: left !important;
+    }
+    .pd-row-stacked .pd-value {
+        flex: 0 0 auto;
+        width: 100%;
+        text-align: left !important;
     }
     .pd-value {
         flex: 1;
@@ -395,13 +401,13 @@ function pd_seo_meta($post_id, $what) {
         <div class="pd-card">
             <div class="pd-card-header">Details & Call to Action</div>
             <div class="pd-card-body">
-                <div class="pd-row" style="flex-direction: column;">
+                <div class="pd-row pd-row-stacked">
                     <div class="pd-label" style="margin-bottom: 6px;">Details to Include</div>
                     <div class="pd-value <?= pd_val($options, 'ai_details_to_include') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;">
                         <?= pd_val($options, 'ai_details_to_include') ?>
                     </div>
                 </div>
-                <div class="pd-row" style="flex-direction: column; margin-top: 8px;">
+                <div class="pd-row pd-row-stacked" style="margin-top: 8px;">
                     <div class="pd-label" style="margin-bottom: 6px;">Call to Action</div>
                     <div class="pd-value <?= pd_val($options, 'ai_call_to_action') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;">
                         <?= pd_val($options, 'ai_call_to_action') ?>
