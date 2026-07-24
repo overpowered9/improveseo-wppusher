@@ -499,11 +499,26 @@ function getSelectedPreviewImageHtml() {
 // compositing the currently-selected cover image on top (image first, then the article, matching
 // the saved post). The raw article HTML is stashed on the preview node so a later image change
 // in Step 3 can be re-composited via recomposePreviewWithCurrentImage() without regenerating.
+// WP Rocket / core LazyLoad can leave the cover image blank on the published post (it
+// swaps the real src for a placeholder that never loads for an above-the-fold hero).
+// Mark the cover image to load eagerly and skip lazy-loading so it renders immediately.
+// Covers WP Rocket (data-no-lazy), WordPress core and other plugins (skip-lazy / eager).
+function iseoMarkCoverImageEager(imgHtml) {
+  imgHtml = jQuery.trim(imgHtml || "");
+  if (!imgHtml) return "";
+  var $wrap = jQuery("<div>").html(imgHtml);
+  $wrap.find("img")
+    .attr("loading", "eager")
+    .attr("data-no-lazy", "1")
+    .addClass("skip-lazy no-lazy");
+  return $wrap.html();
+}
+
 function renderGeneratedPreview(articleHtml) {
   articleHtml = articleHtml || "";
   var $preview = jQuery("#showmydataindiv1");
   $preview.data("articleHtml", articleHtml);
-  var imageHtml = getSelectedPreviewImageHtml();
+  var imageHtml = iseoMarkCoverImageEager(getSelectedPreviewImageHtml());
 
   // Work out the post title (the WordPress post title is set from the same value) and
   // strip its heading out of the article body so the title is never shown twice — once
