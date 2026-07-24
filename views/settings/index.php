@@ -38,7 +38,7 @@ use ImproveSEO\View;
                 <!-- Plugin Identity Bar -->
                 <div class="iseo-identity-bar">
                     <div class="iseo-identity-brand">
-                        <img src="<?php echo WT_URL.'/assets/images/latest-images/seo-latest-logo.svg'?>" alt="ImproveSEO">
+                        <img src="<?php echo improveseo_logo_url()?>" alt="ImproveSEO">
                         <span class="iseo-brand-name">ImproveSEO</span>
                         <span class="iseo-version"><?php echo esc_html( defined('IMPROVESEO_VERSION') ? IMPROVESEO_VERSION : '' ); ?></span>
                     </div>

@@ -943,6 +943,23 @@ function saveContentInTaskList()
 			
 			my_plugin_log('saveContentInTaskList: ✅ Post published successfully | Post ID: ' . $task->post_id . ' | Task ID: ' . $task->id);
 
+			// ── Featured image (bulk, scheduled publish) ────────────────────
+			// Posts created while the toggles were off (or edited as drafts) may
+			// reach publication without a thumbnail — attach it here so every
+			// publish transition honours the toggle state.
+			try {
+				if (
+					improveseo_featured_images_enabled_for( 'bulk' ) &&
+					! has_post_thumbnail( $task->post_id ) &&
+					! empty( $task->ai_image )
+				) {
+					improveseo_set_featured_image_from_url( $task->post_id, base64_decode( $task->ai_image ), $task->ai_title );
+				}
+			} catch ( \Throwable $e ) {
+				error_log( 'improveseo featured-image (bulk scheduled publish) failed: ' . $e->getMessage() );
+			}
+			// ────────────────────────────────────────────────────────────────
+
 			// Add keyword as tag
 			if (!empty($task->keyword_name)) {
 				$tags = array($task->keyword_name);
@@ -1224,6 +1241,7 @@ function saveContentInTaskList()
 
 		// ✅ Validate and decode image URL before using it
 		$image_html = '';
+		$decoded_image = '';
 		if (!empty($value->ai_image)) {
 			$decoded_image = base64_decode($value->ai_image);
 			error_log("saveContentInTaskList: Decoded ai_image for task " . $value->id . ": " . $decoded_image);
@@ -1470,10 +1488,8 @@ function saveContentInTaskList()
 				// ── Featured image (bulk) ───────────────────────────────────────
 				try {
 					if (
-						get_option( 'improveseo_featured_images_enabled', '0' ) &&
-						get_option( 'improveseo_featured_images_bulk',    '0' ) &&
-						isset( $decoded_image ) &&
-						filter_var( $decoded_image, FILTER_VALIDATE_URL )
+						improveseo_featured_images_enabled_for( 'bulk' ) &&
+						! empty( $decoded_image )
 					) {
 						$att_id = improveseo_set_featured_image_from_url( $post_id, $decoded_image, $post_title );
 						if ( $att_id ) {

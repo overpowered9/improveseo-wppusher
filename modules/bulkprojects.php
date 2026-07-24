@@ -490,6 +490,7 @@ function improveseo_bulkprojects()
 			
 			// Validate and decode image URL before using it (same as cron job)
 			$image_html = '';
+			$decoded_image = '';
 			if (!empty($value->ai_image)) {
 				$decoded_image = base64_decode($value->ai_image);
 				// Validate that decoded image is a proper URL
@@ -573,6 +574,22 @@ function improveseo_bulkprojects()
 			if ((!empty($catids))) {
 				wp_set_post_categories($post_id, $catids, false);
 			}
+
+			// ── Featured image (bulk, manual publish) ───────────────────────
+			// This path publishes drafts (and creates missing posts) from the UI;
+			// it must honour the featured-image toggles like every other path.
+			try {
+				if (
+					improveseo_featured_images_enabled_for( 'bulk' ) &&
+					! empty( $decoded_image ) &&
+					! has_post_thumbnail( $post_id )
+				) {
+					improveseo_set_featured_image_from_url( $post_id, $decoded_image, $value->ai_title );
+				}
+			} catch ( \Throwable $e ) {
+				error_log( 'improveseo featured-image (bulk manual publish) failed: ' . $e->getMessage() );
+			}
+			// ────────────────────────────────────────────────────────────────
 			$wpdb->query(
 				$wpdb->prepare(
 					"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`

@@ -41,8 +41,8 @@ use ImproveSEO\Validator;
 			<section class="project-section d-flex flex-row  justify-content-between align-items-center pb-2">
 
 				<div class="head-bar">
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/seo-latest-logo.svg' ?>" alt="ImproveSeo">
-					<h1> ImproveSEO | 2.0.11 </h1>
+					<img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSeo">
+					<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
 				</div>
 
 			</section>

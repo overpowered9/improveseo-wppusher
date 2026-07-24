@@ -13,7 +13,7 @@
 	<div class="shortcode improveseo_wrapper p-3 p-lg-4">
 		<section class="project-section">
 			<div class="project-heading d-flex flex-row align-items-center border-bottom pb-2">
-				<img class="mr-2" src="<?php echo WT_URL.'/assets/images/latest-images/seo-latest-logo.svg'?>" alt="ImproveSeo">
+				<img class="mr-2" src="<?php echo improveseo_logo_url()?>" alt="ImproveSeo">
 				<h1>Create Shortcode</h1>
 			</div>
 				<div class="Breadcrumbs custom-breadcrumbs border-top-0 border-left-0 border-right-0 border-bottom rounded-0 m-0 py-3 px-0 mb-3">

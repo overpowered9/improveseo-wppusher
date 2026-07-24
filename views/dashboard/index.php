@@ -27,7 +27,7 @@ use ImproveSEO\View;
 <div class="global-wrap">
 	<div class="improve-seo-container">
 		<div class="head-bar">
-			<img src="<?php echo WT_URL . '/assets/images/latest-images/seo-latest-logo.svg' ?>" alt="project-list-logo">
+			<img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo">
 			<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
 		</div>
 		<div class="box-top">

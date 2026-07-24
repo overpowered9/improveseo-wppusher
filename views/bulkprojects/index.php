@@ -31,8 +31,8 @@ if (isset($_GET['post_preview'])) {
 <h1 class="hidden">Bulk Product Listing</h1>
 <div class="global-wrap">
 	<div class="head-bar">
-		<img src="<?php echo WT_URL . '/assets/images/latest-images/seo-latest-logo.svg'; ?>" alt="project-list-logo">
-		<h1> ImproveSEO | 2.0.11 </h1>
+		<img src="<?php echo improveseo_logo_url(); ?>" alt="ImproveSEO logo">
+		<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
 	</div>
 	<div class="box-top">
 		<ul class="breadcrumb-seo">
