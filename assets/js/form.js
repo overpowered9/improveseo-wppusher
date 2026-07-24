@@ -144,9 +144,18 @@
          (Date.now() - iseoLastPreview.time) < 20 * 60 * 1000) {
          jQuery('#preview_id').val(iseoLastPreview.id || '');
          jQuery('#is_preview_available').val('yes');
-         jQuery('#wh_prev_modal_1').hide();
-         jQuery('#wh_prev_modal_2').show();
-         jQuery('#preview_iframe').attr('src', iseoLastPreview.url);
+         // Reuse the already-built preview (skips the slow rebuild), but keep the
+         // spinner up until the cached page has loaded so the user never sees a blank
+         // frame — reveal the content only on the iframe's load event.
+         jQuery('#wh_prev_modal_1').show();
+         jQuery('#wh_prev_modal_2').hide();
+         var $reuseFrame = jQuery('#preview_iframe');
+         $reuseFrame.off('load.iseoPreview').on('load.iseoPreview', function() {
+             $reuseFrame.off('load.iseoPreview');
+             jQuery('#wh_prev_modal_1').hide();
+             jQuery('#wh_prev_modal_2').show();
+         });
+         $reuseFrame.attr('src', iseoLastPreview.url);
          return;
      }
 
@@ -237,10 +246,11 @@ function preview_delete_ajax(prev_id){
     });
  }
  function closeWin() {
-     // Keep the built preview so an unchanged repeat "Post preview" can reuse it and open
-     // instantly instead of rebuilding. The previous preview is removed when a different
-     // one is built, and the server's 30-minute sweep (improveseo_sweep_preview_orphans,
-     // designed for exactly this "close handler didn't delete" case) cleans up the rest.
+     // Keep the built preview server-side so an unchanged repeat "Post preview" reuses it
+     // (loads the final preview URL directly, skipping the slow rebuild + builder round
+     // trip). The iframe is blanked to free resources; the preview is removed when a
+     // different one is built, and by the 30-minute sweep (improveseo_sweep_preview_orphans,
+     // designed for exactly this "close handler didn't delete" case) otherwise.
      jQuery('#preview_iframe').off('load.iseoPreview').attr('src', 'about:blank');
      jQuery.modal.close();
  }
