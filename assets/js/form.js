@@ -120,12 +120,43 @@
     avoiding window.open which Safari's popup blocker silently blocks when called
     from an async AJAX callback. */
 
+ // Remember the last successfully-built preview so an unchanged, repeat "Post preview"
+ // reuses it instead of rebuilding. A rebuild is slow: it creates a fresh throwaway draft
+ // and re-renders the whole front-end. Reuse is time-boxed under the 30-minute server
+ // sweep (improveseo_sweep_preview_orphans) so we never point at a preview already swept.
+ var iseoLastPreview = { key: null, url: null, id: null, time: 0 };
+ function iseoPreviewKey() {
+     var content = jQuery.trim(tinymce.get('content') ? tinymce.get('content').getContent() : jQuery('#content').val());
+     var title = jQuery.trim(jQuery('#title').val() || '');
+     return title + '|~iseo~|' + content;
+ }
+
  jQuery('#preview_on').click(function(e){
      e.preventDefault();
      var max_no_posts_old = jQuery('#max-posts').val();
      if (max_no_posts_old > 50) {
          alert("Recommended no. of total posts for preiew is less than 50");				
      }
+     // Fast path: nothing changed since the last preview and it is still fresh — reuse it
+     // instead of rebuilding (which is the slow part the user notices on a repeat click).
+     var iseoKey = iseoPreviewKey();
+     if (iseoLastPreview.url && iseoLastPreview.key === iseoKey &&
+         (Date.now() - iseoLastPreview.time) < 20 * 60 * 1000) {
+         jQuery('#preview_id').val(iseoLastPreview.id || '');
+         jQuery('#is_preview_available').val('yes');
+         jQuery('#wh_prev_modal_1').hide();
+         jQuery('#wh_prev_modal_2').show();
+         jQuery('#preview_iframe').attr('src', iseoLastPreview.url);
+         return;
+     }
+
+     // Content changed (or first run): drop the previous throwaway preview so they don't
+     // pile up, then build a fresh one.
+     if (iseoLastPreview.id) {
+         preview_delete_ajax(iseoLastPreview.id);
+     }
+     iseoLastPreview = { key: null, url: null, id: null, time: 0 };
+
      jQuery('#wh_prev_modal_1').show();
      jQuery('#wh_prev_modal_2').hide();
      jQuery('#preview_iframe').attr('src', 'about:blank');
@@ -159,6 +190,13 @@
                 $iframe.off('load.iseoPreview');
                 jQuery('#wh_prev_modal_1').hide();
                 jQuery('#wh_prev_modal_2').show();
+                // Remember this built preview so an unchanged repeat click can reuse it.
+                try {
+                    var finalUrl = $iframe[0].contentWindow.location.href;
+                    if (finalUrl && finalUrl.indexOf('page=improveseo_projects') === -1) {
+                        iseoLastPreview = { key: iseoKey, url: finalUrl, id: response.project_id, time: Date.now() };
+                    }
+                } catch (e) { /* cross-origin (should not happen same-origin); skip caching */ }
             };
             // Safety net: if building stalls, reveal whatever is there after 90s
             // rather than spinning forever.
@@ -199,12 +237,12 @@ function preview_delete_ajax(prev_id){
     });
  }
  function closeWin() {
-     var preview_id = jQuery('#preview_id').val();
+     // Keep the built preview so an unchanged repeat "Post preview" can reuse it and open
+     // instantly instead of rebuilding. The previous preview is removed when a different
+     // one is built, and the server's 30-minute sweep (improveseo_sweep_preview_orphans,
+     // designed for exactly this "close handler didn't delete" case) cleans up the rest.
      jQuery('#preview_iframe').off('load.iseoPreview').attr('src', 'about:blank');
      jQuery.modal.close();
-     if (preview_id) {
-         preview_delete_ajax(preview_id);
-     }
  }
 
 // "Open in new tab" — runs on a user click (gesture), so window.open is allowed here.
