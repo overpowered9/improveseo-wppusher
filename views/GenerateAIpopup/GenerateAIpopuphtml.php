@@ -214,12 +214,40 @@ global $ai_modal_type;
     }
     .iseo-post-content {
         color: #2b2b2b;
+        font-size: 16px;
+        line-height: 1.7;
     }
-    /* The article's own title heading is shown in the title field above, so hide any
-       leftover top heading inside the content field to avoid a duplicate title. */
-    .iseo-post-content > .main-content-section-improveseo > h1:first-child {
-        display: none;
+    /* Article-body formatting — closer to how the published post reads, with a clear
+       heading hierarchy. Subheaders are a bit smaller than the 30px title above. */
+    .iseo-post-content .main-content-section-improveseo > *:first-child { margin-top: 0; }
+    .iseo-post-content h2 {
+        font-size: 23px;
+        line-height: 1.3;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 26px 0 10px;
     }
+    .iseo-post-content h3 {
+        font-size: 19px;
+        line-height: 1.35;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 22px 0 8px;
+    }
+    .iseo-post-content h4 {
+        font-size: 17px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 18px 0 6px;
+    }
+    .iseo-post-content p { margin: 0 0 14px; }
+    .iseo-post-content ul,
+    .iseo-post-content ol { margin: 0 0 14px; padding-left: 22px; }
+    .iseo-post-content li { margin: 4px 0; }
+    .iseo-post-content a { color: #1C7293; text-decoration: underline; }
+    /* Fallback: if a leading title heading is still present (its text didn't match the
+       known title), hide it so the title never appears twice. */
+    .iseo-post-content > .main-content-section-improveseo > h1:first-child { display: none; }
 
     /* Live character counter + pass/fail check under each meta field. Colours use
        !important so admin/theme styles can't wash them out. */

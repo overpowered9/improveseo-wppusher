@@ -505,29 +505,36 @@ function renderGeneratedPreview(articleHtml) {
   $preview.data("articleHtml", articleHtml);
   var imageHtml = getSelectedPreviewImageHtml();
 
-  // Split the server article into its title (the first <h1>) and the body without it.
-  // The preview then reads as one post laid out in three stacked fields — title, cover
-  // image, then the content (without its title) — which keeps the image out of the text
-  // flow instead of floating on top of it. Falls back to the entered title if the
-  // article has no <h1>.
+  // Work out the post title (the WordPress post title is set from the same value) and
+  // strip its heading out of the article body so the title is never shown twice — once
+  // in the title field above the image and again inside the content. We match the first
+  // heading (any level) whose text equals the known title; if there's no known title we
+  // treat the article's first heading as the title.
+  var knownTitle = jQuery.trim(
+    jQuery("#maintitlearea").val() || jQuery("#aigeneratedtitle").val() ||
+    jQuery("#ai_title").val() || jQuery("#title").val() || ""
+  );
   var $article = jQuery("<div>").html(articleHtml);
-  var $h1 = $article.find("h1").first();
-  var titleHtml = "";
-  if ($h1.length) {
-    titleHtml = $h1.prop("outerHTML");
-    $h1.remove();
-  } else {
-    var t = jQuery.trim(
-      jQuery("#maintitlearea").val() || jQuery("#aigeneratedtitle").val() || jQuery("#ai_title").val() || ""
-    );
-    if (t) titleHtml = "<h1>" + t + "</h1>";
+  var $firstHeading = $article.find("h1, h2, h3").first();
+  var titleText = "";
+  if (knownTitle) {
+    titleText = knownTitle;
+    if ($firstHeading.length &&
+        jQuery.trim($firstHeading.text()).toLowerCase() === knownTitle.toLowerCase()) {
+      $firstHeading.remove(); // it's the title heading — drop it from the body
+    }
+  } else if ($firstHeading.length) {
+    titleText = jQuery.trim($firstHeading.text());
+    $firstHeading.remove();
   }
+  var _iseoEsc = function (s) { return jQuery("<div>").text(s == null ? "" : s).html(); };
+  var titleHtml = titleText ? "<h1>" + _iseoEsc(titleText) + "</h1>" : "";
   var bodyHtml = $article.html();
 
-  // Saved post content mirrors the same order (title, image, body) so the published
-  // post matches the preview. The title stays in the content once (just moved above the
-  // image) — the WordPress post title is set separately from the same title.
-  jQuery("#showmydataindivText").val(titleHtml + imageHtml + bodyHtml);
+  // Saved post content = cover image + body, WITHOUT the title. The theme renders the
+  // WordPress post title on the live post, so including the title here would show it
+  // twice. The preview's title field mirrors that theme title for a faithful preview.
+  jQuery("#showmydataindivText").val(imageHtml + bodyHtml);
 
   // Preview: three stacked fields that visually form a single post.
   $preview.html(
