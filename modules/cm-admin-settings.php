@@ -72,8 +72,8 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 ?>
 <div class="global-wrap" style="max-width: 99% !important;">
 	<div class="head-bar">
-		<img src="<?php echo WT_URL . '/assets/images/latest-images/seo-latest-logo.svg'; ?>" alt="project-list-logo">
-		<h1> ImproveSEO | 2.0.11 </h1>
+		<img src="<?php echo improveseo_logo_url(); ?>" alt="ImproveSEO logo">
+		<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
 	</div>
 	<div class="box-top">
 		<ul class="breadcrumb-seo">

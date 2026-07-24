@@ -20,7 +20,7 @@ use ImproveSEO\View;
 
 <div class="global-wrap">
 	<div class="head-bar">
-		<img src="<?php echo WT_URL . '/assets/images/latest-images/seo-latest-logo.svg' ?>" alt="project-list-logo">
+		<img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo">
 		<h1 style="font-size: 36px; font-weight: 500;"> Welcome To Improve SEO! </h1>
 	</div>
 	<div class="container">

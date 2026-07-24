@@ -208,7 +208,7 @@ function btd_content_status_label($status) {
 
 <div class="global-wrap">
     <div class="head-bar">
-        <img src="<?php echo WT_URL . '/assets/images/latest-images/seo-latest-logo.svg' ?>" alt="project-list-logo">
+        <img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo">
         <h1>ImproveSEO | Post Details</h1>
     </div>
     <div class="box-top">

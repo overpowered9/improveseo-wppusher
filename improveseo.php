@@ -6,7 +6,7 @@ Plugin URI: https://wordpress.org/plugins/improveseo/
 Description: Creates a large number of pages/posts and customize them to rank in Google.
 Author: Improve SEO Team
 Author URI: https://improveseoplugin.com/
-Version: 2.0.11
+Version: 2.0.12
 Requires at least: 5.0
 Tested up to: 6.7
 Requires PHP: 7.4
@@ -15,7 +15,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: improve-seo
 */
 
-define("IMPROVESEO_VERSION", "2.0.11");
+define("IMPROVESEO_VERSION", "2.0.12");
 
 define('IMPROVESEO_ROOT', dirname(__FILE__));
 
@@ -822,6 +822,29 @@ function improveseo_hide_other_notices()
 
 
 
+
+/**
+ * Single source of truth for the featured-image toggles.
+ *
+ * The settings card (views/settings/index.php) renders an unsaved toggle as ON
+ * (get_option default '1'), so every enforcement site MUST resolve the same
+ * way — reading with default '0' made the UI say ON while publishing acted OFF.
+ *
+ * @param string $context 'bulk' or 'single'.
+ * @return bool
+ */
+function improveseo_featured_images_enabled_for( $context ) {
+	return get_option( 'improveseo_featured_images_enabled', '1' ) == '1'
+		&& get_option( 'improveseo_featured_images_' . $context, '1' ) == '1';
+}
+
+/**
+ * The one logo asset every admin screen must render. Screens must call this
+ * instead of hardcoding an asset path so a future logo swap is one change.
+ */
+function improveseo_logo_url() {
+	return WT_URL . '/assets/images/latest-images/seo-latest-logo.svg';
+}
 
 /**
  * Registers an image as a media attachment and sets it as the featured image

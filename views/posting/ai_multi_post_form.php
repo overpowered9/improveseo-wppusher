@@ -75,7 +75,7 @@
    		// top: 209px;
    		left: 0;
    		z-index: 999;
-   		background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loaderr.gif") center no-repeat; 
+   		background: rgba(255,255,255,0.8) url("'.WT_URL.'/assets/images/loaderr.gif") center no-repeat; 
    	}
    
    	.overlay_ai_data{
@@ -87,7 +87,7 @@
    			// top: 209px;
    			left: 0;
    			z-index: 999;
-   			background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loadingGif.gif") center no-repeat; 
+   			background: rgba(255,255,255,0.8) url("'.WT_URL.'/assets/images/loadingGif.gif") center no-repeat; 
    		}
    
    
@@ -100,7 +100,7 @@
    				// top: 209px;
    				left: 0;
    				z-index: 999;
-   				background: rgba(255,255,255,0.8) url("'.home_url('/').'wp-content/plugins/ImproveSEO-2.0.11/assets/images/loadingImage.gif") center no-repeat; 
+   				background: rgba(255,255,255,0.8) url("'.WT_URL.'/assets/images/loadingImage.gif") center no-repeat; 
    			}
    </style>
 

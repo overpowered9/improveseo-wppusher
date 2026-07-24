@@ -32,7 +32,7 @@ use ImproveSEO\View;
 
 	<section class="project-section border-bottom d-flex flex-row justify-content-between align-items-center pb-2">
 		<div class="project-heading d-flex flex-row">
-			<img class="mr-2" src="<?php echo WT_URL . '/assets/images/project-list-logo.png' ?>" alt="ImproveSeo">
+			<img class="mr-2" src="<?php echo improveseo_logo_url() ?>" alt="ImproveSeo">
 			<h1>Edit Post Content</h1>
 		</div>
 	</section>

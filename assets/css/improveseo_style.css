@@ -2577,54 +2577,6 @@ select.select-control {
 
 
 
-.pro-tile .icon-wrap {
-
-    background: #C1EDCB;
-
-}
-
-
-
-.pro-tag {
-
-    background: #0FA4E4;
-
-    border-radius: 4px;
-
-    width: 44px;
-
-    height: 28px;
-
-    text-align: center;
-
-    margin-left: 10px;
-
-    padding: 4px;
-
-}
-
-
-
-.pro-tag span {
-
-    font-family: 'Poppins', sans-serif;
-
-    font-style: normal;
-
-    font-weight: 500;
-
-    font-size: 14px;
-
-    line-height: 21px;
-
-    color: #FFFFFF;
-
-}
-
-
-
-
-
 .dashboard-tabpanel .custom-control-input:checked~.custom-control-label::before {
 
     border-color: #1C7293;
@@ -2702,38 +2654,6 @@ select.select-control {
 .dashboard-tabpanel .custom-switch .custom-control-input:checked~.custom-control-label::after {
 
     transform: translateX(20px);
-
-}
-
-
-
-.module-pro-tab {
-
-    width: 34px;
-
-    height: 24px;
-
-    background: #D8F2FE;
-
-    border-radius: 4px;
-
-    font-family: 'Poppins', sans-serif;
-
-    font-style: normal;
-
-    font-weight: 500;
-
-    font-size: 12px;
-
-    line-height: 24px;
-
-    text-align: center;
-
-    display: inline-block;
-
-    vertical-align: middle;
-
-    margin-left: 14px;
 
 }
 

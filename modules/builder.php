@@ -1341,8 +1341,7 @@ function improveseo_builder()
 				if (
 					$post_id && ! is_wp_error( $post_id ) &&
 					! ( isset( $project->state ) && $project->state === 'Preview' ) && // skip for throwaway previews
-					get_option( 'improveseo_featured_images_enabled', '0' ) &&
-					get_option( 'improveseo_featured_images_single',  '0' ) &&
+					improveseo_featured_images_enabled_for( 'single' ) &&
 					preg_match( '/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $contentText, $img_match )
 				) {
 					improveseo_set_featured_image_from_url( $post_id, $img_match[1], $titleText );
@@ -3377,8 +3376,7 @@ function improveseo_builder_update()
 				if (
 					$post_id && ! is_wp_error( $post_id ) &&
 					! ( isset( $project->state ) && $project->state === 'Preview' ) && // skip for throwaway previews
-					get_option( 'improveseo_featured_images_enabled', '0' ) &&
-					get_option( 'improveseo_featured_images_single',  '0' ) &&
+					improveseo_featured_images_enabled_for( 'single' ) &&
 					preg_match( '/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $contentText, $img_match )
 				) {
 					improveseo_set_featured_image_from_url( $post_id, $img_match[1], $titleText );

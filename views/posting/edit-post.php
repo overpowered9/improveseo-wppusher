@@ -17,7 +17,7 @@ use ImproveSEO\View;
 <div class="CreatePost improveseo_wrapper">
 	<section class="project-section border-bottom d-flex flex-row  justify-content-between align-items-center pb-2">
 		<div class="project-heading d-flex flex-row">
-			<img class="mr-2" src="<?php echo WT_URL.'/assets/images/latest-images/seo-latest-logo.svg'?>" alt="ImproveSeo">
+			<img class="mr-2" src="<?php echo improveseo_logo_url()?>" alt="ImproveSeo">
 			<h1>Edit Project</h1>
 		</div>
 	</section>
