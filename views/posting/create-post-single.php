@@ -174,6 +174,61 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 						}
 						echo $select;
 						?>
+						<!-- Add a new category inline (reuses the create_bulk_category AJAX handler).
+						     A brand-new category is appended as a checked cats[] checkbox so it behaves
+						     exactly like a pre-existing one and is saved with the post. -->
+						<div class="iseo-add-cat-row" style="margin-top:12px; display:flex; gap:6px; align-items:center;">
+							<input type="text" id="new_category_name_form" placeholder="New category name"
+								style="flex:1; min-width:0; padding:6px 8px; border:1px solid #d2d2d2; border-radius:6px;" />
+							<button type="button" id="add_category_form_btn" class="button"
+								data-nonce="<?php echo esc_attr( wp_create_nonce( 'create_category_nonce' ) ); ?>"
+								style="border-radius:6px; white-space:nowrap;">Add</button>
+						</div>
+						<p id="category_add_message_form" style="margin:6px 0 0; font-size:12px;"></p>
+						<script>
+						(function ($) {
+							function iseoAddCategoryFromForm() {
+								var $btn = $('#add_category_form_btn');
+								var name = $.trim($('#new_category_name_form').val() || '');
+								var $msg = $('#category_add_message_form');
+								if (!name) { $msg.text('Please enter a category name').css('color', '#dc3232'); return; }
+								$.ajax({
+									url: ajaxurl,
+									type: 'POST',
+									data: { action: 'create_bulk_category', cat_name: name, nonce: $btn.data('nonce') },
+									beforeSend: function () { $btn.prop('disabled', true).text('Adding...'); },
+									success: function (r) {
+										if (r && r.success) {
+											var id = r.data.term_id;
+											var safe = $('<div>').text(r.data.name).html();
+											var $box = $btn.closest('.inside');
+											if (!$box.find('input[name="cats[]"][value="' + id + '"]').length) {
+												$box.find('.iseo-add-cat-row').before(
+													"<div class='input-group cta-check m-0'><span>" +
+													"<input checked id='" + id + "' type='checkbox' value='" + id + "' name='cats[]'>" +
+													"<label for='" + id + "'>" + safe + "</label></span></div>"
+												);
+											} else {
+												$box.find('input[name="cats[]"][value="' + id + '"]').prop('checked', true);
+											}
+											$('#new_category_name_form').val('');
+											$msg.text('Category added!').css('color', '#46b450');
+											setTimeout(function () { $msg.text(''); }, 3000);
+										} else {
+											$msg.text((r && r.data) || 'Error creating category').css('color', '#dc3232');
+										}
+									},
+									error: function () { $msg.text('Error creating category. Please try again.').css('color', '#dc3232'); },
+									complete: function () { $btn.prop('disabled', false).text('Add'); }
+								});
+							}
+							$(document).on('click', '#add_category_form_btn', iseoAddCategoryFromForm);
+							// Enter in the name field adds the category instead of submitting the whole form.
+							$(document).on('keydown', '#new_category_name_form', function (e) {
+								if (e.which === 13) { e.preventDefault(); iseoAddCategoryFromForm(); }
+							});
+						})(jQuery);
+						</script>
 					</div>
 				</div>
 				<div class="postbox">
