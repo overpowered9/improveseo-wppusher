@@ -138,11 +138,18 @@ function pd_seo_meta($post_id, $what) {
         font-weight: 500;
         color: #50575e;
         font-size: 13px;
+        text-align: left;
     }
     /* Stacked rows switch to flex-direction: column, where the label's
        `flex: 0 0 160px` basis applies to HEIGHT — forcing a 160px-tall label
-       that shoves the value far down. Reset to natural height when stacked. */
-    .pd-row[style*="column"] .pd-label {
+       that shoves the value far down. Reset both to natural height and align the
+       content to the top-left when stacked. */
+    .pd-row[style*="column"] {
+        align-items: stretch;
+        justify-content: flex-start;
+    }
+    .pd-row[style*="column"] .pd-label,
+    .pd-row[style*="column"] .pd-value {
         flex: 0 0 auto;
     }
     .pd-value {
@@ -150,6 +157,7 @@ function pd_seo_meta($post_id, $what) {
         color: #1d2327;
         font-size: 13px;
         word-break: break-word;
+        text-align: left;
     }
     .pd-value.na {
         color: #a7aaad;
