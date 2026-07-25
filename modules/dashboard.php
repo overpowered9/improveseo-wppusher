@@ -657,6 +657,20 @@ function improveseo_dashboard() {
 
 			}
 
+			// The hidden inputs above carry no value attribute — they are only ever
+			// filled by the AI popup, so they post empty on any re-submit of an
+			// existing project (publishing a draft, for one) and the fields above are
+			// skipped. This save then rewrites the options column without them, which
+			// is what made a published draft lose its Details / CTA / seed keyword.
+			// Restore anything this submission did not carry. Inside the 'single'
+			// guard on purpose: the bulk branch of this handler writes a different
+			// table, which this helper must not be pointed at.
+			if (isset($_GET['id'])) {
+
+				improveseo_preserve_generation_options($options_data, $_GET['id']);
+
+			}
+
 		}
 
 
@@ -1262,6 +1276,12 @@ function improveseo_dashboard() {
 
 
 	
+
+
+			// This save rewrites the options column wholesale. The ai_* generation
+			// settings only reach $_POST from the AI popup, so they arrive empty on
+			// an update and would be lost — restore them from the stored project.
+			improveseo_preserve_generation_options($options_data, isset($_GET['id']) ? $_GET['id'] : 0);
 
 
 			$data = array(

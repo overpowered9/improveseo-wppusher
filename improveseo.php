@@ -975,6 +975,80 @@ function improveseo_collect_on_page_seo( array &$options_data, array &$iteration
 }
 
 /**
+ * Carry the AI generation settings across an update to an existing project.
+ *
+ * Every save path rebuilds $options_data from $_POST and then overwrites the
+ * project's options column wholesale — it never merges with what is stored. The
+ * ai_* values only ever reach $_POST from the AI popup's in-page state, which
+ * the create form copies into empty hidden inputs on submit
+ * (copyAIFieldsToHiddenInputs() in views/posting/create-post-single.php — the
+ * inputs carry no value attribute, so they are blank on any later page load).
+ *
+ * So any subsequent save of the project posts those fields empty, they are
+ * skipped, and the stored options lose them: the Project Details screen then
+ * shows "These generation settings weren't recorded for this post" with N/A for
+ * Details to Include, Call to Action and Focus Keyword. Reported as a draft
+ * losing all its fields once published, because publishing routes through the
+ * update path.
+ *
+ * These fields are a record of HOW the post was generated, not editable
+ * settings, so restoring them is always the correct reading of a save that does
+ * not mention them. Strictly additive: a key already present in $options_data is
+ * never touched, so the create path and any genuine edit are unaffected.
+ *
+ * @param array $options_data Project options; modified in place.
+ * @param int   $project_id   Project (task) being updated.
+ */
+function improveseo_preserve_generation_options( array &$options_data, $project_id ) {
+	global $wpdb;
+
+	$project_id = (int) $project_id;
+	if ( ! $project_id ) {
+		return;
+	}
+
+	$stored_raw = $wpdb->get_var(
+		$wpdb->prepare(
+			'SELECT options FROM ' . $wpdb->prefix . 'improveseo_tasks WHERE id = %d',
+			$project_id
+		)
+	);
+	if ( empty( $stored_raw ) ) {
+		return;
+	}
+
+	// Stored as base64(json) — mirrors the Task model's 'array|b64' cast.
+	$stored = json_decode( base64_decode( $stored_raw ), true );
+	if ( ! is_array( $stored ) ) {
+		return;
+	}
+
+	$generation_keys = array(
+		'ai_seed_keyword',
+		'ai_seed_options',
+		'ai_content_type',
+		'ai_nos_of_words',
+		'ai_point_of_view',
+		'ai_content_lang',
+		'ai_details_to_include',
+		'ai_call_to_action',
+		'ai_image_option',
+		'ai_generated_title',
+		'ai_for_testing_only',
+	);
+
+	foreach ( $generation_keys as $key ) {
+		$incoming_has_value = isset( $options_data[ $key ] ) && trim( (string) $options_data[ $key ] ) !== '';
+		if ( $incoming_has_value ) {
+			continue; // Never overwrite a value this save actually carried.
+		}
+		if ( isset( $stored[ $key ] ) && trim( (string) $stored[ $key ] ) !== '' ) {
+			$options_data[ $key ] = $stored[ $key ];
+		}
+	}
+}
+
+/**
  * Ensure the bulk task table has the meta_title / meta_description columns.
  *
  * dbDelta (the version-gated installer path) is unreliable at ALTERing an

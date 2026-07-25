@@ -626,6 +626,17 @@ function improveseo_posting(){
 
 
 
+		// Updating an existing project (this path updates when an id is present and
+		// creates otherwise) rewrites the options column wholesale, and this handler
+		// never collects the ai_* generation settings from $_POST at all — so they
+		// would be dropped on every update. Restore them from the stored project.
+		if (isset($_GET['id'])) {
+
+			improveseo_preserve_generation_options($options_data, $_GET['id']);
+
+		}
+
+
 		$data = array(
 
 
@@ -1178,6 +1189,12 @@ function improveseo_posting(){
 
 
 	
+
+
+			// This save rewrites the options column wholesale. The ai_* generation
+			// settings only reach $_POST from the AI popup, so they arrive empty on
+			// an update and would be lost — restore them from the stored project.
+			improveseo_preserve_generation_options($options_data, isset($_GET['id']) ? $_GET['id'] : 0);
 
 
 			$data = array(
