@@ -448,17 +448,19 @@ function btd_datetime($val) {
         <div class="btd-card">
             <div class="btd-card-header">Details & Call to Action</div>
             <div class="btd-card-body">
-                <div class="btd-row" style="flex-direction: column;">
+                <?php
+                // These two values render with white-space: pre-wrap, so ANY template
+                // whitespace inside the div (newline + indentation) becomes a visible
+                // blank first line that pushes the text to the bottom of the box.
+                // The echo must butt directly against the tags.
+                ?>
+                <div class="btd-row" style="flex-direction: column; align-items: flex-start;">
                     <div class="btd-label" style="margin-bottom: 6px;">Details to Include</div>
-                    <div class="btd-value <?= empty($task->details_to_include) ? 'na' : '' ?>" style="white-space: pre-wrap;">
-                        <?= btd_val($task->details_to_include) ?>
-                    </div>
+                    <div class="btd-value <?= empty($task->details_to_include) ? 'na' : '' ?>" style="white-space: pre-wrap;"><?= btd_val($task->details_to_include) ?></div>
                 </div>
-                <div class="btd-row" style="flex-direction: column; margin-top: 8px;">
+                <div class="btd-row" style="flex-direction: column; align-items: flex-start; margin-top: 8px;">
                     <div class="btd-label" style="margin-bottom: 6px;">Call to Action</div>
-                    <div class="btd-value <?= empty($task->call_to_action) ? 'na' : '' ?>" style="white-space: pre-wrap;">
-                        <?= btd_val($task->call_to_action) ?>
-                    </div>
+                    <div class="btd-value <?= empty($task->call_to_action) ? 'na' : '' ?>" style="white-space: pre-wrap;"><?= btd_val($task->call_to_action) ?></div>
                 </div>
             </div>
         </div>
