@@ -3,3 +3,12 @@ modules/backup_bulk.php
 .claude/settings.local.json
 /.claude
 *.xlsx
+
+# Local docker environment — never commit to GitHub
+docker-compose.yml
+docker-compose.*.yml
+docker-compose.override.yml
+Dockerfile
+Dockerfile.*
+.dockerignore
+docker/
