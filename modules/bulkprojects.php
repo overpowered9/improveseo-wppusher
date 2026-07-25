@@ -579,17 +579,17 @@ function improveseo_bulkprojects()
 				error_log( 'improveseo featured-image (bulk manual publish) failed: ' . $e->getMessage() );
 			}
 			// ────────────────────────────────────────────────────────────────
-			// Record the actual publish date. Creation only writes published_on for
-			// the direct/scheduled paths; drafts published from the UI (this path)
-			// otherwise stay empty forever and the list shows N/A.
-			// (Date-only: the column is varchar(12); time support is a separate fix.)
+			// Record the actual publish datetime (site timezone). Creation only writes
+			// published_on for the direct/scheduled paths; drafts published from the
+			// UI (this path) otherwise stay empty forever and the list shows N/A.
+			improveseo_ensure_bulk_published_on_column();
 			$wpdb->query(
 				$wpdb->prepare(
 					"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
 					SET state = %s, post_id = %d, published_on = %s WHERE id = %d",
 					'Published',  // Use 'Published' (capital) for internal state
 					$post_id,
-					current_time('Y-m-d'),
+					current_time('mysql'),
 					$value->id
 				)
 			);

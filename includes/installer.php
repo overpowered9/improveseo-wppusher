@@ -355,6 +355,12 @@ function improveseo_install() {
 		improveseo_ensure_bulk_meta_columns();
 	}
 
+	// published_on must be wide enough to hold a full datetime (varchar(12) → 19).
+	if ( function_exists( 'improveseo_ensure_bulk_published_on_column' ) ) {
+		delete_option( 'improveseo_bulk_published_on_col' ); // force a fresh check
+		improveseo_ensure_bulk_published_on_column();
+	}
+
 
 	
 

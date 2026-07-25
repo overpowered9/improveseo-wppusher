@@ -215,10 +215,16 @@ $url .= $_SERVER['REQUEST_URI'];
 									}
 									?> </td>
 									<td data-label="Publish Date"> <?php
-									if ($project->status == 'Stoped' || $project->published_on == '0000-00-00 00:00:00' || empty($project->published_on)) {
+									$iseo_pub = trim((string) $project->published_on);
+									if ($project->status == 'Stoped' || $iseo_pub === '' || strpos($iseo_pub, '0000-00-00') === 0) {
 										echo 'N/A';
+									} elseif (strlen($iseo_pub) < 19) {
+										// Date-only value (scheduled date, or legacy truncated row):
+										// show just the date — never a fabricated 00:00:00.
+										echo esc_html(mysql2date('m/d/Y', substr($iseo_pub, 0, 10) . ' 00:00:00'));
 									} else {
-										echo esc_html(date('m/d/Y H:i:s', strtotime($project->published_on)));
+										// Full datetime recorded at the actual publish transition.
+										echo esc_html(mysql2date('m/d/Y H:i:s', $iseo_pub));
 									}
 									?> </td>
 									<td data-label="Post Status" class="status paused">									

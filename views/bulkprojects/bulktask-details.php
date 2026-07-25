@@ -112,9 +112,16 @@ function btd_content_status_label($status) {
 
 // THE date+time format for this screen. Created, Updated and Published On must
 // all render through this one helper so they can never drift apart.
+// A date-only value (scheduled date; time not yet known) renders without a
+// time instead of a fabricated midnight.
 function btd_datetime($val) {
-    if (empty($val) || $val === '0000-00-00 00:00:00') {
+    $val = trim((string) $val);
+    if ($val === '' || strpos($val, '0000-00-00') === 0) {
         return 'N/A';
+    }
+    if (strlen($val) < 19) {
+        $ts = strtotime(substr($val, 0, 10));
+        return $ts === false ? 'N/A' : esc_html(date('M j, Y', $ts));
     }
     $ts = strtotime($val);
     if ($ts === false) {

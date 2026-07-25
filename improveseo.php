@@ -990,6 +990,47 @@ function improveseo_ensure_bulk_meta_columns() {
 	}
 }
 
+/**
+ * Widen improveseo_bulktasksdetails.published_on from varchar(12) to varchar(19).
+ *
+ * The original column can only hold a date ('YYYY-MM-DD'); a full publish
+ * datetime ('YYYY-MM-DD HH:MM:SS', 19 chars) was silently truncated by MySQL,
+ * which is why every publish time rendered as 00:00:00. Kept as varchar (not
+ * DATETIME) because legacy rows contain '' and truncated junk that a type
+ * conversion would reject under strict mode. Idempotent and option-guarded,
+ * same pattern as improveseo_ensure_bulk_meta_columns().
+ */
+function improveseo_ensure_bulk_published_on_column() {
+	global $wpdb;
+
+	if ( get_option( 'improveseo_bulk_published_on_col' ) === 'ready' ) {
+		return;
+	}
+
+	$table = $wpdb->prefix . 'improveseo_bulktasksdetails';
+
+	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+		return;
+	}
+
+	$col = $wpdb->get_row( "SHOW COLUMNS FROM `$table` LIKE 'published_on'" );
+	if ( ! $col ) {
+		return;
+	}
+
+	if ( strtolower( $col->Type ) !== 'varchar(19)' ) {
+		$wpdb->query( "ALTER TABLE `$table` MODIFY `published_on` varchar(19) DEFAULT NULL" );
+		if ( function_exists( 'my_plugin_log' ) ) {
+			my_plugin_log( 'improveseo_ensure_bulk_published_on_column: widened published_on to varchar(19)' . ( $wpdb->last_error ? ' | MySQL Error: ' . $wpdb->last_error : ' | OK' ) );
+		}
+		$col = $wpdb->get_row( "SHOW COLUMNS FROM `$table` LIKE 'published_on'" );
+	}
+
+	if ( $col && strtolower( $col->Type ) === 'varchar(19)' ) {
+		update_option( 'improveseo_bulk_published_on_col', 'ready' );
+	}
+}
+
 function improveseo_set_featured_image_from_url( $post_id, $image_url, $post_title = '' ) {
 	if ( empty( $image_url ) || empty( $post_id ) ) {
 		return false;

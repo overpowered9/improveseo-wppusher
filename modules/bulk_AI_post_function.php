@@ -958,9 +958,13 @@ function saveContentInTaskList()
 
 
 	global $wpdb;
-	
+
 	my_plugin_log('saveContentInTaskList: === FUNCTION START ===');
-	
+
+	// published_on must hold a full datetime — widen the legacy varchar(12)
+	// column before any publish transition writes to it (option-guarded, cheap).
+	improveseo_ensure_bulk_published_on_column();
+
 	// ========================================
 	// PART 1: PUBLISH SCHEDULED DRAFTS
 	// ========================================
@@ -1049,12 +1053,15 @@ function saveContentInTaskList()
 			// Update task state to Published
 			my_plugin_log('saveContentInTaskList: Preparing to UPDATE database | Task ID: ' . $task->id . ' | Setting state=Published, is_published_by_plugin=1');
 			
+			// Overwrite the planned (date-only) published_on with the ACTUAL
+			// publish moment, in the site's timezone, so the list shows a real time.
 			$update_rows = $wpdb->query(
 				$wpdb->prepare(
 					"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
-					 SET `state` = %s, `updated_at` = NOW()
+					 SET `state` = %s, `published_on` = %s, `updated_at` = NOW()
 					 WHERE id = %d",
 					'Published',
+					current_time('mysql'),
 					$task->id
 				)
 			);
@@ -1560,24 +1567,35 @@ function saveContentInTaskList()
 
 
 			my_plugin_log('saveContentInTaskList: Updating task ' . $task_id . ' | Setting post_id: ' . $post_id . ' | Setting state: ' . $internal_state . ' | Setting status: Done');
-			
-			$wpdb->query(
 
-				$wpdb->prepare(
-
-					"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
-
-						SET state = %s, status = %s, post_id = %d WHERE id = %d",
-
-					$internal_state,  // Use internal_state instead of post_status
-					'Done',  // Set status back to Done now that post is created
-					$post_id,
-
-					$value->id
-
-				)
-
-			 );
+			if ($internal_state === 'Published') {
+				// Direct publish: record the actual publish datetime (site timezone),
+				// not just the date-only value written at project creation.
+				$wpdb->query(
+					$wpdb->prepare(
+						"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
+							SET state = %s, status = %s, post_id = %d, published_on = %s WHERE id = %d",
+						$internal_state,
+						'Done',  // Set status back to Done now that post is created
+						$post_id,
+						current_time('mysql'),
+						$value->id
+					)
+				);
+			} else {
+				// Draft/Scheduled: keep published_on as the planned date (or empty for
+				// drafts) — it is filled with the real datetime when publishing happens.
+				$wpdb->query(
+					$wpdb->prepare(
+						"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
+							SET state = %s, status = %s, post_id = %d WHERE id = %d",
+						$internal_state,
+						'Done',  // Set status back to Done now that post is created
+						$post_id,
+						$value->id
+					)
+				);
+			}
 
 			my_plugin_log('saveContentInTaskList: ✅ SUCCESS - Publishing complete for task ' . $task_id . ' | Post ID: ' . $post_id . ' | WP Status: ' . $post_status . ' | Internal State: ' . $internal_state);
 
