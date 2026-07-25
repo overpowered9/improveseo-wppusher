@@ -1615,151 +1615,30 @@ function getAudienceData($seed_keyword)
 }
 
 function bulkAiTitle($getAudienceData, $question, $keyword_name, $tone_of_voice)
-
 {
+	// Route through the admin server's /auxiliary endpoint, exactly like the
+	// single-post generateTitle() path. The old implementation called OpenAI
+	// directly with the legacy improveseo_chatgpt_api_key (hidden in settings,
+	// unset on new installs) — the request failed, returned null, and the
+	// caller's safety net silently replaced the title with the raw keyword.
+	// 'question' asks for the title phrased as a question (seed_option3).
+	$title_type = ($question === 'question') ? 'question' : 'normal';
 
-	global $wpdb, $user_ID;
+	$content = improveseo_call_auxiliary_api('title', array(
+		'seed_keyword'  => (string) $keyword_name,
+		'audience_data' => (string) $getAudienceData,
+		'title_type'    => $title_type,
+	));
 
+	// Strip any surrounding quotes the model may add. Returns '' on failure so
+	// the caller's keyword fallback still applies as a last resort.
+	$content = preg_replace('~^[\'"]?(.*?)[\'"]?$~', '$1', trim((string) $content));
 
-
-	// Your OpenAI API key
-
-	$apiKey = get_option('improveseo_chatgpt_api_key');
-
-
-
-	// The endpoint URL for OpenAI chat completions API (replace with the correct endpoint)
-
-	$apiUrl = 'https://api.openai.com/v1/chat/completions';
-
-
-
-	if ($tone_of_voice != '') {
-
-		$tone_of_voice = 'voice of content must be ' . $tone_of_voice;
-
+	if ($content === '') {
+		my_plugin_log('bulkAiTitle: auxiliary title generation failed for keyword "' . $keyword_name . '" (type: ' . $title_type . ') — caller will fall back to the keyword');
 	}
 
-
-
-	if ($question == 'normal') {
-
-		$query_question = 'You are a content creator who creates SEO optimized titles for blog posts. You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. Using this information you should come up with the title that will be engaging and interesting for people who are described in the audience data and search provided word or phrase. In the title do not include emojis or hashtags. Limit characters not including spaces to 80-100. As an output, write just a title without explanation or introduction.
-
-			Now generate a SEO optimized title based on the following information:
-
-			Keyword: ' . $keyword_name . '
-
-			Audience data: {' . $getAudienceData . '}';
-
-
-
-		// $question = 'Create a compelling seo optimized blog post title based on the keyword `'.$seed_keyword.'` in the form of No Answer. No emojis. No hashtags. Limit characters not including spaces to 80-100. '.$content_type;
-
-	} else if ($question == 'question') {
-
-		$query_question = 'You are a content creator who creates SEO optimized titles for blog posts. You are provided a word or phrase that is searched by the reader, and the audience data of the reader, including demographic information, tone preferences, reading level preference and emotional needs/pain points. Using this information you should come up with a title that will be engaging and interesting for people who are described in the audience data and search provided word or phrase. Title should be formed as a question. In the title do not include emojis or hashtags. Limit characters not including spaces to 80-100. As an output, write just a title without explanation or introduction. 
-
-				Now generate a SEO optimized title based on the following information:
-
-					Keyword: ' . $keyword_name . '
-
-					Audience data: {' . $getAudienceData . '}';
-
-	} else {
-
-		$query_question = $keyword_name;
-
-	}
-
-
-
-	// echo "????".$question;
-
-
-
-	// Your chat messages
-
-	$messages = [
-
-		//['role' => 'system', 'content' => $getAudienceData],
-
-		['role' => 'user', 'content' => $query_question]
-
-		// ['role' => 'assistant', 'content' => 'Hello, how can I help you today?'],
-
-	];
-
-
-
-
-
-	// Additional parameters, including language setting (replace with actual parameters)
-
-	$data = [
-
-		'messages' => $messages,
-
-		'model' => "gpt-4o"
-
-
-
-		//'language' => 'fr',  // Specify the result language as French
-
-	];
-
-
-
-	// Set up cURL
-
-	$ch = curl_init($apiUrl);
-
-
-
-	// Set cURL options
-
-	curl_setopt($ch, CURLOPT_POST, 1);
-
-	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-	curl_setopt($ch, CURLOPT_HTTPHEADER, [
-
-		'Content-Type: application/json',
-
-		'Authorization: Bearer ' . $apiKey,
-
-	]);
-
-
-
-	// Execute the cURL request
-
-	$response = curl_exec($ch);
-
-
-
-	// Check for cURL errors
-
-	if (curl_errno($ch)) {
-
-		echo 'Curl error: ' . curl_error($ch);
-
-	}
-
-	// Close cURL session
-
-	curl_close($ch);
-
-
-
-	// Decode and display the response
-
-	$result = json_decode($response, true);
-
-	return $result['choices'][0]['message']['content'];
-
+	return $content;
 }
 
 function generateBulkAiImage($title, $AudienceData, $niche = 'general_blog')
