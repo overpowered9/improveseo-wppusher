@@ -657,19 +657,24 @@ function improveseo_dashboard() {
 
 			}
 
-			// The hidden inputs above carry no value attribute — they are only ever
-			// filled by the AI popup, so they post empty on any re-submit of an
-			// existing project (publishing a draft, for one) and the fields above are
-			// skipped. This save then rewrites the options column without them, which
-			// is what made a published draft lose its Details / CTA / seed keyword.
-			// Restore anything this submission did not carry. Inside the 'single'
-			// guard on purpose: the bulk branch of this handler writes a different
-			// table, which this helper must not be pointed at.
-			if (isset($_GET['id'])) {
+		}
 
-				improveseo_preserve_generation_options($options_data, $_GET['id']);
+		// Restore the ai_* generation settings this submission did not carry.
+		//
+		// Deliberately OUTSIDE the ai_modal_type === 'single' block above: only the
+		// two create forms post ai_modal_type at all. Editing an existing project
+		// goes through views/posting/edit-post.php, which does not — so on exactly
+		// the path that loses the data (publishing a draft), that block never runs,
+		// and a copy of this call placed inside it never ran either.
+		//
+		// The condition mirrors how $model is chosen below (Task unless the request
+		// is explicitly bulk), because this helper reads the improveseo_tasks table
+		// and must never be pointed at a bulk id.
+		$is_bulk_submission = isset($_POST['ai_modal_type']) && $_POST['ai_modal_type'] == 'bulk';
 
-			}
+		if (isset($_GET['id']) && !$is_bulk_submission) {
+
+			improveseo_preserve_generation_options($options_data, $_GET['id']);
 
 		}
 
