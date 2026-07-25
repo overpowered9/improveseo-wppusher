@@ -25,46 +25,22 @@ use ImproveSEO\View;
 <div class="iseo-aicontent-wrap">
 	<?php foreach ($projects as $key => $value) : ?>
 		<article class="iseo-aicontent-article">
-			<h1 class="iseo-aicontent-title"><?php echo esc_html($value->ai_title); ?></h1>
-
 			<?php
-			$iseo_img = !empty($value->ai_image) ? base64_decode($value->ai_image) : '';
-			if ($iseo_img && filter_var($iseo_img, FILTER_VALIDATE_URL)) : ?>
-				<div class="iseo-aicontent-hero">
-					<img src="<?php echo esc_url($iseo_img); ?>" alt="<?php echo esc_attr($value->ai_title); ?>">
-				</div>
-			<?php endif; ?>
+			// The one and only title: ai_title, exactly what becomes post_title on
+			// publish (the theme renders it as the page heading). The duplicate
+			// in-content <h1> the generator emits is stripped by the shared renderer.
+			?>
+			<h1 class="iseo-aicontent-title"><?php echo esc_html($value->ai_title); ?></h1>
 
 			<div class="iseo-aicontent-body">
 				<?php
-				// ai_content is stored as base64-encoded HTML. Render it as HTML (NOT nl2br,
-				// which would double-space real markup) so it reads like the final published post.
-				echo wp_kses_post(base64_decode($value->ai_content));
+				// Render through the SAME builder used when the post is created
+				// (hero image + h1-deduped article + shortcode blocks), so what
+				// you preview here is exactly what gets published.
+				$iseo_built = improveseo_bulk_build_post_content($value);
+				echo do_shortcode(wp_kses_post($iseo_built['html']));
 				?>
 			</div>
-
-			<?php if (!empty($value->testimonial)) {
-				$testimonial_ids = '';
-				$all_testimonial = explode("||", $value->testimonial);
-				foreach ($all_testimonial as $key1 => $value1) {
-					if (!empty($value1)) {
-						$testimonial_ids = $value1 . ',' . $testimonial_ids;
-					}
-				}
-				echo '<div class="iseo-aicontent-extra">' . do_shortcode('[improveseo_testimonial id="' . $testimonial_ids . '"]') . '</div>';
-			} ?>
-
-			<?php if (!empty($value->Button_SC)) {
-				echo '<div class="iseo-aicontent-extra">' . do_shortcode('[improveseo_buttons id="' . $value->Button_SC . '"]') . '</div>';
-			} ?>
-
-			<?php if (!empty($value->GoogleMap_SC)) {
-				echo '<div class="iseo-aicontent-extra">' . do_shortcode('[improveseo_googlemaps id="' . $value->GoogleMap_SC . '"]') . '</div>';
-			} ?>
-
-			<?php if (!empty($value->Video_SC)) {
-				echo '<div class="iseo-aicontent-extra">' . do_shortcode('[improveseo_video id="' . $value->Video_SC . '"]') . '</div>';
-			} ?>
 		</article>
 	<?php endforeach; ?>
 </div>
@@ -85,29 +61,35 @@ use ImproveSEO\View;
 		padding: 40px 48px 48px;
 	}
 
-	.iseo-aicontent-title {
-		font-size: 34px;
+	/* Heading hierarchy: page title (34px) must outrank EVERYTHING in the body.
+	   Scoped + !important so no admin/theme stylesheet can invert it again. */
+	.iseo-aicontent-article .iseo-aicontent-title {
+		font-size: 34px !important;
 		line-height: 1.25;
 		font-weight: 700;
 		color: #1d2327;
 		margin: 0 0 24px;
 	}
 
-	.iseo-aicontent-hero {
-		margin: 0 0 28px;
-	}
-
-	.iseo-aicontent-hero img {
-		width: 100%;
-		height: auto;
-		border-radius: 10px;
-		display: block;
-	}
-
 	.iseo-aicontent-body {
 		font-size: 17px;
 		line-height: 1.75;
 		color: #2c3338;
+	}
+
+	/* Hero image comes through the shared renderer with its publish-time inline
+	   style; round the corners like the rest of the preview. */
+	.iseo-aicontent-body > img:first-child {
+		border-radius: 10px;
+	}
+
+	/* Any h1 left inside the body must stay BELOW the page title. */
+	.iseo-aicontent-body h1 {
+		font-size: 30px;
+		font-weight: 700;
+		color: #1d2327;
+		margin: 34px 0 16px;
+		line-height: 1.3;
 	}
 
 	.iseo-aicontent-body h2 {
@@ -124,6 +106,30 @@ use ImproveSEO\View;
 		color: #1d2327;
 		margin: 28px 0 12px;
 		line-height: 1.35;
+	}
+
+	.iseo-aicontent-body h4 {
+		font-size: 18px;
+		font-weight: 600;
+		color: #1d2327;
+		margin: 24px 0 10px;
+		line-height: 1.4;
+	}
+
+	.iseo-aicontent-body h5,
+	.iseo-aicontent-body h6 {
+		font-size: 17px;
+		font-weight: 600;
+		color: #1d2327;
+		margin: 20px 0 8px;
+		line-height: 1.4;
+	}
+
+	/* FAQ (and any other block) consistency: the generator sometimes carries
+	   its own font sizing on questions/answers — force everything back onto
+	   the body heading scale defined above. */
+	.iseo-aicontent-body [style*="font-size"] {
+		font-size: inherit !important;
 	}
 
 	.iseo-aicontent-body p {

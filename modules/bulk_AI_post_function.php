@@ -144,6 +144,85 @@ if (!function_exists('removeConsecutiveSpecialCharacters')) {
     }
 }
 
+if (!function_exists('improveseo_bulk_strip_content_h1')) {
+    /**
+     * Remove the generated in-content <h1> so the title renders exactly once.
+     *
+     * The canonical title is ai_title — it becomes post_title on publish (the
+     * theme renders it as the page heading) and the preview header renders it
+     * the same way. The generator ALSO emits that title as an <h1> at the top
+     * of the article body, which double-renders it everywhere. Only the first
+     * <h1> is removed, and only when nothing but whitespace / an opening
+     * wrapper <div> precedes it, so a deliberate mid-article h1 is untouched.
+     */
+    function improveseo_bulk_strip_content_h1($html) {
+        if (empty($html)) {
+            return $html;
+        }
+        return preg_replace(
+            '~^((?:\s*<div\b[^>]*>)*\s*)<h1\b[^>]*>.*?</h1>\s*~is',
+            '$1',
+            $html,
+            1
+        );
+    }
+}
+
+if (!function_exists('improveseo_bulk_build_post_content')) {
+    /**
+     * THE single renderer for a bulk task's post body.
+     *
+     * Used by every path that turns a task row into post_content — cron post
+     * creation (saveContentInTaskList), the manual Publish action AND the
+     * admin "View AI content" preview — so what you preview is byte-for-byte
+     * what gets published.
+     *
+     * @param object $task Row from improveseo_bulktasksdetails.
+     * @return array{html: string, image: string} 'html' is the full post body
+     *         (hero image + h1-deduped article + shortcode blocks); 'image' is
+     *         the decoded hero image URL, '' when absent or invalid.
+     */
+    function improveseo_bulk_build_post_content($task) {
+        $image_html    = '';
+        $decoded_image = '';
+        if (!empty($task->ai_image)) {
+            $decoded_image = base64_decode($task->ai_image);
+            if (filter_var($decoded_image, FILTER_VALIDATE_URL)) {
+                $image_html = "<img src='" . esc_url($decoded_image) . "' style='width:100%; margin-bottom: 100px;' alt='" . esc_attr($task->ai_title) . "'>";
+            } else {
+                $decoded_image = '';
+            }
+        }
+
+        $body = improveseo_bulk_strip_content_h1(base64_decode($task->ai_content));
+
+        $extras = '';
+        if (!empty($task->testimonial)) {
+            $testimonial_ids = '';
+            foreach (explode('||', $task->testimonial) as $tid) {
+                if (!empty($tid)) {
+                    $testimonial_ids = $tid . ',' . $testimonial_ids;
+                }
+            }
+            $extras .= '<p>[improveseo_testimonial id="' . $testimonial_ids . '"]</p>';
+        }
+        if (!empty($task->Button_SC)) {
+            $extras .= '<p>[improveseo_buttons id="' . $task->Button_SC . '"]</p>';
+        }
+        if (!empty($task->GoogleMap_SC)) {
+            $extras .= '<p>[improveseo_googlemaps id="' . $task->GoogleMap_SC . '"]</p>';
+        }
+        if (!empty($task->Video_SC)) {
+            $extras .= '<p style="width:100%">[improveseo_video id="' . $task->Video_SC . '"]</p>';
+        }
+
+        return array(
+            'html'  => $image_html . $body . $extras,
+            'image' => $decoded_image,
+        );
+    }
+}
+
 // Add helpers to handle parentheses around links/CTAs in bulk content
 if (!function_exists('stripParenthesesWrappingContactTokens')) {
     // Strip parentheses that wrap raw URLs or emails in plain text.
@@ -1167,52 +1246,6 @@ function saveContentInTaskList()
 			
 			my_plugin_log('saveContentInTaskList: Pre-publish validation passed for task ' . $task_id . ' | Title: "' . substr($value->ai_title, 0, 50) . '..." | Content length: ' . strlen($value->ai_content) . ' bytes');
 
-			// short code
-
-			if (!empty($value->testimonial)) {
-
-				$testimonial_ids = '';
-
-				$all_testimonial = explode("||", $value->testimonial);
-
-				foreach ($all_testimonial as $key1 => $value1) {
-
-					if (!empty($value1)) {
-
-						$testimonial_ids = $value1 . ',' . $testimonial_ids;
-
-					}
-
-				}
-
-				$content = $content . '<p>[improveseo_testimonial id="' . $testimonial_ids . '"]</p>';
-
-			}
-
-
-
-			if (!empty($value->Button_SC)) {
-
-				$content = $content . '<p>[improveseo_buttons id="' . $value->Button_SC . '"]</p>';
-
-			}
-
-
-
-			if (!empty($value->GoogleMap_SC)) {
-
-				$content = $content . '<p>[improveseo_googlemaps id="' . $value->GoogleMap_SC . '"]</p>';
-
-			}
-
-
-
-			if (!empty($value->Video_SC)) {
-
-				$content = $content . '<p style="width:100%">[improveseo_video id="' . $value->Video_SC . '"]</p>';
-
-			}
-
 			$catids = [];
 
 			if (!empty($value->cats)) {
@@ -1239,26 +1272,14 @@ function saveContentInTaskList()
 
 		$tags = array();
 
-		// ✅ Validate and decode image URL before using it
-		$image_html = '';
-		$decoded_image = '';
-		if (!empty($value->ai_image)) {
-			$decoded_image = base64_decode($value->ai_image);
-			error_log("saveContentInTaskList: Decoded ai_image for task " . $value->id . ": " . $decoded_image);
-			
-			// Validate that decoded image is a proper URL
-			if (filter_var($decoded_image, FILTER_VALIDATE_URL)) {
-				$image_html = "<img src='" . esc_url($decoded_image) . "' style='width:100%; margin-bottom: 100px;' alt='" . esc_attr($value->ai_title) . "'>";
-				error_log("saveContentInTaskList: Valid image URL, including in post");
-			} else {
-				error_log("saveContentInTaskList: Invalid or missing image URL (value: '" . $decoded_image . "'), skipping image");
-			}
-		} else {
-			error_log("saveContentInTaskList: No image data for task " . $value->id);
+		// Assemble the post body through the shared bulk renderer (hero image +
+		// h1-deduped article + shortcode blocks) — same output the preview shows.
+		$built = improveseo_bulk_build_post_content($value);
+		$fullcontent = $built['html'];
+		$decoded_image = $built['image'];
+		if ($decoded_image === '') {
+			error_log("saveContentInTaskList: Invalid or missing image URL for task " . $value->id . ", post created without hero image");
 		}
-		
-		// Assemble content with optional image
-		$fullcontent = $image_html . base64_decode($value->ai_content) . $content;
 	
 	// Sanitize title: remove all double quotes and trim any quotes from start/end
 	$post_title = str_replace('"', '', $value->ai_title);

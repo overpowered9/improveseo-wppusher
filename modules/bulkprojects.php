@@ -302,7 +302,7 @@ function improveseo_bulkprojects()
 		$orderBy = isset($_GET['orderBy']) ? $_GET['orderBy'] : 'created_at';
 		$order = isset($_GET['order']) ? $_GET['order'] : 'DESC';
 		$highlight = isset($_GET['highlight']) ? $_GET['highlight'] : null;
-		
+
 		$sql = 'SELECT * FROM ' . $detailsTaskModel->getTable();
 		$sql .= ' WHERE `id` = %d';
 		$sql .= " ORDER BY $orderBy $order";
@@ -310,6 +310,19 @@ function improveseo_bulkprojects()
 
 		// Data
 		$projects = $wpdb->get_results($sql);
+
+		// Draft-only: the preview exists to review content BEFORE it goes live.
+		// Published/Scheduled tasks have a real post — use View Post instead.
+		// (The list already hides the link for non-drafts; this enforces it.)
+		if (empty($projects) || $projects[0]->state !== 'Draft') {
+			FlashMessage::message('View AI content is only available for draft posts. Use View Post for published or scheduled posts.', 'error');
+			$back = !empty($projects) && !empty($projects[0]->bulktask_id)
+				? 'admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . intval($projects[0]->bulktask_id)
+				: 'admin.php?page=improveseo_bulkprojects';
+			wp_redirect(admin_url($back));
+			exit;
+		}
+
 		$total = count($projects);
 		$pages = 1;
 		$page = 1;
@@ -453,28 +466,7 @@ function improveseo_bulkprojects()
 		global $wpdb;
 		$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `id`=" . $id;
 		$Bulktasks = $wpdb->get_results($sql);
-		$content = '';
 		foreach ($Bulktasks as $key => $value) {
-			// short code
-			if (!empty($value->testimonial)) {
-				$testimonial_ids = '';
-				$all_testimonial = explode("||", $value->testimonial);
-				foreach ($all_testimonial as $key1 => $value1) {
-					if (!empty($value1)) {
-						$testimonial_ids = $value1 . ',' . $testimonial_ids;
-					}
-				}
-				$content = $content . '<p>[improveseo_testimonial id="' . $testimonial_ids . '"]</p>';
-			}
-			if (!empty($value->Button_SC)) {
-				$content = $content . '<p>[improveseo_buttons id="' . $value->Button_SC . '"]</p>';
-			}
-			if (!empty($value->GoogleMap_SC)) {
-				$content = $content . '<p>[improveseo_googlemaps id="' . $value->GoogleMap_SC . '"]</p>';
-			}
-			if (!empty($value->Video_SC)) {
-				$content = $content . '<p style="width:100%">[improveseo_video id="' . $value->Video_SC . '"]</p>';
-			}
 			$catids = [];
 			if (!empty($value->cats)) {
 				$categories = explode("||", $value->cats);
@@ -487,25 +479,15 @@ function improveseo_bulkprojects()
 				$categories = '';
 			}
 			$tags = array('-');
-			
-			// Validate and decode image URL before using it (same as cron job)
-			$image_html = '';
-			$decoded_image = '';
-			if (!empty($value->ai_image)) {
-				$decoded_image = base64_decode($value->ai_image);
-				// Validate that decoded image is a proper URL
-				if (filter_var($decoded_image, FILTER_VALIDATE_URL)) {
-					$image_html = "<img src='" . esc_url($decoded_image) . "' style='width:100%; margin-bottom: 100px;' alt='" . esc_attr($value->ai_title) . "'>";
-					my_plugin_log('Publish action: Valid image URL found for task ' . $value->id);
-				} else {
-					my_plugin_log('Publish action: Invalid or missing image URL for task ' . $value->id . ', skipping image');
-				}
-			} else {
-				my_plugin_log('Publish action: No image data for task ' . $value->id);
+
+			// Assemble the post body through the shared bulk renderer (hero image +
+			// h1-deduped article + shortcode blocks) — same output the preview shows.
+			$built = improveseo_bulk_build_post_content($value);
+			$fullcontent = $built['html'];
+			$decoded_image = $built['image'];
+			if ($decoded_image === '') {
+				my_plugin_log('Publish action: Invalid or missing image URL for task ' . $value->id . ', publishing without hero image');
 			}
-			
-			// Assemble content with optional image
-			$fullcontent = $image_html . base64_decode($value->ai_content) . $content;
 			
 			$post_date = date('Y-m-d H:i:s');
 			$post_status = 'publish';
