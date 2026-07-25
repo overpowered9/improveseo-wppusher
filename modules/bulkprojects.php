@@ -412,18 +412,23 @@ function improveseo_bulkprojects()
 	elseif ($action == 'stop'):
 		$id = $_GET['id'];
 		$mainid = $_GET['mainid'];
-		$wpdb->query(
+		// Only cancel tasks that have no WordPress post yet — once a post exists
+		// (scheduled or published) its status is real and must not be overwritten.
+		$stopped = $wpdb->query(
 			$wpdb->prepare(
 				"UPDATE `" . $detailsTaskModel->getTable() . "`
-				SET status = %s, published_on = %s WHERE id = %d",
+				SET status = %s, published_on = %s WHERE id = %d AND post_id IS NULL",
 				'Stoped',
-				'0000-00-00 00:00:00',
+				'',
 				$id
 			)
 		);
 
-		$wpdb->last_error;
-		FlashMessage::success('Task has been canceled. Content generation has been halted.');
+		if ($stopped) {
+			FlashMessage::success('Task has been canceled. Content generation has been halted.');
+		} else {
+			FlashMessage::message('This task already has a WordPress post and cannot be canceled.', 'error');
+		}
 		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $mainid));
 		exit;
 
@@ -440,19 +445,21 @@ function improveseo_bulkprojects()
 			array('%d')
 		);
 		
-		// Cancel ALL unpublished tasks:
-		// 1. Tasks still generating content (status != 'Done')
-		// 2. Tasks with content ready but not yet published (status = 'Done' AND post_id IS NULL)
-		// This prevents orphaned scheduled posts that can't be published because parent is stopped
+		// Cancel ONLY tasks that were not already generated into a WordPress post:
+		// a task with a post_id (published or scheduled draft) is real content and
+		// must keep its actual status — cancelling the project stops future work,
+		// it does not un-happen posts that already exist. Tasks whose content was
+		// generated but that have no post yet are still cancelled, which prevents
+		// orphaned rows from publishing later (the cron also refuses to create
+		// posts while the parent is Stopped).
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
-				SET status = %s 
-				WHERE bulktask_id = %d 
-				AND (state != %s OR post_id IS NULL)",
+				SET status = %s
+				WHERE bulktask_id = %d
+				AND post_id IS NULL",
 				'Stoped',
-				$id,
-				'Published'
+				$id
 			)
 		);
 		
