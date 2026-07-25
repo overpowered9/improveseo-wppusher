@@ -217,29 +217,26 @@ global $ai_modal_type;
         font-size: 16px;
         line-height: 1.7;
     }
-    /* Article-body formatting — closer to how the published post reads, with a clear
-       heading hierarchy. Subheaders are a bit smaller than the 30px title above. */
+    /* Normalise the article body to ONE consistent size. The AI HTML sometimes carries
+       inline font-size on paragraphs/spans/divs, which made the preview mix sizes. Force
+       a single body size (overriding inline styles); the heading rules below are more
+       specific, so they restore the hierarchy. Scoped to the preview content only. */
+    .iseo-post-content * {
+        font-size: 16px !important;
+        line-height: 1.7 !important;
+    }
     .iseo-post-content .main-content-section-improveseo > *:first-child { margin-top: 0; }
-    .iseo-post-content h2 {
-        font-size: 23px;
-        line-height: 1.3;
-        font-weight: 700;
-        color: #1a1a1a;
-        margin: 26px 0 10px;
-    }
-    .iseo-post-content h3 {
-        font-size: 19px;
-        line-height: 1.35;
-        font-weight: 700;
-        color: #1a1a1a;
-        margin: 22px 0 8px;
-    }
-    .iseo-post-content h4 {
-        font-size: 17px;
-        font-weight: 600;
-        color: #1a1a1a;
-        margin: 18px 0 6px;
-    }
+    /* Headings (and any inline spans inside them) keep their size — a bit smaller than
+       the 30px title above, in a clear hierarchy. */
+    .iseo-post-content h1, .iseo-post-content h1 * { font-size: 26px !important; line-height: 1.25 !important; }
+    .iseo-post-content h2, .iseo-post-content h2 * { font-size: 23px !important; line-height: 1.3 !important; }
+    .iseo-post-content h3, .iseo-post-content h3 * { font-size: 19px !important; line-height: 1.35 !important; }
+    .iseo-post-content h4, .iseo-post-content h4 * { font-size: 17px !important; line-height: 1.4 !important; }
+    .iseo-post-content h2,
+    .iseo-post-content h3 { font-weight: 700; color: #1a1a1a; }
+    .iseo-post-content h2 { margin: 26px 0 10px; }
+    .iseo-post-content h3 { margin: 22px 0 8px; }
+    .iseo-post-content h4 { font-weight: 600; color: #1a1a1a; margin: 18px 0 6px; }
     .iseo-post-content p { margin: 0 0 14px; }
     .iseo-post-content ul,
     .iseo-post-content ol { margin: 0 0 14px; padding-left: 22px; }
