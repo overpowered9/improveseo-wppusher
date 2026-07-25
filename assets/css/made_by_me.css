@@ -2266,7 +2266,7 @@ form#popup_form .seo-form-field > label.iseo-details-head {
   font-weight: 600;
   color: #23282d;
   margin-top: 27px;
-  margin-bottom: 27px;
+  margin-bottom: -27px;
 }
 
 /* The selects row (.step-opton2-content-box) is a fixed 100px-tall flex box with
