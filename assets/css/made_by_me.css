@@ -1738,13 +1738,22 @@ form.improve-seo-form-global select {
 }
 form#popup_form .step-opton2-content-box select {
   width: 100%;
-  /* The chevron is painted at "center right 13px" (see the background-image rule
-     above) and the glyph itself is ~10px wide, so anything under ~25px lets the
-     value text touch it. 34px leaves a clear, deliberate gap. */
-  padding-right: 34px !important;
-  /* With equal thirds the longest Point of View option can exceed the field on
-     narrow viewports. Degrade to an ellipsis rather than letting the text run
-     under the chevron — the full text is still there once the select is open. */
+  /* `.wp-core-ui select` (further down this file) caps EVERY admin select at
+     max-width: 25rem. That stops these three filling their equal columns, and the
+     leftover dead space inside each column is what makes the gaps between the
+     three fields read as uneven even when the columns themselves are equal. */
+  max-width: 100% !important;
+  /* Arrow clearance. The chevron is NOT at the 13px the rule above assumes: that
+     rule's background-position is overridden by `.wp-core-ui select`, which sets
+     `background-position: center right 25px !important` with
+     `background-size: 20px 20px !important`. The glyph therefore occupies 25px to
+     45px in from the right edge, so any padding under 45px puts the value text
+     underneath the arrow rather than beside it. Clear the glyph completely, then
+     add a deliberate ~11px gap on top. */
+  padding-right: 56px !important;
+  /* Equal thirds minus that clearance is tight for the longest Point of View
+     option. Degrade to an ellipsis rather than letting the text run under the
+     chevron — the full label is still shown once the select is open. */
   text-overflow: ellipsis;
 }
 
