@@ -145,18 +145,16 @@ function pd_seo_meta($post_id, $what) {
        down); reset both to natural height, and keep the value full-width, top and
        left-aligned so N/A / text never sits centred or pushed down. */
     .pd-row-stacked {
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: flex-start;
+        display: block !important;          /* plain block stacking, never flex */
     }
-    .pd-row-stacked .pd-label {
-        flex: 0 0 auto;
-        text-align: left !important;
-    }
+    .pd-row-stacked .pd-label,
     .pd-row-stacked .pd-value {
-        flex: 0 0 auto;
-        width: 100%;
-        text-align: left !important;
+        display: block !important;          /* value sits directly under the label */
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: none !important;
+        text-align: left !important;        /* stuck to the left */
+        margin-left: 0 !important;
     }
     .pd-value {
         flex: 1;
