@@ -110,6 +110,19 @@ function btd_content_status_label($status) {
     return isset($map[$status]) ? $map[$status] : 'Queued';
 }
 
+// THE date+time format for this screen. Created, Updated and Published On must
+// all render through this one helper so they can never drift apart.
+function btd_datetime($val) {
+    if (empty($val) || $val === '0000-00-00 00:00:00') {
+        return 'N/A';
+    }
+    $ts = strtotime($val);
+    if ($ts === false) {
+        return 'N/A';
+    }
+    return esc_html(date('M j, Y g:i A', $ts));
+}
+
 ?>
 
 <style>
@@ -277,7 +290,7 @@ function btd_content_status_label($status) {
                     </div>
                 </div>
                 <div class="btd-row">
-                    <div class="btd-label">Content Status</div>
+                    <div class="btd-label">Processing Status</div>
                     <div class="btd-value">
                         <?php
                         $status = $task->status;
@@ -323,23 +336,16 @@ function btd_content_status_label($status) {
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Published On</div>
-                    <div class="btd-value <?= (empty($task->published_on) || $task->published_on === '0000-00-00 00:00:00') ? 'na' : '' ?>">
-                        <?php
-                        if (empty($task->published_on) || $task->published_on === '0000-00-00 00:00:00' || $task->status === 'Stoped') {
-                            echo 'N/A';
-                        } else {
-                            echo esc_html(date('M j, Y g:i A', strtotime($task->published_on)));
-                        }
-                        ?>
-                    </div>
+                    <?php $btd_published = ($task->status === 'Stoped') ? 'N/A' : btd_datetime($task->published_on); ?>
+                    <div class="btd-value <?= $btd_published === 'N/A' ? 'na' : '' ?>"><?= $btd_published ?></div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Created</div>
-                    <div class="btd-value"><?= $task->created_at ? esc_html(date('M j, Y g:i A', strtotime($task->created_at))) : 'N/A' ?></div>
+                    <div class="btd-value"><?= btd_datetime($task->created_at) ?></div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Updated</div>
-                    <div class="btd-value"><?= $task->updated_at ? esc_html(date('M j, Y g:i A', strtotime($task->updated_at))) : 'N/A' ?></div>
+                    <div class="btd-value"><?= btd_datetime($task->updated_at) ?></div>
                 </div>
                 <?php if ($associated_post): ?>
                 <div class="btd-row">
