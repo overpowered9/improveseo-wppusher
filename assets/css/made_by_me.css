@@ -1722,24 +1722,30 @@ form.improve-seo-form-global select {
   background-repeat: no-repeat;
 }
 
-/* Point of View field: its longest option ("Speaking to the Reader (you, your)")
-   ran right up against the dropdown arrow. The three Step-2 columns were fixed at
-   equal thirds, so padding alone couldn't help — widen the Point of View column
-   itself by giving it more flex, taking the room from the short Language column
-   ("English (US)"), and keep extra right padding so the label clears the chevron. */
-.step-opton2-content-box .step-opton-col:nth-child(2) { /* Point of View */
-  flex: 1.8;
+/* Step-2 selects row: Article Size / Point of View / Select Language.
+   These three columns previously ran at flex 1.8 / 0.7 to buy the Point of View
+   field extra room for its longest option ("Speaking to the Reader ..."). That
+   bought the room at the cost of visibly unequal gutters — a tight gap between
+   Article Size and Point of View, and a wide one before Select Language — so the
+   row no longer read as one set of matching fields.
+   Equal thirds instead (step.css already declares flex: 1 and gap: 20px on this
+   row; restated here so the removed overrides cannot come back via load order),
+   and give every select in the row the SAME chevron clearance rather than
+   padding one field specially. Only #size used to set width: 100%, so the other
+   two sized themselves differently — that is the rest of the misalignment. */
+.step-opton2-content-box .step-opton-col {
+  flex: 1;
 }
-.step-opton2-content-box .step-opton-col:nth-child(3) { /* Select Language */
-  flex: 0.7;
-}
-#popup_form #size {
-  /* Chevron sits at "right 13px"; keep just enough right padding for the value to
-     clear the arrow. No ellipsis/clipping here — the widened column (flex 1.8
-     above) gives the longest option enough room, so the full text shows in the
-     field instead of being truncated to "…". */
-  padding-right: 30px !important;
+form#popup_form .step-opton2-content-box select {
   width: 100%;
+  /* The chevron is painted at "center right 13px" (see the background-image rule
+     above) and the glyph itself is ~10px wide, so anything under ~25px lets the
+     value text touch it. 34px leaves a clear, deliberate gap. */
+  padding-right: 34px !important;
+  /* With equal thirds the longest Point of View option can exceed the field on
+     narrow viewports. Degrade to an ellipsis rather than letting the text run
+     under the chevron — the full text is still there once the select is open. */
+  text-overflow: ellipsis;
 }
 
 /* Generate/Regenerate and Approve buttons: force their icon images white on
