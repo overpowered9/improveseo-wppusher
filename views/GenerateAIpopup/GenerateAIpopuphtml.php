@@ -266,6 +266,54 @@ global $ai_modal_type;
     .generate-data.generate-data--preview {
         max-width: 1040px !important;
     }
+    /* Collapsed content preview: show only the top of the article and fade it out, so the
+       user sees a taste of the content. Clicking it (or the button) opens the full content
+       in a new tab. */
+    .iseo-preview-collapse {
+        position: relative;
+        max-height: 520px;
+        overflow: hidden;
+        cursor: pointer;
+        border-radius: 12px;
+    }
+    .iseo-preview-collapse::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 150px;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, #ffffff 92%);
+        pointer-events: none;
+        border-radius: 0 0 12px 12px;
+    }
+    .iseo-preview-expand-row {
+        text-align: center;
+        position: relative;
+        z-index: 2;
+        margin-top: -26px;              /* lift the button up over the fade */
+    }
+    .iseo-open-full-preview {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 24px;
+        border-radius: 50px;
+        background: #1C7293;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        font-family: "Poppins", sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+    .iseo-open-full-preview:hover {
+        background: #0B132B;
+    }
+    .iseo-open-full-preview.is-hidden {
+        display: none;
+    }
     /* Two-column content preview: the article fills the left column, the action
        stack sits in a right-hand column beside it (not above/overlapping it). */
     .iseo-preview-row {
@@ -1304,28 +1352,27 @@ global $ai_modal_type;
                              once content exists via .is-visible). -->
                         <div class="iseo-preview-row">
                             <div class="iseo-preview-main">
-                                <div id="showmydataindiv1" name="showmydataindiv1"
-                                    style="display: block;max-width: 100%;"></div>
+                                <!-- Collapsed preview: shows the top of the article and fades out. Click it
+                                     (or the button below) to open the full content in a new tab. -->
+                                <div class="iseo-preview-collapse" onclick="iseoOpenFullPreview()"
+                                    title="Open the full preview in a new tab">
+                                    <div id="showmydataindiv1" name="showmydataindiv1"
+                                        style="display: block;max-width: 100%;"></div>
+                                </div>
+                                <div class="iseo-preview-expand-row">
+                                    <button type="button" class="iseo-open-full-preview is-hidden"
+                                        onclick="iseoOpenFullPreview(); return false;">&#10530; Open full preview in a new tab</button>
+                                </div>
 
-                                <!-- Same Approve / Regenerate pair kept directly below the content card,
-                                     inside the left column so the group is aligned with the card width
-                                     and can never overflow it. Approve is revealed with the content
-                                     (is-hidden removed by renderGeneratedPreview); Regenerate is the
-                                     existing generate button (#generateapivalue), relabelled after the
-                                     first generation. -->
+                                <!-- Approve / Regenerate pair kept directly below the content card. Approve is
+                                     revealed with the content; Regenerate is the existing generate button
+                                     (#generateapivalue), relabelled after the first generation. -->
                                 <div class="iseo-content-actions iseo-content-actions-bottom">
                                     <input type="button" class="iseo-content-btn iseo-approve-content is-hidden"
                                         value="Approve Content" onclick="return saveData();" />
                                     <input type="button" name="genaipost" class="iseo-content-btn iseo-regenerate-content"
                                         id="generateapivalue" value="Generate AI Post" />
                                 </div>
-                            </div>
-                            <div class="iseo-content-actions iseo-content-actions-top">
-                                <input type="button" class="iseo-content-btn iseo-approve-content"
-                                    value="Approve Content" onclick="return saveData();" />
-                                <input type="button" class="iseo-content-btn iseo-regenerate-content"
-                                    value="Regenerate Content"
-                                    onclick="jQuery('#generateapivalue').trigger('click'); return false;" />
                             </div>
                         </div>
                         <input type="hidden" name="ai_tittle" id="ai_title" />

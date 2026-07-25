@@ -561,11 +561,73 @@ function renderGeneratedPreview(articleHtml) {
   // inner-scrolling frame — the full content is shown and the page scrolls normally.
   $preview.css({ display: "block", height: "auto" });
 
-  // Content now exists — reveal the Approve / Regenerate controls: the top-right
-  // toolbar and the bottom Approve button (the bottom Regenerate is #generateapivalue,
-  // always visible). Class toggles avoid inline-display conflicts.
-  jQuery(".iseo-content-actions-top").addClass("is-visible");
+  // Content now exists — reveal the "Open full preview" button (the collapsed box only
+  // shows the top of the article) and the bottom Approve button (the bottom Regenerate is
+  // #generateapivalue, always visible). Class toggles avoid inline-display conflicts.
+  jQuery(".iseo-open-full-preview").removeClass("is-hidden");
   jQuery(".iseo-approve-content").removeClass("is-hidden");
+}
+
+// Open the fully-rendered article in a new browser tab as a standalone page. The wizard only
+// shows a collapsed taste of the content; this gives the user the whole thing on its own page,
+// styled to match the in-wizard preview, with a "Close preview" button to come back.
+function iseoOpenFullPreview() {
+  var $c = jQuery("#showmydataindiv1");
+  if (!$c.length || !jQuery.trim($c.text())) {
+    return; // nothing generated yet — ignore the click
+  }
+  var contentHtml = $c.html();
+
+  var win = window.open("", "_blank");
+  if (!win) {
+    alert("Please allow pop-ups for this site to open the full preview in a new tab.");
+    return;
+  }
+
+  // Standalone-page CSS: mirrors the in-wizard preview styling so the new tab reads like the
+  // finished post (title, cover image, normalised body/heading sizes).
+  var css = [
+    '*{box-sizing:border-box;}',
+    'body{margin:0;background:#f4f6f8;font-family:"Poppins",Arial,sans-serif;color:#2b2b2b;padding:0 0 60px;}',
+    '.iseo-fp-bar{position:sticky;top:0;background:#fff;border-bottom:1px solid #e4e7ec;padding:12px 20px;z-index:5;box-shadow:0 1px 6px rgba(0,0,0,.05);}',
+    '.iseo-fp-bar button{display:inline-flex;align-items:center;gap:8px;background:#1C7293;color:#fff;border:none;border-radius:50px;padding:9px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:"Poppins",Arial,sans-serif;}',
+    '.iseo-fp-bar button:hover{background:#0B132B;}',
+    '.iseo-fp-wrap{max-width:900px;margin:30px auto;padding:0 20px;}',
+    '#showmydataindiv1{background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:32px 40px;}',
+    '.iseo-post-title{margin:0 0 16px;}',
+    '.iseo-post-title h1{margin:0;font-size:32px;line-height:1.25;font-weight:700;color:#1a1a1a;}',
+    '.iseo-post-image{margin:0 0 22px;}',
+    '.iseo-post-image img{display:block;max-width:100%;height:auto;border-radius:8px;}',
+    '.iseo-post-content{color:#2b2b2b;font-size:16px;line-height:1.7;}',
+    '.iseo-post-content *{font-size:16px !important;line-height:1.7 !important;}',
+    '.iseo-post-content .main-content-section-improveseo>*:first-child{margin-top:0;}',
+    '.iseo-post-content h1,.iseo-post-content h1 *{font-size:26px !important;line-height:1.25 !important;}',
+    '.iseo-post-content h2,.iseo-post-content h2 *{font-size:23px !important;line-height:1.3 !important;}',
+    '.iseo-post-content h3,.iseo-post-content h3 *{font-size:19px !important;line-height:1.35 !important;}',
+    '.iseo-post-content h4,.iseo-post-content h4 *{font-size:17px !important;line-height:1.4 !important;}',
+    '.iseo-post-content h2,.iseo-post-content h3,.iseo-post-content h4{font-weight:700;color:#1a1a1a;}',
+    '.iseo-post-content h2{margin:26px 0 10px;}',
+    '.iseo-post-content h3{margin:22px 0 8px;}',
+    '.iseo-post-content h4{margin:20px 0 8px;}',
+    '.iseo-post-content p{margin:0 0 14px;}',
+    '.iseo-post-content ul,.iseo-post-content ol{margin:0 0 14px;padding-left:22px;}',
+    '.iseo-post-content li{margin:4px 0;}',
+    '.iseo-post-content a{color:#1C7293;text-decoration:underline;}'
+  ].join("");
+
+  var doc =
+    '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+    '<title>Content Preview</title><style>' + css + '</style></head><body>' +
+    '<div class="iseo-fp-bar">' +
+    '<button type="button" onclick="window.close();">' +
+    '← Close preview &amp; go back</button></div>' +
+    '<div class="iseo-fp-wrap"><div id="showmydataindiv1">' + contentHtml + '</div></div>' +
+    '</body></html>';
+
+  win.document.open();
+  win.document.write(doc);
+  win.document.close();
 }
 
 // Re-composite the already-generated article with the currently-selected Step 3 image, without
