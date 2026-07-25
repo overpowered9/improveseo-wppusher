@@ -1132,10 +1132,14 @@ jQuery(document).ready(function (jQuery) {
           );
         }
         jQuery("#iseo-preview-title").addClass("has-image");
+        jQuery("#AI_image_div .iseo-title-lead").text("Click the image to view it at full size.");
         jQuery("#AIrefreshOption button").text("Regenerate image");
         jQuery("#AIrefreshOption .iseo-hint").addClass("ok").text("Cover image ready. 1 image credit used.");
       } else {
         jQuery("#iseo-preview-title").removeClass("has-image");
+        // Set from JS too (not just the PHP markup) so the correct wording shows even
+        // if the updated view file hasn't been redeployed yet.
+        jQuery("#AI_image_div .iseo-title-lead").text("Click the button below to generate your cover image.");
         jQuery("#AIrefreshOption button").text("Generate AI image");
         jQuery("#AIrefreshOption .iseo-hint").removeClass("ok").text("Costs 1 image credit when you press Generate.");
       }
