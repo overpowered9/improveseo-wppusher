@@ -207,7 +207,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 													class="project-checkbox">
 												<div class="checkbox__checkmark"></div>
 											</label>
-											<h4><?= $project->name ?></h4>
+											<h4 class="iseo-project-name" data-id="<?php echo (int) $project->id; ?>"><?= $project->name ?></h4>
 										</div>
 									</td>
 									<td data-label="Created At"><?php
@@ -292,6 +292,11 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 														Post</a>
 												</li>
 												<?php endif; ?>
+												<li><a href="#" class="popup-link iseo-rename-project"
+														data-id="<?php echo (int) $project->id; ?>"
+														data-name="<?php echo esc_attr($project->name); ?>"
+														data-nonce="<?php echo esc_attr(wp_create_nonce('rename_project_nonce')); ?>"
+														style="max-width: max-content !important;">Rename</a></li>
 												<li style="margin: 0px !important;"><a target="_blank"
 														href="<?= admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ?>"
 														style="max-width: max-content !important;"
@@ -463,6 +468,33 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 		});
 
 		updateDeleteButtonState();
+
+		// Rename a project from the row's action menu.
+		$(document).on('click', '.iseo-rename-project', function (e) {
+			e.preventDefault();
+			var $link = $(this);
+			var id = $link.data('id');
+			var current = String($link.data('name') == null ? '' : $link.data('name'));
+			var newName = window.prompt('Rename project:', current);
+			if (newName === null) return; // cancelled
+			newName = $.trim(newName);
+			if (newName === '' || newName === current) return;
+			$.post(ajaxurl, {
+				action: 'rename_project',
+				id: id,
+				name: newName,
+				nonce: $link.data('nonce')
+			}, function (resp) {
+				if (resp && resp.success) {
+					$('.iseo-project-name[data-id="' + id + '"]').text(resp.data.name);
+					$link.attr('data-name', resp.data.name).data('name', resp.data.name);
+				} else {
+					alert((resp && resp.data) || 'Could not rename the project.');
+				}
+			}).fail(function () {
+				alert('Could not rename the project. Please try again.');
+			});
+		});
 	});
 </script>
 
