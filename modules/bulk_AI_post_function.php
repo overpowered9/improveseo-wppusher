@@ -1479,7 +1479,9 @@ function saveContentInTaskList()
 
 				'post_type' => "post",
 
-				'post_date' => $post_date,
+				// Site-local creation time; $post_date was never defined in this
+				// function (undefined-variable warning, WP silently fell back to now).
+				'post_date' => current_time('mysql'),
 
 				'post_status' => $post_status
 
