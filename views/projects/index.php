@@ -97,7 +97,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 		</div>
 		<div class="import-export-btn">
 			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_posting&action=create_post_single') ?>';"
-				class="active">Add New</button>
+				class="active">+ New Single Post</button>
 		</div>
 	</div>
 	<div class="actions">
