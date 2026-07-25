@@ -279,6 +279,12 @@ global $ai_modal_type;
         align-items: center;
         gap: 14px;
     }
+    /* Step 4 content preview: use far more of the wizard width than the default 790px
+       .generate-data cap, so the article reads wide and clear like the post-preview
+       screen. Caps at 1040px and shrinks to fit narrower wizards (width:100%). */
+    .generate-data.generate-data--preview {
+        max-width: 1040px !important;
+    }
     /* Two-column content preview: the article fills the left column, the action
        stack sits in a right-hand column beside it (not above/overlapping it). */
     .iseo-preview-row {
@@ -1310,7 +1316,7 @@ global $ai_modal_type;
 
                 <!-- option 4 -->
                 <div class="data">
-                    <div class="generate-data">
+                    <div class="generate-data generate-data--preview">
 
                         <textarea class="form-control" id="showmydataindivText" rows="1" style="opacity: 0;"></textarea>
 
