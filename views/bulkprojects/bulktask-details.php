@@ -176,11 +176,25 @@ function btd_datetime($val) {
         color: #50575e;
         font-size: 13px;
     }
-    /* Stacked rows switch to flex-direction: column, where the label's
-       `flex: 0 0 170px` basis applies to HEIGHT — forcing a 170px-tall label
-       that shoves the value far down. Reset to natural height when stacked. */
-    .btd-row[style*="column"] .btd-label {
-        flex: 0 0 auto;
+    /* Stacked label/value rows (Details & CTA). In a flex COLUMN the label's
+       `flex: 0 0 170px` basis applies to HEIGHT (a 170px-tall label shoves the value
+       down); reset both to natural height, and keep the value full-width, top and
+       left-aligned so N/A / text never sits centred or pushed down.
+       Mirrors .pd-row-stacked in views/projects/project-details.php — keep the two
+       in step. This replaced a `.btd-row[style*="column"]` attribute-substring
+       selector, which silently stopped matching if the inline styles were reordered
+       or written without the space after the colon. */
+    .btd-row-stacked {
+        display: block !important;          /* plain block stacking, never flex */
+    }
+    .btd-row-stacked .btd-label,
+    .btd-row-stacked .btd-value {
+        display: block !important;          /* value sits directly under the label */
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: none !important;
+        text-align: left !important;        /* stuck to the left */
+        margin-left: 0 !important;
     }
     .btd-value {
         flex: 1;
@@ -436,13 +450,13 @@ function btd_datetime($val) {
                         <?= btd_val($task->keyword_name) ?>
                     </div>
                 </div>
-                <div class="btd-row" style="flex-direction: column;">
+                <div class="btd-row btd-row-stacked">
                     <div class="btd-label" style="margin-bottom: 6px;">Meta Title</div>
                     <div class="btd-value <?= $btd_meta_title === '' ? 'na' : '' ?>">
                         <?= $btd_meta_title !== '' ? esc_html($btd_meta_title) : esc_html($btd_seo_placeholder) ?>
                     </div>
                 </div>
-                <div class="btd-row" style="flex-direction: column;">
+                <div class="btd-row btd-row-stacked">
                     <div class="btd-label" style="margin-bottom: 6px;">Meta Description</div>
                     <div class="btd-value <?= $btd_meta_desc === '' ? 'na' : '' ?>">
                         <?= $btd_meta_desc !== '' ? esc_html($btd_meta_desc) : esc_html($btd_seo_placeholder) ?>
@@ -456,16 +470,18 @@ function btd_datetime($val) {
             <div class="btd-card-header">Details & Call to Action</div>
             <div class="btd-card-body">
                 <?php
-                // These two values render with white-space: pre-wrap, so ANY template
-                // whitespace inside the div (newline + indentation) becomes a visible
-                // blank first line that pushes the text to the bottom of the box.
-                // The echo must butt directly against the tags.
+                // Stacking/alignment is handled by .btd-row-stacked (see the CSS above).
+                // On top of that: these two values render with white-space: pre-wrap, so
+                // ANY template whitespace inside the div (newline + indentation) is
+                // preserved literally and becomes a visible blank first line plus a wide
+                // left indent, so the text reads as centred/indented instead of
+                // left-aligned. The echo must butt directly against the tags.
                 ?>
-                <div class="btd-row" style="flex-direction: column; align-items: flex-start;">
+                <div class="btd-row btd-row-stacked">
                     <div class="btd-label" style="margin-bottom: 6px;">Details to Include</div>
                     <div class="btd-value <?= empty($task->details_to_include) ? 'na' : '' ?>" style="white-space: pre-wrap;"><?= btd_val($task->details_to_include) ?></div>
                 </div>
-                <div class="btd-row" style="flex-direction: column; align-items: flex-start; margin-top: 8px;">
+                <div class="btd-row btd-row-stacked" style="margin-top: 8px;">
                     <div class="btd-label" style="margin-bottom: 6px;">Call to Action</div>
                     <div class="btd-value <?= empty($task->call_to_action) ? 'na' : '' ?>" style="white-space: pre-wrap;"><?= btd_val($task->call_to_action) ?></div>
                 </div>
