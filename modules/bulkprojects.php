@@ -854,6 +854,24 @@ function improveseo_bulkprojects()
 			}
 		}
 
+		// keyword_list_name actually stores the improveseo_lists ID the user picked
+		// in the create form (the <select> option value is the list id) — resolve it
+		// to the list's real name for display. Older rows that stored a name pass through.
+		$keyword_list_label = '';
+		if (!empty($task->keyword_list_name)) {
+			if (ctype_digit((string) $task->keyword_list_name)) {
+				$list_name = $wpdb->get_var($wpdb->prepare(
+					"SELECT name FROM {$wpdb->prefix}improveseo_lists WHERE id = %d",
+					$task->keyword_list_name
+				));
+				$keyword_list_label = $list_name !== null
+					? $list_name
+					: 'List #' . intval($task->keyword_list_name) . ' (deleted)';
+			} else {
+				$keyword_list_label = $task->keyword_list_name;
+			}
+		}
+
 		// Get associated WordPress post
 		$associated_post = null;
 		$post_url = '';
@@ -866,7 +884,7 @@ function improveseo_bulkprojects()
 			}
 		}
 
-		View::render('bulkprojects.bulktask-details', compact('task', 'parent_name', 'associated_post', 'post_url'));
+		View::render('bulkprojects.bulktask-details', compact('task', 'parent_name', 'associated_post', 'post_url', 'keyword_list_label'));
 
 	endif;
 }

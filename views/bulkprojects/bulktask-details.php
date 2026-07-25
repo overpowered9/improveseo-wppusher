@@ -271,8 +271,9 @@ function btd_content_status_label($status) {
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Keyword List</div>
-                    <div class="btd-value <?= empty($task->keyword_list_name) ? 'na' : '' ?>">
-                        <?= btd_val($task->keyword_list_name) ?>
+                    <?php // The controller resolves the stored list ID to its name. ?>
+                    <div class="btd-value <?= empty($keyword_list_label) ? 'na' : '' ?>">
+                        <?= btd_val(isset($keyword_list_label) ? $keyword_list_label : '') ?>
                     </div>
                 </div>
                 <div class="btd-row">
