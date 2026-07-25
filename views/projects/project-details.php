@@ -387,17 +387,21 @@ function pd_seo_meta($post_id, $what) {
         <div class="pd-card">
             <div class="pd-card-header">Details & Call to Action</div>
             <div class="pd-card-body">
-                <div class="pd-row" style="flex-direction: column;">
+                <?php
+                // These two values render with white-space: pre-wrap, so ANY template
+                // whitespace inside the div is preserved literally: the newline after
+                // the opening tag becomes a blank first line, and the indentation in
+                // front of the echo becomes a wide left indent on the first line —
+                // the text reads as centred/indented instead of left-aligned.
+                // The echo must butt directly against the tags.
+                ?>
+                <div class="pd-row" style="flex-direction: column; align-items: flex-start;">
                     <div class="pd-label" style="margin-bottom: 6px;">Details to Include</div>
-                    <div class="pd-value <?= pd_val($options, 'ai_details_to_include') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;">
-                        <?= pd_val($options, 'ai_details_to_include') ?>
-                    </div>
+                    <div class="pd-value <?= pd_val($options, 'ai_details_to_include') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;"><?= pd_val($options, 'ai_details_to_include') ?></div>
                 </div>
-                <div class="pd-row" style="flex-direction: column; margin-top: 8px;">
+                <div class="pd-row" style="flex-direction: column; align-items: flex-start; margin-top: 8px;">
                     <div class="pd-label" style="margin-bottom: 6px;">Call to Action</div>
-                    <div class="pd-value <?= pd_val($options, 'ai_call_to_action') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;">
-                        <?= pd_val($options, 'ai_call_to_action') ?>
-                    </div>
+                    <div class="pd-value <?= pd_val($options, 'ai_call_to_action') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;"><?= pd_val($options, 'ai_call_to_action') ?></div>
                 </div>
             </div>
         </div>
