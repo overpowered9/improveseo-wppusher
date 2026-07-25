@@ -418,10 +418,15 @@ function pd_seo_meta($post_id, $what) {
                 // improveseo_custom_* meta (see pd_seo_meta). Fall back sensibly.
                 $pd_post_id    = $associated_post ? $associated_post->ID : 0;
 
+                // Meta Title is deliberately NOT backfilled from the post title:
+                // that made an unset meta title read as "same as the post title",
+                // which is a different (and wrong) statement about the post's SEO.
+                // When nothing is set, say so via $pd_seo_placeholder below.
                 $pd_meta_title = pd_seo_meta($pd_post_id, 'title');
                 if ($pd_meta_title === '' && isset($options['custom_title'])) $pd_meta_title = trim((string) $options['custom_title']);
-                if ($pd_meta_title === '' && $associated_post)                $pd_meta_title = $associated_post->post_title;
 
+                // Meta Description keeps its existing fallback chain (incl. the
+                // post excerpt) — unchanged pending the product decision.
                 $pd_meta_desc = pd_seo_meta($pd_post_id, 'desc');
                 if ($pd_meta_desc === '' && isset($options['custom_description'])) $pd_meta_desc = trim((string) $options['custom_description']);
                 if ($pd_meta_desc === '' && $associated_post)                     $pd_meta_desc = trim((string) $associated_post->post_excerpt);

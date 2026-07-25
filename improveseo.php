@@ -941,6 +941,40 @@ function improveseo_write_seo_meta( $post_id, $meta_title, $meta_desc ) {
 }
 
 /**
+ * Collect the On-Page SEO fields (meta title / description / keywords) from a
+ * create- or update-post submission into the project's options array.
+ *
+ * The redesigned create forms dropped the legacy "on_page_seo" opt-in checkbox
+ * but still post custom_title / custom_description — the AI wizard copies its
+ * Meta Title and Meta Description into them on submit (saveFinalData() in
+ * assets/js/custom-plugin-script.js). The old gate, isset($_POST['on_page_seo']),
+ * could therefore never be true, so the meta title the user entered was silently
+ * dropped: it never reached the project options, the builder never wrote
+ * improveseo_custom_title onto the post, and the details screen fell back to
+ * showing the post title instead. Store whatever is actually posted; the legacy
+ * checkbox, where a form still sends it, keeps forcing the block on.
+ *
+ * @param array $options_data Project options; modified in place.
+ * @param array $iterations   Spintax iteration counts; modified in place.
+ */
+function improveseo_collect_on_page_seo( array &$options_data, array &$iterations ) {
+	$legacy_optin = isset( $_POST['on_page_seo'] );
+
+	foreach ( array( 'custom_title', 'custom_description', 'custom_keywords' ) as $field ) {
+		$value = isset( $_POST[ $field ] ) ? stripslashes( (string) $_POST[ $field ] ) : '';
+
+		// Without the legacy checkbox, an empty field means "not set" — don't
+		// store an empty string that would read as a deliberate blank value.
+		if ( ! $legacy_optin && trim( $value ) === '' ) {
+			continue;
+		}
+
+		$options_data[ $field ] = $value;
+		$iterations[]           = \ImproveSEO\Spintax::count( \ImproveSEO\Spintax::parse( $value ) );
+	}
+}
+
+/**
  * Ensure the bulk task table has the meta_title / meta_description columns.
  *
  * dbDelta (the version-gated installer path) is unreliable at ALTERing an

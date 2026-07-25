@@ -230,34 +230,10 @@ function improveseo_dashboard() {
 
 
 
-		// On-Page SEO
-
-
-		if (isset($_POST['on_page_seo'])) {
-
-
-			$options_data['custom_title'] = stripslashes($_POST['custom_title']);
-
-
-			$options_data['custom_description'] = stripslashes($_POST['custom_description']);
-
-
-			$options_data['custom_keywords'] = stripslashes($_POST['custom_keywords']);
-
-
-
-
-
-			$iterations[] = Spintax::count(Spintax::parse($options_data['custom_title']));
-
-
-			$iterations[] = Spintax::count(Spintax::parse($options_data['custom_description']));
-
-
-			$iterations[] = Spintax::count(Spintax::parse($options_data['custom_keywords']));
-
-
-		}
+		// On-Page SEO — stores whatever meta the form posted (the create forms no
+		// longer render the legacy on_page_seo opt-in checkbox, so gating on it
+		// dropped the wizard's Meta Title). See improveseo.php.
+		improveseo_collect_on_page_seo($options_data, $iterations);
 
 
 
@@ -899,34 +875,9 @@ function improveseo_dashboard() {
 	
 
 
-			// On-Page SEO
-
-
-			if (isset($_POST['on_page_seo'])) {
-
-
-				$options_data['custom_title'] = stripslashes($_POST['custom_title']);
-
-
-				$options_data['custom_description'] = stripslashes($_POST['custom_description']);
-
-
-				$options_data['custom_keywords'] = stripslashes($_POST['custom_keywords']);
-
-
-	
-
-
-				$iterations[] = Spintax::count(Spintax::parse($options_data['custom_title']));
-
-
-				$iterations[] = Spintax::count(Spintax::parse($options_data['custom_description']));
-
-
-				$iterations[] = Spintax::count(Spintax::parse($options_data['custom_keywords']));
-
-
-			}
+			// On-Page SEO — same collector as do_create_post, so an edit keeps the
+			// meta title instead of dropping it. See improveseo.php.
+			improveseo_collect_on_page_seo($options_data, $iterations);
 
 
 	
