@@ -76,25 +76,6 @@ global $ai_modal_type;
 
     }
 
-    /* Reassuring time estimate shown just above the centred content-generation
-       spinner. The gif is 400x400 centred, so its top edge sits 200px above centre;
-       place the note ~10px above that (210px above centre) for a small gap, trimming
-       the space above the note versus the earlier lowered position. */
-    .overlay_ai_data .iseo-loading-note {
-        position: absolute;
-        left: 50%;
-        bottom: calc(50% + 210px);
-        transform: translateX(-50%);
-        margin: 0;
-        width: 90%;
-        max-width: 560px;
-        text-align: center;
-        font-family: "Poppins", sans-serif;
-        font-size: 20px;
-        font-weight: 600;
-        color: #1C7293;
-    }
-
 
     .overlay_ai_image {
         display: none;
@@ -826,9 +807,7 @@ global $ai_modal_type;
     <div id="loadingImage" style="display:none ;" class="overlay2">
         <!-- <img src="' . home_url('/') . 'wp-content/plugins/jobseq_jobs_pugin/assets/image/loader.gif" alt="Loading..."> -->
     </div>
-    <div id="loadingAIData" style="display:none;" class="overlay_ai_data">
-        <p class="iseo-loading-note">Hold tight, the content generation may take up to 20 seconds...</p>
-    </div>
+    <div id="loadingAIData" style="display:none;" class="overlay_ai_data"></div>
 
     <div id="loadingAIImage" style="display:none;" class="overlay_ai_image"></div>
 
@@ -1434,9 +1413,7 @@ global $ai_modal_type;
 
         <!-- <img src="' . home_url('/') . 'wp-content/plugins/jobseq_jobs_pugin/assets/image/loader.gif" alt="Loading..."> -->
     </div>
-    <div id="loadingAIData" style="display:none;" class="overlay_ai_data">
-        <p class="iseo-loading-note">Hold tight, the content generation may take up to 20 seconds...</p>
-    </div>
+    <div id="loadingAIData" style="display:none;" class="overlay_ai_data"></div>
 
     <div id="loadingAIImage" style="display:none;" class="overlay_ai_image"></div>
 
