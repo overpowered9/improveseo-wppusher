@@ -76,25 +76,6 @@ global $ai_modal_type;
 
     }
 
-    /* Reassuring time estimate shown just above the centred content-generation
-       spinner. The gif is 400x400 centred, so its top edge sits 200px above centre;
-       place the note ~10px above that (210px above centre) for a small gap, trimming
-       the space above the note versus the earlier lowered position. */
-    .overlay_ai_data .iseo-loading-note {
-        position: absolute;
-        left: 50%;
-        bottom: calc(50% + 210px);
-        transform: translateX(-50%);
-        margin: 0;
-        width: 90%;
-        max-width: 560px;
-        text-align: center;
-        font-family: "Poppins", sans-serif;
-        font-size: 20px;
-        font-weight: 600;
-        color: #1C7293;
-    }
-
 
     .overlay_ai_image {
         display: none;
@@ -217,29 +198,26 @@ global $ai_modal_type;
         font-size: 16px;
         line-height: 1.7;
     }
-    /* Article-body formatting — closer to how the published post reads, with a clear
-       heading hierarchy. Subheaders are a bit smaller than the 30px title above. */
+    /* Normalise the article body to ONE consistent size. The AI HTML sometimes carries
+       inline font-size on paragraphs/spans/divs, which made the preview mix sizes. Force
+       a single body size (overriding inline styles); the heading rules below are more
+       specific, so they restore the hierarchy. Scoped to the preview content only. */
+    .iseo-post-content * {
+        font-size: 16px !important;
+        line-height: 1.7 !important;
+    }
     .iseo-post-content .main-content-section-improveseo > *:first-child { margin-top: 0; }
-    .iseo-post-content h2 {
-        font-size: 23px;
-        line-height: 1.3;
-        font-weight: 700;
-        color: #1a1a1a;
-        margin: 26px 0 10px;
-    }
-    .iseo-post-content h3 {
-        font-size: 19px;
-        line-height: 1.35;
-        font-weight: 700;
-        color: #1a1a1a;
-        margin: 22px 0 8px;
-    }
-    .iseo-post-content h4 {
-        font-size: 17px;
-        font-weight: 600;
-        color: #1a1a1a;
-        margin: 18px 0 6px;
-    }
+    /* Headings (and any inline spans inside them) keep their size — a bit smaller than
+       the 30px title above, in a clear hierarchy. */
+    .iseo-post-content h1, .iseo-post-content h1 * { font-size: 26px !important; line-height: 1.25 !important; }
+    .iseo-post-content h2, .iseo-post-content h2 * { font-size: 23px !important; line-height: 1.3 !important; }
+    .iseo-post-content h3, .iseo-post-content h3 * { font-size: 19px !important; line-height: 1.35 !important; }
+    .iseo-post-content h4, .iseo-post-content h4 * { font-size: 17px !important; line-height: 1.4 !important; }
+    .iseo-post-content h2,
+    .iseo-post-content h3 { font-weight: 700; color: #1a1a1a; }
+    .iseo-post-content h2 { margin: 26px 0 10px; }
+    .iseo-post-content h3 { margin: 22px 0 8px; }
+    .iseo-post-content h4 { font-weight: 600; color: #1a1a1a; margin: 18px 0 6px; }
     .iseo-post-content p { margin: 0 0 14px; }
     .iseo-post-content ul,
     .iseo-post-content ol { margin: 0 0 14px; padding-left: 22px; }
@@ -281,6 +259,60 @@ global $ai_modal_type;
     .iseo-content-actions {
         align-items: center;
         gap: 14px;
+    }
+    /* Step 4 content preview: use far more of the wizard width than the default 790px
+       .generate-data cap, so the article reads wide and clear like the post-preview
+       screen. Caps at 1040px and shrinks to fit narrower wizards (width:100%). */
+    .generate-data.generate-data--preview {
+        max-width: 1040px !important;
+    }
+    /* Collapsed content preview: show only the top of the article and fade it out, so the
+       user sees a taste of the content. Clicking it (or the button) opens the full content
+       in a new tab. */
+    .iseo-preview-collapse {
+        position: relative;
+        max-height: 520px;
+        overflow: hidden;
+        cursor: pointer;
+        border-radius: 12px;
+    }
+    .iseo-preview-collapse::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 150px;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, #ffffff 92%);
+        pointer-events: none;
+        border-radius: 0 0 12px 12px;
+    }
+    .iseo-preview-expand-row {
+        text-align: center;
+        position: relative;
+        z-index: 2;
+        margin-top: -26px;              /* lift the button up over the fade */
+    }
+    .iseo-open-full-preview {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 24px;
+        border-radius: 50px;
+        background: #1C7293;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        font-family: "Poppins", sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+    .iseo-open-full-preview:hover {
+        background: #0B132B;
+    }
+    .iseo-open-full-preview.is-hidden {
+        display: none;
     }
     /* Two-column content preview: the article fills the left column, the action
        stack sits in a right-hand column beside it (not above/overlapping it). */
@@ -823,9 +855,7 @@ global $ai_modal_type;
     <div id="loadingImage" style="display:none ;" class="overlay2">
         <!-- <img src="' . home_url('/') . 'wp-content/plugins/jobseq_jobs_pugin/assets/image/loader.gif" alt="Loading..."> -->
     </div>
-    <div id="loadingAIData" style="display:none;" class="overlay_ai_data">
-        <p class="iseo-loading-note">Hold tight, the content generation may take up to 20 seconds...</p>
-    </div>
+    <div id="loadingAIData" style="display:none;" class="overlay_ai_data"></div>
 
     <div id="loadingAIImage" style="display:none;" class="overlay_ai_image"></div>
 
@@ -1245,7 +1275,7 @@ global $ai_modal_type;
 
                         <div id="AI_image_div" class="iseo-media-panel" style="display:none;">
                             <div class="iseo-title-gen">
-                                <div class="iseo-for-line iseo-title-lead">Click the image below to view it at full size.</div>
+                                <div class="iseo-for-line iseo-title-lead">Click the button below to generate your cover image.</div>
                                 <div class="iseo-title-image" id="iseo-preview-title">
                                     <div id="ai-image-display"></div>
                                 </div>
@@ -1313,7 +1343,7 @@ global $ai_modal_type;
 
                 <!-- option 4 -->
                 <div class="data">
-                    <div class="generate-data">
+                    <div class="generate-data generate-data--preview">
 
                         <textarea class="form-control" id="showmydataindivText" rows="1" style="opacity: 0;"></textarea>
 
@@ -1322,28 +1352,27 @@ global $ai_modal_type;
                              once content exists via .is-visible). -->
                         <div class="iseo-preview-row">
                             <div class="iseo-preview-main">
-                                <div id="showmydataindiv1" name="showmydataindiv1"
-                                    style="display: block;max-width: 100%;"></div>
+                                <!-- Collapsed preview: shows the top of the article and fades out. Click it
+                                     (or the button below) to open the full content in a new tab. -->
+                                <div class="iseo-preview-collapse" onclick="iseoOpenFullPreview()"
+                                    title="Open the full preview in a new tab">
+                                    <div id="showmydataindiv1" name="showmydataindiv1"
+                                        style="display: block;max-width: 100%;"></div>
+                                </div>
+                                <div class="iseo-preview-expand-row">
+                                    <button type="button" class="iseo-open-full-preview is-hidden"
+                                        onclick="iseoOpenFullPreview(); return false;">&#10530; Open full preview in a new tab</button>
+                                </div>
 
-                                <!-- Same Approve / Regenerate pair kept directly below the content card,
-                                     inside the left column so the group is aligned with the card width
-                                     and can never overflow it. Approve is revealed with the content
-                                     (is-hidden removed by renderGeneratedPreview); Regenerate is the
-                                     existing generate button (#generateapivalue), relabelled after the
-                                     first generation. -->
+                                <!-- Approve / Regenerate pair kept directly below the content card. Approve is
+                                     revealed with the content; Regenerate is the existing generate button
+                                     (#generateapivalue), relabelled after the first generation. -->
                                 <div class="iseo-content-actions iseo-content-actions-bottom">
                                     <input type="button" class="iseo-content-btn iseo-approve-content is-hidden"
                                         value="Approve Content" onclick="return saveData();" />
                                     <input type="button" name="genaipost" class="iseo-content-btn iseo-regenerate-content"
                                         id="generateapivalue" value="Generate AI Post" />
                                 </div>
-                            </div>
-                            <div class="iseo-content-actions iseo-content-actions-top">
-                                <input type="button" class="iseo-content-btn iseo-approve-content"
-                                    value="Approve Content" onclick="return saveData();" />
-                                <input type="button" class="iseo-content-btn iseo-regenerate-content"
-                                    value="Regenerate Content"
-                                    onclick="jQuery('#generateapivalue').trigger('click'); return false;" />
                             </div>
                         </div>
                         <input type="hidden" name="ai_tittle" id="ai_title" />
@@ -1431,9 +1460,7 @@ global $ai_modal_type;
 
         <!-- <img src="' . home_url('/') . 'wp-content/plugins/jobseq_jobs_pugin/assets/image/loader.gif" alt="Loading..."> -->
     </div>
-    <div id="loadingAIData" style="display:none;" class="overlay_ai_data">
-        <p class="iseo-loading-note">Hold tight, the content generation may take up to 20 seconds...</p>
-    </div>
+    <div id="loadingAIData" style="display:none;" class="overlay_ai_data"></div>
 
     <div id="loadingAIImage" style="display:none;" class="overlay_ai_image"></div>
 

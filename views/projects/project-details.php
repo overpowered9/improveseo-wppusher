@@ -138,18 +138,30 @@ function pd_seo_meta($post_id, $what) {
         font-weight: 500;
         color: #50575e;
         font-size: 13px;
+        text-align: left;
     }
-    /* Stacked rows switch to flex-direction: column, where the label's
-       `flex: 0 0 160px` basis applies to HEIGHT — forcing a 160px-tall label
-       that shoves the value far down. Reset to natural height when stacked. */
-    .pd-row[style*="column"] .pd-label {
-        flex: 0 0 auto;
+    /* Stacked label/value rows (Details & CTA). In a flex COLUMN the label's
+       `flex: 0 0 160px` basis applies to HEIGHT (a 160px-tall label shoves the value
+       down); reset both to natural height, and keep the value full-width, top and
+       left-aligned so N/A / text never sits centred or pushed down. */
+    .pd-row-stacked {
+        display: block !important;          /* plain block stacking, never flex */
+    }
+    .pd-row-stacked .pd-label,
+    .pd-row-stacked .pd-value {
+        display: block !important;          /* value sits directly under the label */
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: none !important;
+        text-align: left !important;        /* stuck to the left */
+        margin-left: 0 !important;
     }
     .pd-value {
         flex: 1;
         color: #1d2327;
         font-size: 13px;
         word-break: break-word;
+        text-align: left;
     }
     .pd-value.na {
         color: #a7aaad;
@@ -388,18 +400,19 @@ function pd_seo_meta($post_id, $what) {
             <div class="pd-card-header">Details & Call to Action</div>
             <div class="pd-card-body">
                 <?php
-                // These two values render with white-space: pre-wrap, so ANY template
-                // whitespace inside the div is preserved literally: the newline after
-                // the opening tag becomes a blank first line, and the indentation in
-                // front of the echo becomes a wide left indent on the first line —
-                // the text reads as centred/indented instead of left-aligned.
-                // The echo must butt directly against the tags.
+                // Stacking/alignment is handled by .pd-row-stacked (see the CSS above).
+                // On top of that: these two values render with white-space: pre-wrap, so
+                // ANY template whitespace inside the div is preserved literally — the
+                // newline after the opening tag becomes a blank first line, and the
+                // indentation in front of the echo becomes a wide left indent on the
+                // first line, so the text reads as centred/indented instead of
+                // left-aligned. The echo must butt directly against the tags.
                 ?>
-                <div class="pd-row" style="flex-direction: column; align-items: flex-start;">
+                <div class="pd-row pd-row-stacked">
                     <div class="pd-label" style="margin-bottom: 6px;">Details to Include</div>
                     <div class="pd-value <?= pd_val($options, 'ai_details_to_include') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;"><?= pd_val($options, 'ai_details_to_include') ?></div>
                 </div>
-                <div class="pd-row" style="flex-direction: column; align-items: flex-start; margin-top: 8px;">
+                <div class="pd-row pd-row-stacked" style="margin-top: 8px;">
                     <div class="pd-label" style="margin-bottom: 6px;">Call to Action</div>
                     <div class="pd-value <?= pd_val($options, 'ai_call_to_action') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;"><?= pd_val($options, 'ai_call_to_action') ?></div>
                 </div>

@@ -638,6 +638,35 @@ function improveseo_rename_bulk_project() {
     wp_send_json_success(array('name' => $name));
 }
 
+// Rename a single-post project (improveseo_tasks). Mirrors the bulk handler above but
+// targets the single-project table used by the Projects List.
+add_action('wp_ajax_rename_project', 'improveseo_rename_project');
+function improveseo_rename_project() {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'rename_project_nonce')) {
+        wp_send_json_error('Security check failed');
+    }
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Permission denied');
+    }
+    $id   = intval($_POST['id']);
+    $name = sanitize_text_field($_POST['name']);
+    if (!$id || $name === '') {
+        wp_send_json_error('Invalid data');
+    }
+    global $wpdb;
+    $updated = $wpdb->update(
+        $wpdb->prefix . 'improveseo_tasks',
+        array('name' => $name),
+        array('id'   => $id),
+        array('%s'),
+        array('%d')
+    );
+    if ($updated === false) {
+        wp_send_json_error('Database error');
+    }
+    wp_send_json_success(array('name' => $name));
+}
+
 // Note: wp_ajax_re_generate_post is handled by re_generate_post() in bulk_AI_post_function.php
 function improveseo_re_generate_post() {
     global $wpdb;
