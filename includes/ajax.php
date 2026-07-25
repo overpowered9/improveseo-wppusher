@@ -3,6 +3,38 @@
 
 /* This file will handle all ajax requests from plugin */
 
+// Auto-save the featured-image feature toggles (settings card has no Save button).
+// Whitelisted to exactly these three options; unchecked saves persist '0' so
+// improveseo_featured_images_enabled_for() only defaults to '1' when never touched.
+add_action('wp_ajax_improveseo_save_feature_toggles', 'improveseo_save_feature_toggles');
+
+function improveseo_save_feature_toggles() {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'improveseo_feature_toggles_nonce')) {
+        wp_send_json_error(array('error' => 'Security check failed'));
+    }
+
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(array('error' => 'You are not allowed to change these settings'));
+    }
+
+    $map = array(
+        'enabled' => 'improveseo_featured_images_enabled',
+        'bulk'    => 'improveseo_featured_images_bulk',
+        'single'  => 'improveseo_featured_images_single',
+    );
+
+    $saved = array();
+    foreach ($map as $field => $option) {
+        if (isset($_POST[$field])) {
+            $value = ($_POST[$field] === '1') ? '1' : '0';
+            update_option($option, $value);
+            $saved[$option] = $value;
+        }
+    }
+
+    wp_send_json_success($saved);
+}
+
 // Test ImproveSEO server connection
 add_action('wp_ajax_test_improveseo_connection', 'test_improveseo_connection');
 

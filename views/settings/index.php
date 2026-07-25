@@ -186,9 +186,7 @@ use ImproveSEO\View;
         <!-- ── RIGHT COLUMN: additional settings ──────────── -->
         <div class="iseo-col-sidebar">
 
-            <!-- Content Features Card -->
-            <form class="iseo-features-form" method="post" action="options.php">
-                <?php settings_fields('improveseo_feature_settings'); ?>
+            <!-- Content Features Card (toggles auto-save via AJAX — no Save button) -->
             <div class="iseo-standalone-card iseo-features-card">
                 <div class="iseo-card-header">
                     <div class="iseo-card-icon iseo-icon-image">
@@ -219,7 +217,6 @@ use ImproveSEO\View;
                                 <span class="iseo-toggle-desc">Automatically attach main post image (AI generated or uploaded) as WP featured image to AI-created posts.</span>
                             </div>
                             <label class="iseo-toggle-switch" aria-label="Enable Featured Images">
-                                <input type="hidden" name="improveseo_featured_images_enabled" value="0">
                                 <input type="checkbox" id="iseo_featured_images_enabled" name="improveseo_featured_images_enabled" value="1" <?php checked( get_option( 'improveseo_featured_images_enabled', '1' ), '1' ); ?>>
                                 <span class="iseo-toggle-track"></span>
                             </label>
@@ -234,7 +231,6 @@ use ImproveSEO\View;
                                     <span class="iseo-toggle-desc">Apply when running bulk post generation projects.</span>
                                 </div>
                                 <label class="iseo-toggle-switch" aria-label="Enable for Bulk Posts">
-                                    <input type="hidden" name="improveseo_featured_images_bulk" value="0">
                                     <input type="checkbox" id="iseo_featured_images_bulk" name="improveseo_featured_images_bulk" value="1" <?php checked( get_option( 'improveseo_featured_images_bulk', '1' ), '1' ); ?>>
                                     <span class="iseo-toggle-track"></span>
                                 </label>
@@ -246,7 +242,6 @@ use ImproveSEO\View;
                                     <span class="iseo-toggle-desc">Apply when generating a single post at a time.</span>
                                 </div>
                                 <label class="iseo-toggle-switch" aria-label="Enable for Single Post">
-                                    <input type="hidden" name="improveseo_featured_images_single" value="0">
                                     <input type="checkbox" id="iseo_featured_images_single" name="improveseo_featured_images_single" value="1" <?php checked( get_option( 'improveseo_featured_images_single', '1' ), '1' ); ?>>
                                     <span class="iseo-toggle-track"></span>
                                 </label>
@@ -256,12 +251,9 @@ use ImproveSEO\View;
 
                     </div><!-- .iseo-toggle-group -->
 
-                    <div class="iseo-features-save">
-                        <input type="submit" class="iseo-btn-save active setting_submit" value="<?php _e('Save Changes') ?>">
-                    </div>
+                    <div class="iseo-features-save" id="iseo_toggle_save_status" aria-live="polite" style="font-size:12px; color:#6b7280; min-height:18px;"></div>
                 </div>
             </div><!-- .iseo-features-card -->
-            </form><!-- .iseo-features-form -->
 
         </div><!-- .iseo-col-sidebar -->
 
@@ -286,8 +278,40 @@ document.addEventListener('DOMContentLoaded', function() {
         ];
         if (!main || subs.some(function(s) { return !s; })) return;
 
+        // Auto-save (no Save button): every toggle change is written immediately
+        // via the same admin-ajax + nonce pattern as the connection test. The
+        // cascade can flip more than one toggle per interaction, so the current
+        // state of all three is sent together — only these three options, nothing else.
+        var statusEl = document.getElementById('iseo_toggle_save_status');
+        var statusTimer = null;
+        function showToggleStatus(text, ok) {
+            if (!statusEl) return;
+            statusEl.textContent = text;
+            statusEl.style.color = ok ? '#0f7b6c' : '#b32d2e';
+            if (statusTimer) clearTimeout(statusTimer);
+            if (ok) statusTimer = setTimeout(function() { statusEl.textContent = ''; }, 2500);
+        }
+        function saveFeatureToggles() {
+            var data = new FormData();
+            data.append('action', 'improveseo_save_feature_toggles');
+            data.append('nonce', '<?php echo wp_create_nonce("improveseo_feature_toggles_nonce"); ?>');
+            data.append('enabled', main.checked ? '1' : '0');
+            data.append('bulk', subs[0].checked ? '1' : '0');
+            data.append('single', subs[1].checked ? '1' : '0');
+            showToggleStatus('Saving…', true);
+            fetch('<?php echo admin_url("admin-ajax.php"); ?>', { method: 'POST', body: data })
+                .then(function(r) { return r.json(); })
+                .then(function(res) {
+                    showToggleStatus(res && res.success ? '✓ Saved' : '✗ Save failed — try again', !!(res && res.success));
+                })
+                .catch(function() {
+                    showToggleStatus('✗ Save failed — try again', false);
+                });
+        }
+
         main.addEventListener('change', function() {
             subs.forEach(function(sub) { sub.checked = main.checked; });
+            saveFeatureToggles();
         });
 
         subs.forEach(function(sub) {
@@ -297,6 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (subs.every(function(s) { return !s.checked; })) {
                     main.checked = false;
                 }
+                saveFeatureToggles();
             });
         });
     })();
