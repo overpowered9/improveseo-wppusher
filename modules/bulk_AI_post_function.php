@@ -144,6 +144,118 @@ if (!function_exists('removeConsecutiveSpecialCharacters')) {
     }
 }
 
+if (!function_exists('improveseo_split_cta_field')) {
+    /**
+     * Split a stored call_to_action back into (text, url).
+     *
+     * Since bb573ab the create form folds the CTA URL into the call_to_action
+     * text as a "CTA URL: <url>" line (no separate column). But the generator
+     * call site then passed '' for the structured cta_url param, so the content
+     * server never received the URL as a field — whether the link appeared in
+     * the article depended on the model noticing the text hint, which is
+     * nondeterministic per post. This helper recovers the URL so it can be
+     * passed as the structured param again, and returns the CTA text without
+     * the folded line (restoring the original pre-fold contract).
+     *
+     * @param string $call_to_action Stored column value (may contain the folded line).
+     * @return array{text: string, url: string} url is '' when none was folded.
+     */
+    function improveseo_split_cta_field($call_to_action) {
+        $call_to_action = (string) $call_to_action;
+        $url = '';
+        if (preg_match('~^\s*CTA URL:\s*(\S+)\s*$~mi', $call_to_action, $m)) {
+            $url = function_exists('improveseo_normalize_cta_url')
+                ? improveseo_normalize_cta_url($m[1])
+                : $m[1];
+            $call_to_action = preg_replace('~^\s*CTA URL:\s*\S+\s*$~mi', '', $call_to_action);
+        }
+        return array('text' => trim($call_to_action), 'url' => $url);
+    }
+}
+
+if (!function_exists('improveseo_bulk_guard_cta_links')) {
+    /**
+     * Guard the CTA in generated content. Runs in the SHARED build path, so the
+     * preview and the published post are always identical.
+     *
+     * Three outcomes, none of which can ever emit a broken link:
+     *   1. Anchor has a usable href            → left exactly as-is.
+     *   2. Anchor has an empty/placeholder href → repaired with the task's real
+     *      CTA URL when we know it, otherwise UNWRAPPED to its plain text, so no
+     *      empty <a>, no href="", no dangling button is ever rendered.
+     *   3. No CTA configured                    → nothing is invented; only
+     *      already-broken anchors are unwrapped (no false trigger).
+     *
+     * Also removes a literal "CTA URL: <url>" line if the model echoed the prompt
+     * hint into the article body instead of turning it into a link.
+     *
+     * @param string $html    Built post body.
+     * @param string $cta_url The task's intended CTA URL ('' when none).
+     * @param int    $task_id Bulk task id, for logging.
+     * @return string
+     */
+    function improveseo_bulk_guard_cta_links($html, $cta_url, $task_id = 0) {
+        if ($html === '' || $html === null) {
+            return (string) $html;
+        }
+
+        // A model that ignored the structured field sometimes prints the raw hint.
+        $html = preg_replace('~<p>\s*CTA URL:\s*\S+\s*</p>~i', '', $html);
+        $html = preg_replace('~^\s*CTA URL:\s*\S+\s*$~mi', '', $html);
+
+        $cta_url    = (string) $cta_url;
+        $has_target = ($cta_url !== '' && filter_var($cta_url, FILTER_VALIDATE_URL) !== false);
+        $repaired   = 0;
+        $unwrapped  = 0;
+
+        $html = preg_replace_callback(
+            '~<a\b([^>]*)>(.*?)</a>~is',
+            function ($m) use ($cta_url, $has_target, &$repaired, &$unwrapped) {
+                $attrs = $m[1];
+                $inner = $m[2];
+
+                $href = '';
+                if (preg_match('~\bhref\s*=\s*("([^"]*)"|\'([^\']*)\'|([^\s>]+))~i', $attrs, $h)) {
+                    $href = trim($h[2] !== '' ? $h[2] : ($h[3] !== '' ? $h[3] : $h[4]));
+                }
+
+                // Placeholders the generator leaves behind when it has no real URL.
+                $placeholders = array('', '#', 'cta url', '[cta url]', '[cta_url]', '{{cta_url}}',
+                                      '{cta_url}', 'url', 'your-url', 'javascript:void(0)', 'javascript:;');
+                $is_broken = in_array(strtolower($href), $placeholders, true);
+
+                if (!$is_broken) {
+                    return $m[0]; // Case 1: a real link — leave it untouched.
+                }
+
+                if ($has_target) {
+                    // Case 2a: we know the intended destination — repair it.
+                    $repaired++;
+                    $clean = preg_replace('~\shref\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)~i', '', $attrs);
+                    return '<a href="' . esc_url($cta_url) . '"' . $clean . '>' . $inner . '</a>';
+                }
+
+                // Case 2b: no destination — unwrap to plain text, never a dead link.
+                $unwrapped++;
+                return $inner;
+            },
+            $html
+        );
+
+        if (($repaired || $unwrapped) && function_exists('my_plugin_log')) {
+            my_plugin_log(sprintf(
+                'improveseo_bulk_guard_cta_links: task %d | repaired %d empty CTA link(s) with %s | unwrapped %d link(s) with no URL',
+                (int) $task_id,
+                $repaired,
+                $has_target ? $cta_url : 'n/a',
+                $unwrapped
+            ));
+        }
+
+        return $html;
+    }
+}
+
 if (!function_exists('improveseo_bulk_strip_content_h1')) {
     /**
      * Remove the generated in-content <h1> so the title renders exactly once.
@@ -195,6 +307,12 @@ if (!function_exists('improveseo_bulk_build_post_content')) {
         }
 
         $body = improveseo_bulk_strip_content_h1(base64_decode($task->ai_content));
+
+        // CTA guard — runs here so the preview and the published post can never
+        // disagree: a CTA with no usable URL is skipped cleanly instead of
+        // rendering an empty <a>/href=""/dangling button.
+        $cta = improveseo_split_cta_field(isset($task->call_to_action) ? $task->call_to_action : '');
+        $body = improveseo_bulk_guard_cta_links($body, $cta['url'], isset($task->id) ? (int) $task->id : 0);
 
         $extras = '';
         if (!empty($task->testimonial)) {
@@ -730,7 +848,17 @@ function generateBulkAiContent($id = '', $regenerate = '')
 	
 	$keyword_selection = '';
 
-	$generation_result = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, $value->point_of_view, $ai_title, $value->call_to_action, $value->details_to_include, '', $iseo_niche, $iseo_niche_data, $iseo_brand_profile, '');
+	// The CTA URL is stored folded into call_to_action ("CTA URL: <url>" line) so no
+	// schema change was needed — but it must still reach the generator as the STRUCTURED
+	// cta_url field. Passing '' here left the URL visible only as prose inside
+	// call_to_action, so whether the model turned it into a real link varied per post
+	// (siblings in one project could differ). Split it back out and send both.
+	$iseo_cta = improveseo_split_cta_field($value->call_to_action);
+	if ($iseo_cta['url'] === '' && !empty($value->call_to_action)) {
+		my_plugin_log('generateBulkAiContent: Task ' . $id . ' has a CTA text but no CTA URL — article will be generated without a link');
+	}
+
+	$generation_result = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, $value->point_of_view, $ai_title, $iseo_cta['text'], $value->details_to_include, '', $iseo_niche, $iseo_niche_data, $iseo_brand_profile, $iseo_cta['url']);
 
 	// Extract content from the result array
 	$AI_Content = $generation_result['content'];
