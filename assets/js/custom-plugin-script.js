@@ -1012,6 +1012,8 @@ function refreshAIImage() {
       );
       jQuery("#AI-Image-uploaded-path").val(response.data);
       $preview.addClass("has-image");
+      // An image now exists — the lead text can accurately point at it.
+      jQuery("#AI_image_div .iseo-title-lead").text("Click the image to view it at full size.");
       $btn.text("Regenerate image");
       $hint.addClass("ok").text("Cover image ready. 1 image credit used.");
     },
