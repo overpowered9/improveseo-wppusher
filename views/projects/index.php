@@ -208,6 +208,8 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 												<div class="checkbox__checkmark"></div>
 											</label>
 											<h4 class="iseo-project-name" data-id="<?php echo (int) $project->id; ?>"><?= $project->name ?></h4>
+											<button type="button" class="iseo-rename-btn" data-id="<?php echo (int) $project->id; ?>" title="Rename project"
+												style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#aaa;font-size:14px;line-height:1;margin-left:6px;align-self:center;">&#9998;</button>
 										</div>
 									</td>
 									<td data-label="Created At"><?php
@@ -292,11 +294,6 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 														Post</a>
 												</li>
 												<?php endif; ?>
-												<li><a href="#" class="popup-link iseo-rename-project"
-														data-id="<?php echo (int) $project->id; ?>"
-														data-name="<?php echo esc_attr($project->name); ?>"
-														data-nonce="<?php echo esc_attr(wp_create_nonce('rename_project_nonce')); ?>"
-														style="max-width: max-content !important;">Rename</a></li>
 												<li style="margin: 0px !important;"><a target="_blank"
 														href="<?= admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ?>"
 														style="max-width: max-content !important;"
@@ -469,31 +466,67 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 
 		updateDeleteButtonState();
 
-		// Rename a project from the row's action menu.
-		$(document).on('click', '.iseo-rename-project', function (e) {
-			e.preventDefault();
-			var $link = $(this);
-			var id = $link.data('id');
-			var current = String($link.data('name') == null ? '' : $link.data('name'));
-			var newName = window.prompt('Rename project:', current);
-			if (newName === null) return; // cancelled
-			newName = $.trim(newName);
-			if (newName === '' || newName === current) return;
-			$.post(ajaxurl, {
-				action: 'rename_project',
-				id: id,
-				name: newName,
-				nonce: $link.data('nonce')
-			}, function (resp) {
-				if (resp && resp.success) {
-					$('.iseo-project-name[data-id="' + id + '"]').text(resp.data.name);
-					$link.attr('data-name', resp.data.name).data('name', resp.data.name);
-				} else {
-					alert((resp && resp.data) || 'Could not rename the project.');
-				}
-			}).fail(function () {
-				alert('Could not rename the project. Please try again.');
+		// ── Inline rename ──
+		// Mirrors the bulk projects list (views/bulkprojects/index.php): a pencil
+		// beside the name swaps it for an input with Save/Cancel, rather than the
+		// row action menu + window.prompt this used to use.
+		$(document).on('click', '.iseo-rename-btn', function (e) {
+			e.stopPropagation();
+			var btn      = $(this);
+			var nameEl   = btn.siblings('.iseo-project-name');
+			var id       = btn.data('id');
+			var current  = nameEl.text().trim();
+
+			// Already editing
+			if (btn.data('editing')) return;
+			btn.data('editing', true);
+
+			var input  = $('<input type="text" class="iseo-rename-input">').val(current)
+				.css({ padding:'4px 8px', border:'1px solid #1C7293', borderRadius:'4px', fontSize:'13px', minWidth:'160px' });
+			var save   = $('<button type="button" class="iseo-rename-save active" style="margin-left:6px;padding:4px 10px;font-size:12px;">Save</button>');
+			var cancel = $('<button type="button" class="iseo-rename-cancel" style="margin-left:4px;padding:4px 10px;font-size:12px;background:none;border:1px solid #ccc;border-radius:50px;cursor:pointer;">Cancel</button>');
+
+			nameEl.hide();
+			btn.hide();
+			nameEl.after(input, save, cancel);
+			input.focus().select();
+
+			function stopEdit() {
+				input.remove(); save.remove(); cancel.remove();
+				nameEl.show(); btn.show();
+				btn.data('editing', false);
+			}
+
+			cancel.on('click', stopEdit);
+
+			save.on('click', function () {
+				var newName = input.val().trim();
+				if (!newName) { input.focus(); return; }
+				save.prop('disabled', true).text('Saving…');
+				$.post(ajaxurl, {
+					action: 'rename_project',
+					id:     id,
+					name:   newName,
+					nonce:  '<?php echo esc_js(wp_create_nonce("rename_project_nonce")); ?>'
+				}, function (res) {
+					if (res.success) {
+						nameEl.text(res.data.name);
+					}
+					stopEdit();
+				}).fail(stopEdit);
 			});
+
+			input.on('keydown', function (e) {
+				if (e.which === 13) save.trigger('click');
+				if (e.which === 27) stopEdit();
+			});
+		});
+
+		// Pencil highlights on hover, same as the bulk list.
+		$(document).on('mouseenter', '.iseo-rename-btn', function () {
+			$(this).css('color', '#1C7293');
+		}).on('mouseleave', '.iseo-rename-btn', function () {
+			$(this).css('color', '#aaa');
 		});
 	});
 </script>
