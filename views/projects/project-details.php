@@ -482,32 +482,12 @@ function pd_seo_meta($post_id, $what) {
                     <div class="pd-value"><?= esc_html($options['dripfeed_type']) ?> – every <?= esc_html($options['dripfeed_x']) ?> hours</div>
                 </div>
                 <?php endif; ?>
-                <?php
-                // Schema (structured data) for the generated post. Prefer the active SEO
-                // plugin's stored schema type (a WordPress post defaults to Article), and
-                // append the plugin's own local-business schema when the project set it.
-                $pd_schema  = array();
-                $rm_snippet = $pd_post_id ? trim((string) get_post_meta($pd_post_id, 'rank_math_rich_snippet', true)) : '';
-                $rm_article = $pd_post_id ? trim((string) get_post_meta($pd_post_id, 'rank_math_snippet_article_type', true)) : '';
-                $yoast_art  = $pd_post_id ? trim((string) get_post_meta($pd_post_id, '_yoast_wpseo_schema_article_type', true)) : '';
-                if ($rm_snippet !== '' && strtolower($rm_snippet) !== 'off') {
-                    $pd_schema[] = $rm_article !== '' ? $rm_article : ucwords(str_replace(array('-', '_'), ' ', $rm_snippet));
-                } elseif ($yoast_art !== '' && strtolower($yoast_art) !== 'none') {
-                    $pd_schema[] = $yoast_art;
-                } elseif ($associated_post && $associated_post->post_type === 'post') {
-                    $pd_schema[] = 'Article (default)';
-                }
-                $pd_biz = $pd_post_id ? trim((string) get_post_meta($pd_post_id, 'improveseo_schema_business', true)) : '';
-                if ($pd_biz === '' && isset($options['schema_business'])) $pd_biz = trim((string) $options['schema_business']);
-                if ($pd_biz !== '') $pd_schema[] = 'LocalBusiness: ' . $pd_biz;
-                $pd_schema_text = implode(' · ', $pd_schema);
-                ?>
+                <?php if (isset($options['schema']) && $options['schema']): ?>
                 <div class="pd-row">
                     <div class="pd-label">Schema</div>
-                    <div class="pd-value <?= $pd_schema_text === '' ? 'na' : '' ?>">
-                        <?= $pd_schema_text !== '' ? esc_html($pd_schema_text) : 'Not set' ?>
-                    </div>
+                    <div class="pd-value">Enabled – <?= esc_html($options['schema_business'] ?? '') ?></div>
                 </div>
+                <?php endif; ?>
                 <?php if (isset($options['local_geo_country'])): ?>
                 <div class="pd-row">
                     <div class="pd-label">Local SEO</div>
