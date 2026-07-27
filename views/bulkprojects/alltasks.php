@@ -257,80 +257,122 @@ $url .= $_SERVER['REQUEST_URI'];
 											<ul class="popup-menu">
 												<div class="row-actions"
 													style="display: flex; flex-direction: column !important;">
-											<?php if ($project->status != 'Done' && $project->status != 'Stoped') { ?>
-												<span class="edit">
-													<?php $task_id = $_GET['id']; ?>
-													<a class="popup-link"
-														href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=stop&mainid=' . $task_id . '&id=' . $project->id) ?>"
-														onclick="return confirm('Are you sure you want to cancel this task? Content generation will be halted.')">
-														Cancel Process
-													</a>
+											<?php
+											// ── Action menu, built as an ORDERED list ────────────────────
+											// The order differs by post status and is part of the spec, so
+											// the items are assembled into an array first and rendered in
+											// one place — previously the order was an accident of which
+											// if-block happened to come first in the markup.
+											//
+											//   Published / Scheduled : View Post, Edit Post, View Details,
+											//                           Re-Generate Content
+											//   Draft                 : Publish, View AI Content,
+											//                           Edit Post Content, View Details,
+											//                           Re-Generate Content
+											//   Still generating      : Cancel Process, View Details,
+											//                           Re-Generate Content
+											//   Canceled              : View Details
+											//
+											// Nothing that used to be reachable was dropped: an item is
+											// still emitted whenever it applies to the row.
+											$acts     = array();
+											$parent_id_for_row = $id;
+											$is_stoped = ($project->status == 'Stoped');
+											$is_done   = ($project->status == 'Done');
+											$live_url  = !empty($project->post_id) ? get_permalink($project->post_id) : '';
+
+											$act_view_post = array(
+												'label'  => 'View Post',
+												'href'   => $live_url,
+												'target' => '_blank',
+											);
+											// Editing a row that already has a WordPress post means editing
+											// the post; a draft has no post yet, so it edits the generated
+											// content in place (the same screen Publish builds from).
+											$act_edit_post = array(
+												'label' => 'Edit Post',
+												'href'  => admin_url('post.php?action=edit&post=' . $project->post_id),
+												'target' => '_blank',
+											);
+											$act_edit_content = array(
+												'label' => 'Edit Post Content',
+												'href'  => admin_url('admin.php?page=improveseo_bulkprojects&action=edit_ai_content&id=' . $project->id),
+											);
+											$act_edit_content_pending = array(
+												'label'   => 'Edit Post Content',
+												'href'    => '#',
+												'onclick' => "alert('Content is not generated yet. Please wait'); return false;",
+											);
+											$act_view_details = array(
+												'label' => 'View Details',
+												'href'  => admin_url('admin.php?page=improveseo_bulkprojects&action=view_task_details&id=' . $project->id . '&parent_id=' . $parent_id_for_row),
+											);
+											$act_regenerate = array(
+												'label'   => 'Re-Generate Content',
+												'href'    => 'javascript:re_generatepost(' . intval($project->id) . ')',
+												'target'  => '_self',
+												'onclick' => "return confirm('This will delete the existing content and regenerate from scratch. Continue?')",
+											);
+											// Same publish action the redesigned draft-edit screen posts to,
+											// so there is exactly one publish path.
+											$act_publish = array(
+												'label' => 'Publish',
+												'href'  => admin_url('admin.php?page=improveseo_bulkprojects&action=publish&mainid=' . $parent_id_for_row . '&id=' . $project->id),
+											);
+											$act_view_ai = array(
+												'label'  => 'View AI Content',
+												'href'   => admin_url('admin.php?page=improveseo_bulkprojects&action=viewAiContent&id=' . $project->id),
+												'target' => '_blank',
+											);
+											$act_cancel = array(
+												'label'   => 'Cancel Process',
+												'href'    => admin_url('admin.php?page=improveseo_bulkprojects&action=stop&mainid=' . $parent_id_for_row . '&id=' . $project->id),
+												'onclick' => "return confirm('Are you sure you want to cancel this task? Content generation will be halted.')",
+											);
+
+											if ($is_stoped) {
+												$acts[] = $act_view_details;
+											} elseif (!$is_done) {
+												// Content generation still in flight — nothing to view or
+												// publish yet, but it can be cancelled.
+												$acts[] = $act_cancel;
+												$acts[] = $act_view_details;
+												$acts[] = $act_regenerate;
+											} elseif ($project->state == 'Published' || $project->state == 'Scheduled') {
+												if ($live_url)                 $acts[] = $act_view_post;
+												if (!empty($project->post_id)) $acts[] = $act_edit_post;
+												$acts[] = $act_view_details;
+												$acts[] = $act_regenerate;
+											} elseif ($project->state == 'Draft') {
+												$acts[] = $act_publish;
+												if (!empty($project->ai_content)) $acts[] = $act_view_ai;
+												$acts[] = !empty($project->post_id)
+													? array_merge($act_edit_post, array('label' => 'Edit Post Content'))
+													: (!empty($project->ai_content) ? $act_edit_content : $act_edit_content_pending);
+												$acts[] = $act_view_details;
+												$acts[] = $act_regenerate;
+											} else {
+												// Generated but no state yet (legacy rows).
+												if ($live_url)                 $acts[] = $act_view_post;
+												if (!empty($project->post_id)) $acts[] = $act_edit_post;
+												elseif (!empty($project->ai_content)) $acts[] = $act_edit_content;
+												$acts[] = $act_view_details;
+												$acts[] = $act_regenerate;
+											}
+
+											foreach ($acts as $act):
+												$act_href = (strpos($act['href'], 'javascript:') === 0 || $act['href'] === '#')
+													? $act['href']
+													: esc_url($act['href']);
+											?>
+												<span class="primary">
+													<a class="popup-link" href="<?php echo $act_href; ?>"<?php
+														if (!empty($act['target'])) echo ' target="' . esc_attr($act['target']) . '"';
+														if (!empty($act['target']) && $act['target'] === '_blank') echo ' rel="noopener"';
+														if (!empty($act['onclick'])) echo ' onclick="' . esc_attr($act['onclick']) . '"';
+													?>><?php echo esc_html($act['label']); ?></a>
 												</span>
-											<?php }
-													if ($project->state == 'Draft') {
-														$task_id = $_GET['id']; ?>
-														<span class="primary">
-															<a class="popup-link"
-																href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=publish&mainid=' . $task_id . '&id=' . $project->id) ?>">
-																Publish
-														</a>
-													</span>
-												<?php }
-												if ($project->status != 'Stoped') { ?>
-													<span class="primary">
-														<a href="javascript:re_generatepost(<?= $project->id ?>)"
-															class="popup-link" target="_self"
-															onclick="return confirm('This will delete the existing content and regenerate from scratch. Continue?')">Re-Generate Content</a>
-													</span>
-												<?php } ?>
-													<?php // "View AI content" is only useful for Drafts (to review before publishing).
-													// Published/Scheduled posts are viewed via "View Post" instead.
-													if ($project->state == 'Draft' && !empty($project->ai_content)) { ?>
-														<span class="primary">
-															<a class="popup-link" class="submitdelete" target="_blank"
-																href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAiContent&id=' . $project->id) ?>">View AI
-																content</a>
-														</span>
-													<?php } ?>
-
-													<span class="primary">
-														<a class="popup-link"
-															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=view_task_details&id=' . $project->id . '&parent_id=' . $id) ?>">View
-															Details</a>
-													</span>
-
-													<?php // View Post is enabled for both Published and Scheduled posts
-													// (a scheduled post already has a permalink to preview).
-													$iseo_live_url = !empty($project->post_id) ? get_permalink($project->post_id) : '';
-													if (($project->state == 'Published' || $project->state == 'Scheduled') && $iseo_live_url) { ?>
-														<span class="primary">
-															<a class="popup-link" target="_blank" rel="noopener"
-																href="<?php echo esc_url($iseo_live_url); ?>">View Post</a>
-														</span>
-													<?php } ?>
-													<?php if (!empty($project->post_id)) {
-														$edit_link = admin_url('post.php?action=edit&post=' . $project->post_id); ?>
-														<span class="primary">
-															<a class="popup-link" class="submitdelete" target="_blank"
-																href="<?php echo $edit_link; ?>">Edit
-																Post Content</a>
-														</span>
-													<?php } elseif (!empty($project->ai_content)) {
-														// Drafts never get a WordPress post, so edit the generated
-														// content in place — Publish builds the post from it.
-														$edit_link = admin_url('admin.php?page=improveseo_bulkprojects&action=edit_ai_content&id=' . $project->id); ?>
-														<span class="primary">
-															<a class="popup-link"
-																href="<?php echo esc_url($edit_link); ?>">Edit
-																Post Content</a>
-														</span>
-													<?php } else { ?>
-														<span class="primary">
-															<a class="popup-link" class="submitdelete" target="_blank" href="#"
-																onclick="alert('Content is not generated yet. Please wait'); return false;">Edit
-																Post Content</a>
-														</span>
-													<?php } ?>
+											<?php endforeach; ?>
 												</div>
 											</ul>
 										</div>

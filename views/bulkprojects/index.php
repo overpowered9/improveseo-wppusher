@@ -202,30 +202,36 @@ if (isset($_GET['post_preview'])) {
 											<ul class="popup-menu">
 												<div class="row-actions"
 													style="display: flex; flex-direction: column !important;">
-
-												<span class="edit">
-													<a class="popup-link"
-														href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=export_urls&id=' . $project->id . '&name=' . urlencode($project->name) . '&noheader=true') ?>">
-														Export URLs to Excel
-													</a>
-												</span>
-										<?php if ($project->state != 'Stopped' && $project->state != 'Finished' && $project->state != 'Draft') { ?>
-										<span class="edit">
-											<a class="popup-link"
-												href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=stop_bulk_task&id=' . $project->id) ?>"
-												onclick="if(confirm('Are you sure you want to cancel this project? All ongoing tasks will be halted immediately.')) { window.location.href=this.href; } return false;">
-												Cancel Process
-											</a>
-										</span>
-										<?php } ?>
-												<span class="edit">
-														<a class="popup-link" class="submitdelete" target="_blank"
+													<?php
+													// Project-level menu order is part of the spec:
+													//   View All Posts Within Project, Cancel Process,
+													//   Export URLs to Excel, Delete Project
+													// Cancel Process is still only offered while the project
+													// can actually be cancelled.
+													?>
+													<span class="edit">
+														<a class="popup-link" target="_blank" rel="noopener"
 															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $project->id) ?>">View All Posts Within Project</a>
+													</span>
+											<?php if ($project->state != 'Stopped' && $project->state != 'Finished' && $project->state != 'Draft') { ?>
+													<span class="edit">
+														<a class="popup-link"
+															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=stop_bulk_task&id=' . $project->id) ?>"
+															onclick="if(confirm('Are you sure you want to cancel this project? All ongoing tasks will be halted immediately.')) { window.location.href=this.href; } return false;">
+															Cancel Process
+														</a>
+													</span>
+											<?php } ?>
+													<span class="edit">
+														<a class="popup-link"
+															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=export_urls&id=' . $project->id . '&name=' . urlencode($project->name) . '&noheader=true') ?>">
+															Export URLs to Excel
+														</a>
 													</span>
 													<span class="trash">
 														<a class="popup-link delete-link submitdelete"
 															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=delete&id=' . $project->id) ?>"
-															onclick="if(confirm('This action will delete project and all generated posts/pages')) { window.location.href=this.href; } return false;">Delete Project and All Posts</a>
+															onclick="if(confirm('This action will delete the project and all generated posts/pages')) { window.location.href=this.href; } return false;">Delete Project</a>
 													</span>
 												</div>
 											</ul>
