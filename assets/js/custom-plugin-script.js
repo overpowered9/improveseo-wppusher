@@ -755,6 +755,19 @@ function saveFinalData() {
   jQuery("#butn").trigger("click");
 
   insertContent(plainTextContent);
+
+  // Closing the full-screen wizard modal otherwise leaves the page scrolled to the very
+  // top. Land the user on the freshly-generated content instead, once the modal has hidden
+  // and the content has been inserted. The -60px offset clears the wp-admin bar.
+  setTimeout(function () {
+    var target =
+      document.getElementById("wp-content-wrap") ||
+      document.getElementById("postdivrich") ||
+      document.querySelector(".PostForm__title-wrap");
+    if (!target) return;
+    var top = target.getBoundingClientRect().top + window.pageYOffset - 60;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  }, 350);
 }
 
 function initializeTinyMCE() {
