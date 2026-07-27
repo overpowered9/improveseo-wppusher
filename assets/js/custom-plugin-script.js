@@ -523,6 +523,29 @@ function iseoMarkCoverImageEager(imgHtml) {
   return $wrap.html();
 }
 
+// Normalise a title for comparison: decode HTML entities, lowercase, straighten curly
+// quotes/dashes and drop punctuation & whitespace differences. This lets us recognise the
+// AI's title heading even when it differs from the known post title only cosmetically (a
+// trailing "?", an &amp; entity, curly quotes, an en-dash, extra spaces, etc.).
+function iseoNormalizeTitleForMatch(s) {
+  var decoded = jQuery("<div>").html(s == null ? "" : String(s)).text();
+  return decoded
+    .toLowerCase()
+    .replace(/[‘’“”]/g, "'") // curly quotes -> straight
+    .replace(/[–—]/g, "-")             // en/em dash -> hyphen
+    .replace(/[^a-z0-9À-ɏ ]+/g, " ")   // drop punctuation; keep latin (incl. accents)
+    .replace(/\s+/g, " ")
+    .trim();
+}
+// True when two titles are effectively the same heading text after normalisation (equal, or
+// one is the leading part of the other — covers a heading with an extra trailing clause).
+function iseoTitlesMatch(a, b) {
+  var na = iseoNormalizeTitleForMatch(a);
+  var nb = iseoNormalizeTitleForMatch(b);
+  if (!na || !nb) return false;
+  return na === nb || na.indexOf(nb) === 0 || nb.indexOf(na) === 0;
+}
+
 function renderGeneratedPreview(articleHtml) {
   articleHtml = articleHtml || "";
   var $preview = jQuery("#showmydataindiv1");
@@ -543,9 +566,15 @@ function renderGeneratedPreview(articleHtml) {
   var titleText = "";
   if (knownTitle) {
     titleText = knownTitle;
+    // Drop the body's leading title heading so the title is never shown twice (once as the
+    // theme's post title, once inside the content). The old exact compare leaked the title
+    // whenever the AI heading differed by punctuation/entity/quotes/rephrasing. Now: remove
+    // the first heading when it matches the title (normalised) OR when it's an <h1> at all —
+    // the body should only use h2/h3 for its own sections, so a leading <h1> is the title,
+    // even if fully reworded.
     if ($firstHeading.length &&
-        jQuery.trim($firstHeading.text()).toLowerCase() === knownTitle.toLowerCase()) {
-      $firstHeading.remove(); // it's the title heading — drop it from the body
+        (iseoTitlesMatch($firstHeading.text(), knownTitle) || $firstHeading.is("h1"))) {
+      $firstHeading.remove();
     }
   } else if ($firstHeading.length) {
     titleText = jQuery.trim($firstHeading.text());
