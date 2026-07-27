@@ -268,13 +268,15 @@ function iseoUpdateMetaCounter(fieldSel, counterSel) {
   var len = ($field.val() || "").length;
   $counter.removeClass("is-ideal is-over is-under");
   var mark = "";
-  if (len > max) {
+  if (len === 0) {
+    // empty field — neutral, no pass/fail colour
+  } else if (len > max) {
     $counter.addClass("is-over");
     mark = "✗ "; // ✗ over the limit — check fails
   } else if (len >= min) {
     $counter.addClass("is-ideal");
-    mark = "✓ "; // ✓ within the ideal range — check passes
-  } else if (len > 0) {
+    mark = "✓ "; // ✓ within the limit / ideal range — check passes
+  } else {
     $counter.addClass("is-under"); // amber — valid but under the ideal range (too short)
   }
   $counter.text(mark + len + " / " + max);
@@ -289,7 +291,14 @@ jQuery(document).on("input keyup change", "#meta_title", function () {
 jQuery(document).on("input keyup change", "#meta_descreption", function () {
   iseoUpdateMetaCounter("#meta_descreption", "#meta_descreption_count");
 });
-jQuery(function () { iseoUpdateAllMetaCounters(); });
+jQuery(function () {
+  // The meta title passes as long as it's within the 60-char limit — it should never show
+  // the amber "too short" warning for a valid, under-limit title. Force min=0 here (in JS)
+  // so this holds even if the view markup's data-min hasn't redeployed yet. Only the
+  // description keeps an ideal minimum.
+  jQuery("#meta_title_count").attr("data-min", "0");
+  iseoUpdateAllMetaCounters();
+});
 
 // If a meta value fails the length check, RERUN the meta prompt (generateAIMeta) to get
 // a fresh one and re-check — up to a few times. Only if it still won't fit after the
