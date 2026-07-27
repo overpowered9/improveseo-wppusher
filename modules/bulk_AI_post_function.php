@@ -300,7 +300,11 @@ if (!function_exists('improveseo_bulk_build_post_content')) {
         if (!empty($task->ai_image)) {
             $decoded_image = base64_decode($task->ai_image);
             if (filter_var($decoded_image, FILTER_VALIDATE_URL)) {
-                $image_html = "<img src='" . esc_url($decoded_image) . "' style='width:100%; margin-bottom: 100px;' alt='" . esc_attr($task->ai_title) . "'>";
+                // margin-bottom was 100px, which left a chasm between the hero
+                // image and the opening paragraph in both the preview and the
+                // published post. 28px matches the article's own paragraph
+                // rhythm. Kept INLINE so preview and published stay identical.
+                $image_html = "<img src='" . esc_url($decoded_image) . "' style='width:100%; margin-bottom: 28px;' alt='" . esc_attr($task->ai_title) . "'>";
             } else {
                 $decoded_image = '';
             }

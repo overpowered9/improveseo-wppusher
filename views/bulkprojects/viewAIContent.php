@@ -78,9 +78,13 @@ use ImproveSEO\View;
 	}
 
 	/* Hero image comes through the shared renderer with its publish-time inline
-	   style; round the corners like the rest of the preview. */
+	   style; round the corners like the rest of the preview. The renderer's
+	   inline margin-bottom is what sets the gap to the first paragraph (it has
+	   to be inline so the published post matches) — this only guarantees the
+	   image doesn't also push itself away from the title above it. */
 	.iseo-aicontent-body > img:first-child {
 		border-radius: 10px;
+		margin-top: 0;
 	}
 
 	/* Any h1 left inside the body must stay BELOW the page title. */
@@ -127,8 +131,38 @@ use ImproveSEO\View;
 
 	/* FAQ (and any other block) consistency: the generator sometimes carries
 	   its own font sizing on questions/answers — force everything back onto
-	   the body heading scale defined above. */
-	.iseo-aicontent-body [style*="font-size"] {
+	   the body heading scale defined above.
+
+	   Widened for the "Key Takeaways" callout, which came through bigger than
+	   the surrounding article: the size can arrive as an inline font-size, as
+	   the `font:` SHORTHAND (which the font-size substring match misses), or as
+	   a legacy <font>/<big> tag, so all four are normalised. */
+	.iseo-aicontent-body [style*="font-size"],
+	.iseo-aicontent-body [style*="font:"],
+	.iseo-aicontent-body font,
+	.iseo-aicontent-body big {
+		font-size: inherit !important;
+	}
+
+	/* Body copy is ONE scale. Only h1-h6 are allowed to differ from it, so a
+	   callout wrapper (Key Takeaways and friends) can never scale up the text
+	   inside it — whatever it carries its size on, the paragraphs and list
+	   items within resolve back to the article's body size.
+	   `inherit` rather than a fixed px so the mobile step-down below still
+	   applies. */
+	.iseo-aicontent-body div,
+	.iseo-aicontent-body section,
+	.iseo-aicontent-body aside,
+	.iseo-aicontent-body blockquote,
+	.iseo-aicontent-body p,
+	.iseo-aicontent-body ul,
+	.iseo-aicontent-body ol,
+	.iseo-aicontent-body li,
+	.iseo-aicontent-body span,
+	.iseo-aicontent-body strong,
+	.iseo-aicontent-body em,
+	.iseo-aicontent-body td,
+	.iseo-aicontent-body th {
 		font-size: inherit !important;
 	}
 
