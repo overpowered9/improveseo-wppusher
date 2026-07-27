@@ -42,7 +42,7 @@ function pd_seed_option_label($val) {
         'seed_option2' => 'Smart Title (AI-Generated)',
         'seed_option3' => 'Question-Style Title (AI-Generated)',
     );
-    return isset($map[$val]) ? $map[$val] : ($val ?: 'N/A');
+    return isset($map[$val]) ? $map[$val] : pd_humanize($val);
 }
 
 function pd_pov_label($val) {
@@ -53,19 +53,31 @@ function pd_pov_label($val) {
         'First person plural (we,us,our,ours)' => 'Business Voice ("we", "our")',
         'First person singular (I,me,my,mine)' => 'Personal Voice ("I", "my")',
     );
-    return isset($map[$val]) ? $map[$val] : esc_html($val);
+    return isset($map[$val]) ? $map[$val] : pd_humanize($val);
+}
+
+// Same fallback rule as the bulk task-details screen: an unmapped enum is a
+// snake_case machine value, so de-underscore + title-case it rather than
+// showing "Multiple_images" to the user.
+function pd_humanize($val, $default = 'N/A') {
+    $val = trim((string) $val);
+    if ($val === '') return $default;
+    if (strpos($val, '_') === false) return esc_html($val);
+    return esc_html(ucwords(str_replace('_', ' ', $val)));
 }
 
 function pd_image_label($val) {
     $map = array(
         'AI_image' => 'AI Generated Image',
+        'AI_image_one' => 'AI Generated Image (One)',
         'manually_promt_image' => 'AI Image – Edit Prompt',
         'Manually_image' => 'Manual Image Upload',
+        'Multiple_images' => 'Multiple Images',
         'google_image' => 'Google Image',
         'pexels_image' => 'Pexels Image',
         'pixabay_image' => 'Pixabay Image',
     );
-    return isset($map[$val]) ? $map[$val] : ($val ? esc_html($val) : 'N/A');
+    return isset($map[$val]) ? $map[$val] : pd_humanize($val);
 }
 
 // Resolve SEO title/description/focus keyword from the live post. Checks the

@@ -40,13 +40,25 @@ function btd_tone_label($val) {
     return ($val && $val !== '') ? ucfirst(esc_html($val)) : 'N/A';
 }
 
+// Last-resort display for a stored enum this screen has no label for (a new
+// wizard option, or a legacy value). Raw values are snake_case machine strings
+// — "Multiple_images", "schedule_all_posts" — and leaking them to the screen
+// looks like a bug, so de-underscore + title-case instead of echoing verbatim.
+// Only used as a FALLBACK: every known value still gets its curated label.
+function btd_humanize($val, $default = 'N/A') {
+    $val = trim((string) $val);
+    if ($val === '') return $default;
+    if (strpos($val, '_') === false) return btd_val($val, $default);
+    return esc_html(ucwords(str_replace('_', ' ', $val)));
+}
+
 function btd_seed_option_label($val) {
     $map = array(
         'seed_option1' => 'Exact Keyword as Title',
         'seed_option2' => 'Smart Title (AI-Generated)',
         'seed_option3' => 'Question-Style Title (AI-Generated)',
     );
-    return isset($map[$val]) ? $map[$val] : btd_val($val);
+    return isset($map[$val]) ? $map[$val] : btd_humanize($val);
 }
 
 function btd_pov_label($val) {
@@ -57,7 +69,7 @@ function btd_pov_label($val) {
         'First person singular (I,me,my,mine)'   => 'Personal Voice ("I", "my")',
         'none'                                   => 'Auto (AI Decides)',
     );
-    return isset($map[$val]) ? $map[$val] : btd_val($val);
+    return isset($map[$val]) ? $map[$val] : btd_humanize($val);
 }
 
 function btd_image_label($val) {
@@ -66,11 +78,15 @@ function btd_image_label($val) {
         'AI_image_one' => 'AI Generated Image (One)',
         'manually_promt_image' => 'AI Image – Edit Prompt',
         'Manually_image' => 'Manual Image Upload',
+        // The wizard labels this option "Upload Your Own Images (Up to 10)";
+        // without an entry here the raw stored value "Multiple_images" was
+        // rendered verbatim, underscore and all.
+        'Multiple_images' => 'Multiple Images',
         'google_image' => 'Google Image',
         'pexels_image' => 'Pexels Image',
         'pixabay_image' => 'Pixabay Image',
     );
-    return isset($map[$val]) ? $map[$val] : btd_val($val);
+    return isset($map[$val]) ? $map[$val] : btd_humanize($val);
 }
 
 function btd_schedule_label($val) {
@@ -80,7 +96,7 @@ function btd_schedule_label($val) {
         'draft_posts'               => 'Save As Draft',
         'schedule_posts_input_wise' => 'Schedule',
     );
-    return isset($map[$val]) ? $map[$val] : btd_val($val);
+    return isset($map[$val]) ? $map[$val] : btd_humanize($val);
 }
 
 // Combine schedule frequency + posts-per-schedule into a human phrase like "2 posts/day".

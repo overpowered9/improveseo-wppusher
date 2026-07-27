@@ -92,7 +92,7 @@ $url .= $_SERVER['REQUEST_URI'];
 		</div>
 		<div class="import-export-btn">
 			<button type="button" onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ?>';"
-				class="active">Add New Project</button>
+				class="active">+ New Bulk Project</button>
 		</div>
 	</div>
 	<?php

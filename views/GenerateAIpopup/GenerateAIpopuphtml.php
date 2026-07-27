@@ -1533,9 +1533,9 @@ global $ai_modal_type;
                     <div class="bulk-widths1170_multi">
                         <div class="improve-seo-form-global_multi">
                             <div class="form-group">
-                                <label style="padding-left:20px;" for="keyword_list_name">Create New or Select an exisiting keyword list*.</label>
+                                <label style="padding-left:20px;" for="keyword_list_name">Create New or Select an exisiting keyword list.</label>
                                 <p style="font-size: 14px; color: #666; padding-left: 20px; margin-top: 5px;">
-                                    Keyword list allows you to generate bulk posts once against each keyword.
+                                    Keyword list allows you to generate posts in bulk, one post per keyword.
                                 </p>
                                 <p style="font-size: 14px; color: #0073aa; padding-left: 20px; margin-top: 8px; margin-bottom: 12px;">
                                     To create a new keyword list, click 
