@@ -106,10 +106,20 @@ $google_api_key = get_option('improveseo_google_api_key');
 			<!-- HTML modal for preview button -->
 			<div id="preview_popup" class="modal" style="text-align:center; width:90%; max-width:1100px;">
 				<div id="wh_prev_modal_1">
-					<?php $gif_src = IMPROVESEO_DIR . '/assets/images/loader.gif' ?>
-					<b style="font-size:20px">Generating preview</b>
-					<br /><br />
-					<img id="preview_rcube" src="<?= $gif_src ?>" width="200">
+					<!-- Loading and error are separate blocks so a failed preview no longer
+					     overwrites the spinner markup, which then never came back. -->
+					<div id="iseo_preview_loading" class="iseo-preview-loading">
+						<div class="iseo-preview-spinner" role="status" aria-label="Generating preview"></div>
+						<b class="iseo-preview-loading-title">Generating preview</b>
+						<span class="iseo-preview-loading-note">Building a temporary draft of this post.</span>
+						<button type="button" id="iseo_preview_cancel"
+							class="button iseo-preview-action">Cancel</button>
+					</div>
+					<div id="iseo_preview_error" class="iseo-preview-error" style="display:none;">
+						<p id="iseo_preview_error_text"></p>
+						<button type="button" class="button iseo-preview-action iseo-preview-action--primary"
+							onclick="closeWin()">Close</button>
+					</div>
 				</div>
 				<div id="wh_prev_modal_2" style="display:none;">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">

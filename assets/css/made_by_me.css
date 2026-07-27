@@ -2878,3 +2878,54 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   border-color: #0B132B !important;
   color: #fff !important;
 }
+
+/* Post-preview "Generating preview" state. A plain spinning ring instead of the old
+   200px loader.gif, plus a Cancel button so a slow build can be abandoned. */
+.iseo-preview-loading,
+.iseo-preview-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 48px 20px;
+}
+.iseo-preview-spinner {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 4px solid rgba(28, 114, 147, 0.18);
+  border-top-color: #1C7293;
+  animation: iseo-preview-spin 0.8s linear infinite;
+}
+@keyframes iseo-preview-spin {
+  to { transform: rotate(360deg); }
+}
+.iseo-preview-loading-title {
+  font-size: 18px;
+  color: #0B132B;
+}
+.iseo-preview-loading-note {
+  font-size: 13px;
+  color: #666;
+  margin-top: -8px;
+}
+.iseo-preview-error p {
+  font-size: 16px;
+  font-weight: 600;
+  color: #c0392b;
+  margin: 0;
+  max-width: 34em;
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Keep a visible "working" cue without the rotation. */
+  .iseo-preview-spinner {
+    animation: iseo-preview-pulse 1.4s ease-in-out infinite;
+    border-top-color: rgba(28, 114, 147, 0.18);
+    background: #1C7293;
+  }
+  @keyframes iseo-preview-pulse {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 1; }
+  }
+}
