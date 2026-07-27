@@ -699,6 +699,20 @@ function copyAIFieldsToHiddenInputs() {
   jQuery("#ai_image_option_hidden").val(jQuery("input[name='aiImage']:checked").val() || "");
   jQuery("#ai_generated_title_hidden").val(jQuery("#AI_Title").val() || jQuery("#ai_title").val() || "");
   jQuery("#ai_for_testing_only_hidden").val(jQuery("#for_testing_only").is(":checked") ? "1" : "0");
+
+  // Carry the wizard's Meta Title / Description into the On-Page SEO fields on EVERY form
+  // submit (Publish AND Save As Draft). Without this, a draft could be saved before/without
+  // saveFinalData() having copied them, so the meta description (and title) never reached the
+  // project options and the details page showed "Not set". Only fill when the SEO field is
+  // still empty, so a value the user edited by hand is never overwritten.
+  var _wizMetaTitle = jQuery.trim(jQuery("#meta_title").val() || "");
+  var _wizMetaDesc = jQuery.trim(jQuery("#meta_descreption").val() || "");
+  if (_wizMetaTitle && !jQuery.trim(jQuery("#custom-title").val() || "")) {
+    jQuery("#custom-title").val(_wizMetaTitle);
+  }
+  if (_wizMetaDesc && !jQuery.trim(jQuery("#custom-description").val() || "")) {
+    jQuery("#custom-description").val(_wizMetaDesc);
+  }
 }
 
 function saveFinalData() {
