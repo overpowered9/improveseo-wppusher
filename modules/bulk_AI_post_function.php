@@ -788,6 +788,12 @@ function generateBulkAiContent($id = '', $regenerate = '')
 		$ai_title = str_replace('"', '', $ai_title);
 		$ai_title = trim($ai_title, '"');
 
+		// Single choke point for title cleanup: every branch above (including the
+		// keyword-as-title ones and every re-generation, which re-enters here)
+		// passes through this, so a leading "Title:" label can never reach
+		// ai_title / post_title / the permalink.
+		$ai_title = improveseo_normalize_generated_title($ai_title);
+
 		// Final safety net: if title is still empty after all attempts, use keyword directly
 		if (empty($ai_title)) {
 			my_plugin_log('generateBulkAiContent: Title still empty after generation for task ' . $id . ' — forcing keyword as title');
@@ -1419,6 +1425,13 @@ function saveContentInTaskList()
 	// Sanitize title: remove all double quotes and trim any quotes from start/end
 	$post_title = str_replace('"', '', $value->ai_title);
 	$post_title = trim($post_title, '"');
+	// Second pass for rows generated BEFORE the normalizer existed: their stored
+	// ai_title still carries the leading "Title:" label, and post_title is what
+	// the permalink slug is derived from.
+	$post_title = improveseo_normalize_generated_title($post_title);
+	if ($post_title === '') {
+		$post_title = $value->keyword_name;
+	}
 		
 		// Determine WordPress post_status (lowercase for WordPress)
 		$post_status = 'publish';  // Default: publish immediately
@@ -1778,9 +1791,11 @@ function bulkAiTitle($getAudienceData, $question, $keyword_name, $tone_of_voice)
 		'title_type'    => $title_type,
 	));
 
-	// Strip any surrounding quotes the model may add. Returns '' on failure so
-	// the caller's keyword fallback still applies as a last resort.
-	$content = preg_replace('~^[\'"]?(.*?)[\'"]?$~', '$1', trim((string) $content));
+	// Strip surrounding quotes AND any leading "Title:"-style label the model
+	// prepended (it otherwise ends up in ai_title, post_title and the
+	// permalink). Returns '' on failure so the caller's keyword fallback still
+	// applies as a last resort.
+	$content = improveseo_normalize_generated_title($content);
 
 	if ($content === '') {
 		my_plugin_log('bulkAiTitle: auxiliary title generation failed for keyword "' . $keyword_name . '" (type: ' . $title_type . ') — caller will fall back to the keyword');
@@ -2969,9 +2984,10 @@ function generateTitle($seed_type, $seed_keyword, $content_type, $getAudienceDat
 		'title_type'    => $title_type,
 	));
 
-	// Strip any surrounding quotes the model may add, then mirror the historical
+	// Strip surrounding quotes and any leading "Title:"-style label the model
+	// prepended (same normalizer the bulk path uses), then mirror the historical
 	// contract of swapping single quotes for backticks so they don't break the markup.
-	$content = preg_replace('~^[\'"]?(.*?)[\'"]?$~', '$1', $content);
+	$content = improveseo_normalize_generated_title($content);
 
 	echo str_replace("'", '`', $content);
 

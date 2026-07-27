@@ -1,5 +1,63 @@
 <?php
 
+if ( ! function_exists( 'improveseo_normalize_generated_title' ) ) {
+	/**
+	 * Strip a leading label the model prepended to a generated title.
+	 *
+	 * The /auxiliary title route sometimes answers with the label included —
+	 * 'Title: Mindfulness Techniques…' — and we stored that verbatim, so the
+	 * word leaked into ai_title, post_title AND the permalink slug. This runs
+	 * at the source (before storage) so all three are clean.
+	 *
+	 * Only a LEADING label is removed, case-insensitively, and only when it is
+	 * immediately followed by a separator — a title that merely *contains* the
+	 * word "title" is untouched. Wrapping quotes (straight or curly) and
+	 * surrounding whitespace go too.
+	 *
+	 * @param string $title Raw title as returned by the model / stored in the row.
+	 * @return string Cleaned title ('' if nothing is left, so callers keep their
+	 *                existing keyword fallback).
+	 */
+	function improveseo_normalize_generated_title( $title ) {
+		$title = trim( (string) $title );
+		if ( $title === '' ) {
+			return '';
+		}
+
+		// Peel repeatedly: the model occasionally emits `"Title: ..."` — quotes
+		// on the OUTSIDE of the label — so one pass is not always enough.
+		for ( $i = 0; $i < 3; $i++ ) {
+			$before = $title;
+
+			// Markdown heading markers the model sometimes wraps the title in.
+			$title = trim( preg_replace( '~^#{1,6}\s*~', '', $title ) );
+
+			// Wrapping quotes: straight, curly, and back-ticks.
+			$title = preg_replace(
+				'~^["\'`\x{201C}\x{201D}\x{2018}\x{2019}]+|["\'`\x{201C}\x{201D}\x{2018}\x{2019}]+$~u',
+				'',
+				$title
+			);
+			$title = trim( $title );
+
+			// Leading label + separator (colon, en/em dash, or hyphen).
+			$title = preg_replace(
+				'~^(?:seo\s+title|meta\s+title|blog\s+title|post\s+title|article\s+title|title)\s*(?::|\x{2013}|\x{2014}|-)\s*~iu',
+				'',
+				$title,
+				1
+			);
+			$title = trim( $title );
+
+			if ( $title === $before ) {
+				break;
+			}
+		}
+
+		return trim( $title );
+	}
+}
+
 /**
  * Call the ImproveSEO admin server's /auxiliary endpoint.
  *

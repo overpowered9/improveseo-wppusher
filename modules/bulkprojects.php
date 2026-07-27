@@ -495,7 +495,15 @@ function improveseo_bulkprojects()
 			if ($decoded_image === '') {
 				my_plugin_log('Publish action: Invalid or missing image URL for task ' . $value->id . ', publishing without hero image');
 			}
-			
+
+			// Strip any leading "Title:"-style label the model prepended. New rows are
+			// cleaned at generation time; this covers rows generated before that fix,
+			// whose stored ai_title would otherwise become post_title and the permalink.
+			$post_title = improveseo_normalize_generated_title($value->ai_title);
+			if ($post_title === '') {
+				$post_title = $value->keyword_name;
+			}
+
 			$post_date = date('Y-m-d H:i:s');
 			$post_status = 'publish';
 			if ($value->assigning_authors == 'assigning_authors') {
@@ -537,7 +545,7 @@ function improveseo_bulkprojects()
 					'ID' => $value->post_id,
 					'post_author' => $post_author,
 					'post_content' => $fullcontent,
-					'post_title' => $value->ai_title,
+					'post_title' => $post_title,
 					'comment_status' => 'closed',
 					'ping_status' => 'closed',
 					'post_type' => "post",
@@ -550,7 +558,7 @@ function improveseo_bulkprojects()
 				$post_array = array(
 					'post_author' => $post_author,
 					'post_content' => $fullcontent,
-					'post_title' => $value->ai_title,
+					'post_title' => $post_title,
 					'comment_status' => 'closed',
 					'ping_status' => 'closed',
 					'post_type' => "post",
@@ -573,7 +581,7 @@ function improveseo_bulkprojects()
 					! empty( $decoded_image ) &&
 					! has_post_thumbnail( $post_id )
 				) {
-					improveseo_set_featured_image_from_url( $post_id, $decoded_image, $value->ai_title );
+					improveseo_set_featured_image_from_url( $post_id, $decoded_image, $post_title );
 				}
 			} catch ( \Throwable $e ) {
 				error_log( 'improveseo featured-image (bulk manual publish) failed: ' . $e->getMessage() );
@@ -586,10 +594,13 @@ function improveseo_bulkprojects()
 			$wpdb->query(
 				$wpdb->prepare(
 					"UPDATE `" . $wpdb->prefix . "improveseo_bulktasksdetails`
-					SET state = %s, post_id = %d, published_on = %s WHERE id = %d",
+					SET state = %s, post_id = %d, published_on = %s, ai_title = %s WHERE id = %d",
 					'Published',  // Use 'Published' (capital) for internal state
 					$post_id,
 					current_time('mysql'),
+					// Persist the cleaned title so the row matches the post it just
+					// created — otherwise the list keeps showing "Title: …".
+					$post_title,
 					$value->id
 				)
 			);
