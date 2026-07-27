@@ -108,8 +108,12 @@ $google_api_key = get_option('improveseo_google_api_key');
 				<div id="wh_prev_modal_1">
 					<?php $gif_src = IMPROVESEO_DIR . '/assets/images/loader.gif' ?>
 					<b style="font-size:20px">Generating preview</b>
+					<br />
+					<span style="color:#666; font-size:14px;">This can take up to 1.5 minutes.</span>
 					<br /><br />
 					<img id="preview_rcube" src="<?= $gif_src ?>" width="200">
+					<br /><br />
+					<button type="button" id="preview_cancel_btn" class="button" onclick="iseoCancelPreview()">Cancel</button>
 				</div>
 				<div id="wh_prev_modal_2" style="display:none;">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">

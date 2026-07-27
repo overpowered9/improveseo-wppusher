@@ -72,16 +72,8 @@
 
     });
    
-    $('#preview_on').click(function(e) {
-        //e.preventDefault();
-		jQuery("#preview_popup").modal({
-			escapeClose: false,
-			clickClose: false,
-			showClose: false,
-			fadeDuration: 1000,
-			fadeDelay: 0.35
-		});
-	});
+    // The preview modal is opened by the generation handler below (iseoOpenPreviewModal),
+    // AFTER the "up to 1.5 minutes" confirm — so cancelling never flashes the modal open.
 
     $('.google-preview-type').click(function(e){
         var preview_type = $(this).val();
@@ -131,17 +123,54 @@
      return title + '|~iseo~|' + content;
  }
 
+ // Opens the preview modal (only ever called after the reuse check / confirm, so cancelling
+ // the confirm never flashes it open).
+ function iseoOpenPreviewModal() {
+     jQuery("#preview_popup").modal({
+         escapeClose: false,
+         clickClose: false,
+         showClose: false,
+         fadeDuration: 1000,
+         fadeDelay: 0.35
+     });
+ }
+
+ // In-flight generation state, so the Cancel button can abort a build cleanly.
+ var iseoPreviewXhr = null;
+ var iseoPreviewFallbackTimer = null;
+ var iseoPreviewCanceled = false;
+
+ // Cancel a preview that is generating (or a reused one still loading): abort the request,
+ // stop the iframe build, discard any throwaway preview that was created, and close the modal.
+ function iseoCancelPreview() {
+     iseoPreviewCanceled = true;
+     if (iseoPreviewFallbackTimer) { clearTimeout(iseoPreviewFallbackTimer); iseoPreviewFallbackTimer = null; }
+     if (iseoPreviewXhr) { try { iseoPreviewXhr.abort(); } catch (e) {} iseoPreviewXhr = null; }
+     // Drop the throwaway preview project if the server already created one for this build.
+     var pid = jQuery('#preview_id').val();
+     if (pid) { preview_delete_ajax(pid); jQuery('#preview_id').val(''); }
+     iseoLastPreview = { key: null, url: null, id: null, time: 0 };
+     jQuery('#preview_iframe').off('load.iseoPreview').attr('src', 'about:blank');
+     // Restore the spinner view for next time (the modal_2 view stays hidden).
+     jQuery('#wh_prev_modal_1').show();
+     jQuery('#wh_prev_modal_2').hide();
+     jQuery.modal.close();
+ }
+
  jQuery('#preview_on').click(function(e){
      e.preventDefault();
      var max_no_posts_old = jQuery('#max-posts').val();
      if (max_no_posts_old > 50) {
-         alert("Recommended no. of total posts for preiew is less than 50");				
+         alert("Recommended no. of total posts for preiew is less than 50");
      }
      // Fast path: nothing changed since the last preview and it is still fresh — reuse it
      // instead of rebuilding (which is the slow part the user notices on a repeat click).
+     // This is near-instant, so it skips the "1.5 minutes" confirm.
      var iseoKey = iseoPreviewKey();
      if (iseoLastPreview.url && iseoLastPreview.key === iseoKey &&
          (Date.now() - iseoLastPreview.time) < 20 * 60 * 1000) {
+         iseoPreviewCanceled = false;
+         iseoOpenPreviewModal();
          jQuery('#preview_id').val(iseoLastPreview.id || '');
          jQuery('#is_preview_available').val('yes');
          // Reuse the already-built preview (skips the slow rebuild), but keep the
@@ -152,12 +181,22 @@
          var $reuseFrame = jQuery('#preview_iframe');
          $reuseFrame.off('load.iseoPreview').on('load.iseoPreview', function() {
              $reuseFrame.off('load.iseoPreview');
+             if (iseoPreviewCanceled) { return; }
              jQuery('#wh_prev_modal_1').hide();
              jQuery('#wh_prev_modal_2').show();
          });
          $reuseFrame.attr('src', iseoLastPreview.url);
          return;
      }
+
+     // A rebuild is needed (content changed or first run) — this is the slow path. Warn the
+     // user it can take a while and let them back out before anything is built.
+     if (!confirm("Generating the preview can take up to 1.5 minutes.\n\nClick OK to start, or Cancel to stop. You can also cancel while it's generating.")) {
+         return; // user backed out — nothing built, modal never opened
+     }
+
+     iseoPreviewCanceled = false;
+     iseoOpenPreviewModal();
 
      // Content changed (or first run): drop the previous throwaway preview so they don't
      // pile up, then build a fresh one.
@@ -176,7 +215,7 @@
     data.append("action", "improveseo_generate_preview");
     data.append('content', jQuery.trim(tinymce.get('content') ? tinymce.get('content').getContent() : jQuery('#content').val()));
 
-     jQuery.ajax({
+     iseoPreviewXhr = jQuery.ajax({
         url : form_ajax_vars.ajax_url,
         data : data,
         type: "POST",
@@ -184,6 +223,8 @@
         processData: false,
         contentType: false,
          success : function(response) {
+            iseoPreviewXhr = null;
+            if (iseoPreviewCanceled) { return; } // user cancelled while the request was in flight
             jQuery('#is_preview_available').val('yes');
             jQuery('#preview_id').val(response.project_id);
             var preview_url = form_ajax_vars.admin_url + "?page=improveseo_projects&post_preview=true&preview_id=" + response.project_id;
@@ -195,8 +236,9 @@
             // hidden) and only reveal it once it has navigated off the builder page,
             // so the user never sees the wp-admin Projects List flash.
             var revealPreview = function() {
-                clearTimeout(previewFallback);
+                if (iseoPreviewFallbackTimer) { clearTimeout(iseoPreviewFallbackTimer); iseoPreviewFallbackTimer = null; }
                 $iframe.off('load.iseoPreview');
+                if (iseoPreviewCanceled) { return; }
                 jQuery('#wh_prev_modal_1').hide();
                 jQuery('#wh_prev_modal_2').show();
                 // Remember this built preview so an unchanged repeat click can reuse it.
@@ -209,9 +251,10 @@
             };
             // Safety net: if building stalls, reveal whatever is there after 90s
             // rather than spinning forever.
-            var previewFallback = setTimeout(revealPreview, 90000);
+            iseoPreviewFallbackTimer = setTimeout(revealPreview, 90000);
 
             $iframe.off('load.iseoPreview').on('load.iseoPreview', function() {
+                if (iseoPreviewCanceled) { return; }
                 var onBuilderPage = true;
                 try {
                     onBuilderPage = $iframe[0].contentWindow.location.href.indexOf('page=improveseo_projects') !== -1;
@@ -226,7 +269,9 @@
 
             $iframe.attr('src', preview_url);
          },
-         error: function() {
+         error: function(jqXHR, textStatus) {
+            iseoPreviewXhr = null;
+            if (textStatus === 'abort' || iseoPreviewCanceled) { return; } // user cancelled — already handled
             jQuery('#wh_prev_modal_1').html('<b style="color:#c0392b; font-size:18px;">Could not generate preview. Please close this and try again.</b><br><br><button type="button" class="button button-primary" onclick="closeWin()">Close</button>');
          }
      });
