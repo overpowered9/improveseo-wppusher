@@ -179,10 +179,10 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 						     exactly like a pre-existing one and is saved with the post. -->
 						<div class="iseo-add-cat-row" style="margin-top:12px; display:flex; gap:6px; align-items:center;">
 							<input type="text" id="new_category_name_form" placeholder="New category name"
-								style="flex:1; min-width:0; padding:8px 18px; border:1px solid #e9e9e9; border-radius:50px;" />
+								style="flex:1; min-width:0; height:42px; padding:0 18px; box-sizing:border-box; border:1px solid #e9e9e9; border-radius:50px;" />
 							<button type="button" id="add_category_form_btn" class="button"
 								data-nonce="<?php echo esc_attr( wp_create_nonce( 'create_category_nonce' ) ); ?>"
-								style="border-radius:50px; white-space:nowrap; padding-left:22px; padding-right:22px;">Add</button>
+								style="border-radius:50px; white-space:nowrap; height:42px; box-sizing:border-box; display:inline-flex; align-items:center; justify-content:center; line-height:1; padding-left:22px; padding-right:22px;">Add</button>
 						</div>
 						<p id="category_add_message_form" style="margin:6px 0 0; font-size:12px;"></p>
 						<script>
