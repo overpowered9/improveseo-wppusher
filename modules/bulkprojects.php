@@ -348,7 +348,17 @@ function improveseo_bulkprojects()
 			wp_die('This task already has a WordPress post. Edit it in the WordPress editor instead.');
 		}
 
-		View::render('bulkprojects.edit-ai-content', compact('task'));
+		// The screen shows which project this draft belongs to, so resolve the
+		// parent's name here rather than querying from the view.
+		$project_name = '';
+		if (!empty($task->bulktask_id)) {
+			$project_name = (string) $wpdb->get_var($wpdb->prepare(
+				"SELECT name FROM " . $model->getTable() . " WHERE id = %d",
+				$task->bulktask_id
+			));
+		}
+
+		View::render('bulkprojects.edit-ai-content', compact('task', 'project_name'));
 
 	elseif ($action == 'save_ai_content'):
 		$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -381,6 +391,20 @@ function improveseo_bulkprojects()
 			array('%s', '%s', '%s'),
 			array('%d')
 		);
+
+		// The screen's Publish button submits this same form with publish=1 so the
+		// user's edits are never lost by publishing. Publishing itself is NOT
+		// reimplemented here — we hand off to the existing publish action, the
+		// same one the list's Publish menu item uses, which is what writes
+		// state/post_id/published_on.
+		if (!empty($_POST['publish'])) {
+			wp_redirect(admin_url(
+				'admin.php?page=improveseo_bulkprojects&action=publish'
+				. '&mainid=' . intval($task->bulktask_id)
+				. '&id=' . $id
+			));
+			exit;
+		}
 
 		FlashMessage::success('Content saved. The task is still a draft — use Publish when you are ready.');
 		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id . '&highlight=' . $id));
