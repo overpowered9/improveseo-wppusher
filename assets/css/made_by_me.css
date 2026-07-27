@@ -2827,6 +2827,12 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   cursor: zoom-in; display: block; width: 100%; height: auto;
   border-radius: 12px; border: 1px solid #e4e7ec;
 }
+/* The custom-prompt image sits inside .generate-data-widt-ai, which adds a 40px top margin
+   to its images. Cancel it so the lead line sits as close to the image as it does on the
+   "AI Image From Title" panel. */
+.improveseo-bulk-ai #ai-with-prompt-image-display img {
+  margin: 0 auto;
+}
 
 /* Fullscreen lightbox shared by all three cover-image methods. */
 .iseo-lightbox {
