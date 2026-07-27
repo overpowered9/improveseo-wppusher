@@ -2756,11 +2756,11 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   margin-top: 18px; background: #fff; border: 1px solid #e4e7ec; border-radius: 14px; padding: 22px;
   min-height: 400px;
 }
-/* The "AI Image From Title" panel holds little before a cover is generated, so
-   center its content within the shared height instead of leaving it at the top.
-   (400px min-height minus the panel's 22px top/bottom padding = 356px.) */
+/* The "AI Image From Title" panel holds little before a cover is generated. Keep its
+   content centered but on a shorter min-height so there isn't a large empty gap above
+   the lead line. */
 .improveseo-bulk-ai #AI_image_div .iseo-title-gen {
-  min-height: 356px;
+  min-height: 210px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -2799,6 +2799,16 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
 .improveseo-bulk-ai .iseo-btn-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 0; }
 .improveseo-bulk-ai .iseo-hint { font-size: 12.5px; color: rgba(80, 87, 94, 0.6); font-family: "Poppins", serif; }
 .improveseo-bulk-ai .iseo-hint.ok { color: #2E9E6B; }
+
+/* Make the cover-image lead line larger and darker so it's easy to read. Applies to both
+   the "AI Image From Title" panel and the custom-prompt panel (both use .iseo-title-lead).
+   Placed after .iseo-for-line so it overrides that rule's 13px / muted colour. */
+.improveseo-bulk-ai .iseo-title-lead {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #23282d;
+  font-weight: 500;
+}
 
 /* Generated/uploaded cover images render identically in every method: a large,
    centered preview that opens full-size in the lightbox when clicked. Capping the
