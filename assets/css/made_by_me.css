@@ -2780,7 +2780,9 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
    methods: centered lead text, the generated image shown inline, then a centered
    Generate/Regenerate button. The image only appears once one has been generated. */
 .improveseo-bulk-ai .iseo-title-gen { text-align: center; }
-.improveseo-bulk-ai .iseo-title-lead { margin-bottom: 16px; }
+/* Small gap between the lead line and the image below it. Shared by the "AI Image From
+   Title" and custom-prompt panels so both keep the same tight spacing. */
+.improveseo-bulk-ai .iseo-title-lead { margin-bottom: 8px; }
 .improveseo-bulk-ai .iseo-title-image { display: none; margin: 0 auto 16px; }
 .improveseo-bulk-ai .iseo-title-image.has-image { display: block; }
 .improveseo-bulk-ai .iseo-title-actions {
