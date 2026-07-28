@@ -2575,6 +2575,38 @@ global $ai_modal_type;
             nameInput.value = (keyword ? keyword + ' ' : '') + mm + '/' + dd + '/' + yyyy + ' #' + rand;
         }
 
+        // Gate on the final ("Submit") step, same shape as the bulk wizard's
+        // validateBulkProjectName()/validateBulkKeywordListForSubmit(). Submitting hands
+        // #main_form to do_create_post, which requires name/title/content — without this
+        // an incomplete project bounces off the server-side validator and the user is
+        // redirected to a fresh, empty create screen with everything lost.
+        function validateSinglePostBeforeSubmit() {
+            var nameInput = document.getElementById('modal_project_name');
+            if (!nameInput || !nameInput.value.trim()) {
+                showImproveSEONotification(
+                    'warning',
+                    'Project Name Required',
+                    'Please enter a project name for this post before submitting.',
+                    null
+                );
+                nameInput && nameInput.focus();
+                return false;
+            }
+
+            var generated = document.getElementById('showmydataindivText');
+            if (!generated || !generated.value.trim()) {
+                showImproveSEONotification(
+                    'warning',
+                    'Content Not Ready',
+                    'Please generate and approve your post content before submitting.',
+                    null
+                );
+                return false;
+            }
+
+            return true;
+        }
+
         function updateButtonText() {
             const stepValue = parseInt(stepInput.value, 10);
             let buttonText = 'Next';
@@ -2710,6 +2742,13 @@ global $ai_modal_type;
             // same gate as the bulk wizard: a bare domain gets https:// prepended and
             // written back; an invalid URL shows an inline error and keeps the wizard here.
             if (currentStep === 1 && !normalizeAndValidateCtaUrl('#cta_url', '#error_cta_url')) {
+                return;
+            }
+
+            // Final step: this click is "Submit", and advancing runs saveFinalData(),
+            // which posts the real create/publish form. Validate first so we never
+            // hand a half-filled project to the controller.
+            if (currentStep === data.length - 1 && !validateSinglePostBeforeSubmit()) {
                 return;
             }
 

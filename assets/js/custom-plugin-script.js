@@ -743,9 +743,46 @@ function saveFinalData() {
 
   jQuery("#exampleModal1").hide();
 
-  jQuery("#butn").trigger("click");
-
   insertContent(plainTextContent);
+
+  submitSinglePostCreateForm();
+}
+
+// Final step of the single-post wizard: hand the now-populated #main_form to the
+// real create/publish submit, so the user lands where every other create lands —
+// the projects list, with the "Project successfully created" flash — instead of
+// being left on the raw edit frame scrolled to the top.
+//
+// This replaces a `jQuery("#butn").trigger("click")` that was a no-op: #butn is a
+// modal close button that only exists in views/posting/ai_single_post_form.php and
+// includes/improveseo.php, neither of which is rendered any more (the live screen is
+// views/posting/create-post-single.php + views/GenerateAIpopup/GenerateAIpopuphtml.php).
+// Nothing was ever submitted, so no project or post was created either.
+function submitSinglePostCreateForm() {
+  var form = document.getElementById("main_form");
+  if (!form) return;
+
+  // The controller branches on $_POST['create'] vs $_POST['draft'], and a button's
+  // name is only submitted when the submit came from that button — so click it
+  // rather than calling form.submit().
+  var createButton = form.querySelector('button[name="create"]');
+  if (!createButton) return;
+
+  if (window.ImproveSEOLoading && ImproveSEOLoading.show) {
+    ImproveSEOLoading.show({
+      title: "Publishing your post...",
+      message: "Creating your project and publishing the post. This only takes a moment.",
+    });
+  }
+
+  // insertContent() above may have kicked off a TinyMCE re-init; give it a tick to
+  // settle, then flush the editor into the #content textarea before we navigate away.
+  setTimeout(function () {
+    if (window.tinymce && typeof tinymce.triggerSave === "function") {
+      tinymce.triggerSave();
+    }
+    createButton.click();
+  }, 300);
 }
 
 function initializeTinyMCE() {
