@@ -564,6 +564,53 @@ function improveseo_generate_preview(){
 
 }
 
+add_action('wp_ajax_improveseo_preview_url', 'improveseo_preview_url');
+
+/**
+ * Return the front-end preview link for an already-built preview project.
+ *
+ * This is the admin-ajax equivalent of the projects-list 'export_preview_url'
+ * action. The browser used to reach that action by loading the whole Projects
+ * List admin page (twice — once to start the build, once after it), which cost
+ * two full wp-admin renders before the preview itself began loading.
+ *
+ * @return void
+ */
+function improveseo_preview_url()
+{
+	global $wpdb;
+
+	if (!current_user_can('manage_options')) {
+		wp_send_json_error(array('message' => 'Permission denied'));
+	}
+
+	$id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
+
+	if (!$id) {
+		wp_send_json_error(array('message' => 'Missing preview id'));
+	}
+
+	$post_ids = $wpdb->get_col($wpdb->prepare(
+		"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'improveseo_project_id' AND meta_value = %s",
+		$id
+	));
+
+	// No preview post was generated (build failed, or it was already swept).
+	if (empty($post_ids)) {
+		wp_send_json_error(array(
+			'message' => 'The preview could not be generated. Please close this and try again.'
+		));
+	}
+
+	$preview_post_id = $post_ids[array_rand($post_ids)];
+
+	// Preview posts are drafts, so they are only viewable through WordPress'
+	// nonce'd preview link — shown exactly as they would look, never published.
+	wp_send_json_success(array(
+		'url' => get_preview_post_link($preview_post_id, array('id' => $id))
+	));
+}
+
 // AJAX handler for creating categories in bulk posts popup
 add_action('wp_ajax_create_bulk_category', 'improveseo_create_bulk_category');
 function improveseo_create_bulk_category() {

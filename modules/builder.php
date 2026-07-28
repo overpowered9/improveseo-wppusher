@@ -39,6 +39,31 @@ use ImproveSEO\Models\Shortcode;
 
 
 /**
+ * Flag that WordPress' rewrite rules need rebuilding after this build.
+ *
+ * The flag is consumed on the very next request (improveseo_create_posttypes on
+ * 'init'), where flush_rules() regenerates every rule and rewrites the
+ * rewrite_rules option. For a preview that next request is the preview page the
+ * user is waiting on, and the flush buys nothing: preview drafts are viewed
+ * through the query-string preview link, not a pretty permalink. So skip it for
+ * previews and keep it for real builds.
+ *
+ * @param object $project
+ * @return void
+ */
+function improveseo_mark_rewrite_flush($project)
+{
+	if (isset($project->state) && $project->state === 'Preview') {
+		return;
+	}
+
+	$storage = new Storage('improveseo');
+
+	$storage->flush_rules = true;
+}
+
+
+/**
 
 
  * improveseo_builder
@@ -470,13 +495,17 @@ function improveseo_builder()
 
 
 
-		$wp_rewrite->flush_rules(false);
+		// Two full rewrite-rule rebuilds — one here, one on the next request — on every
+		// build that uses a permalink prefix. The prefix is persisted above either way,
+		// so the post type is still registered on later requests; a preview draft is
+		// viewed through the query-string preview link and needs neither rebuild.
+		if (!isset($project->state) || $project->state !== 'Preview') {
 
+			$wp_rewrite->flush_rules(false);
 
+			$storage->flush_rules = true;
 
-
-
-		$storage->flush_rules = true;
+		}
 
 
 	}
@@ -1759,10 +1788,7 @@ function improveseo_builder()
 
 
 
-				$storage = new Storage('improveseo');
-
-
-				$storage->flush_rules = true;
+				improveseo_mark_rewrite_flush($project);
 
 
 			}
@@ -1870,10 +1896,7 @@ function improveseo_builder()
 
 
 
-	$storage = new Storage('improveseo');
-
-
-	$storage->flush_rules = true;
+	improveseo_mark_rewrite_flush($project);
 
 
 
@@ -2506,13 +2529,17 @@ function improveseo_builder_update()
 
 
 
-		$wp_rewrite->flush_rules(false);
+		// Two full rewrite-rule rebuilds — one here, one on the next request — on every
+		// build that uses a permalink prefix. The prefix is persisted above either way,
+		// so the post type is still registered on later requests; a preview draft is
+		// viewed through the query-string preview link and needs neither rebuild.
+		if (!isset($project->state) || $project->state !== 'Preview') {
 
+			$wp_rewrite->flush_rules(false);
 
+			$storage->flush_rules = true;
 
-
-
-		$storage->flush_rules = true;
+		}
 
 
 	}
@@ -3794,10 +3821,7 @@ function improveseo_builder_update()
 
 
 
-				$storage = new Storage('improveseo');
-
-
-				$storage->flush_rules = true;
+				improveseo_mark_rewrite_flush($project);
 
 
 			}
@@ -3908,10 +3932,7 @@ function improveseo_builder_update()
 
 
 
-	$storage = new Storage('improveseo');
-
-
-	$storage->flush_rules = true;
+	improveseo_mark_rewrite_flush($project);
 
 
 

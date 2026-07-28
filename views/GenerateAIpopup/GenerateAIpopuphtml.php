@@ -1386,7 +1386,7 @@ global $ai_modal_type;
                     <div class="seo-form-field">
                         <label for="meta_title">Meta Title</label>
                         <input type="text" id="meta_title" name="meta_title" placeholder="Enter title..." />
-                        <span class="iseo-meta-count" id="meta_title_count" data-max="60" data-min="50">0 / 60</span>
+                        <span class="iseo-meta-count" id="meta_title_count" data-max="60" data-min="0">0 / 60</span>
                     </div>
                     <div class="seo-form-field">
                         <label for="meta_descreption">Meta Description</label>

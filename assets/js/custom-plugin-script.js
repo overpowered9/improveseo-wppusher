@@ -268,13 +268,15 @@ function iseoUpdateMetaCounter(fieldSel, counterSel) {
   var len = ($field.val() || "").length;
   $counter.removeClass("is-ideal is-over is-under");
   var mark = "";
-  if (len > max) {
+  if (len === 0) {
+    // empty field — neutral, no pass/fail colour
+  } else if (len > max) {
     $counter.addClass("is-over");
     mark = "✗ "; // ✗ over the limit — check fails
   } else if (len >= min) {
     $counter.addClass("is-ideal");
-    mark = "✓ "; // ✓ within the ideal range — check passes
-  } else if (len > 0) {
+    mark = "✓ "; // ✓ within the limit / ideal range — check passes
+  } else {
     $counter.addClass("is-under"); // amber — valid but under the ideal range (too short)
   }
   $counter.text(mark + len + " / " + max);
@@ -289,7 +291,14 @@ jQuery(document).on("input keyup change", "#meta_title", function () {
 jQuery(document).on("input keyup change", "#meta_descreption", function () {
   iseoUpdateMetaCounter("#meta_descreption", "#meta_descreption_count");
 });
-jQuery(function () { iseoUpdateAllMetaCounters(); });
+jQuery(function () {
+  // The meta title passes as long as it's within the 60-char limit — it should never show
+  // the amber "too short" warning for a valid, under-limit title. Force min=0 here (in JS)
+  // so this holds even if the view markup's data-min hasn't redeployed yet. Only the
+  // description keeps an ideal minimum.
+  jQuery("#meta_title_count").attr("data-min", "0");
+  iseoUpdateAllMetaCounters();
+});
 
 // If a meta value fails the length check, RERUN the meta prompt (generateAIMeta) to get
 // a fresh one and re-check — up to a few times. Only if it still won't fit after the
@@ -514,6 +523,29 @@ function iseoMarkCoverImageEager(imgHtml) {
   return $wrap.html();
 }
 
+// Normalise a title for comparison: decode HTML entities, lowercase, straighten curly
+// quotes/dashes and drop punctuation & whitespace differences. This lets us recognise the
+// AI's title heading even when it differs from the known post title only cosmetically (a
+// trailing "?", an &amp; entity, curly quotes, an en-dash, extra spaces, etc.).
+function iseoNormalizeTitleForMatch(s) {
+  var decoded = jQuery("<div>").html(s == null ? "" : String(s)).text();
+  return decoded
+    .toLowerCase()
+    .replace(/[‘’“”]/g, "'") // curly quotes -> straight
+    .replace(/[–—]/g, "-")             // en/em dash -> hyphen
+    .replace(/[^a-z0-9À-ɏ ]+/g, " ")   // drop punctuation; keep latin (incl. accents)
+    .replace(/\s+/g, " ")
+    .trim();
+}
+// True when two titles are effectively the same heading text after normalisation (equal, or
+// one is the leading part of the other — covers a heading with an extra trailing clause).
+function iseoTitlesMatch(a, b) {
+  var na = iseoNormalizeTitleForMatch(a);
+  var nb = iseoNormalizeTitleForMatch(b);
+  if (!na || !nb) return false;
+  return na === nb || na.indexOf(nb) === 0 || nb.indexOf(na) === 0;
+}
+
 function renderGeneratedPreview(articleHtml) {
   articleHtml = articleHtml || "";
   var $preview = jQuery("#showmydataindiv1");
@@ -534,9 +566,15 @@ function renderGeneratedPreview(articleHtml) {
   var titleText = "";
   if (knownTitle) {
     titleText = knownTitle;
+    // Drop the body's leading title heading so the title is never shown twice (once as the
+    // theme's post title, once inside the content). The old exact compare leaked the title
+    // whenever the AI heading differed by punctuation/entity/quotes/rephrasing. Now: remove
+    // the first heading when it matches the title (normalised) OR when it's an <h1> at all —
+    // the body should only use h2/h3 for its own sections, so a leading <h1> is the title,
+    // even if fully reworded.
     if ($firstHeading.length &&
-        jQuery.trim($firstHeading.text()).toLowerCase() === knownTitle.toLowerCase()) {
-      $firstHeading.remove(); // it's the title heading — drop it from the body
+        (iseoTitlesMatch($firstHeading.text(), knownTitle) || $firstHeading.is("h1"))) {
+      $firstHeading.remove();
     }
   } else if ($firstHeading.length) {
     titleText = jQuery.trim($firstHeading.text());
@@ -690,6 +728,20 @@ function copyAIFieldsToHiddenInputs() {
   jQuery("#ai_image_option_hidden").val(jQuery("input[name='aiImage']:checked").val() || "");
   jQuery("#ai_generated_title_hidden").val(jQuery("#AI_Title").val() || jQuery("#ai_title").val() || "");
   jQuery("#ai_for_testing_only_hidden").val(jQuery("#for_testing_only").is(":checked") ? "1" : "0");
+
+  // Carry the wizard's Meta Title / Description into the On-Page SEO fields on EVERY form
+  // submit (Publish AND Save As Draft). Without this, a draft could be saved before/without
+  // saveFinalData() having copied them, so the meta description (and title) never reached the
+  // project options and the details page showed "Not set". Only fill when the SEO field is
+  // still empty, so a value the user edited by hand is never overwritten.
+  var _wizMetaTitle = jQuery.trim(jQuery("#meta_title").val() || "");
+  var _wizMetaDesc = jQuery.trim(jQuery("#meta_descreption").val() || "");
+  if (_wizMetaTitle && !jQuery.trim(jQuery("#custom-title").val() || "")) {
+    jQuery("#custom-title").val(_wizMetaTitle);
+  }
+  if (_wizMetaDesc && !jQuery.trim(jQuery("#custom-description").val() || "")) {
+    jQuery("#custom-description").val(_wizMetaDesc);
+  }
 }
 
 function saveFinalData() {
@@ -746,6 +798,19 @@ function saveFinalData() {
   insertContent(plainTextContent);
 
   submitSinglePostCreateForm();
+
+  // Closing the full-screen wizard modal otherwise leaves the page scrolled to the very
+  // top. Land the user on the freshly-generated content instead, once the modal has hidden
+  // and the content has been inserted. The -60px offset clears the wp-admin bar.
+  setTimeout(function () {
+    var target =
+      document.getElementById("wp-content-wrap") ||
+      document.getElementById("postdivrich") ||
+      document.querySelector(".PostForm__title-wrap");
+    if (!target) return;
+    var top = target.getBoundingClientRect().top + window.pageYOffset - 60;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  }, 350);
 }
 
 // Final step of the single-post wizard: hand the now-populated #main_form to the

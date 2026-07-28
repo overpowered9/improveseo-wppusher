@@ -179,10 +179,10 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 						     exactly like a pre-existing one and is saved with the post. -->
 						<div class="iseo-add-cat-row" style="margin-top:12px; display:flex; gap:6px; align-items:center;">
 							<input type="text" id="new_category_name_form" placeholder="New category name"
-								style="flex:1; min-width:0; padding:6px 8px; border:1px solid #d2d2d2; border-radius:6px;" />
+								style="flex:1; min-width:0; height:42px; padding:0 18px; box-sizing:border-box; border:1px solid #e9e9e9; border-radius:50px;" />
 							<button type="button" id="add_category_form_btn" class="button"
 								data-nonce="<?php echo esc_attr( wp_create_nonce( 'create_category_nonce' ) ); ?>"
-								style="border-radius:6px; white-space:nowrap;">Add</button>
+								style="border-radius:50px; white-space:nowrap; height:42px; box-sizing:border-box; display:inline-flex; align-items:center; justify-content:center; line-height:1; padding-left:22px; padding-right:22px;">Add</button>
 						</div>
 						<p id="category_add_message_form" style="margin:6px 0 0; font-size:12px;"></p>
 						<script>
@@ -322,7 +322,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 								<label for="custom-title" class="form-label"> Meta Title & Meta Description</label>
 								<div class="input-prefix">
 									<input id="custom-title" name="custom_title" class="form-control" type="text"
-										style="padding: 20px; border-radius: 10px !important; border-color: #cccccc; margin-bottom: 20px; "
+										style="padding: 15px 22px; border-radius: 50px !important; border-color: #e9e9e9; margin-bottom: 20px; "
 										class="full-width form-control textarea-control"
 										placeholder="Meta Title:Here Ex:Mango: Health Benefits"
 										value="<?= Validator::old('custom_title', $task->options['custom_title']) ?>">
@@ -337,7 +337,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 							<div class="input-group">
 								<label for="custom-description" class="form-label"></label>
 								<!-- <div class="input-prefix"> -->
-								<textarea id="custom-description"
+								<textarea id="custom-description" style="border-radius: 50px; border-color: #e9e9e9; padding: 15px 22px;"
 									placeholder="Meta Description:Discover Mango Magic: Health Benefits, Recipes, and Tips for the Perfect Fruit."
 									name="custom_description" rows="5"
 									class="full-width textarea-control"><?= Validator::old('custom_description', $task->options['custom_description']) ?></textarea>
