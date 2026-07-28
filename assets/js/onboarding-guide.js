@@ -52,6 +52,27 @@
     // How often the panel watcher re-checks which wizard panel the user is actually on.
     var SYNC_INTERVAL_MS  = 400;
 
+    /* ── Cover-image methods (Add Media step) ───────────────────
+       The Add Media panel offers three methods and each one finishes by filling a
+       DIFFERENT hidden field, so the guide has to watch the field belonging to the
+       method the user actually picked. Values match the aiImage radio values in
+       views/GenerateAIpopup/GenerateAIpopuphtml.php.
+
+       Only AI_image has guidance copy written for it. The other two deliberately carry
+       no waiting card rather than reusing copy that would be wrong for them ("press
+       Generate… uses 1 image credit" is false for an upload) — they still advance the
+       guide, they just leave the step's own card up until they do. Copy for those two
+       is listed as outstanding in the report. */
+    var MEDIA_METHODS = {
+        AI_image: {
+            done: '#AI-Image-uploaded-path',
+            waitingTitle:   'Now create your image',
+            waitingMessage: 'Click the <strong>Generate AI image</strong> button in the panel — we’ll continue automatically once your cover is ready. (Uses 1 image credit.)'
+        },
+        manually_promt_image: { done: '#AI-Prompt-Image-uploaded-path' },
+        Manually_image:       { done: '#manually-image-uploaded-path'  }
+    };
+
     /* ── Steps Definition ───────────────────────────────────── */
     var STEPS = [
         /* 0 */ {
@@ -263,6 +284,26 @@
         return -1;
     }
 
+    // Shown while the article is being written. Reached two ways: the user clicks
+    // "Generate AI Post" on the media step, or the panel watcher finds them already on
+    // the content panel with nothing generated yet (they advanced the wizard themselves
+    // while the guide was on an earlier step).
+    function startArticleWait() {
+        _waiting    = true;
+        _waitingFor = STEP_GENERATE_IDX;
+        showWaitingTooltip(
+            'Generating your Article &#x23F3;',
+            'Your article is being written by AI.<br><small>This may take 20–60 seconds — please wait.</small>',
+            65
+        );
+        waitForContent('#showmydataindiv1', function () {
+            if (_waiting && _waitingFor === STEP_GENERATE_IDX) {
+                _waiting = false;
+                showStep(STEP_APPROVE_IDX);
+            }
+        }, 90);
+    }
+
     function syncGuideToWizardPanel() {
         if (currentStep < 0 || currentStep >= STEPS.length) return;
 
@@ -279,10 +320,21 @@
         if (panel <= STEPS[currentStep].wizardStep) return; // in sync, or user stepped back
 
         var target = firstStepForWizardPanel(panel);
-        if (target > currentStep) {
-            _waiting = false;
-            showStep(target);
+        if (target <= currentStep) return;
+
+        _waiting = false;
+
+        // Landing on the content panel before the article exists: the user advanced the
+        // wizard themselves, so generation is running right now. Show that, rather than
+        // step 16's "Your article is ready!".
+        var article = $('#showmydataindiv1').html();
+        if (target === STEP_APPROVE_IDX && (!article || article.trim().length <= 100)) {
+            currentStep = STEP_GENERATE_IDX;
+            startArticleWait();
+            return;
         }
+
+        showStep(target);
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -620,22 +672,10 @@
                 // The guide just removes the highlight and shows the waiting tooltip;
                 // the button remains visible exactly as in the normal form.
                 // When content arrives, showStep(STEP_APPROVE_IDX) adds the glow to the now-labelled "Approve Content".
-                _waiting    = true;
-                _waitingFor = STEP_GENERATE_IDX;
                 setTimeout(function () {
                     $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
                 }, 0);
-                showWaitingTooltip(
-                    'Generating your Article &#x23F3;',
-                    'Your article is being written by AI.<br><small>This may take 20\u201360 seconds \u2014 please wait.</small>',
-                    65
-                );
-                waitForContent('#showmydataindiv1', function () {
-                    if (_waiting && currentStep === STEP_GENERATE_IDX) {
-                        _waiting = false;
-                        showStep(STEP_APPROVE_IDX);
-                    }
-                }, 90);
+                startArticleWait();
             } else {
                 setTimeout(function () { showStep(currentStep + 1); }, 350);
             }
@@ -667,25 +707,36 @@
             }
         });
 
-        /* ── Step 14: select AI image label/radio ───────────── */
-        $(document).on('click.iseoguide', '#AI_image', function () {
-            if (currentStep !== 14) return;
-            // If an image URL is already cached (re-visit), advance immediately.
-            if ($('#AI-Image-uploaded-path').val()) {
-                setTimeout(function () { showStep(15); }, 200);
+        /* ── Step 14: pick a cover-image method ─────────────── */
+        // Bound to the whole radio group, not just #AI_image. The Add Media panel offers
+        // three methods and this step is a click-target step — it has no guide Next
+        // button, so the only way out is one of these signals firing. Listening to
+        // #AI_image alone meant picking "AI Image - Custom Prompt" or "Upload your own"
+        // emitted nothing at all: the guide sat here permanently, which is why Next
+        // appeared to do nothing after Step 16 and why every later step kept showing
+        // this step's image copy.
+        $(document).on('change.iseoguide', '#exampleModal1 input[name="aiImage"]', function () {
+            if (currentStep !== STEP_MEDIA_IDX) return;
+
+            var method = MEDIA_METHODS[this.value];
+            if (!method) return;
+
+            // If this method already produced an image (re-visit), advance immediately.
+            if ($(method.done).val()) {
+                setTimeout(function () { showStep(STEP_MEDIA_IDX + 1); }, 200);
                 return;
             }
-            _waiting = true;
-            showWaitingTooltip(
-                'Now create your image',
-                'Click the <strong>Generate AI image</strong> button in the panel \u2014 we\u2019ll continue automatically once your cover is ready. (Uses 1 image credit.)',
-                60
-            );
-            // Resolves when refreshAIImage() fills the hidden path after the user presses Generate.
-            waitForValue('#AI-Image-uploaded-path', function () {
-                if (_waiting) {
+
+            _waiting    = true;
+            _waitingFor = STEP_MEDIA_IDX;
+            if (method.waitingTitle) {
+                showWaitingTooltip(method.waitingTitle, method.waitingMessage, 60);
+            }
+            // Resolves when the method's own handler fills its hidden path field.
+            waitForValue(method.done, function () {
+                if (_waiting && currentStep === STEP_MEDIA_IDX) {
                     _waiting = false;
-                    showStep(15); // \u2192 media-next (wizard-next)
+                    showStep(STEP_MEDIA_IDX + 1); // → media-next (wizard-next)
                 }
             }, 90);
         });
