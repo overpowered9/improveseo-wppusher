@@ -46,7 +46,11 @@
     /* ── Constants ──────────────────────────────────────────── */
     var STEP_GENERATE_IDX = 15; // index where "Generate AI Post" is clicked (wizard-next triggers generation)
     var STEP_APPROVE_IDX  = 16; // index of "Approve Content" wizard-next step
+    var STEP_MEDIA_IDX    = 14; // index of the "Select Image Option" step (wizard panel 2)
     var STEP_SUBMIT_IDX   = 22; // index of final "Submit" step (publishes via saveFinalData(), closes modal & redirects)
+
+    // How often the panel watcher re-checks which wizard panel the user is actually on.
+    var SYNC_INTERVAL_MS  = 400;
 
     /* ── Steps Definition ───────────────────────────────────── */
     var STEPS = [
@@ -196,7 +200,9 @@
     var $spotlight   = null;
     var $tooltip     = null;
     var _waiting     = false; // true while polling for generated content
+    var _waitingFor  = -1;    // step index that started the current wait
     var _reposTmr    = null;
+    var _syncTmr     = null;  // panel watcher (see syncGuideToWizardPanel)
 
     /* ─────────────────────────────────────────────────────────
        INIT
@@ -206,6 +212,9 @@
         $tooltip   = $('<div id="iseo-guide-tooltip"></div>').appendTo('body');
         $('body').addClass('iseo-guide-active');
         bindEvents();
+
+        // Floor for step tracking — see syncGuideToWizardPanel().
+        _syncTmr = setInterval(syncGuideToWizardPanel, SYNC_INTERVAL_MS);
 
         // Trigger modal open (button may be hidden but trigger works)
         setTimeout(function () {
@@ -232,6 +241,51 @@
     }
 
     /* ─────────────────────────────────────────────────────────
+       KEEP THE CARD BOUND TO THE STEP THE USER IS ACTUALLY ON
+
+       Every advance in this file hangs off one specific DOM signal (a click on one
+       element, one hidden field being filled). Miss any single one of them and
+       showStep() is never called again — the card then shows that step's copy for the
+       whole rest of the flow, which is what made the image guidance look "stuck" on
+       every later step.
+
+       The wizard keeps its own panel counter in #step_value (1-based; it is written on
+       every advance/back by advanceSingleStep() in GenerateAIpopuphtml.php). Watching it
+       gives the guide a signal it cannot miss: whenever the user is on a later panel
+       than the card is describing, jump the card forward to that panel's first step.
+       The per-step signals above still drive the fine-grained steps within a panel —
+       this is the floor, not a replacement.
+    ───────────────────────────────────────────────────────── */
+    function firstStepForWizardPanel(panel) {
+        for (var i = 0; i < STEPS.length; i++) {
+            if (STEPS[i].wizardStep === panel) return i;
+        }
+        return -1;
+    }
+
+    function syncGuideToWizardPanel() {
+        if (currentStep < 0 || currentStep >= STEPS.length) return;
+
+        // The one wait that legitimately runs while the wizard is already on the next
+        // panel: clicking "Generate AI Post" advances the wizard to the content panel
+        // and *then* generates. Superseding that card would claim the article is ready
+        // while it is still being written.
+        if (_waiting && _waitingFor === STEP_GENERATE_IDX) return;
+
+        var sv = parseInt($('#step_value').val(), 10);
+        if (isNaN(sv)) return;
+
+        var panel = sv - 1; // #step_value is 1-based, STEPS[].wizardStep is 0-based
+        if (panel <= STEPS[currentStep].wizardStep) return; // in sync, or user stepped back
+
+        var target = firstStepForWizardPanel(panel);
+        if (target > currentStep) {
+            _waiting = false;
+            showStep(target);
+        }
+    }
+
+    /* ─────────────────────────────────────────────────────────
        SHOW STEP
     ───────────────────────────────────────────────────────── */
     function showStep(index) {
@@ -240,6 +294,7 @@
             return;
         }
         _waiting    = false;
+        _waitingFor = -1;
         currentStep = index;
         var step    = STEPS[index];
         var $target = $(step.target);
@@ -306,7 +361,9 @@
        BUILD TOOLTIP
     ───────────────────────────────────────────────────────── */
     function buildTooltip(step, index) {
-        // Total = 21 guide steps + 1 card-choice step (handled by index.php) = 22
+        // Total = STEPS.length guide steps + 1 card-choice step (handled by index.php).
+        // Derived, never hard-coded: steps have been added to STEPS since this counter was
+        // written and a literal total silently drifts out of date.
         var total      = STEPS.length + 1;
         var pct        = Math.round(((index + 1) / total) * 100);
         var isNextBtn  = (step.advance === 'next-btn');
@@ -563,7 +620,8 @@
                 // The guide just removes the highlight and shows the waiting tooltip;
                 // the button remains visible exactly as in the normal form.
                 // When content arrives, showStep(STEP_APPROVE_IDX) adds the glow to the now-labelled "Approve Content".
-                _waiting = true;
+                _waiting    = true;
+                _waitingFor = STEP_GENERATE_IDX;
                 setTimeout(function () {
                     $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
                 }, 0);
@@ -573,7 +631,7 @@
                     65
                 );
                 waitForContent('#showmydataindiv1', function () {
-                    if (_waiting) {
+                    if (_waiting && currentStep === STEP_GENERATE_IDX) {
                         _waiting = false;
                         showStep(STEP_APPROVE_IDX);
                     }
@@ -586,14 +644,15 @@
         /* ── Step 4: click #reload → wait for AI title ──────── */
         $(document).on('click.iseoguide', '#reload', function () {
             if (currentStep !== 4) return;
-            _waiting = true;
+            _waiting    = true;
+            _waitingFor = 4;
             showWaitingTooltip(
                 'Generating your AI Title &#x23F3;',
                 'The AI is crafting an optimised title from your keyword \u2014 please wait.',
                 30
             );
             waitForValue('#maintitlearea', function () {
-                if (_waiting) {
+                if (_waiting && currentStep === 4) {
                     _waiting = false;
                     showStep(5); // → approve title
                 }
@@ -631,6 +690,21 @@
             }, 90);
         });
 
+        /* ── Cover image generation started ─────────────────── */
+        // Until now the card kept showing the pre-generation "Now create your image"
+        // prompt for the whole time the image was being generated, so it read as stale
+        // and told the user to press a button they had already pressed. Both generate
+        // buttons (AI-from-title and custom-prompt) swap it for a progress card; the
+        // waitForValue() poll started when the method was picked still does the advancing.
+        $(document).on('click.iseoguide', '#AIrefreshOption button, #generate_i_image', function () {
+            if (currentStep !== STEP_MEDIA_IDX) return;
+            showWaitingTooltip(
+                'Generating your cover image &#x23F3;',
+                'Your cover image is being generated.<br><small>This may take 20–60 seconds — please wait.</small>',
+                65
+            );
+        });
+
         /* ── Reposition on resize / scroll ──────────────────── */
         $(window).on('resize.iseoguide scroll.iseoguide', function () {
             clearTimeout(_reposTmr);
@@ -656,6 +730,7 @@
         $(window).off('.iseoguide');
         $(document).off('.iseoguide');
         clearTimeout(_reposTmr);
+        clearInterval(_syncTmr);
     }
 
     /* ─────────────────────────────────────────────────────────
