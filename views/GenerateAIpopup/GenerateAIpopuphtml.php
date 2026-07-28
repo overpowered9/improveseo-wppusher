@@ -1533,9 +1533,9 @@ global $ai_modal_type;
                     <div class="bulk-widths1170_multi">
                         <div class="improve-seo-form-global_multi">
                             <div class="form-group">
-                                <label style="padding-left:20px;" for="keyword_list_name">Create New or Select an exisiting keyword list*.</label>
+                                <label style="padding-left:20px;" for="keyword_list_name">Create New or Select an exisiting keyword list.</label>
                                 <p style="font-size: 14px; color: #666; padding-left: 20px; margin-top: 5px;">
-                                    Keyword list allows you to generate bulk posts once against each keyword.
+                                    Keyword list allows you to generate posts in bulk, one post per keyword.
                                 </p>
                                 <p style="font-size: 14px; color: #0073aa; padding-left: 20px; margin-top: 8px; margin-bottom: 12px;">
                                     To create a new keyword list, click 
@@ -1923,6 +1923,7 @@ global $ai_modal_type;
                                         </label>
                                     </div>
                                 </div>
+                                <span id="error_schedule_posts" style="color:red; display:block; padding-left:20px;"></span>
                             </div>
                             <div class="defines-saves_multi">
                                 <div class="col-md-12" id="number_of_post_schedule_box"
@@ -2836,6 +2837,41 @@ global $ai_modal_type;
             return nonEmptyLines.length > 0;
         }
         
+        // Step 6: a publish preference must be chosen before leaving the step.
+        // Also enforces the "how many posts" input that belongs to the
+        // schedule option, which the old step handler validated but the current
+        // Next handler never called.
+        function validateSchedulePosts() {
+            var $error = jQuery('#error_schedule_posts');
+            $error.text('');
+
+            var chosen = jQuery('input[name="schedule_posts"]:checked').val();
+            if (!chosen) {
+                $error.text('Please choose how these posts should be saved or published.');
+                jQuery('.schedule_posts_parent')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+
+            if (chosen === 'schedule_posts_input_wise') {
+                var $count = jQuery('#number_of_post_schedule');
+                var count = parseInt(($count.val() || '').trim(), 10);
+                if (!count || count < 1) {
+                    jQuery('#error_number_of_post_schedule')
+                        .text('Please enter how many posts to publish per day/week.');
+                    $count.focus();
+                    return false;
+                }
+                jQuery('#error_number_of_post_schedule').text('');
+            }
+
+            return true;
+        }
+
+        // Clear the message as soon as the user makes a choice.
+        jQuery(document).on('change', 'input[name="schedule_posts"]', function () {
+            jQuery('#error_schedule_posts').text('');
+        });
+
         // Initialize button state manager
         BulkSubmitButton.init(nextButton);
 
@@ -2934,6 +2970,16 @@ global $ai_modal_type;
             // "Processing..." button stuck forever.
             if (currentStep === 1) {
                 if (!normalizeAndValidateCtaUrl('#cta_url_multi', '#error_cta_url_multi')) {
+                    return;
+                }
+            }
+
+            // Step 6 (index 5) — Save & Publish Preference is a required choice.
+            // None of the three radios is pre-selected, so without this the user
+            // could walk past the step and the project was created with an empty
+            // schedule_posts. Same inline-error pattern as the CTA URL above.
+            if (currentStep === 5) {
+                if (!validateSchedulePosts()) {
                     return;
                 }
             }
