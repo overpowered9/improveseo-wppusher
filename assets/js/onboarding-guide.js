@@ -58,19 +58,24 @@
        method the user actually picked. Values match the aiImage radio values in
        views/GenerateAIpopup/GenerateAIpopuphtml.php.
 
-       Only AI_image has guidance copy written for it. The other two deliberately carry
-       no waiting card rather than reusing copy that would be wrong for them ("press
-       Generate… uses 1 image credit" is false for an upload) — they still advance the
-       guide, they just leave the step's own card up until they do. Copy for those two
-       is listed as outstanding in the report. */
+       Each method carries its own card copy, so the guidance always matches the method
+       the user actually picked rather than describing AI-from-title regardless. */
     var MEDIA_METHODS = {
         AI_image: {
             done: '#AI-Image-uploaded-path',
             waitingTitle:   'Now create your image',
             waitingMessage: 'Click the <strong>Generate AI image</strong> button in the panel — we’ll continue automatically once your cover is ready. (Uses 1 image credit.)'
         },
-        manually_promt_image: { done: '#AI-Prompt-Image-uploaded-path' },
-        Manually_image:       { done: '#manually-image-uploaded-path'  }
+        manually_promt_image: {
+            done: '#AI-Prompt-Image-uploaded-path',
+            waitingTitle:   'Describe your image',
+            waitingMessage: 'Type a prompt describing the cover image you want, then press Generate. This uses 1 image credit.'
+        },
+        Manually_image: {
+            done: '#manually-image-uploaded-path',
+            waitingTitle:   'Upload your image',
+            waitingMessage: 'Choose an image from your computer to use as the cover. Nothing is generated and no credit is used.'
+        }
     };
 
     /* ── Steps Definition ───────────────────────────────────── */
@@ -798,8 +803,8 @@
         $(document).on('click.iseoguide', '#AIrefreshOption button, #generate_i_image', function () {
             if (currentStep !== STEP_MEDIA_IDX) return;
             showWaitingTooltip(
-                'Generating your cover image &#x23F3;',
-                'Your cover image is being generated.<br><small>This may take 20–60 seconds — please wait.</small>',
+                'Creating your cover image',
+                'Your cover image is generating — this usually takes 20–60 seconds. Please wait.',
                 65
             );
         });
