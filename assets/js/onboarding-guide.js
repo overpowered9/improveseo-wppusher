@@ -511,6 +511,19 @@
     }
 
     /* ─────────────────────────────────────────────────────────
+       HIDE THE CARD WHILE THE COVER IMAGE GENERATES
+
+       Visibility only — currentStep and every pending poll stay exactly as they are, so
+       the card comes back through the normal route (showStep) as soon as generation
+       finishes or the user moves on. The target glow goes too: it is z-index 1060 and
+       would otherwise keep pulsing through the loading overlay.
+    ───────────────────────────────────────────────────────── */
+    function hideCardForGeneration() {
+        $tooltip.hide();
+        $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
+    }
+
+    /* ─────────────────────────────────────────────────────────
        WAITING TOOLTIP (shown during AI generation)
     ───────────────────────────────────────────────────────── */
     function showWaitingTooltip(title, message, pct) {
@@ -652,7 +665,7 @@
     /* ─────────────────────────────────────────────────────────
        WAIT FOR INPUT VALUE TO BE NON-EMPTY  (200 ms polling)
     ───────────────────────────────────────────────────────── */
-    function waitForValue(selector, callback, maxSeconds) {
+    function waitForValue(selector, callback, maxSeconds, onTimeout) {
         var tries = 0;
         var max   = (maxSeconds || 30) * 5;
         var iv = setInterval(function () {
@@ -662,6 +675,7 @@
                 callback();
             } else if (++tries >= max) {
                 clearInterval(iv);
+                if (onTimeout) onTimeout();
             }
         }, 200);
     }
@@ -791,22 +805,26 @@
                     _waiting = false;
                     showStep(STEP_MEDIA_IDX + 1); // → media-next (wizard-next)
                 }
-            }, 90);
+            }, 90, function () {
+                // No image after 90s — generation failed, or the user abandoned it. The
+                // card may be hidden at this point (see hideCardForGeneration), so put
+                // this step's guidance back instead of leaving the user with nothing.
+                // Re-renders the SAME step; it does not advance.
+                if (currentStep === STEP_MEDIA_IDX) showStep(STEP_MEDIA_IDX);
+            });
         });
 
         /* ── Cover image generation started ─────────────────── */
-        // Until now the card kept showing the pre-generation "Now create your image"
-        // prompt for the whole time the image was being generated, so it read as stale
-        // and told the user to press a button they had already pressed. Both generate
-        // buttons (AI-from-title and custom-prompt) swap it for a progress card; the
-        // waitForValue() poll started when the method was picked still does the advancing.
+        // The plugin's own full-screen #loadingAIImage overlay owns this wait, so the
+        // guide gets out of the way instead of stacking a redundant progress card on top
+        // of it (the card sits at z-index 999995, the overlay at 999, so it floated over
+        // the loading screen). Only the card element is hidden — currentStep, the
+        // method's waitForValue() poll and the #step_value watcher all keep running, and
+        // every one of them ends in showStep(), which shows the card again with the next
+        // step's copy. Nothing about advancing changes here.
         $(document).on('click.iseoguide', '#AIrefreshOption button, #generate_i_image', function () {
             if (currentStep !== STEP_MEDIA_IDX) return;
-            showWaitingTooltip(
-                'Creating your cover image',
-                'Your cover image is generating — this usually takes 20–60 seconds. Please wait.',
-                65
-            );
+            hideCardForGeneration();
         });
 
         /* ── Reposition on resize / scroll ──────────────────── */
