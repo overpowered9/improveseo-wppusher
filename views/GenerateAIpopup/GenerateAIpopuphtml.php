@@ -955,7 +955,7 @@ global $ai_modal_type;
                             name="seed_keyword" value="<?php echo $prefill_keyword; ?>"></input>
                         <span id="error_seed_keyword" style="color: red;"></span>
                         <?php if ( $prefill_keyword ) : ?>
-                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;margin-top:4px;">
+                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;">
                             Pre-filled from your business setup — you can edit this.
                         </span>
                         <?php endif; ?>
@@ -1029,7 +1029,7 @@ global $ai_modal_type;
                             }
                             ?>
                         </select>
-                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;margin-top:4px;">
+                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;">
                             Drives the writing style, structure and cover-image look for your niche.
                         </span>
                     </div>
@@ -1177,7 +1177,7 @@ global $ai_modal_type;
                         <!-- Niche-specific fields are rendered here by iseoRenderNicheFields() based on the
                              Business Niche selected in Step 1. Each input is named nd_<id> and flows into niche_data. -->
                         <div id="niche_fields_container" class="niche-fields"></div>
-                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;margin-top:4px;">
+                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;">
                             These prompts adapt to your niche. Your business name, location and services come from <strong>Settings &rarr; Business Details</strong> automatically.
                         </span>
                     </div>

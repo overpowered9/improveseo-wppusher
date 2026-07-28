@@ -2682,6 +2682,15 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   margin: 0 !important;
 }
 
+/* ── Helper text under a wizard field ──────────────────────────────────────
+   The 4px this used to carry inline sat the hint hard against the control above
+   it (most visibly under the Business niche select), so it read as part of the
+   input rather than as a note about it. Defined once here because all three
+   hints in the single-post wizard are the same component. */
+.iseo-prefill-hint {
+  margin-top: 10px;
+}
+
 /* ── Step 3 "Add Media" — card method selector + contextual panel ──────────
    Reuses the plugin palette (accent #1E70B8, ground #F6F8FA, ink #23282d,
    muted rgba(80,87,94,*)) and the existing .style_next_button_in_popup button. */
