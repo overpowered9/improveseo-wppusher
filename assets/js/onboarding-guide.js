@@ -163,13 +163,13 @@
             phase: 'modal', wizardStep: 2, target: 'label[for="AI_image"]',
             title: 'Select Image Option',
             message: 'Pick <strong>AI image from title</strong> — the quickest option. We’ll create a cover from your article title. You can switch methods anytime before generating.',
-            position: 'right', advance: 'click-target'
+            position: 'right', advance: 'click-target', dock: true
         },
         /* 15 */ {
             phase: 'modal', wizardStep: 2, target: '#nextStepButton',
             title: 'Image Option Set',
             message: 'Your image preference has been saved. Click the <strong>Generate AI Post</strong> button below \u2014 the AI will write your article automatically.',
-            position: 'left', advance: 'wizard-next',
+            position: 'left', advance: 'wizard-next', dock: true,
             wizardHint: '&#8595; Click the <strong>Generate AI Post &#8594;</strong> button below to continue'
         },
         /* 16 */ {
@@ -377,7 +377,7 @@
                 $target[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
                 setTimeout(function () {
                     positionSpotlight($target);
-                    positionTooltip($target, step.position);
+                    placeTooltip(step, $target);
                     $tooltip.show();
                 }, 180);
             }
@@ -387,13 +387,61 @@
             if ($target.length) {
                 $target.addClass('iseo-guide-highlight');
                 scrollWithinModal($target, function () {
-                    positionTooltip($target, step.position);
+                    placeTooltip(step, $target);
                     $tooltip.show();
                 });
             } else {
+                placeTooltip(step, $target);
                 $tooltip.show();
             }
         }
+    }
+
+    /* ─────────────────────────────────────────────────────────
+       PLACE TOOLTIP — anchored beside the target, or docked
+
+       Anchoring works when the target sits in a single-column form. On the Add Media
+       panel the three method cards are a 3-up grid, so a card anchored beside the first
+       one lands squarely on top of the other two and the Generate button. Those steps
+       set dock:true and the card goes to a fixed corner instead, out of the workflow.
+    ───────────────────────────────────────────────────────── */
+    function placeTooltip(step, $target) {
+        if (step && step.dock) {
+            dockTooltip();
+        } else {
+            positionTooltip($target, step ? step.position : 'top');
+        }
+    }
+
+    function dockTooltip() {
+        // Drop the inline coordinates a previous anchored step left behind so the
+        // [data-pos="docked"] rule in onboarding-guide.css can take over.
+        $tooltip.css({ top: '', left: '', width: '' }).attr('data-pos', 'docked');
+
+        // The wizard panel is 92% wide (max 1470px), so there is no gutter beside it to
+        // park in — the card has to sit over the panel. Top-right, tucked under the
+        // panel's own header, keeps it clear of the method cards' content and of the
+        // header's close button. Measured rather than hard-coded because the panel's
+        // offset moves with the admin bar, notices and the viewport.
+        var $modal  = $('#exampleModal1');
+        var $header = $modal.find('.singlepost-title');
+        if (!$modal.length || !$modal[0] || !$modal[0].getBoundingClientRect) return;
+
+        var m   = $modal[0].getBoundingClientRect();
+        var hdr = ($header.length && $header[0]) ? $header[0].getBoundingClientRect() : null;
+        if (!m.width) return; // panel not laid out yet — keep the CSS fallback corner
+
+        var ttW  = 300;
+        var ttH  = $tooltip.outerHeight(true) || 230;
+        var gap  = 16;
+        var top  = (hdr && hdr.height ? hdr.bottom : m.top) + gap;
+        var left = m.right - ttW - gap;
+
+        $tooltip.css({
+            top:   Math.max(10, Math.min(top,  window.innerHeight - ttH  - 10)) + 'px',
+            left:  Math.max(10, Math.min(left, window.innerWidth  - ttW  - 10)) + 'px',
+            width: ttW + 'px'
+        });
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -764,7 +812,7 @@
                 var step    = STEPS[currentStep];
                 var $target = $(step.target);
                 if (step.phase !== 'modal') positionSpotlight($target);
-                positionTooltip($target, step.position);
+                placeTooltip(step, $target);
             }, 80);
         });
     }
