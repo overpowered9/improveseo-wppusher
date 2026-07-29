@@ -146,14 +146,40 @@
 #iseo-guide-tooltip[data-pos="docked"]::before {
     display: none;
 }
-/* Narrow screens: the modal goes full width, so dock across the top instead
-   of hugging a side where it would sit over the cards again. */
+
+/* Reserve the strip the docked card occupies.
+
+   The card is position:fixed while the wizard panel scrolls behind it, so a card
+   that merely starts in free space does not stay there: scroll the panel and the
+   cover-image cards, the prompt box and the stepper slide underneath it. Padding
+   the panel keeps that column empty at every scroll position, which is the only
+   thing a fixed element can rely on. Width matches dockWidth() + gap * 2 in
+   onboarding-guide.js — change both together. Applied only while a docked step is
+   showing, and only in guide mode (the class is added by showStep). */
+body.iseo-guide-dock #exampleModal1 .improveseo-bulk-ai {
+    padding-right: 332px;
+    transition: padding-right 0.15s ease;
+}
+@media (max-width: 1100px) {
+    body.iseo-guide-dock #exampleModal1 .improveseo-bulk-ai {
+        padding-right: 272px;
+    }
+    #iseo-guide-tooltip[data-pos="docked"] {
+        width: 240px;
+    }
+}
+/* Narrow screens: the modal goes full width and the method cards stack, so the
+   card spans the top and the panel is pushed down instead of in. */
 @media (max-width: 782px) {
     #iseo-guide-tooltip[data-pos="docked"] {
         top: 12px;
         right: 12px;
         left: 12px;
         width: auto;
+    }
+    body.iseo-guide-dock #exampleModal1 .improveseo-bulk-ai {
+        padding-right: 0;
+        margin-top: 220px;
     }
 }
 
