@@ -5,23 +5,27 @@
  * Only activates when window.iseoGuideConfig.active === true.
  *
  * The numbering the user sees on this page is this file's own: STEPS index 0 is
- * "Step 1 of N" (N = STEPS.length, currently 26 — see stepCounterLabel()). The
- * card-choice page (views/posting/index.php) shows an unnumbered "Getting started"
- * card before the user ever reaches this screen.
+ * "Step 1 of N". STEPS.length is 26, but N (see visibleStepTotal()) is usually less:
+ * a few cards are marked optional: true — they describe a field the wizard only
+ * shows in some configurations (the "Other" niche box; the custom-length box, which
+ * is permanently hidden markup and never shows at all). Which of those apply is
+ * decided ONCE at init, from each field's controlling value — see
+ * isOptionalStepApplicable() — not from on-screen geometry as the flow happens to
+ * reach each one. N is therefore fixed for the whole journey and X is contiguous
+ * 1..N: deciding lazily, panel by panel, was what previously made a user see Step 2
+ * followed by Step 4 (a skipped card still uncounted) or watched "of 26" quietly
+ * become "of 24" mid-flow. The card-choice page (views/posting/index.php) shows an
+ * unnumbered "Getting started" card before the user ever reaches this screen, so it
+ * isn't part of N.
  *
  * Every page load starts on Step 1: the wizard keeps no state across a reload, so
  * neither does the guide — see startStep().
  *
- * A few cards below are marked optional: true — they describe a field the wizard
- * only shows in some configurations (the "Other" niche box, a custom article
- * length). showStep() walks past one that isn't actually on screen rather than
- * pointing at nothing; STEPS.length still counts it, so the visible counter can
- * skip a number for a user who never sees that card. The indices used in the logic
- * below (STEP_MEDIA_IDX etc.) are all resolved by key via stepIndexByKey() — never
- * written as a literal — so inserting or reordering a card here cannot silently
- * repoint them at the wrong step. Two early handlers (#reload, #checkbox_need) were
- * once written with literal indices and broke silently the last time a card was
- * inserted above them; they're key-based now too.
+ * The indices used in the logic below (STEP_MEDIA_IDX etc.) are all resolved by key
+ * via stepIndexByKey() — never written as a literal — so inserting or reordering a
+ * card here cannot silently repoint them at the wrong step. Two early handlers
+ * (#reload, #checkbox_need) were once written with literal indices and broke
+ * silently the last time a card was inserted above them; they're key-based now too.
  *
  * The panel watcher (syncGuideToWizardPanel) is the floor under all of this: it
  * reads the wizard's own #step_value and follows it in BOTH directions — forward to
@@ -348,6 +352,10 @@
        INIT
     ───────────────────────────────────────────────────────── */
     function init() {
+        // Before anything renders: the "Step X of N" total has to be right from Step 1,
+        // so every optional card is decided now, not as the flow happens to reach it.
+        computeStepCounting();
+
         $spotlight = $('<div id="iseo-guide-spotlight"></div>').appendTo('body');
         $tooltip   = $('<div id="iseo-guide-tooltip"></div>').appendTo('body');
         $('body').addClass('iseo-guide-active');
@@ -413,7 +421,7 @@
             if (STEPS[i].wizardStep === panel) break;
         }
         while (i >= 0 && STEPS[i].wizardStep === panel &&
-               STEPS[i].optional && !isStepTargetVisible(i)) {
+               STEPS[i].optional && !stepCounts(i)) {
             i--;
         }
         return (i >= 0 && STEPS[i].wizardStep === panel) ? i : firstStepForWizardPanel(panel);
@@ -488,54 +496,49 @@
     }
 
     /* ─────────────────────────────────────────────────────────
-       IS THIS STEP'S FIELD ACTUALLY ON SCREEN?
+       WILL THIS OPTIONAL STEP EVER BE SHOWN?
 
-       Only asked of optional steps, and only at the moment the step is due, by which
-       time its own wizard panel is the visible one — so "hidden" here means the field
-       itself is switched off (a niche other than Other, a non-custom length), not
-       merely that its panel is behind another.
-
-       Cached per index once evaluated: the field's applicability doesn't change mid-
-       flow (the user isn't going to toggle niche between "Other" and something else
-       and back), and the counter functions below need the SAME answer to stay in
-       step with what showStep() actually decided — re-querying later, after the
-       user has moved off that field's panel and it's no longer laid out, would
-       silently disagree with the walk-past decision already made.
+       Decided from the field's CONTROLLING value, not its on-screen geometry. Geometry
+       is only meaningful once that field's own panel is the active one — deciding "is
+       it hidden" step-by-step as the flow reached each panel is what made the "Step X
+       of N" total drift as the user progressed (N looked stable only until the next
+       optional step was reached, then dropped). Every controlling value here is set at
+       page load (server pre-fill / static markup) and doesn't depend on which panel is
+       currently visible, so every optional step can be — and is — decided once, up
+       front, in computeStepCounting() before Step 1 ever shows. N is then fixed for the
+       whole journey, per fix.md Issue 4.
     ───────────────────────────────────────────────────────── */
-    var _stepVisibleCache = {};
-    function isStepTargetVisible(index) {
-        if (_stepVisibleCache.hasOwnProperty(index)) return _stepVisibleCache[index];
-        var step = STEPS[index];
-        var $el  = $(step.target);
-        var visible;
-        if (!$el.length) {
-            visible = false;
-        } else {
-            var el = $el[0];
-            // A container step (the per-niche detail fields) is only worth showing
-            // when the wizard actually put fields in it.
-            if ($el.is(':empty') && !$el.is('input, select, textarea')) {
-                visible = false;
-            } else {
-                visible = !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
-            }
+    function isOptionalStepApplicable(step) {
+        switch (step.target) {
+            case '#niche_other':
+                return $('#niche_select').val() === 'other';
+            case '#post_size_select':
+                // GenerateAIpopuphtml.php:1143 — style="display:none !important" in the
+                // markup itself, with no dropdown option or script that ever clears it.
+                // Permanently hidden; never worth a card.
+                return false;
+            default:
+                // e.g. read-title (#maintitlearea): not actually conditional in
+                // practice, the field is always on screen once a title exists.
+                return true;
         }
-        _stepVisibleCache[index] = visible;
-        return visible;
     }
 
-    // Whether a step counts toward the "Step X of N" numbering. Non-optional steps
-    // always do. An optional step counts once we know — which, per isStepTargetVisible
-    // above, is only once its own panel has actually been on screen. Panel 0 is on
-    // screen from the very first card, so panel-0 optional steps (niche-other) are
-    // knowable immediately; a step in a panel not reached yet is assumed to count, so
-    // the total only ever narrows as the flow proceeds — never widens, never leaves a
-    // gap in the numbers the user has already seen.
+    // Decided once, at init — see isOptionalStepApplicable(). Every later lookup
+    // (the walk-past-hidden logic, the counters) reads this same fixed answer, so the
+    // total can never re-derive a different one mid-flow.
+    var _stepCountedCache = {};
+    function computeStepCounting() {
+        for (var i = 0; i < STEPS.length; i++) {
+            _stepCountedCache[i] = !STEPS[i].optional || isOptionalStepApplicable(STEPS[i]);
+        }
+    }
+
+    // Whether a step counts toward the "Step X of N" numbering AND toward what
+    // showStep()'s walk-past-hidden loop treats as present. Always resolved by
+    // computeStepCounting() before first use.
     function stepCounts(index) {
-        var step = STEPS[index];
-        if (!step.optional) return true;
-        if (_stepVisibleCache.hasOwnProperty(index)) return _stepVisibleCache[index];
-        return true;
+        return _stepCountedCache[index];
     }
 
     function visibleStepNumber(index) {
@@ -591,7 +594,7 @@
         // recursing forever.
         var guard = 0;
         while (index < STEPS.length && STEPS[index].optional &&
-               !isStepTargetVisible(index) && guard++ < STEPS.length) {
+               !stepCounts(index) && guard++ < STEPS.length) {
             index++;
         }
         if (index >= STEPS.length) {
@@ -1153,10 +1156,24 @@
         // The old single binding covered the two Generate buttons only and hid the card
         // outright, which left the upload path with no progress copy at all and every
         // path with the next step's card the instant a hidden field filled.
+        //
+        // Bound DIRECTLY to each element (jQuery('selector').on(...)), NOT delegated via
+        // $(document).on(event, selector, ...). refreshAIImage() (the AI-from-title
+        // Generate button's own handler) disables that button as its very first line,
+        // synchronously, before the click event finishes bubbling. jQuery's delegated
+        // dispatch explicitly skips a target that is .disabled for a 'click' event when
+        // matching a delegated selector — so a document-level delegated handler here
+        // never fired for that method: showMediaBusyCard() never ran, the highlight glow
+        // (z-index:1060) was never removed from the selected card, and it kept floating
+        // above the loading overlay (z-index:999) with stale select-state copy — Issues
+        // 1-3 all traced back to this one non-firing handler. A DIRECTLY bound handler
+        // runs in the same target-phase pass as the inline onclick and isn't subject to
+        // that skip. The elements exist in the DOM from page load (their panel is just
+        // display:none until picked), so binding at init time is safe.
         Object.keys(MEDIA_METHODS).forEach(function (value) {
             var def = MEDIA_METHODS[value];
             if (!def.startOn) return;
-            $(document).on(def.startOn.event + '.iseoguide', def.startOn.target, function () {
+            $(def.startOn.target).on(def.startOn.event + '.iseoguide', function () {
                 if (currentStep !== STEP_MEDIA_IDX) return;
                 if (selectedMediaValue() !== value) return; // a hidden panel's control
                 showMediaBusyCard(def);
