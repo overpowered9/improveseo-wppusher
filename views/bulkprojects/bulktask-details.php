@@ -254,6 +254,41 @@ function btd_datetime($val) {
         border-radius: 4px;
         border: 1px solid #e0e0e0;
     }
+
+    /* Header: a long project name or keyword must spend the extra length on its own
+       lines, never on the buttons. .box-top is a flex row shared by several screens,
+       and by default both children are free to shrink — so a long breadcrumb squeezed
+       the button column until the labels wrapped inside the buttons ("← Back to Post
+       List" went from 237x50 to 102x170). The breadcrumb is the only flexible child;
+       the buttons keep their intrinsic width whatever the text does. */
+    .btd-box-top {
+        gap: 20px;
+    }
+
+    .btd-box-top .breadcrumb-seo {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        line-height: 1.6;
+    }
+
+    .btd-box-top .import-export-btn {
+        flex: 0 0 auto;
+        flex-wrap: nowrap;
+        gap: 15px;
+    }
+
+    .btd-box-top .import-export-btn button {
+        white-space: nowrap;
+    }
+
+    @media (max-width: 782px) {
+        /* Stacked layout: the row already wraps, so let the buttons take the width
+           they need on their own line rather than being squeezed. */
+        .btd-box-top .import-export-btn {
+            flex-wrap: wrap;
+        }
+    }
 </style>
 
 <div class="global-wrap">
@@ -261,7 +296,7 @@ function btd_datetime($val) {
         <img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo">
         <h1>ImproveSEO | Post Details</h1>
     </div>
-    <div class="box-top">
+    <div class="box-top btd-box-top">
         <ul class="breadcrumb-seo">
             <li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
             <li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
