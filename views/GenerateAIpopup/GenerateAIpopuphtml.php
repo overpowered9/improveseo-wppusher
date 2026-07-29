@@ -1561,7 +1561,7 @@ global $ai_modal_type;
                                 <span id="error_keyword_list_name" style="color: red;"></span>
                             </div>
                             <div class="form-group" id="keyword_list_container" style="display: none;">
-                                <label style="padding-left:20px;" for="keyword_list">Keywords*(At least one)</label>
+                                <label style="padding-left:20px;" for="keyword_list">Keywords (at least one)</label>
                                 <textarea id="keyword_list" name="keyword_list" class="form-control" rows="10"
                                     style="max-width: 100% !important; width: 100%;"></textarea>
                                 <div id="keyword_count"></div>
