@@ -7,7 +7,7 @@ use ImproveSEO\View;
 <?php View::startSection('breadcrumbs') ?>
 <a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 &raquo;
-<span>View AI Content</span>
+<span>Preview Post</span>
 <?php View::endSection('breadcrumbs') ?>
 
 
@@ -16,9 +16,9 @@ use ImproveSEO\View;
 <?php View::render('import/import') ?>
 
 
-<h1 class="hidden">View AI Content</h1>
+<h1 class="hidden">Preview Post</h1>
 <div class="show_loading alert-modal">
-	<h1 class="hidden">View AI Content</h1>
+	<h1 class="hidden">Preview Post</h1>
 	<h2 id="mid_notice"><a href="<?php echo $url; ?>">Refresh List</a></h2>
 </div>
 
