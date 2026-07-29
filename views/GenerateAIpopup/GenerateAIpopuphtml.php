@@ -389,6 +389,21 @@ global $ai_modal_type;
     .iseo-content-btn.is-hidden {
         display: none !important;
     }
+    /* Guidance under the (now single, centred) Regenerate button: tells the user how to get
+       different content. Muted so it supports the button without competing with it. */
+    .iseo-regen-hint {
+        margin: 12px auto 4px !important;
+        max-width: 470px;
+        text-align: center !important;
+        font-family: "Poppins", sans-serif;
+        font-size: 13.5px !important;
+        line-height: 1.55 !important;
+        color: rgba(80, 87, 94, 0.9) !important;
+    }
+    .iseo-regen-hint b {
+        color: #1C7293;
+        font-weight: 600;
+    }
 
 
     .multi-upload-gallery span {
@@ -1364,15 +1379,16 @@ global $ai_modal_type;
                                         onclick="iseoOpenFullPreview(); return false;">&#10530; Open full preview in a new tab</button>
                                 </div>
 
-                                <!-- Approve / Regenerate pair kept directly below the content card. Approve is
-                                     revealed with the content; Regenerate is the existing generate button
-                                     (#generateapivalue), relabelled after the first generation. -->
+                                <!-- Single, centred Regenerate button (#generateapivalue, relabelled after the
+                                     first generation). The old in-preview "Approve Content" button was removed:
+                                     the wizard's own bottom nav button ("Approve Content" on this step) advances
+                                     the flow, so it was redundant. The hint tells the user how to get different
+                                     content — go back and change their inputs. -->
                                 <div class="iseo-content-actions iseo-content-actions-bottom">
-                                    <input type="button" class="iseo-content-btn iseo-approve-content is-hidden"
-                                        value="Approve Content" onclick="return saveData();" />
                                     <input type="button" name="genaipost" class="iseo-content-btn iseo-regenerate-content"
                                         id="generateapivalue" value="Generate AI Post" />
                                 </div>
+                                <p class="iseo-regen-hint">Want a different result? Go back to <b>Step&nbsp;1</b>, tweak your inputs, then regenerate.</p>
                             </div>
                         </div>
                         <input type="hidden" name="ai_tittle" id="ai_title" />
