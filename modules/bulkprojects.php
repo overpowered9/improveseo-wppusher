@@ -378,6 +378,22 @@ function improveseo_bulkprojects()
 			wp_die('Task not found.');
 		}
 
+		// The Project Name field on the edit screen is the parent project's name — it is
+		// shared by every keyword in the project, so this renames the project itself.
+		// Only written when it actually changed, and never blanked.
+		if (!empty($task->bulktask_id) && isset($_POST['name'])) {
+			$new_name = sanitize_text_field(wp_unslash($_POST['name']));
+			if ($new_name !== '') {
+				$wpdb->update(
+					$model->getTable(),
+					array('name' => $new_name),
+					array('id' => intval($task->bulktask_id)),
+					array('%s'),
+					array('%d')
+				);
+			}
+		}
+
 		// Content only: state and status are deliberately left alone, so saving a
 		// draft never publishes it or re-enters the generation queue.
 		$wpdb->update(

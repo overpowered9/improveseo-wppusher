@@ -3,6 +3,7 @@
 use ImproveSEO\View;
 
 $project_name = isset($project_name) ? $project_name : '';
+$keyword_name = trim((string) $task->keyword_name);
 
 ?>
 
@@ -28,7 +29,7 @@ $project_name = isset($project_name) ? $project_name : '';
 
 <?php View::startSection('content') ?>
 
-<h1 class="hidden">Edit Bulk Post Content</h1>
+<h1 class="hidden">Draft: Edit Bulk Post Content</h1>
 
 <?php
 // Same wrapper/classes as the SINGLE draft-edit screen (views/posting/edit-post.php
@@ -41,59 +42,75 @@ $project_name = isset($project_name) ? $project_name : '';
 	<section class="project-section border-bottom d-flex flex-row justify-content-between align-items-center pb-2">
 		<div class="project-heading d-flex flex-row">
 			<img class="mr-2" src="<?php echo improveseo_logo_url() ?>" alt="ImproveSeo">
-			<h1>Edit Bulk Post Content</h1>
+			<h1>Draft: Edit Bulk Post Content</h1>
 		</div>
 	</section>
+
+	<?php // Which draft this is. The keyword lives here now — it is context, not an
+	// editable field, and the project name it belongs to is the field below. ?>
+	<ul class="breadcrumb-seo iseo-bulk-edit-crumbs">
+		<li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+		<li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
+		<?php if ($task->bulktask_id): ?>
+			<li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>"><?= $project_name !== '' ? esc_html($project_name) : 'Untitled project' ?></a></li>
+		<?php endif; ?>
+		<li><?= $keyword_name !== '' ? esc_html($keyword_name) : 'No keyword' ?></li>
+	</ul>
 
 	<form id="main_form" class="form-wrap" method="post"
 		action="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=save_ai_content&id=' . $task->id . '&noheader=true') ?>">
 
 		<?php wp_nonce_field('improveseo_save_ai_content_' . $task->id) ?>
 
+		<?php
+		// Fields the SINGLE screen's preview flow (assets/js/form.js →
+		// improveseo_generate_preview) reads off #main_form. Preview Post below is that
+		// exact flow, so the form has to carry the same inputs: `title` mirrors the post
+		// title (the visible input posts ai_title for the save), and the rest are the
+		// defaults a one-post preview needs.
+		?>
+		<input type="hidden" name="title" id="iseo_preview_title" value="<?= esc_attr($task->ai_title) ?>">
+		<?php
+		// post_type deliberately carries NO name attribute: form.js reads it off the id
+		// and appends it to the preview request. As a posted field it would land in
+		// $_REQUEST on Save/Publish too, and WordPress then resolves this SUBMENU page's
+		// hook under the parent "admin.php?post_type=post", finds nothing, and kills the
+		// request with "Cannot load improveseo_bulkprojects." (The single editor's form
+		// can post it safely — its page is a top-level menu slug, whose hook name does
+		// not depend on the parent.)
+		?>
+		<input type="hidden" id="iseo_preview_post_type" value="post">
+		<input type="hidden" name="max_posts" value="1">
+		<input type="hidden" name="cats[]" value="">
+
 		<div id="poststuff" class="PostForm">
 			<div id="post-body">
 				<div id="post-body-content">
 
-					<?php // Which draft this is: project it belongs to, the keyword it was
-					// generated for, and the title that becomes post_title on publish. ?>
-					<div class="iseo-bulk-edit-meta">
-						<div class="iseo-bulk-edit-meta__item">
-							<span class="iseo-bulk-edit-meta__label">Project Name</span>
-							<span class="iseo-bulk-edit-meta__value<?= $project_name === '' ? ' is-empty' : '' ?>">
-								<?= $project_name !== '' ? esc_html($project_name) : 'N/A' ?>
-							</span>
-						</div>
-						<div class="iseo-bulk-edit-meta__item">
-							<span class="iseo-bulk-edit-meta__label">Keyword</span>
-							<span class="iseo-bulk-edit-meta__value<?= trim((string) $task->keyword_name) === '' ? ' is-empty' : '' ?>">
-								<?= trim((string) $task->keyword_name) !== '' ? esc_html($task->keyword_name) : 'N/A' ?>
-							</span>
-						</div>
-						<div class="iseo-bulk-edit-meta__item">
-							<span class="iseo-bulk-edit-meta__label">Title</span>
-							<span class="iseo-bulk-edit-meta__value<?= trim((string) $task->ai_title) === '' ? ' is-empty' : '' ?>">
-								<?= trim((string) $task->ai_title) !== '' ? esc_html($task->ai_title) : 'N/A' ?>
-							</span>
-						</div>
+					<?php // Editable, and identical markup to the single editor's Project Name
+					// field (views/posting/form.php) — same wrapper, label and classes. It
+					// renames the parent bulk project, which is where the name lives. ?>
+					<div class="PostForm__name-wrap input-group" style="margin-top: 20px;">
+						<label class="form-label" for="name"
+							style="display:block; font-weight:600; margin-bottom:5px;">Project Name</label>
+						<input type="text" id="name" name="name" class="PostForm__name form-control"
+							placeholder="Project name here" value="<?= esc_attr($project_name) ?>" required>
 					</div>
 
-					<p class="iseo-edit-ai-note">
-						This post is still a draft. <strong>Save Changes</strong> keeps it a draft;
-						<strong>Publish</strong> saves your edits and publishes it.
-					</p>
-
 					<div class="PostForm__title-wrap input-group">
-						<label class="form-label" for="ai_title"
+						<label class="form-label" for="title"
 							style="display:block; font-weight:600; margin-bottom:5px;">Post Title</label>
-						<input type="text" id="ai_title" name="ai_title" class="PostForm__title form-control"
+						<input type="text" id="title" name="ai_title" class="PostForm__title form-control"
 							placeholder="Enter title here" value="<?= esc_attr($task->ai_title) ?>">
 					</div>
 
 					<div class="PostForm__body-wrap">
 						<?php
 						// ai_content is stored base64-encoded, so decode it for the editor and
-						// re-encode on save (see the save_ai_content action).
-						wp_editor(base64_decode($task->ai_content), 'ai_content', array(
+						// re-encode on save (see the save_ai_content action). The editor id is
+						// `content` because that is the id form.js reads the preview body from;
+						// textarea_name keeps the save posting ai_content as before.
+						wp_editor(base64_decode($task->ai_content), 'content', array(
 							'textarea_name' => 'ai_content',
 							'editor_height' => 400,
 							'drag_drop_upload' => true,
@@ -113,7 +130,7 @@ $project_name = isset($project_name) ? $project_name : '';
 						<button name="publish" value="1" type="submit" formtarget="_self"
 							class="btn styling_post_page_action_buttons btn-outline-primary"
 							onclick="return confirm('Publish this post now? Your edits will be saved first.')">
-							Publish
+							Publish Post
 						</button>
 						<button name="save" value="1" type="submit" formtarget="_self"
 							class="btn styling_post_page_action_buttons btn-outline-primary">
@@ -123,6 +140,45 @@ $project_name = isset($project_name) ? $project_name : '';
 							href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>">
 							Cancel
 						</a>
+						<button id="preview_on" type="button"
+							class="btn styling_post_page_action_buttons btn-outline-primary">Preview Post</button>
+						<input type="hidden" name="preview_id" id="preview_id" />
+						<input type="hidden" name="is_preview_available" id="is_preview_available" value="no" />
+					</div>
+
+					<?php // Preview modal — the same markup form.js drives on the single editor. ?>
+					<div id="preview_popup" class="modal" style="text-align:center; width:90%; max-width:1100px;">
+						<div id="wh_prev_modal_1">
+							<div id="iseo_preview_loading" class="iseo-preview-loading">
+								<div class="iseo-preview-spinner" role="status" aria-label="Generating preview"></div>
+								<b class="iseo-preview-loading-title">Generating preview</b>
+								<span class="iseo-preview-loading-note">Building a temporary draft of this post.</span>
+								<button type="button" id="iseo_preview_cancel"
+									class="button iseo-preview-action">Cancel</button>
+							</div>
+							<div id="iseo_preview_error" class="iseo-preview-error" style="display:none;">
+								<p id="iseo_preview_error_text"></p>
+								<button type="button" class="button iseo-preview-action iseo-preview-action--primary"
+									onclick="closeWin()">Close</button>
+							</div>
+						</div>
+						<div id="wh_prev_modal_2" style="display:none;">
+							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+								<b style="font-size:18px">Post preview</b>
+								<span>
+									<button type="button" id="close_win" class="button iseo-preview-action"
+										onclick="changeWin()">Open in new tab</button>
+									&nbsp;
+									<button type="button" id="open_win"
+										class="button button-primary iseo-preview-action iseo-preview-action--primary"
+										onclick="closeWin()">Close preview</button>
+								</span>
+							</div>
+							<iframe id="preview_iframe" src="about:blank" title="Post preview"
+								style="width:100%; height:70vh; border:1px solid #ddd; border-radius:6px; background:#fff;"></iframe>
+							<small style="color:#666; display:block; margin-top:8px;">This preview is temporary and is
+								not published to your live site. It is removed automatically within 30 minutes.</small>
+						</div>
 					</div>
 
 				</div>
@@ -132,52 +188,23 @@ $project_name = isset($project_name) ? $project_name : '';
 	</form>
 </div>
 
+<script>
+// Keep the preview's `title` in step with the field the user is editing: form.js
+// serialises #main_form as-is, and the visible input has to keep posting ai_title
+// for the save.
+jQuery(function ($) {
+	function syncPreviewTitle() { $('#iseo_preview_title').val($('#title').val() || ''); }
+	$('#title').on('input change', syncPreviewTitle);
+	$('#preview_on').on('mousedown', syncPreviewTitle);
+});
+</script>
+
 <style>
-	/* Only the project/keyword/title summary strip is new — every field and
-	   button above reuses the single draft-edit screen's classes so the two
-	   screens stay in sync automatically. */
-	.CreatePost .iseo-bulk-edit-meta {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 12px 32px;
-		margin: 20px 0 4px;
-		padding: 16px 22px;
-		background: #f6f8fa;
-		border: 1px solid #e2e6ea;
-		border-radius: 12px;
-	}
-
-	.CreatePost .iseo-bulk-edit-meta__item {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		min-width: 180px;
-		max-width: 100%;
-	}
-
-	.CreatePost .iseo-bulk-edit-meta__label {
-		font-size: 12px;
-		font-weight: 600;
-		letter-spacing: .04em;
-		text-transform: uppercase;
-		color: #6b747c;
-	}
-
-	.CreatePost .iseo-bulk-edit-meta__value {
-		font-size: 15px;
-		color: #1d2327;
-		word-break: break-word;
-	}
-
-	.CreatePost .iseo-bulk-edit-meta__value.is-empty {
-		color: #8c8f94;
-		font-style: italic;
-	}
-
-	.iseo-edit-ai-note {
-		margin: 16px 0 20px;
+	/* Geometry comes from the single editor's own classes; only the breadcrumb line
+	   and the button row's layout are stated here. */
+	.CreatePost .iseo-bulk-edit-crumbs {
+		margin: 16px 0 4px;
 		color: #50575e;
-		font-size: 14px;
 	}
 
 	.CreatePost .PostForm__title-wrap {
