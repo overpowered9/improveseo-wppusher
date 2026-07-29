@@ -413,7 +413,7 @@
             if (STEPS[i].wizardStep === panel) break;
         }
         while (i >= 0 && STEPS[i].wizardStep === panel &&
-               STEPS[i].optional && !isStepTargetVisible(STEPS[i])) {
+               STEPS[i].optional && !isStepTargetVisible(i)) {
             i--;
         }
         return (i >= 0 && STEPS[i].wizardStep === panel) ? i : firstStepForWizardPanel(panel);
@@ -494,15 +494,64 @@
        time its own wizard panel is the visible one — so "hidden" here means the field
        itself is switched off (a niche other than Other, a non-custom length), not
        merely that its panel is behind another.
+
+       Cached per index once evaluated: the field's applicability doesn't change mid-
+       flow (the user isn't going to toggle niche between "Other" and something else
+       and back), and the counter functions below need the SAME answer to stay in
+       step with what showStep() actually decided — re-querying later, after the
+       user has moved off that field's panel and it's no longer laid out, would
+       silently disagree with the walk-past decision already made.
     ───────────────────────────────────────────────────────── */
-    function isStepTargetVisible(step) {
-        var $el = $(step.target);
-        if (!$el.length) return false;
-        var el = $el[0];
-        // A container step (the per-niche detail fields) is only worth showing when the
-        // wizard actually put fields in it.
-        if ($el.is(':empty') && !$el.is('input, select, textarea')) return false;
-        return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+    var _stepVisibleCache = {};
+    function isStepTargetVisible(index) {
+        if (_stepVisibleCache.hasOwnProperty(index)) return _stepVisibleCache[index];
+        var step = STEPS[index];
+        var $el  = $(step.target);
+        var visible;
+        if (!$el.length) {
+            visible = false;
+        } else {
+            var el = $el[0];
+            // A container step (the per-niche detail fields) is only worth showing
+            // when the wizard actually put fields in it.
+            if ($el.is(':empty') && !$el.is('input, select, textarea')) {
+                visible = false;
+            } else {
+                visible = !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+            }
+        }
+        _stepVisibleCache[index] = visible;
+        return visible;
+    }
+
+    // Whether a step counts toward the "Step X of N" numbering. Non-optional steps
+    // always do. An optional step counts once we know — which, per isStepTargetVisible
+    // above, is only once its own panel has actually been on screen. Panel 0 is on
+    // screen from the very first card, so panel-0 optional steps (niche-other) are
+    // knowable immediately; a step in a panel not reached yet is assumed to count, so
+    // the total only ever narrows as the flow proceeds — never widens, never leaves a
+    // gap in the numbers the user has already seen.
+    function stepCounts(index) {
+        var step = STEPS[index];
+        if (!step.optional) return true;
+        if (_stepVisibleCache.hasOwnProperty(index)) return _stepVisibleCache[index];
+        return true;
+    }
+
+    function visibleStepNumber(index) {
+        var n = 0;
+        for (var i = 0; i <= index; i++) {
+            if (stepCounts(i)) n++;
+        }
+        return n;
+    }
+
+    function visibleStepTotal() {
+        var n = 0;
+        for (var i = 0; i < STEPS.length; i++) {
+            if (stepCounts(i)) n++;
+        }
+        return n;
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -542,7 +591,7 @@
         // recursing forever.
         var guard = 0;
         while (index < STEPS.length && STEPS[index].optional &&
-               !isStepTargetVisible(STEPS[index]) && guard++ < STEPS.length) {
+               !isStepTargetVisible(index) && guard++ < STEPS.length) {
             index++;
         }
         if (index >= STEPS.length) {
@@ -694,13 +743,18 @@
     // it shows is Step 1. It used to render index + 2, reserving Step 1 for the
     // card-choice page in views/posting/index.php — which is a different page the user
     // has already left, so opening (or reloading) this one always started at "Step 2".
-    // Derived from STEPS.length, never hard-coded: steps get added and a literal drifts.
+    //
+    // The numerator/denominator come from visibleStepNumber()/visibleStepTotal(), NOT
+    // index+1 / STEPS.length directly: an optional step the wizard is skipping (niche
+    // other than "Other", a non-custom length) still occupies a STEPS[] slot, and
+    // counting it anyway is what put a hole in the numbers the user sees — Step 2
+    // followed by Step 4, no Step 3 anywhere, for a niche that was never "Other".
     function stepCounterLabel(index) {
-        return 'Step ' + (index + 1) + ' of ' + STEPS.length;
+        return 'Step ' + visibleStepNumber(index) + ' of ' + visibleStepTotal();
     }
 
     function stepPercent(index) {
-        return Math.round(((index + 1) / STEPS.length) * 100);
+        return Math.round((visibleStepNumber(index) / visibleStepTotal()) * 100);
     }
 
     function buildTooltip(step, index) {
@@ -1038,7 +1092,17 @@
                 }, 0);
                 startArticleWait();
             } else {
-                setTimeout(function () { showStep(currentStep + 1); }, 350);
+                // The panel watcher polls #step_value on its own fixed interval,
+                // independent of this click, and the wizard updates #step_value
+                // near-instantly on click — so it can already have advanced the card
+                // by the time this timeout fires. Re-reading currentStep then would
+                // add a SECOND +1 on top of that, skipping the card the watcher just
+                // landed on. Capture the step this click was for and only act if
+                // nothing else has moved the card since.
+                var fromStep = currentStep;
+                setTimeout(function () {
+                    if (currentStep === fromStep) showStep(fromStep + 1);
+                }, 350);
             }
         });
 
