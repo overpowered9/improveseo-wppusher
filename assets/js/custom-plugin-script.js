@@ -924,10 +924,13 @@ function initializeTinyMCE() {
   });
 }
 
-// After inserting content, TinyMCE leaves the caret at the END of the article and scrolls
-// the editor to the bottom — so the user is looking at the middle/end of the post. Move the
-// caret to the start and scroll the editor (and page) back to the top so the article is shown
-// from the beginning.
+// After inserting the article, land the user ON THE CONTENT — the editor in view, showing the
+// article from its start. Two things to get right:
+//  1) Inside the editor, TinyMCE leaves the caret at the END and scrolls to the bottom, so put
+//     the caret back at the start and scroll the editor's own window to the top.
+//  2) On the page, DON'T jump to the very top (the empty Project Name / Post Title fields — that
+//     reads as "scrolled all the way to the top"); scroll so the editor is near the top of the
+//     viewport instead.
 function iseoScrollEditorToTop() {
   var reset = function () {
     try {
@@ -937,14 +940,21 @@ function iseoScrollEditorToTop() {
         if (body && body.firstChild && ed.selection) {
           ed.selection.setCursorLocation(body.firstChild, 0);
         }
-        if (ed.getWin) { ed.getWin().scrollTo(0, 0); }
+        if (ed.getWin) { ed.getWin().scrollTo(0, 0); } // article from its start inside the editor
       }
     } catch (e) {}
-    try { window.scrollTo(0, 0); } catch (e) {}
+    // Bring the content editor into view (not the page top).
     try {
-      if (document.scrollingElement) { document.scrollingElement.scrollTop = 0; }
-      if (document.documentElement) { document.documentElement.scrollTop = 0; }
-      if (document.body) { document.body.scrollTop = 0; }
+      var wrap = document.getElementById("wp-content-wrap") ||
+                 document.getElementById("postdivrich");
+      if (!wrap) {
+        var c = document.getElementById("content");
+        wrap = c && c.closest ? c.closest(".wp-editor-wrap") : null;
+      }
+      if (wrap && wrap.getBoundingClientRect) {
+        var top = wrap.getBoundingClientRect().top + window.pageYOffset - 40;
+        window.scrollTo(0, Math.max(0, top));
+      }
     } catch (e) {}
   };
   reset();
