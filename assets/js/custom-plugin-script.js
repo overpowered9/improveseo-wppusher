@@ -327,6 +327,40 @@ function iseoRoundSeoFieldFrames() {
 }
 jQuery(function () { iseoRoundSeoFieldFrames(); });
 
+// A newly-added category must appear ABOVE the "New category name" input (with the other
+// category checkboxes), not below it. The sidebar's own add handler is inline in the PHP
+// view, which lags on deploy, so an old build can still append the new checkbox after the
+// input row. Guard it here (JS deploys reliably): watch the Categories panel and move any
+// cats[] checkbox that lands after the add-cat-row back above it. Disconnect while moving so
+// our own DOM changes don't re-trigger the observer.
+jQuery(function () {
+  var row = document.querySelector(".iseo-add-cat-row");
+  if (!row || !window.MutationObserver) return;
+  var container = row.parentNode; // the Categories panel body (.inside)
+
+  function keepNewCategoriesAboveInput() {
+    var addRow = container.querySelector(".iseo-add-cat-row");
+    if (!addRow) return;
+    var sib = addRow.nextElementSibling;
+    while (sib) {
+      var next = sib.nextElementSibling;
+      // Move only category checkboxes; leave the status message <p> where it is.
+      if (sib.querySelector && sib.querySelector('input[name="cats[]"]')) {
+        container.insertBefore(sib, addRow);
+      }
+      sib = next;
+    }
+  }
+
+  var obs = new MutationObserver(function () {
+    obs.disconnect();
+    keepNewCategoriesAboveInput();
+    obs.observe(container, { childList: true });
+  });
+  obs.observe(container, { childList: true });
+  keepNewCategoriesAboveInput(); // fix anything already misplaced on load
+});
+
 // If a meta value fails the length check, RERUN the meta prompt (generateAIMeta) to get
 // a fresh one and re-check — up to a few times. Only if it still won't fit after the
 // reruns do we clamp on a word boundary as a last-resort guarantee. This makes

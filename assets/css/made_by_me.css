@@ -1585,6 +1585,8 @@ div#post-body-content {
   flex: 1 1 auto !important;
   min-width: 0 !important;
   width: auto !important;
+  padding: 0 14px !important;   /* tighter padding so "New category name" isn't clipped */
+  font-size: 13px !important;
 }
 .iseo-add-cat-row #add_category_form_btn {
   flex: 0 0 auto !important;
