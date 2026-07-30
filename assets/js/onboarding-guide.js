@@ -90,6 +90,7 @@
          startOn   the control that starts that method's wait, and the event it fires
          select*   the card shown the moment the method is picked
          busy*     the card shown while that method is working
+         done*     the card shown once `done` fills — see applyMediaDoneState()
 
        Values match the aiImage radio values in views/GenerateAIpopup/GenerateAIpopuphtml.php.
        Nothing here is shared between methods: the upload path must never claim an
@@ -102,7 +103,9 @@
             selectTitle:   'AI Image From Title',
             selectMessage: 'We’ll write a prompt from your title and create a cover. Press <strong>Generate AI image</strong>. Uses 1 image credit.',
             busyTitle:     'Creating your cover image &#x23F3;',
-            busyMessage:   'Creating your cover image — this usually takes 20–60 seconds. Please wait.'
+            busyMessage:   'Creating your cover image — this usually takes 20–60 seconds. Please wait.',
+            doneTitle:     'Cover Image Ready',
+            doneMessage:   'Your cover image is saved. Click <strong>{button}</strong> below — the AI will write your article automatically.'
         },
         manually_promt_image: {
             // custom-plugin-script.js #generate_i_image handler → fills on success
@@ -111,7 +114,9 @@
             selectTitle:   'AI Image - Custom Prompt',
             selectMessage: 'Describe the cover image you want, then press <strong>Generate AI Image</strong>. Uses 1 image credit.',
             busyTitle:     'Creating your cover image &#x23F3;',
-            busyMessage:   'Creating your cover image — please wait.'
+            busyMessage:   'Creating your cover image — please wait.',
+            doneTitle:     'Cover Image Ready',
+            doneMessage:   'Your cover image is saved. Click <strong>{button}</strong> below — the AI will write your article automatically.'
         },
         Manually_image: {
             // custom-plugin-script.js #upload-image-button change handler → fills on upload
@@ -120,7 +125,16 @@
             selectTitle:   'Upload your own',
             selectMessage: 'Choose an image from your computer to use as the cover. Nothing is generated and no credit is used.',
             busyTitle:     'Uploading your image…',
-            busyMessage:   'Uploading your image…'
+            busyMessage:   'Uploading your image…',
+            // Nothing was generated, so this must not read like it was (no "Generate"
+            // language about the IMAGE). The button itself still legitimately reads
+            // "Generate AI Post" the first time through — that names the ARTICLE step,
+            // not another image generation — so it comes from {button}, never
+            // hardcoded, and reads "Next" instead if the user returns here later with
+            // an article already generated (updateButtonText() in
+            // GenerateAIpopuphtml.php).
+            doneTitle:     'Image Uploaded',
+            doneMessage:   'Your image is uploaded and saved as the cover. Click <strong>{button}</strong> below to continue.'
         }
     };
 
@@ -242,10 +256,16 @@
             key: 'media-next', phase: 'modal', wizardStep: 2, target: '#nextStepButton',
             title: 'Cover Image Ready',
             // Reached only once the chosen method actually finished (image generated, or
-            // file uploaded), so it can speak about the image rather than the option.
-            message: 'Your cover image is saved. Click the <strong>Generate AI Post</strong> button below \u2014 the AI will write your article automatically.',
-            position: 'left', advance: 'wizard-next', dock: true,
-            wizardHint: '&#8595; Click the <strong>Generate AI Post &#8594;</strong> button below to continue'
+            // file uploaded). Fallback only \u2014 applyMediaDoneState() overwrites this with
+            // the method-specific copy (MEDIA_METHODS[x].doneTitle/doneMessage) every time
+            // this step renders; this generic wording is what would show if the method
+            // could somehow not be determined.
+            message: 'Your cover image is saved. Click <strong>{button}</strong> below \u2014 the AI will write your article automatically.',
+            position: 'left', advance: 'wizard-next', dock: true
+            // No custom wizardHint: it used to hardcode "Generate AI Post" here too,
+            // which showed on the upload path's card as well (nothing was generated).
+            // Falls through to buildTooltip()'s own {button}-tokenized default hint,
+            // same as every other wizard-next step.
         },
         /* 16 */ {
             key: 'approve-content', phase: 'modal', wizardStep: 3, target: '#nextStepButton',
@@ -633,6 +653,12 @@
             updateMediaHighlight();
         }
 
+        // The step right after it: which method produced the cover determines what
+        // "ready" should say — see applyMediaDoneState().
+        if (index === STEP_GENERATE_IDX) {
+            applyMediaDoneState(step, index, currentMediaMethod());
+        }
+
         // For wizard-next steps with a pollTarget: watch for the next panel to appear
         // and auto-trigger the hidden guide Next button — no click event dependency.
         if (step.pollTarget) {
@@ -900,6 +926,30 @@
         );
         redockMediaCard();
         startMediaWait(def);
+    }
+
+    // Shallow-copies a STEPS entry with its title/message swapped out — used to
+    // render the same step (same target/advance/dock/pollTarget/wizardHint) with
+    // different copy without mutating the shared STEPS array.
+    function cloneStepWithCopy(step, title, message) {
+        var copy = {};
+        for (var key in step) {
+            if (step.hasOwnProperty(key)) copy[key] = step[key];
+        }
+        copy.title   = title;
+        copy.message = message;
+        return copy;
+    }
+
+    // media-next ("Cover Image Ready"): which method actually produced the cover
+    // decides what "ready" means. The upload path generated nothing, so it must not
+    // read like it did — its own doneMessage never says "Generate" about the image.
+    // Overwrites the generic card buildTooltip() just rendered for this step; falls
+    // through to that generic copy only if the method can't be determined (should
+    // not happen in practice — a method must be picked to ever reach this step).
+    function applyMediaDoneState(step, index, def) {
+        if (!def || !def.doneMessage) return;
+        buildTooltip(cloneStepWithCopy(step, def.doneTitle, def.doneMessage), index);
     }
 
     // These cards replace the whole card body, so their height differs from the one
