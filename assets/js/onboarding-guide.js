@@ -347,6 +347,7 @@
     var _waitingFor  = -1;    // step index that started the current wait
     var _reposTmr    = null;
     var _syncTmr     = null;  // panel watcher (see syncGuideToWizardPanel)
+    var _mediaWaitTimer = null; // the ACTIVE per-method poll — see startMediaWait()
 
     /* ─────────────────────────────────────────────────────────
        INIT
@@ -911,15 +912,31 @@
     }
 
     // Advance ONLY on this method's true completion signal.
+    //
+    // Switching methods (AI_image -> Manually_image, say) calls this again without
+    // currentStep or _waiting ever changing — both stay "on the media step, waiting" the
+    // whole time, so neither guarded against the PREVIOUS method's poll. If that poll was
+    // still ticking (its own field not yet empty-checked-and-abandoned — e.g. the user
+    // switched away from AI-from-title before it finished, and the AI response arrived
+    // later), it would see #AI-Image-uploaded-path fill and advance the guide to "Cover
+    // Image Ready" while Upload — the method actually on screen — had done nothing at
+    // all. Cancelling the previous timer before starting a new one means only the
+    // CURRENTLY selected method's own field can ever trigger the advance.
     function startMediaWait(def) {
+        if (_mediaWaitTimer) {
+            clearInterval(_mediaWaitTimer);
+            _mediaWaitTimer = null;
+        }
         _waiting    = true;
         _waitingFor = STEP_MEDIA_IDX;
-        waitForValue(def.done, function () {
+        _mediaWaitTimer = waitForValue(def.done, function () {
+            _mediaWaitTimer = null;
             if (_waiting && currentStep === STEP_MEDIA_IDX) {
                 _waiting = false;
                 showStep(STEP_MEDIA_IDX + 1); // → media-next (wizard-next)
             }
         }, 90, function () {
+            _mediaWaitTimer = null;
             // Nothing after 90s — it failed, or the user walked away from it. Put this
             // method's own instructions back rather than leaving a stale "please wait";
             // re-renders the SAME step, it does not advance.
@@ -1086,6 +1103,8 @@
                 if (onTimeout) onTimeout();
             }
         }, 200);
+        return iv; // callers that can run more than one of these (startMediaWait) need
+                   // the id to cancel a still-running one before starting the next.
     }
 
     /* ─────────────────────────────────────────────────────────
