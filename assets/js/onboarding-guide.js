@@ -627,6 +627,10 @@
         // the generic "pick an option" prompt. Overwrites the card just built.
         if (index === STEP_MEDIA_IDX) {
             applyMediaMethodState(currentMediaMethod());
+            // Covers the no-selection-yet case (applyMediaMethodState is a no-op
+            // without a method) so the default nudge still lands on card 1 — see
+            // updateMediaHighlight().
+            updateMediaHighlight();
         }
 
         // For wizard-next steps with a pollTarget: watch for the next panel to appear
@@ -654,7 +658,13 @@
             // Inside Bootstrap modal — use blue glow instead of spotlight
             $spotlight.hide();
             if ($target.length) {
-                $target.addClass('iseo-guide-highlight');
+                // STEP_MEDIA_IDX owns its own highlight target (the card the user
+                // actually selected, not this step's fixed default) — already applied
+                // above by updateMediaHighlight(). Adding it here too would leave BOTH
+                // card 1 (this step's literal step.target) and the selected card glowing.
+                if (index !== STEP_MEDIA_IDX) {
+                    $target.addClass('iseo-guide-highlight');
+                }
                 scrollWithinModal($target, function () {
                     placeTooltip(step, $target);
                     $tooltip.show();
@@ -823,10 +833,27 @@
         return MEDIA_METHODS[selectedMediaValue()] || null;
     }
 
+    // The guide's blue ring must sit on whichever card is ACTUALLY selected, not on
+    // STEP_MEDIA_IDX's literal step.target (card 1 — the recommended default, used
+    // only until a real choice is made). Native radios already move the CSS :checked
+    // border correctly on their own (assets/css/made_by_me.css:2776); this is what
+    // keeps the separate guide-highlight ring in sync with it, since nothing else
+    // clears it off a previously-highlighted card when the selection changes.
+    function updateMediaHighlight() {
+        var val   = selectedMediaValue();
+        var $card = val ? $('label[for="' + val + '"]') : $(STEPS[STEP_MEDIA_IDX].target);
+        $('#exampleModal1 .iseo-media-card').removeClass('iseo-guide-highlight');
+        if ($card.length) $card.addClass('iseo-guide-highlight');
+    }
+
     // Picked (or re-entered) a method: show that method's own instructions and start
     // watching that method's own completion field.
     function applyMediaMethodState(def) {
         if (!def) return;
+        // Move the ring to this card before anything else — covers every caller:
+        // the radio change handler, re-entering this step with a method already
+        // picked, and the busy-timeout retry (all three call this function).
+        updateMediaHighlight();
         // Still Step N — the user is being asked to do something, not to wait.
         showWaitingTooltip(
             def.selectTitle,
