@@ -326,25 +326,25 @@
             key: 'review-project', phase: 'page', target: '.PostForm__name-wrap',
             title: 'Check your project name',
             message: 'This is an internal name for your reference. Review it and edit if you\u2019d like, then click <strong>Next \u2192</strong>.',
-            position: 'bottom', advance: 'next-btn'
+            position: 'left', advance: 'next-btn'
         },
         /* 24 */ {
             key: 'review-title', phase: 'page', target: '.PostForm__title-wrap',
             title: 'Review your post title',
             message: 'This is the title readers and search engines will see. Make sure it reads well, then click <strong>Next \u2192</strong>.',
-            position: 'bottom', advance: 'next-btn'
+            position: 'left', advance: 'next-btn'
         },
         /* 25 */ {
             key: 'review-content', phase: 'page', target: '.PostForm__body-wrap',
             title: 'Review your content',
             message: 'Read through your article. Edit anything you\u2019d like directly here, then click <strong>Next \u2192</strong>.',
-            position: 'top', advance: 'next-btn'
+            position: 'left', advance: 'next-btn'
         },
         /* 26 */ {
             key: 'review-publish', phase: 'page', target: '#post_form_buttons',
             title: 'You\u2019re ready to publish! \uD83C\uDF89',
             message: 'Click <strong>Create \u0026amp; Publish Post</strong> to publish, or <strong>Save As Draft</strong> to finish later. <strong>Post preview</strong> shows how it will look.',
-            position: 'top', advance: 'final'
+            position: 'top-left', advance: 'final'
         }
     ];
 
@@ -1110,13 +1110,15 @@
         var gap = 14;
         var vw  = window.innerWidth;
         var vh  = window.innerHeight;
-        var opposites = { right: 'left', left: 'right', top: 'bottom', bottom: 'top' };
+        var opposites = { right: 'left', left: 'right', top: 'bottom', bottom: 'top', 'top-left': 'bottom-left', 'bottom-left': 'top-left' };
 
         function calcPos(pos) {
             switch (pos) {
                 case 'bottom': return { top: r.bottom + gap,                  left: r.left + r.width / 2 - ttW / 2 };
                 case 'top':    return { top: r.top - ttH - gap,               left: r.left + r.width / 2 - ttW / 2 };
                 case 'right':  return { top: r.top + r.height / 2 - ttH / 2, left: r.right + gap };
+                case 'top-left': return { top: r.top - ttH - gap,            left: r.left };
+                case 'bottom-left': return { top: r.bottom + gap,            left: r.left };
                 default:       return { top: r.top + r.height / 2 - ttH / 2, left: r.left - ttW - gap };
             }
         }
