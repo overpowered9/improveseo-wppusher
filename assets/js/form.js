@@ -356,3 +356,58 @@ function changeWin(){
         window.open(form_ajax_vars.admin_url + "?page=improveseo_projects&post_preview=true&preview_id=" + preview_id, '_blank');
     }
 }
+
+// Edit-draft screen touch-ups, applied from JS so they show even before the PHP views
+// (form.php / edit-post.php) redeploy: heading -> "Draft: Edit Post", button relabels, a
+// Cancel button, and the order Publish Post, Save Changes, Cancel, Preview Post. Every step
+// is idempotent, so once the views redeploy with the same markup this simply does nothing.
+jQuery(function () {
+    var isEdit = /[?&]action=edit_post(?:&|$)/.test(window.location.search);
+    if (!isEdit) return;
+
+    var $buttons = jQuery('#post_form_buttons');
+    if (!$buttons.length) return;
+
+    // Not published if the draft ("Save Changes") submit is present.
+    var $draft   = $buttons.find('button[name="draft"]');
+    var isDraft  = $draft.length > 0;
+    var $publish = $buttons.find('button[name="create"]');
+    var $preview = jQuery('#preview_on');
+
+    // 1. Heading -> "Draft: Edit Post" (drafts only).
+    if (isDraft) {
+        jQuery('.project-heading h1').text('Draft: Edit Post');
+        jQuery('h1.hidden').text('Draft: Edit Post');
+    }
+
+    // 2. Publish button relabel.
+    if ($publish.length && jQuery.trim($publish.text()) === 'Publish Project and Post') {
+        $publish.text('Publish Post');
+    }
+
+    // 3. Preview button relabel.
+    if ($preview.length) { $preview.text('Preview Post'); }
+
+    // 4. Add a Cancel button if the view didn't already render one (avoids a duplicate).
+    function findCancel() {
+        return $buttons.find('a').filter(function () {
+            return jQuery.trim(jQuery(this).text()) === 'Cancel';
+        }).first();
+    }
+    if (!findCancel().length) {
+        var cancelUrl = window.location.pathname + '?page=improveseo_projects';
+        var $cancel = jQuery('<a></a>')
+            .attr('href', cancelUrl)
+            .addClass('btn styling_post_page_action_buttons btn-outline-primary')
+            .text('Cancel');
+        if ($preview.length) { $cancel.insertBefore($preview); }
+        else { $buttons.append($cancel); }
+    }
+
+    // 5. Enforce order: Publish, Save Changes, Cancel, Preview.
+    var $cancelBtn = findCancel();
+    var anchor = $publish.length ? $publish : null;
+    if ($draft.length && anchor)     { $draft.insertAfter(anchor);     anchor = $draft; }
+    if ($cancelBtn.length && anchor) { $cancelBtn.insertAfter(anchor); anchor = $cancelBtn; }
+    if ($preview.length && anchor)   { $preview.insertAfter(anchor);   anchor = $preview; }
+});
