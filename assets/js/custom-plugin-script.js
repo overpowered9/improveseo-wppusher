@@ -300,6 +300,24 @@ jQuery(function () {
   iseoUpdateAllMetaCounters();
 });
 
+// Field frames on the Create Single Post screen must all share the top-left rounded (pill)
+// style. Those radii live as inline styles in the PHP view, which lags on deploy — and the
+// Meta Title carries an inline `!important` that external CSS cannot override. Force the
+// rounded frame here so it applies regardless of whether the view has redeployed: JS deploys
+// reliably via cache-busting, and setProperty(..., "important") beats even inline !important.
+function iseoRoundSeoFieldFrames() {
+  ["custom-title", "custom-description", "new_category_name_form", "add_category_form_btn"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.style.setProperty("border-radius", "50px", "important");
+    // Match the top-left fields' soft grey border (leave the Add button's native pill border).
+    if (id !== "add_category_form_btn") {
+      el.style.setProperty("border-color", "#e9e9e9", "important");
+    }
+  });
+}
+jQuery(function () { iseoRoundSeoFieldFrames(); });
+
 // If a meta value fails the length check, RERUN the meta prompt (generateAIMeta) to get
 // a fresh one and re-check — up to a few times. Only if it still won't fit after the
 // reruns do we clamp on a word boundary as a last-resort guarantee. This makes
