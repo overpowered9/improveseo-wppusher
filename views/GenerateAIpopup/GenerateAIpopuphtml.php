@@ -885,9 +885,8 @@ global $ai_modal_type;
         <div class="singlepost-title">
             <h1> <img src="<?php echo WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ?>"
                     alt="iconoir_sparks"> Generate Single Al Post</h1>
-            <div class="singlepost-close"> <img id="close_single_post"
-                    src="<?php echo WT_URL . '/assets/images/latest-images/akar-icons_cross.svg' ?>" alt="icons_cross">
-            </div>
+            <!-- Close (X) removed: X'ing out dropped the user onto the bare edit-post screen with
+                 no way forward. The wizard is completed via its Next/Submit flow instead. -->
         </div>
 
         <div class="steps">

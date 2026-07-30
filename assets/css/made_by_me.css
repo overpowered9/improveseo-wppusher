@@ -1569,6 +1569,13 @@ div#post-body-content {
   border: none !important;
 }
 
+/* Single-post wizard: no close (X). X'ing out left the user stranded on the bare edit-post
+   screen; the wizard is finished via its Next/Submit flow instead. Hidden here (not only in
+   the view markup) so it applies reliably regardless of the PHP view's deploy state. */
+.singlepost-close {
+  display: none !important;
+}
+
 /* New-category input + Add button: keep them on one row that never overflows the (narrow)
    sidebar Categories panel, regardless of any admin/global input-width rule. The input
    flexes and can shrink freely; the Add button keeps its compact pill size and stays inside
