@@ -111,7 +111,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 					<div id="iseo_preview_loading" class="iseo-preview-loading">
 						<div class="iseo-preview-spinner" role="status" aria-label="Generating preview"></div>
 						<b class="iseo-preview-loading-title">Generating preview</b>
-						<span class="iseo-preview-loading-note">Building a temporary draft of this post.</span>
+						<span class="iseo-preview-loading-note">Building a temporary draft of this post. This may take a moment.</span>
 						<button type="button" id="iseo_preview_cancel"
 							class="button iseo-preview-action">Cancel</button>
 					</div>
