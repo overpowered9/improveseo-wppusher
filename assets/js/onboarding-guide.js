@@ -682,8 +682,8 @@
         }
     }
 
-    // Card width in the docked strip. Must stay in step with the padding reserved by
-    // body.iseo-guide-dock in onboarding-guide.css, which is this + DOCK_GAP * 2.
+    // Card width in the docked corner. Must stay in step with the width rule for
+    // #iseo-guide-tooltip[data-pos="docked"] in onboarding-guide.css.
     function dockWidth() {
         return window.innerWidth <= 1100 ? 240 : 300;
     }
@@ -696,15 +696,17 @@
 
         // The card is position:fixed and the wizard panel scrolls behind it, so it is
         // pinned to the RIGHT EDGE OF THE PANEL — not of the viewport, which on a wide
-        // screen is out over the backdrop — inside the strip that
-        // body.iseo-guide-dock reserves. Measured rather than hard-coded because the
-        // panel moves with the admin bar, notices and the viewport.
+        // screen is out over the backdrop. This is a pure overlay: no CSS reserves
+        // space for it, so it floats over whatever is at that edge rather than
+        // shrinking the panel to make room (see onboarding-guide.css). Measured
+        // rather than hard-coded because the panel moves with the admin bar, notices
+        // and the viewport.
         var $panel  = $('#exampleModal1 .improveseo-bulk-ai').first();
         var $modal  = $('#exampleModal1');
         var $box    = $panel.length ? $panel : $modal;
-        // Below the wizard's own stepper, not just its title: the stepper is a full-width
-        // row of six labels, and the reserved column cannot help there — it squeezes the
-        // row rather than moving it, so a card level with it clips the last step.
+        // Below the wizard's own stepper, not just its title: the stepper is a
+        // full-width row of six labels, and a card level with it would clip the last
+        // step.
         var $above  = $modal.find('.steps').first();
         if (!$above.length) $above = $modal.find('.singlepost-title').first();
         if (!$box.length || !$box[0] || !$box[0].getBoundingClientRect) return;
