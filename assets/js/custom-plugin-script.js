@@ -929,23 +929,28 @@ function initializeTinyMCE() {
 // caret to the start and scroll the editor (and page) back to the top so the article is shown
 // from the beginning.
 function iseoScrollEditorToTop() {
-  try {
-    var ed = window.tinymce && tinymce.activeEditor;
-    if (!ed) return;
-    var reset = function () {
-      try {
+  var reset = function () {
+    try {
+      var ed = window.tinymce && tinymce.activeEditor;
+      if (ed) {
         var body = ed.getBody && ed.getBody();
         if (body && body.firstChild && ed.selection) {
           ed.selection.setCursorLocation(body.firstChild, 0);
         }
         if (ed.getWin) { ed.getWin().scrollTo(0, 0); }
-      } catch (e) {}
-    };
-    reset();
-    // TinyMCE re-scrolls to the caret right after insert; reset again on the next tick.
-    setTimeout(reset, 60);
-  } catch (e) {}
-  try { window.scrollTo(0, 0); } catch (e) {}
+      }
+    } catch (e) {}
+    try { window.scrollTo(0, 0); } catch (e) {}
+    try {
+      if (document.scrollingElement) { document.scrollingElement.scrollTop = 0; }
+      if (document.documentElement) { document.documentElement.scrollTop = 0; }
+      if (document.body) { document.body.scrollTop = 0; }
+    } catch (e) {}
+  };
+  reset();
+  // Something re-scrolls after the insert (TinyMCE settling / a late re-init / caret restore),
+  // so fire the reset repeatedly over ~1.2s to win over it.
+  [50, 150, 300, 500, 800, 1200].forEach(function (d) { setTimeout(reset, d); });
 }
 
 function insertContent(content) {
