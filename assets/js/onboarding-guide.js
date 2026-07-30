@@ -710,14 +710,19 @@
         }
 
         if (step.phase === 'page' || step.phase === 'form') {
-            $spotlight.show();
+            $spotlight.hide();
             if ($target.length) {
+                if (index !== STEP_MEDIA_IDX) {
+                    $target.addClass('iseo-guide-highlight');
+                }
                 $target[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
                 setTimeout(function () {
-                    positionSpotlight($target);
                     placeTooltip(step, $target);
                     $tooltip.show();
                 }, 180);
+            } else {
+                placeTooltip(step, $target);
+                $tooltip.show();
             }
         } else {
             // Inside Bootstrap modal — use blue glow instead of spotlight
