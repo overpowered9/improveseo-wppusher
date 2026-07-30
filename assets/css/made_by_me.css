@@ -1576,6 +1576,15 @@ div#post-body-content {
   display: none !important;
 }
 
+/* Edit screen (page=improveseo_dashboard&action=edit_post): hide the read-only permalink
+   display + "non-editable URL structure is determined by your permalink settings" note.
+   Scoped to the dashboard admin page so the create-post form's permalink is untouched. This
+   is a CSS fallback so the removal holds even if the form.js bundle is cached/stale. The
+   hidden permalink <input> inside still submits. */
+body.toplevel_page_improveseo_dashboard #edit-slug-box {
+  display: none !important;
+}
+
 /* New-category input + Add button: keep them on one row that never overflows the (narrow)
    sidebar Categories panel, regardless of any admin/global input-width rule. The input
    flexes and can shrink freely; the Add button keeps its compact pill size and stays inside
