@@ -924,6 +924,30 @@ function initializeTinyMCE() {
   });
 }
 
+// After inserting content, TinyMCE leaves the caret at the END of the article and scrolls
+// the editor to the bottom — so the user is looking at the middle/end of the post. Move the
+// caret to the start and scroll the editor (and page) back to the top so the article is shown
+// from the beginning.
+function iseoScrollEditorToTop() {
+  try {
+    var ed = window.tinymce && tinymce.activeEditor;
+    if (!ed) return;
+    var reset = function () {
+      try {
+        var body = ed.getBody && ed.getBody();
+        if (body && body.firstChild && ed.selection) {
+          ed.selection.setCursorLocation(body.firstChild, 0);
+        }
+        if (ed.getWin) { ed.getWin().scrollTo(0, 0); }
+      } catch (e) {}
+    };
+    reset();
+    // TinyMCE re-scrolls to the caret right after insert; reset again on the next tick.
+    setTimeout(reset, 60);
+  } catch (e) {}
+  try { window.scrollTo(0, 0); } catch (e) {}
+}
+
 function insertContent(content) {
   if (isTinyMCEInitialized) {
     // Normalize content before insertion:
@@ -937,6 +961,7 @@ function insertContent(content) {
     // 3. Clear editor and insert normalized content
     tinyMCE.activeEditor.setContent("");
     tinymce.activeEditor.insertContent(content);
+    iseoScrollEditorToTop();
   } else {
     // If TinyMCE is not initialized, initialize it and store the content to be inserted
 
@@ -952,6 +977,7 @@ function insertContent(content) {
     pendingContent = content;
 
     tinymce.activeEditor.insertContent(pendingContent);
+    iseoScrollEditorToTop();
   }
 }
 
