@@ -13,12 +13,13 @@ use ImproveSEO\View;
 <?php View::endSection('breadcrumbs') ?>
 
 <?php View::startSection('content') ?>
-<h1 class="hidden">Edit Post</h1>
+<?php $_isDraft = isset($task) && isset($task->state) && $task->state === 'Draft'; ?>
+<h1 class="hidden"><?php echo $_isDraft ? 'Draft: Edit Post' : 'Edit Post'; ?></h1>
 <div class="CreatePost improveseo_wrapper">
 	<section class="project-section border-bottom d-flex flex-row  justify-content-between align-items-center pb-2">
 		<div class="project-heading d-flex flex-row">
 			<img class="mr-2" src="<?php echo improveseo_logo_url()?>" alt="ImproveSeo">
-			<h1>Edit Project</h1>
+			<h1><?php echo $_isDraft ? 'Draft: Edit Post' : 'Edit Project'; ?></h1>
 		</div>
 	</section>
 	<?php

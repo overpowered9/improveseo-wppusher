@@ -1035,6 +1035,14 @@ function improveseo_preserve_generation_options( array &$options_data, $project_
 		'ai_image_option',
 		'ai_generated_title',
 		'ai_for_testing_only',
+		// On-Page SEO meta. The edit form (posting.form) renders no Meta Title/Description/
+		// Keywords fields, so updating a draft (do_update_post) carries none and would drop
+		// the wizard-generated meta. Preserve them from the stored project on any update that
+		// didn't submit them — this is why a published-immediately post kept its meta but a
+		// draft that was later edited lost it.
+		'custom_title',
+		'custom_description',
+		'custom_keywords',
 	);
 
 	foreach ( $generation_keys as $key ) {

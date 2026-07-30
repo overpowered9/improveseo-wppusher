@@ -300,6 +300,67 @@ jQuery(function () {
   iseoUpdateAllMetaCounters();
 });
 
+// Field frames on the Create Single Post screen must all share the top-left rounded (pill)
+// style. Those radii live as inline styles in the PHP view, which lags on deploy — and the
+// Meta Title carries an inline `!important` that external CSS cannot override. Force the
+// rounded frame here so it applies regardless of whether the view has redeployed: JS deploys
+// reliably via cache-busting, and setProperty(..., "important") beats even inline !important.
+function iseoRoundSeoFieldFrames() {
+  // Pill (50px) for the single-line inputs + Add button. The Meta Description is a large
+  // textarea, so it takes the Google Preview card's 8px rounded-rectangle shape instead of
+  // an oversized pill (matches the frame directly above it).
+  var radii = {
+    "custom-title": "50px",
+    "new_category_name_form": "50px",
+    "add_category_form_btn": "50px",
+    "custom-description": "8px"
+  };
+  Object.keys(radii).forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.style.setProperty("border-radius", radii[id], "important");
+    // Match the top-left fields' soft grey border (leave the Add button's native pill border).
+    if (id !== "add_category_form_btn") {
+      el.style.setProperty("border-color", "#e9e9e9", "important");
+    }
+  });
+}
+jQuery(function () { iseoRoundSeoFieldFrames(); });
+
+// A newly-added category must appear ABOVE the "New category name" input (with the other
+// category checkboxes), not below it. The sidebar's own add handler is inline in the PHP
+// view, which lags on deploy, so an old build can still append the new checkbox after the
+// input row. Guard it here (JS deploys reliably): watch the Categories panel and move any
+// cats[] checkbox that lands after the add-cat-row back above it. Disconnect while moving so
+// our own DOM changes don't re-trigger the observer.
+jQuery(function () {
+  var row = document.querySelector(".iseo-add-cat-row");
+  if (!row || !window.MutationObserver) return;
+  var container = row.parentNode; // the Categories panel body (.inside)
+
+  function keepNewCategoriesAboveInput() {
+    var addRow = container.querySelector(".iseo-add-cat-row");
+    if (!addRow) return;
+    var sib = addRow.nextElementSibling;
+    while (sib) {
+      var next = sib.nextElementSibling;
+      // Move only category checkboxes; leave the status message <p> where it is.
+      if (sib.querySelector && sib.querySelector('input[name="cats[]"]')) {
+        container.insertBefore(sib, addRow);
+      }
+      sib = next;
+    }
+  }
+
+  var obs = new MutationObserver(function () {
+    obs.disconnect();
+    keepNewCategoriesAboveInput();
+    obs.observe(container, { childList: true });
+  });
+  obs.observe(container, { childList: true });
+  keepNewCategoriesAboveInput(); // fix anything already misplaced on load
+});
+
 // If a meta value fails the length check, RERUN the meta prompt (generateAIMeta) to get
 // a fresh one and re-check — up to a few times. Only if it still won't fit after the
 // reruns do we clamp on a word boundary as a last-resort guarantee. This makes
@@ -795,22 +856,46 @@ function saveFinalData() {
 
   jQuery("#exampleModal1").hide();
 
-  jQuery("#butn").trigger("click");
-
   insertContent(plainTextContent);
 
-  // Closing the full-screen wizard modal otherwise leaves the page scrolled to the very
-  // top. Land the user on the freshly-generated content instead, once the modal has hidden
-  // and the content has been inserted. The -60px offset clears the wp-admin bar.
+  submitSinglePostCreateForm();
+}
+
+// Final step of the single-post wizard: hand the now-populated #main_form to the
+// real create/publish submit, so the user lands where every other create lands —
+// the projects list, with the "Project successfully created" flash — instead of
+// being left on the raw edit frame scrolled to the top.
+//
+// This replaces a `jQuery("#butn").trigger("click")` that was a no-op: #butn is a
+// modal close button that only exists in views/posting/ai_single_post_form.php and
+// includes/improveseo.php, neither of which is rendered any more (the live screen is
+// views/posting/create-post-single.php + views/GenerateAIpopup/GenerateAIpopuphtml.php).
+// Nothing was ever submitted, so no project or post was created either.
+function submitSinglePostCreateForm() {
+  var form = document.getElementById("main_form");
+  if (!form) return;
+
+  // The controller branches on $_POST['create'] vs $_POST['draft'], and a button's
+  // name is only submitted when the submit came from that button — so click it
+  // rather than calling form.submit().
+  var createButton = form.querySelector('button[name="create"]');
+  if (!createButton) return;
+
+  if (window.ImproveSEOLoading && ImproveSEOLoading.show) {
+    ImproveSEOLoading.show({
+      title: "Publishing your post...",
+      message: "Creating your project and publishing the post. This only takes a moment.",
+    });
+  }
+
+  // insertContent() above may have kicked off a TinyMCE re-init; give it a tick to
+  // settle, then flush the editor into the #content textarea before we navigate away.
   setTimeout(function () {
-    var target =
-      document.getElementById("wp-content-wrap") ||
-      document.getElementById("postdivrich") ||
-      document.querySelector(".PostForm__title-wrap");
-    if (!target) return;
-    var top = target.getBoundingClientRect().top + window.pageYOffset - 60;
-    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-  }, 350);
+    if (window.tinymce && typeof tinymce.triggerSave === "function") {
+      tinymce.triggerSave();
+    }
+    createButton.click();
+  }, 300);
 }
 
 function initializeTinyMCE() {
@@ -839,6 +924,35 @@ function initializeTinyMCE() {
   });
 }
 
+// After inserting content, TinyMCE leaves the caret at the END of the article and scrolls
+// the editor to the bottom — so the user is looking at the middle/end of the post. Move the
+// caret to the start and scroll the editor (and page) back to the top so the article is shown
+// from the beginning.
+function iseoScrollEditorToTop() {
+  var reset = function () {
+    try {
+      var ed = window.tinymce && tinymce.activeEditor;
+      if (ed) {
+        var body = ed.getBody && ed.getBody();
+        if (body && body.firstChild && ed.selection) {
+          ed.selection.setCursorLocation(body.firstChild, 0);
+        }
+        if (ed.getWin) { ed.getWin().scrollTo(0, 0); }
+      }
+    } catch (e) {}
+    try { window.scrollTo(0, 0); } catch (e) {}
+    try {
+      if (document.scrollingElement) { document.scrollingElement.scrollTop = 0; }
+      if (document.documentElement) { document.documentElement.scrollTop = 0; }
+      if (document.body) { document.body.scrollTop = 0; }
+    } catch (e) {}
+  };
+  reset();
+  // Something re-scrolls after the insert (TinyMCE settling / a late re-init / caret restore),
+  // so fire the reset repeatedly over ~1.2s to win over it.
+  [50, 150, 300, 500, 800, 1200].forEach(function (d) { setTimeout(reset, d); });
+}
+
 function insertContent(content) {
   if (isTinyMCEInitialized) {
     // Normalize content before insertion:
@@ -852,6 +966,7 @@ function insertContent(content) {
     // 3. Clear editor and insert normalized content
     tinyMCE.activeEditor.setContent("");
     tinymce.activeEditor.insertContent(content);
+    iseoScrollEditorToTop();
   } else {
     // If TinyMCE is not initialized, initialize it and store the content to be inserted
 
@@ -867,6 +982,7 @@ function insertContent(content) {
     pendingContent = content;
 
     tinymce.activeEditor.insertContent(pendingContent);
+    iseoScrollEditorToTop();
   }
 }
 

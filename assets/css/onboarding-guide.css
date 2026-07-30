@@ -129,6 +129,34 @@
 }
 .iseo-guide-btn-skip:hover { color: #495057; }
 
+/* ── Docked card ────────────────────────────────────────────────
+   Steps whose target sits in a multi-column layout (the three cover-image
+   method cards) dock the card to a fixed corner instead of anchoring it
+   beside the target, where it would cover the neighbouring cards and the
+   Generate button. Above the Bootstrap modal, clear of the wizard's own
+   header and its Previous/Next bar. */
+#iseo-guide-tooltip[data-pos="docked"] {
+    top: 96px;
+    right: 28px;
+    left: auto;
+    width: 300px;
+    max-width: calc(100vw - 56px);
+}
+/* No arrow when the card is not pointing at anything. */
+#iseo-guide-tooltip[data-pos="docked"]::before {
+    display: none;
+}
+/* Narrow screens: the modal goes full width, so dock across the top instead
+   of hugging a side where it would sit over the cards again. */
+@media (max-width: 782px) {
+    #iseo-guide-tooltip[data-pos="docked"] {
+        top: 12px;
+        right: 12px;
+        left: 12px;
+        width: auto;
+    }
+}
+
 /* ── Tooltip Arrow (pseudo-element) ─────────────────────────── */
 #iseo-guide-tooltip::before {
     content: '';

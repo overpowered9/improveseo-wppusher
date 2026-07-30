@@ -389,6 +389,21 @@ global $ai_modal_type;
     .iseo-content-btn.is-hidden {
         display: none !important;
     }
+    /* Guidance under the (now single, centred) Regenerate button: tells the user how to get
+       different content. Muted so it supports the button without competing with it. */
+    .iseo-regen-hint {
+        margin: 12px auto 4px !important;
+        max-width: 470px;
+        text-align: center !important;
+        font-family: "Poppins", sans-serif;
+        font-size: 13.5px !important;
+        line-height: 1.55 !important;
+        color: rgba(80, 87, 94, 0.9) !important;
+    }
+    .iseo-regen-hint b {
+        color: #1C7293;
+        font-weight: 600;
+    }
 
 
     .multi-upload-gallery span {
@@ -870,9 +885,8 @@ global $ai_modal_type;
         <div class="singlepost-title">
             <h1> <img src="<?php echo WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ?>"
                     alt="iconoir_sparks"> Generate Single Al Post</h1>
-            <div class="singlepost-close"> <img id="close_single_post"
-                    src="<?php echo WT_URL . '/assets/images/latest-images/akar-icons_cross.svg' ?>" alt="icons_cross">
-            </div>
+            <!-- Close (X) removed: X'ing out dropped the user onto the bare edit-post screen with
+                 no way forward. The wizard is completed via its Next/Submit flow instead. -->
         </div>
 
         <div class="steps">
@@ -955,7 +969,7 @@ global $ai_modal_type;
                             name="seed_keyword" value="<?php echo $prefill_keyword; ?>"></input>
                         <span id="error_seed_keyword" style="color: red;"></span>
                         <?php if ( $prefill_keyword ) : ?>
-                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;margin-top:4px;">
+                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;">
                             Pre-filled from your business setup — you can edit this.
                         </span>
                         <?php endif; ?>
@@ -1029,7 +1043,7 @@ global $ai_modal_type;
                             }
                             ?>
                         </select>
-                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;margin-top:4px;">
+                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;">
                             Drives the writing style, structure and cover-image look for your niche.
                         </span>
                     </div>
@@ -1177,7 +1191,7 @@ global $ai_modal_type;
                         <!-- Niche-specific fields are rendered here by iseoRenderNicheFields() based on the
                              Business Niche selected in Step 1. Each input is named nd_<id> and flows into niche_data. -->
                         <div id="niche_fields_container" class="niche-fields"></div>
-                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;margin-top:4px;">
+                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;">
                             These prompts adapt to your niche. Your business name, location and services come from <strong>Settings &rarr; Business Details</strong> automatically.
                         </span>
                     </div>
@@ -1364,15 +1378,16 @@ global $ai_modal_type;
                                         onclick="iseoOpenFullPreview(); return false;">&#10530; Open full preview in a new tab</button>
                                 </div>
 
-                                <!-- Approve / Regenerate pair kept directly below the content card. Approve is
-                                     revealed with the content; Regenerate is the existing generate button
-                                     (#generateapivalue), relabelled after the first generation. -->
+                                <!-- Single, centred Regenerate button (#generateapivalue, relabelled after the
+                                     first generation). The old in-preview "Approve Content" button was removed:
+                                     the wizard's own bottom nav button ("Approve Content" on this step) advances
+                                     the flow, so it was redundant. The hint tells the user how to get different
+                                     content — go back and change their inputs. -->
                                 <div class="iseo-content-actions iseo-content-actions-bottom">
-                                    <input type="button" class="iseo-content-btn iseo-approve-content is-hidden"
-                                        value="Approve Content" onclick="return saveData();" />
                                     <input type="button" name="genaipost" class="iseo-content-btn iseo-regenerate-content"
                                         id="generateapivalue" value="Generate AI Post" />
                                 </div>
+                                <p class="iseo-regen-hint">Want a different result? Go back to <b>Step&nbsp;1</b>, tweak your inputs, then regenerate.</p>
                             </div>
                         </div>
                         <input type="hidden" name="ai_tittle" id="ai_title" />
@@ -2575,6 +2590,38 @@ global $ai_modal_type;
             nameInput.value = (keyword ? keyword + ' ' : '') + mm + '/' + dd + '/' + yyyy + ' #' + rand;
         }
 
+        // Gate on the final ("Submit") step, same shape as the bulk wizard's
+        // validateBulkProjectName()/validateBulkKeywordListForSubmit(). Submitting hands
+        // #main_form to do_create_post, which requires name/title/content — without this
+        // an incomplete project bounces off the server-side validator and the user is
+        // redirected to a fresh, empty create screen with everything lost.
+        function validateSinglePostBeforeSubmit() {
+            var nameInput = document.getElementById('modal_project_name');
+            if (!nameInput || !nameInput.value.trim()) {
+                showImproveSEONotification(
+                    'warning',
+                    'Project Name Required',
+                    'Please enter a project name for this post before submitting.',
+                    null
+                );
+                nameInput && nameInput.focus();
+                return false;
+            }
+
+            var generated = document.getElementById('showmydataindivText');
+            if (!generated || !generated.value.trim()) {
+                showImproveSEONotification(
+                    'warning',
+                    'Content Not Ready',
+                    'Please generate and approve your post content before submitting.',
+                    null
+                );
+                return false;
+            }
+
+            return true;
+        }
+
         function updateButtonText() {
             const stepValue = parseInt(stepInput.value, 10);
             let buttonText = 'Next';
@@ -2710,6 +2757,13 @@ global $ai_modal_type;
             // same gate as the bulk wizard: a bare domain gets https:// prepended and
             // written back; an invalid URL shows an inline error and keeps the wizard here.
             if (currentStep === 1 && !normalizeAndValidateCtaUrl('#cta_url', '#error_cta_url')) {
+                return;
+            }
+
+            // Final step: this click is "Submit", and advancing runs saveFinalData(),
+            // which posts the real create/publish form. Validate first so we never
+            // hand a half-filled project to the controller.
+            if (currentStep === data.length - 1 && !validateSinglePostBeforeSubmit()) {
                 return;
             }
 

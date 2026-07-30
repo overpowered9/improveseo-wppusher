@@ -87,7 +87,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 			<div id="post_form_buttons" class="PostForm__buttons">
 				<button name="create" type="submit" formtarget="_self"
 					class="btn styling_post_page_action_buttons btn-outline-primary">
-					<?php echo $_isEditMode ? 'Publish Project and Post' : 'Create &amp; Publish Post'; ?>
+					<?php echo $_isEditMode ? 'Publish Post' : 'Create &amp; Publish Post'; ?>
 				</button>
 				<?php if ( ! $_isPublished ) : ?>
 				<button name="draft" type="submit" formtarget="_self"
@@ -95,7 +95,11 @@ $google_api_key = get_option('improveseo_google_api_key');
 					<?php echo $_isEditMode ? 'Save Changes' : 'Save As Draft'; ?>
 				</button>
 				<?php endif; ?>
-				<button id="preview_on" type="button" class="btn styling_post_page_action_buttons btn-outline-primary">Post preview</button>
+				<?php if ( $_isEditMode ) : ?>
+				<a href="<?php echo admin_url('admin.php?page=improveseo_projects'); ?>"
+					class="btn styling_post_page_action_buttons btn-outline-primary">Cancel</a>
+				<?php endif; ?>
+				<button id="preview_on" type="button" class="btn styling_post_page_action_buttons btn-outline-primary">Preview Post</button>
 				<input type="hidden" name="preview_id" id="preview_id" />
 				<input type="hidden" name="is_preview_available" id="is_preview_available" value="no" />
 			</div>
@@ -111,7 +115,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 					<div id="iseo_preview_loading" class="iseo-preview-loading">
 						<div class="iseo-preview-spinner" role="status" aria-label="Generating preview"></div>
 						<b class="iseo-preview-loading-title">Generating preview</b>
-						<span class="iseo-preview-loading-note">Building a temporary draft of this post.</span>
+						<span class="iseo-preview-loading-note">Building a temporary draft of this post. This may take a moment.</span>
 						<button type="button" id="iseo_preview_cancel"
 							class="button iseo-preview-action">Cancel</button>
 					</div>

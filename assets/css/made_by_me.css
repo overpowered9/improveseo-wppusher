@@ -1569,6 +1569,38 @@ div#post-body-content {
   border: none !important;
 }
 
+/* Single-post wizard: no close (X). X'ing out left the user stranded on the bare edit-post
+   screen; the wizard is finished via its Next/Submit flow instead. Hidden here (not only in
+   the view markup) so it applies reliably regardless of the PHP view's deploy state. */
+.singlepost-close {
+  display: none !important;
+}
+
+/* New-category input + Add button: keep them on one row that never overflows the (narrow)
+   sidebar Categories panel, regardless of any admin/global input-width rule. The input
+   flexes and can shrink freely; the Add button keeps its compact pill size and stays inside
+   the frame. */
+.iseo-add-cat-row {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+.iseo-add-cat-row #new_category_name_form {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  padding: 0 14px !important;   /* tighter padding so "New category name" isn't clipped */
+  font-size: 13px !important;
+}
+.iseo-add-cat-row #add_category_form_btn {
+  flex: 0 0 auto !important;
+  padding-left: 18px !important;
+  padding-right: 18px !important;
+}
+
 #post_form_buttons {
   display: flex;
   justify-content: end;
@@ -2680,6 +2712,15 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
 #bulk-category-list .bulk-category-item input[type="checkbox"] {
   display: none !important;
   margin: 0 !important;
+}
+
+/* ── Helper text under a wizard field ──────────────────────────────────────
+   The 4px this used to carry inline sat the hint hard against the control above
+   it (most visibly under the Business niche select), so it read as part of the
+   input rather than as a note about it. Defined once here because all three
+   hints in the single-post wizard are the same component. */
+.iseo-prefill-hint {
+  margin-top: 10px;
 }
 
 /* ── Step 3 "Add Media" — card method selector + contextual panel ──────────
