@@ -933,6 +933,9 @@ function initializeTinyMCE() {
 //     viewport instead.
 function iseoScrollEditorToTop() {
   var reset = function () {
+    // 1) The editor's OWN content to the top — this is the "content starts from the mid" part:
+    //    TinyMCE leaves the caret (and the editor's internal scrollbar) at the end after insert.
+    //    Put the caret back at the start and force the editor document/window scroll to 0.
     try {
       var ed = window.tinymce && tinymce.activeEditor;
       if (ed) {
@@ -940,27 +943,26 @@ function iseoScrollEditorToTop() {
         if (body && body.firstChild && ed.selection) {
           ed.selection.setCursorLocation(body.firstChild, 0);
         }
-        if (ed.getWin) { ed.getWin().scrollTo(0, 0); } // article from its start inside the editor
+        try { if (ed.getWin) ed.getWin().scrollTo(0, 0); } catch (e) {}
+        var doc = ed.getDoc && ed.getDoc();
+        if (doc) {
+          if (doc.documentElement) doc.documentElement.scrollTop = 0;
+          if (doc.body) doc.body.scrollTop = 0;
+        }
       }
     } catch (e) {}
-    // Bring the content editor into view (not the page top).
+    // 2) The page scrollbar to the top.
+    try { window.scrollTo(0, 0); } catch (e) {}
     try {
-      var wrap = document.getElementById("wp-content-wrap") ||
-                 document.getElementById("postdivrich");
-      if (!wrap) {
-        var c = document.getElementById("content");
-        wrap = c && c.closest ? c.closest(".wp-editor-wrap") : null;
-      }
-      if (wrap && wrap.getBoundingClientRect) {
-        var top = wrap.getBoundingClientRect().top + window.pageYOffset - 40;
-        window.scrollTo(0, Math.max(0, top));
-      }
+      if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
     } catch (e) {}
   };
   reset();
   // Something re-scrolls after the insert (TinyMCE settling / a late re-init / caret restore),
-  // so fire the reset repeatedly over ~1.2s to win over it.
-  [50, 150, 300, 500, 800, 1200].forEach(function (d) { setTimeout(reset, d); });
+  // so fire the reset repeatedly over ~1.5s to win over it.
+  [50, 150, 300, 500, 800, 1200, 1500].forEach(function (d) { setTimeout(reset, d); });
 }
 
 function insertContent(content) {
