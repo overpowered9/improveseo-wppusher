@@ -64,7 +64,12 @@
  * Wizard-step 5 (Project Name & Categories):
  *   23  project-name      (modal) #modal_project_name           next-btn
  *   24  categories        (modal) .category-selection-section   next-btn
- *   25  submit            (modal) #nextStepButton                final         ← publishes via saveFinalData(); {button} names the real button live (applyCopyTokens)
+ *   25  submit            (modal) #nextStepButton                wizard-next   ← closes modal, fills form; guide transitions to review steps
+ * Post Review (create-post form page):
+ *   26  review-project    (page)  .PostForm__name-wrap           next-btn      ← review project name
+ *   27  review-title      (page)  .PostForm__title-wrap          next-btn      ← review post title
+ *   28  review-content    (page)  .PostForm__body-wrap           next-btn      ← review article content
+ *   29  review-publish    (page)  #post_form_buttons             final         ← Done → submits form
  */
 (function ($) {
     'use strict';
@@ -310,7 +315,36 @@
             // applyCopyTokens(). Hard-coding it here is what produced a card naming a
             // button the user could not find on screen.
             message: 'You\u2019re all set! Click <strong>{button}</strong> below to publish your first article.',
-            position: 'left', advance: 'final'
+            position: 'left', advance: 'wizard-next'
+        },
+
+        /* ── Post Review Steps (create-post form page) ─────────────────
+           After the wizard modal closes and fills the form, these four steps
+           walk the user through reviewing the filled-in form before publishing.
+           NOTE: copy strings below are placeholders — reword as needed.       */
+        /* 23 */ {
+            key: 'review-project', phase: 'page', target: '.PostForm__name-wrap',
+            title: 'Check your project name',
+            message: 'This is an internal name for your reference. Review it and edit if you\u2019d like, then click <strong>Next \u2192</strong>.',
+            position: 'bottom', advance: 'next-btn'
+        },
+        /* 24 */ {
+            key: 'review-title', phase: 'page', target: '.PostForm__title-wrap',
+            title: 'Review your post title',
+            message: 'This is the title readers and search engines will see. Make sure it reads well, then click <strong>Next \u2192</strong>.',
+            position: 'bottom', advance: 'next-btn'
+        },
+        /* 25 */ {
+            key: 'review-content', phase: 'page', target: '.PostForm__body-wrap',
+            title: 'Review your content',
+            message: 'Read through your article. Edit anything you\u2019d like directly here, then click <strong>Next \u2192</strong>.',
+            position: 'top', advance: 'next-btn'
+        },
+        /* 26 */ {
+            key: 'review-publish', phase: 'page', target: '#post_form_buttons',
+            title: 'You\u2019re ready to publish! \uD83C\uDF89',
+            message: 'Click <strong>Create \u0026amp; Publish Post</strong> to publish, or <strong>Save As Draft</strong> to finish later. <strong>Post preview</strong> shows how it will look.',
+            position: 'top', advance: 'final'
         }
     ];
 
@@ -327,7 +361,9 @@
     var STEP_MEDIA_IDX    = stepIndexByKey('media-select');    // "Select Image Option"
     var STEP_GENERATE_IDX = stepIndexByKey('media-next');      // where "Generate AI Post" is clicked
     var STEP_APPROVE_IDX  = stepIndexByKey('approve-content'); // "Approve Content"
-    var STEP_SUBMIT_IDX   = stepIndexByKey('submit');          // final step; publishes via saveFinalData()
+    var STEP_SUBMIT_IDX   = stepIndexByKey('submit');          // wizard Submit — now wizard-next, not final
+    var STEP_REVIEW_START  = stepIndexByKey('review-project');  // first page-review step
+    var STEP_REVIEW_END    = stepIndexByKey('review-publish');  // final step (Done → submit form)
 
     var STEP_TITLE_GENERATE_IDX = stepIndexByKey('title-generate'); // click #reload
     var STEP_READ_TITLE_IDX     = stepIndexByKey('read-title');     // editable-title card (skipped if hidden)
@@ -470,6 +506,9 @@
 
     function syncGuideToWizardPanel() {
         if (currentStep < 0 || currentStep >= STEPS.length) return;
+
+        // Page-review steps live outside the wizard modal — no panel to sync.
+        if (STEPS[currentStep].wizardStep === undefined) return;
 
         // The one wait that legitimately runs while the wizard is already on the next
         // panel: clicking "Generate AI Post" advances the wizard to the content panel
@@ -1139,10 +1178,33 @@
     function onNextClicked() {
         var step = STEPS[currentStep];
         if (step.advance === 'final') {
+            // The final review step: submit the create-post form, then end the guide.
             destroyGuide();
+            submitReviewForm();
         } else {
             showStep(currentStep + 1);
         }
+    }
+
+    // Submit the create-post form that saveFinalData() populated. Called when the
+    // user clicks Done on the last review step.
+    function submitReviewForm() {
+        var form = document.getElementById('main_form');
+        if (!form) return;
+        var btn = form.querySelector('button[name="create"]');
+        if (!btn) return;
+        if (window.ImproveSEOLoading && ImproveSEOLoading.show) {
+            ImproveSEOLoading.show({
+                title: 'Publishing your post\u2026',
+                message: 'Creating your project and publishing the post. This only takes a moment.'
+            });
+        }
+        setTimeout(function () {
+            if (window.tinymce && typeof tinymce.triggerSave === 'function') {
+                tinymce.triggerSave();
+            }
+            btn.click();
+        }, 300);
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -1214,8 +1276,9 @@
         /* ── Modal close ────────────────────────────────────── */
         $(document).on('hidden.bs.modal.iseoguide', '#exampleModal1', function () {
             if (currentStep < 0) return;
-            // The final "Submit" step publishes via saveFinalData(), which hides the
-            // modal and redirects — let that happen without touching the guide.
+            // At or past the submit step: the click handler on #nextStepButton already
+            // handles the modal→form transition. If hidden.bs.modal fires at all (it
+            // usually won't — saveFinalData uses jQuery .hide()), just let it pass.
             if (currentStep >= STEP_SUBMIT_IDX) return;
             // Modal dismissed early (before publishing) — hide the guide UI.
             $tooltip.hide();
@@ -1244,6 +1307,31 @@
                     $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
                 }, 0);
                 startArticleWait();
+            } else if (currentStep === STEP_SUBMIT_IDX) {
+                // Submit: the wizard's own handler calls saveFinalData(), which uses
+                // jQuery.hide() (NOT Bootstrap .modal('hide')) — so hidden.bs.modal
+                // never fires. Do the modal→form transition right here instead.
+                $tooltip.hide();
+                $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
+
+                // Stop the panel watcher — it reads #step_value which only exists
+                // inside the wizard modal; continuing would misfire on the form page.
+                clearInterval(_syncTmr);
+                _syncTmr = null;
+
+                // Give saveFinalData() time to populate the form fields, insert
+                // content into TinyMCE, and hide the modal — then reveal the form
+                // and start the page-review steps.
+                setTimeout(function () {
+                    // Remove the Bootstrap modal backdrop that may linger after .hide()
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open');
+                    // Reveal the underlying form
+                    $('.style_create_page_form').removeAttr('style').css({ opacity: 1, visibility: 'visible' });
+                    // Remove the dock body class — page steps are not docked.
+                    $('body').removeClass('iseo-guide-dock');
+                    showStep(STEP_REVIEW_START);
+                }, 800);
             } else {
                 // The panel watcher polls #step_value on its own fixed interval,
                 // independent of this click, and the wizard updates #step_value
