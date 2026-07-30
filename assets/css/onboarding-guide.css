@@ -131,10 +131,14 @@
 
 /* ── Docked card ────────────────────────────────────────────────
    Steps whose target sits in a multi-column layout (the three cover-image
-   method cards) dock the card to a fixed corner instead of anchoring it
-   beside the target, where it would cover the neighbouring cards and the
-   Generate button. Above the Bootstrap modal, clear of the wizard's own
-   header and its Previous/Next bar. */
+   method cards) dock the card instead of anchoring it beside the target,
+   where it would cover the neighbouring cards and the Generate button.
+   top/right here are only the pre-measurement fallback for the instant
+   before dockTooltip() (onboarding-guide.js) runs its own layout math —
+   it moves the card above the method-card row (or below the row and the
+   selected method's own panel, if there isn't room above) so it never
+   overlaps a card or the upload dropzone; this static position is not
+   guaranteed clear of them on its own. */
 #iseo-guide-tooltip[data-pos="docked"] {
     top: 96px;
     right: 28px;

@@ -707,27 +707,55 @@
         // The card is position:fixed and the wizard panel scrolls behind it, so it is
         // pinned to the RIGHT EDGE OF THE PANEL — not of the viewport, which on a wide
         // screen is out over the backdrop. This is a pure overlay: no CSS reserves
-        // space for it, so it floats over whatever is at that edge rather than
-        // shrinking the panel to make room (see onboarding-guide.css). Measured
-        // rather than hard-coded because the panel moves with the admin bar, notices
-        // and the viewport.
+        // space for it (see onboarding-guide.css). Measured rather than hard-coded
+        // because the panel moves with the admin bar, notices and the viewport.
         var $panel  = $('#exampleModal1 .improveseo-bulk-ai').first();
         var $modal  = $('#exampleModal1');
         var $box    = $panel.length ? $panel : $modal;
-        // Below the wizard's own stepper, not just its title: the stepper is a
-        // full-width row of six labels, and a card level with it would clip the last
-        // step.
-        var $above  = $modal.find('.steps').first();
-        if (!$above.length) $above = $modal.find('.singlepost-title').first();
         if (!$box.length || !$box[0] || !$box[0].getBoundingClientRect) return;
 
-        var m   = $box[0].getBoundingClientRect();
-        var hdr = ($above.length && $above[0]) ? $above[0].getBoundingClientRect() : null;
+        var m = $box[0].getBoundingClientRect();
         if (!m.width) return; // panel not laid out yet — keep the CSS fallback corner
 
-        var ttW  = dockWidth();
-        var ttH  = $tooltip.outerHeight(true) || 230;
-        var top  = (hdr && hdr.height ? hdr.bottom : m.top) + DOCK_GAP;
+        var ttW = dockWidth();
+        var ttH = $tooltip.outerHeight(true) || 230;
+
+        // Floor: never climb above the wizard's own stepper/title — pinned to the
+        // right edge at that height used to be safe on every OTHER dock step (nothing
+        // else sits under it there), but on the Add Media step the three method cards
+        // start almost immediately below it, so the card's own height ran straight
+        // through the row and sat on top of whichever card was at that edge —
+        // reported as the right-most one ("Upload your own") because that is exactly
+        // where this dock is horizontally pinned.
+        var $above   = $modal.find('.steps').first();
+        if (!$above.length) $above = $modal.find('.singlepost-title').first();
+        var floorTop = ($above.length && $above[0]) ? $above[0].getBoundingClientRect().bottom + DOCK_GAP : m.top;
+
+        // Never cover the three method cards or the selected method's own dropzone /
+        // generate panel below them. Dock ABOVE the card row when there's room; when
+        // there is not, go BELOW the row instead — below the selected method's own
+        // panel too, if one is currently showing, so it never lands on the dropzone
+        // either. A dock step that isn't the Add Media step (the row isn't in the
+        // DOM) keeps the original corner-below-the-stepper placement, unchanged.
+        var $row = $modal.find('.iseo-media-methods').first();
+        var top;
+        if ($row.length && $row[0] && $row[0].getBoundingClientRect) {
+            var rowRect  = $row[0].getBoundingClientRect();
+            var aboveTop = rowRect.top - ttH - DOCK_GAP;
+            if (aboveTop >= floorTop) {
+                top = aboveTop;
+            } else {
+                var bottomEdge   = rowRect.bottom;
+                var $activePanel = $modal.find('.iseo-media-panel:visible').first();
+                if ($activePanel.length && $activePanel[0] && $activePanel[0].getBoundingClientRect) {
+                    bottomEdge = Math.max(bottomEdge, $activePanel[0].getBoundingClientRect().bottom);
+                }
+                top = bottomEdge + DOCK_GAP;
+            }
+        } else {
+            top = floorTop;
+        }
+
         var left = m.right - ttW - DOCK_GAP;
 
         $tooltip.css({
