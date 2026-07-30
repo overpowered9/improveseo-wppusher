@@ -789,18 +789,21 @@
         $tooltip.css({ width: ttW + 'px' });
         var ttH = $tooltip.outerHeight(true) || 150;
 
-        // Right-aligned, above the card row.
-        var top  = rowRect.top - ttH - DOCK_GAP;
+        // Right-aligned, above the card row — doubled gap so the card bottom
+        // never bleeds into the method cards even when text wraps tall.
+        var top  = rowRect.top - ttH - DOCK_GAP * 2;
         var left = panelRect.right - ttW - DOCK_GAP;
 
-        // Never overlap the stepper: clamp top to at least stepper-bottom + gap.
+        // Never overlap the stepper, but prefer overlapping the stepper a
+        // little over overlapping the method cards — tight 4px gap here so
+        // the card is pushed down only as a last resort.
         var $modal   = $('#exampleModal1');
         var $stepper = $modal.find('.steps').first();
         if (!$stepper.length) $stepper = $modal.find('.singlepost-title').first();
         if ($stepper.length && $stepper[0] && $stepper[0].getBoundingClientRect) {
             var stepperBottom = $stepper[0].getBoundingClientRect().bottom;
-            if (top < stepperBottom + DOCK_GAP) {
-                top = stepperBottom + DOCK_GAP;
+            if (top < stepperBottom + 4) {
+                top = stepperBottom + 4;
             }
         }
 
