@@ -776,26 +776,39 @@
     // Previous/Next bar below. Neither corner is dead space here; the only place
     // that reliably is is the "Add your cover image" header band ABOVE the row.
     //
-    // A narrow card is what made that band too short to fit in: at 300px wide, this
-    // copy wraps to enough lines to run taller than the header band itself. Spanning
-    // the full panel width instead (minus side gaps) is what actually buys the
-    // vertical room — the same text wraps to far fewer lines, so the resulting
-    // card is short enough to sit entirely above the row.
+    // The card keeps its compact width (dockWidth: 300/240px) and aligns to the
+    // RIGHT of the panel, in the header band between the stepper and the card row.
+    // Clamped below the stepper's bottom so it never overlaps step labels.
     function dockAboveMediaRow(panelRect, rowRect) {
-        var ttW = Math.max(240, panelRect.width - DOCK_GAP * 2);
+        // Compact card width — same as the non-media dock and every other step.
+        // The previous full-panel-width stretch (panelRect.width - gap) made the
+        // card cover the stepper and look nothing like the guide's normal card.
+        var ttW = dockWidth();
         // Width has to be applied before measuring height: the card's height is a
         // function of how its text wraps at THIS width.
         $tooltip.css({ width: ttW + 'px' });
         var ttH = $tooltip.outerHeight(true) || 150;
 
-        var top  = rowRect.top - ttH - DOCK_GAP; // strictly above the row, always
-        var left = panelRect.left + DOCK_GAP;
+        // Right-aligned, above the card row.
+        var top  = rowRect.top - ttH - DOCK_GAP;
+        var left = panelRect.right - ttW - DOCK_GAP;
+
+        // Never overlap the stepper: clamp top to at least stepper-bottom + gap.
+        var $modal   = $('#exampleModal1');
+        var $stepper = $modal.find('.steps').first();
+        if (!$stepper.length) $stepper = $modal.find('.singlepost-title').first();
+        if ($stepper.length && $stepper[0] && $stepper[0].getBoundingClientRect) {
+            var stepperBottom = $stepper[0].getBoundingClientRect().bottom;
+            if (top < stepperBottom + DOCK_GAP) {
+                top = stepperBottom + DOCK_GAP;
+            }
+        }
 
         $tooltip.css({
             // Clamp to the viewport only — never pulled back down toward the row,
             // which would reintroduce the overlap this exists to prevent.
             top:   Math.max(10, Math.min(top, window.innerHeight - ttH - 10)) + 'px',
-            left:  Math.max(10, left) + 'px',
+            left:  Math.max(10, Math.min(left, window.innerWidth - ttW - 10)) + 'px',
             right: 'auto',
             width: ttW + 'px'
         });
