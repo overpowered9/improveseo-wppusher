@@ -1569,6 +1569,29 @@ div#post-body-content {
   border: none !important;
 }
 
+/* New-category input + Add button: keep them on one row that never overflows the (narrow)
+   sidebar Categories panel, regardless of any admin/global input-width rule. The input
+   flexes and can shrink freely; the Add button keeps its compact pill size and stays inside
+   the frame. */
+.iseo-add-cat-row {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+.iseo-add-cat-row #new_category_name_form {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+}
+.iseo-add-cat-row #add_category_form_btn {
+  flex: 0 0 auto !important;
+  padding-left: 18px !important;
+  padding-right: 18px !important;
+}
+
 #post_form_buttons {
   display: flex;
   justify-content: end;

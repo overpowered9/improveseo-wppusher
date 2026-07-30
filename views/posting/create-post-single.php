@@ -337,7 +337,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 							<div class="input-group">
 								<label for="custom-description" class="form-label"></label>
 								<!-- <div class="input-prefix"> -->
-								<textarea id="custom-description" style="border-radius: 50px; border-color: #e9e9e9; padding: 15px 22px;"
+								<textarea id="custom-description" style="border-radius: 8px; border-color: #e9e9e9; padding: 15px 22px;"
 									placeholder="Meta Description:Discover Mango Magic: Health Benefits, Recipes, and Tips for the Perfect Fruit."
 									name="custom_description" rows="5"
 									class="full-width textarea-control"><?= Validator::old('custom_description', $task->options['custom_description']) ?></textarea>

@@ -306,10 +306,19 @@ jQuery(function () {
 // rounded frame here so it applies regardless of whether the view has redeployed: JS deploys
 // reliably via cache-busting, and setProperty(..., "important") beats even inline !important.
 function iseoRoundSeoFieldFrames() {
-  ["custom-title", "custom-description", "new_category_name_form", "add_category_form_btn"].forEach(function (id) {
+  // Pill (50px) for the single-line inputs + Add button. The Meta Description is a large
+  // textarea, so it takes the Google Preview card's 8px rounded-rectangle shape instead of
+  // an oversized pill (matches the frame directly above it).
+  var radii = {
+    "custom-title": "50px",
+    "new_category_name_form": "50px",
+    "add_category_form_btn": "50px",
+    "custom-description": "8px"
+  };
+  Object.keys(radii).forEach(function (id) {
     var el = document.getElementById(id);
     if (!el) return;
-    el.style.setProperty("border-radius", "50px", "important");
+    el.style.setProperty("border-radius", radii[id], "important");
     // Match the top-left fields' soft grey border (leave the Add button's native pill border).
     if (id !== "add_category_form_btn") {
       el.style.setProperty("border-color", "#e9e9e9", "important");
