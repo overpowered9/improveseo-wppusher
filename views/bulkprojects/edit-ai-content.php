@@ -91,7 +91,7 @@ $keyword_name = trim((string) $task->keyword_name);
 						// re-encode on save (see the save_ai_content action). The editor id is
 						// `content` because that is the id form.js reads the preview body from;
 						// textarea_name keeps the save posting ai_content as before.
-						wp_editor(base64_decode($task->ai_content), 'content', array(
+						wp_editor(improveseo_strip_stray_css(base64_decode($task->ai_content)), 'content', array(
 							'textarea_name' => 'ai_content',
 							'editor_height' => 400,
 							'drag_drop_upload' => true,

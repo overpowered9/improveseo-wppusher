@@ -532,7 +532,7 @@ function pd_seo_meta($post_id, $what) {
                         // Strip the inline <style> block the generator appends to posts —
                         // wp_kses_post removes the tags but would otherwise leave the raw
                         // CSS text (e.g. "p {padding-bottom: 2px !important;}") visible here.
-                        $preview_html = preg_replace('#<style\b[^>]*>.*?</style>#is', '', $content['content']);
+                        $preview_html = improveseo_strip_stray_css($content['content']);
                         echo wp_kses_post($preview_html);
                         ?>
                     </div>

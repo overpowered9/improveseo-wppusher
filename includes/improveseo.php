@@ -7118,3 +7118,25 @@ jQuery(document).ready(function() {
 
 
 new WC_Testimonial;
+
+/**
+ * Strip stray CSS injected by older AI generations.
+ * Removes `<style>...</style>` blocks and specific stray rules like `p {padding-bottom: 2px !important;}`
+ * Covers both the raw CSS string leftover after wp_kses_post and any intact tags.
+ */
+function improveseo_strip_stray_css($content) {
+    if (empty($content)) {
+        return $content;
+    }
+    // Remove the known physical string
+    $content = str_replace('p {padding-bottom: 2px !important;}', '', $content);
+    $content = str_replace('p { padding-bottom: 2px !important; }', '', $content);
+    // Remove any literal <style>...</style> blocks that might be present
+    $content = preg_replace('#<style\b[^>]*>.*?</style>#is', '', $content);
+    return $content;
+}
+
+// Ensure it applies to published post content on the frontend
+add_filter('the_content', 'improveseo_strip_stray_css', 99);
+// Ensure it applies to the block editor for existing posts
+add_filter('content_edit_pre', 'improveseo_strip_stray_css', 99);

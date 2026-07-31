@@ -666,7 +666,7 @@ function btd_datetime($val) {
                     if ($decoded_content):
                 ?>
                     <div class="btd-content-preview">
-                        <?= wp_kses_post($decoded_content) ?>
+                        <?= improveseo_strip_stray_css(wp_kses_post($decoded_content)) ?>
                     </div>
                 <?php else: ?>
                     <p class="na" style="margin: 0; font-style: italic; color: #a7aaad;">Could not decode content.</p>
