@@ -64,7 +64,28 @@ $google_api_key = get_option('improveseo_google_api_key');
 				'tinymce' => array(
 					'resize' => false,
 					'add_unload_trigger' => false,
-					'setup' => 'function (ed) { ed.on("change", function(e) { determineMaxPosts(); }) }'
+					'setup' => 'function (ed) {
+						ed.on("change", function (e) { determineMaxPosts(); });
+						/* Show the generated/loaded article from the TOP. After a big insert TinyMCE
+						   parks the caret at the end and leaves the editor scrolled down. Reset the
+						   editor internal scroll once, for the first substantial content (the article),
+						   not on later edits. Lives in the editor setup (server-side) so it runs from
+						   the same file the editor is built in, independent of the bundled JS. */
+						var iseoTopped = false;
+						function iseoTop() {
+							try {
+								var b = ed.getBody();
+								if (b && b.firstChild && ed.selection) { ed.selection.setCursorLocation(b.firstChild, 0); }
+								if (ed.getWin) { ed.getWin().scrollTo(0, 0); }
+								var d = ed.getDoc && ed.getDoc();
+								if (d) { if (d.scrollingElement) d.scrollingElement.scrollTop = 0; if (d.documentElement) d.documentElement.scrollTop = 0; if (d.body) d.body.scrollTop = 0; }
+								if (b) { b.scrollTop = 0; }
+							} catch (e) {}
+						}
+						function iseoBurst() { [0, 100, 250, 500, 800, 1200, 1800, 2400].forEach(function (t) { setTimeout(iseoTop, t); }); }
+						ed.on("init", function () { try { if ((ed.getContent() || "").length > 50) { iseoTopped = true; iseoBurst(); } } catch (e) {} });
+						ed.on("SetContent", function () { if (iseoTopped) return; try { if ((ed.getContent() || "").length < 200) return; } catch (e) { return; } iseoTopped = true; iseoBurst(); });
+					}'
 				),
 			)); ?>
 				<?php if (Validator::hasError('content')): ?>
