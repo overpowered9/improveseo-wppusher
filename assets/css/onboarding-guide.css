@@ -232,4 +232,14 @@
     100% { box-shadow: 0 0 0 0   rgba(0, 115, 170, 0);    }
 }
 
+/* ── Disabled buttons (review-publish step) ─────────────────────
+   Applied by the guide JS to Save As Draft and Post preview while
+   the final step is active, so only Create & Publish Post is clickable.
+   Removed when the guide leaves the step or is dismissed.           */
+.iseo-guide-disabled {
+    opacity: 0.45 !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+}
+
 /* End of file */
