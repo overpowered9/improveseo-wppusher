@@ -44,35 +44,7 @@ $url .= $_SERVER['REQUEST_URI'];
 
 </div>
 
-<?php // Post preview: same in-modal instant preview as the single/bulk draft
-// editors (views/posting/form.php, views/bulkprojects/edit-ai-content.php) —
-// renders through improveseo_bulk_build_post_content(), the SAME function
-// the "View AI Content" page itself uses. Styles live in
-// assets/css/made_by_me.css, scoped under #preview_content_area. ?>
-<div id="preview_popup" class="modal" style="text-align:center; width:90%; max-width:1100px;">
-	<div id="wh_prev_modal_1">
-		<div id="iseo_preview_loading" class="iseo-preview-loading">
-			<div class="iseo-preview-spinner" role="status" aria-label="Generating preview"></div>
-			<b class="iseo-preview-loading-title">Generating preview</b>
-			<span class="iseo-preview-loading-note">Rendering this post.</span>
-			<button type="button" id="iseo_preview_cancel" class="button iseo-preview-action">Cancel</button>
-		</div>
-		<div id="iseo_preview_error" class="iseo-preview-error" style="display:none;">
-			<p id="iseo_preview_error_text"></p>
-			<button type="button" class="button iseo-preview-action iseo-preview-action--primary"
-				onclick="closeWin()">Close</button>
-		</div>
-	</div>
-	<div id="wh_prev_modal_2" style="display:none;">
-		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-			<b style="font-size:18px">Post preview</b>
-			<button type="button" id="open_win"
-				class="button button-primary iseo-preview-action iseo-preview-action--primary"
-				onclick="closeWin()">Close preview</button>
-		</div>
-		<div id="preview_content_area" class="iseo-aicontent-wrap"></div>
-	</div>
-</div>
+
 
 <div class="global-wrap">
 
@@ -665,5 +637,48 @@ if (isset($_GET['build_posts_id'])) { ?>
 		update_project(<?= $_GET['build_posts_id'] ?>);
 	</script>
 <?php } ?>
+
+<style>
+/* Ensure the table stays visible and doesn't collapse when the modal opens */
+body.modal-open .table-responsive,
+.table-responsive {
+    min-height: 200px;
+}
+/* Ensure the modal overlay dims the background properly */
+.blocker {
+    background-color: rgba(0,0,0,0.75) !important;
+}
+</style>
+
+<?php // Post preview: same in-modal instant preview as the single/bulk draft
+// editors (views/posting/form.php, views/bulkprojects/edit-ai-content.php) —
+// renders through improveseo_bulk_build_post_content(), the SAME function
+// the "View AI Content" page itself uses. Styles live in
+// assets/css/made_by_me.css, scoped under #preview_content_area. ?>
+<div id="preview_popup" class="modal" style="text-align:center; width:90%; max-width:1100px;">
+	<div id="wh_prev_modal_1">
+		<div id="iseo_preview_loading" class="iseo-preview-loading">
+			<div class="iseo-preview-spinner" role="status" aria-label="Generating preview"></div>
+			<b class="iseo-preview-loading-title">Generating preview</b>
+			<span class="iseo-preview-loading-note">Rendering this post.</span>
+			<button type="button" id="iseo_preview_cancel" class="button iseo-preview-action">Cancel</button>
+		</div>
+		<div id="iseo_preview_error" class="iseo-preview-error" style="display:none;">
+			<p id="iseo_preview_error_text"></p>
+			<button type="button" class="button iseo-preview-action iseo-preview-action--primary"
+				onclick="closeWin()">Close</button>
+		</div>
+	</div>
+	<div id="wh_prev_modal_2" style="display:none;">
+		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+			<b style="font-size:18px">Post preview</b>
+			<button type="button" id="open_win"
+				class="button button-primary iseo-preview-action iseo-preview-action--primary"
+				onclick="closeWin()">Close preview</button>
+		</div>
+		<div id="preview_content_area" class="iseo-aicontent-wrap"></div>
+	</div>
+</div>
+
 <?php View::endSection('content') ?>
 <?php View::make('layouts.main') ?>
