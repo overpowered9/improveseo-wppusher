@@ -43,18 +43,10 @@ $google_api_key = get_option('improveseo_google_api_key');
 					<?php
 					$old_permalink = Validator::old('permalink', $task->options['permalink']);
 					?>
+					<?php // Permalink display + "non-editable URL structure" note removed by request (single,
+					// bulk and edit screens). Removed server-side so it never renders — no flash/flicker,
+					// unlike the earlier JS hide. The hidden permalink input below still submits with the form. ?>
 					<input type="hidden" class="form-control" name="permalink" value="<?= $old_permalink ?>">
-					<strong>Permalink:<?php echo improveseo_permalink($old_permalink) ?></strong>
-					<!--<span><?= improveseo_permalink($old_permalink) ?></span>-->
-					<a id="edit-permalink" class="btn btn-outline-primary" aria-label="Edit permalink">Edit</a>
-					<a id="save-permalink" class="btn btn-outline-primary" style="display: none">OK</a>
-					<a id="prefix-permalink" class="btn btn-outline-primary" style="display: none;">Add Prefix</a>
-					<a id="cancel-permalink" class="cancel btn btn-outline-primary"
-						style="display: none">Cancel</a><br />
-					<div class="howto">
-						The non-editable URL structure is determined by your <a
-							href="<?php echo site_url(); ?>/wp-admin/options-permalink.php">permalink settings</a>.
-					</div>
 					<p id="too-many-posts" class="notice notice-error" style="display: none;">Your project contains more
 						than 5,000 pages. While Improve SEO can create hundreds of thousands of posts per project, it is
 						recommended to split your project into multiple smaller projects if you are using shared hosting
