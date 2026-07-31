@@ -38,7 +38,7 @@ use ImproveSEO\View;
 				// (hero image + h1-deduped article + shortcode blocks), so what
 				// you preview here is exactly what gets published.
 				$iseo_built = improveseo_bulk_build_post_content($value);
-				echo do_shortcode(improveseo_strip_stray_css(wp_kses_post($iseo_built['html'])));
+				echo do_shortcode(wp_kses_post($iseo_built['html']));
 				?>
 			</div>
 		</article>

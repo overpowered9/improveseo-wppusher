@@ -626,7 +626,7 @@ function improveseo_instant_preview() {
 	}
 
 	$title   = isset($_POST['title'])   ? sanitize_text_field( wp_unslash($_POST['title']) )   : '';
-	$content = isset($_POST['content']) ? improveseo_strip_stray_css(wp_kses_post( wp_unslash($_POST['content']) ))        : '';
+	$content = isset($_POST['content']) ? wp_kses_post( wp_unslash($_POST['content']) )        : '';
 
 	if ( $title === '' ) {
 		$title = '(Untitled)';
@@ -692,7 +692,7 @@ function improveseo_bulk_preview_by_id() {
 
 	wp_send_json_success( array(
 		'title' => sanitize_text_field( $task->ai_title ),
-		'html'  => do_shortcode( improveseo_strip_stray_css(wp_kses_post( $built['html'] )) ),
+		'html'  => do_shortcode( wp_kses_post( $built['html'] ) ),
 	) );
 }
 

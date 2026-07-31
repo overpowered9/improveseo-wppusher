@@ -64,7 +64,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 
 			<div class="PostForm__body-wrap <?php if (Validator::hasError('content'))
 				echo ' PostForm--error' ?>">
-				<?php wp_editor(Validator::old('content', improveseo_strip_stray_css($task->content['content'])), 'content', array(
+				<?php wp_editor(Validator::old('content', $task->content['content']), 'content', array(
 				'_content_editor_dfw' => '',
 				'drag_drop_upload' => true,
 				'tabfocus_elements' => 'content-html,save-post',
