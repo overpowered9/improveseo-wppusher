@@ -378,13 +378,11 @@ jQuery(function () {
     if (isDraft) {
         jQuery('.project-heading h1').text('Draft: Edit Post');
         jQuery('h1.hidden').text('Draft: Edit Post');
+        // Remove the read-only "Permalink: … Edit" line and the "non-editable URL structure
+        // is determined by your permalink settings" note. Hide (not remove) the box so its
+        // hidden permalink input still submits with the form.
+        jQuery('#edit-slug-box').hide();
     }
-
-    // Remove the read-only "Permalink: … Edit" line and the "non-editable URL structure is
-    // determined by your permalink settings" note on ANY edit screen — not gated on draft
-    // detection, which can come back false. Hide (not remove) the box so its hidden permalink
-    // input still submits with the form.
-    jQuery('#edit-slug-box').hide();
 
     // 2. Publish button relabel.
     if ($publish.length && jQuery.trim($publish.text()) === 'Publish Project and Post') {
