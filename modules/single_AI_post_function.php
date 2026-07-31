@@ -505,10 +505,9 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 		? $result['data']['meta_description']
 		: (isset($result['data']['meta_descreption']) ? $result['data']['meta_descreption'] : '');
 	
-	// Add styling like original function
 	$content_final = '<div class="main-content-section-improveseo">' . $content_final . '</div>';
-	$content_final = $content_final . '<style> p {padding-bottom: 2px !important;} </style>';
-	
+
+
 	// Log the generation metadata if available (for debugging)
 	if (isset($result['data']['generationMetadata'])) {
 		$metadata = $result['data']['generationMetadata'];

@@ -122,4 +122,16 @@
 }
 .improveseo_testimonial_meta{
 	padding-bottom: 0;
-}
+}
+
+/* AI-generated single-post content was wrapping itself in a <style> tag
+   appended directly to post_content to get this same 2px - see
+   improveseo_strip_style_script_tags() in
+   modules/single_and_bulk_AI_post_function.php. Every sanitizer that content
+   passes through (wp_kses_post, TinyMCE) drops the <style> TAGS but not their
+   text, so the raw CSS rule showed up as visible text at the end of the post
+   instead of applying. Scoped here instead, on the wrapper div the generator
+   already puts around single-post content (.main-content-section-improveseo). */
+.main-content-section-improveseo p {
+	padding-bottom: 2px;
+}

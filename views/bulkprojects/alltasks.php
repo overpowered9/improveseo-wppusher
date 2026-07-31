@@ -44,6 +44,8 @@ $url .= $_SERVER['REQUEST_URI'];
 
 </div>
 
+
+
 <div class="global-wrap">
 
 	<div class="head-bar">
@@ -319,10 +321,14 @@ $url .= $_SERVER['REQUEST_URI'];
 												'label' => 'Publish',
 												'href'  => admin_url('admin.php?page=improveseo_bulkprojects&action=publish&mainid=' . $parent_id_for_row . '&id=' . $project->id),
 											);
+											// Opens the same in-modal instant preview every other "Preview
+											// Post" button uses (views/posting/form.php,
+											// views/bulkprojects/edit-ai-content.php) instead of navigating
+											// to the full admin.php?action=viewAiContent page in a new tab —
+											// all "Preview Post" entry points now behave identically.
 											$act_view_ai = array(
-												'label'  => 'Preview Post',
-												'href'   => admin_url('admin.php?page=improveseo_bulkprojects&action=viewAiContent&id=' . $project->id),
-												'target' => '_blank',
+												'label' => 'Preview Post',
+												'href'  => 'javascript:iseoPreviewBulkTask(' . intval($project->id) . ')',
 											);
 											$act_cancel = array(
 												'label'   => 'Cancel Process',
@@ -387,6 +393,56 @@ $url .= $_SERVER['REQUEST_URI'];
 	</form>
 </div>
 <script>
+	var iseoBulkPreviewNonce = '<?php echo wp_create_nonce('improveseo_bulk_preview_by_id'); ?>';
+
+	// Row-level "Preview Post" (Draft rows): same in-modal instant preview as
+	// every other "Preview Post" button — see improveseo_bulk_preview_by_id()
+	// in modules/ajax.php. #iseo_preview_cancel/closeWin() and the loading
+	// spinner markup/CSS are the shared ones from assets/js/form.js +
+	// assets/css/made_by_me.css (form.js is enqueued on this screen already).
+	function iseoPreviewBulkTask(id) {
+		jQuery('#iseo_preview_error').hide();
+		jQuery('#iseo_preview_loading').show();
+		jQuery('#wh_prev_modal_1').show();
+		jQuery('#wh_prev_modal_2').hide();
+		jQuery('#preview_popup').modal({
+			escapeClose: false,
+			clickClose: false,
+			showClose: false,
+			fadeDuration: 150,
+			fadeDelay: 0.35
+		});
+
+		_iseoPreviewXhr = jQuery.ajax({
+			url: "<?php echo admin_url("admin-ajax.php"); ?>",
+			type: 'POST',
+			dataType: 'json',
+			data: {
+				action: 'improveseo_bulk_preview_by_id',
+				id: id,
+				nonce: iseoBulkPreviewNonce
+			},
+			success: function (res) {
+				_iseoPreviewXhr = null;
+				if (!res || !res.success || !res.data) {
+					_iseoInstantPreviewFailed(res && res.data ? res.data.message : '');
+					return;
+				}
+				var html = '<article class="iseo-aicontent-article">';
+				html += '<h1 class="iseo-aicontent-title">' + jQuery('<div>').text(res.data.title).html() + '</h1>';
+				html += '<div class="iseo-aicontent-body">' + res.data.html + '</div>';
+				html += '</article>';
+				jQuery('#preview_content_area').html(html);
+				jQuery('#wh_prev_modal_1').hide();
+				jQuery('#wh_prev_modal_2').show();
+			},
+			error: function () {
+				_iseoPreviewXhr = null;
+				_iseoInstantPreviewFailed();
+			}
+		});
+	}
+
 	function re_generatepost(id) {
 		jQuery('.show_loading').css("display", "block");
 		jQuery(".show_loading h2").html("Post is re-generating, Please wait ...<br><strong style='color: #d63638; margin-top: 10px; display: inline-block;'>Do not close this page!</strong>");
@@ -581,5 +637,48 @@ if (isset($_GET['build_posts_id'])) { ?>
 		update_project(<?= $_GET['build_posts_id'] ?>);
 	</script>
 <?php } ?>
+
+<style>
+/* Ensure the table stays visible and doesn't collapse when the modal opens */
+body.modal-open .table-responsive,
+.table-responsive {
+    min-height: 200px;
+}
+/* Ensure the modal overlay dims the background properly */
+.blocker {
+    background-color: rgba(0,0,0,0.75) !important;
+}
+</style>
+
+<?php // Post preview: same in-modal instant preview as the single/bulk draft
+// editors (views/posting/form.php, views/bulkprojects/edit-ai-content.php) —
+// renders through improveseo_bulk_build_post_content(), the SAME function
+// the "View AI Content" page itself uses. Styles live in
+// assets/css/made_by_me.css, scoped under #preview_content_area. ?>
+<div id="preview_popup" class="modal" style="text-align:center; width:90%; max-width:1100px;">
+	<div id="wh_prev_modal_1">
+		<div id="iseo_preview_loading" class="iseo-preview-loading">
+			<div class="iseo-preview-spinner" role="status" aria-label="Generating preview"></div>
+			<b class="iseo-preview-loading-title">Generating preview</b>
+			<span class="iseo-preview-loading-note">Rendering this post.</span>
+			<button type="button" id="iseo_preview_cancel" class="button iseo-preview-action">Cancel</button>
+		</div>
+		<div id="iseo_preview_error" class="iseo-preview-error" style="display:none;">
+			<p id="iseo_preview_error_text"></p>
+			<button type="button" class="button iseo-preview-action iseo-preview-action--primary"
+				onclick="closeWin()">Close</button>
+		</div>
+	</div>
+	<div id="wh_prev_modal_2" style="display:none;">
+		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+			<b style="font-size:18px">Post preview</b>
+			<button type="button" id="open_win"
+				class="button button-primary iseo-preview-action iseo-preview-action--primary"
+				onclick="closeWin()">Close preview</button>
+		</div>
+		<div id="preview_content_area" class="iseo-aicontent-wrap"></div>
+	</div>
+</div>
+
 <?php View::endSection('content') ?>
 <?php View::make('layouts.main') ?>

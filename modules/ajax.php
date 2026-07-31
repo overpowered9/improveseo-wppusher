@@ -611,6 +611,105 @@ function improveseo_preview_url()
 	));
 }
 
+// ── Instant preview ──────────────────────────────────────────────────────────
+// Renders title + content server-side and returns HTML. No temporary project,
+// no builder, no iframe — the preview appears in under a second.
+add_action('wp_ajax_improveseo_instant_preview', 'improveseo_instant_preview');
+
+function improveseo_instant_preview() {
+	if ( ! current_user_can('manage_options') ) {
+		wp_send_json_error( array( 'message' => 'Permission denied' ) );
+	}
+
+	if ( ! isset($_POST['nonce']) || ! wp_verify_nonce($_POST['nonce'], 'improveseo_instant_preview') ) {
+		wp_send_json_error( array( 'message' => 'Security check failed. Please reload the page and try again.' ) );
+	}
+
+	$title   = isset($_POST['title'])   ? sanitize_text_field( wp_unslash($_POST['title']) ) : '';
+	$content = isset($_POST['content']) ? wp_unslash($_POST['content'])                      : '';
+
+	if ( $title === '' ) {
+		$title = '(Untitled)';
+	}
+
+	// Older drafts can still carry a <style>/<script> block the generator used to
+	// append directly to content (see improveseo_strip_style_script_tags()). This
+	// MUST run before wp_kses_post() below: kses strips the <style>/<script> TAGS
+	// but deliberately leaves their text content behind (it only guarantees the
+	// tags can't inject markup), which is exactly the "raw CSS visible as text"
+	// bug — by the time kses has run there is no tag left for a tag-based strip
+	// to find. Removing the whole block, tag and contents together, first is the
+	// only way to actually get rid of it.
+	if ( function_exists( 'improveseo_strip_style_script_tags' ) ) {
+		$content = improveseo_strip_style_script_tags( $content );
+	}
+
+	$content = wp_kses_post( $content );
+
+	// AI-generated content (single post or bulk) always opens with an <h1>
+	// duplicating the title — improveseo_bulk_strip_content_h1() is the exact
+	// function improveseo_bulk_build_post_content() uses to drop it there;
+	// despite the name it is a plain string helper with no bulk-only
+	// dependency, so reusing it here keeps a single post's preview from
+	// showing its title twice, the same as the bulk preview already avoids.
+	if ( function_exists( 'improveseo_bulk_strip_content_h1' ) ) {
+		$content = improveseo_bulk_strip_content_h1( $content );
+	}
+
+	// Render any ImproveSEO shortcodes (testimonials, maps, buttons, etc.), the
+	// same call the bulk "View AI Content" preview renders through
+	// (improveseo_bulk_build_post_content), so both previews treat shortcodes
+	// identically.
+	$rendered = do_shortcode( $content );
+
+	wp_send_json_success( array(
+		'title' => $title,
+		'html'  => $rendered,
+	) );
+}
+
+// ── Bulk tasks list: instant preview of an already-saved task ────────────────
+// The list's row-level "Preview Post" action (Draft rows) used to link
+// straight to the full "View AI Content" admin page in a new tab
+// (action=viewAiContent). Every other "Preview Post" button now opens the
+// same in-modal card instead, so this one is rendered the same way — through
+// improveseo_bulk_build_post_content(), the SAME renderer viewAiContent.php
+// itself uses, so the modal shows byte-for-byte what that page would show.
+add_action('wp_ajax_improveseo_bulk_preview_by_id', 'improveseo_bulk_preview_by_id');
+
+function improveseo_bulk_preview_by_id() {
+	global $wpdb;
+
+	if ( ! current_user_can('manage_options') ) {
+		wp_send_json_error( array( 'message' => 'Permission denied' ) );
+	}
+
+	if ( ! isset($_POST['nonce']) || ! wp_verify_nonce($_POST['nonce'], 'improveseo_bulk_preview_by_id') ) {
+		wp_send_json_error( array( 'message' => 'Security check failed. Please reload the page and try again.' ) );
+	}
+
+	$id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+	if ( ! $id ) {
+		wp_send_json_error( array( 'message' => 'Missing task id.' ) );
+	}
+
+	$task = $wpdb->get_row( $wpdb->prepare(
+		"SELECT * FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE id = %d",
+		$id
+	) );
+
+	if ( ! $task || empty( $task->ai_content ) ) {
+		wp_send_json_error( array( 'message' => 'This post has no generated content yet.' ) );
+	}
+
+	$built = improveseo_bulk_build_post_content( $task );
+
+	wp_send_json_success( array(
+		'title' => sanitize_text_field( $task->ai_title ),
+		'html'  => do_shortcode( wp_kses_post( $built['html'] ) ),
+	) );
+}
+
 // AJAX handler for creating categories in bulk posts popup
 add_action('wp_ajax_create_bulk_category', 'improveseo_create_bulk_category');
 function improveseo_create_bulk_category() {

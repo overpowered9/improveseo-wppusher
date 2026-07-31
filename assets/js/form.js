@@ -118,154 +118,74 @@
    
 })(jQuery);
 
- /* Preview New Code — renders the preview in an in-modal iframe (same-origin),
-    avoiding window.open which Safari's popup blocker silently blocks when called
-    from an async AJAX callback. */
+ /* ── Instant Preview ─────────────────────────────────────────────────────────
+    Renders the current title + TinyMCE content server-side via a single AJAX
+    call (improveseo_instant_preview) and shows the result in the modal.  No
+    temporary project, no builder, no iframe — the preview appears in under a
+    second. This file is shared by all three "Preview Post" entry points:
+    the single post's create form and its edit-draft screen (both render
+    views/posting/form.php) and the bulk task's edit-draft screen
+    (views/bulkprojects/edit-ai-content.php) — one handler covers all three.
+    ────────────────────────────────────────────────────────────────────────── */
 
- // Remember the last successfully-built preview so an unchanged, repeat "Post preview"
- // reuses it instead of rebuilding. A rebuild is slow: it creates a fresh throwaway draft
- // and re-renders the whole front-end. Reuse is time-boxed under the 30-minute server
- // sweep (improveseo_sweep_preview_orphans) so we never point at a preview already swept.
- var iseoLastPreview = { key: null, url: null, id: null, time: 0 };
+ var _iseoPreviewXhr = null;
 
- // Cancellation state. Each run of the preview gets a token; Cancel bumps the token
- // before aborting, so any callback from a request that was already in flight sees a
- // stale token and does nothing (an aborted jqXHR still fires its error handler).
- var iseoPreviewRun = 0;
- var iseoPreviewXhrs = [];
- var iseoPreviewBuildStarted = false;
- var iseoPreviewPendingId = null;
+ jQuery(document).on('click', '#iseo_preview_cancel', function (e) {
+     e.preventDefault();
+     if (_iseoPreviewXhr) { try { _iseoPreviewXhr.abort(); } catch (ex) { /* done */ } _iseoPreviewXhr = null; }
+     jQuery.modal.close();
+ });
 
- function iseoPreviewKey() {
-     var content = jQuery.trim(tinymce.get('content') ? tinymce.get('content').getContent() : jQuery('#content').val());
-     var title = jQuery.trim(jQuery('#title').val() || '');
-     return title + '|~iseo~|' + content;
- }
+ jQuery('#preview_on').click(function (e) {
+     e.preventDefault();
 
- // Start a run: reset the modal to its loading state and hand back this run's token.
- function iseoStartPreviewRun() {
-     iseoPreviewXhrs = [];
-     iseoPreviewBuildStarted = false;
-     // A run that errored out left its throwaway project behind; queue it for the
-     // cleanup the rebuild path already performs on iseoLastPreview.id.
-     if (iseoPreviewPendingId && !iseoLastPreview.id) {
-         iseoLastPreview.id = iseoPreviewPendingId;
-     }
-     iseoPreviewPendingId = null;
+     // Reset modal to loading state
      jQuery('#iseo_preview_error').hide();
      jQuery('#iseo_preview_loading').show();
      jQuery('#wh_prev_modal_1').show();
      jQuery('#wh_prev_modal_2').hide();
-     return ++iseoPreviewRun;
- }
 
- function iseoCancelPreview() {
-     iseoPreviewRun++;
+     // Grab current editor content — works the same on the single post's create
+     // form, its edit-draft screen and the bulk edit-draft screen, since all
+     // three share the #title / TinyMCE #content ids.
+     var content = jQuery.trim(
+         tinymce.get('content') ? tinymce.get('content').getContent() : jQuery('#content').val()
+     );
+     var title = jQuery.trim(jQuery('#title').val() || '');
+     var nonce = jQuery('#iseo_preview_nonce').val() || '';
 
-     for (var i = 0; i < iseoPreviewXhrs.length; i++) {
-         try { iseoPreviewXhrs[i].abort(); } catch (e) { /* already finished */ }
-     }
-     iseoPreviewXhrs = [];
-
-     // Aborting the request does not stop the build: improveseo_builder() runs under
-     // ignore_user_abort(true) and finishes regardless. So only delete the throwaway
-     // project outright when the build was never dispatched; once it has been, deleting
-     // the row now would strand the draft the build is about to insert. In that case
-     // hand the id to iseoLastPreview so the next preview run drops it (by then the
-     // build is long done), with the 30-minute server sweep as the backstop.
-     if (iseoPreviewPendingId) {
-         if (iseoPreviewBuildStarted) {
-             iseoLastPreview = { key: null, url: null, id: iseoPreviewPendingId, time: 0 };
-         } else {
-             preview_delete_ajax(iseoPreviewPendingId);
-         }
-     }
-     iseoPreviewPendingId = null;
-     iseoPreviewBuildStarted = false;
-
-     jQuery('#is_preview_available').val('no');
-     jQuery('#preview_iframe').off('load.iseoPreview').attr('src', 'about:blank');
-     jQuery.modal.close();
- }
-
- jQuery(document).on('click', '#iseo_preview_cancel', function(e) {
-     e.preventDefault();
-     iseoCancelPreview();
- });
-
- jQuery('#preview_on').click(function(e){
-     e.preventDefault();
-     var max_no_posts_old = jQuery('#max-posts').val();
-     if (max_no_posts_old > 50) {
-         alert("Recommended no. of total posts for preiew is less than 50");
-     }
-     var iseoKey = iseoPreviewKey();
-     var runToken = iseoStartPreviewRun();
-
-     // Fast path: nothing changed since the last preview and it is still fresh — reuse it
-     // instead of rebuilding (which is the slow part the user notices on a repeat click).
-     if (iseoLastPreview.url && iseoLastPreview.key === iseoKey &&
-         (Date.now() - iseoLastPreview.time) < 20 * 60 * 1000) {
-         jQuery('#preview_id').val(iseoLastPreview.id || '');
-         jQuery('#is_preview_available').val('yes');
-         // Reuse the already-built preview (skips the slow rebuild), but keep the
-         // spinner up until the cached page has loaded so the user never sees a blank
-         // frame — reveal the content only on the iframe's load event.
-         var $reuseFrame = jQuery('#preview_iframe');
-         $reuseFrame.off('load.iseoPreview').on('load.iseoPreview', function() {
-             $reuseFrame.off('load.iseoPreview');
-             if (runToken !== iseoPreviewRun) return;
+     _iseoPreviewXhr = jQuery.ajax({
+         url: form_ajax_vars.ajax_url,
+         type: 'POST',
+         dataType: 'json',
+         data: {
+             action: 'improveseo_instant_preview',
+             title: title,
+             content: content,
+             nonce: nonce
+         },
+         success: function (res) {
+             _iseoPreviewXhr = null;
+             if (!res || !res.success || !res.data) {
+                 _iseoInstantPreviewFailed(res && res.data ? res.data.message : '');
+                 return;
+             }
+             var html = '<article class="iseo-aicontent-article">';
+             html += '<h1 class="iseo-aicontent-title">' + jQuery('<div>').text(res.data.title).html() + '</h1>';
+             html += '<div class="iseo-aicontent-body">' + res.data.html + '</div>';
+             html += '</article>';
+             jQuery('#preview_content_area').html(html);
              jQuery('#wh_prev_modal_1').hide();
              jQuery('#wh_prev_modal_2').show();
-         });
-         $reuseFrame.attr('src', iseoLastPreview.url);
-         return;
-     }
-
-     // Content changed (or first run): drop the previous throwaway preview so they don't
-     // pile up, then build a fresh one.
-     if (iseoLastPreview.id) {
-         preview_delete_ajax(iseoLastPreview.id);
-     }
-     iseoLastPreview = { key: null, url: null, id: null, time: 0 };
-
-     jQuery('#preview_iframe').attr('src', 'about:blank');
-
-    //var data = jQuery('#main_form').serialize() + '&action=improveseo_generate_preview';
-    var form = jQuery('#main_form')[0];
-    var data = new FormData(form);
-    data.append("action", "improveseo_generate_preview");
-    // The bulk draft editor cannot post post_type as a form field — on a submenu page
-    // that value makes WordPress resolve the page hook under the wrong parent and the
-    // save dies with "Cannot load ...". It parks the value on an unnamed input instead,
-    // so it reaches the preview here and nowhere else.
-    if (!data.get('post_type')) {
-        data.append('post_type', jQuery('#iseo_preview_post_type').val() || 'post');
-    }
-    data.append('content', jQuery.trim(tinymce.get('content') ? tinymce.get('content').getContent() : jQuery('#content').val()));
-
-     iseoPreviewXhrs.push(jQuery.ajax({
-        url : form_ajax_vars.ajax_url,
-        data : data,
-        type: "POST",
-        dataType: 'json',
-        processData: false,
-        contentType: false,
-         success : function(response) {
-            if (runToken !== iseoPreviewRun) return;
-            iseoPreviewPendingId = response.project_id;
-            jQuery('#is_preview_available').val('yes');
-            jQuery('#preview_id').val(response.project_id);
-            iseoBuildAndShowPreview(response.project_id, iseoKey, runToken);
          },
-         error: function() {
-            if (runToken !== iseoPreviewRun) return;
-            iseoPreviewFailed();
+         error: function () {
+             _iseoPreviewXhr = null;
+             _iseoInstantPreviewFailed();
          }
-     }));
+     });
  });
 
- function iseoPreviewFailed(message) {
+ function _iseoInstantPreviewFailed(message) {
      if (typeof message !== 'string' || !message) {
          message = 'Could not generate preview. Please close this and try again.';
      }
@@ -274,95 +194,15 @@
      jQuery('#iseo_preview_error').show();
  }
 
- // Build the throwaway preview post, then point the iframe straight at the finished
- // preview. Both steps run over admin-ajax on purpose: the previous flow navigated the
- // iframe to the Projects List admin screen, which rendered that entire wp-admin page
- // (list query plus one un-indexed postmeta lookup per row) once to kick the build off
- // and a second time after it, before ever reaching the preview. Those two renders were
- // the bulk of the wait, and neither was ever shown to the user.
- function iseoBuildAndShowPreview(projectId, cacheKey, runToken) {
-     var $iframe = jQuery('#preview_iframe');
-
-     iseoPreviewBuildStarted = true;
-     iseoPreviewXhrs.push(jQuery.ajax({
-         url: form_ajax_vars.ajax_url,
-         data: { action: 'workdex_builder_ajax', ajax: 1, page: 1, id: projectId },
-         // The build is the genuinely slow step; keep the old 90s ceiling as the point
-         // where we stop waiting rather than spinning forever.
-         timeout: 90000,
-         success: function() {
-             if (runToken !== iseoPreviewRun) return;
-             iseoPreviewXhrs.push(jQuery.ajax({
-                 url: form_ajax_vars.ajax_url,
-                 data: { action: 'improveseo_preview_url', id: projectId },
-                 dataType: 'json',
-                 success: function(res) {
-                     if (runToken !== iseoPreviewRun) return;
-                     if (!res || !res.success || !res.data || !res.data.url) {
-                         iseoPreviewFailed(res && res.data ? res.data.message : '');
-                         return;
-                     }
-                     var url = res.data.url;
-                     $iframe.off('load.iseoPreview').on('load.iseoPreview', function() {
-                         $iframe.off('load.iseoPreview');
-                         if (runToken !== iseoPreviewRun) return;
-                         jQuery('#wh_prev_modal_1').hide();
-                         jQuery('#wh_prev_modal_2').show();
-                         // Remember this built preview so an unchanged repeat click can reuse it.
-                         iseoLastPreview = { key: cacheKey, url: url, id: projectId, time: Date.now() };
-                         iseoPreviewPendingId = null;
-                     });
-                     $iframe.attr('src', url);
-                 },
-                 error: function() {
-                     if (runToken !== iseoPreviewRun) return;
-                     iseoPreviewFailed();
-                 }
-             }));
-         },
-         error: function() {
-             if (runToken !== iseoPreviewRun) return;
-             iseoPreviewFailed();
-         }
-     }));
- }
-
-function preview_delete_ajax(prev_id){
-    jQuery.ajax({
-         url : form_ajax_vars.ajax_url,
-         data : ({
-             action : 'preview_delete_ajax',
-             prev_id : prev_id,
-             ajax : 1,
-         }),
-         success : function(data) {
-            jQuery('#is_preview_available').val('no');
-         }
-    });
- }
  function closeWin() {
-     // Keep the built preview server-side so an unchanged repeat "Post preview" reuses it
-     // (loads the final preview URL directly, skipping the slow rebuild + builder round
-     // trip). The iframe is blanked to free resources; the preview is removed when a
-     // different one is built, and by the 30-minute sweep (improveseo_sweep_preview_orphans,
-     // designed for exactly this "close handler didn't delete" case) otherwise.
-     jQuery('#preview_iframe').off('load.iseoPreview').attr('src', 'about:blank');
+     if (_iseoPreviewXhr) { try { _iseoPreviewXhr.abort(); } catch (ex) { /* done */ } _iseoPreviewXhr = null; }
      jQuery.modal.close();
  }
 
-// "Open in new tab" — runs on a user click (gesture), so window.open is allowed here.
-function changeWin(){
-    // The preview is already built and its final URL is known, so open that directly
-    // instead of routing through the Projects List page and its redirect.
-    if (iseoLastPreview.url) {
-        window.open(iseoLastPreview.url, '_blank');
-        return;
-    }
-    var preview_id = jQuery('#preview_id').val();
-    if (preview_id) {
-        window.open(form_ajax_vars.admin_url + "?page=improveseo_projects&post_preview=true&preview_id=" + preview_id, '_blank');
-    }
-}
+
+
+
+
 
 // Edit-draft screen touch-ups, applied from JS so they show even before the PHP views
 // (form.php / edit-post.php) redeploy: heading -> "Draft: Edit Post", button relabels, a
