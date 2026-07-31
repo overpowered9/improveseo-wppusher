@@ -1001,6 +1001,26 @@ jQuery(document).ready(function () {
   resetSmartWizard();
 });
 
+// Also pin the #content editor to the top when it FINISHES INITIALIZING — this covers the
+// case where the article is already in the editor on page load (wp_editor renders the saved
+// content), which never goes through insertContent() and so was never reset before. Registered
+// for editors added later, and applied immediately if #content is already up.
+(function iseoBindContentEditorTop() {
+  if (!window.tinymce || typeof tinymce.on !== 'function') {
+    return setTimeout(iseoBindContentEditorTop, 200); // TinyMCE not loaded yet — retry.
+  }
+  tinymce.on('AddEditor', function (e) {
+    if (e.editor && e.editor.id === 'content') {
+      e.editor.on('init', function () { iseoScrollEditorToTop(); });
+    }
+  });
+  var existing = tinymce.get && tinymce.get('content');
+  if (existing) {
+    if (existing.initialized) { iseoScrollEditorToTop(); }
+    else { existing.on('init', function () { iseoScrollEditorToTop(); }); }
+  }
+})();
+
 function generateAIMetaJs() {
   var maintitlearea = jQuery("#maintitlearea").val();
 
