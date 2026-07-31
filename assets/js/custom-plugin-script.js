@@ -932,12 +932,18 @@ function initializeTinyMCE() {
   });
 }
 
-// After inserting content, TinyMCE leaves the caret at the END of the article and scrolls
-// the editor to the bottom — so the user is looking at the middle/end of the post. Move the
-// caret to the start and scroll the editor (and page) back to the top so the article is shown
-// from the beginning.
+// After inserting the article, land the user ON THE CONTENT — the editor in view, showing the
+// article from its start. Two things to get right:
+//  1) Inside the editor, TinyMCE leaves the caret at the END and scrolls to the bottom, so put
+//     the caret back at the start and scroll the editor's own window to the top.
+//  2) On the page, DON'T jump to the very top (the empty Project Name / Post Title fields — that
+//     reads as "scrolled all the way to the top"); scroll so the editor is near the top of the
+//     viewport instead.
 function iseoScrollEditorToTop() {
   var reset = function () {
+    // 1) The editor's OWN content to the top — this is the "content starts from the mid" part:
+    //    TinyMCE leaves the caret (and the editor's internal scrollbar) at the end after insert.
+    //    Put the caret back at the start and force the editor document/window scroll to 0.
     try {
       var ed = window.tinymce && tinymce.activeEditor;
       if (ed) {
@@ -945,20 +951,26 @@ function iseoScrollEditorToTop() {
         if (body && body.firstChild && ed.selection) {
           ed.selection.setCursorLocation(body.firstChild, 0);
         }
-        if (ed.getWin) { ed.getWin().scrollTo(0, 0); }
+        try { if (ed.getWin) ed.getWin().scrollTo(0, 0); } catch (e) {}
+        var doc = ed.getDoc && ed.getDoc();
+        if (doc) {
+          if (doc.documentElement) doc.documentElement.scrollTop = 0;
+          if (doc.body) doc.body.scrollTop = 0;
+        }
       }
     } catch (e) {}
+    // 2) The page scrollbar to the top.
     try { window.scrollTo(0, 0); } catch (e) {}
     try {
-      if (document.scrollingElement) { document.scrollingElement.scrollTop = 0; }
-      if (document.documentElement) { document.documentElement.scrollTop = 0; }
-      if (document.body) { document.body.scrollTop = 0; }
+      if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
     } catch (e) {}
   };
   reset();
   // Something re-scrolls after the insert (TinyMCE settling / a late re-init / caret restore),
-  // so fire the reset repeatedly over ~1.2s to win over it.
-  [50, 150, 300, 500, 800, 1200].forEach(function (d) { setTimeout(reset, d); });
+  // so fire the reset repeatedly over ~1.5s to win over it.
+  [50, 150, 300, 500, 800, 1200, 1500].forEach(function (d) { setTimeout(reset, d); });
 }
 
 function insertContent(content) {
