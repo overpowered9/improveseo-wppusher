@@ -310,7 +310,16 @@ if (!function_exists('improveseo_bulk_build_post_content')) {
             }
         }
 
-        $body = improveseo_bulk_strip_content_h1(base64_decode($task->ai_content));
+        $body = base64_decode($task->ai_content);
+        // Must run before any wp_kses_post() the caller applies to the returned
+        // 'html': kses strips a <style>/<script> tag but deliberately leaves its
+        // text content behind, which is how a stray style block ends up as raw
+        // CSS/JS visible as text instead of just disappearing. See
+        // improveseo_strip_style_script_tags() in single_and_bulk_AI_post_function.php.
+        if (function_exists('improveseo_strip_style_script_tags')) {
+            $body = improveseo_strip_style_script_tags($body);
+        }
+        $body = improveseo_bulk_strip_content_h1($body);
 
         // CTA guard — runs here so the preview and the published post can never
         // disagree: a CTA with no usable URL is skipped cleanly instead of

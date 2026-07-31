@@ -625,12 +625,26 @@ function improveseo_instant_preview() {
 		wp_send_json_error( array( 'message' => 'Security check failed. Please reload the page and try again.' ) );
 	}
 
-	$title   = isset($_POST['title'])   ? sanitize_text_field( wp_unslash($_POST['title']) )   : '';
-	$content = isset($_POST['content']) ? wp_kses_post( wp_unslash($_POST['content']) )        : '';
+	$title   = isset($_POST['title'])   ? sanitize_text_field( wp_unslash($_POST['title']) ) : '';
+	$content = isset($_POST['content']) ? wp_unslash($_POST['content'])                      : '';
 
 	if ( $title === '' ) {
 		$title = '(Untitled)';
 	}
+
+	// Older drafts can still carry a <style>/<script> block the generator used to
+	// append directly to content (see improveseo_strip_style_script_tags()). This
+	// MUST run before wp_kses_post() below: kses strips the <style>/<script> TAGS
+	// but deliberately leaves their text content behind (it only guarantees the
+	// tags can't inject markup), which is exactly the "raw CSS visible as text"
+	// bug — by the time kses has run there is no tag left for a tag-based strip
+	// to find. Removing the whole block, tag and contents together, first is the
+	// only way to actually get rid of it.
+	if ( function_exists( 'improveseo_strip_style_script_tags' ) ) {
+		$content = improveseo_strip_style_script_tags( $content );
+	}
+
+	$content = wp_kses_post( $content );
 
 	// AI-generated content (single post or bulk) always opens with an <h1>
 	// duplicating the title — improveseo_bulk_strip_content_h1() is the exact

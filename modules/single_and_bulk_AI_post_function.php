@@ -58,6 +58,33 @@ if ( ! function_exists( 'improveseo_normalize_generated_title' ) ) {
 	}
 }
 
+if ( ! function_exists( 'improveseo_strip_style_script_tags' ) ) {
+	/**
+	 * Remove any <style>/<script> block — tag AND its contents — from generated
+	 * post content.
+	 *
+	 * These must never end up in post_content. A block like
+	 * `<style>p{padding-bottom:2px !important;}</style>` looks harmless, but every
+	 * sanitizer this content passes through (WordPress' wp_kses_post, TinyMCE's own
+	 * schema on load) treats <style>/<script> as tags NOT valid in body content: they
+	 * unwrap the tag but keep its text children, so the raw CSS/JS source is left
+	 * behind as plain visible text ("p {padding-bottom: 2px !important;}") in the
+	 * editor, every preview, and the published post. Removing the whole block here —
+	 * tag and contents together — is what wp_kses_post deliberately does NOT do for
+	 * style/script (kses only guarantees the TAGS can't inject markup, not that their
+	 * text payload is dropped), so this has to run before that, at the source.
+	 *
+	 * @param string $html Post content, or any fragment of it.
+	 * @return string Same content with every complete <style>/<script> block removed.
+	 */
+	function improveseo_strip_style_script_tags( $html ) {
+		if ( empty( $html ) ) {
+			return $html;
+		}
+		return preg_replace( '~<(style|script)\b[^>]*>.*?</\1>~is', '', $html );
+	}
+}
+
 /**
  * Call the ImproveSEO admin server's /auxiliary endpoint.
  *

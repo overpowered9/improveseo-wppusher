@@ -837,7 +837,13 @@ function improveseo_builder()
 
 		$contentText = $lite->process($content);
 
-
+		// A draft saved before this fix can still carry a <style>/<script> block
+		// the generator used to append directly to content — strip it (tag AND
+		// contents) so it can never reach a published post as visible text. See
+		// improveseo_strip_style_script_tags() in single_and_bulk_AI_post_function.php.
+		if (function_exists('improveseo_strip_style_script_tags')) {
+			$contentText = improveseo_strip_style_script_tags($contentText);
+		}
 
 
 
@@ -2871,7 +2877,13 @@ function improveseo_builder_update()
 
 		$contentText = $lite->process($content);
 
-
+		// A draft saved before this fix can still carry a <style>/<script> block
+		// the generator used to append directly to content — strip it (tag AND
+		// contents) so it can never reach a published post as visible text. See
+		// improveseo_strip_style_script_tags() in single_and_bulk_AI_post_function.php.
+		if (function_exists('improveseo_strip_style_script_tags')) {
+			$contentText = improveseo_strip_style_script_tags($contentText);
+		}
 
 
 
