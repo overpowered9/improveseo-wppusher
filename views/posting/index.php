@@ -63,6 +63,11 @@ jQuery(function ($) {
     'use strict';
     var $card = $('.Posting__post-button');
 
+    // Clears the step key an earlier build of onboarding-guide.js used to persist, so a
+    // browser that still has one is not carrying dead data. The guide no longer reads or
+    // writes it — every page load starts on Step 1. Safe to delete after a release or two.
+    try { localStorage.removeItem('improveseo_guide_step'); } catch (e) { /* ignore */ }
+
     // ── Spotlight (reuse existing CSS, add coral accent) ──────────────
     var $spot = $('<div id="iseo-guide-spotlight"></div>').css({
         border:    '3px solid #F77A59',
@@ -76,7 +81,7 @@ jQuery(function ($) {
         + '<div class="iseo-guide-progress"><div class="iseo-guide-progress-bar" style="width:0%"></div></div>'
         + '<div class="iseo-guide-header">'
         + '<span class="iseo-guide-bot">&#x1F916;</span>'
-        + '<span class="iseo-guide-step-counter">Step 1 of 22</span>'
+        + '<span class="iseo-guide-step-counter">Getting started</span>'
         + '</div>'
         + '<div class="iseo-guide-title">Let\u2019s create your first article! &#x1F680;</div>'
         + '<div class="iseo-guide-message">Click <strong>Create Single AI Post</strong> to begin. We\u2019ll guide you through each step of the process.</div>'

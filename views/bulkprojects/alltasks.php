@@ -266,7 +266,7 @@ $url .= $_SERVER['REQUEST_URI'];
 											//
 											//   Published / Scheduled : View Post, Edit Post, View Details,
 											//                           Re-Generate Content
-											//   Draft                 : Publish, View AI Content,
+											//   Draft                 : Publish, Preview Post,
 											//                           Edit Post Content, View Details,
 											//                           Re-Generate Content
 											//   Still generating      : Cancel Process, View Details,
@@ -320,7 +320,7 @@ $url .= $_SERVER['REQUEST_URI'];
 												'href'  => admin_url('admin.php?page=improveseo_bulkprojects&action=publish&mainid=' . $parent_id_for_row . '&id=' . $project->id),
 											);
 											$act_view_ai = array(
-												'label'  => 'View AI Content',
+												'label'  => 'Preview Post',
 												'href'   => admin_url('admin.php?page=improveseo_bulkprojects&action=viewAiContent&id=' . $project->id),
 												'target' => '_blank',
 											);

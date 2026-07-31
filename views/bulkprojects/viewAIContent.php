@@ -7,7 +7,7 @@ use ImproveSEO\View;
 <?php View::startSection('breadcrumbs') ?>
 <a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 &raquo;
-<span>View AI Content</span>
+<span>Preview Post</span>
 <?php View::endSection('breadcrumbs') ?>
 
 
@@ -16,9 +16,9 @@ use ImproveSEO\View;
 <?php View::render('import/import') ?>
 
 
-<h1 class="hidden">View AI Content</h1>
+<h1 class="hidden">Preview Post</h1>
 <div class="show_loading alert-modal">
-	<h1 class="hidden">View AI Content</h1>
+	<h1 class="hidden">Preview Post</h1>
 	<h2 id="mid_notice"><a href="<?php echo $url; ?>">Refresh List</a></h2>
 </div>
 
@@ -170,13 +170,55 @@ use ImproveSEO\View;
 		margin: 0 0 18px;
 	}
 
+	/* Lists render with their markers, exactly as the published post does.
+
+	   The content is already correct — the generator emits real <ul><li> — but
+	   wp-admin's common.css carries a blanket `ul { list-style: none; }`, so every
+	   bulleted list in this preview lost its bullets while <ol> kept its numbers
+	   (the reset only names ul). Nothing here changes the markup; it re-states the
+	   markers the front end applies, including the nested levels, so a list under
+	   "Key Takeaways" looks the same here as it does once published.
+
+	   Indentation is expressed in em so it tracks this preview's own font size, the
+	   same proportion (~1.8em) the front end leaves for its markers. */
 	.iseo-aicontent-body ul,
 	.iseo-aicontent-body ol {
 		margin: 0 0 18px;
-		padding-left: 26px;
+		padding-left: 1.8em;
+	}
+
+	.iseo-aicontent-body ul {
+		list-style: disc outside;
+	}
+
+	.iseo-aicontent-body ol {
+		list-style: decimal outside;
+	}
+
+	.iseo-aicontent-body ul ul {
+		list-style-type: circle;
+	}
+
+	.iseo-aicontent-body ul ul ul {
+		list-style-type: square;
+	}
+
+	.iseo-aicontent-body ol ol {
+		list-style-type: lower-alpha;
+	}
+
+	.iseo-aicontent-body ol ol ol {
+		list-style-type: lower-roman;
+	}
+
+	/* Nested lists sit tight against their parent item, not floating in extra space. */
+	.iseo-aicontent-body li > ul,
+	.iseo-aicontent-body li > ol {
+		margin: 8px 0 0;
 	}
 
 	.iseo-aicontent-body li {
+		display: list-item;
 		margin-bottom: 8px;
 	}
 

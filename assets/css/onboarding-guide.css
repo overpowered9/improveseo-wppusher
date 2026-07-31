@@ -32,10 +32,12 @@
     line-height: 1.5;
     display: none;
     transition: top 0.2s ease, left 0.2s ease;
+    pointer-events: none;
 }
 
 .iseo-guide-tooltip-inner {
     padding: 16px;
+    pointer-events: auto;
 }
 
 /* ── Progress bar (sits flush at the top of the card) ───────── */
@@ -131,10 +133,18 @@
 
 /* ── Docked card ────────────────────────────────────────────────
    Steps whose target sits in a multi-column layout (the three cover-image
-   method cards) dock the card to a fixed corner instead of anchoring it
-   beside the target, where it would cover the neighbouring cards and the
-   Generate button. Above the Bootstrap modal, clear of the wizard's own
-   header and its Previous/Next bar. */
+   method cards) dock the card instead of anchoring it beside the target,
+   where it would cover the neighbouring cards and the Generate button. A
+   corner was tried first and rejected: pinned to either corner, a narrow
+   card's own height ran through the card row (or, dropped low enough to
+   clear the row, through the Previous/Next bar below it instead). top/
+   right/width here are only the pre-measurement fallback for the instant
+   before dockTooltip()/dockAboveMediaRow() (onboarding-guide.js) run their
+   own layout math — they park the card ABOVE the card row, spanning the
+   panel's width (which is what makes a short-enough card actually fit in
+   that header band), so it never overlaps a card, the upload dropzone, or
+   the Previous/Next buttons. This static position is not guaranteed clear
+   of them on its own. */
 #iseo-guide-tooltip[data-pos="docked"] {
     top: 96px;
     right: 28px;
@@ -146,8 +156,24 @@
 #iseo-guide-tooltip[data-pos="docked"]::before {
     display: none;
 }
-/* Narrow screens: the modal goes full width, so dock across the top instead
-   of hugging a side where it would sit over the cards again. */
+
+/* The docked card is a pure overlay: position:fixed (above, z-index 999995) with NO
+   reserved layout space. It used to force a `padding-right` onto the panel so the
+   fixed card would never scroll over the content beneath it — but the panel is up
+   to 1470px wide (assets/css/step.css:610) while the card is ~300px, so that
+   padding did nothing but needlessly shrink the three-card grid (1fr each) into a
+   narrower column while empty space sat unused past the card anyway. The panel's
+   width (and the method cards' width within it) must be IDENTICAL whether or not
+   the card is showing, so no space is reserved for it — see dockTooltip() in
+   onboarding-guide.js for how it's positioned instead. */
+@media (max-width: 1100px) {
+    #iseo-guide-tooltip[data-pos="docked"] {
+        width: 240px;
+    }
+}
+/* Narrow screens: the modal goes full width and the method cards stack to a single
+   column (made_by_me.css:2890), so the docked card moves to a top banner instead
+   of a side corner — still an overlay, not a reflow. */
 @media (max-width: 782px) {
     #iseo-guide-tooltip[data-pos="docked"] {
         top: 12px;
@@ -206,53 +232,4 @@
     100% { box-shadow: 0 0 0 0   rgba(0, 115, 170, 0);    }
 }
 
-/* ── Greys-out sidebar / non-essential content when guide active */
-body.iseo-guide-active #postbox-container-1 {
-    opacity: 0.25;
-    pointer-events: none;
-    transition: opacity 0.3s;
-}
-body.iseo-guide-active .box-top,
-body.iseo-guide-active .head-bar {
-    opacity: 0.25;
-    transition: opacity 0.3s;
-}
-/* Restore full visibility once in form phase */
-body.iseo-guide-form-phase #postbox-container-1,
-body.iseo-guide-form-phase .box-top,
-body.iseo-guide-form-phase .head-bar {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-/* ── Wizard-next hint bar ───────────────────────────────────────
-   Replaces the "Next →" button for steps where the user must
-   click the real wizard Next button. Renders as a small callout
-   strip above the actions row.                                   */
-.iseo-guide-wizard-hint {
-    font-size: 11.5px;
-    color: #0073aa;
-    background: #e8f4fb;
-    border-left: 3px solid #0073aa;
-    border-radius: 4px;
-    padding: 5px 10px;
-    margin: 0 0 10px 0;
-    line-height: 1.5;
-}
-.iseo-guide-wizard-hint strong { font-weight: 700; }
-
-/* ── Grey-out non-focused form fields in form phase ─────────── */
-body.iseo-guide-form-phase .PostForm__body-wrap,
-body.iseo-guide-form-phase #post_form_buttons,
-body.iseo-guide-form-phase #edit-slug-box {
-    opacity: 0.25;
-    pointer-events: none;
-    transition: opacity 0.3s;
-}
-/* Highlight focused form section */
-body.iseo-guide-form-phase .PostForm__name-wrap.iseo-guide-form-focus,
-body.iseo-guide-form-phase .PostForm__title-wrap.iseo-guide-form-focus,
-body.iseo-guide-form-phase #post_form_buttons.iseo-guide-form-focus {
-    opacity: 1 !important;
-    pointer-events: auto !important;
-}
+/* End of file */

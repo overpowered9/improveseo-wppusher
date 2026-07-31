@@ -858,6 +858,14 @@ function saveFinalData() {
 
   insertContent(plainTextContent);
 
+  // When the onboarding guide is active, DON'T auto-submit the form — the guide's
+  // page-review steps will walk the user through the populated form first and the
+  // final Done button triggers the submit. Without this guard, the page would
+  // navigate away before the review steps ever rendered.
+  if (window.iseoGuideConfig && window.iseoGuideConfig.active) {
+    return; // guide takes over from here — see onboarding-guide.js STEP_REVIEW_START
+  }
+
   submitSinglePostCreateForm();
 }
 

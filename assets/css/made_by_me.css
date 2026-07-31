@@ -482,6 +482,28 @@ p.font-20_multi {
   font-family: "Poppins", serif;
 }
 
+/* Wizard fields: the text has to sit centred in the pill.
+
+   `.wp-core-ui select` (further down this file) gives every admin select
+   line-height: 2 — 36px at the wizard's 18px font — while these controls are locked
+   to height: 52px with 10px of vertical padding, i.e. a 30px content box. A line box
+   taller than the box it sits in cannot be centred in it, so the text rode high in
+   the field on wizard steps 1, 2 and 6 (9 selects: keyword list, tone of voice,
+   article size, point of view, language, schedule frequency, author, …).
+
+   One rule for both wizards. Padding is already symmetric on every field, and much
+   of it is inline `!important`, so only the line box is touched here. */
+.improveseo-bulk-ai form.improve-seo-form-global input[type="text"],
+.improveseo-bulk-ai form.improve-seo-form-global input[type="number"],
+.improveseo-bulk-ai form.improve-seo-form-global select,
+.improveseo-bulk-ai_multi form#pop_up_multi_form input[type="text"],
+.improveseo-bulk-ai_multi form#pop_up_multi_form input[type="number"],
+.improveseo-bulk-ai_multi form#pop_up_multi_form select,
+.improveseo-bulk-ai_multi form.pop_up_multi_form input[type="text"],
+.improveseo-bulk-ai_multi form.pop_up_multi_form select {
+  line-height: normal;
+}
+
 
 .improveseo-bulk-ai_multi .detail-text_multi {
   height: 150px;

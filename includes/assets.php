@@ -97,7 +97,13 @@ function improveseo_enqueue_admin(){
 
 	if ( isset( $my_current_screen->base )  ) {
 
-		$allowed_bases = array('toplevel_page_improveseo_dashboard', 'improve-seo_page_improveseo_posting');
+		// The bulk draft-edit screen runs the SAME preview flow as the single editor
+		// (form.js → improveseo_generate_preview), so it needs the same scripts.
+		$allowed_bases = array(
+			'toplevel_page_improveseo_dashboard',
+			'improve-seo_page_improveseo_posting',
+			'improve-seo_page_improveseo_bulkprojects',
+		);
 
 		if(in_array($my_current_screen->base, $allowed_bases) && isset($_REQUEST['action'])){
 

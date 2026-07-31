@@ -235,6 +235,13 @@
     var form = jQuery('#main_form')[0];
     var data = new FormData(form);
     data.append("action", "improveseo_generate_preview");
+    // The bulk draft editor cannot post post_type as a form field — on a submenu page
+    // that value makes WordPress resolve the page hook under the wrong parent and the
+    // save dies with "Cannot load ...". It parks the value on an unnamed input instead,
+    // so it reaches the preview here and nowhere else.
+    if (!data.get('post_type')) {
+        data.append('post_type', jQuery('#iseo_preview_post_type').val() || 'post');
+    }
     data.append('content', jQuery.trim(tinymce.get('content') ? tinymce.get('content').getContent() : jQuery('#content').val()));
 
      iseoPreviewXhrs.push(jQuery.ajax({
