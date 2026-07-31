@@ -69,7 +69,7 @@
  *   26  review-project    (page)  .PostForm__name-wrap           next-btn      ← review project name
  *   27  review-title      (page)  .PostForm__title-wrap          next-btn      ← review post title
  *   28  review-content    (page)  .PostForm__body-wrap           next-btn      ← review article content
- *   29  review-publish    (page)  #post_form_buttons             final         ← Done → submits form
+ *   29  review-publish    (page)  button[name="create"]          final         ← Done → submits form
  */
 (function ($) {
     'use strict';
@@ -341,10 +341,10 @@
             position: 'left', advance: 'next-btn'
         },
         /* 26 */ {
-            key: 'review-publish', phase: 'page', target: '#post_form_buttons',
+            key: 'review-publish', phase: 'page', target: 'button[name="create"]',
             title: 'You\u2019re ready to publish! \uD83C\uDF89',
-            message: 'Click <strong>Create \u0026amp; Publish Post</strong> to publish, or <strong>Save As Draft</strong> to finish later. <strong>Post preview</strong> shows how it will look.',
-            position: 'top-left', advance: 'final'
+            message: 'Click <strong>Create \u0026amp; Publish Post</strong> to publish your first article now. You can also <strong>Save As Draft</strong> to finish later or use <strong>Post preview</strong> to see how it looks before publishing.',
+            position: 'top', advance: 'final'
         }
     ];
 
@@ -671,6 +671,9 @@
         // Remove all previous highlights
         $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
 
+        // Re-enable buttons that a previous review-publish step may have disabled
+        enableNonPublishButtons();
+
         // Docked steps park the card clear of the panel's own controls — see
         // dockTooltip()/dockAboveMediaRow() for where "docked" actually places it.
         $('body').toggleClass('iseo-guide-dock', !!step.dock);
@@ -743,6 +746,13 @@
                 placeTooltip(step, $target);
                 $tooltip.show();
             }
+        }
+
+        // Step 28 (review-publish): disable Save As Draft and Post preview so only
+        // Create & Publish Post is clickable. Re-enabled on any later step or on
+        // destroyGuide().
+        if (index === STEP_REVIEW_END) {
+            disableNonPublishButtons();
         }
     }
 
@@ -872,6 +882,23 @@
                 $(step.formFocus).addClass('iseo-guide-form-focus');
             }
         }
+    }
+
+    /* ─────────────────────────────────────────────────────────
+       DISABLE / ENABLE NON-PUBLISH BUTTONS  (review-publish step only)
+
+       On Step 28 the guide disables "Save As Draft" and "Post preview" so
+       only "Create & Publish Post" is clickable. Both are re-enabled when
+       the guide leaves this step or is dismissed.
+    ───────────────────────────────────────────────────────── */
+    function disableNonPublishButtons() {
+        $('button[name="draft"]').prop('disabled', true).addClass('iseo-guide-disabled');
+        $('#preview_on').prop('disabled', true).addClass('iseo-guide-disabled');
+    }
+
+    function enableNonPublishButtons() {
+        $('button[name="draft"]').prop('disabled', false).removeClass('iseo-guide-disabled');
+        $('#preview_on').prop('disabled', false).removeClass('iseo-guide-disabled');
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -1450,6 +1477,7 @@
        DESTROY GUIDE
     ───────────────────────────────────────────────────────── */
     function destroyGuide() {
+        enableNonPublishButtons();
         if ($spotlight) $spotlight.remove();
         if ($tooltip)   $tooltip.remove();
         $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
