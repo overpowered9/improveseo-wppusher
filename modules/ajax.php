@@ -632,6 +632,16 @@ function improveseo_instant_preview() {
 		$title = '(Untitled)';
 	}
 
+	// AI-generated content (single post or bulk) always opens with an <h1>
+	// duplicating the title — improveseo_bulk_strip_content_h1() is the exact
+	// function improveseo_bulk_build_post_content() uses to drop it there;
+	// despite the name it is a plain string helper with no bulk-only
+	// dependency, so reusing it here keeps a single post's preview from
+	// showing its title twice, the same as the bulk preview already avoids.
+	if ( function_exists( 'improveseo_bulk_strip_content_h1' ) ) {
+		$content = improveseo_bulk_strip_content_h1( $content );
+	}
+
 	// Render any ImproveSEO shortcodes (testimonials, maps, buttons, etc.), the
 	// same call the bulk "View AI Content" preview renders through
 	// (improveseo_bulk_build_post_content), so both previews treat shortcodes
