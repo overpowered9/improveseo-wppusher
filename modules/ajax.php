@@ -611,39 +611,6 @@ function improveseo_preview_url()
 	));
 }
 
-// ── Instant preview ──────────────────────────────────────────────────────────
-// Renders title + content server-side and returns HTML. No temporary project,
-// no builder, no iframe — the preview appears in under a second.
-add_action('wp_ajax_improveseo_instant_preview', 'improveseo_instant_preview');
-
-function improveseo_instant_preview() {
-	if ( ! current_user_can('manage_options') ) {
-		wp_send_json_error( array( 'message' => 'Permission denied' ) );
-	}
-
-	if ( ! isset($_POST['nonce']) || ! wp_verify_nonce($_POST['nonce'], 'improveseo_instant_preview') ) {
-		wp_send_json_error( array( 'message' => 'Security check failed. Please reload the page and try again.' ) );
-	}
-
-	$title   = isset($_POST['title'])   ? sanitize_text_field( wp_unslash($_POST['title']) )   : '';
-	$content = isset($_POST['content']) ? wp_kses_post( wp_unslash($_POST['content']) )        : '';
-
-	if ( $title === '' ) {
-		$title = '(Untitled)';
-	}
-
-	// Render any ImproveSEO shortcodes (testimonials, maps, buttons, etc.), the
-	// same call the bulk "View AI Content" preview renders through
-	// (improveseo_bulk_build_post_content), so both previews treat shortcodes
-	// identically.
-	$rendered = do_shortcode( $content );
-
-	wp_send_json_success( array(
-		'title' => $title,
-		'html'  => $rendered,
-	) );
-}
-
 // AJAX handler for creating categories in bulk posts popup
 add_action('wp_ajax_create_bulk_category', 'improveseo_create_bulk_category');
 function improveseo_create_bulk_category() {

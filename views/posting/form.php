@@ -100,16 +100,14 @@ $google_api_key = get_option('improveseo_google_api_key');
 					class="btn styling_post_page_action_buttons btn-outline-primary">Cancel</a>
 				<?php endif; ?>
 				<button id="preview_on" type="button" class="btn styling_post_page_action_buttons btn-outline-primary">Preview Post</button>
-				<?php wp_nonce_field('improveseo_instant_preview', 'iseo_preview_nonce', false); ?>
+				<input type="hidden" name="preview_id" id="preview_id" />
+				<input type="hidden" name="is_preview_available" id="is_preview_available" value="no" />
 			</div>
 
 			<?php echo $site_link; ?>
 
 
-			<!-- Post preview: renders the current title + content server-side (the
-			     same card styling as the bulk "View AI Content" page) instead of
-			     building a temporary post, so it opens instantly. Styles live in
-			     assets/css/made_by_me.css, scoped under #preview_content_area. -->
+			<!-- HTML modal for preview button -->
 			<div id="preview_popup" class="modal" style="text-align:center; width:90%; max-width:1100px;">
 				<div id="wh_prev_modal_1">
 					<!-- Loading and error are separate blocks so a failed preview no longer
@@ -117,7 +115,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 					<div id="iseo_preview_loading" class="iseo-preview-loading">
 						<div class="iseo-preview-spinner" role="status" aria-label="Generating preview"></div>
 						<b class="iseo-preview-loading-title">Generating preview</b>
-						<span class="iseo-preview-loading-note">Rendering the latest changes to this post.</span>
+						<span class="iseo-preview-loading-note">Building a temporary draft of this post. This may take a moment.</span>
 						<button type="button" id="iseo_preview_cancel"
 							class="button iseo-preview-action">Cancel</button>
 					</div>
@@ -130,13 +128,18 @@ $google_api_key = get_option('improveseo_google_api_key');
 				<div id="wh_prev_modal_2" style="display:none;">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
 						<b style="font-size:18px">Post preview</b>
-						<button type="button" id="open_win"
-							class="button button-primary iseo-preview-action iseo-preview-action--primary"
-							onclick="closeWin()">Close preview</button>
+						<span>
+							<button type="button" id="close_win" class="button iseo-preview-action" onclick="changeWin()">Open in new
+								tab</button>
+							&nbsp;
+							<button type="button" id="open_win" class="button button-primary iseo-preview-action iseo-preview-action--primary"
+								onclick="closeWin()">Close preview</button>
+						</span>
 					</div>
-					<div id="preview_content_area" class="iseo-aicontent-wrap"></div>
-					<small style="color:#666; display:block; margin-top:8px;">This preview reflects your unsaved
-						changes and is not published to your site.</small>
+					<iframe id="preview_iframe" src="about:blank" title="Post preview"
+						style="width:100%; height:70vh; border:1px solid #ddd; border-radius:6px; background:#fff;"></iframe>
+					<small style="color:#666; display:block; margin-top:8px;">This preview is temporary and is not
+						published to your live site. It is removed automatically within 30 minutes.</small>
 				</div>
 			</div>
 
