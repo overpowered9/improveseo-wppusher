@@ -932,33 +932,44 @@ function initializeTinyMCE() {
   });
 }
 
-// After inserting content, TinyMCE leaves the caret at the END of the article and scrolls
-// the editor to the bottom — so the user is looking at the middle/end of the post. Move the
-// caret to the start and scroll the editor (and page) back to the top so the article is shown
-// from the beginning.
+// After inserting the article, TinyMCE leaves the caret at the END and the editor's own
+// (fixed-height, 300px) content area scrolled down, so the reader lands mid-article with the
+// first line hidden. Reset the editor's INTERNAL scroll to the top so the first line is
+// visible, and keep re-pinning it for a short window to beat TinyMCE's post-insert
+// scroll-to-caret and any late reflow of a long article.
 function iseoScrollEditorToTop() {
-  var reset = function () {
+  var resetEditorScroll = function () {
     try {
-      var ed = window.tinymce && tinymce.activeEditor;
+      // Target the specific #content editor (activeEditor can be a different instance).
+      var ed = window.tinymce && (tinymce.get('content') || tinymce.activeEditor);
       if (ed) {
         var body = ed.getBody && ed.getBody();
+        // Caret at the very start, so if the editor is (re)focused it scrolls to the top,
+        // not back down to where the caret was left after insert.
         if (body && body.firstChild && ed.selection) {
           ed.selection.setCursorLocation(body.firstChild, 0);
         }
-        if (ed.getWin) { ed.getWin().scrollTo(0, 0); }
+        // Reset every element that could actually be the editor's scroll container: the
+        // iframe window, its document's scrollingElement/documentElement/body, and the body.
+        try { if (ed.getWin) ed.getWin().scrollTo(0, 0); } catch (e) {}
+        var doc = ed.getDoc && ed.getDoc();
+        if (doc) {
+          if (doc.scrollingElement) doc.scrollingElement.scrollTop = 0;
+          if (doc.documentElement) doc.documentElement.scrollTop = 0;
+          if (doc.body) doc.body.scrollTop = 0;
+        }
+        if (body) body.scrollTop = 0;
       }
     } catch (e) {}
+    // Also send the page to the top (the fields above the editor); harmless if already there.
     try { window.scrollTo(0, 0); } catch (e) {}
-    try {
-      if (document.scrollingElement) { document.scrollingElement.scrollTop = 0; }
-      if (document.documentElement) { document.documentElement.scrollTop = 0; }
-      if (document.body) { document.body.scrollTop = 0; }
-    } catch (e) {}
   };
-  reset();
-  // Something re-scrolls after the insert (TinyMCE settling / a late re-init / caret restore),
-  // so fire the reset repeatedly over ~1.2s to win over it.
-  [50, 150, 300, 500, 800, 1200].forEach(function (d) { setTimeout(reset, d); });
+  resetEditorScroll();
+  // TinyMCE re-scrolls to the caret shortly after insert, and large articles reflow late, so
+  // keep pinning the editor to the top across a ~2.2s window.
+  [30, 80, 150, 250, 400, 600, 850, 1100, 1400, 1800, 2200].forEach(function (d) {
+    setTimeout(resetEditorScroll, d);
+  });
 }
 
 function insertContent(content) {
@@ -997,6 +1008,26 @@ function insertContent(content) {
 jQuery(document).ready(function () {
   resetSmartWizard();
 });
+
+// Also pin the #content editor to the top when it FINISHES INITIALIZING — this covers the
+// case where the article is already in the editor on page load (wp_editor renders the saved
+// content), which never goes through insertContent() and so was never reset before. Registered
+// for editors added later, and applied immediately if #content is already up.
+(function iseoBindContentEditorTop() {
+  if (!window.tinymce || typeof tinymce.on !== 'function') {
+    return setTimeout(iseoBindContentEditorTop, 200); // TinyMCE not loaded yet — retry.
+  }
+  tinymce.on('AddEditor', function (e) {
+    if (e.editor && e.editor.id === 'content') {
+      e.editor.on('init', function () { iseoScrollEditorToTop(); });
+    }
+  });
+  var existing = tinymce.get && tinymce.get('content');
+  if (existing) {
+    if (existing.initialized) { iseoScrollEditorToTop(); }
+    else { existing.on('init', function () { iseoScrollEditorToTop(); }); }
+  }
+})();
 
 function generateAIMetaJs() {
   var maintitlearea = jQuery("#maintitlearea").val();
