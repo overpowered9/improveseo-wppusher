@@ -3676,8 +3676,6 @@ Now generate ONLY the Introduction and the Table of Contents based on the follow
 
 	//if($is_single_keyword=='') {
 
-	$content_final = $content_final . '<style> p {padding-bottom: 2px !important;} </style>';
-
 	$content = array('title' => $seed_keyword, 'content' => $content_final, 'post_type' => 'post');
 
 	$options = array("max_posts" => "1");
