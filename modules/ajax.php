@@ -644,6 +644,48 @@ function improveseo_instant_preview() {
 	) );
 }
 
+// ── Bulk tasks list: instant preview of an already-saved task ────────────────
+// The list's row-level "Preview Post" action (Draft rows) used to link
+// straight to the full "View AI Content" admin page in a new tab
+// (action=viewAiContent). Every other "Preview Post" button now opens the
+// same in-modal card instead, so this one is rendered the same way — through
+// improveseo_bulk_build_post_content(), the SAME renderer viewAiContent.php
+// itself uses, so the modal shows byte-for-byte what that page would show.
+add_action('wp_ajax_improveseo_bulk_preview_by_id', 'improveseo_bulk_preview_by_id');
+
+function improveseo_bulk_preview_by_id() {
+	global $wpdb;
+
+	if ( ! current_user_can('manage_options') ) {
+		wp_send_json_error( array( 'message' => 'Permission denied' ) );
+	}
+
+	if ( ! isset($_POST['nonce']) || ! wp_verify_nonce($_POST['nonce'], 'improveseo_bulk_preview_by_id') ) {
+		wp_send_json_error( array( 'message' => 'Security check failed. Please reload the page and try again.' ) );
+	}
+
+	$id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+	if ( ! $id ) {
+		wp_send_json_error( array( 'message' => 'Missing task id.' ) );
+	}
+
+	$task = $wpdb->get_row( $wpdb->prepare(
+		"SELECT * FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE id = %d",
+		$id
+	) );
+
+	if ( ! $task || empty( $task->ai_content ) ) {
+		wp_send_json_error( array( 'message' => 'This post has no generated content yet.' ) );
+	}
+
+	$built = improveseo_bulk_build_post_content( $task );
+
+	wp_send_json_success( array(
+		'title' => sanitize_text_field( $task->ai_title ),
+		'html'  => do_shortcode( wp_kses_post( $built['html'] ) ),
+	) );
+}
+
 // AJAX handler for creating categories in bulk posts popup
 add_action('wp_ajax_create_bulk_category', 'improveseo_create_bulk_category');
 function improveseo_create_bulk_category() {
