@@ -61,25 +61,6 @@ $keyword_name = trim((string) $task->keyword_name);
 		action="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=save_ai_content&id=' . $task->id . '&noheader=true') ?>">
 
 		<?php wp_nonce_field('improveseo_save_ai_content_' . $task->id) ?>
-
-		<?php
-		// Fields the SINGLE screen's preview flow (assets/js/form.js →
-		// improveseo_generate_preview) reads off #main_form. Preview Post below is that
-		// exact flow, so the form has to carry the same inputs: `title` mirrors the post
-		// title (the visible input posts ai_title for the save), and the rest are the
-		// defaults a one-post preview needs.
-		?>
-		<input type="hidden" name="title" id="iseo_preview_title" value="<?= esc_attr($task->ai_title) ?>">
-		<?php
-		// post_type deliberately carries NO name attribute: form.js reads it off the id
-		// and appends it to the preview request. As a posted field it would land in
-		// $_REQUEST on Save/Publish too, and WordPress then resolves this SUBMENU page's
-		// hook under the parent "admin.php?post_type=post", finds nothing, and kills the
-		// request with "Cannot load improveseo_bulkprojects." (The single editor's form
-		// can post it safely — its page is a top-level menu slug, whose hook name does
-		// not depend on the parent.)
-		?>
-		<input type="hidden" id="iseo_preview_post_type" value="post">
 		<input type="hidden" name="max_posts" value="1">
 		<input type="hidden" name="cats[]" value="">
 
@@ -142,17 +123,20 @@ $keyword_name = trim((string) $task->keyword_name);
 						</a>
 						<button id="preview_on" type="button"
 							class="btn styling_post_page_action_buttons btn-outline-primary">Preview Post</button>
-						<input type="hidden" name="preview_id" id="preview_id" />
-						<input type="hidden" name="is_preview_available" id="is_preview_available" value="no" />
+						<?php wp_nonce_field('improveseo_instant_preview', 'iseo_preview_nonce', false); ?>
 					</div>
 
-					<?php // Preview modal — the same markup form.js drives on the single editor. ?>
+					<?php // Post preview: renders the current title + content server-side
+					// (same card styling as the bulk "View AI Content" page) instead of
+					// building a temporary post, so it opens instantly. Same markup and
+					// styling as the single editor (views/posting/form.php) — styles live
+					// in assets/css/made_by_me.css, scoped under #preview_content_area. ?>
 					<div id="preview_popup" class="modal" style="text-align:center; width:90%; max-width:1100px;">
 						<div id="wh_prev_modal_1">
 							<div id="iseo_preview_loading" class="iseo-preview-loading">
 								<div class="iseo-preview-spinner" role="status" aria-label="Generating preview"></div>
 								<b class="iseo-preview-loading-title">Generating preview</b>
-								<span class="iseo-preview-loading-note">Building a temporary draft of this post.</span>
+								<span class="iseo-preview-loading-note">Rendering the latest changes to this post.</span>
 								<button type="button" id="iseo_preview_cancel"
 									class="button iseo-preview-action">Cancel</button>
 							</div>
@@ -165,19 +149,13 @@ $keyword_name = trim((string) $task->keyword_name);
 						<div id="wh_prev_modal_2" style="display:none;">
 							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
 								<b style="font-size:18px">Post preview</b>
-								<span>
-									<button type="button" id="close_win" class="button iseo-preview-action"
-										onclick="changeWin()">Open in new tab</button>
-									&nbsp;
-									<button type="button" id="open_win"
-										class="button button-primary iseo-preview-action iseo-preview-action--primary"
-										onclick="closeWin()">Close preview</button>
-								</span>
+								<button type="button" id="open_win"
+									class="button button-primary iseo-preview-action iseo-preview-action--primary"
+									onclick="closeWin()">Close preview</button>
 							</div>
-							<iframe id="preview_iframe" src="about:blank" title="Post preview"
-								style="width:100%; height:70vh; border:1px solid #ddd; border-radius:6px; background:#fff;"></iframe>
-							<small style="color:#666; display:block; margin-top:8px;">This preview is temporary and is
-								not published to your live site. It is removed automatically within 30 minutes.</small>
+							<div id="preview_content_area" class="iseo-aicontent-wrap"></div>
+							<small style="color:#666; display:block; margin-top:8px;">This preview reflects your
+								unsaved changes and is not published to your site.</small>
 						</div>
 					</div>
 
@@ -187,17 +165,6 @@ $keyword_name = trim((string) $task->keyword_name);
 
 	</form>
 </div>
-
-<script>
-// Keep the preview's `title` in step with the field the user is editing: form.js
-// serialises #main_form as-is, and the visible input has to keep posting ai_title
-// for the save.
-jQuery(function ($) {
-	function syncPreviewTitle() { $('#iseo_preview_title').val($('#title').val() || ''); }
-	$('#title').on('input change', syncPreviewTitle);
-	$('#preview_on').on('mousedown', syncPreviewTitle);
-});
-</script>
 
 <style>
 	/* Geometry comes from the single editor's own classes; only the breadcrumb line
