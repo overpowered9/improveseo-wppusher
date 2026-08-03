@@ -230,10 +230,26 @@ function pd_seo_meta($post_id, $what) {
                     <button class="active">Edit Draft</button>
                 </a>
             <?php endif; ?>
-            <?php if ($associated_post && $post_url): ?>
+            <?php
+            // A draft (no post yet, or a real WP post still in draft/pending) has no public
+            // permalink to open — get_permalink() on a draft returns a link that just 404s
+            // for visitors. Preview it in the same in-modal instant preview the edit form's
+            // "Preview Post" button uses instead (improveseo_instant_preview in
+            // modules/ajax.php), fed with this project's current stored title/content via
+            // the hidden fields below. Published/private/scheduled posts keep the existing
+            // live-link behavior unchanged.
+            $pd_view_post_is_draft = $associated_post
+                ? in_array($associated_post->post_status, array('draft', 'pending', 'auto-draft'), true)
+                : true;
+            $pd_preview_title   = (isset($content['title']) && $content['title'] !== '') ? $content['title'] : ($associated_post ? $associated_post->post_title : '');
+            $pd_preview_content = (isset($content['content']) && $content['content'] !== '') ? $content['content'] : ($associated_post ? $associated_post->post_content : '');
+            ?>
+            <?php if (!$pd_view_post_is_draft && $associated_post && $post_url): ?>
                 <a href="<?= esc_url($post_url) ?>" target="_blank" style="text-decoration:none;">
                     <button>View Post</button>
                 </a>
+            <?php elseif (trim((string) $pd_preview_title) !== '' || trim((string) $pd_preview_content) !== ''): ?>
+                <button type="button" onclick="iseoPreviewProjectDraft()">View Post</button>
             <?php endif; ?>
         </div>
     </div>
@@ -546,6 +562,113 @@ function pd_seo_meta($post_id, $what) {
     </div>
     </div>
 </div>
+
+<?php // Post preview: same in-modal instant preview the single post's create/edit form
+// "Preview Post" button uses (assets/js/form.js -> improveseo_instant_preview in
+// modules/ajax.php). That flow normally reads the live TinyMCE editor, which this
+// read-only details page doesn't have, so the project's currently stored title/content
+// are handed over via hidden fields instead. Styles live in assets/css/made_by_me.css,
+// scoped under #preview_content_area. ?>
+<textarea id="pd_preview_title_src" style="display:none;"><?= esc_textarea($pd_preview_title) ?></textarea>
+<textarea id="pd_preview_content_src" style="display:none;"><?= esc_textarea($pd_preview_content) ?></textarea>
+<?php wp_nonce_field('improveseo_instant_preview', 'pd_preview_nonce', false); ?>
+
+<div id="preview_popup" class="modal" style="text-align:center; width:90%; max-width:1100px;">
+    <div id="wh_prev_modal_1">
+        <div id="iseo_preview_loading" class="iseo-preview-loading">
+            <div class="iseo-preview-spinner" role="status" aria-label="Generating preview"></div>
+            <b class="iseo-preview-loading-title">Generating preview</b>
+            <span class="iseo-preview-loading-note">Rendering this post.</span>
+            <button type="button" id="iseo_preview_cancel" class="button iseo-preview-action">Cancel</button>
+        </div>
+        <div id="iseo_preview_error" class="iseo-preview-error" style="display:none;">
+            <p id="iseo_preview_error_text"></p>
+            <button type="button" class="button iseo-preview-action iseo-preview-action--primary"
+                onclick="pdClosePreview()">Close</button>
+        </div>
+    </div>
+    <div id="wh_prev_modal_2" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <b style="font-size:18px">Post preview</b>
+            <button type="button" id="open_win"
+                class="button button-primary iseo-preview-action iseo-preview-action--primary"
+                onclick="pdClosePreview()">Close preview</button>
+        </div>
+        <div id="preview_content_area" class="iseo-aicontent-wrap"></div>
+    </div>
+</div>
+
+<script>
+    var _pdPreviewXhr = null;
+
+    jQuery(document).on('click', '#iseo_preview_cancel', function (e) {
+        e.preventDefault();
+        if (_pdPreviewXhr) { try { _pdPreviewXhr.abort(); } catch (ex) { /* done */ } _pdPreviewXhr = null; }
+        jQuery.modal.close();
+    });
+
+    function pdClosePreview() {
+        if (_pdPreviewXhr) { try { _pdPreviewXhr.abort(); } catch (ex) { /* done */ } _pdPreviewXhr = null; }
+        jQuery.modal.close();
+    }
+
+    function pdPreviewFailed(message) {
+        if (typeof message !== 'string' || !message) {
+            message = 'Could not generate preview. Please close this and try again.';
+        }
+        jQuery('#iseo_preview_loading').hide();
+        jQuery('#iseo_preview_error_text').text(message);
+        jQuery('#iseo_preview_error').show();
+    }
+
+    function iseoPreviewProjectDraft() {
+        jQuery('#iseo_preview_error').hide();
+        jQuery('#iseo_preview_loading').show();
+        jQuery('#wh_prev_modal_1').show();
+        jQuery('#wh_prev_modal_2').hide();
+        jQuery('#preview_popup').modal({
+            escapeClose: false,
+            clickClose: false,
+            showClose: false,
+            fadeDuration: 150,
+            fadeDelay: 0.35
+        });
+
+        var title = jQuery.trim(jQuery('#pd_preview_title_src').val() || '');
+        var content = jQuery.trim(jQuery('#pd_preview_content_src').val() || '');
+        var nonce = jQuery('#pd_preview_nonce').val() || '';
+
+        _pdPreviewXhr = jQuery.ajax({
+            url: "<?php echo admin_url('admin-ajax.php'); ?>",
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                action: 'improveseo_instant_preview',
+                title: title,
+                content: content,
+                nonce: nonce
+            },
+            success: function (res) {
+                _pdPreviewXhr = null;
+                if (!res || !res.success || !res.data) {
+                    pdPreviewFailed(res && res.data ? res.data.message : '');
+                    return;
+                }
+                var html = '<article class="iseo-aicontent-article">';
+                html += '<h1 class="iseo-aicontent-title">' + jQuery('<div>').text(res.data.title).html() + '</h1>';
+                html += '<div class="iseo-aicontent-body">' + res.data.html + '</div>';
+                html += '</article>';
+                jQuery('#preview_content_area').html(html);
+                jQuery('#wh_prev_modal_1').hide();
+                jQuery('#wh_prev_modal_2').show();
+            },
+            error: function () {
+                _pdPreviewXhr = null;
+                pdPreviewFailed();
+            }
+        });
+    }
+</script>
 
 <?php View::endSection('content') ?>
 <?php View::make('layouts.main') ?>
