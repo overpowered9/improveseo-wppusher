@@ -2684,11 +2684,23 @@ global $ai_modal_type;
             });
         }
 
+        // #exampleModal1 (position:fixed, overflow-y:auto — see custom_plugin.css .modal)
+        // is the element that actually scrolls, not the window. Switching steps only
+        // toggles which .data section is visible; it never resets that scrollTop, so a
+        // step reached while the modal was scrolled down (e.g. after seeing a validation
+        // error near the bottom of step 1) opens already scrolled past its heading.
+        function iseoScrollWizardToTop() {
+            var modalEl = document.getElementById('exampleModal1');
+            if (modalEl) { modalEl.scrollTop = 0; }
+            try { window.scrollTo(0, 0); } catch (e) {}
+        }
+
         // Helper to advance single post wizard by one step
         function advanceSingleStep() {
             currentStep++;
             updateDataDisplay();
             updateSteps();
+            iseoScrollWizardToTop();
             var sv = parseInt(stepInput.value, 10);
             if (!isNaN(sv)) {
                 stepInput.value = sv + 1;
@@ -2778,6 +2790,7 @@ global $ai_modal_type;
             currentStep--;
             updateDataDisplay();
             updateSteps();
+            iseoScrollWizardToTop();
             resetValidationUI();
 
             const stepValue = parseInt(stepInput.value, 10);
