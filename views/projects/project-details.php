@@ -193,16 +193,7 @@ function pd_seo_meta($post_id, $what) {
     .pd-full-width {
         grid-column: 1 / -1;
     }
-    .pd-content-preview {
-        max-height: 300px;
-        overflow-y: auto;
-        padding: 12px;
-        background: #f9f9f9;
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
-        font-size: 13px;
-        line-height: 1.6;
-    }
+
 </style>
 
 <div class="global-wrap">
@@ -538,25 +529,6 @@ function pd_seo_meta($post_id, $what) {
             </div>
         </div>
 
-        <!-- Card 5: Content Preview (full width) -->
-        <div class="pd-card pd-full-width">
-            <div class="pd-card-header">Content Preview</div>
-            <div class="pd-card-body">
-                <?php if (isset($content['content']) && $content['content']): ?>
-                    <div class="pd-content-preview">
-                        <?php
-                        // Strip the inline <style> block the generator appends to posts —
-                        // wp_kses_post removes the tags but would otherwise leave the raw
-                        // CSS text (e.g. "p {padding-bottom: 2px !important;}") visible here.
-                        $preview_html = preg_replace('#<style\b[^>]*>.*?</style>#is', '', $content['content']);
-                        echo wp_kses_post($preview_html);
-                        ?>
-                    </div>
-                <?php else: ?>
-                    <p class="na" style="margin: 0; font-style: italic; color: #a7aaad;">No content stored in project.</p>
-                <?php endif; ?>
-            </div>
-        </div>
     </div>
 
     </div>

@@ -238,16 +238,7 @@ function btd_datetime($val) {
     .btd-full-width {
         grid-column: 1 / -1;
     }
-    .btd-content-preview {
-        max-height: 300px;
-        overflow-y: auto;
-        padding: 12px;
-        background: #f9f9f9;
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
-        font-size: 13px;
-        line-height: 1.6;
-    }
+
     .btd-image-preview {
         max-width: 300px;
         max-height: 200px;
@@ -664,25 +655,6 @@ function btd_datetime($val) {
         </div>
         <?php endif; ?>
 
-        <!-- Card 7: Content Preview (full width) -->
-        <div class="btd-card btd-full-width">
-            <div class="btd-card-header">Content Preview</div>
-            <div class="btd-card-body">
-                <?php if (!empty($task->ai_content)):
-                    $decoded_content = base64_decode($task->ai_content);
-                    if ($decoded_content):
-                ?>
-                    <div class="btd-content-preview">
-                        <?= wp_kses_post($decoded_content) ?>
-                    </div>
-                <?php else: ?>
-                    <p class="na" style="margin: 0; font-style: italic; color: #a7aaad;">Could not decode content.</p>
-                <?php endif; ?>
-                <?php else: ?>
-                    <p class="na" style="margin: 0; font-style: italic; color: #a7aaad;">Content not generated yet.</p>
-                <?php endif; ?>
-            </div>
-        </div>
     </div>
 
     </div>
