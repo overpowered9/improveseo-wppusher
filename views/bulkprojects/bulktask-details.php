@@ -238,16 +238,7 @@ function btd_datetime($val) {
     .btd-full-width {
         grid-column: 1 / -1;
     }
-    .btd-content-preview {
-        max-height: 300px;
-        overflow-y: auto;
-        padding: 12px;
-        background: #f9f9f9;
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
-        font-size: 13px;
-        line-height: 1.6;
-    }
+
     .btd-image-preview {
         max-width: 300px;
         max-height: 200px;
@@ -319,6 +310,13 @@ function btd_datetime($val) {
                 <a href="<?= esc_url($post_url) ?>" target="_blank" style="text-decoration:none;">
                     <button class="active">View Post</button>
                 </a>
+            <?php elseif (!empty($task->ai_content)): ?>
+                <?php // Drafts never get a WordPress post (see below), so there's no live
+                // permalink to open — show the same in-modal instant preview every other
+                // "Preview Post" button on this screen uses (improveseo_bulk_preview_by_id,
+                // keyed by this task's own id — see the modal + script at the bottom of
+                // this file, copied from views/bulkprojects/alltasks.php). ?>
+                <button type="button" onclick="iseoPreviewBulkTask(<?= (int) $task->id ?>)">Preview Post</button>
             <?php endif; ?>
             <?php if (!empty($task->post_id)): ?>
                 <a href="<?= admin_url('post.php?action=edit&post=' . $task->post_id) ?>" target="_blank" style="text-decoration:none;">
@@ -657,30 +655,90 @@ function btd_datetime($val) {
         </div>
         <?php endif; ?>
 
-        <!-- Card 7: Content Preview (full width) -->
-        <div class="btd-card btd-full-width">
-            <div class="btd-card-header">Content Preview</div>
-            <div class="btd-card-body">
-                <?php if (!empty($task->ai_content)):
-                    $decoded_content = base64_decode($task->ai_content);
-                    if ($decoded_content):
-                ?>
-                    <div class="btd-content-preview">
-                        <?= wp_kses_post($decoded_content) ?>
-                    </div>
-                <?php else: ?>
-                    <p class="na" style="margin: 0; font-style: italic; color: #a7aaad;">Could not decode content.</p>
-                <?php endif; ?>
-                <?php else: ?>
-                    <p class="na" style="margin: 0; font-style: italic; color: #a7aaad;">Content not generated yet.</p>
-                <?php endif; ?>
-            </div>
-        </div>
     </div>
 
     </div>
     </div>
 </div>
+
+<?php // Post preview: same in-modal instant preview as the "View All Posts" screen's
+// row-level "Preview Post" action (views/bulkprojects/alltasks.php) — renders through
+// improveseo_bulk_preview_by_id() / improveseo_bulk_build_post_content() in
+// modules/ajax.php, keyed by this task's id, so it shows byte-for-byte what that
+// action already shows. Styles live in assets/css/made_by_me.css, scoped under
+// #preview_content_area. form.js (already enqueued on this screen) provides
+// _iseoPreviewXhr/_iseoInstantPreviewFailed/closeWin(). ?>
+<div id="preview_popup" class="modal" style="text-align:center; width:90%; max-width:1100px;">
+    <div id="wh_prev_modal_1">
+        <div id="iseo_preview_loading" class="iseo-preview-loading">
+            <div class="iseo-preview-spinner" role="status" aria-label="Generating preview"></div>
+            <b class="iseo-preview-loading-title">Generating preview</b>
+            <span class="iseo-preview-loading-note">Rendering this post.</span>
+            <button type="button" id="iseo_preview_cancel" class="button iseo-preview-action">Cancel</button>
+        </div>
+        <div id="iseo_preview_error" class="iseo-preview-error" style="display:none;">
+            <p id="iseo_preview_error_text"></p>
+            <button type="button" class="button iseo-preview-action iseo-preview-action--primary"
+                onclick="closeWin()">Close</button>
+        </div>
+    </div>
+    <div id="wh_prev_modal_2" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <b style="font-size:18px">Post preview</b>
+            <button type="button" id="open_win"
+                class="button button-primary iseo-preview-action iseo-preview-action--primary"
+                onclick="closeWin()">Close preview</button>
+        </div>
+        <div id="preview_content_area" class="iseo-aicontent-wrap"></div>
+    </div>
+</div>
+
+<script>
+    var iseoBulkPreviewNonce = '<?php echo wp_create_nonce('improveseo_bulk_preview_by_id'); ?>';
+
+    function iseoPreviewBulkTask(id) {
+        jQuery('#iseo_preview_error').hide();
+        jQuery('#iseo_preview_loading').show();
+        jQuery('#wh_prev_modal_1').show();
+        jQuery('#wh_prev_modal_2').hide();
+        jQuery('#preview_popup').modal({
+            escapeClose: false,
+            clickClose: false,
+            showClose: false,
+            fadeDuration: 150,
+            fadeDelay: 0.35
+        });
+
+        _iseoPreviewXhr = jQuery.ajax({
+            url: "<?php echo admin_url("admin-ajax.php"); ?>",
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                action: 'improveseo_bulk_preview_by_id',
+                id: id,
+                nonce: iseoBulkPreviewNonce
+            },
+            success: function (res) {
+                _iseoPreviewXhr = null;
+                if (!res || !res.success || !res.data) {
+                    _iseoInstantPreviewFailed(res && res.data ? res.data.message : '');
+                    return;
+                }
+                var html = '<article class="iseo-aicontent-article">';
+                html += '<h1 class="iseo-aicontent-title">' + jQuery('<div>').text(res.data.title).html() + '</h1>';
+                html += '<div class="iseo-aicontent-body">' + res.data.html + '</div>';
+                html += '</article>';
+                jQuery('#preview_content_area').html(html);
+                jQuery('#wh_prev_modal_1').hide();
+                jQuery('#wh_prev_modal_2').show();
+            },
+            error: function () {
+                _iseoPreviewXhr = null;
+                _iseoInstantPreviewFailed();
+            }
+        });
+    }
+</script>
 
 <?php View::endSection('content') ?>
 <?php View::make('layouts.main') ?>

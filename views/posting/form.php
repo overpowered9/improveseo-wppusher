@@ -97,6 +97,24 @@ $google_api_key = get_option('improveseo_google_api_key');
 			$_isEditMode  = isset($_GET['action']) && $_GET['action'] === 'edit_post';
 			$_isPublished = isset($task) && $task->state === 'Published';
 			?>
+			<?php if ($_isEditMode): ?>
+			<script>
+				// The Edit Post screen preloads existing content into TinyMCE (unlike the
+				// wizard's insertContent(), which triggers on demand). TinyMCE places the
+				// caret at the end of that pre-loaded content on init and the browser
+				// scrolls to follow it, so the screen lands scrolled past the title/name
+				// fields. Reuse the same reset already used for insertContent() in
+				// custom-plugin-script.js (retries for ~1.2s to win over TinyMCE's own
+				// late init/reflow).
+				document.addEventListener('DOMContentLoaded', function () {
+					if (typeof iseoScrollEditorToTop === 'function') {
+						iseoScrollEditorToTop();
+					} else {
+						window.scrollTo(0, 0);
+					}
+				});
+			</script>
+			<?php endif; ?>
 			<div id="post_form_buttons" class="PostForm__buttons">
 				<button name="create" type="submit" formtarget="_self"
 					class="btn styling_post_page_action_buttons btn-outline-primary">
