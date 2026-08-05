@@ -316,7 +316,7 @@ function btd_datetime($val) {
                 // "Preview Post" button on this screen uses (improveseo_bulk_preview_by_id,
                 // keyed by this task's own id — see the modal + script at the bottom of
                 // this file, copied from views/bulkprojects/alltasks.php). ?>
-                <button type="button" class="active" onclick="iseoPreviewBulkTask(<?= (int) $task->id ?>)">View Post</button>
+                <button type="button" class="active" onclick="iseoPreviewBulkTask(<?= (int) $task->id ?>)">Preview Post</button>
             <?php endif; ?>
             <?php if (!empty($task->post_id)): ?>
                 <a href="<?= admin_url('post.php?action=edit&post=' . $task->post_id) ?>" target="_blank" style="text-decoration:none;">

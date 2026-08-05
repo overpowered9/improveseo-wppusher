@@ -240,7 +240,7 @@ function pd_seo_meta($post_id, $what) {
                     <button>View Post</button>
                 </a>
             <?php elseif (trim((string) $pd_preview_title) !== '' || trim((string) $pd_preview_content) !== ''): ?>
-                <button type="button" onclick="iseoPreviewProjectDraft()">View Post</button>
+                <button type="button" onclick="iseoPreviewProjectDraft()">Preview Post</button>
             <?php endif; ?>
         </div>
     </div>
