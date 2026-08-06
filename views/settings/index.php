@@ -73,7 +73,9 @@ use ImproveSEO\View;
                             <div class="iseo-field-group">
                                 <label class="iseo-label" for="iseo_api_key">API Key</label>
                                 <input type="text" id="iseo_api_key" class="iseo-input" placeholder="Paste your API Key here" name="improveseo_api_key" value="<?php echo esc_attr( get_option('improveseo_api_key') ); ?>">
-                                <span class="iseo-helper-text">Find your API Key in your ImproveSEO Dashboard &rarr; Settings tab</span>
+                                <!-- I1 — API Key now lives on the Websites tab, not Settings.
+                                     OLD: Find your API Key in your ImproveSEO Dashboard &rarr; Settings tab -->
+                                <span class="iseo-helper-text">Find your API Key in your ImproveSEO Dashboard &rarr; Websites tab</span>
                             </div>
 
                             <div class="iseo-field-group">
@@ -82,14 +84,22 @@ use ImproveSEO\View;
                                 <span class="iseo-helper-text">Find your Site Code in your ImproveSEO Dashboard &rarr; Websites tab</span>
                             </div>
 
+                            <!-- I2 — both credentials now come from the Websites tab, so the
+                                 steps no longer send the user to Settings for the API Key.
+                                 OLD:
+                                   <li>Visit your ImproveSEO Dashboard</li>
+                                   <li><strong>API Key:</strong> Go to the Settings tab, copy your API Key and paste above</li>
+                                   <li><strong>Site Code:</strong> Go to the Websites tab and add the domain you want to connect</li>
+                                   <li>A Site Code will be generated, copy the Site Code and paste above</li>
+                                   <li>Save settings and start generating content!</li>
+                            -->
                             <div class="iseo-guide-block">
                                 <p class="iseo-guide-title"><strong>How to Get API Key &amp; Site Code - Step by Step</strong></p>
                                 <ol class="iseo-guide-steps">
                                     <li>Visit your <a href="https://account.improveseoplugin.com/" target="_blank">ImproveSEO Dashboard</a></li>
-                                    <li><strong>API Key:</strong> Go to the Settings tab, copy your API Key and paste above</li>
-                                    <li><strong>Site Code:</strong> Go to the Websites tab and add the domain you want to connect</li>
-                                    <li>A Site Code will be generated, copy the Site Code and paste above</li>
-                                    <li>Save settings and start generating content!</li>
+                                    <li>Go to the <strong>Websites</strong> tab and add the domain you want to connect</li>
+                                    <li>Once the website is added, copy and paste the corresponding <strong>API Key</strong> and <strong>Site Code</strong> one by one into the designated fields above.</li>
+                                    <li>Save changes and start generating content!</li>
                                 </ol>
                             </div>
 
