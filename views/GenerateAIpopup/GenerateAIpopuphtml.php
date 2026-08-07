@@ -219,6 +219,13 @@ global $ai_modal_type;
     .iseo-post-content h3 { margin: 22px 0 8px; }
     .iseo-post-content h4 { font-weight: 600; color: #1a1a1a; margin: 18px 0 6px; }
     .iseo-post-content p { margin: 0 0 14px; }
+    /* Generated FAQ blocks — questions as real headings with their answer beneath.
+       font-size needs !important ONLY here: this surface carries a blanket
+       `.iseo-post-content * { font-size: 16px !important }` above, which would otherwise
+       flatten the question back to body size. The margin rules need no such override. */
+    .iseo-post-content .improveseo-faq-item { margin-bottom: 24px; }
+    .iseo-post-content .improveseo-faq-question { font-size: 18px !important; font-weight: 600; margin: 0 0 8px; line-height: 1.4; }
+    .iseo-post-content .improveseo-faq-answer { margin: 0; line-height: 1.7; }
     .iseo-post-content ul,
     .iseo-post-content ol { margin: 0 0 14px; padding-left: 22px; }
     .iseo-post-content li { margin: 4px 0; }

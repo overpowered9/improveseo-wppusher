@@ -1872,32 +1872,249 @@ function improveseo_is_server_configured() {
 }
 
 /**
- * Extract FAQ question/answer pairs from generated content.
+ * Locate the FAQ section inside generated post content.
  *
- * v2 content emits each pair as: <p><strong>Q: question?</strong></p><p>A: answer</p>
- * (older content may put both on adjacent paragraphs). Returns an array of ['q' => ..., 'a' => ...].
+ * The FAQ is delimited by a heading whose text is FAQ / FAQs / Frequently Asked Questions, and runs
+ * until the next heading at the SAME OR HIGHER level (an <h3> inside an <h2> FAQ section belongs to
+ * the FAQ; the next <h2> does not) — or to the end of the content when the FAQ is last, which is the
+ * usual shape.
+ *
+ * @param string $html Post content, or any fragment of it.
+ * @return array{start:int,length:int,body:string}|null Offsets of the section BODY (the heading
+ *         itself is excluded and left in place), or null when there is no FAQ heading.
  */
-function improveseo_extract_faq_pairs( $html ) {
-    $faqs = array();
-    if ( empty( $html ) ) {
-        return $faqs;
+function improveseo_locate_faq_section( $html ) {
+    if ( ! is_string( $html ) || $html === '' ) {
+        return null;
     }
-    // Q inside <strong>, followed by the next paragraph beginning with "A:".
+
+    // The heading text may be wrapped (<h2><strong>FAQ</strong></h2>), hence the optional inner tags.
+    $heading = '~<h([1-6])\b[^>]*>\s*(?:<[^>]+>\s*)*(?:FAQ|FAQs|F\.A\.Q\.?|Frequently\s+Asked\s+Questions)\b[^<]*(?:<[^>]+>\s*)*</h\1>~i';
+    if ( ! preg_match( $heading, $html, $m, PREG_OFFSET_CAPTURE ) ) {
+        return null;
+    }
+
+    $level = (int) $m[1][0];
+    $start = $m[0][1] + strlen( $m[0][0] );
+    $rest  = substr( $html, $start );
+
+    // End at the next heading of the same or higher rank (h1..h$level).
+    $length = strlen( $rest );
+    if ( preg_match( '~<h([1-' . $level . '])\b[^>]*>~i', $rest, $next, PREG_OFFSET_CAPTURE ) ) {
+        $length = $next[0][1];
+    }
+
+    return array(
+        'start'  => $start,
+        'length' => $length,
+        'body'   => substr( $html, $start, $length ),
+    );
+}
+
+/**
+ * Parse the FAQ section into question/answer pairs.
+ *
+ * THE single source of truth for both the rebuilt markup (improveseo_normalize_faq_markup) and the
+ * FAQPage JSON-LD (improveseo_build_faq_schema), so the structured data can never drift from what
+ * the reader actually sees.
+ *
+ * Four input shapes are recognised, first one that yields pairs wins:
+ *   1. Already-normalised .improveseo-faq-question / -answer blocks (makes this idempotent).
+ *   2. The v2 server shape: every pair concatenated into ONE <p>, each question wrapped only in
+ *      <strong>. This is the bug being fixed — <strong> is inline, so the whole section renders as
+ *      continuous prose.
+ *   3. Legacy "<strong>Q: …</strong>" / "A: …" pairs.
+ *   4. Adjacent paragraphs, where a <p> ending in "?" is the question and the next <p> the answer.
+ *
+ * @param string $html Post content, or any fragment of it.
+ * @return array<int, array{q:string,a:string}> Cleaned pairs; empty when there is no parsable FAQ.
+ */
+function improveseo_parse_faq_pairs( $html ) {
+    $section = improveseo_locate_faq_section( $html );
+    if ( ! $section ) {
+        return array();
+    }
+    $body = $section['body'];
+
+    // ── 1. Already normalised ────────────────────────────────────────────────
     if ( preg_match_all(
-        '/<strong>\s*Q:\s*(.+?)\s*<\/strong>\s*(?:<\/p>)?\s*<p>\s*A:\s*(.+?)\s*<\/p>/is',
-        $html,
+        '~<h3\b[^>]*class=["\'][^"\']*\bimproveseo-faq-question\b[^"\']*["\'][^>]*>(.*?)</h3>\s*<p\b[^>]*class=["\'][^"\']*\bimproveseo-faq-answer\b[^"\']*["\'][^>]*>(.*?)</p>~is',
+        $body,
         $matches,
         PREG_SET_ORDER
     ) ) {
-        foreach ( $matches as $m ) {
-            $q = trim( wp_strip_all_tags( $m[1] ) );
-            $a = trim( wp_strip_all_tags( $m[2] ) );
-            if ( $q !== '' && $a !== '' ) {
-                $faqs[] = array( 'q' => $q, 'a' => $a );
-            }
+        return improveseo_clean_faq_pairs( $matches );
+    }
+
+    // ── 2/3. Bold-run split — the shape that produces the single-paragraph bug ─
+    // Splitting (rather than matching pairs) is what handles the merged case: the
+    // questions are the only landmarks in the run, so everything between one bold
+    // question and the next is that question's answer, regardless of how many <p>
+    // boundaries the generator did or did not emit.
+    $parts = preg_split(
+        '~<(?:strong|b)\b[^>]*>\s*((?:(?!</?(?:strong|b)\b).)*?\?)\s*</(?:strong|b)>~is',
+        $body,
+        -1,
+        PREG_SPLIT_DELIM_CAPTURE
+    );
+
+    if ( is_array( $parts ) && count( $parts ) >= 3 ) {
+        $pairs = array();
+        // $parts[0] is whatever preceded the first question (a section intro). It is not a pair, and
+        // normalize() re-emits it above the FAQ block rather than dropping it.
+        for ( $i = 1; $i < count( $parts ); $i += 2 ) {
+            $answer = isset( $parts[ $i + 1 ] ) ? $parts[ $i + 1 ] : '';
+            $pairs[] = array( 1 => $parts[ $i ], 2 => $answer );
+        }
+        $cleaned = improveseo_clean_faq_pairs( $pairs );
+        if ( ! empty( $cleaned ) ) {
+            return $cleaned;
         }
     }
+
+    // ── 4. Adjacent paragraphs ───────────────────────────────────────────────
+    if ( preg_match_all( '~<p\b[^>]*>(.*?)</p>~is', $body, $paras ) ) {
+        $pairs = array();
+        $count = count( $paras[1] );
+        for ( $i = 0; $i < $count - 1; $i++ ) {
+            $text = trim( wp_strip_all_tags( $paras[1][ $i ] ) );
+            $next = trim( wp_strip_all_tags( $paras[1][ $i + 1 ] ) );
+            if ( $text !== '' && substr( $text, -1 ) === '?' && $next !== '' && substr( $next, -1 ) !== '?' ) {
+                $pairs[] = array( 1 => $paras[1][ $i ], 2 => $paras[1][ $i + 1 ] );
+                $i++; // consume the answer paragraph
+            }
+        }
+        return improveseo_clean_faq_pairs( $pairs );
+    }
+
+    return array();
+}
+
+/**
+ * Normalise raw regex matches into clean {q, a} pairs.
+ *
+ * Questions are reduced to plain text — any <strong>/<b> the generator wrapped them in is stripped
+ * here, so nothing leaks through when the question is promoted to an <h3>. Answers keep inline
+ * markup (links especially) but can never carry a block tag, which would be invalid inside the
+ * <p class="improveseo-faq-answer"> they end up in.
+ *
+ * @param array $matches Rows where index 1 is the raw question and index 2 the raw answer.
+ * @return array<int, array{q:string,a:string}>
+ */
+function improveseo_clean_faq_pairs( $matches ) {
+    $faqs = array();
+    $inline_ok = array(
+        'a'      => array( 'href' => array(), 'title' => array(), 'target' => array(), 'rel' => array() ),
+        'em'     => array(),
+        'i'      => array(),
+        'strong' => array(),
+        'b'      => array(),
+        'br'     => array(),
+        'code'   => array(),
+    );
+
+    foreach ( $matches as $m ) {
+        if ( ! isset( $m[1] ) || ! isset( $m[2] ) ) {
+            continue;
+        }
+
+        $q = trim( wp_strip_all_tags( $m[1] ) );
+        $q = preg_replace( '~\s+~u', ' ', $q );
+        // Drop a leading "Q:" / "Q." / "Question:" label from the legacy shape.
+        $q = trim( preg_replace( '~^(?:Q|Question)\s*[:.\)]\s*~i', '', $q ) );
+
+        // Answers arrive as a run of markup: unwrap the block tags into plain text + inline markup,
+        // then kses down to the inline allowlist.
+        $a = preg_replace( '~<br\s*/?>~i', ' ', $m[2] );
+        $a = preg_replace( '~</(?:p|div|li|h[1-6])>~i', ' ', $a );
+        $a = preg_replace( '~<(?:p|div|li|ul|ol|h[1-6])\b[^>]*>~i', ' ', $a );
+        $a = wp_kses( $a, $inline_ok );
+        $a = trim( preg_replace( '~\s+~u', ' ', $a ) );
+        $a = trim( preg_replace( '~^(?:A|Answer)\s*[:.\)]\s*~i', '', $a ) );
+
+        if ( $q !== '' && $a !== '' ) {
+            $faqs[] = array( 'q' => $q, 'a' => $a );
+        }
+    }
+
     return $faqs;
+}
+
+/**
+ * Rebuild a post's FAQ section as discrete, block-level question/answer pairs.
+ *
+ * Runs regardless of what the generation server returned, so the output shape is guaranteed even
+ * when the model ignores its instructions. The result is always:
+ *
+ *   <div class="improveseo-faq">
+ *     <div class="improveseo-faq-item">
+ *       <h3 class="improveseo-faq-question">Question text?</h3>
+ *       <p class="improveseo-faq-answer">Answer text.</p>
+ *     </div>
+ *   </div>
+ *
+ * Idempotent: content that already carries this structure is returned byte-for-byte unchanged, which
+ * is what lets this run at BOTH the generation seam and at render without compounding.
+ *
+ * Fails safe — if no pairs can be parsed the content is returned untouched. Never destroys content.
+ *
+ * @param string $html Post content, or any fragment of it.
+ * @return string
+ */
+function improveseo_normalize_faq_markup( $html ) {
+    if ( ! is_string( $html ) || $html === '' ) {
+        return $html;
+    }
+    // Fast path: already normalised.
+    if ( strpos( $html, 'improveseo-faq-item' ) !== false ) {
+        return $html;
+    }
+
+    $section = improveseo_locate_faq_section( $html );
+    if ( ! $section ) {
+        return $html;
+    }
+
+    $faqs = improveseo_parse_faq_pairs( $html );
+    if ( empty( $faqs ) ) {
+        return $html;
+    }
+
+    // Preserve any lead-in prose that sat before the first question, so rebuilding the section can
+    // never silently drop copy.
+    $intro = '';
+    if ( preg_match( '~^(.*?)<(?:strong|b)\b~is', $section['body'], $lead ) ) {
+        $lead_text = trim( wp_strip_all_tags( $lead[1] ) );
+        if ( $lead_text !== '' ) {
+            $intro = '<p>' . esc_html( $lead_text ) . '</p>' . "\n";
+        }
+    }
+
+    $rebuilt = $intro . '<div class="improveseo-faq">' . "\n";
+    foreach ( $faqs as $f ) {
+        $rebuilt .= '<div class="improveseo-faq-item">' . "\n";
+        $rebuilt .= '<h3 class="improveseo-faq-question">' . esc_html( $f['q'] ) . '</h3>' . "\n";
+        // $f['a'] is already kses'd to the inline allowlist in improveseo_clean_faq_pairs().
+        $rebuilt .= '<p class="improveseo-faq-answer">' . $f['a'] . '</p>' . "\n";
+        $rebuilt .= '</div>' . "\n";
+    }
+    $rebuilt .= '</div>' . "\n";
+
+    return substr_replace( $html, $rebuilt, $section['start'], $section['length'] );
+}
+
+/**
+ * Extract FAQ question/answer pairs from generated content.
+ *
+ * Thin wrapper kept for the schema callers below; improveseo_parse_faq_pairs() does the work and
+ * handles every shape (normalised blocks, the merged single-<p> v2 output, legacy Q:/A:, adjacent
+ * paragraphs). Sharing that one parser is what keeps the JSON-LD and the rendered markup in step.
+ */
+function improveseo_extract_faq_pairs( $html ) {
+    if ( empty( $html ) ) {
+        return array();
+    }
+    return improveseo_parse_faq_pairs( $html );
 }
 
 /** Build a FAQPage JSON-LD array from extracted Q/A pairs, or null if there are none. */
@@ -2000,6 +2217,29 @@ function improveseo_inject_faq_schema() {
     echo "\n" . '<script type="application/ld+json">' . wp_json_encode( $schema ) . '</script>' . "\n";
 }
 add_action( 'wp_head', 'improveseo_inject_faq_schema' );
+
+/**
+ * Normalise the FAQ markup of ImproveSEO posts as they render on the front end.
+ *
+ * Newly generated content is already normalised at the generation seam (createAIpost2 /
+ * createAIpost2bulk), so for those posts this is a no-op via the idempotence fast path. It exists
+ * for posts created BEFORE the fix, whose stored post_content still has the whole FAQ merged into a
+ * single <p>. Without it those posts would render differently on the front end than in the admin
+ * preview, which also normalises.
+ *
+ * Gated on the ImproveSEO content wrapper, so it never touches a post this plugin did not generate.
+ */
+function improveseo_filter_faq_markup( $content ) {
+    if ( empty( $content ) || ! is_string( $content ) ) {
+        return $content;
+    }
+    if ( strpos( $content, 'improveseo-v2-content' ) === false
+        && strpos( $content, 'main-content-section-improveseo' ) === false ) {
+        return $content;
+    }
+    return improveseo_normalize_faq_markup( $content );
+}
+add_filter( 'the_content', 'improveseo_filter_faq_markup', 9 );
 
 
 

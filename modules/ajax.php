@@ -656,6 +656,15 @@ function improveseo_instant_preview() {
 		$content = improveseo_bulk_strip_content_h1( $content );
 	}
 
+	// Rebuild a merged FAQ section into discrete <h3>/<p> blocks. Drafts generated before the
+	// fix still have every Q&A pair in a single <p>; the front end normalises the same way via
+	// the_content, so previewing one of those matches what publishing it will render. Runs
+	// AFTER wp_kses_post (which permits div/h3/p + class, so the structure survives) and before
+	// do_shortcode, so a shortcode's own output is never re-parsed as FAQ prose.
+	if ( function_exists( 'improveseo_normalize_faq_markup' ) ) {
+		$content = improveseo_normalize_faq_markup( $content );
+	}
+
 	// Render any ImproveSEO shortcodes (testimonials, maps, buttons, etc.), the
 	// same call the bulk "View AI Content" preview renders through
 	// (improveseo_bulk_build_post_content), so both previews treat shortcodes

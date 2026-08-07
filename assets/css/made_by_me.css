@@ -3095,3 +3095,130 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   #preview_content_area .iseo-aicontent-title { font-size: 26px !important; }
   #preview_content_area .iseo-aicontent-body { font-size: 16px; }
 }
+
+/* ── Project Details: header action buttons ───────────────────────────────────
+   Scoped under .improveseo-project-details (added on this page's .global-wrap in
+   views/projects/project-details.php) so none of this reaches the other admin
+   screens — or WP core, Astra, Elementor.
+
+   Replaces the plugin-wide `.import-export-btn button` treatment for THIS header
+   only. That rule pairs a 50px pill radius with no flex-shrink guard, so as the
+   viewport narrowed (or the project name grew) flex squeezed the buttons below
+   their intrinsic width and the radius began overlapping the label — the warped,
+   over-rounded shape. A fixed 8px radius cannot distort at any width, and
+   flex-shrink:0 + white-space:nowrap stop the compression happening in the first
+   place. Sizes are intrinsic: no fixed px widths, no percentage widths. */
+.improveseo-project-details .box-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+/* min-width:0 is what actually lets the breadcrumb column shrink — without it a
+   flex item refuses to go below its content's min-content width and shoves the
+   buttons instead, which is how a long project name deformed them. */
+.improveseo-project-details .improveseo-header-title {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.improveseo-project-details .improveseo-header-project-name {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: bottom;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.improveseo-project-details .improveseo-header-actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* min-height + line-height (rather than a height derived from padding alone)
+   keep every button exactly the same height regardless of label length. */
+.improveseo-project-details .improveseo-header-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-height: 44px;
+  padding: 10px 20px;
+  line-height: 1.2;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #1C7293;
+  background: transparent;
+  color: #1C7293;
+  font-size: 15px;
+  cursor: pointer;
+  outline: none;
+}
+
+.improveseo-project-details .improveseo-header-actions a {
+  display: inline-flex;   /* the <a> wrapper must not add its own line box */
+  text-decoration: none;
+}
+
+.improveseo-project-details .improveseo-header-btn.active,
+.improveseo-project-details .improveseo-header-btn:hover,
+.improveseo-project-details .improveseo-header-btn:focus {
+  color: #fff;
+  background: #1C7293;
+  outline: none;
+}
+
+@media (max-width: 1366px) {
+  .improveseo-project-details .improveseo-header-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .improveseo-project-details .box-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .improveseo-project-details .improveseo-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* WordPress' own mobile admin breakpoint — below it the buttons share the row
+   evenly instead of leaving a ragged tail. */
+@media (max-width: 782px) {
+  .improveseo-project-details .improveseo-header-actions a,
+  .improveseo-project-details .improveseo-header-actions > .improveseo-header-btn {
+    flex: 1 1 auto;
+  }
+  .improveseo-project-details .improveseo-header-actions a .improveseo-header-btn {
+    width: 100%;
+  }
+}
+
+/* ── Generated FAQ blocks (instant preview modal) ─────────────────────────────
+   Mirrors assets/css/improveseo-front.css so the modal and the published post
+   render a FAQ identically. The selectors carry an id + two classes, which
+   already outranks this surface's own `h3` rule above — no !important needed.
+   Nothing here collapses the item margins or forces inline display: the
+   `font-size: inherit !important` block earlier in this file touches font-size
+   only, and .improveseo-faq-question is an h3, so it is not caught by it. */
+#preview_content_area .iseo-aicontent-body .improveseo-faq-item {
+  margin-bottom: 24px;
+}
+#preview_content_area .iseo-aicontent-body .improveseo-faq-question {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+#preview_content_area .iseo-aicontent-body .improveseo-faq-answer {
+  margin: 0;
+  line-height: 1.7;
+}

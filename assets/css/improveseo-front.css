@@ -135,3 +135,29 @@
 .main-content-section-improveseo p {
 	padding-bottom: 2px;
 }
+
+/* ── Generated FAQ blocks ─────────────────────────────────────────────────────
+   Each question is a real heading with its answer directly beneath, and clear
+   vertical separation between pairs. The markup is built by
+   improveseo_normalize_faq_markup() (includes/functions.php).
+
+   These values are duplicated verbatim in the three admin preview surfaces —
+   assets/css/made_by_me.css (instant-preview modal),
+   views/bulkprojects/viewAIContent.php and
+   views/GenerateAIpopup/GenerateAIpopuphtml.php — so what you preview is what
+   gets published. Change them in all four or none. */
+.improveseo-faq-item {
+	margin-bottom: 24px;
+}
+
+.improveseo-faq-question {
+	font-size: 18px;
+	font-weight: 600;
+	margin: 0 0 8px;
+	line-height: 1.4;
+}
+
+.improveseo-faq-answer {
+	margin: 0;
+	line-height: 1.7;
+}

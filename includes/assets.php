@@ -265,7 +265,10 @@ add_action( 'wp_enqueue_scripts', 'improveseo_enqueue_front' );
 
 function improveseo_enqueue_front(){
 
-	wp_enqueue_style('improveseo-front', IMPROVESEO_DIR . '/assets/css/improveseo-front.css', array(), '2.0');
+	// Version comes from the file's mtime rather than a hand-bumped literal, so a CSS change
+	// always reaches visitors' browsers instead of being served from cache (the '2.0' literal
+	// this replaces had to be remembered by hand, and wasn't).
+	wp_enqueue_style('improveseo-front', IMPROVESEO_DIR . '/assets/css/improveseo-front.css', array(), improveseo_asset_ver('assets/css/improveseo-front.css'));
 
 }
 

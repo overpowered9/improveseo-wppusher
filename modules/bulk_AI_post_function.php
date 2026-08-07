@@ -321,6 +321,14 @@ if (!function_exists('improveseo_bulk_build_post_content')) {
         }
         $body = improveseo_bulk_strip_content_h1($body);
 
+        // Tasks generated before the FAQ fix still carry the whole FAQ merged into a single
+        // <p>. Normalising here — in THE single renderer both the preview and the publish path
+        // go through — is what keeps those two identical for legacy rows. A no-op for tasks
+        // whose content was already normalised at generation.
+        if (function_exists('improveseo_normalize_faq_markup')) {
+            $body = improveseo_normalize_faq_markup($body);
+        }
+
         // CTA guard — runs here so the preview and the published post can never
         // disagree: a CTA with no usable URL is skipped cleanly instead of
         // rendering an empty <a>/href=""/dangling button.
@@ -2127,6 +2135,13 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 	
 	
 	
+	// Rebuild the FAQ section as discrete <h3>/<p> blocks — same normalisation the single-post
+	// route applies (see createAIpost2 in single_AI_post_function.php). The server merges every
+	// Q&A pair into one <p> with inline <strong> questions, which reads as one prose block.
+	if ( function_exists( 'improveseo_normalize_faq_markup' ) ) {
+		$content_final = improveseo_normalize_faq_markup( $content_final );
+	}
+
 	// Add styling like original function
 	$content_final = '<div class="main-content-section-improveseo">' . $content_final . '</div>';
 	

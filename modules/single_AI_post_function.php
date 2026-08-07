@@ -505,6 +505,15 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 		? $result['data']['meta_description']
 		: (isset($result['data']['meta_descreption']) ? $result['data']['meta_descreption'] : '');
 	
+	// Rebuild the FAQ section as discrete <h3>/<p> blocks. The server returns every pair
+	// concatenated into ONE <p> with the questions wrapped only in <strong>, which is inline —
+	// so the whole section renders as continuous prose. Normalising HERE, at the source, means
+	// the stored post_content is already correct for the editor, every preview and the published
+	// post. Idempotent, so the render-time filter downstream is a no-op for this content.
+	if ( function_exists( 'improveseo_normalize_faq_markup' ) ) {
+		$content_final = improveseo_normalize_faq_markup( $content_final );
+	}
+
 	$content_final = '<div class="main-content-section-improveseo">' . $content_final . '</div>';
 
 

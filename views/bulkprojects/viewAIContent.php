@@ -170,6 +170,26 @@ use ImproveSEO\View;
 		margin: 0 0 18px;
 	}
 
+	/* Generated FAQ blocks. Same values as assets/css/improveseo-front.css and the
+	   instant-preview modal in assets/css/made_by_me.css, so a FAQ looks the same on
+	   this page, in the modal and on the published post. Two classes outrank the bare
+	   `h3` / `p` rules above, so no !important is needed. */
+	.iseo-aicontent-body .improveseo-faq-item {
+		margin-bottom: 24px;
+	}
+
+	.iseo-aicontent-body .improveseo-faq-question {
+		font-size: 18px;
+		font-weight: 600;
+		margin: 0 0 8px;
+		line-height: 1.4;
+	}
+
+	.iseo-aicontent-body .improveseo-faq-answer {
+		margin: 0;
+		line-height: 1.7;
+	}
+
 	/* Lists render with their markers, exactly as the published post does.
 
 	   The content is already correct — the generator emits real <ul><li> — but

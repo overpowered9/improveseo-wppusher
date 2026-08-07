@@ -196,29 +196,42 @@ function pd_seo_meta($post_id, $what) {
 
 </style>
 
-<div class="global-wrap">
+<?php
+// `improveseo-project-details` scopes this page's header rules in
+// assets/css/made_by_me.css. The action buttons deliberately do NOT use the
+// plugin-wide `.import-export-btn` class: that rule gives every button a 50px
+// pill radius with no flex-shrink guard, so once flex compressed them below
+// their intrinsic width the radius started swallowing the label. This page owns
+// `.improveseo-header-actions` / `.improveseo-header-btn` instead, which keeps
+// the shared class (and the 6 other screens using it) untouched and means the
+// new rules never have to fight it with !important.
+?>
+<div class="global-wrap improveseo-project-details">
     <div class="head-bar">
         <img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo">
         <h1>ImproveSEO | Project Details</h1>
     </div>
     <div class="box-top">
-        <ul class="breadcrumb-seo">
-            <li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
-            <li><a href="<?= admin_url('admin.php?page=improveseo_projects') ?>">Projects List</a></li>
-            <li><?= esc_html($project->name) ?></li>
-        </ul>
-        <div class="import-export-btn">
+        <div class="improveseo-header-title">
+            <ul class="breadcrumb-seo">
+                <li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+                <li><a href="<?= admin_url('admin.php?page=improveseo_projects') ?>">Projects List</a></li>
+                <?php // Ellipsised when long (see CSS); title="" keeps the full name readable on hover. ?>
+                <li class="improveseo-header-project-name" title="<?= esc_attr($project->name) ?>"><?= esc_html($project->name) ?></li>
+            </ul>
+        </div>
+        <div class="improveseo-header-actions">
             <a href="<?= admin_url('admin.php?page=improveseo_projects') ?>" style="text-decoration:none;">
-                <button>← Back to Projects</button>
+                <button class="improveseo-header-btn">← Back to Projects</button>
             </a>
             <?php $edit_link = $associated_post ? get_edit_post_link($associated_post->ID, 'raw') : ''; ?>
             <?php if ($edit_link): ?>
                 <a href="<?= esc_url($edit_link) ?>" target="_blank" style="text-decoration:none;">
-                    <button class="active">Edit Post</button>
+                    <button class="improveseo-header-btn active">Edit Post</button>
                 </a>
             <?php elseif ($project->state === 'Draft'): ?>
                 <a href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}") ?>" style="text-decoration:none;">
-                    <button class="active">Edit Draft</button>
+                    <button class="improveseo-header-btn active">Edit Draft</button>
                 </a>
             <?php endif; ?>
             <?php
@@ -237,10 +250,10 @@ function pd_seo_meta($post_id, $what) {
             ?>
             <?php if (!$pd_view_post_is_draft && $associated_post && $post_url): ?>
                 <a href="<?= esc_url($post_url) ?>" target="_blank" style="text-decoration:none;">
-                    <button>View Post</button>
+                    <button class="improveseo-header-btn">View Post</button>
                 </a>
             <?php elseif (trim((string) $pd_preview_title) !== '' || trim((string) $pd_preview_content) !== ''): ?>
-                <button type="button" onclick="iseoPreviewProjectDraft()">Preview Post</button>
+                <button type="button" class="improveseo-header-btn" onclick="iseoPreviewProjectDraft()">Preview Post</button>
             <?php endif; ?>
         </div>
     </div>
