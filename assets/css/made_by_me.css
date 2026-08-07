@@ -3102,12 +3102,27 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
    screens — or WP core, Astra, Elementor.
 
    Replaces the plugin-wide `.import-export-btn button` treatment for THIS header
-   only. That rule pairs a 50px pill radius with no flex-shrink guard, so as the
-   viewport narrowed (or the project name grew) flex squeezed the buttons below
-   their intrinsic width and the radius began overlapping the label — the warped,
-   over-rounded shape. A fixed 8px radius cannot distort at any width, and
-   flex-shrink:0 + white-space:nowrap stop the compression happening in the first
-   place. Sizes are intrinsic: no fixed px widths, no percentage widths. */
+   only.
+
+   The pill radius is KEPT — the round shape was never the bug. What went wrong,
+   measured on the old markup at 1366px and 1280px with a 107-character project
+   name:
+
+     the breadcrumb column had no min-width:0, so it would not shrink and pushed
+     the buttons instead -> the buttons had no flex-shrink guard, so they were
+     squeezed narrower than their labels -> the labels wrapped to TWO lines ->
+     button height grew 44px -> 66px -> and because a pill radius is clamped to
+     half the box height, the rendered corner grew 22px -> 33px.
+
+   That last step is the "buttons get more rounded on small laptops" symptom: it
+   comes from the extra HEIGHT the wrap adds, not from the radius value. So the
+   fix is to stop the wrap, not to change the shape — white-space:nowrap and
+   flex-shrink:0 keep every button one line tall at its intrinsic width, and
+   min-width:0 on the breadcrumb column (below) lets that column give way first.
+   With min-height pinned at 44px the corner then renders at 22px on every
+   button, at every viewport, whatever the project name's length.
+
+   Sizes are intrinsic: no fixed px widths, no percentage widths. */
 .improveseo-project-details .box-top {
   display: flex;
   justify-content: space-between;
@@ -3120,13 +3135,35 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
    buttons instead, which is how a long project name deformed them. */
 .improveseo-project-details .improveseo-header-title {
   min-width: 0;
+  max-width: 100%;
   flex: 1 1 auto;
 }
 
-.improveseo-project-details .improveseo-header-project-name {
-  display: inline-block;
+/* The breadcrumb is made a flex row so the project name below can be a flex item
+   that SHRINKS. min-width:0 alone only constrains the main axis: once .box-top
+   turns into a column at <=1024px, width becomes the CROSS axis, and a nowrap
+   120-character name would widen the whole header instead of ellipsising. As a
+   shrinkable flex item with min-width:0 it clips correctly in both directions.
+   The "/" separators are :before content on the li, so they survive the change. */
+.improveseo-project-details .improveseo-header-title .breadcrumb-seo {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  min-width: 0;
   max-width: 100%;
-  vertical-align: bottom;
+  margin: 0;
+}
+
+.improveseo-project-details .improveseo-header-title .breadcrumb-seo > li {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* Matched at the same depth as the `> li` rule above — a shorter selector would
+   lose to it and the name would inherit flex:0 0 auto, i.e. refuse to shrink. */
+.improveseo-project-details .improveseo-header-title .breadcrumb-seo > li.improveseo-header-project-name {
+  flex: 0 1 auto;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3150,7 +3187,10 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   padding: 10px 20px;
   line-height: 1.2;
   box-sizing: border-box;
-  border-radius: 8px;
+  /* The plugin's existing pill, unchanged. The browser clamps it to half the box
+     height, so with min-height pinned at 44px above it renders as 22px on every
+     button — identical at every viewport, because nowrap keeps the height at 44. */
+  border-radius: 50px;
   border: 1px solid #1C7293;
   background: transparent;
   color: #1C7293;
