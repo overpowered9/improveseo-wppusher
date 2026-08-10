@@ -353,14 +353,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Plan / trial status line + badge.
         // Rename map: the server may still return stale plan names that have
-        // since been rebranded. Keep this map updated when plan names change.
+        // since been rebranded. Keys are lowercase WITHOUT the word "plan".
+        // Keep this map updated when plan names change.
         var planRenameMap = { 'pro': 'Scale' };
         var badgeText, badgeColor, statusLine;
         if (plan && plan.is_paid) {
             var displayName = plan.name || 'Paid';
-            var lowerName = displayName.toLowerCase();
-            if (planRenameMap[lowerName]) { displayName = planRenameMap[lowerName]; }
-            badgeText = esc(displayName) + ' plan';
+            // Strip a trailing ' plan' / ' Plan' the server may include, so the
+            // lookup key is always the bare plan name (e.g. 'pro', not 'pro plan').
+            var bareName = displayName.replace(/\s+plan$/i, '');
+            var lowerBare = bareName.toLowerCase();
+            if (planRenameMap[lowerBare]) { bareName = planRenameMap[lowerBare]; }
+            badgeText = esc(bareName) + ' plan';
             badgeColor = '#0f7b6c';
             statusLine = 'Active subscription — full access.';
         } else if (trial && trial.expired) {
