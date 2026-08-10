@@ -44,7 +44,11 @@ function improveseo_enqueue_admin(){
 	wp_localize_script('improveseo-main', 'main_ajax_vars', array(
 
 		'site_url'      		=> 	site_url(),
-
+		// Connection guard: true when both API key AND site code are stored.
+		// Used by the global connection-guard modal (main.php layout) to block
+		// credit-consuming actions on sites that haven't finished setup.
+		'iseo_connected'		=>	( ! empty( get_option( 'improveseo_api_key', '' ) ) && ! empty( get_option( 'improveseo_site_code', '' ) ) ) ? '1' : '0',
+		'iseo_onboarding_url'	=>	admin_url( 'admin.php?page=improveseo_onboarding' ),
 		)
 
 	);

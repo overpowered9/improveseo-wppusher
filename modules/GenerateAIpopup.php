@@ -592,6 +592,11 @@ function generateAIpopup()
         function generate() {
             console.log("🟢 GENERATEAIPOPUP.PHP: generate() called from modules/GenerateAIpopup.php");
 
+            // Connection guard — show modal if site is not connected to ImproveSEO.
+            if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) {
+                return;
+            }
+
             var seed = (jQuery('#input').val() || '').trim();
             if (!seed) {
                 alert('Please enter a seed keyword first.');
@@ -601,6 +606,8 @@ function generateAIpopup()
             var apiKey = '<?php echo esc_js(get_option("improveseo_api_key")); ?>';
             var siteCode = '<?php echo esc_js(get_option("improveseo_site_code")); ?>';
             if (!apiKey || !siteCode) {
+                // Fallback: if iseoRequireConnection wasn't available, show the modal or alert.
+                if (typeof iseoRequireConnection === 'function') { iseoRequireConnection(); return; }
                 alert('Missing API credentials. Please configure API Key and Site Code in settings.');
                 return;
             }

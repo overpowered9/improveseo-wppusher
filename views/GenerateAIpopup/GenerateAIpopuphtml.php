@@ -2950,6 +2950,11 @@ global $ai_modal_type;
         BulkSubmitButton.init(nextButton);
 
         nextButton.addEventListener("click", () => {
+            // Connection guard — block all wizard steps when site is not connected.
+            if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) {
+                return;
+            }
+
             // Validate keyword list and check CONTENT credits on step 0 (first step)
             if (currentStep === 0) {
                 var keywordListName = jQuery('#keyword_list_name').val();
@@ -3262,10 +3267,18 @@ global $ai_modal_type;
     // Single Post: Content Credit Check Function
     function checkSingleContentCredits() {
         return new Promise(function(resolve, reject) {
+            // Connection guard — show modal if site is not connected.
+            if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) {
+                reject('not_connected');
+                return;
+            }
+
             var apiKey = '<?php echo esc_js(get_option("improveseo_api_key")); ?>';
             var siteCode = '<?php echo esc_js(get_option("improveseo_site_code")); ?>';
 
             if (!apiKey || !siteCode) {
+                // Fallback: show the connection guard modal
+                if (typeof iseoRequireConnection === 'function') { iseoRequireConnection(); reject('not_connected'); return; }
                 showImproveSEONotification('error', 'Configuration Required', 'Please configure your API Key and Site Code in ImproveSEO settings first.', null);
                 reject('missing_credentials');
                 return;
@@ -3313,11 +3326,19 @@ global $ai_modal_type;
     // Bulk Post: Content Credit Check Function (Step 1)
     function checkBulkContentCredits() {
         return new Promise((resolve, reject) => {
+            // Connection guard — show modal if site is not connected.
+            if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) {
+                reject('not_connected');
+                return;
+            }
+
             // Get API credentials
             const apiKey = '<?php echo esc_js(get_option("improveseo_api_key")); ?>';
             const siteCode = '<?php echo esc_js(get_option("improveseo_site_code")); ?>';
             
             if (!apiKey || !siteCode) {
+                // Fallback: show the connection guard modal
+                if (typeof iseoRequireConnection === 'function') { iseoRequireConnection(); reject('not_connected'); return; }
                 showImproveSEONotification(
                     'error',
                     'Configuration Required',
@@ -3438,11 +3459,19 @@ global $ai_modal_type;
     // Bulk Post: Image Credit Check Function (Step 3)
     function checkBulkImageCredits() {
         return new Promise((resolve, reject) => {
+            // Connection guard — show modal if site is not connected.
+            if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) {
+                reject('not_connected');
+                return;
+            }
+
             // Get API credentials
             const apiKey = '<?php echo esc_js(get_option("improveseo_api_key")); ?>';
             const siteCode = '<?php echo esc_js(get_option("improveseo_site_code")); ?>';
             
             if (!apiKey || !siteCode) {
+                // Fallback: show the connection guard modal
+                if (typeof iseoRequireConnection === 'function') { iseoRequireConnection(); reject('not_connected'); return; }
                 showImproveSEONotification(
                     'error',
                     'Configuration Required',

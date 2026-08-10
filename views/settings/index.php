@@ -97,7 +97,7 @@ use ImproveSEO\View;
                                 <p class="iseo-guide-title"><strong>How to Get API Key &amp; Site Code - Step by Step</strong></p>
                                 <ol class="iseo-guide-steps">
                                     <li>Visit your <a href="https://account.improveseoplugin.com/" target="_blank">ImproveSEO Dashboard</a></li>
-                                    <li>Go to the <strong>Websites</strong> tab and add the domain you want to connect</li>
+                                    <li>Go to the <strong>Websites</strong> tab and add the website you want to connect</li>
                                     <li>Once the website is added, copy and paste the corresponding <strong>API Key</strong> and <strong>Site Code</strong> one by one into the designated fields above.</li>
                                     <li>Save changes and start generating content!</li>
                                 </ol>
@@ -352,9 +352,15 @@ document.addEventListener('DOMContentLoaded', function() {
         var cd = d.credit_details || null;
 
         // Plan / trial status line + badge.
+        // Rename map: the server may still return stale plan names that have
+        // since been rebranded. Keep this map updated when plan names change.
+        var planRenameMap = { 'pro': 'Scale' };
         var badgeText, badgeColor, statusLine;
         if (plan && plan.is_paid) {
-            badgeText = esc(plan.name || 'Paid') + ' plan';
+            var displayName = plan.name || 'Paid';
+            var lowerName = displayName.toLowerCase();
+            if (planRenameMap[lowerName]) { displayName = planRenameMap[lowerName]; }
+            badgeText = esc(displayName) + ' plan';
             badgeColor = '#0f7b6c';
             statusLine = 'Active subscription — full access.';
         } else if (trial && trial.expired) {
