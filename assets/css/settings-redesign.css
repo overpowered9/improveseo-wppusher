@@ -659,6 +659,21 @@
     right: 11px;
 }
 
+/* Opens upward. For markers in the wizard's bottom nav bar, where a box hanging below
+   the marker would fall outside the panel. The shown-state transform still comes from
+   the :hover/:focus rule above, which outranks this. */
+.iseo-info-tip-bubble--above {
+    top: auto;
+    bottom: calc(100% + 9px);
+    transform: translateY(4px);
+}
+.iseo-info-tip-bubble--above::after {
+    bottom: auto;
+    top: 100%;
+    border-bottom-color: transparent;
+    border-top-color: #1F2937;
+}
+
 /* Bulleted and multi-paragraph hint copy. These are spans rather than ul/li because
    the bubble itself is a span inside a label — only phrasing content is valid here. */
 .iseo-info-tip-bubble--field .iseo-tip-item,

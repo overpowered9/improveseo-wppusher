@@ -361,6 +361,16 @@ global $ai_modal_type;
         align-items: center !important;
         gap: 12px !important;
         margin: 20px 0 8px;            /* directly under the content card */
+        /* Change Image / Regenerate Content / Review Input, stacked in that order. */
+        flex-direction: column;
+    }
+    /* One button plus its hover hint. The marker hangs off the right of the button, so
+       the row is wider than the button — every row is built the same way, which keeps
+       the buttons themselves aligned with each other. */
+    .iseo-action-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
     /* Bottom buttons: compact (same as the top-right stack) and close together. The
        fixed width keeps the group well within the card, and margin:0 defeats any
@@ -410,6 +420,13 @@ global $ai_modal_type;
     .iseo-regen-hint b {
         color: #1C7293;
         font-weight: 600;
+    }
+    /* Keeps the nav hint marker beside the Next/Approve/Submit button rather than
+       stranded in the middle of the bar, which is what space-between would do to it. */
+    .iseo-nav-btn-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
 
 
@@ -1471,14 +1488,47 @@ global $ai_modal_type;
                                         onclick="iseoOpenFullPreview(); return false;">&#10530; Open full preview in a new tab</button>
                                 </div>
 
-                                <!-- Single, centred Regenerate button (#generateapivalue, relabelled after the
-                                     first generation). The old in-preview "Approve Content" button was removed:
-                                     the wizard's own bottom nav button ("Approve Content" on this step) advances
-                                     the flow, so it was redundant. The hint tells the user how to get different
-                                     content — go back and change their inputs. -->
+                                <!-- Centred stack of the three things a user can do with the result:
+                                     swap the cover image only, regenerate the article (#generateapivalue,
+                                     relabelled "Regenerate Content" after the first generation), or go
+                                     back and revise the inputs. Approving happens on the wizard's own
+                                     bottom nav button, which reads "Approve Content" on this step — an
+                                     in-preview Approve button used to sit here and was removed as
+                                     redundant. Only Regenerate spends a credit. -->
                                 <div class="iseo-content-actions iseo-content-actions-bottom">
-                                    <input type="button" name="genaipost" class="iseo-content-btn iseo-regenerate-content"
-                                        id="generateapivalue" value="Generate AI Post" />
+                                    <span class="iseo-action-row">
+                                        <button type="button" class="iseo-content-btn" id="iseoChangeImageBtn">Change Image</button>
+                                        <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How do I change just the image?">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                            <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                                <strong>Want to change the image only?</strong>
+                                                If you want to change the post image only, you can do so without regenerating the whole post. Click on &lsquo;Change Image&rsquo; and create or upload a different image.
+                                            </span>
+                                        </span>
+                                    </span>
+                                    <span class="iseo-action-row">
+                                        <input type="button" name="genaipost" class="iseo-content-btn iseo-regenerate-content"
+                                            id="generateapivalue" value="Generate AI Post" />
+                                        <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What does regenerating do?">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                            <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                                <strong>Regenerate Content</strong>
+                                                Something not right with your post? Click on &lsquo;Review Input&rsquo; to go back to the beginning of this wizard and review and change any inputs you have made so far. Once you made all necessary changes click on &lsquo;Regenerate Content&rsquo; to generate the post based on your revised inputs. Regenerating content will use an additional content credit.
+                                                <span class="iseo-tip-para">Note: you will be able to make manual edits in a later step before you finalize and publish your post.</span>
+                                            </span>
+                                        </span>
+                                    </span>
+                                    <span class="iseo-action-row">
+                                        <button type="button" class="iseo-content-btn" id="iseoReviewInputBtn">Review Input</button>
+                                        <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What does reviewing my inputs do?">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                            <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                                <strong>Review your Inputs</strong>
+                                                Something not right with your post? Click on &lsquo;Review Input&rsquo; to go back to the beginning of this wizard and review and change any inputs you have made so far. Once you made all necessary changes click on &lsquo;Regenerate Content&rsquo; to generate the post based on your revised inputs. Regenerating content will use an additional content credit.
+                                                <span class="iseo-tip-para">Note: you will be able to make manual edits in a next step before you finalize and publish your post.</span>
+                                            </span>
+                                        </span>
+                                    </span>
                                 </div>
                                 <p class="iseo-regen-hint">Want a different result? Go back to <b>Step&nbsp;1</b>, tweak your inputs, then regenerate.</p>
                             </div>
@@ -1492,12 +1542,28 @@ global $ai_modal_type;
                 <!-- option 5 -->
                 <div class="data meta-data">
                     <div class="seo-form-field">
-                        <label for="meta_title">Meta Title</label>
+                        <label for="meta_title">Meta Title
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a meta title?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>SEO Meta Title</strong>
+                                    This meta title appears on the SERP (search engine results page), for example, when your post ranks in Google. We suggested one, but you can edit it freely. For best results keep it under 60 characters.
+                                </span>
+                            </span>
+                        </label>
                         <input type="text" id="meta_title" name="meta_title" placeholder="Enter title..." />
                         <span class="iseo-meta-count" id="meta_title_count" data-max="60" data-min="0">0 / 60</span>
                     </div>
                     <div class="seo-form-field">
-                        <label for="meta_descreption">Meta Description</label>
+                        <label for="meta_descreption">Meta Description
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a meta description?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Meta Description</strong>
+                                    A short description shown under the meta title in search engines like Google. We suggested one, but you can edit it freely. For best results keep it under 160 characters and make it compelling to increase clicks!
+                                </span>
+                            </span>
+                        </label>
                         <textarea id="meta_descreption" name="meta_descreption"
                             placeholder="Enter description...."></textarea>
                         <span class="iseo-meta-count" id="meta_descreption_count" data-max="160" data-min="150">0 / 160</span>
@@ -1513,13 +1579,29 @@ global $ai_modal_type;
                 <!-- option 6 — Project Name & Category -->
                 <div class="data project-name-data">
                     <div class="seo-form-field">
-                        <label for="modal_project_name">Project Name</label>
+                        <label for="modal_project_name">Project Name
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is the project name for?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Project Name</strong>
+                                    We&rsquo;ve auto-filled an internal name based on the seed keyword that you provided earlier &mdash; it&rsquo;s for your reference only and won&rsquo;t be published. You can edit it, if you like.
+                                </span>
+                            </span>
+                        </label>
                         <input type="text" id="modal_project_name" name="modal_project_name" class="form-control" placeholder="Enter project name...">
                         <span>Auto-filled from your keyword — you can edit it.</span>
                     </div>
 
                     <div class="category-selection-section" style="margin-top: 20px;">
-                        <h3 style="font-size:18px; font-weight:400; color:rgba(80,87,94,0.8); margin-bottom:10px; text-align:left;">Assign Categories</h3>
+                        <h3 style="font-size:18px; font-weight:400; color:rgba(80,87,94,0.8); margin-bottom:10px; text-align:left;">Assign Categories
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Why assign a category?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Assign a Category</strong>
+                                    Choose one or more categories to keep your posts organized on your website. Improve SEO is selected by default &mdash; you can add other categories or create a new one below.
+                                </span>
+                            </span>
+                        </h3>
                         <div class="bulk-category-box" style="padding: 16px !important; margin-bottom: 0 !important;">
                             <div class="bulk-category-list" id="single-modal-category-list" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
                                 <?php
@@ -1553,9 +1635,26 @@ global $ai_modal_type;
             <button id="prevStepButton"> <img
                     src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-left.svg' ?>" alt="ep_arrow-left">
                 Previous</button>
-            <button id="nextStepButton" class="style_next_button_in_popup">Next <img
-                    src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>"
-                    alt="ep_arrow-rights"> </button>
+            <?php // The nav button changes role per step, so its hint travels with it and swaps
+                  // copy to match. iseoUpdateNavTip() shows the [data-nav-step] matching the step
+                  // and hides the marker where there is nothing to say. ?>
+            <span class="iseo-nav-btn-group">
+                <span class="iseo-info-tip" id="iseoNavTip" tabindex="0" role="button" aria-label="What does this button do?" style="display:none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--end iseo-info-tip-bubble--above" role="tooltip">
+                        <span data-nav-step="4" style="display:none;">
+                            <strong>Review &amp; Approve</strong>
+                            Satisfied with the post? Click &lsquo;Approve Content&rsquo; to continue.
+                        </span>
+                        <span data-nav-step="6" style="display:none;">
+                            Click &lsquo;Submit&rsquo; to continue.
+                        </span>
+                    </span>
+                </span>
+                <button id="nextStepButton" class="style_next_button_in_popup">Next <img
+                        src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>"
+                        alt="ep_arrow-rights"> </button>
+            </span>
         </div>
     </div>
 
@@ -2752,7 +2851,26 @@ global $ai_modal_type;
                 nextStepButton.disabled = true;
             }
 
+            iseoUpdateNavTip(stepValue);
+
             nextStepButton.innerHTML = `${buttonText} <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>" alt="arrow-right">`;
+        }
+
+        /* The nav button is a single element that changes role as the wizard advances, so
+           its hint has to change with it — and stay hidden on the steps where the button
+           is just "Next" and there is nothing worth saying. */
+        function iseoUpdateNavTip(stepValue) {
+            var tip = document.getElementById('iseoNavTip');
+            if (!tip) return;
+
+            var shown = false;
+            tip.querySelectorAll('[data-nav-step]').forEach(function (copy) {
+                var matches = parseInt(copy.getAttribute('data-nav-step'), 10) === stepValue;
+                copy.style.display = matches ? 'block' : 'none';
+                if (matches) shown = true;
+            });
+
+            tip.style.display = shown ? 'inline-flex' : 'none';
         }
 
         // Event Handlers
@@ -2895,6 +3013,33 @@ global $ai_modal_type;
             prevStepButton.disabled = (currentStep === 0);
             updateNextButtonState();
         });
+
+        /* Step 4 shortcuts. "Change Image" returns to Add Media, "Review Input" returns to
+           the first step. Both walk back by clicking Previous rather than setting the step
+           directly, so every side effect of the normal Back path still runs — step label,
+           progress bar, scroll, validation reset. Neither costs a credit: returning to
+           Step 4 preserves existing content and only re-composites the cover image
+           (see updateButtonText), so only the Regenerate button spends one. */
+        function iseoGoBackToStep(targetStepValue) {
+            var guard = 0;
+            while (parseInt(stepInput.value, 10) > targetStepValue && guard++ < 12) {
+                prevStepButton.click();
+            }
+        }
+
+        var iseoChangeImageBtn = document.getElementById('iseoChangeImageBtn');
+        if (iseoChangeImageBtn) {
+            iseoChangeImageBtn.addEventListener('click', function () {
+                iseoGoBackToStep(3);   // Add Media
+            });
+        }
+
+        var iseoReviewInputBtn = document.getElementById('iseoReviewInputBtn');
+        if (iseoReviewInputBtn) {
+            iseoReviewInputBtn.addEventListener('click', function () {
+                iseoGoBackToStep(1);   // Keyword & Post Title
+            });
+        }
     });
 
 
