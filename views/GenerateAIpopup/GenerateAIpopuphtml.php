@@ -1078,7 +1078,17 @@ global $ai_modal_type;
                     <div class="seo-form-field">
                         <div class="title-tune">
                             <div class="title">
-                                <label for="seed_options">Select Title Type</label>
+                                <label for="seed_options">Select Title Type
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which title type should I choose?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field is-interactive" role="tooltip">
+                                            <strong>Choose Title Style</strong>
+                                            <span class="iseo-tip-item"><b>Smart Title:</b> Generates a classical blog post title optimized for search engines and AI chatbots.</span>
+                                            <span class="iseo-tip-item"><b>Question-Style Title:</b> Generates a post title in the form of a question. This can be helpful for SEO purposes because search engines and AI chatbots love when you answer questions people are actually asking.</span>
+                                            <span class="iseo-tip-item"><b>Exact Keyword as Title:</b> we will use the exact seed keyword you entered above as your title. Note: this is a manual advanced SEO title option. <a href="https://account.improveseoplugin.com/tutorial" target="_blank" rel="noopener noreferrer">Learn More</a></span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <select id="seed_select" name="seed_options" id="title" class="custom-selcected">
 
                                     <option value="seed_option2">Smart Title (AI-Generated)</option>
@@ -1089,7 +1099,16 @@ global $ai_modal_type;
                             <span id="error_seed_select" style="color: red;"></span>
                             <div style="clear: both"> </div>
                             <div class="tune" id="seed">
-                                <label for="tune">Tone of voice</label>
+                                <label for="tune">Tone of voice
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which tone of voice should I choose?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--end is-interactive" role="tooltip">
+                                            <strong>Set Your Tone of Voice</strong>
+                                            Choose the writing style for your audience. For example, &lsquo;Professional&rsquo; suits service businesses; &lsquo;Informational&rsquo; works well for how-to guides.
+                                            <span class="iseo-tip-para"><a href="https://account.improveseoplugin.com/tutorial" target="_blank" rel="noopener noreferrer">Learn more about which tone of voice to choose</a></span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <select name="content_type" id="cotnt_type" id="tune" class="custom-selcected">
                                     
                                     <option value="friendly">Friendly</option>
@@ -1118,7 +1137,16 @@ global $ai_modal_type;
                     <div class="seo-form-field hide_on_seed_option1 ">
                         <div class="generate-title">
                             <div class="title-input">
-                                <label for="Generate">AI Generated Title</label>
+                                <label for="Generate">AI Generated Title
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How do I generate and approve a title?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                            <strong>Generate &amp; Approve your Title</strong>
+                                            Click the Generate button on the right to create an optimized post title from your seed keyword based on the &lsquo;Title Type&rsquo; selection you made above.
+                                            <span class="iseo-tip-para">You can regenerate and edit the title until you are satisfied with it. Click &lsquo;Approve&rsquo; below the &lsquo;Generate&rsquo; button to confirm and proceed.</span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <span id="maintitle">
                                     <div class="resultdata">
                                         <textarea class="title-text" name="maintitlearea" id="maintitlearea"
@@ -1163,7 +1191,17 @@ global $ai_modal_type;
                     <div class="step-opton2-content-box">
                         <div class="step-opton-col">
                             <div class="seo-form-field">
-                                <label for="sel1">Article Size</label>
+                                <label for="sel1">Article Size
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How long should my post be?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                            <strong>Post Length</strong>
+                                            <span class="iseo-tip-item"><b>Small</b> (600 &ndash; 1,200 words) is good for lightweight, easy to read blog posts.</span>
+                                            <span class="iseo-tip-item"><b>Medium</b> (1,200 &ndash; 2,400 words) is a great starting point for most niches.</span>
+                                            <span class="iseo-tip-item">Longer posts often rank better for competitive keywords.</span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <!-- <select class="content-opt custom-selcected" name="nos_of_words" required
                                     id="post_size">
                                     <option value="600 to 1200 words">Small (600-1200 words)</option>
@@ -1185,7 +1223,18 @@ global $ai_modal_type;
 
                         <div class="step-opton-col">
                             <div class="seo-form-field">
-                                <label for="size">Point of View</label>
+                                <label for="size">Point of View
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which point of view should I choose?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                            <strong>Point of View</strong>
+                                            Choose from which perspective the post shall be written:
+                                            <span class="iseo-tip-item"><b>Speaking to the Reader</b> (you, your): you are addressing the reader directly. This option is recommended for engaging, direct copy.</span>
+                                            <span class="iseo-tip-item"><b>Business Voice</b> (we, our): you are talking from the perspective of your company and your team. This option is recommended if you write an informational piece about your business.</span>
+                                            <span class="iseo-tip-item"><b>Personal Voice</b> (I, mine): you are talking from your own perspective as the business owner. This option is recommended for sharing your personal experience (trust building).</span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <select class="content-opt custom-selcected" name="point_of_view" id="size">
                                     <option value="none">Auto (AI Decides)</option>
                                     <option value="Second Person (you,your,yours)">Speaking to the Reader ("you", "your")</option>
@@ -1210,7 +1259,14 @@ global $ai_modal_type;
 
                     </div>
                     <div class="seo-form-field iseo-details-block">
-                        <label class="iseo-details-head">Details for this article <small style="color:#888;font-weight:normal;margin-left:6px;">(optional &mdash; tailored to your niche)</small></label>
+                        <label class="iseo-details-head">Details for this article <small style="color:#888;font-weight:normal;margin-left:6px;">(optional &mdash; tailored to your niche)</small>
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Why should I add details?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    Google and AI chatbots like high quality and unique content. Provide as many details relevant to your business and this post to significantly improve the quality of this post.
+                                </span>
+                            </span>
+                        </label>
                         <!-- Niche-specific fields are rendered here by iseoRenderNicheFields() based on the
                              Business Niche selected in Step 1. Each input is named nd_<id> and flows into niche_data. -->
                         <div id="niche_fields_container" class="niche-fields"></div>
@@ -1219,17 +1275,31 @@ global $ai_modal_type;
                         </span>
                     </div>
                     <div class="seo-form-field">
-                        <label for="call_to_action">Call to Action Text<a href="#" data-toggle="Information" title="Information">
-                                <div class="dashicons dashicons-info-outline" aria-hidden="true"><br>
-                                </div>
-                            </a></label>
+                        <?php // Replaced a stub info icon whose only content was title="Information". ?>
+                        <label for="call_to_action">Call to Action Text
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a call to action?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Call to Action</strong>
+                                    What action do you want readers to take? E.g. Contact us for a free quote.
+                                </span>
+                            </span>
+                        </label>
                         <textarea class="form-control" id="call_to_action" rows="3" name="call_to_action"
                             onkeypress="return countContentCallToAction()" onblur="LimitText(this,1000,2)"
                             placeholder="What action would you like the reader of your content to take?"></textarea>
                         <span id="countContentCallToAction"></span>
                     </div>
                     <div class="seo-form-field">
-                        <label for="cta_url">Call to Action URL <small style="color:#888; font-weight:normal; margin-left:6px;">(optional)</small></label>
+                        <label for="cta_url">Call to Action URL <small style="color:#888; font-weight:normal; margin-left:6px;">(optional)</small>
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is the call to action URL for?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Call to Action URL</strong>
+                                    Add the URL where you want readers to go &mdash; e.g. your contact page or booking form. Leave blank if you don&rsquo;t want to add a link.
+                                </span>
+                            </span>
+                        </label>
                         <input type="text" id="cta_url" name="cta_url" class="form-control"
                             placeholder="https://example.com/contact">
                         <span id="error_cta_url" style="color:red; display:block;"></span>

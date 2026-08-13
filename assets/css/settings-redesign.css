@@ -572,6 +572,9 @@
     color: #9CA3AF;
     cursor: help;
     vertical-align: middle;
+    /* The labels carrying these are flex containers; without this the marker is the
+       item that gives way when the label text runs long. */
+    flex-shrink: 0;
 }
 .iseo-info-tip:hover,
 .iseo-info-tip:focus {
@@ -643,6 +646,67 @@
 }
 .iseo-info-tip-bubble--field strong {
     font-size: 13px;
+}
+
+/* Flips back to right-aligned. For markers in a right-hand column, where opening
+   rightward would run the box off the edge of the wizard panel. */
+.iseo-info-tip-bubble--field.iseo-info-tip-bubble--end {
+    left: auto;
+    right: -8px;
+}
+.iseo-info-tip-bubble--field.iseo-info-tip-bubble--end::after {
+    left: auto;
+    right: 11px;
+}
+
+/* Bulleted and multi-paragraph hint copy. These are spans rather than ul/li because
+   the bubble itself is a span inside a label — only phrasing content is valid here. */
+.iseo-info-tip-bubble--field .iseo-tip-item,
+.iseo-info-tip-bubble--field .iseo-tip-para {
+    display: block;
+    margin-top: 6px;
+}
+.iseo-info-tip-bubble--field .iseo-tip-item {
+    position: relative;
+    padding-left: 12px;
+    margin-top: 5px;
+}
+.iseo-info-tip-bubble--field .iseo-tip-item::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 7px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #9CA3AF;
+}
+.iseo-info-tip-bubble--field .iseo-tip-item b {
+    color: #FFFFFF;
+    font-weight: 600;
+}
+.iseo-info-tip-bubble--field a {
+    color: #93C5FD;
+    text-decoration: underline;
+}
+.iseo-info-tip-bubble--field a:hover,
+.iseo-info-tip-bubble--field a:focus {
+    color: #FFFFFF;
+}
+
+/* A hint carrying a link must be reachable by the pointer, unlike the plain ones,
+   and needs a bridge across the gap below the marker so the pointer can travel into
+   it without the hover dropping out on the way. */
+.iseo-info-tip-bubble.is-interactive {
+    pointer-events: auto;
+}
+.iseo-info-tip-bubble.is-interactive::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    height: 12px;
 }
 
 /* ── The toggle switch itself ──────────────────────────────── */
