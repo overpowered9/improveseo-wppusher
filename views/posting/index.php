@@ -36,10 +36,15 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 			<div class="create-ai">
 				<h2 class="title">What would you like to create?</h2>
 				<div class="create-ai-col">
-					<a class="Posting__post-button" href="<?php echo admin_url( 'admin.php?page=improveseo_posting&action=create_post_single' . ( $from_onboarding ? '&from=onboarding' : '' ) ); ?>">
+					<a class="Posting__post-button" href="<?php echo admin_url( 'admin.php?page=improveseo_posting&action=create_post_single' . ( $from_onboarding ? '&from=onboarding' : '' ) ); ?>" aria-describedby="iseo-tip-single-post">
 						<img src="<?php echo WT_URL . '/assets/images/latest-images/Mobile-UX-rafiki.png'; ?>"
 							alt="Create Single AI Post">
-						<h3>Create Single AI Post</h3>
+						<h3>Create Single AI Post
+							<span class="create-ai-tip">
+								<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+								<span class="create-ai-tip-bubble" id="iseo-tip-single-post" role="tooltip">Create a single post based on a chosen seed keyword</span>
+							</span>
+						</h3>
 					</a>
 				</div>
 
