@@ -1740,7 +1740,16 @@ global $ai_modal_type;
                     <div class="bulk-widths1170_multi">
                         <div class="improve-seo-form-global_multi">
                             <div class="form-group">
-                                <label style="padding-left:20px;" for="keyword_list_name">Create New or Select an exisiting keyword list.</label>
+                                <label style="padding-left:20px;" for="keyword_list_name">Create New or Select an exisiting keyword list.
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a keyword list for?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field is-interactive" role="tooltip">
+                                            A Bulk Post Project allows you to generate posts in bulk based on a keyword list, one post per keyword.
+                                            <span class="iseo-tip-para">Ideally, you have already prepared a keyword list and select it below.</span>
+                                            <span class="iseo-tip-para">If you haven&rsquo;t, create a new keyword list here: <a href="<?php echo admin_url( 'admin.php?page=improveseo_lists' ); ?>" target="_blank" rel="noopener noreferrer">Generate Keyword List</a>. Once you are done, start a new bulk project.</span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <p style="font-size: 14px; color: #666; padding-left: 20px; margin-top: 5px;">
                                     Keyword list allows you to generate posts in bulk, one post per keyword.
                                 </p>
@@ -1768,7 +1777,14 @@ global $ai_modal_type;
                                 <span id="error_keyword_list_name" style="color: red;"></span>
                             </div>
                             <div class="form-group" id="keyword_list_container" style="display: none;">
-                                <label style="padding-left:20px;" for="keyword_list">Keywords (at least one)</label>
+                                <label style="padding-left:20px;" for="keyword_list">Keywords (at least one)
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What are these keywords?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                            Below all keywords from you selected keyword list are shown, you can edit this list for this bulk project. The minimum number of keyword required is one.
+                                        </span>
+                                    </span>
+                                </label>
                                 <textarea id="keyword_list" name="keyword_list" class="form-control" rows="10"
                                     style="max-width: 100% !important; width: 100%;"></textarea>
                                 <div id="keyword_count"></div>
@@ -1789,7 +1805,16 @@ global $ai_modal_type;
                                 <div id="ai_suggestion_container" style="width:100%;"></div>
                             </div>
                             <div id="tone_of_voice">
-                                <label style="padding-left:20px;" for="cotnt_type"> Tone of Voice</label>
+                                <label style="padding-left:20px;" for="cotnt_type"> Tone of Voice
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which tone of voice should I choose?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field is-interactive" role="tooltip">
+                                            <strong>Set Your Tone of Voice</strong>
+                                            Choose the writing style for your audience. For example, &lsquo;Professional&rsquo; suits service businesses; &lsquo;Informational&rsquo; works well for how-to guides.
+                                            <span class="iseo-tip-para"><a href="https://account.improveseoplugin.com/tutorial" target="_blank" rel="noopener noreferrer">Learn more about which tone of voice to choose</a></span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <select class="form-control" name="content_type" id="cotnt_type"
                                     style="max-width: 100% !important; width: 100%;    padding: 10px 20px !important;">
                                     <!-- <option value="">Tone of Voice</option> -->
@@ -1809,7 +1834,17 @@ global $ai_modal_type;
                                 <span id="error_cotnt_type" style="color: red;"></span>
                                 <div class="form-group col-md-1"></div>
                             </div>
-                            <label style="padding-left:20px;" for="existing_select">Select Title Type</label>
+                            <label style="padding-left:20px;" for="existing_select">Select Title Type
+                                <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which title type should I choose?">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field is-interactive" role="tooltip">
+                                        <strong>Choose one title style for all posts within this bulk project:</strong>
+                                        <span class="iseo-tip-item"><b>Smart Title:</b> Generates a classical blog post title optimized for search engines and AI chatbots.</span>
+                                        <span class="iseo-tip-item"><b>Question-Style Title:</b> Generates a post title in the form of a question. This can be helpful for SEO purposes because search engines and AI chatbots love when you answer questions people are actually asking.</span>
+                                        <span class="iseo-tip-item"><b>Exact Keyword as Title:</b> we will use the exact keyword as your title. Note: this is a manual advanced SEO title option. <a href="https://account.improveseoplugin.com/tutorial" target="_blank" rel="noopener noreferrer">Learn More</a></span>
+                                    </span>
+                                </span>
+                            </label>
                             <select id="existing_select" name="select_exisiting_options" class="form-control"
                                 style="max-width: 100% !important; width: 100%;    padding: 10px 20px !important;">
                                 <!-- <option value="">Select</option> -->
@@ -1819,14 +1854,15 @@ global $ai_modal_type;
                             </select>
                             <span id="error_existing_select" style="color: red;"></span>
                             <div class="form-group col-md-12" style="padding: 20px 0px !important;">
-                                <label style="padding-left:20px;" for="sel1">Details to Include <a href="#"
-                                        class="underline_none_for_a_tag"
-                                        data-toggle="Please ensure the information you input aligns with the Main Keyword and Title. For example, information about dogs should not be added if you are writing about roofing."
-                                        title="Please ensure the information you input aligns with the Main Keyword and Title. For example, information about dogs should not be added if you are writing about roofing.">
-                                        <div class="dashicons dashicons-info-outline" aria-hidden="true">
-                                            <br>
-                                        </div>
-                                    </a></label>
+                                <?php // Replaced an info icon that carried its guidance in a title="" attribute only. ?>
+                                <label style="padding-left:20px;" for="sel1">Details to Include
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Why should I add details?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                            Google and AI chatbots like high quality and unique content. Provide as many details relevant to your business and all posts within this project to significantly improve the quality of the content.
+                                        </span>
+                                    </span>
+                                </label>
                                 <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
                                     name="details_to_include" style=" max-width: 100% !important; width: 100%;"
                                     onkeypress="return countContent()" OnBlur="LimitText(this,1000,1)"></textarea>
@@ -1855,7 +1891,17 @@ global $ai_modal_type;
                             <div class="row">
 
                                 <div class="form-group col-md-12">
-                                    <label style="padding-left:20px;" for="sel1">Article size</label>
+                                    <label style="padding-left:20px;" for="sel1">Article size
+                                        <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How long should these posts be?">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                            <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                                <strong>Choose a post length that will be applied to all posts within this bulk project:</strong>
+                                                <span class="iseo-tip-item"><b>Small</b> (600 &ndash; 1,200 words) is good for lightweight, easy to read blog posts.</span>
+                                                <span class="iseo-tip-item"><b>Medium</b> (1,200 &ndash; 2,400 words) is a great starting point for most niches.</span>
+                                                <span class="iseo-tip-item">Longer posts often rank better for competitive keywords.</span>
+                                            </span>
+                                        </span>
+                                    </label>
                                     <select class="form-control" name="nos_of_words" required
                                         style="max-width: 100% !important;  padding: 10px 20px !important;"
                                         id="post_size_bulk">
@@ -1879,7 +1925,18 @@ global $ai_modal_type;
                             </div>
                             <div class="row only_for_multi_mobile">
                                 <div class="form-group col">
-                                    <label style="padding-left:20px;" for="sel1">Point of View</label>
+                                    <label style="padding-left:20px;" for="sel1">Point of View
+                                        <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which point of view should I choose?">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                            <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                                <strong>Point of View</strong>
+                                                Choose from which perspective the posts within this bulk project shall be written:
+                                                <span class="iseo-tip-item"><b>Speaking to the Reader</b> (you, your): you are addressing the reader directly. This option is recommended for engaging, direct copy.</span>
+                                                <span class="iseo-tip-item"><b>Business Voice</b> (we, our): you are talking from the perspective of your company and your team. This option is recommended if you write an informational piece about your business.</span>
+                                                <span class="iseo-tip-item"><b>Personal Voice</b> (I, mine): you are talking from your own perspective as the business owner. This option is recommended for sharing your personal experience (trust building).</span>
+                                            </span>
+                                        </span>
+                                    </label>
                                     <select class="form-control" name="point_of_view"
                                         style="max-width: 100% !important;  padding: 10px 20px !important;">
 
@@ -1907,12 +1964,17 @@ global $ai_modal_type;
                             <div class="row">
                                 <div class="form-group col-md-12">
                                     <div class="seo-form-field">
-                                        <label for="call_to_action_multi">Call to Action Text<a href="#"
-                                                class="underline_none_for_a_tag" data-toggle="Information"
-                                                title="Information">
-                                                <div class="dashicons dashicons-info-outline" aria-hidden="true"><br>
-                                                </div>
-                                            </a></label>
+                                        <?php // Replaced a stub info icon whose only content was title="Information". ?>
+                                        <label for="call_to_action_multi">Call to Action Text
+                                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a call to action?">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                                    <strong>Call to Action</strong>
+                                                    What action do you want readers to take? E.g. Contact us for a free quote.
+                                                    <span class="iseo-tip-para">Note: This will apply to all posts within this bulk project.</span>
+                                                </span>
+                                            </span>
+                                        </label>
                                         <textarea class="form-control" id="call_to_action_multi" rows="3" name="call_to_action"
                                             onkeypress="return countContentCallToAction()" onblur="LimitText(this,1000,2)"
                                             placeholder="What action would you like the reader of your content to take?"
@@ -1920,7 +1982,16 @@ global $ai_modal_type;
                                             id="countContentCallToAction"></span>
                                     </div>
                                     <div class="seo-form-field" style="margin-top:30px;">
-                                        <label for="cta_url_multi">Call to Action URL <small style="color:#888; font-weight:normal; margin-left:6px;">(optional)</small></label>
+                                        <label for="cta_url_multi">Call to Action URL <small style="color:#888; font-weight:normal; margin-left:6px;">(optional)</small>
+                                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is the call to action URL for?">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                                    <strong>Call to Action URL</strong>
+                                                    Add the URL where you want readers to go &mdash; e.g. your contact page or booking form. Leave blank if you don&rsquo;t want to add a link.
+                                                    <span class="iseo-tip-para">Note: This will apply to all posts within this bulk project.</span>
+                                                </span>
+                                            </span>
+                                        </label>
                                         <input type="text" id="cta_url_multi" name="cta_url" class="form-control"
                                             placeholder="https://example.com/contact" style="max-width:100% !important;">
                                         <span id="error_cta_url_multi" style="color:red; display:block; padding-left:20px;"></span>
@@ -1991,7 +2062,16 @@ global $ai_modal_type;
                 <div class="data_multi">
                     <div class="fourth_ttepss_multi">
                         <div class="category-selection-section">
-                            <h2 style="padding-left:20px; margin-bottom: 20px;">Assign Categories to Posts</h2>
+                            <h2 style="padding-left:20px; margin-bottom: 20px;">Assign Categories to Posts
+                                <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Why assign a category?">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                        <strong>Assign a Category</strong>
+                                        Choose one or more categories to keep your posts organized on your website. Improve SEO is selected by default &mdash; you can add other categories or create a new one below.
+                                        <span class="iseo-tip-para">Note: Your category selection will apply to all posts within this bulk project.</span>
+                                    </span>
+                                </span>
+                            </h2>
                             
                             <!-- Category Selection -->
                             <div class="bulk-category-box">
@@ -2101,8 +2181,14 @@ global $ai_modal_type;
                 <!-- Step 6 Content -->
                 <div class="data_multi">
                     <div class="seo-slide-steps-fours_multi seps-six_multi">
-                        <h2 style="padding-left:20px;">Define Save & Publish Preference <img
-                                src="<?php echo WT_URL . '/assets/images/latest-images/nfo-filledss.svg' ?>" alt="info">
+                        <?php // Replaced a decorative info image that carried no explanation at all. ?>
+                        <h2 style="padding-left:20px;">Define Save &amp; Publish Preference
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is this preference for?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    Choose how all posts within this project should be saved or published.
+                                </span>
+                            </span>
                         </h2>
                         <div class="radio-container_multi seps-six-col_multi">
                             <div class="schedule_posts_parent">
