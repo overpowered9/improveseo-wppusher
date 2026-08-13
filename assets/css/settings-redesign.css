@@ -628,6 +628,23 @@
     transform: translateY(0);
 }
 
+/* Variant for the large post-wizard form labels. The marker there sits near the left
+   edge of a wide row, so the bubble opens rightward — right-aligning it under the
+   marker would push it off the panel. Slightly larger to sit beside 18px labels. */
+.iseo-info-tip-bubble--field {
+    right: auto;
+    left: -8px;
+    width: 330px;
+    font-size: 12.5px;
+}
+.iseo-info-tip-bubble--field::after {
+    right: auto;
+    left: 11px;
+}
+.iseo-info-tip-bubble--field strong {
+    font-size: 13px;
+}
+
 /* ── The toggle switch itself ──────────────────────────────── */
 .iseo-toggle-switch {
     position: relative;

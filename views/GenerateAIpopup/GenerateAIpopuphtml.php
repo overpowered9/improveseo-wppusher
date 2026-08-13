@@ -971,7 +971,15 @@ global $ai_modal_type;
                     }
                     ?>
                     <div class="seo-form-field">
-                        <label class="data-label" for="seed_keyword">Seed keyword</label>
+                        <label class="data-label" for="seed_keyword">Seed keyword
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a seed keyword?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Enter your Keyword</strong>
+                                    Enter what your ideal customer is searching for in search engines (like Google) and AI chatbots to find services like yours, for example &lsquo;dog grooming santa fe&rsquo;. This seed keyword will be the main topic for this post.
+                                </span>
+                            </span>
+                        </label>
                         <input type="text" class="form-control" placeholder="Enter Seed Keyword" id="seed_keyword"
                             name="seed_keyword" value="<?php echo $prefill_keyword; ?>"></input>
                         <span id="error_seed_keyword" style="color: red;"></span>
@@ -1016,7 +1024,15 @@ global $ai_modal_type;
                     }
                     ?>
                     <div class="seo-form-field">
-                        <label class="data-label" for="niche_select">Business niche</label>
+                        <label class="data-label" for="niche_select">Business niche
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a business niche?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Pick your Business Niche</strong>
+                                    (Optional) Choose the niche that best matches your business, for example &lsquo;Pet Services/Vet&rsquo;. This tailors the writing style, post structure, and cover-image look to your industry.
+                                </span>
+                            </span>
+                        </label>
                         <select id="niche_select" name="niche" class="form-control custom-selcected" style="max-width:100% !important;">
                             <?php
                             $iseo_niches = array(
