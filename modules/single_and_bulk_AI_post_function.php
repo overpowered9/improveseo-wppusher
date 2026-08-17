@@ -611,8 +611,15 @@ function check_bulk_credits_callback() {
 		wp_send_json_error(array('error' => $data['error'] ?? 'Failed to retrieve user status'));
 	}
 	
-	// Extract data from response
+	// Extract data from response.
+	// credits_total is the single ISEO pool. The legacy {images, content, keywords} keys are a
+	// compatibility shim the server keeps populated with that SAME pooled number for one release,
+	// so this still works against a server that has not been redeployed yet.
 	$credits = $data['credits'] ?? array('images' => 0, 'content' => 0, 'keywords' => 0);
+	if (isset($data['credits_total'])) {
+		$credits['total'] = intval($data['credits_total']);
+	}
+	$result = array('pricing' => isset($data['pricing']) && is_array($data['pricing']) ? $data['pricing'] : array());
 	$subscription = $data['subscription'] ?? null;
 	
 	// Get plan information from subscription
@@ -639,21 +646,46 @@ function check_bulk_credits_callback() {
 		'plan_name' => $plan_name
 	);
 	
-	// Check 2: Content credits
-	$content_credits = intval($credits['content']);
+	// Checks 2 and 3 used to assume a flat 1 credit per post and 1 per image, and read the
+	// per-type balances. There is one ISEO pool now, priced per action, so both are costed from
+	// the server's published pricing block and checked against the SAME pooled balance.
+	//
+	// This is a UX pre-check only. The real gate is the server's atomic reservation at generation
+	// time — this exists so a bulk run fails early and legibly instead of part-way through.
+	$pool = isset($credits['total']) ? intval($credits['total']) : intval($credits['content']);
+	$pricing = isset($result['pricing']) && is_array($result['pricing']) ? $result['pricing'] : array();
+
+	// Bulk posts are generated at the default (medium) size. Fall back to the previous flat 1
+	// only when the server has not published a price, so an older server still behaves as before.
+	$content_unit = 1;
+	if (isset($pricing['content']['medium'])) {
+		$content_unit = max(1, intval($pricing['content']['medium']));
+	}
+	$image_unit = isset($pricing['image']) ? max(1, intval($pricing['image'])) : 1;
+
+	$content_needed = $keyword_count * $content_unit;
+	$image_needed   = $ai_image_count * $image_unit;
+
 	$checks['content_check'] = array(
-		'sufficient' => $content_credits >= $keyword_count,
-		'needed' => $keyword_count,
-		'available' => $content_credits
+		'sufficient' => $pool >= $content_needed,
+		'needed' => $content_needed,
+		'available' => $pool
 	);
-	
-	// Check 3: Image credits (only for AI-generated images)
-	$image_credits = intval($credits['images']);
+
 	$checks['image_check'] = array(
-		'sufficient' => $image_credits >= $ai_image_count,
-		'needed' => $ai_image_count,
-		'available' => $image_credits
+		'sufficient' => $pool >= $image_needed,
+		'needed' => $image_needed,
+		'available' => $pool
 	);
+
+	// Both actions draw on ONE pool, so a run needs the sum — checking them separately would pass
+	// a bulk job that can afford the articles or the images but not both.
+	$checks['combined_check'] = array(
+		'sufficient' => $pool >= ($content_needed + $image_needed),
+		'needed' => $content_needed + $image_needed,
+		'available' => $pool
+	);
+	$checks['pricing'] = $pricing;
 	
 	wp_send_json_success($checks);
 }
@@ -719,6 +751,18 @@ function fetch_AI_image_callback()
             );
             $bp_city = get_option('improveseo_business_city', '');
             if ($bp_city) { $payload['city'] = $bp_city; }
+            // Identifies this image slot so the server can recognise a repeat generation and
+            // charge the cheaper regen price. The server decides regen status from its OWN
+            // history — this only names the slot, it never asserts a discount.
+            if (!empty($_POST['target_key'])) {
+                $payload['target_key'] = sanitize_text_field(wp_unslash($_POST['target_key']));
+            }
+            // Optional user steer from the regenerate dialog. Passed through untouched: the
+            // server sanitises it and contains it structurally in the prompt, and stripping it
+            // here would only give false assurance since the request can be forged anyway.
+            if (!empty($_POST['custom_instruction'])) {
+                $payload['custom_instruction'] = wp_unslash($_POST['custom_instruction']);
+            }
             // noedit: pass the raw prompt straight to the image model (v2 uses it verbatim)
             if ($noedit) { $payload['prompt'] = $title; }
         } else {

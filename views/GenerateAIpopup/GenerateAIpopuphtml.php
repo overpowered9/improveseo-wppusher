@@ -966,6 +966,28 @@ global $ai_modal_type;
 
         <form id="popup_form" method="post" class="pop_up_form improve-seo-form-global">
 
+            <?php
+            // Regeneration target key.
+            //
+            // The server prices a regeneration lower than a first generation, but it will only do
+            // so when it can prove this slot has been generated before — it looks for an earlier
+            // user_generations row with the same key. A client flag is ignored, so without this
+            // field every regeneration is charged at the full first-generation price.
+            //
+            // Minted per wizard session because there is nothing else stable to use: in this flow
+            // the WordPress post does not exist yet (it is created on publish), so there is no post
+            // ID to send. It is deliberately NOT derived from the keyword or title — regeneration
+            // is supposed to run on EDITED inputs, and a content-derived key would change exactly
+            // when the user edits, silently losing them the discount.
+            //
+            // Carried in the form, so it serialises with everything else on submit and is stored
+            // on the project row; the Edit Draft screen then reuses the same key.
+            $iseo_target_key = 'iseo_tk_' . bin2hex( random_bytes( 16 ) );
+            ?>
+            <input type="hidden" name="target_key" id="iseo_target_key" value="<?php echo esc_attr( $iseo_target_key ); ?>">
+            <?php // Filled by the regenerate modal; cleared after each submit so it never leaks into the next run. ?>
+            <input type="hidden" name="custom_instruction" id="iseo_custom_instruction" value="">
+
             <div class="improveseo-sections">
 
                 <!-- option 1  -->
@@ -3711,9 +3733,13 @@ global $ai_modal_type;
                             return;
                         }
                         
+                        // Cache the server's price list for the regenerate dialog's cost line.
+                        // Display only — the server prices and charges; see iseoRegenCostNote().
+                        if (data.pricing) { window.iseoCreditPricing = data.pricing; }
+
                         // Check 2: Content credits insufficient
                         if (data.content_check && !data.content_check.sufficient) {
-                            const shortBy = keywordCount - data.content_check.available;
+                            const shortBy = data.content_check.needed - data.content_check.available;
                             const msg =
                                 'Content credits required: ' + keywordCount + '\n' +
                                 'Credits available now: ' + data.content_check.available + '\n' +
@@ -4707,4 +4733,146 @@ global $ai_modal_type;
     // Initialize state
     applyDisabledUI(!hasSeed());
   });
+</script>
+<?php
+// ── Regenerate: optional custom-instruction dialog ───────────────────────────
+// Shown before a regeneration of either the article or the cover image. The user can add a
+// free-text steer for that one run, or Skip to regenerate exactly as before.
+//
+// The instruction is untrusted input. It is NOT sanitised here — client-side stripping would be
+// trivially bypassable and would give false assurance; the server sanitises it and, more
+// importantly, contains it structurally by placing it in a delimited, subordinate block of the
+// user prompt (see services/generation-history.ts). This markup only collects it.
+//
+// One dialog serves both buttons: iseoRegenerateDialog.open() takes the callback to run once the
+// user chooses, so content and image share the identical flow.
+?>
+<div id="iseo-regen-modal" class="improveseo-regen-modal" aria-hidden="true" role="dialog"
+     aria-modal="true" aria-labelledby="iseo-regen-title" style="display:none;">
+    <div class="improveseo-regen-backdrop" data-iseo-regen-dismiss></div>
+    <div class="improveseo-regen-panel" role="document">
+        <h2 class="improveseo-regen-title" id="iseo-regen-title">Regenerate</h2>
+        <p class="improveseo-regen-lead" id="iseo-regen-lead">
+            Add any instructions for this regeneration, or skip to regenerate with your current settings.
+        </p>
+        <label class="improveseo-regen-label" for="iseo-regen-instruction">
+            Custom instructions <span class="improveseo-regen-optional">(optional)</span>
+        </label>
+        <textarea id="iseo-regen-instruction" class="improveseo-regen-textarea" rows="5"
+                  maxlength="2000"
+                  placeholder="For example: focus on pricing for small businesses, keep the tone plainer, and mention our 10-year guarantee."></textarea>
+        <div class="improveseo-regen-count"><span id="iseo-regen-count">0</span> / 2000</div>
+        <p class="improveseo-regen-note" id="iseo-regen-cost"></p>
+        <div class="improveseo-regen-actions">
+            <button type="button" class="improveseo-regen-btn improveseo-regen-btn--ghost"
+                    id="iseo-regen-cancel">Cancel</button>
+            <button type="button" class="improveseo-regen-btn improveseo-regen-btn--ghost"
+                    id="iseo-regen-skip">Skip</button>
+            <button type="button" class="improveseo-regen-btn improveseo-regen-btn--primary"
+                    id="iseo-regen-submit">Regenerate</button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Scoped to .improveseo-regen-* so nothing here can reach WP core admin, Astra or Elementor. */
+.improveseo-regen-modal { position: fixed; inset: 0; z-index: 160000; display: flex;
+    align-items: center; justify-content: center; }
+.improveseo-regen-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, .55); }
+.improveseo-regen-panel { position: relative; width: min(560px, calc(100vw - 40px));
+    max-height: calc(100vh - 80px); overflow-y: auto; background: #fff; border-radius: 12px;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, .28); padding: 26px 28px 22px; box-sizing: border-box; }
+.improveseo-regen-title { margin: 0 0 8px; font-size: 20px; font-weight: 600; color: #1d2327;
+    line-height: 1.3; }
+.improveseo-regen-lead { margin: 0 0 18px; font-size: 14px; line-height: 1.6; color: #50575e; }
+.improveseo-regen-label { display: block; font-size: 13px; font-weight: 600; color: #1d2327;
+    margin-bottom: 6px; }
+.improveseo-regen-optional { font-weight: 400; color: #787c82; }
+.improveseo-regen-textarea { width: 100%; box-sizing: border-box; border: 1px solid #c3c4c7;
+    border-radius: 8px; padding: 10px 12px; font-size: 14px; line-height: 1.6; resize: vertical;
+    font-family: inherit; }
+.improveseo-regen-textarea:focus { outline: none; border-color: #1C7293;
+    box-shadow: 0 0 0 1px #1C7293; }
+.improveseo-regen-count { text-align: right; font-size: 12px; color: #787c82; margin-top: 6px; }
+.improveseo-regen-note { margin: 10px 0 0; font-size: 13px; color: #50575e; min-height: 18px; }
+.improveseo-regen-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;
+    margin-top: 20px; }
+.improveseo-regen-btn { flex-shrink: 0; white-space: nowrap; min-height: 40px; padding: 9px 18px;
+    line-height: 1.2; box-sizing: border-box; border-radius: 6px; font-size: 14px; cursor: pointer;
+    border: 1px solid #1C7293; background: transparent; color: #1C7293; }
+.improveseo-regen-btn--primary { background: #1C7293; color: #fff; }
+.improveseo-regen-btn--ghost { border-color: #c3c4c7; color: #50575e; }
+.improveseo-regen-btn:hover { opacity: .9; }
+@media (max-width: 600px) {
+    .improveseo-regen-panel { padding: 20px 18px 18px; }
+    .improveseo-regen-actions .improveseo-regen-btn { flex: 1 1 auto; }
+}
+</style>
+
+<script>
+/**
+ * Regenerate dialog. One instance, reused by the article and image regenerate buttons.
+ *
+ * open({ title, lead, cost, onConfirm }) — onConfirm(instruction) runs on both Submit and Skip;
+ * Skip simply passes an empty string. Cancel closes without regenerating, so a misclick on
+ * "Regenerate" never spends a credit.
+ */
+window.iseoRegenerateDialog = (function () {
+    var $modal, $text, $count, $cost, $title, $lead, pending = null;
+
+    function els() {
+        if (!$modal) {
+            $modal = jQuery('#iseo-regen-modal');
+            $text  = jQuery('#iseo-regen-instruction');
+            $count = jQuery('#iseo-regen-count');
+            $cost  = jQuery('#iseo-regen-cost');
+            $title = jQuery('#iseo-regen-title');
+            $lead  = jQuery('#iseo-regen-lead');
+        }
+        return $modal;
+    }
+
+    function close() {
+        els().hide().attr('aria-hidden', 'true');
+        pending = null;
+    }
+
+    function finish(instruction) {
+        var cb = pending;
+        close();
+        // Cleared on the way out so an instruction can never carry into the NEXT regeneration —
+        // the user would have no way of telling it was still attached.
+        $text.val('');
+        $count.text('0');
+        if (typeof cb === 'function') cb(instruction);
+    }
+
+    function open(opts) {
+        opts = opts || {};
+        els();
+        pending = opts.onConfirm;
+        $title.text(opts.title || 'Regenerate');
+        $lead.text(opts.lead || 'Add any instructions for this regeneration, or skip to regenerate with your current settings.');
+        $cost.text(opts.cost || '');
+        $text.val('');
+        $count.text('0');
+        $modal.show().attr('aria-hidden', 'false');
+        // Focus after paint so the caret lands in the textarea rather than the dialog container.
+        window.setTimeout(function () { $text.trigger('focus'); }, 0);
+    }
+
+    jQuery(document).on('input', '#iseo-regen-instruction', function () {
+        $count.text(String(jQuery(this).val().length));
+    });
+    jQuery(document).on('click', '#iseo-regen-submit', function () {
+        finish(jQuery.trim($text.val() || ''));
+    });
+    jQuery(document).on('click', '#iseo-regen-skip', function () { finish(''); });
+    jQuery(document).on('click', '#iseo-regen-cancel, [data-iseo-regen-dismiss]', function () { close(); });
+    jQuery(document).on('keydown', function (e) {
+        if (e.key === 'Escape' && $modal && $modal.is(':visible')) close();
+    });
+
+    return { open: open, close: close };
+})();
 </script>
