@@ -4818,18 +4818,68 @@ global $ai_modal_type;
  * "Regenerate" never spends a credit.
  */
 window.iseoRegenerateDialog = (function () {
-    var $modal, $text, $count, $cost, $title, $lead, pending = null;
+    var $modal, $text, $count, $cost, $title, $lead, pending = null, bound = false;
 
     function els() {
-        if (!$modal) {
+        if (!$modal || !$modal.length) {
             $modal = jQuery('#iseo-regen-modal');
             $text  = jQuery('#iseo-regen-instruction');
             $count = jQuery('#iseo-regen-count');
             $cost  = jQuery('#iseo-regen-cost');
             $title = jQuery('#iseo-regen-title');
             $lead  = jQuery('#iseo-regen-lead');
+            bind();
         }
         return $modal;
+    }
+
+    /**
+     * Handlers are bound DIRECTLY to the dialog, not delegated from document.
+     *
+     * They used to be document-delegated, which stopped working the moment the isolation guard
+     * below was added — the guard deliberately prevents these events reaching document, so a
+     * delegated handler would never fire. Binding here keeps both properties: nothing escapes to
+     * the page, and the dialog's own controls still work.
+     */
+    function bind() {
+        if (bound || !$modal.length) return;
+        bound = true;
+
+        // ── Input isolation ──────────────────────────────────────────────────────────────
+        // The reported bug: the textarea could not be typed into.
+        //
+        // This dialog renders as a top-level sibling of the wizard modal. Bootstrap's modal
+        // installs a document-level `focusin` trap (_enforceFocus) that pulls focus back to the
+        // modal whenever focus lands on anything the modal does not contain — which is precisely
+        // this dialog. The caret is stolen on every keystroke, so nothing can be typed. Bootstrap
+        // is not enqueued by this plugin, but the site runs Elementor / Astra / Element Pack, and
+        // any of them can load it in wp-admin; jQuery-Modal and Select2 install similar global
+        // key handlers.
+        //
+        // Stopping these events at the dialog root means no document-level listener — from this
+        // plugin or any other — ever sees them, so none can steal focus or swallow a keystroke.
+        // Scoped to the dialog, so nothing else on the page is affected.
+        $modal.on('focusin focusout keydown keypress keyup input mousedown touchstart', function (e) {
+            e.stopPropagation();
+        });
+
+        // Escape closes. Bound HERE rather than on document, because the guard above stops the
+        // event before document would see it.
+        $modal.on('keydown', function (e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                e.preventDefault();
+                close();
+            }
+        });
+
+        $text.on('input', function () { $count.text(String(jQuery(this).val().length)); });
+        jQuery('#iseo-regen-submit').on('click', function () { finish(jQuery.trim($text.val() || '')); });
+        jQuery('#iseo-regen-skip').on('click', function () { finish(''); });
+        jQuery('#iseo-regen-cancel').on('click', function () { close(); });
+        $modal.find('[data-iseo-regen-dismiss]').on('click', function () { close(); });
+
+        // Clicking the panel must never reach the backdrop's dismiss handler.
+        $modal.find('.improveseo-regen-panel').on('click', function (e) { e.stopPropagation(); });
     }
 
     function close() {
@@ -4850,6 +4900,18 @@ window.iseoRegenerateDialog = (function () {
     function open(opts) {
         opts = opts || {};
         els();
+
+        // Re-parent to <body> before showing.
+        //
+        // As rendered, this markup sits wherever the popup template was included, which can be
+        // inside a container that is position/transform/overflow-scoped — enough to clip a
+        // position:fixed dialog or to put it inside another component's focus scope. Moving it to
+        // body puts it in the top-level stacking context and outside every such scope. Done once;
+        // after the first open it is already there.
+        if ($modal.parent()[0] !== document.body) {
+            $modal.appendTo(document.body);
+        }
+
         pending = opts.onConfirm;
         $title.text(opts.title || 'Regenerate');
         $lead.text(opts.lead || 'Add any instructions for this regeneration, or skip to regenerate with your current settings.');
@@ -4857,21 +4919,10 @@ window.iseoRegenerateDialog = (function () {
         $text.val('');
         $count.text('0');
         $modal.show().attr('aria-hidden', 'false');
+
         // Focus after paint so the caret lands in the textarea rather than the dialog container.
         window.setTimeout(function () { $text.trigger('focus'); }, 0);
     }
-
-    jQuery(document).on('input', '#iseo-regen-instruction', function () {
-        $count.text(String(jQuery(this).val().length));
-    });
-    jQuery(document).on('click', '#iseo-regen-submit', function () {
-        finish(jQuery.trim($text.val() || ''));
-    });
-    jQuery(document).on('click', '#iseo-regen-skip', function () { finish(''); });
-    jQuery(document).on('click', '#iseo-regen-cancel, [data-iseo-regen-dismiss]', function () { close(); });
-    jQuery(document).on('keydown', function (e) {
-        if (e.key === 'Escape' && $modal && $modal.is(':visible')) close();
-    });
 
     return { open: open, close: close };
 })();
