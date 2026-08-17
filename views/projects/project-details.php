@@ -199,12 +199,14 @@ function pd_seo_meta($post_id, $what) {
 <?php
 // `improveseo-project-details` scopes this page's header rules in
 // assets/css/made_by_me.css. The action buttons deliberately do NOT use the
-// plugin-wide `.import-export-btn` class: that rule gives every button a 50px
-// pill radius with no flex-shrink guard, so once flex compressed them below
-// their intrinsic width the radius started swallowing the label. This page owns
+// plugin-wide `.import-export-btn` class: that rule pairs a 50px pill radius
+// with no flex-shrink guard, so on a smaller laptop the buttons were squeezed
+// narrower than their labels, the labels wrapped to two lines, the extra height
+// let the pill radius grow, and the buttons visibly rounded off. This page owns
 // `.improveseo-header-actions` / `.improveseo-header-btn` instead, which keeps
 // the shared class (and the 6 other screens using it) untouched and means the
-// new rules never have to fight it with !important.
+// new rules never have to fight it with !important. The full mechanism is
+// written up next to the rules themselves in made_by_me.css.
 ?>
 <div class="global-wrap improveseo-project-details">
     <div class="head-bar">
