@@ -1626,7 +1626,19 @@ div#post-body-content {
 #post_form_buttons {
   display: flex;
   justify-content: end;
-  column-gap: 20px;
+  /* Widened from 20px: each button now carries its own hover-hint marker, and at the
+     old gap the marker sat as close to the next button as to its own. */
+  column-gap: 34px;
+  row-gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* One action button plus the marker that explains it. */
+.PostForm__btn-group {
+  display: flex;
+  align-items: center;
+  gap: 9px;
 }
 
 .styling_post_page_action_buttons {
