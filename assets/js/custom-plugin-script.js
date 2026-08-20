@@ -1674,6 +1674,8 @@ function generateAITitle() {
   jQuery
     .post(ajaxUrl, {
       action: "getGPTdata",
+      nonce:
+        typeof improveseo_vars !== "undefined" ? improveseo_vars.gpt_nonce : "",
       seedtype: seedtype,
       seedkeyword: seedkeyword,
       contenttype: contenttype,
@@ -2583,6 +2585,12 @@ jQuery(document).ready(function ($) {
     }
 
     formData.append("action", "my_plugin_upload");
+
+    // Handler hard-fails without this; see improveseo_localize_ajax_nonces().
+    formData.append(
+      "nonce",
+      typeof improveseo_vars !== "undefined" ? improveseo_vars.upload_nonce : ""
+    );
 
     jQuery.ajax({
       url: ajaxurl,

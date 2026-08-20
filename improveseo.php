@@ -57,6 +57,36 @@ wp_localize_script('custom-plugin-script', 'standred_var', $standred_variable);
 
 
 
+/**
+ * Nonces for the admin AJAX endpoints the plugin's scripts call.
+ *
+ * Deliberately hooked rather than localized alongside the enqueue above: nonces are
+ * per-user, and wp_create_nonce() is not safe to call while plugin files are still
+ * loading, because pluggable.php has not been read yet and there is no current user.
+ * Priority 20 keeps it after the handles are registered.
+ */
+function improveseo_localize_ajax_nonces()
+{
+	$data = array(
+		'ajax_url'     => admin_url( 'admin-ajax.php' ),
+		'upload_nonce' => wp_create_nonce( 'improveseo_upload_nonce' ),
+		'gpt_nonce'    => wp_create_nonce( 'improveseo_gpt_nonce' ),
+		// Shared nonce for the remaining admin AJAX endpoints.
+		'nonce'        => wp_create_nonce( 'improveseo_ajax' ),
+	);
+
+	// Attach to every handle that talks to admin-ajax.php. wp_localize_script() is a
+	// no-op for a handle not registered on the current screen, so listing them all
+	// here keeps the nonce source in one place.
+	foreach ( array( 'custom-plugin-script', 'improveseo-form', 'improveseo-main', 'improveseo-posting', 'tmm_script_js' ) as $handle ) {
+		wp_localize_script( $handle, 'improveseo_vars', $data );
+	}
+}
+
+add_action( 'admin_enqueue_scripts', 'improveseo_localize_ajax_nonces', 20 );
+
+
+
 
 
 
@@ -1374,82 +1404,92 @@ function refreshCategoryData($slug)
 
 // multiple images
 
+/**
+ * Handle the wizard's multi-image upload.
+ *
+ * Admin-only by design: a missing nonce or capability is a hard stop, and every
+ * file goes through wp_handle_upload() with an image-only allowlist so the server
+ * decides the final extension. The previous version trusted mime_content_type()
+ * alone and then wrote the client's own extension with a raw move_uploaded_file(),
+ * which let a GIF/PHP polyglot land in uploads as an executable .php file.
+ * Reported by Joao Ramos Maciel, 2026-07-24.
+ */
 function my_plugin_handle_upload()
 {
+	check_ajax_referer( 'improveseo_upload_nonce', 'nonce' );
 
-	//check_ajax_referer('my-plugin-nonce', '_wpnonce');
-
-
-
-	if (!empty($_FILES['images']['name'][0])) {
-
-		$uploadDir = wp_upload_dir();
-
-		$uploadPath = $uploadDir['path'];
-
-		$uploadedFiles = [];
-
-		$errors = [];
-
-
-
-		foreach ($_FILES['images']['name'] as $key => $name) {
-
-			$tmpName = $_FILES['images']['tmp_name'][$key];
-
-			$fileType = mime_content_type($tmpName);
-
-
-
-			if (in_array($fileType, ['image/jpeg', 'image/png', 'image/gif'])) {
-
-				$filename = uniqid() . '_' . sanitize_file_name($name);
-
-				$filePath = $uploadPath . '/' . $filename;
-
-
-
-				if (move_uploaded_file($tmpName, $filePath)) {
-
-					$uploadedFiles[] = $uploadDir['url'] . '/' . $filename;
-
-				} else {
-
-					$errors[] = "Failed to upload $name.";
-
-				}
-
-			} else {
-
-				$errors[] = "$name is not a valid image type.";
-
-			}
-
-		}
-
-
-
-		if (!empty($uploadedFiles)) {
-
-			wp_send_json_success($uploadedFiles);
-
-		} else {
-
-			wp_send_json_error($errors);
-
-		}
-
-	} else {
-
-		wp_send_json_error(['No files selected.']);
-
+	if ( ! current_user_can( 'upload_files' ) ) {
+		wp_send_json_error( array( 'You are not allowed to upload files.' ), 403 );
 	}
 
+	if ( empty( $_FILES['images']['name'][0] ) ) {
+		wp_send_json_error( array( 'No files selected.' ) );
+	}
+
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+
+	// Extension => mime. wp_handle_upload() runs the pair through
+	// wp_check_filetype_and_ext(), so a file whose real content disagrees with its
+	// extension - or whose extension is absent from this list - is rejected before
+	// it ever reaches the uploads directory. This is what stops the polyglot.
+	$allowed_mimes = array(
+		'jpg|jpeg|jpe' => 'image/jpeg',
+		'png'          => 'image/png',
+		'gif'          => 'image/gif',
+		'webp'         => 'image/webp',
+	);
+
+	$uploaded_files = array();
+	$errors         = array();
+
+	$count = count( $_FILES['images']['name'] );
+
+	for ( $i = 0; $i < $count; $i++ ) {
+		if ( empty( $_FILES['images']['name'][ $i ] ) ) {
+			continue;
+		}
+
+		$name = sanitize_file_name( $_FILES['images']['name'][ $i ] );
+
+		$file = array(
+			'name'     => $name,
+			'type'     => $_FILES['images']['type'][ $i ],
+			'tmp_name' => $_FILES['images']['tmp_name'][ $i ],
+			'error'    => $_FILES['images']['error'][ $i ],
+			'size'     => $_FILES['images']['size'][ $i ],
+		);
+
+		// Second layer: reject anything that is not a decodable image even if it
+		// somehow carried an allowed extension.
+		if ( false === @getimagesize( $file['tmp_name'] ) ) {
+			$errors[] = "$name is not a valid image.";
+			continue;
+		}
+
+		$result = wp_handle_upload(
+			$file,
+			array(
+				'test_form' => false,
+				'mimes'     => $allowed_mimes,
+			)
+		);
+
+		if ( ! is_array( $result ) || isset( $result['error'] ) ) {
+			$errors[] = $name . ': ' . ( is_array( $result ) ? $result['error'] : 'Upload failed.' );
+			continue;
+		}
+
+		$uploaded_files[] = $result['url'];
+	}
+
+	if ( ! empty( $uploaded_files ) ) {
+		wp_send_json_success( $uploaded_files );
+	}
+
+	wp_send_json_error( $errors );
 }
 
-add_action('wp_ajax_my_plugin_upload', 'my_plugin_handle_upload');
-
-add_action('wp_ajax_nopriv_my_plugin_upload', 'my_plugin_handle_upload');
+add_action( 'wp_ajax_my_plugin_upload', 'my_plugin_handle_upload' );
 
 
 

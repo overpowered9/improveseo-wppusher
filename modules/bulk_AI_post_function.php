@@ -2728,15 +2728,33 @@ add_action('wp_ajax_multi_form_data', 'multi_form_data');
 
 
 
+/**
+ * Generate an AI title for the bulk wizard.
+ *
+ * Logged-in + nonce only. This used to be registered on wp_ajax_nopriv_ and read
+ * $_REQUEST straight through, so any anonymous visitor could drive the auxiliary
+ * API - and burn the site's credits - from admin-ajax.php.
+ */
 function getGPTdata()
 
 {
+	check_ajax_referer( 'improveseo_gpt_nonce', 'nonce' );
 
-	$seed_type = $_REQUEST['seedtype'];
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		echo 'Error: You are not allowed to generate titles.';
+		die();
+	}
 
-	$seed_keyword = $_REQUEST['seedkeyword'];
+	$seed_type = isset( $_REQUEST['seedtype'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['seedtype'] ) ) : '';
 
-	$content_type = $_REQUEST['contenttype'];
+	$seed_keyword = isset( $_REQUEST['seedkeyword'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['seedkeyword'] ) ) : '';
+
+	$content_type = isset( $_REQUEST['contenttype'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['contenttype'] ) ) : '';
+
+	if ( '' === trim( $seed_keyword ) ) {
+		echo 'Error: No seed keyword provided.';
+		die();
+	}
 
 
 
@@ -2769,9 +2787,7 @@ function getGPTdata()
 
 }
 
-add_action('wp_ajax_nopriv_getGPTdata', 'getGPTdata');
-
-add_action('wp_ajax_getGPTdata', 'getGPTdata');
+add_action( 'wp_ajax_getGPTdata', 'getGPTdata' );
 
 function rudr_multiple_img_upload_metabox($metaboxes)
 
