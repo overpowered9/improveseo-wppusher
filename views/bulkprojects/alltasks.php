@@ -455,6 +455,7 @@ $url .= $_SERVER['REQUEST_URI'];
 				url: "<?php echo admin_url("admin-ajax.php"); ?>",
 				data: ({
 					action: 're_generate_post',
+					nonce: '<?php echo esc_js( wp_create_nonce( 'improveseo_ajax' ) ); ?>',
 					id: ids
 				}),
 				success: function (data) {
@@ -487,6 +488,7 @@ $url .= $_SERVER['REQUEST_URI'];
 				url: "<?php echo admin_url("admin-ajax.php"); ?>",
 				data: ({
 					action: 'workdex_builder_ajax',
+					nonce: '<?php echo esc_js( wp_create_nonce( 'improveseo_ajax' ) ); ?>',
 					page: 100,
 					ajax: 1,
 					id: ids
@@ -539,6 +541,7 @@ $url .= $_SERVER['REQUEST_URI'];
 			url: "<?php echo admin_url("admin-ajax.php"); ?>",
 			data: ({
 				action: 'workdex_builder_update_ajax',
+				nonce: '<?php echo esc_js( wp_create_nonce( 'improveseo_ajax' ) ); ?>',
 				page: 100,
 				ajax: 1,
 				id: ids

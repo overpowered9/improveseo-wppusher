@@ -32,6 +32,11 @@ add_action('wp_ajax_improveseo_generate_preview', 'improveseo_generate_preview')
 
 
 function improveseo_generate_preview(){
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
 
 
     global $wpdb;
@@ -578,6 +583,8 @@ add_action('wp_ajax_improveseo_preview_url', 'improveseo_preview_url');
  */
 function improveseo_preview_url()
 {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+
 	global $wpdb;
 
 	if (!current_user_can('manage_options')) {
@@ -722,6 +729,10 @@ function improveseo_bulk_preview_by_id() {
 // AJAX handler for creating categories in bulk posts popup
 add_action('wp_ajax_create_bulk_category', 'improveseo_create_bulk_category');
 function improveseo_create_bulk_category() {
+	if ( ! current_user_can( 'manage_categories' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'create_category_nonce')) {
         wp_send_json_error('Security check failed');

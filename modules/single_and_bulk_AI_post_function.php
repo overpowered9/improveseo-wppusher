@@ -503,6 +503,11 @@ function upload_image_callback()
 
 
 {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'upload_files' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
 
 
 	if (!empty($_FILES['image'])) {
@@ -552,6 +557,11 @@ add_action('wp_ajax_upload_keyword_image', 'upload_keyword_image_callback');
 
 function upload_keyword_image_callback()
 {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'upload_files' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
 	if (empty($_FILES['image'])) {
 		wp_send_json_error(array('message' => 'No file uploaded'));
 	}
@@ -573,6 +583,10 @@ function upload_keyword_image_callback()
 add_action('wp_ajax_check_bulk_credits', 'check_bulk_credits_callback');
 
 function check_bulk_credits_callback() {
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
 	// Verify nonce
 	if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'check_credits_nonce')) {
 		wp_send_json_error(array('error' => 'Invalid security token'));
@@ -667,6 +681,11 @@ add_action('wp_ajax_getPromptForImages', 'getPromptForImages');
 
 function getPromptForImages()
 {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
 	if ( ! empty( $_POST['title'] ) ) {
 		$title                    = sanitize_text_field( wp_unslash( $_POST['title'] ) );
 		$basicImagePromptResponse = ImageBasicPrompt( $title );
@@ -687,6 +706,11 @@ add_action('wp_ajax_fetch_AI_image', 'fetch_AI_image_callback');
 
 function fetch_AI_image_callback()
 {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
     if (!empty($_POST['title'])) {
         $title = $_POST['title'];
         $noedit = !empty($_POST['noedit']);

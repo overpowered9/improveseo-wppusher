@@ -28,6 +28,7 @@
 				dataType: 'json',
                 data : ({
                     action : 'improveseo_get_shortcodes',
+                    nonce: typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "",
                     improveseo_shortcode_type : improveseo_shortcode_type,
                 }),
                 success : function(response) {
