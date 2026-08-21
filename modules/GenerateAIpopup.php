@@ -691,43 +691,14 @@ function generateAIpopup()
 
 
 
-    if ((isset($_REQUEST['genaipost'])) && ($_REQUEST['genaipost'] == 'Generate AI Post')) {
-
-
-
-
-
-        $aigeneratedtitle = $_REQUEST['aigeneratedtitle'];
-
-
-
-        if (empty($aigeneratedtitle)) {
-
-            $seed_keyword = $_REQUEST['seed_keyword'];
-
-        } else {
-
-            $seed_keyword = $_REQUEST['aigeneratedtitle'];
-
-        }
-
-
-
-        $keyword_selection = $_REQUEST['keyword_selection'];
-
-        $seed_options = $_REQUEST['seed_options'];
-
-        $nos_of_words = $_REQUEST['nos_of_words'];
-
-        $content_lang = $_REQUEST['content_lang'];
-
-        //$shortcode = $_REQUEST['shortcodeoption'];
-
-
-
-        createAIpost($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '');
-
-    }
+    // Removed: a dead "Generate AI Post" branch that called createAIpost(), a function
+    // defined only in includes/improveseo.php and modules/new_single_AI_post_function.php
+    // - two files that were never loaded (39/43 and 6/8 of their functions collide with
+    // live code, so PHP would have fataled on redeclaration) and are deleted in 2.0.12.
+    // The branch was gated on a $_REQUEST flag no form or script ever sets, since every
+    // genaipost input is type="button", and it read six $_REQUEST values with no nonce,
+    // no capability check and no sanitisation. Live generation goes through
+    // createAIpost2() / createAIpost2bulk() in the loaded modules.
 
     
 
