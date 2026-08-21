@@ -39,11 +39,20 @@ function improveseo_enqueue_admin(){
 	// reaches Google Fonts).
 	wp_enqueue_style('improveseo-fonts', IMPROVESEO_DIR . '/assets/vendor/fonts/fonts.css', array(), improveseo_asset_ver('assets/vendor/fonts/fonts.css'));
 
-	// Bootstrap + SmartWizard, previously loaded as raw <link>/<script> tags from
-	// three different CDNs inside views/GenerateAIpopup/GenerateAIpopuphtml.php.
-	wp_enqueue_style('improveseo-bootstrap-css', IMPROVESEO_DIR . '/assets/css/bootstrap.min.css', array(), '4.6.0');
-	wp_enqueue_style('improveseo-smartwizard', IMPROVESEO_DIR . '/assets/vendor/smart-wizard/smart_wizard.min.css', array(), improveseo_asset_ver('assets/vendor/smart-wizard/smart_wizard.min.css'));
-	wp_enqueue_style('improveseo-smartwizard-dots', IMPROVESEO_DIR . '/assets/vendor/smart-wizard/smart_wizard_theme_dots.min.css', array('improveseo-smartwizard'), improveseo_asset_ver('assets/vendor/smart-wizard/smart_wizard_theme_dots.min.css'));
+	// Bootstrap + SmartWizard, previously loaded as raw <link>/<script> tags from three
+	// different CDNs inside views/GenerateAIpopup/GenerateAIpopuphtml.php.
+	//
+	// SCOPED DELIBERATELY. That view only renders on the Create Posts screen (see
+	// modules/posting.php, which dispatches create-post, create-page,
+	// create-post-single and create-post-bulk - all four call generateAIpopup()).
+	// Bootstrap's global resets - box-sizing, body typography, form-control styles -
+	// wreck the WordPress admin and this plugin's own screens if loaded everywhere,
+	// which is exactly what happened when these were first moved out of the view.
+	if ( isset( $_GET['page'] ) && 'improveseo_posting' === $_GET['page'] ) {
+		wp_enqueue_style('improveseo-bootstrap-css', IMPROVESEO_DIR . '/assets/css/bootstrap.min.css', array(), '4.6.0');
+		wp_enqueue_style('improveseo-smartwizard', IMPROVESEO_DIR . '/assets/vendor/smart-wizard/smart_wizard.min.css', array(), improveseo_asset_ver('assets/vendor/smart-wizard/smart_wizard.min.css'));
+		wp_enqueue_style('improveseo-smartwizard-dots', IMPROVESEO_DIR . '/assets/vendor/smart-wizard/smart_wizard_theme_dots.min.css', array('improveseo-smartwizard'), improveseo_asset_ver('assets/vendor/smart-wizard/smart_wizard_theme_dots.min.css'));
+	}
 
 	wp_enqueue_style('improveseo-modalStyle',IMPROVESEO_DIR . '/assets/js/jquery.modal.min.css');
 
@@ -109,8 +118,12 @@ function improveseo_enqueue_admin(){
 	// raw <script> tags pointing at stackpath and jsdelivr; the local
 	// assets/js/bootstrap.min.js is the non-bundle build and lacks Popper, so the
 	// bundle is vendored rather than reusing it.
-	wp_enqueue_script('improveseo-bootstrap-bundle', IMPROVESEO_DIR . '/assets/vendor/bootstrap/bootstrap.bundle.min.js', array('jquery'), '4.6.0', true);
-	wp_enqueue_script('improveseo-smartwizard', IMPROVESEO_DIR . '/assets/vendor/smart-wizard/jquery.smartWizard.min.js', array('jquery'), improveseo_asset_ver('assets/vendor/smart-wizard/jquery.smartWizard.min.js'), true);
+	// Scoped to the same screen as the Bootstrap/SmartWizard styles above - loading
+	// Bootstrap's JS across the whole admin hijacks WordPress' own modals and dropdowns.
+	if ( isset( $_GET['page'] ) && 'improveseo_posting' === $_GET['page'] ) {
+		wp_enqueue_script('improveseo-bootstrap-bundle', IMPROVESEO_DIR . '/assets/vendor/bootstrap/bootstrap.bundle.min.js', array('jquery'), '4.6.0', true);
+		wp_enqueue_script('improveseo-smartwizard', IMPROVESEO_DIR . '/assets/vendor/smart-wizard/jquery.smartWizard.min.js', array('jquery'), improveseo_asset_ver('assets/vendor/smart-wizard/jquery.smartWizard.min.js'), true);
+	}
 
 	
 
