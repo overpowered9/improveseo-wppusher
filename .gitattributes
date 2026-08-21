@@ -1,0 +1,24 @@
+# Normalise all text files to LF, in the repository *and* the working tree.
+#
+# History: many blobs here stored CRCRLF, and with core.autocrlf=true checkout
+# added a third CR, producing CRCRCRLF. WordPress Plugin Check flagged 117 files
+# as Internal.LineEndings.Mixed, and any tool that rewrote a whole file tripled
+# its line endings. Pinning eol=lf makes the working tree deterministic.
+* text=auto eol=lf
+
+# Binary assets must never be line-ending converted.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.svg  -text
+*.woff  binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+*.zip binary
+*.pdf binary
+*.mo  binary
