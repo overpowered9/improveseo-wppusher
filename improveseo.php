@@ -2150,7 +2150,9 @@ class WC_Testimonial
 
 		wp_enqueue_style('improveseo_style', WT_URL . "/assets/css/improveseo_style.css", array(), '1.1');
 
-		wp_enqueue_style("poppins_fonts", "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
+		// Poppins is bundled with the plugin and enqueued in includes/assets.php;
+		// this handle stays registered so anything depending on it keeps working.
+		wp_enqueue_style("poppins_fonts", WT_URL . "/assets/vendor/fonts/fonts.css", array(), IMPROVESEO_VERSION);
 
 		wp_enqueue_script('tmm_script_js', WT_URL . "/assets/js/wt-script.js", array('jquery'), improveseo_asset_ver('assets/js/wt-script.js'), true);
 

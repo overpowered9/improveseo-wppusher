@@ -1931,14 +1931,12 @@ function generateBulkAiImage($title, $AudienceData, $niche = 'general_blog')
     $image_data = false;
 
     if (!empty($image_url) && filter_var($image_url, FILTER_VALIDATE_URL)) {
-        $ch = curl_init($image_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        $image_data = curl_exec($ch);
-        $download_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        // wp_safe_remote_get() verifies TLS certificates by default and follows
+        // redirects. The previous curl call set CURLOPT_SSL_VERIFYPEER to false,
+        // which let anyone on the path substitute the downloaded image.
+        $response        = wp_safe_remote_get($image_url, array('timeout' => 60));
+        $download_status = wp_remote_retrieve_response_code($response);
+        $image_data      = is_wp_error($response) ? false : wp_remote_retrieve_body($response);
         if (!$image_data || $download_status !== 200) {
             error_log("generateBulkAiImage Error: Failed to download image from URL: " . $image_url . " (HTTP " . $download_status . ")");
             return false;

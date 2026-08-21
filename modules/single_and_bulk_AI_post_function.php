@@ -805,12 +805,11 @@ function fetch_AI_image_callback()
         $image_data = false;
 
         if (!empty($image_url)) {
-            $ch = curl_init($image_url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-            $image_data = curl_exec($ch);
-            curl_close($ch);
+            // wp_safe_remote_get() verifies TLS certificates by default. The previous
+            // curl call set CURLOPT_SSL_VERIFYPEER to false, which let anyone on the
+            // path substitute the downloaded image.
+            $response   = wp_safe_remote_get($image_url, array('timeout' => 60));
+            $image_data = is_wp_error($response) ? false : wp_remote_retrieve_body($response);
         } elseif (!empty($data_uri)) {
             $comma = strpos($data_uri, ',');
             $b64 = ($comma !== false) ? substr($data_uri, $comma + 1) : $data_uri;

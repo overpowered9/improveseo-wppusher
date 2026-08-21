@@ -31,7 +31,19 @@ function improveseo_enqueue_admin(){
 	wp_enqueue_style('improveseocss12121', IMPROVESEO_DIR . '/assets/css/made_by_me.css', array(), filemtime(IMPROVESEO_ROOT . '/assets/css/made_by_me.css'));
 	wp_enqueue_style('improveseo-settings-redesign', IMPROVESEO_DIR . '/assets/css/settings-redesign.css', array(), improveseo_asset_ver('assets/css/settings-redesign.css'));
 
-	wp_enqueue_style('improveseo-fa', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css');
+	// Bundled locally: WordPress.org does not permit loading assets from a CDN.
+	// Font Awesome 4.5.0 - CSS under MIT, fonts under SIL OFL 1.1, both GPL compatible.
+	wp_enqueue_style('improveseo-fa', IMPROVESEO_DIR . '/assets/vendor/font-awesome/css/font-awesome.min.css', array(), '4.5.0');
+
+	// Poppins and Lato, bundled locally for the same reason (and so no visitor data
+	// reaches Google Fonts).
+	wp_enqueue_style('improveseo-fonts', IMPROVESEO_DIR . '/assets/vendor/fonts/fonts.css', array(), improveseo_asset_ver('assets/vendor/fonts/fonts.css'));
+
+	// Bootstrap + SmartWizard, previously loaded as raw <link>/<script> tags from
+	// three different CDNs inside views/GenerateAIpopup/GenerateAIpopuphtml.php.
+	wp_enqueue_style('improveseo-bootstrap-css', IMPROVESEO_DIR . '/assets/css/bootstrap.min.css', array(), '4.6.0');
+	wp_enqueue_style('improveseo-smartwizard', IMPROVESEO_DIR . '/assets/vendor/smart-wizard/smart_wizard.min.css', array(), improveseo_asset_ver('assets/vendor/smart-wizard/smart_wizard.min.css'));
+	wp_enqueue_style('improveseo-smartwizard-dots', IMPROVESEO_DIR . '/assets/vendor/smart-wizard/smart_wizard_theme_dots.min.css', array('improveseo-smartwizard'), improveseo_asset_ver('assets/vendor/smart-wizard/smart_wizard_theme_dots.min.css'));
 
 	wp_enqueue_style('improveseo-modalStyle',IMPROVESEO_DIR . '/assets/js/jquery.modal.min.css');
 
@@ -89,7 +101,16 @@ function improveseo_enqueue_admin(){
 
 	
 
-	wp_enqueue_script('improveseo-underscore', 'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js', array('underscore'));
+	// Underscore comes from WordPress core - the old line pulled a second copy from a
+	// CDN while already declaring core's 'underscore' handle as its dependency.
+	wp_enqueue_script('underscore');
+
+	// Bootstrap bundle (includes Popper) and SmartWizard, bundled locally. These were
+	// raw <script> tags pointing at stackpath and jsdelivr; the local
+	// assets/js/bootstrap.min.js is the non-bundle build and lacks Popper, so the
+	// bundle is vendored rather than reusing it.
+	wp_enqueue_script('improveseo-bootstrap-bundle', IMPROVESEO_DIR . '/assets/vendor/bootstrap/bootstrap.bundle.min.js', array('jquery'), '4.6.0', true);
+	wp_enqueue_script('improveseo-smartwizard', IMPROVESEO_DIR . '/assets/vendor/smart-wizard/jquery.smartWizard.min.js', array('jquery'), improveseo_asset_ver('assets/vendor/smart-wizard/jquery.smartWizard.min.js'), true);
 
 	
 

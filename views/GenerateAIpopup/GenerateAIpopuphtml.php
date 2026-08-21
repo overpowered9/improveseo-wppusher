@@ -1,12 +1,10 @@
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
-<script type="text/javascript"
-    src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/jquery.smartWizard.min.js"></script>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-<link href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/smart_wizard.min.css" rel="stylesheet"
-    type="text/css" />
-<link href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/smart_wizard_theme_dots.min.css" rel="stylesheet"
-    type="text/css" />
+<?php
+// Bootstrap (4.6.0 bundle, with Popper) and SmartWizard are now bundled with the
+// plugin and enqueued in includes/assets.php. They used to be six raw tags loading
+// from stackpath, maxcdn and jsdelivr - two of them fetching Bootstrap CSS twice at
+// different versions. WordPress.org does not permit loading assets from a CDN, and
+// Plugin Check flags raw tags separately as NonEnqueuedStylesheet/NonEnqueuedScript.
+?>
 <?php
 $plugin_url = plugin_dir_url(dirname(__FILE__, 2)); // Go up 2 levels to the root of the plugin
 $image_url = $plugin_url . 'assets/images/AI-generated.gif';

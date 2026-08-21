@@ -15,12 +15,12 @@ use ImproveSEO\View;
 <?php View::endSection('breadcrumbs') ?>
 
 <?php View::startSection('content') ?>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-	integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
-	crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link
-	href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-	rel="stylesheet">
+<?php
+// Two CDN stylesheets removed. The Font Awesome 6.6.0 sheet was never used - this
+// view contains no icon markup at all - and Font Awesome 4.5.0 is already enqueued
+// plugin-wide. Lato and Poppins are now bundled and enqueued from
+// includes/assets.php, so no visitor data reaches Google Fonts.
+?>
 
 <h1 class="hidden">Dashboard</h1>
 
