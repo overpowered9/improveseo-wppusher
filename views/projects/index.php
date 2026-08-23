@@ -329,6 +329,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 				url: "<?php echo admin_url("admin-ajax.php"); ?>",
 				data: ({
 					action: 'workdex_builder_ajax',
+					nonce: '<?php echo esc_js( wp_create_nonce( 'improveseo_ajax' ) ); ?>',
 					page: 100,
 					ajax: 1,
 					id: ids
@@ -383,6 +384,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 			url: "<?php echo admin_url("admin-ajax.php"); ?>",
 			data: ({
 				action: 'workdex_builder_update_ajax',
+				nonce: '<?php echo esc_js( wp_create_nonce( 'improveseo_ajax' ) ); ?>',
 				page: 100,
 				ajax: 1,
 				id: ids

@@ -1151,6 +1151,11 @@ add_action('wp_ajax_add_category_form', 'add_category_form');
 
 function add_category_form()
 {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'manage_categories' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
 
 
 
@@ -1208,6 +1213,11 @@ add_action('wp_ajax_refreshCategoryData', 'refreshCategoryData');
 
 function refreshCategoryData($slug)
 {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
 
 	$select = '';
 

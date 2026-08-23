@@ -1933,7 +1933,8 @@ function generateBulkAiImage($title, $AudienceData, $niche = 'general_blog')
     if (!empty($image_url) && filter_var($image_url, FILTER_VALIDATE_URL)) {
         $ch = curl_init($image_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // TLS certificate verification left at cURL's default (on). It was previously
+        // disabled here, which let anyone on the network path substitute the image.
         curl_setopt($ch, CURLOPT_TIMEOUT, 60);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         $image_data = curl_exec($ch);
@@ -2202,6 +2203,11 @@ if (!function_exists('improveseo_normalize_cta_url')) {
 function multiPostData()
 
 {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
 
 
 
@@ -2675,6 +2681,11 @@ add_action('wp_ajax_generateAIMeta', 'generateAIMeta');
 function generateAIMeta()
 
 {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
 
 	$aigeneratedtitle = $_REQUEST['aigeneratedtitle'];
 
@@ -2704,6 +2715,11 @@ function generateAIMeta()
 
 function multi_form_data()
 {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
 	$keyword_list = isset( $_REQUEST['keyword_list'] ) ? sanitize_textarea_field( $_REQUEST['keyword_list'] ) : '';
 
 	if ( empty( trim( $keyword_list ) ) ) {
@@ -2831,6 +2847,11 @@ add_action('wp_ajax_re_generate_post', 're_generate_post');
 
 function re_generate_post()
 {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
 	global $wpdb;
 	$id = intval($_REQUEST['id']);
 	

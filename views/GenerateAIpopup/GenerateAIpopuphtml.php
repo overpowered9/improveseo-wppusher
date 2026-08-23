@@ -3216,6 +3216,7 @@ global $ai_modal_type;
         
         const formData = new FormData();
         formData.append('action', 'upload_keyword_image');
+        formData.append('nonce', '<?php echo esc_js( wp_create_nonce( 'improveseo_ajax' ) ); ?>');
         formData.append('image', file);
         
         // Show loading indicator
@@ -4082,6 +4083,7 @@ global $ai_modal_type;
                     type: 'POST',
                     data: {
                         action: 'get_keyword_list_data',
+                        nonce: '<?php echo esc_js( wp_create_nonce( 'improveseo_ajax' ) ); ?>',
                         list_id: selectedOption
                     },
                     success: function(response) {

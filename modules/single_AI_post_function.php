@@ -9,6 +9,11 @@ add_action('wp_ajax_getaaldata', 'getaaldata');
 
 function getaaldata()
 {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
 	$arr = [];
 
 	wp_parse_str($_POST['value'], $arr);

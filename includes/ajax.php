@@ -39,6 +39,10 @@ function improveseo_save_feature_toggles() {
 add_action('wp_ajax_test_improveseo_connection', 'test_improveseo_connection');
 
 function test_improveseo_connection() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
     // Verify nonce for security
     if (!wp_verify_nonce($_POST['nonce'], 'test_connection_nonce')) {
         wp_die('Security check failed');
@@ -130,6 +134,11 @@ add_action('wp_ajax_improveseo_get_shortcodes', 'improveseo_get_shortcodes');
 
 
 function improveseo_get_shortcodes(){
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
 
 
     $improveseo_shortcode_type = sanitize_text_field($_POST['improveseo_shortcode_type']);

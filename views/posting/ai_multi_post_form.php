@@ -196,8 +196,9 @@
 				));
 			}
 		
-		add_action('wp_ajax_process_form_data', 'process_form_data');
-		//add_action('wp_ajax_nopriv_process_form_data', 'process_form_data');
+		// Removed: registered process_form_data(), which is not defined anywhere in the
+		// plugin, so invoking the action fataled with an undefined-function error.
+		// Nothing referenced it.
 		
 		function enqueue_custom_scripts() {
 			wp_enqueue_script('custom-ajax-script', get_template_directory_uri() . '/js/script.js', array('jquery'), null, true);

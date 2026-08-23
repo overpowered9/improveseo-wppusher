@@ -3,6 +3,11 @@
 // AJAX handler for refreshing keyword lists dropdown
 add_action('wp_ajax_refresh_keyword_lists', 'improveseo_refresh_keyword_lists');
 function improveseo_refresh_keyword_lists() {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
     global $wpdb;
     
     // Fetch all keyword lists from database
@@ -25,6 +30,11 @@ function improveseo_refresh_keyword_lists() {
 // AJAX handler for fetching keywords of a specific list
 add_action('wp_ajax_get_keyword_list_data', 'improveseo_get_keyword_list_data');
 function improveseo_get_keyword_list_data() {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
     global $wpdb;
     
     $list_id = isset($_POST['list_id']) ? intval($_POST['list_id']) : 0;

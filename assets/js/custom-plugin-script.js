@@ -39,6 +39,7 @@ function getShortCodeDetails(value) {
   var formData = new FormData();
 
   formData.append("action", "improveseo_get_shortcodes");
+  formData.append("nonce", typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "");
 
   formData.append("improveseo_shortcode_type", value);
 
@@ -99,6 +100,7 @@ function GenerateCustomImage() {
   var formData = new FormData();
 
   formData.append("action", "fetch_AI_image");
+  formData.append("nonce", typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "");
 
   formData.append("title", title);
 
@@ -178,6 +180,7 @@ jQuery("#generate_i_image").on("click", function () {
   var formData = new FormData();
 
   formData.append("action", "fetch_AI_image");
+  formData.append("nonce", typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "");
 
   formData.append("title", title);
 
@@ -387,6 +390,7 @@ function iseoRerunMetaIfOverLimit(triesLeft) {
 
   jQuery.post(ajaxurl, {
     action: "generateAIMeta",
+    nonce: typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "",
     aigeneratedtitle: aigeneratedtitle,
     seedkeyword: seedkeyword,
   }).done(function (response) {
@@ -438,7 +442,11 @@ jQuery("#generateapivalue").on("click", function () {
 
     dataType: "json",
 
-    data: { value: form_inputValue, action: "getaaldata" }, // Send the captured value to the server
+    data: {
+      value: form_inputValue,
+      action: "getaaldata",
+      nonce: typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "",
+    }, // Send the captured value to the server
 
     success: function (response) {
       // Handle the success response from the server
@@ -1045,6 +1053,7 @@ function generateAIMetaJs() {
   jQuery
     .post(ajaxUrl, {
       action: "generateAIMeta",
+      nonce: typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "",
 
       aigeneratedtitle: aigeneratedtitle,
 
@@ -1196,6 +1205,7 @@ function refreshAIImage() {
 
   var formData = new FormData();
   formData.append("action", "fetch_AI_image");
+  formData.append("nonce", typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "");
   formData.append("title", title);
   // v2 (OpenAI) cover image with the selected niche; PHP falls back to legacy Flux when use_v2 is absent.
   formData.append("niche", window.iseoSelectedNiche());
@@ -1313,6 +1323,7 @@ jQuery(document).ready(function (jQuery) {
 
       var promptForm = new FormData();
       promptForm.append("action", "getPromptForImages");
+      promptForm.append("nonce", typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "");
       promptForm.append("title", title);
 
       jQuery.ajax({
@@ -1419,6 +1430,7 @@ jQuery(document).ready(function (jQuery) {
     var formData = new FormData();
 
     formData.append("action", "upload_image");
+    formData.append("nonce", typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "");
 
     formData.append("image", image);
 
@@ -1463,6 +1475,7 @@ jQuery(document).ready(function ($) {
     var formData = new FormData(form);
 
     formData.append("action", "multiPostData");
+    formData.append("nonce", typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "");
     
     // Show loading overlay if available
     if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.show) {
@@ -1770,6 +1783,7 @@ function SaveResultsButton() {
   jQuery
     .post(ajaxUrl, {
       action: "multi_form_data",
+      nonce: typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "",
       keyword_id: keyword_id,
       keyword_list: keyword_list,
       content_type: content_type,
@@ -2501,7 +2515,11 @@ function addcategory() {
 
     dataType: "json",
 
-    data: { action: "add_category_form", fData: fData },
+    data: {
+      action: "add_category_form",
+      fData: fData,
+      nonce: typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "",
+    },
 
     success: function (response) {
       console.log(response);
