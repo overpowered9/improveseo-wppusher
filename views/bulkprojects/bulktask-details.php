@@ -11,16 +11,16 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
-<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects List</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects List</a>
 
 &raquo;
 
 <?php if ($task->bulktask_id): ?>
-<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>"><?= esc_html($parent_name) ?></a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>"><?php echo  esc_html($parent_name) ?></a>
 &raquo;
 <?php endif; ?>
 
@@ -294,25 +294,25 @@ function btd_datetime($val) {
     </div>
     <div class="box-top btd-box-top">
         <ul class="breadcrumb-seo">
-            <li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
-            <li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
+            <li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+            <li><a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
             <?php if ($task->bulktask_id): ?>
-                <li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>"><?= esc_html($parent_name) ?></a></li>
+                <li><a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>"><?php echo  esc_html($parent_name) ?></a></li>
             <?php endif; ?>
-            <li><?= esc_html($task->keyword_name) ?></li>
+            <li><?php echo  esc_html($task->keyword_name) ?></li>
         </ul>
         <div class="import-export-btn">
             <?php if ($task->bulktask_id): ?>
-                <a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>" style="text-decoration:none;">
+                <a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>" style="text-decoration:none;">
                     <button>← Back to Post List</button>
                 </a>
             <?php else: ?>
-                <a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>" style="text-decoration:none;">
+                <a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>" style="text-decoration:none;">
                     <button>← Back to Bulk Projects</button>
                 </a>
             <?php endif; ?>
             <?php if ($associated_post && $post_url): ?>
-                <a href="<?= esc_url($post_url) ?>" target="_blank" style="text-decoration:none;">
+                <a href="<?php echo  esc_url($post_url) ?>" target="_blank" style="text-decoration:none;">
                     <button class="active">View Post</button>
                 </a>
             <?php elseif (!empty($task->ai_content)): ?>
@@ -321,15 +321,15 @@ function btd_datetime($val) {
                 // "Preview Post" button on this screen uses (improveseo_bulk_preview_by_id,
                 // keyed by this task's own id — see the modal + script at the bottom of
                 // this file, copied from views/bulkprojects/alltasks.php). ?>
-                <button type="button" onclick="iseoPreviewBulkTask(<?= (int) $task->id ?>)">Preview Post</button>
+                <button type="button" onclick="iseoPreviewBulkTask(<?php echo  (int) $task->id ?>)">Preview Post</button>
             <?php endif; ?>
             <?php if (!empty($task->post_id)): ?>
-                <a href="<?= admin_url('post.php?action=edit&post=' . $task->post_id) ?>" target="_blank" style="text-decoration:none;">
+                <a href="<?php echo  admin_url('post.php?action=edit&post=' . $task->post_id) ?>" target="_blank" style="text-decoration:none;">
                     <button>Edit Post</button>
                 </a>
             <?php elseif (!empty($task->ai_content)): ?>
                 <?php // Drafts never get a WordPress post, so edit the generated content in place. ?>
-                <a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=edit_ai_content&id=' . $task->id) ?>" style="text-decoration:none;">
+                <a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=edit_ai_content&id=' . $task->id) ?>" style="text-decoration:none;">
                     <button>Edit Post Content</button>
                 </a>
             <?php endif; ?>
@@ -345,13 +345,13 @@ function btd_datetime($val) {
             <div class="btd-card-body">
                 <div class="btd-row">
                     <div class="btd-label">Keyword</div>
-                    <div class="btd-value"><?= btd_val($task->keyword_name) ?></div>
+                    <div class="btd-value"><?php echo  btd_val($task->keyword_name) ?></div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Parent Project</div>
                     <div class="btd-value">
                         <?php if ($parent_name): ?>
-                            <a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>"><?= esc_html($parent_name) ?></a>
+                            <a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>"><?php echo  esc_html($parent_name) ?></a>
                         <?php else: ?>
                             <span class="na">N/A</span>
                         <?php endif; ?>
@@ -360,8 +360,8 @@ function btd_datetime($val) {
                 <div class="btd-row">
                     <div class="btd-label">Keyword List</div>
                     <?php // The controller resolves the stored list ID to its name. ?>
-                    <div class="btd-value <?= empty($keyword_list_label) ? 'na' : '' ?>">
-                        <?= btd_val(isset($keyword_list_label) ? $keyword_list_label : '') ?>
+                    <div class="btd-value <?php echo  empty($keyword_list_label) ? 'na' : '' ?>">
+                        <?php echo  btd_val(isset($keyword_list_label) ? $keyword_list_label : '') ?>
                     </div>
                 </div>
                 <div class="btd-row">
@@ -374,7 +374,7 @@ function btd_datetime($val) {
                         elseif ($status === 'Stoped') $badge = 'btd-badge-stoped';
                         elseif ($status === 'Draft') $badge = 'btd-badge-draft';
                         ?>
-                        <span class="btd-badge <?= $badge ?>"><?= esc_html(btd_content_status_label($status)) ?></span>
+                        <span class="btd-badge <?php echo  $badge ?>"><?php echo  esc_html(btd_content_status_label($status)) ?></span>
                     </div>
                 </div>
                 <div class="btd-row">
@@ -406,28 +406,28 @@ function btd_datetime($val) {
                             }
                         }
                         ?>
-                        <span class="btd-badge <?= $state_badge ?>"><?= esc_html($post_status_label) ?></span>
+                        <span class="btd-badge <?php echo  $state_badge ?>"><?php echo  esc_html($post_status_label) ?></span>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Published On</div>
                     <?php $btd_published = ($task->status === 'Stoped') ? 'N/A' : btd_datetime($task->published_on); ?>
-                    <div class="btd-value <?= $btd_published === 'N/A' ? 'na' : '' ?>"><?= $btd_published ?></div>
+                    <div class="btd-value <?php echo  $btd_published === 'N/A' ? 'na' : '' ?>"><?php echo  $btd_published ?></div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Created</div>
-                    <div class="btd-value"><?= btd_datetime($task->created_at) ?></div>
+                    <div class="btd-value"><?php echo  btd_datetime($task->created_at) ?></div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Updated</div>
-                    <div class="btd-value"><?= btd_datetime($task->updated_at) ?></div>
+                    <div class="btd-value"><?php echo  btd_datetime($task->updated_at) ?></div>
                 </div>
                 <?php if ($associated_post): ?>
                 <div class="btd-row">
                     <div class="btd-label">WordPress Post</div>
                     <div class="btd-value">
-                        <a href="<?= esc_url($post_url) ?>" target="_blank"><?= esc_html($associated_post->post_title) ?></a>
-                        (ID: <?= $associated_post->ID ?>)
+                        <a href="<?php echo  esc_url($post_url) ?>" target="_blank"><?php echo  esc_html($associated_post->post_title) ?></a>
+                        (ID: <?php echo  $associated_post->ID ?>)
                     </div>
                 </div>
                 <?php endif; ?>
@@ -440,44 +440,44 @@ function btd_datetime($val) {
             <div class="btd-card-body">
                 <div class="btd-row">
                     <div class="btd-label">Title Type</div>
-                    <div class="btd-value <?= empty($task->select_exisiting_options) ? 'na' : '' ?>">
-                        <?= btd_seed_option_label($task->select_exisiting_options) ?>
+                    <div class="btd-value <?php echo  empty($task->select_exisiting_options) ? 'na' : '' ?>">
+                        <?php echo  btd_seed_option_label($task->select_exisiting_options) ?>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Tone of Voice</div>
-                    <div class="btd-value <?= empty($task->tone_of_voice) ? 'na' : '' ?>">
-                        <?= btd_tone_label($task->tone_of_voice) ?>
+                    <div class="btd-value <?php echo  empty($task->tone_of_voice) ? 'na' : '' ?>">
+                        <?php echo  btd_tone_label($task->tone_of_voice) ?>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Article Size</div>
-                    <div class="btd-value <?= empty($task->nos_of_words) ? 'na' : '' ?>">
-                        <?= btd_val($task->nos_of_words) ?>
+                    <div class="btd-value <?php echo  empty($task->nos_of_words) ? 'na' : '' ?>">
+                        <?php echo  btd_val($task->nos_of_words) ?>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Point of View</div>
-                    <div class="btd-value <?= empty($task->point_of_view) ? 'na' : '' ?>">
-                        <?= btd_pov_label($task->point_of_view) ?>
+                    <div class="btd-value <?php echo  empty($task->point_of_view) ? 'na' : '' ?>">
+                        <?php echo  btd_pov_label($task->point_of_view) ?>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Language</div>
-                    <div class="btd-value <?= empty($task->content_lang) ? 'na' : '' ?>">
-                        <?= btd_val($task->content_lang) ?>
+                    <div class="btd-value <?php echo  empty($task->content_lang) ? 'na' : '' ?>">
+                        <?php echo  btd_val($task->content_lang) ?>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Image Option</div>
-                    <div class="btd-value <?= empty($task->aiImage) ? 'na' : '' ?>">
-                        <?= btd_image_label($task->aiImage) ?>
+                    <div class="btd-value <?php echo  empty($task->aiImage) ? 'na' : '' ?>">
+                        <?php echo  btd_image_label($task->aiImage) ?>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">AI Generated Title</div>
-                    <div class="btd-value <?= empty($task->ai_title) ? 'na' : '' ?>">
-                        <?= btd_val($task->ai_title) ?>
+                    <div class="btd-value <?php echo  empty($task->ai_title) ? 'na' : '' ?>">
+                        <?php echo  btd_val($task->ai_title) ?>
                     </div>
                 </div>
             </div>
@@ -500,20 +500,20 @@ function btd_datetime($val) {
             <div class="btd-card-body">
                 <div class="btd-row">
                     <div class="btd-label">Focus Keyword</div>
-                    <div class="btd-value <?= empty($task->keyword_name) ? 'na' : '' ?>">
-                        <?= btd_val($task->keyword_name) ?>
+                    <div class="btd-value <?php echo  empty($task->keyword_name) ? 'na' : '' ?>">
+                        <?php echo  btd_val($task->keyword_name) ?>
                     </div>
                 </div>
                 <div class="btd-row btd-row-stacked">
                     <div class="btd-label" style="margin-bottom: 6px;">Meta Title</div>
-                    <div class="btd-value <?= $btd_meta_title === '' ? 'na' : '' ?>">
-                        <?= $btd_meta_title !== '' ? esc_html($btd_meta_title) : esc_html($btd_seo_placeholder) ?>
+                    <div class="btd-value <?php echo  $btd_meta_title === '' ? 'na' : '' ?>">
+                        <?php echo  $btd_meta_title !== '' ? esc_html($btd_meta_title) : esc_html($btd_seo_placeholder) ?>
                     </div>
                 </div>
                 <div class="btd-row btd-row-stacked">
                     <div class="btd-label" style="margin-bottom: 6px;">Meta Description</div>
-                    <div class="btd-value <?= $btd_meta_desc === '' ? 'na' : '' ?>">
-                        <?= $btd_meta_desc !== '' ? esc_html($btd_meta_desc) : esc_html($btd_seo_placeholder) ?>
+                    <div class="btd-value <?php echo  $btd_meta_desc === '' ? 'na' : '' ?>">
+                        <?php echo  $btd_meta_desc !== '' ? esc_html($btd_meta_desc) : esc_html($btd_seo_placeholder) ?>
                     </div>
                 </div>
             </div>
@@ -533,11 +533,11 @@ function btd_datetime($val) {
                 ?>
                 <div class="btd-row btd-row-stacked">
                     <div class="btd-label" style="margin-bottom: 6px;">Details to Include</div>
-                    <div class="btd-value <?= empty($task->details_to_include) ? 'na' : '' ?>" style="white-space: pre-wrap;"><?= btd_val($task->details_to_include) ?></div>
+                    <div class="btd-value <?php echo  empty($task->details_to_include) ? 'na' : '' ?>" style="white-space: pre-wrap;"><?php echo  btd_val($task->details_to_include) ?></div>
                 </div>
                 <div class="btd-row btd-row-stacked" style="margin-top: 8px;">
                     <div class="btd-label" style="margin-bottom: 6px;">Call to Action</div>
-                    <div class="btd-value <?= empty($task->call_to_action) ? 'na' : '' ?>" style="white-space: pre-wrap;"><?= btd_val($task->call_to_action) ?></div>
+                    <div class="btd-value <?php echo  empty($task->call_to_action) ? 'na' : '' ?>" style="white-space: pre-wrap;"><?php echo  btd_val($task->call_to_action) ?></div>
                 </div>
             </div>
         </div>
@@ -548,15 +548,15 @@ function btd_datetime($val) {
             <div class="btd-card-body">
                 <div class="btd-row">
                     <div class="btd-label">Schedule Type</div>
-                    <div class="btd-value <?= empty($task->schedule_posts) ? 'na' : '' ?>">
-                        <?= btd_schedule_label($task->schedule_posts) ?>
+                    <div class="btd-value <?php echo  empty($task->schedule_posts) ? 'na' : '' ?>">
+                        <?php echo  btd_schedule_label($task->schedule_posts) ?>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Schedule Frequency</div>
                     <?php $btd_cadence = btd_schedule_cadence($task); ?>
-                    <div class="btd-value <?= $btd_cadence === 'N/A' ? 'na' : '' ?>">
-                        <?= esc_html($btd_cadence) ?>
+                    <div class="btd-value <?php echo  $btd_cadence === 'N/A' ? 'na' : '' ?>">
+                        <?php echo  esc_html($btd_cadence) ?>
                     </div>
                 </div>
                 <?php if (!empty($task->assigning_authors_value)): ?>
@@ -576,7 +576,7 @@ function btd_datetime($val) {
                 <?php endif; ?>
                 <div class="btd-row">
                     <div class="btd-label">Categories</div>
-                    <div class="btd-value <?= empty($task->cats) ? 'na' : '' ?>">
+                    <div class="btd-value <?php echo  empty($task->cats) ? 'na' : '' ?>">
                         <?php
                         if (!empty($task->cats)) {
                             // Format: ||255 or 255,256
@@ -612,25 +612,25 @@ function btd_datetime($val) {
                 <?php if (!empty($task->testimonial)): ?>
                 <div class="btd-row">
                     <div class="btd-label">Testimonial</div>
-                    <div class="btd-value"><?= esc_html($task->testimonial) ?></div>
+                    <div class="btd-value"><?php echo  esc_html($task->testimonial) ?></div>
                 </div>
                 <?php endif; ?>
                 <?php if (!empty($task->Button_SC)): ?>
                 <div class="btd-row">
                     <div class="btd-label">Button Shortcode</div>
-                    <div class="btd-value"><code><?= esc_html($task->Button_SC) ?></code></div>
+                    <div class="btd-value"><code><?php echo  esc_html($task->Button_SC) ?></code></div>
                 </div>
                 <?php endif; ?>
                 <?php if (!empty($task->GoogleMap_SC)): ?>
                 <div class="btd-row">
                     <div class="btd-label">Google Map SC</div>
-                    <div class="btd-value"><code><?= esc_html($task->GoogleMap_SC) ?></code></div>
+                    <div class="btd-value"><code><?php echo  esc_html($task->GoogleMap_SC) ?></code></div>
                 </div>
                 <?php endif; ?>
                 <?php if (!empty($task->Video_SC)): ?>
                 <div class="btd-row">
                     <div class="btd-label">Video Shortcode</div>
-                    <div class="btd-value"><code><?= esc_html($task->Video_SC) ?></code></div>
+                    <div class="btd-value"><code><?php echo  esc_html($task->Video_SC) ?></code></div>
                 </div>
                 <?php endif; ?>
             </div>
@@ -639,7 +639,7 @@ function btd_datetime($val) {
 
         <!-- Card 6: AI Image (full width if image exists) -->
         <?php if (!empty($task->ai_image)): ?>
-        <div class="btd-card <?= $has_extras ? '' : 'btd-full-width' ?>">
+        <div class="btd-card <?php echo  $has_extras ? '' : 'btd-full-width' ?>">
             <div class="btd-card-header">AI Generated Image</div>
             <div class="btd-card-body">
                 <?php
@@ -647,11 +647,11 @@ function btd_datetime($val) {
                 $image_url = base64_decode($task->ai_image);
                 if (filter_var($image_url, FILTER_VALIDATE_URL)):
                 ?>
-                    <a href="<?= esc_url($image_url) ?>" target="_blank">
-                        <img src="<?= esc_url($image_url) ?>" alt="AI Generated Image" class="btd-image-preview" />
+                    <a href="<?php echo  esc_url($image_url) ?>" target="_blank">
+                        <img src="<?php echo  esc_url($image_url) ?>" alt="AI Generated Image" class="btd-image-preview" />
                     </a>
                     <p style="margin-top: 8px; font-size: 12px; color: #666;">
-                        <a href="<?= esc_url($image_url) ?>" target="_blank"><?= esc_html($image_url) ?></a>
+                        <a href="<?php echo  esc_url($image_url) ?>" target="_blank"><?php echo  esc_html($image_url) ?></a>
                     </p>
                 <?php else: ?>
                     <p class="na" style="margin: 0; font-style: italic; color: #a7aaad;">Invalid image URL</p>

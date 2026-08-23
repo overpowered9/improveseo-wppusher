@@ -14,16 +14,16 @@ $keyword_name = trim((string) $task->keyword_name);
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
-<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects List</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects List</a>
 
 &raquo;
 
 <?php if ($task->bulktask_id): ?>
-<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>">All Tasks</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>">All Tasks</a>
 &raquo;
 <?php endif; ?>
 
@@ -54,16 +54,16 @@ $keyword_name = trim((string) $task->keyword_name);
 	<?php // Which draft this is. The keyword lives here now — it is context, not an
 	// editable field, and the project name it belongs to is the field below. ?>
 	<ul class="breadcrumb-seo iseo-bulk-edit-crumbs">
-		<li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
-		<li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
+		<li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+		<li><a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
 		<?php if ($task->bulktask_id): ?>
-			<li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>"><?= $project_name !== '' ? esc_html($project_name) : 'Untitled project' ?></a></li>
+			<li><a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>"><?php echo  $project_name !== '' ? esc_html($project_name) : 'Untitled project' ?></a></li>
 		<?php endif; ?>
-		<li><?= $keyword_name !== '' ? esc_html($keyword_name) : 'No keyword' ?></li>
+		<li><?php echo  $keyword_name !== '' ? esc_html($keyword_name) : 'No keyword' ?></li>
 	</ul>
 
 	<form id="main_form" class="form-wrap" method="post"
-		action="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=save_ai_content&id=' . $task->id . '&noheader=true') ?>">
+		action="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=save_ai_content&id=' . $task->id . '&noheader=true') ?>">
 
 		<?php wp_nonce_field('improveseo_save_ai_content_' . $task->id) ?>
 		<input type="hidden" name="max_posts" value="1">
@@ -80,14 +80,14 @@ $keyword_name = trim((string) $task->keyword_name);
 						<label class="form-label" for="name"
 							style="display:block; font-weight:600; margin-bottom:5px;">Project Name</label>
 						<input type="text" id="name" name="name" class="PostForm__name form-control"
-							placeholder="Project name here" value="<?= esc_attr($project_name) ?>" required>
+							placeholder="Project name here" value="<?php echo  esc_attr($project_name) ?>" required>
 					</div>
 
 					<div class="PostForm__title-wrap input-group">
 						<label class="form-label" for="title"
 							style="display:block; font-weight:600; margin-bottom:5px;">Post Title</label>
 						<input type="text" id="title" name="ai_title" class="PostForm__title form-control"
-							placeholder="Enter title here" value="<?= esc_attr($task->ai_title) ?>">
+							placeholder="Enter title here" value="<?php echo  esc_attr($task->ai_title) ?>">
 					</div>
 
 					<div class="PostForm__body-wrap">
@@ -123,7 +123,7 @@ $keyword_name = trim((string) $task->keyword_name);
 							Save Changes
 						</button>
 						<a class="btn styling_post_page_action_buttons btn-outline-primary"
-							href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>">
+							href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>">
 							Cancel
 						</a>
 						<button id="preview_on" type="button"

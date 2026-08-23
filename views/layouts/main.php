@@ -2,14 +2,14 @@
 <div class="wrap improveseo-page">
 
 	<div class="Breadcrumbs">
-		<?= ImproveSEO\View::section('breadcrumbs') ?>
+		<?php echo  ImproveSEO\View::section('breadcrumbs') ?>
 	</div>
 
 	<?php
 		ImproveSEO\FlashMessage::handle();
 	?>
 
-	<?= ImproveSEO\View::section('content') ?>
+	<?php echo  ImproveSEO\View::section('content') ?>
 </div>
 
 <div id="improveseo-help-fab">

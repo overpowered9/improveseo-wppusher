@@ -13,7 +13,7 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
@@ -48,7 +48,7 @@ use ImproveSEO\View;
 		</ul>
 		<div class="import-export-btn">
 			<button class="active" id="btn-add"
-				onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_authors&action=create') ?>'">
+				onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_authors&action=create') ?>'">
 				Create Authors
 			</button>
 
@@ -58,7 +58,7 @@ use ImproveSEO\View;
 		<div class="pagination">
 			<?php if ($page > 1): ?>
 				<button class="prev pagination-btn"
-					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_authors&paged=' . ($page - 1)) ?>'">
+					onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_authors&paged=' . ($page - 1)) ?>'">
 					&lt; Prev
 				</button>
 			<?php else: ?>
@@ -69,15 +69,15 @@ use ImproveSEO\View;
 
 			<?php for ($i = 1; $i <= $pages; $i++): ?>
 				<?php if ($i == $page): ?>
-					<button class="active"><?= $i ?></button>
+					<button class="active"><?php echo  $i ?></button>
 				<?php else: ?>
-					<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_authors&paged=' . $i) ?>'"><?= $i ?></button>
+					<button onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_authors&paged=' . $i) ?>'"><?php echo  $i ?></button>
 				<?php endif; ?>
 			<?php endfor; ?>
 
 			<?php if ($page < $pages): ?>
 				<button class="next pagination-btn"
-					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_authors&paged=' . ($page + 1)) ?>'">
+					onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_authors&paged=' . ($page + 1)) ?>'">
 					Next &gt;
 				</button>
 			<?php else: ?>
@@ -87,7 +87,7 @@ use ImproveSEO\View;
 			<?php endif; ?>
 		</div>
 		<div class="import-export">
-			<p><?= $results['avail_roles']['improveseo_user'] ?> Items</p>
+			<p><?php echo  $results['avail_roles']['improveseo_user'] ?> Items</p>
 		</div>
 	</div>
 	<div class="improve-seo-container">
@@ -105,9 +105,9 @@ use ImproveSEO\View;
 						<?php foreach ($users as $user): ?>
 							<tr>
 								<td data-label="Name"> <strong>
-										<div class="improve-seo-letter">A</div> <?= $user->display_name ?>
+										<div class="improve-seo-letter">A</div> <?php echo  $user->display_name ?>
 									</strong> </td>
-								<td data-label="E-Mail"> <?= $user->user_email ?> </td>
+								<td data-label="E-Mail"> <?php echo  $user->user_email ?> </td>
 								<td data-label="Actions" class="Actions_td"> <a href="#"> <img
 											src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
 											alt="ri_more-2-fill"> </a> </td>

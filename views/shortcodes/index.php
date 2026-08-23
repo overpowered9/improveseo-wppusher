@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use ImproveSEO\View;
 ?>
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 &raquo;
 <span>Shortcodes List</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -24,26 +24,26 @@ use ImproveSEO\View;
 			<img class="mr-2" src="<?php echo improveseo_logo_url()?>" alt="ImproveSeo">
 			<h1>Shortcodes List</h1>
 		</div>
-		<a href="<?= admin_url('admin.php?page=improveseo_shortcodes&action=create') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
+		<a href="<?php echo  admin_url('admin.php?page=improveseo_shortcodes&action=create') ?>" class="btn btn-outline-primary btn-small" id="btn-add">Add New</a>
 	</section>
 	<section class="tabs-wrap clearfix border-bottom mb-4">
 		<ul class="subsubsub m-0">
 			<li class="all">
-				<a href="<?= admin_url('admin.php?page=improveseo_shortcodes&type=all') ?>" class="<?php if ($type == 'all') echo 'current' ?>">
+				<a href="<?php echo  admin_url('admin.php?page=improveseo_shortcodes&type=all') ?>" class="<?php if ($type == 'all') echo 'current' ?>">
 					All
-					<span class="count">(<?= $all ?>)</span>
+					<span class="count">(<?php echo  $all ?>)</span>
 				</a>
 			</li>
 			<li class="static">
-				<a href="<?= admin_url('admin.php?page=improveseo_shortcodes&type=static') ?>" class="<?php if ($type == 'static') echo 'current' ?>">
+				<a href="<?php echo  admin_url('admin.php?page=improveseo_shortcodes&type=static') ?>" class="<?php if ($type == 'static') echo 'current' ?>">
 					Static
-					<span class="count">(<?= $static ?>)</span>
+					<span class="count">(<?php echo  $static ?>)</span>
 				</a>
 			</li>
 			<li class="dynamic">
-				<a href="<?= admin_url('admin.php?page=improveseo_shortcodes&type=dynamic') ?>" class="<?php if ($type == 'dynamic') echo 'current' ?>">
+				<a href="<?php echo  admin_url('admin.php?page=improveseo_shortcodes&type=dynamic') ?>" class="<?php if ($type == 'dynamic') echo 'current' ?>">
 					Dynamic
-					<span class="count">(<?= $dynamic ?>)</span>
+					<span class="count">(<?php echo  $dynamic ?>)</span>
 				</a>
 			</li>
 		</ul>
@@ -64,23 +64,23 @@ use ImproveSEO\View;
 						<tr>
 							<td class="column-title column-primary has-row-actions">
 								<strong class="d-none">
-								<a class="row-title" href="<?= admin_url('admin.php?page=improveseo_shortcodes&action=edit&id='. $code->id) ?>"><?= $code->shortcode ?></a>
+								<a class="row-title" href="<?php echo  admin_url('admin.php?page=improveseo_shortcodes&action=edit&id='. $code->id) ?>"><?php echo  $code->shortcode ?></a>
 								</strong>
 								<p>
-									<?= $code->content ?>
+									<?php echo  $code->content ?>
 								</p>
 								<div class="row-actions">
 									<span class="edit">
-										<a href="<?= admin_url('admin.php?page=improveseo_shortcodes&action=edit&id='. $code->id) ?>" title="Edit this item">Edit</a>
+										<a href="<?php echo  admin_url('admin.php?page=improveseo_shortcodes&action=edit&id='. $code->id) ?>" title="Edit this item">Edit</a>
 										|
 									</span>
 									<span class="trash">
-										<a class="submitdelete" href="<?= admin_url('admin.php?page=improveseo_shortcodes&action=delete&id='. $code->id .'&noheader=true') ?>">Trash</a>
+										<a class="submitdelete" href="<?php echo  admin_url('admin.php?page=improveseo_shortcodes&action=delete&id='. $code->id .'&noheader=true') ?>">Trash</a>
 									</span>
 								</div>
 								<button type="button" class="toggle-row"><span class="screen-reader-text">Show more details</span></button>
 							</td>
-							<td data-colname="Type"><?= $code->type ?></td>
+							<td data-colname="Type"><?php echo  $code->type ?></td>
 							<td data-colname="Created At">
 								<?php
 									$date = new DateTime($code->created_at);

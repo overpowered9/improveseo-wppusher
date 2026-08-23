@@ -280,13 +280,13 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 										onclick="toggle(this)">Normal Button</label>
 
 									<input class="form-check-input tw_button_type" type="radio" name="tw_button_type"
-										id="tw_button_type_normal" value="normal_btn" <?= checked('normal_btn', $tw_button_type); ?> />
+										id="tw_button_type_normal" value="normal_btn" <?php echo  checked('normal_btn', $tw_button_type); ?> />
 
 									<label for="tw_button_type_tap_to_call" class="setting-toggle toggle_Tap_to_call"
 										onclick="toggle(this)">Tap to call</label>
 
 									<input class="form-check-input tw_button_type" type="radio" name="tw_button_type"
-										id="tw_button_type_tap_to_call" value="tap_to_call" <?= checked('tap_to_call', $tw_button_type); ?> />
+										id="tw_button_type_tap_to_call" value="tap_to_call" <?php echo  checked('tap_to_call', $tw_button_type); ?> />
 
 
 								</div>
@@ -393,19 +393,19 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 									onclick="toggle(this)">Small</label>
 
 								<input class="form-check-input" type="radio" name="tw_button_size"
-									id="tw_button_size_small" value="sm" <?= checked('sm', $tw_button_size); ?> />
+									id="tw_button_size_small" value="sm" <?php echo  checked('sm', $tw_button_size); ?> />
 
 								<label for="tw_button_size_medium" class="setting-toggle toggle_size_medium"
 									onclick="toggle(this)">Medium</label>
 
 								<input class="form-check-input" type="radio" name="tw_button_size"
-									id="tw_button_size_medium" value="md" <?= checked('md', $tw_button_size); ?> />
+									id="tw_button_size_medium" value="md" <?php echo  checked('md', $tw_button_size); ?> />
 
 								<label for="tw_button_size_large" class="setting-toggle toggle_size_large"
 									onclick="toggle(this)">Large</label>
 
 								<input class="form-check-input" type="radio" name="tw_button_size"
-									id="tw_button_size_large" value="lg" <?= checked('lg', $tw_button_size); ?> />
+									id="tw_button_size_large" value="lg" <?php echo  checked('lg', $tw_button_size); ?> />
 
 							</div>
 						</div>
@@ -416,12 +416,12 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 									class="setting-toggle toggle_border_type__square" onclick="toggle(this)">Square
 									corners</label>
 								<input class="form-check-input" type="radio" name="tw_button_border_type"
-									id="tw_button_border_type_square" value="square" <?= checked('square', $tw_button_border_type); ?> />
+									id="tw_button_border_type_square" value="square" <?php echo  checked('square', $tw_button_border_type); ?> />
 								<label for="tw_button_border_type_round"
 									class="setting-toggle toggle_border_type__round" onclick="toggle(this)">Round
 									corners</label>
 								<input class="form-check-input" type="radio" name="tw_button_border_type"
-									id="tw_button_border_type_round" value="round" <?= checked('round', $tw_button_border_type); ?> />
+									id="tw_button_border_type_round" value="round" <?php echo  checked('round', $tw_button_border_type); ?> />
 							</div>
 						</div>
 						<div class="seo-form-field">
@@ -466,18 +466,18 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 									<label for="video_type_upload" class="setting-toggle  toggle_video_type_upload"
 										onclick="toggle(this)">Upload video</label>
 									<input class="form-check-input video_type" type="radio" name="video_type"
-										id="video_type_upload" value="upload_video" <?= checked('upload_video', $video_type); ?> />
+										id="video_type_upload" value="upload_video" <?php echo  checked('upload_video', $video_type); ?> />
 
 									<label for="video_type_youtube" class="setting-toggle toggle_video_type_youtube"
 										onclick="toggle(this)">Youtube video</label>
 									<input class="form-check-input video_type" type="radio" name="video_type"
-										id="video_type_youtube" value="youtube" <?= checked('youtube', $video_type); ?> />
+										id="video_type_youtube" value="youtube" <?php echo  checked('youtube', $video_type); ?> />
 
 									<label for="video_type_vimeo" class="setting-toggle toggle_video_type_vimeo"
 										onclick="toggle(this)">Vimeo
 										Video</label>
 									<input class="form-check-input video_type" type="radio" name="video_type"
-										id="video_type_vimeo" value="vimeo" <?= checked('vimeo', $video_type); ?> />
+										id="video_type_vimeo" value="vimeo" <?php echo  checked('vimeo', $video_type); ?> />
 								</div>
 							</div>
 						</div>
@@ -577,11 +577,11 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 							<label>Video Auto play:</label>
 							<div class="setting-toggle-container">
 								<input class="form-check-input video_autoplay" type="radio" name="video_autoplay"
-									id="video_autoplay_yes" value="yes" <?= checked('yes', $video_autoplay); ?> />
+									id="video_autoplay_yes" value="yes" <?php echo  checked('yes', $video_autoplay); ?> />
 								<label for="video_autoplay_yes" class="setting-toggle toggle_video_autoplay_yes"
 									onclick="toggle(this)">Yes</label>
 								<input class="form-check-input video_autoplay" type="radio" name="video_autoplay"
-									id="video_autoplay_no" value="no" <?= checked('no', $video_autoplay); ?> />
+									id="video_autoplay_no" value="no" <?php echo  checked('no', $video_autoplay); ?> />
 								<label for="video_autoplay_no" class="setting-toggle toggle_video_autoplay_no"
 									onclick="toggle(this)">No</label>
 							</div>
@@ -592,11 +592,11 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 								<label for="video_muted_yes" class="setting-toggle toggle_video_muted_yes"
 									onclick="toggle(this)">Yes</label>
 								<input class="form-check-input video_muted" type="radio" name="video_muted"
-									id="video_muted_yes" value="yes" <?= checked('yes', $video_muted); ?> />
+									id="video_muted_yes" value="yes" <?php echo  checked('yes', $video_muted); ?> />
 								<label for="video_muted_no" class="setting-toggle toggle_video_muted_no"
 									onclick="toggle(this)">No</label>
 								<input class="form-check-input video_muted" type="radio" name="video_muted"
-									id="video_muted_no" value="no" <?= checked('no', $video_muted); ?> />
+									id="video_muted_no" value="no" <?php echo  checked('no', $video_muted); ?> />
 							</div>
 						</div>
 						<div class="setting-toggle-group">
@@ -605,11 +605,11 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 								<label for="video_controls_yes" class="setting-toggle toggle_video_controls_yes"
 									onclick="toggle(this)">Yes</label>
 								<input class="form-check-input video_controls" type="radio" name="video_controls"
-									id="video_controls_yes" value="yes" <?= checked('yes', $video_controls); ?> />
+									id="video_controls_yes" value="yes" <?php echo  checked('yes', $video_controls); ?> />
 								<label for="video_controls_no" class="setting-toggle toggle_video_controls_no"
 									onclick="toggle(this)">No</label>
 								<input class="form-check-input video_controls" type="radio" name="video_controls"
-									id="video_controls_no" value="no" <?= checked('no', $video_controls); ?> />
+									id="video_controls_no" value="no" <?php echo  checked('no', $video_controls); ?> />
 							</div>
 						</div>
 						<div class="setting-toggle-group">
@@ -618,10 +618,10 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 								<label for="video_loop_yes" class="setting-toggle toggle_video_loop_yes"
 									onclick="toggle(this)">Yes</label>
 								<input class="form-check-input video_loop" type="radio" name="video_loop"
-									id="video_loop_yes" value="yes" <?= checked('yes', $video_loop); ?> />
+									id="video_loop_yes" value="yes" <?php echo  checked('yes', $video_loop); ?> />
 								<label for="video_loop_no" class="setting-toggle toggle_video_loop_no" onclick="toggle(this)">No</label>
 								<input class="form-check-input video_loop" type="radio" name="video_loop"
-									id="video_loop_no" value="no" <?= checked('no', $video_loop); ?> />
+									id="video_loop_no" value="no" <?php echo  checked('no', $video_loop); ?> />
 							</div>
 						</div>
 						<div class="seo-form-field">

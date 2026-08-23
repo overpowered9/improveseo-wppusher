@@ -11,11 +11,11 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
-<a href="<?= admin_url('admin.php?page=improveseo_projects') ?>">Projects List</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_projects') ?>">Projects List</a>
 
 &raquo;
 
@@ -219,23 +219,23 @@ function pd_seo_meta($post_id, $what) {
     <div class="box-top">
         <div class="improveseo-header-title">
             <ul class="breadcrumb-seo">
-                <li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
-                <li><a href="<?= admin_url('admin.php?page=improveseo_projects') ?>">Projects List</a></li>
+                <li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+                <li><a href="<?php echo  admin_url('admin.php?page=improveseo_projects') ?>">Projects List</a></li>
                 <?php // Ellipsised when long (see CSS); title="" keeps the full name readable on hover. ?>
-                <li class="improveseo-header-project-name" title="<?= esc_attr($project->name) ?>"><?= esc_html($project->name) ?></li>
+                <li class="improveseo-header-project-name" title="<?php echo  esc_attr($project->name) ?>"><?php echo  esc_html($project->name) ?></li>
             </ul>
         </div>
         <div class="improveseo-header-actions">
-            <a href="<?= admin_url('admin.php?page=improveseo_projects') ?>" style="text-decoration:none;">
+            <a href="<?php echo  admin_url('admin.php?page=improveseo_projects') ?>" style="text-decoration:none;">
                 <button class="improveseo-header-btn">← Back to Projects</button>
             </a>
             <?php $edit_link = $associated_post ? get_edit_post_link($associated_post->ID, 'raw') : ''; ?>
             <?php if ($edit_link): ?>
-                <a href="<?= esc_url($edit_link) ?>" target="_blank" style="text-decoration:none;">
+                <a href="<?php echo  esc_url($edit_link) ?>" target="_blank" style="text-decoration:none;">
                     <button class="improveseo-header-btn active">Edit Post</button>
                 </a>
             <?php elseif ($project->state === 'Draft'): ?>
-                <a href="<?= admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}") ?>" style="text-decoration:none;">
+                <a href="<?php echo  admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}") ?>" style="text-decoration:none;">
                     <button class="improveseo-header-btn active">Edit Draft</button>
                 </a>
             <?php endif; ?>
@@ -254,7 +254,7 @@ function pd_seo_meta($post_id, $what) {
             $pd_preview_content = (isset($content['content']) && $content['content'] !== '') ? $content['content'] : ($associated_post ? $associated_post->post_content : '');
             ?>
             <?php if (!$pd_view_post_is_draft && $associated_post && $post_url): ?>
-                <a href="<?= esc_url($post_url) ?>" target="_blank" style="text-decoration:none;">
+                <a href="<?php echo  esc_url($post_url) ?>" target="_blank" style="text-decoration:none;">
                     <button class="improveseo-header-btn">View Post</button>
                 </a>
             <?php elseif (trim((string) $pd_preview_title) !== '' || trim((string) $pd_preview_content) !== ''): ?>
@@ -272,12 +272,12 @@ function pd_seo_meta($post_id, $what) {
             <div class="pd-card-body">
                 <div class="pd-row">
                     <div class="pd-label">Project Name</div>
-                    <div class="pd-value"><?= esc_html($project->name) ?></div>
+                    <div class="pd-value"><?php echo  esc_html($project->name) ?></div>
                 </div>
                 <?php $pd_title = (isset($content['title']) && $content['title'] !== '') ? $content['title'] : ($associated_post ? $associated_post->post_title : ''); ?>
                 <div class="pd-row">
                     <div class="pd-label">Post Title</div>
-                    <div class="pd-value <?= $pd_title === '' ? 'na' : '' ?>"><?= $pd_title !== '' ? esc_html($pd_title) : 'N/A' ?></div>
+                    <div class="pd-value <?php echo  $pd_title === '' ? 'na' : '' ?>"><?php echo  $pd_title !== '' ? esc_html($pd_title) : 'N/A' ?></div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Status</div>
@@ -308,18 +308,18 @@ function pd_seo_meta($post_id, $what) {
                             if ($status_label === 'Published') $badge_class = 'pd-badge-published';
                         }
                         ?>
-                        <span class="pd-badge <?= $badge_class ?>"><?= esc_html($status_label) ?></span>
+                        <span class="pd-badge <?php echo  $badge_class ?>"><?php echo  esc_html($status_label) ?></span>
                     </div>
                 </div>
                 <?php $pd_post_type = (isset($content['post_type']) && $content['post_type'] !== '') ? $content['post_type'] : ($associated_post ? $associated_post->post_type : ''); ?>
                 <div class="pd-row">
                     <div class="pd-label">Post Type</div>
-                    <div class="pd-value <?= $pd_post_type === '' ? 'na' : '' ?>"><?= $pd_post_type !== '' ? ucfirst(esc_html($pd_post_type)) : 'N/A' ?></div>
+                    <div class="pd-value <?php echo  $pd_post_type === '' ? 'na' : '' ?>"><?php echo  $pd_post_type !== '' ? ucfirst(esc_html($pd_post_type)) : 'N/A' ?></div>
                 </div>
                 <?php if (intval($project->max_iterations) > 1): // single-post projects are always 1/1 — only meaningful for multi-post ?>
                 <div class="pd-row">
                     <div class="pd-label">Progress</div>
-                    <div class="pd-value"><?= intval($project->iteration) ?> / <?= intval($project->max_iterations) ?> posts</div>
+                    <div class="pd-value"><?php echo  intval($project->iteration) ?> / <?php echo  intval($project->max_iterations) ?> posts</div>
                 </div>
                 <?php endif; ?>
                 <div class="pd-row">
@@ -350,18 +350,18 @@ function pd_seo_meta($post_id, $what) {
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Created</div>
-                    <div class="pd-value"><?= $project->created_at ? esc_html(date('M j, Y g:i A', strtotime($project->created_at))) : 'N/A' ?></div>
+                    <div class="pd-value"><?php echo  $project->created_at ? esc_html(date('M j, Y g:i A', strtotime($project->created_at))) : 'N/A' ?></div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Updated</div>
-                    <div class="pd-value"><?= $project->updated_at ? esc_html(date('M j, Y g:i A', strtotime($project->updated_at))) : 'N/A' ?></div>
+                    <div class="pd-value"><?php echo  $project->updated_at ? esc_html(date('M j, Y g:i A', strtotime($project->updated_at))) : 'N/A' ?></div>
                 </div>
                 <?php if ($associated_post): ?>
                 <div class="pd-row">
                     <div class="pd-label">WordPress Post</div>
                     <div class="pd-value">
-                        <a href="<?= esc_url($post_url) ?>" target="_blank"><?= esc_html($associated_post->post_title) ?></a>
-                        (ID: <?= $associated_post->ID ?>)
+                        <a href="<?php echo  esc_url($post_url) ?>" target="_blank"><?php echo  esc_html($associated_post->post_title) ?></a>
+                        (ID: <?php echo  $associated_post->ID ?>)
                     </div>
                 </div>
                 <?php endif; ?>
@@ -388,44 +388,44 @@ function pd_seo_meta($post_id, $what) {
                 <?php else: ?>
                 <div class="pd-row">
                     <div class="pd-label">Seed Keyword</div>
-                    <div class="pd-value <?= pd_val($options, 'ai_seed_keyword') === 'N/A' ? 'na' : '' ?>">
-                        <?= pd_val($options, 'ai_seed_keyword') ?>
+                    <div class="pd-value <?php echo  pd_val($options, 'ai_seed_keyword') === 'N/A' ? 'na' : '' ?>">
+                        <?php echo  pd_val($options, 'ai_seed_keyword') ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Title Type</div>
-                    <div class="pd-value <?= pd_val($options, 'ai_seed_options') === 'N/A' ? 'na' : '' ?>">
-                        <?= pd_seed_option_label(isset($options['ai_seed_options']) ? $options['ai_seed_options'] : '') ?>
+                    <div class="pd-value <?php echo  pd_val($options, 'ai_seed_options') === 'N/A' ? 'na' : '' ?>">
+                        <?php echo  pd_seed_option_label(isset($options['ai_seed_options']) ? $options['ai_seed_options'] : '') ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Tone of Voice</div>
-                    <div class="pd-value <?= pd_val($options, 'ai_content_type') === 'N/A' ? 'na' : '' ?>">
-                        <?= pd_tone_label(pd_val($options, 'ai_content_type')) ?>
+                    <div class="pd-value <?php echo  pd_val($options, 'ai_content_type') === 'N/A' ? 'na' : '' ?>">
+                        <?php echo  pd_tone_label(pd_val($options, 'ai_content_type')) ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Article Size</div>
-                    <div class="pd-value <?= pd_val($options, 'ai_nos_of_words') === 'N/A' ? 'na' : '' ?>">
-                        <?= pd_val($options, 'ai_nos_of_words') ?>
+                    <div class="pd-value <?php echo  pd_val($options, 'ai_nos_of_words') === 'N/A' ? 'na' : '' ?>">
+                        <?php echo  pd_val($options, 'ai_nos_of_words') ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Point of View</div>
-                    <div class="pd-value <?= pd_val($options, 'ai_point_of_view') === 'N/A' ? 'na' : '' ?>">
-                        <?= pd_pov_label(pd_val($options, 'ai_point_of_view')) ?>
+                    <div class="pd-value <?php echo  pd_val($options, 'ai_point_of_view') === 'N/A' ? 'na' : '' ?>">
+                        <?php echo  pd_pov_label(pd_val($options, 'ai_point_of_view')) ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Language</div>
-                    <div class="pd-value <?= pd_val($options, 'ai_content_lang') === 'N/A' ? 'na' : '' ?>">
-                        <?= pd_val($options, 'ai_content_lang') ?>
+                    <div class="pd-value <?php echo  pd_val($options, 'ai_content_lang') === 'N/A' ? 'na' : '' ?>">
+                        <?php echo  pd_val($options, 'ai_content_lang') ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Image Option</div>
-                    <div class="pd-value <?= pd_val($options, 'ai_image_option') === 'N/A' ? 'na' : '' ?>">
-                        <?= pd_image_label(isset($options['ai_image_option']) ? $options['ai_image_option'] : '') ?>
+                    <div class="pd-value <?php echo  pd_val($options, 'ai_image_option') === 'N/A' ? 'na' : '' ?>">
+                        <?php echo  pd_image_label(isset($options['ai_image_option']) ? $options['ai_image_option'] : '') ?>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -447,11 +447,11 @@ function pd_seo_meta($post_id, $what) {
                 ?>
                 <div class="pd-row pd-row-stacked">
                     <div class="pd-label" style="margin-bottom: 6px;">Details to Include</div>
-                    <div class="pd-value <?= pd_val($options, 'ai_details_to_include') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;"><?= pd_val($options, 'ai_details_to_include') ?></div>
+                    <div class="pd-value <?php echo  pd_val($options, 'ai_details_to_include') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;"><?php echo  pd_val($options, 'ai_details_to_include') ?></div>
                 </div>
                 <div class="pd-row pd-row-stacked" style="margin-top: 8px;">
                     <div class="pd-label" style="margin-bottom: 6px;">Call to Action</div>
-                    <div class="pd-value <?= pd_val($options, 'ai_call_to_action') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;"><?= pd_val($options, 'ai_call_to_action') ?></div>
+                    <div class="pd-value <?php echo  pd_val($options, 'ai_call_to_action') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;"><?php echo  pd_val($options, 'ai_call_to_action') ?></div>
                 </div>
             </div>
         </div>
@@ -491,27 +491,27 @@ function pd_seo_meta($post_id, $what) {
                 ?>
                 <div class="pd-row">
                     <div class="pd-label">Meta Title</div>
-                    <div class="pd-value <?= $pd_meta_title === '' ? 'na' : '' ?>">
-                        <?= $pd_meta_title !== '' ? esc_html($pd_meta_title) : esc_html($pd_seo_placeholder) ?>
+                    <div class="pd-value <?php echo  $pd_meta_title === '' ? 'na' : '' ?>">
+                        <?php echo  $pd_meta_title !== '' ? esc_html($pd_meta_title) : esc_html($pd_seo_placeholder) ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Meta Description</div>
-                    <div class="pd-value <?= $pd_meta_desc === '' ? 'na' : '' ?>">
-                        <?= $pd_meta_desc !== '' ? esc_html($pd_meta_desc) : esc_html($pd_seo_placeholder) ?>
+                    <div class="pd-value <?php echo  $pd_meta_desc === '' ? 'na' : '' ?>">
+                        <?php echo  $pd_meta_desc !== '' ? esc_html($pd_meta_desc) : esc_html($pd_seo_placeholder) ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Focus Keyword</div>
-                    <div class="pd-value <?= $pd_focus_kw === '' ? 'na' : '' ?>">
-                        <?= $pd_focus_kw !== '' ? esc_html($pd_focus_kw) : 'N/A' ?>
+                    <div class="pd-value <?php echo  $pd_focus_kw === '' ? 'na' : '' ?>">
+                        <?php echo  $pd_focus_kw !== '' ? esc_html($pd_focus_kw) : 'N/A' ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Permalink</div>
-                    <div class="pd-value <?= $post_url ? '' : 'na' ?>">
+                    <div class="pd-value <?php echo  $post_url ? '' : 'na' ?>">
                         <?php if ($post_url): ?>
-                            <a href="<?= esc_url($post_url) ?>" target="_blank" rel="noopener"><?= esc_html($post_url) ?></a>
+                            <a href="<?php echo  esc_url($post_url) ?>" target="_blank" rel="noopener"><?php echo  esc_html($post_url) ?></a>
                         <?php else: ?>
                             N/A
                         <?php endif; ?>
@@ -520,27 +520,27 @@ function pd_seo_meta($post_id, $what) {
                 <?php if (intval($project->max_iterations) > 1): // single-post projects always cap at 1 ?>
                 <div class="pd-row">
                     <div class="pd-label">Max Posts</div>
-                    <div class="pd-value"><?= intval($project->max_iterations) ?></div>
+                    <div class="pd-value"><?php echo  intval($project->max_iterations) ?></div>
                 </div>
                 <?php endif; ?>
                 <?php if (isset($options['dripfeed_type'])): ?>
                 <div class="pd-row">
                     <div class="pd-label">Dripfeed</div>
-                    <div class="pd-value"><?= esc_html($options['dripfeed_type']) ?> – every <?= esc_html($options['dripfeed_x']) ?> hours</div>
+                    <div class="pd-value"><?php echo  esc_html($options['dripfeed_type']) ?> – every <?php echo  esc_html($options['dripfeed_x']) ?> hours</div>
                 </div>
                 <?php endif; ?>
                 <?php if (isset($options['schema']) && $options['schema']): ?>
                 <div class="pd-row">
                     <div class="pd-label">Schema</div>
-                    <div class="pd-value">Enabled – <?= esc_html($options['schema_business'] ?? '') ?></div>
+                    <div class="pd-value">Enabled – <?php echo  esc_html($options['schema_business'] ?? '') ?></div>
                 </div>
                 <?php endif; ?>
                 <?php if (isset($options['local_geo_country'])): ?>
                 <div class="pd-row">
                     <div class="pd-label">Local SEO</div>
                     <div class="pd-value">
-                        Country: <?= esc_html($options['local_geo_country']) ?>
-                        (<?= is_array($options['local_geo_locations'] ?? null) ? count($options['local_geo_locations']) : 0 ?> locations)
+                        Country: <?php echo  esc_html($options['local_geo_country']) ?>
+                        (<?php echo  is_array($options['local_geo_locations'] ?? null) ? count($options['local_geo_locations']) : 0 ?> locations)
                     </div>
                 </div>
                 <?php endif; ?>
@@ -559,8 +559,8 @@ function pd_seo_meta($post_id, $what) {
 // read-only details page doesn't have, so the project's currently stored title/content
 // are handed over via hidden fields instead. Styles live in assets/css/made_by_me.css,
 // scoped under #preview_content_area. ?>
-<textarea id="pd_preview_title_src" style="display:none;"><?= esc_textarea($pd_preview_title) ?></textarea>
-<textarea id="pd_preview_content_src" style="display:none;"><?= esc_textarea($pd_preview_content) ?></textarea>
+<textarea id="pd_preview_title_src" style="display:none;"><?php echo  esc_textarea($pd_preview_title) ?></textarea>
+<textarea id="pd_preview_content_src" style="display:none;"><?php echo  esc_textarea($pd_preview_content) ?></textarea>
 <?php wp_nonce_field('improveseo_instant_preview', 'pd_preview_nonce', false); ?>
 
 <div id="preview_popup" class="modal" style="text-align:center; width:90%; max-width:1100px;">

@@ -17,7 +17,7 @@ use ImproveSEO\Validator;
 
 	<div class="input-prefix">
 
-		<input type="text" class="form-control" name="name" placeholder="List 1" value="<?= Validator::old('name', $list->name) ?>">
+		<input type="text" class="form-control" name="name" placeholder="List 1" value="<?php echo  Validator::old('name', $list->name) ?>">
 
 		<span>Ex.</span>
 
@@ -25,7 +25,7 @@ use ImproveSEO\Validator;
 
 	<?php if (Validator::hasError('name')): ?>
 
-	<span class="PostForm__error"><?= Validator::get('name') ?></span>
+	<span class="PostForm__error"><?php echo  Validator::get('name') ?></span>
 
 	<?php endif; ?>
 
@@ -37,11 +37,11 @@ use ImproveSEO\Validator;
 
 	<label class="form-label">List of keywords (one per line)</label>
 
-	<textarea class="textarea-control" name="list" rows="5" placeholder="Type here..."><?= Validator::old('list', $list->list) ?></textarea>
+	<textarea class="textarea-control" name="list" rows="5" placeholder="Type here..."><?php echo  Validator::old('list', $list->list) ?></textarea>
 
 	<?php if (Validator::hasError('list')): ?>
 
-	<span class="PostForm__error"><?= Validator::get('list') ?></span>
+	<span class="PostForm__error"><?php echo  Validator::get('list') ?></span>
 
 	<?php endif; ?>
 

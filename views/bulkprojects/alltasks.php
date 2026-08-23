@@ -11,11 +11,11 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
-<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects List</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects List</a>
 
 &raquo;
 
@@ -59,8 +59,8 @@ $url .= $_SERVER['REQUEST_URI'];
 	</div>
 	<div class="box-top">
 		<ul class="breadcrumb-seo">
-			<li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Improve SEO</a></li>
-			<li><a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
+			<li><a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">Improve SEO</a></li>
+			<li><a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
 			<li><?php echo esc_html($project_name); ?></li>
 		</ul>
 	</div>
@@ -69,15 +69,15 @@ $url .= $_SERVER['REQUEST_URI'];
 		<form method="GET" action="" class="iseo-search-form">
 			<input type="hidden" name="page" value="improveseo_bulkprojects">
 			<input type="hidden" name="action" value="viewAllTasks">
-			<input type="hidden" name="id" value="<?= esc_attr($id) ?>">
-			<input type="text" name="search" value="<?= esc_attr($search) ?>"
+			<input type="hidden" name="id" value="<?php echo  esc_attr($id) ?>">
+			<input type="text" name="search" value="<?php echo  esc_attr($search) ?>"
 				class="iseo-search-input" placeholder="Search Here">
 			<button type="submit" class="iseo-search-btn">
 				<img src="<?php echo WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ?>" alt="search">
 			</button>
 		</form>
 		<?php if ($search): ?>
-			<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . esc_attr($id)) ?>" class="iseo-clear-btn">&#x2715; Clear</a>
+			<a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . esc_attr($id)) ?>" class="iseo-clear-btn">&#x2715; Clear</a>
 		<?php endif; ?>
 		<?php
 		$_atsbase        = admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . '&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
@@ -90,15 +90,15 @@ $url .= $_SERVER['REQUEST_URI'];
 		?>
 		<div class="iseo-sort-controls">
 			<span class="iseo-sort-label">Sort by</span>
-			<a href="<?= esc_url($_atsbase . '&orderBy=keyword_name&order=' . $_atkw_order) ?>"
-				class="iseo-sort-pill<?= $orderBy === 'keyword_name' ? ' iseo-sort-on' : '' ?>">Keyword<?= $_atkw_arrow ?></a>
-			<a href="<?= esc_url($_atsbase . '&orderBy=created_at&order=' . $_atdate_order) ?>"
-				class="iseo-sort-pill<?= $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?= $_atdate_arrow ?></a>
-			<a href="<?= esc_url($_atsbase . '&orderBy=status&order=' . $_atstatus_order) ?>"
-				class="iseo-sort-pill<?= $orderBy === 'status' ? ' iseo-sort-on' : '' ?>">Status<?= $_atstatus_arrow ?></a>
+			<a href="<?php echo  esc_url($_atsbase . '&orderBy=keyword_name&order=' . $_atkw_order) ?>"
+				class="iseo-sort-pill<?php echo  $orderBy === 'keyword_name' ? ' iseo-sort-on' : '' ?>">Keyword<?php echo  $_atkw_arrow ?></a>
+			<a href="<?php echo  esc_url($_atsbase . '&orderBy=created_at&order=' . $_atdate_order) ?>"
+				class="iseo-sort-pill<?php echo  $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?php echo  $_atdate_arrow ?></a>
+			<a href="<?php echo  esc_url($_atsbase . '&orderBy=status&order=' . $_atstatus_order) ?>"
+				class="iseo-sort-pill<?php echo  $orderBy === 'status' ? ' iseo-sort-on' : '' ?>">Status<?php echo  $_atstatus_arrow ?></a>
 		</div>
 		<div class="import-export-btn">
-			<button type="button" onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ?>';"
+			<button type="button" onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ?>';"
 				class="active">+ New Bulk Project</button>
 		</div>
 	</div>
@@ -120,7 +120,7 @@ $url .= $_SERVER['REQUEST_URI'];
 			<div class="pagination">
 				<?php if ($page > 1): ?>
 					<button type="button" class="prev pagination-btn"
-						onclick="window.location.href='<?= esc_js($_atbase . '&paged=' . ($page - 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
+						onclick="window.location.href='<?php echo  esc_js($_atbase . '&paged=' . ($page - 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
 						&lt; Prev
 					</button>
 				<?php else: ?>
@@ -130,15 +130,15 @@ $url .= $_SERVER['REQUEST_URI'];
 				<?php endif; ?>
 				<?php for ($i = 1; $i <= $pages; $i++): ?>
 					<?php if ($i == $page): ?>
-						<button type="button" class="active"><?= $i ?></button>
+						<button type="button" class="active"><?php echo  $i ?></button>
 					<?php else: ?>
 						<button type="button"
-							onclick="window.location.href='<?= esc_js($_atbase . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?= $i ?></button>
+							onclick="window.location.href='<?php echo  esc_js($_atbase . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?php echo  $i ?></button>
 					<?php endif; ?>
 				<?php endfor; ?>
 				<?php if ($page < $pages): ?>
 					<button type="button" class="next pagination-btn"
-						onclick="window.location.href='<?= esc_js($_atbase . '&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
+						onclick="window.location.href='<?php echo  esc_js($_atbase . '&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
 						Next &gt;
 					</button>
 				<?php else: ?>
@@ -148,7 +148,7 @@ $url .= $_SERVER['REQUEST_URI'];
 				<?php endif; ?>
 			</div>
 			<div class="import-export">
-				<p><?= $total ?> Items</p>
+				<p><?php echo  $total ?> Items</p>
 			</div>
 			<div class="import-refrsh-seo">
 				<button type="button" class="toggle-row pull-right" onclick="return refreshPage()"> Refresh List
@@ -197,7 +197,7 @@ $url .= $_SERVER['REQUEST_URI'];
 						</thead>
 						<tbody>
 							<?php foreach ($projects as $key => $project): ?>
-								<tr <?= $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
+								<tr <?php echo  $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
 									<td data-label="Name" style="vertical-align: middle; padding: 15px 10px;">
 										<div style="display: flex; align-items: flex-start; gap: 0px;">
 											<label class="checkbox style-c" style="margin: 0;">
@@ -205,11 +205,11 @@ $url .= $_SERVER['REQUEST_URI'];
 													name="project_ids[]" value="<?php echo $project->id; ?>">
 												<div class="checkbox__checkmark"></div>
 											</label>
-											<h4 style="margin: 0; word-break: break-word; white-space: pre-line;"> <?= $project->keyword_name ?> </h4>
+											<h4 style="margin: 0; word-break: break-word; white-space: pre-line;"> <?php echo  $project->keyword_name ?> </h4>
 										</div>
 									</td>
-									<td data-label="Language"><?= $project->content_lang ?></td>
-									<td data-label="Size"><?= $project->nos_of_words ?></td>
+									<td data-label="Language"><?php echo  $project->content_lang ?></td>
+									<td data-label="Size"><?php echo  $project->nos_of_words ?></td>
 									<td data-label="Processing" class="status finished"><?php
 									if ($project->status == 'Processing') {
 										echo 'Generating';
@@ -642,7 +642,7 @@ if (isset($_GET['post_preview'])) {
 
 if (isset($_GET['build_posts_id'])) { ?>
 	<script type='text/javascript'>
-		update_project(<?= $_GET['build_posts_id'] ?>);
+		update_project(<?php echo  $_GET['build_posts_id'] ?>);
 	</script>
 <?php } ?>
 

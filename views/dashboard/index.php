@@ -11,7 +11,7 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
@@ -37,13 +37,13 @@ use ImproveSEO\View;
 		</div>
 		<div class="box-top">
 			<ul class="breadcrumb-seo">
-				<li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+				<li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
 				<li>Modules</li>
 			</ul>
 		</div>
 		<div class="modules-row text-left">
 			<div class="module-box">
-			<a href="<?= admin_url('admin.php?page=improveseo_create_single') ?>">
+			<a href="<?php echo  admin_url('admin.php?page=improveseo_create_single') ?>">
 				<div class="module-icon justify-between m-0">
 					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon2.svg' ?>" alt="icon2">
 				</div>
@@ -83,7 +83,7 @@ use ImproveSEO\View;
 				</a>
 			</div>
 			<div class="module-box">
-			<a href="<?= admin_url('admin.php?page=improveseo_create_bulk') ?>">
+			<a href="<?php echo  admin_url('admin.php?page=improveseo_create_bulk') ?>">
 				<div class="module-icon justify-between m-0">
 					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon5.svg' ?>" alt="icon5">
 				</div>
@@ -94,7 +94,7 @@ use ImproveSEO\View;
 					</a>
 			</div>
 			<div class="module-box">
-			<a href="<?= admin_url('admin.php?page=improveseo_lists') ?>">
+			<a href="<?php echo  admin_url('admin.php?page=improveseo_lists') ?>">
 				<div class="module-icon justify-between m-0">
 					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon6.svg' ?>" alt="icon6">
 				</div>
@@ -105,7 +105,7 @@ use ImproveSEO\View;
 					</a>
 			</div>
 			<div class="module-box">
-			<a href="<?= admin_url('admin.php?page=improveseo_keyword_generator') ?>">
+			<a href="<?php echo  admin_url('admin.php?page=improveseo_keyword_generator') ?>">
 				<div class="module-icon justify-between m-0">
 					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon7.svg' ?>" alt="icon7">
 				</div>

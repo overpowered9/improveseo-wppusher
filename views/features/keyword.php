@@ -11,7 +11,7 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
@@ -92,7 +92,7 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
                     <div class="improve-submit-box"> 
                         <div style="display: flex; align-items: center; gap: 15px; flex-wrap: nowrap;">
                             <input id="startjob" onclick="generate();" type="button" value="Generate Keywords!">
-                            <input id="viewkeywordlists" type="button" onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists') ?>'" value="View Keyword lists" class="view-keyword-lists-btn">
+                            <input id="viewkeywordlists" type="button" onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_lists') ?>'" value="View Keyword lists" class="view-keyword-lists-btn">
                         </div>
                         <div class="improve-submit-box-btns">
                             <input type="button" class="clear-search-results keyword_clear_btn" value="Clear Results"></input>

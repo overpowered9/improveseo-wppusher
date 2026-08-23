@@ -11,7 +11,7 @@ use ImproveSEO\Models\Country;
 wp_enqueue_script('post');
 ?>
 
-<input type="hidden" name="post_type" value="<?= isset($task) ? $task->content['post_type'] : $post_type ?>" />
+<input type="hidden" name="post_type" value="<?php echo  isset($task) ? $task->content['post_type'] : $post_type ?>" />
 <?php
 $word_ai_pass = get_option('improveseo_word_ai_pass');
 $word_ai_email = get_option('improveseo_word_ai_email');
@@ -29,9 +29,9 @@ $google_api_key = get_option('improveseo_google_api_key');
 				echo 'PostForm--error' ?>" style="margin-top: 20px;">
 					<label class="form-label" style="display:block; font-weight:600; margin-bottom:5px;">Project Name</label>
 					<input type="text" name="name" class="PostForm__name form-control" placeholder="Project name here"
-						value="<?= Validator::old('name', $task->name) ?>" required>
+						value="<?php echo  Validator::old('name', $task->name) ?>" required>
 				<?php if (Validator::hasError('name')): ?>
-					<span class="PostForm__error"><?= Validator::get('name') ?></span>
+					<span class="PostForm__error"><?php echo  Validator::get('name') ?></span>
 				<?php endif; ?>
 			</div>
 
@@ -39,9 +39,9 @@ $google_api_key = get_option('improveseo_google_api_key');
 				echo ' PostForm--error' ?>">
 					<label class="form-label" style="display:block; font-weight:600; margin-bottom:5px;">Post Title</label>
 					<input type="text" id="title" name="title" class="PostForm__title form-control"
-						placeholder="Enter title here" value="<?= Validator::old('title', $task->content['title']) ?>">
+						placeholder="Enter title here" value="<?php echo  Validator::old('title', $task->content['title']) ?>">
 				<?php if (Validator::hasError('title')): ?>
-					<span class="PostForm__error"><?= Validator::get('title') ?></span>
+					<span class="PostForm__error"><?php echo  Validator::get('title') ?></span>
 				<?php endif; ?>
 
 				<div id="edit-slug-box">
@@ -51,7 +51,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 					<?php // Permalink display + "non-editable URL structure" note removed by request (single,
 					// bulk and edit screens). Removed server-side so it never renders — no flash/flicker,
 					// unlike the earlier JS hide. The hidden permalink input below still submits with the form. ?>
-					<input type="hidden" class="form-control" name="permalink" value="<?= $old_permalink ?>">
+					<input type="hidden" class="form-control" name="permalink" value="<?php echo  $old_permalink ?>">
 					<p id="too-many-posts" class="notice notice-error" style="display: none;">Your project contains more
 						than 5,000 pages. While Improve SEO can create hundreds of thousands of posts per project, it is
 						recommended to split your project into multiple smaller projects if you are using shared hosting
@@ -94,7 +94,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 				),
 			)); ?>
 				<?php if (Validator::hasError('content')): ?>
-					<span class="PostForm__error"><?= Validator::get('content') ?></span>
+					<span class="PostForm__error"><?php echo  Validator::get('content') ?></span>
 				<?php endif; ?>
 			</div>
 

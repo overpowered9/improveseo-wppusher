@@ -11,11 +11,11 @@ use ImproveSEO\Validator;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
-<a href="<?= admin_url('admin.php?page=improveseo_lists') ?>">Improve SEO Lists</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_lists') ?>">Improve SEO Lists</a>
 
 &raquo;
 
@@ -37,14 +37,14 @@ use ImproveSEO\Validator;
 		</div>
 		<div class="box-top">
 			<ul class="breadcrumb-seo">
-				<li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
-				<li><a href="<?= admin_url('admin.php?page=improveseo_lists') ?>"> Keyword Lists </a></li>
+				<li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+				<li><a href="<?php echo  admin_url('admin.php?page=improveseo_lists') ?>"> Keyword Lists </a></li>
 				<li>Edit List</li>
 			</ul>
 		</div>
 		<div class="improve-seo-form-box">
 			<form class="improve-seo-form-global"
-				action="<?= admin_url('admin.php?page=improveseo_lists&action=do_edit&id=' . $list->id . '&noheader=true') ?>"
+				action="<?php echo  admin_url('admin.php?page=improveseo_lists&action=do_edit&id=' . $list->id . '&noheader=true') ?>"
 				method="post">
 
 				<div style="width:100%; margin-bottom:0px;"  class="BasicForm__row<?php if (Validator::hasError('name'))
@@ -52,11 +52,11 @@ use ImproveSEO\Validator;
 						<div class="seo-form-field" style="margin: 0px;">
 							<label> Shortcode Name </label>
 							<input style="width:100%;" type="text" name="name" placeholder="Ex. List 1"
-								value="<?= Validator::old('name', $list->name) ?>">
+								value="<?php echo  Validator::old('name', $list->name) ?>">
 					</div>
 					<?php if (Validator::hasError('name')): ?>
 
-						<span class="PostForm__error"><?= Validator::get('name') ?></span>
+						<span class="PostForm__error"><?php echo  Validator::get('name') ?></span>
 
 					<?php endif; ?>
 				</div>
@@ -65,10 +65,10 @@ use ImproveSEO\Validator;
 						<div class="seo-form-field">
 							<label> List of Keywords (one per line) </label>
 							<textarea  style="width:100%;"  name="list"
-								placeholder="Type Here..."><?= Validator::old('list', $list->list) ?></textarea>
+								placeholder="Type Here..."><?php echo  Validator::old('list', $list->list) ?></textarea>
 						<?php if (Validator::hasError('list')): ?>
 
-							<span class="PostForm__error"><?= Validator::get('list') ?></span>
+							<span class="PostForm__error"><?php echo  Validator::get('list') ?></span>
 
 						<?php endif; ?>
 					</div>

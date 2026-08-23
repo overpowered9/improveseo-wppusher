@@ -8,7 +8,7 @@ use ImproveSEO\View;
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
-	<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+	<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 	&raquo;
 	<span>Tags List</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -23,10 +23,10 @@ use ImproveSEO\View;
 	</p>
 	
 	<p>
-		<span class="displaying-num"><?= $results->total ?> tags</span>
+		<span class="displaying-num"><?php echo  $results->total ?> tags</span>
 		|
 		<span class="pagination-links">
-			<?= paginate_links(array(
+			<?php echo  paginate_links(array(
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
@@ -47,16 +47,16 @@ use ImproveSEO\View;
 			<tr>
 				<td class="column-title has-row-actions">
 					<strong>
-						<a class="row-title"><?= $tag->name ?></a>
+						<a class="row-title"><?php echo  $tag->name ?></a>
 					</strong>
 					<div class="row-actions">
 						<span class="trash">
-							<a href="<?= admin_url('admin.php?page=improveseo_noindex&action=remove&id='. $tag->term_id .'&noheader=true') ?>" onclick="return confirm('Are you sure to delete noindex meta tag from <?= $tag->name ?>?')">Delete noindex key</a>
+							<a href="<?php echo  admin_url('admin.php?page=improveseo_noindex&action=remove&id='. $tag->term_id .'&noheader=true') ?>" onclick="return confirm('Are you sure to delete noindex meta tag from <?php echo  $tag->name ?>?')">Delete noindex key</a>
 						</span>
 					</div>
 				</td>
 				<td>
-					<?= $tag->slug ?>
+					<?php echo  $tag->slug ?>
 				</td>
 			</tr>
 			<?php endforeach; ?>
@@ -65,10 +65,10 @@ use ImproveSEO\View;
 	</form>
 
 	<p>
-		<span class="displaying-num"><?= $results->total ?> tags</span>
+		<span class="displaying-num"><?php echo  $results->total ?> tags</span>
 		|
 		<span class="pagination-links">
-			<?= paginate_links(array(
+			<?php echo  paginate_links(array(
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',

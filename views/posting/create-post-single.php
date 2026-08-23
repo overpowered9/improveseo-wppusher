@@ -44,7 +44,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 
 <!-- <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
@@ -95,7 +95,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 			</section>
 			<div class="box-top">
 				<ul class="breadcrumb-seo">
-					<li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+					<li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
 					<li>Create a Post</li>
 				</ul>
 			</div>
@@ -330,7 +330,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 										style="padding: 15px 22px; border-radius: 50px !important; border-color: #e9e9e9; margin-bottom: 20px; "
 										class="full-width form-control textarea-control"
 										placeholder="Meta Title:Here Ex:Mango: Health Benefits"
-										value="<?= Validator::old('custom_title', $task->options['custom_title']) ?>">
+										value="<?php echo  Validator::old('custom_title', $task->options['custom_title']) ?>">
 									<!-- <span>Ex.</span> -->
 								</div>
 								<div id="custom-title-error" style="display:none; color:red; margin-top:5px;">
@@ -345,7 +345,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 								<textarea id="custom-description" style="border-radius: 8px; border-color: #e9e9e9; padding: 15px 22px;"
 									placeholder="Meta Description:Discover Mango Magic: Health Benefits, Recipes, and Tips for the Perfect Fruit."
 									name="custom_description" rows="5"
-									class="full-width textarea-control"><?= Validator::old('custom_description', $task->options['custom_description']) ?></textarea>
+									class="full-width textarea-control"><?php echo  Validator::old('custom_description', $task->options['custom_description']) ?></textarea>
 								<!-- <span>Ex.</span> -->
 								<!-- </div> -->
 								<div id="custom-description-error" style="display:none; color:red; margin-top:5px;">Your
@@ -369,7 +369,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 						<h3 class="hndle ui-sortable-handle"><span>Word AI Options</span></h3>
 						<div class="inside mt-3">
 							<p>
-								<a href="<?= IMPROVESEO_DIR ?>/wordai.php" onclick="return WordAI.start(this)">Launch Word
+								<a href="<?php echo  IMPROVESEO_DIR ?>/wordai.php" onclick="return WordAI.start(this)">Launch Word
 									AI Console</a>
 							</p>
 						</div>

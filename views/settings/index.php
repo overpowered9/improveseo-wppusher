@@ -11,7 +11,7 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
@@ -55,7 +55,7 @@ use ImproveSEO\View;
                     <!-- Form top bar: breadcrumb navigation + save button -->
                     <div class="iseo-form-topbar">
                         <nav class="iseo-breadcrumb" aria-label="Settings breadcrumb">
-                            <a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+                            <a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
                             <span class="iseo-breadcrumb-sep">›</span>
                             <span>Settings</span>
                         </nav>

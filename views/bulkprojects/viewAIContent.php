@@ -10,7 +10,7 @@ use ImproveSEO\View;
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 &raquo;
 <span>Preview Post</span>
 <?php View::endSection('breadcrumbs') ?>

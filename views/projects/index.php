@@ -49,7 +49,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
@@ -70,21 +70,21 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 	</div>
 	<div class="box-top">
 		<ul class="breadcrumb-seo">
-			<li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+			<li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
 			<li>Projects List</li>
 		</ul>
 	</div>
 	<div class="iseo-search-sort-row">
 		<form method="GET" action="" class="iseo-search-form">
 			<input type="hidden" name="page" value="improveseo_projects">
-			<input type="text" name="search" value="<?= esc_attr($search) ?>"
+			<input type="text" name="search" value="<?php echo  esc_attr($search) ?>"
 				class="iseo-search-input" placeholder="Search Here">
 			<button type="submit" class="iseo-search-btn">
 				<img src="<?php echo WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ?>" alt="search">
 			</button>
 		</form>
 		<?php if ($search): ?>
-			<a href="<?= admin_url('admin.php?page=improveseo_projects') ?>" class="iseo-clear-btn">&#x2715; Clear</a>
+			<a href="<?php echo  admin_url('admin.php?page=improveseo_projects') ?>" class="iseo-clear-btn">&#x2715; Clear</a>
 		<?php endif; ?>
 		<?php
 		$_sbase = admin_url('admin.php?page=improveseo_projects&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
@@ -95,13 +95,13 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 		?>
 		<div class="iseo-sort-controls">
 			<span class="iseo-sort-label">Sort by</span>
-			<a href="<?= esc_url($_sbase . '&orderBy=name&order=' . $_name_order) ?>"
-				class="iseo-sort-pill<?= $orderBy === 'name' ? ' iseo-sort-on' : '' ?>">Name<?= $_name_arrow ?></a>
-			<a href="<?= esc_url($_sbase . '&orderBy=created_at&order=' . $_date_order) ?>"
-				class="iseo-sort-pill<?= $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?= $_date_arrow ?></a>
+			<a href="<?php echo  esc_url($_sbase . '&orderBy=name&order=' . $_name_order) ?>"
+				class="iseo-sort-pill<?php echo  $orderBy === 'name' ? ' iseo-sort-on' : '' ?>">Name<?php echo  $_name_arrow ?></a>
+			<a href="<?php echo  esc_url($_sbase . '&orderBy=created_at&order=' . $_date_order) ?>"
+				class="iseo-sort-pill<?php echo  $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?php echo  $_date_arrow ?></a>
 		</div>
 		<div class="import-export-btn">
-			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_posting&action=create_post_single') ?>';"
+			<button onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_posting&action=create_post_single') ?>';"
 				class="active">+ New Single Post</button>
 		</div>
 	</div>
@@ -111,7 +111,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 		</div>
 		<div class="pagination">
 			<?php if ($page > 1): ?>
-				<a href="<?= admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page - 1)) ?>"
+				<a href="<?php echo  admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page - 1)) ?>"
 					class="prev pagination-btn">
 					< Prev</a>
 					<?php else: ?>
@@ -126,7 +126,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 
 							// Show first page if we're not showing it
 							if ($start_page > 1): ?>
-								<a href="<?= admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=1') ?>"
+								<a href="<?php echo  admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=1') ?>"
 									class="pagination-btn">1</a>
 								<?php if ($start_page > 2): ?>
 									<span class="pagination-btn">...</span>
@@ -135,10 +135,10 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 
 							<?php for ($i = $start_page; $i <= $end_page; $i++): ?>
 								<?php if ($i == $page): ?>
-									<button class="pagination-btn active"><?= $i ?></button>
+									<button class="pagination-btn active"><?php echo  $i ?></button>
 								<?php else: ?>
-									<a href="<?= admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $i) ?>"
-										class="pagination-btn"><?= $i ?></a>
+									<a href="<?php echo  admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $i) ?>"
+										class="pagination-btn"><?php echo  $i ?></a>
 								<?php endif; ?>
 							<?php endfor; ?>
 
@@ -148,25 +148,25 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 								<?php if ($end_page < $pages - 1): ?>
 									<span class="pagination-btn">...</span>
 								<?php endif; ?>
-								<a href="<?= admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $pages) ?>"
-									class="pagination-btn"><?= $pages ?></a>
+								<a href="<?php echo  admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $pages) ?>"
+									class="pagination-btn"><?php echo  $pages ?></a>
 							<?php endif; ?>
 
 							<?php if ($page < $pages): ?>
-								<a href="<?= admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page + 1)) ?>"
+								<a href="<?php echo  admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page + 1)) ?>"
 									class="next pagination-btn">Next ></a>
 							<?php else: ?>
 								<span class="next pagination-btn disabled">Next ></span>
 							<?php endif; ?>
 		</div>
 		<div class="import-export">
-			<p>Showing <?= (($page - 1) * $limit) + 1 ?> to <?= min($page * $limit, $total) ?> of <?= $total ?> Items
+			<p>Showing <?php echo  (($page - 1) * $limit) + 1 ?> to <?php echo  min($page * $limit, $total) ?> of <?php echo  $total ?> Items
 			</p>
 		</div>
 	</div>
 	<div class="improve-seo-container">
 		<div class="project-lists">
-			<form id="bulk-delete-form" method="POST" action="<?= admin_url('admin.php?page=improveseo_projects') ?>">
+			<form id="bulk-delete-form" method="POST" action="<?php echo  admin_url('admin.php?page=improveseo_projects') ?>">
 				<?php wp_nonce_field('bulk_delete_projects', 'bulk_delete_nonce'); ?>
 				<input type="hidden" name="action" value="bulk_delete">
 
@@ -192,9 +192,9 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 										<input type="checkbox" id="cb-select-all">
 										<div class="checkbox__checkmark"></div>
 									</label>
-									<h4><?= iseo_sort_link($sort_base, 'name', 'Name', $orderBy, $order) ?></h4>
+									<h4><?php echo  iseo_sort_link($sort_base, 'name', 'Name', $orderBy, $order) ?></h4>
 								</th>
-								<th><?= iseo_sort_link($sort_base, 'created_at', 'Created At', $orderBy, $order) ?></th>
+								<th><?php echo  iseo_sort_link($sort_base, 'created_at', 'Created At', $orderBy, $order) ?></th>
 								<th>Last Update</th>
 								<th>Post Status</th>
 								<td></td>
@@ -212,7 +212,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 													class="project-checkbox">
 												<div class="checkbox__checkmark"></div>
 											</label>
-											<h4 class="iseo-project-name" data-id="<?php echo (int) $project->id; ?>"><?= $project->name ?></h4>
+											<h4 class="iseo-project-name" data-id="<?php echo (int) $project->id; ?>"><?php echo  $project->name ?></h4>
 											<button type="button" class="iseo-rename-btn" data-id="<?php echo (int) $project->id; ?>" title="Rename project"
 												style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#aaa;font-size:14px;line-height:1;margin-left:6px;align-self:center;">&#9998;</button>
 										</div>
@@ -247,12 +247,12 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 									</td>
 									<td>
 										<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations): ?>
-											<a href="javascript:build_project(<?= $project->id ?>)"
+											<a href="javascript:build_project(<?php echo  $project->id ?>)"
 												class="styling_post_page_action_buttons for_width_only_" target="_self">Publish
 												</a>
 										<?php endif; ?>
 										<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations): ?>
-											<a href="javascript:update_project(<?= $project->id ?>)"
+											<a href="javascript:update_project(<?php echo  $project->id ?>)"
 												style="width: 160px !important;" class="styling_post_page_action_buttons"
 												target="_self">Update posts</a>
 										<?php endif; ?>
@@ -260,7 +260,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 											data-project="<?php echo $project->id; ?>"
 											value="<?php echo $project->max_iterations; ?>" />
 										<?php if ($project->state == 'Draft'): ?>
-											<a href="<?= admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ?>"
+											<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ?>"
 												style="width: 160px !important;"
 												class="styling_post_page_action_buttons">Edit Draft</a>
 										<?php endif; ?>
@@ -277,7 +277,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 													<?php
 													$associated_post = get_post_by_project_id($project->id);
 													if ($associated_post): ?>
-														<a href="<?= get_permalink($associated_post->ID) ?>" target="_blank"
+														<a href="<?php echo  get_permalink($associated_post->ID) ?>" target="_blank"
 															style="max-width: max-content !important;" class="popup-link">
 															View Post
 														</a>
@@ -289,18 +289,18 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 														</span>
 													<?php endif; ?>
 												</li>
-												<li><a href="<?= admin_url('admin.php?page=improveseo_projects&action=view_details&id=' . $project->id) ?>" style="max-width: max-content !important;"
+												<li><a href="<?php echo  admin_url('admin.php?page=improveseo_projects&action=view_details&id=' . $project->id) ?>" style="max-width: max-content !important;"
 														class="popup-link">View Details</a></li>
 												<?php $edit_link = $associated_post ? get_edit_post_link($associated_post->ID, 'raw') : ''; ?>
 												<?php if ($edit_link): ?>
 												<li><a target="_blank"
-														href="<?= esc_url($edit_link) ?>"
+														href="<?php echo  esc_url($edit_link) ?>"
 														style="max-width: max-content !important;" class="popup-link">Edit
 														Post</a>
 												</li>
 												<?php endif; ?>
 												<li style="margin: 0px !important;"><a target="_blank"
-														href="<?= admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ?>"
+														href="<?php echo  admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ?>"
 														style="max-width: max-content !important;"
 														class="popup-link delete-link">Delete Post</a></li>
 											</ul>
@@ -563,13 +563,13 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 if (isset($_GET['create_build_id'])) { ?>
 
 	<script type='text/javascript'>
-		build_project(<?= intval($_GET['create_build_id']) ?>);
+		build_project(<?php echo  intval($_GET['create_build_id']) ?>);
 	</script>
 
 <?php } elseif (isset($_GET['build_posts_id'])) { ?>
 
 	<script type='text/javascript'>
-		update_project(<?= intval($_GET['build_posts_id']) ?>);
+		update_project(<?php echo  intval($_GET['build_posts_id']) ?>);
 	</script>
 
 <?php } ?>

@@ -21,7 +21,7 @@ if (isset($_GET['post_preview'])) {
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
@@ -41,21 +41,21 @@ if (isset($_GET['post_preview'])) {
 	</div>
 	<div class="box-top">
 		<ul class="breadcrumb-seo">
-			<li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+			<li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
 			<li>Bulk Projects List</li>
 		</ul>
 	</div>
 	<div class="iseo-search-sort-row">
 		<form method="GET" action="" class="iseo-search-form">
 			<input type="hidden" name="page" value="improveseo_bulkprojects">
-			<input type="text" name="search" value="<?= esc_attr($search) ?>"
+			<input type="text" name="search" value="<?php echo  esc_attr($search) ?>"
 				class="iseo-search-input" placeholder="Search Here">
 			<button type="submit" class="iseo-search-btn">
 				<img src="<?php echo WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ?>" alt="search">
 			</button>
 		</form>
 		<?php if ($search): ?>
-			<a href="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>" class="iseo-clear-btn">&#x2715; Clear</a>
+			<a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>" class="iseo-clear-btn">&#x2715; Clear</a>
 		<?php endif; ?>
 		<?php
 		$_bsbase = admin_url('admin.php?page=improveseo_bulkprojects&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
@@ -66,13 +66,13 @@ if (isset($_GET['post_preview'])) {
 		?>
 		<div class="iseo-sort-controls">
 			<span class="iseo-sort-label">Sort by</span>
-			<a href="<?= esc_url($_bsbase . '&orderBy=name&order=' . $_bname_order) ?>"
-				class="iseo-sort-pill<?= $orderBy === 'name' ? ' iseo-sort-on' : '' ?>">Name<?= $_bname_arrow ?></a>
-			<a href="<?= esc_url($_bsbase . '&orderBy=created_at&order=' . $_bdate_order) ?>"
-				class="iseo-sort-pill<?= $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?= $_bdate_arrow ?></a>
+			<a href="<?php echo  esc_url($_bsbase . '&orderBy=name&order=' . $_bname_order) ?>"
+				class="iseo-sort-pill<?php echo  $orderBy === 'name' ? ' iseo-sort-on' : '' ?>">Name<?php echo  $_bname_arrow ?></a>
+			<a href="<?php echo  esc_url($_bsbase . '&orderBy=created_at&order=' . $_bdate_order) ?>"
+				class="iseo-sort-pill<?php echo  $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?php echo  $_bdate_arrow ?></a>
 		</div>
 		<div class="import-export-btn">
-			<button onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ?>';"
+			<button onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ?>';"
 				class="active">+ New Bulk Project</button>
 		</div>
 	</div>
@@ -83,7 +83,7 @@ if (isset($_GET['post_preview'])) {
 		<div class="pagination">
 			<?php if ($page > 1): ?>
 				<button class="prev pagination-btn"
-					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page - 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
+					onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page - 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
 					&lt; Prev
 				</button>
 			<?php else: ?>
@@ -94,16 +94,16 @@ if (isset($_GET['post_preview'])) {
 
 			<?php for ($i = 1; $i <= $pages; $i++): ?>
 				<?php if ($i == $page): ?>
-					<button class="active"><?= $i ?></button>
+					<button class="active"><?php echo  $i ?></button>
 				<?php else: ?>
 					<button
-						onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?= $i ?></button>
+						onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?php echo  $i ?></button>
 				<?php endif; ?>
 			<?php endfor; ?>
 
 			<?php if ($page < $pages): ?>
 				<button class="next pagination-btn"
-					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
+					onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
 					Next &gt;
 				</button>
 			<?php else: ?>
@@ -113,10 +113,10 @@ if (isset($_GET['post_preview'])) {
 			<?php endif; ?>
 		</div>
 		<div class="import-export">
-			<p><?= $total ?> Items</p>
+			<p><?php echo  $total ?> Items</p>
 		</div>
 	</div>
-	<form id="bulk-actions-form" method="post" action="<?= admin_url('admin.php?page=improveseo_bulkprojects') ?>">
+	<form id="bulk-actions-form" method="post" action="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">
 		<?php wp_nonce_field('bulk_delete_projects', 'bulk_delete_nonce'); ?>
 		<input type="hidden" name="action" value="" id="bulk-action-input">
 		<div class="improve-seo-container">
@@ -139,10 +139,10 @@ if (isset($_GET['post_preview'])) {
 									<input type="checkbox" id="cb-select-all">
 									<div class="checkbox__checkmark"></div>
 								</label>
-								<h4><?= bkiseo_sort_link($sort_base, 'name', 'Name', $orderBy, $order) ?></h4>
+								<h4><?php echo  bkiseo_sort_link($sort_base, 'name', 'Name', $orderBy, $order) ?></h4>
 							</th>
 							<th> Post Count </th>
-							<th><?= bkiseo_sort_link($sort_base, 'created_at', 'Created At', $orderBy, $order) ?></th>
+							<th><?php echo  bkiseo_sort_link($sort_base, 'created_at', 'Created At', $orderBy, $order) ?></th>
 							<th>Last Update</th>
 							<th> Publish Mode </th>
 							<th>Project Status</th>
@@ -151,7 +151,7 @@ if (isset($_GET['post_preview'])) {
 					</thead>
 						<tbody>
 							<?php foreach ($projects as $project): ?>
-								<tr <?= $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
+								<tr <?php echo  $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
 									<td data-label="Name">
 										<div class="styling_projects_name_td"
 											style="display: flex; width: 100%; flex-wrap: nowrap; padding: 30px 0px; overflow-wrap: break-word;">
@@ -161,12 +161,12 @@ if (isset($_GET['post_preview'])) {
 												<div class="checkbox__checkmark"></div>
 											</label>
 
-											<span class="bkiseo-project-name" data-id="<?= esc_attr($project->id) ?>"><?= esc_html($project->name) ?></span>
-									<button type="button" class="bkiseo-rename-btn" data-id="<?= esc_attr($project->id) ?>" title="Rename project"
+											<span class="bkiseo-project-name" data-id="<?php echo  esc_attr($project->id) ?>"><?php echo  esc_html($project->name) ?></span>
+									<button type="button" class="bkiseo-rename-btn" data-id="<?php echo  esc_attr($project->id) ?>" title="Rename project"
 										style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#aaa;font-size:14px;line-height:1;margin-left:6px;">&#9998;</button>
 										</div>
 									</td>
-									<td data-label="Post Count" style="text-align:center;"><?= $project->number_of_tasks ?>
+									<td data-label="Post Count" style="text-align:center;"><?php echo  $project->number_of_tasks ?>
 									</td>
 									<td data-label="Created At"> <?php
 									$date = new DateTime($project->created_at);
@@ -216,12 +216,12 @@ if (isset($_GET['post_preview'])) {
 													?>
 													<span class="edit">
 														<a class="popup-link" target="_blank" rel="noopener"
-															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $project->id) ?>">View All Posts Within Project</a>
+															href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $project->id) ?>">View All Posts Within Project</a>
 													</span>
 											<?php if ($project->state != 'Stopped' && $project->state != 'Finished' && $project->state != 'Draft') { ?>
 													<span class="edit">
 														<a class="popup-link"
-															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=stop_bulk_task&id=' . $project->id) ?>"
+															href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=stop_bulk_task&id=' . $project->id) ?>"
 															onclick="if(confirm('Are you sure you want to cancel this project? All ongoing tasks will be halted immediately.')) { window.location.href=this.href; } return false;">
 															Cancel Process
 														</a>
@@ -229,13 +229,13 @@ if (isset($_GET['post_preview'])) {
 											<?php } ?>
 													<span class="edit">
 														<a class="popup-link"
-															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=export_urls&id=' . $project->id . '&name=' . urlencode($project->name) . '&noheader=true') ?>">
+															href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=export_urls&id=' . $project->id . '&name=' . urlencode($project->name) . '&noheader=true') ?>">
 															Export URLs to Excel
 														</a>
 													</span>
 													<span class="trash">
 														<a class="popup-link delete-link submitdelete"
-															href="<?= admin_url('admin.php?page=improveseo_bulkprojects&action=delete&id=' . $project->id) ?>"
+															href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=delete&id=' . $project->id) ?>"
 															onclick="if(confirm('This action will delete the project and all generated posts/pages')) { window.location.href=this.href; } return false;">Delete Project</a>
 													</span>
 												</div>

@@ -12,11 +12,11 @@ use ImproveSEO\Validator;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
-<a href="<?= admin_url('admin.php?page=improveseo_authors') ?>">Authors List</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_authors') ?>">Authors List</a>
 
 &raquo;
 
@@ -44,7 +44,7 @@ use ImproveSEO\Validator;
             <form class="improve-seo-form-global" action="<?php echo admin_url('admin.php?page=improveseo_authors&action=do_create&noheader=true'); ?>" method="post" >
                 <div class="seo-form-field">
                     <label> Number of authors to create </label>
-                    <input type="text" placeholder="Ex. 06" name="users" value="<?= Validator::old('users') ?>" required  > 
+                    <input type="text" placeholder="Ex. 06" name="users" value="<?php echo  Validator::old('users') ?>" required  > 
                 </div>  
                 <div class="seo-form-field">
                     <h5> It will take some time to create all authors. </h5>  

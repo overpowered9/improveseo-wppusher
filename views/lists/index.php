@@ -11,7 +11,7 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
@@ -49,20 +49,20 @@ use ImproveSEO\View;
 		</ul>
 		<div class="import-export-btn">
 			<button class="active"
-				onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&action=create') ?>'">
+				onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_lists&action=create') ?>'">
 				Create Keyword List (Manual)
 			</button>
 		</div>
 		<div class="import-export-btn">
 			<button class="active"
-				onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_keyword_generator') ?>'">
+				onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_keyword_generator') ?>'">
 				Keyword Generator Tool (Auto)
 			</button>
 		</div>
 	</div>
 	<div class="actions search-form-box">
 		<form class="improve-seo-form-global" method="GET">
-			<input type="text" id="post-search-input" name="s" value="<?= htmlspecialchars($s); ?>"
+			<input type="text" id="post-search-input" name="s" value="<?php echo  htmlspecialchars($s); ?>"
 				placeholder="Search Here">
 			<input type="hidden" name="page" value="improveseo_lists" />
 			<input type="hidden" name="action" value="index" />
@@ -74,7 +74,7 @@ use ImproveSEO\View;
 		<div class="pagination">
 			<?php if ($page > 1): ?>
 				<button class="prev pagination-btn"
-					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&paged=' . ($page - 1) . ($s ? '&s=' . urlencode($s) : '')) ?>'">
+					onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_lists&paged=' . ($page - 1) . ($s ? '&s=' . urlencode($s) : '')) ?>'">
 					&lt; Prev
 				</button>
 			<?php else: ?>
@@ -85,16 +85,16 @@ use ImproveSEO\View;
 
 			<?php for ($i = 1; $i <= $pages; $i++): ?>
 				<?php if ($i == $page): ?>
-					<button class="active"><?= $i ?></button>
+					<button class="active"><?php echo  $i ?></button>
 				<?php else: ?>
 					<button
-						onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&paged=' . $i . ($s ? '&s=' . urlencode($s) : '')) ?>'"><?= $i ?></button>
+						onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_lists&paged=' . $i . ($s ? '&s=' . urlencode($s) : '')) ?>'"><?php echo  $i ?></button>
 				<?php endif; ?>
 			<?php endfor; ?>
 
 			<?php if ($page < $pages): ?>
 				<button class="next pagination-btn"
-					onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&paged=' . ($page + 1) . ($s ? '&s=' . urlencode($s) : '')) ?>'">
+					onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_lists&paged=' . ($page + 1) . ($s ? '&s=' . urlencode($s) : '')) ?>'">
 					Next &gt;
 				</button>
 			<?php else: ?>
@@ -104,7 +104,7 @@ use ImproveSEO\View;
 			<?php endif; ?>
 		</div>
 		<div class="import-export">
-			<p><?= $total ?> Items</p>
+			<p><?php echo  $total ?> Items</p>
 		</div>
 	</div>
 	<div class="improve-seo-container">
@@ -123,9 +123,9 @@ use ImproveSEO\View;
 							<?php foreach ($lists as $item): ?>
 								<tr>
 									<td data-label="Name"
-										onclick="window.location.href='<?= admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ?>'"
+										onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ?>'"
 										style="cursor: pointer;  padding-top: 20px; vertical-align: text-top;">
-										<strong><?= $item->name ?> </strong>
+										<strong><?php echo  $item->name ?> </strong>
 									</td>
 									<td data-label="Content"> <?php
 									if (str_word_count($item->list) > 50):
@@ -137,11 +137,11 @@ use ImproveSEO\View;
 									<td data-label="Action">
 										<div style="display: flex;justify-content: center;">
 											<a
-												href="<?= admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ?>">
+												href="<?php echo  admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ?>">
 												<img src="<?php echo WT_URL . '/assets/images/latest-images/write.svg' ?>"
 													alt="write"> </a>
 											<a class="submitdelete"
-												href="<?= admin_url('admin.php?page=improveseo_lists&action=delete&id=' . $item->id . '&noheader=true') ?>"
+												href="<?php echo  admin_url('admin.php?page=improveseo_lists&action=delete&id=' . $item->id . '&noheader=true') ?>"
 												onclick="return confirm('Are you sure you want to delete the list?')"> <img
 													src="<?php echo WT_URL . '/assets/images/latest-images/delete.svg' ?>"
 													alt="delete"> </a>

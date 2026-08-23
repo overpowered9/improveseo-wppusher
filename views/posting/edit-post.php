@@ -10,9 +10,9 @@ use ImproveSEO\View;
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
-	<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+	<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 	&raquo;
-	<a href="<?= admin_url('admin.php?page=improveseo_projects') ?>">Improve SEO Projects</a>
+	<a href="<?php echo  admin_url('admin.php?page=improveseo_projects') ?>">Improve SEO Projects</a>
 	&raquo;
 	<span>Edit Project</span>
 <?php View::endSection('breadcrumbs') ?>

@@ -16,7 +16,7 @@ use ImproveSEO\Validator;
 
 <!-- <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
 
 &raquo;
 
@@ -52,7 +52,7 @@ use ImproveSEO\Validator;
 			</section>
 			<div class="box-top">
 				<ul class="breadcrumb-seo">
-					<li><a href="<?= admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+					<li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
 					<li>Create a Post</li>
 				</ul>
 			</div>
@@ -232,7 +232,7 @@ use ImproveSEO\Validator;
 										style="padding: 20px; border-radius: 10px !important; border-color: #cccccc; margin-bottom: 20px; "
 										class="full-width form-control textarea-control"
 										placeholder="Meta Title:Here Ex:Mango: Health Benefits"
-										value="<?= Validator::old('custom_title', $task->options['custom_title']) ?>">
+										value="<?php echo  Validator::old('custom_title', $task->options['custom_title']) ?>">
 									<!-- <span>Ex.</span> -->
 								</div>
 								<div id="custom-title-error" style="display:none; color:red; margin-top:5px;">
@@ -247,7 +247,7 @@ use ImproveSEO\Validator;
 								<textarea id="custom-description"
 									placeholder="Meta Description:Discover Mango Magic: Health Benefits, Recipes, and Tips for the Perfect Fruit."
 									name="custom_description" rows="5"
-									class="full-width textarea-control"><?= Validator::old('custom_description', $task->options['custom_description']) ?></textarea>
+									class="full-width textarea-control"><?php echo  Validator::old('custom_description', $task->options['custom_description']) ?></textarea>
 								<!-- <span>Ex.</span> -->
 								<!-- </div> -->
 								<div id="custom-description-error" style="display:none; color:red; margin-top:5px;">Your
@@ -271,7 +271,7 @@ use ImproveSEO\Validator;
 						<h3 class="hndle ui-sortable-handle"><span>Word AI Options</span></h3>
 						<div class="inside mt-3">
 							<p>
-								<a href="<?= IMPROVESEO_DIR ?>/wordai.php" onclick="return WordAI.start(this)">Launch Word
+								<a href="<?php echo  IMPROVESEO_DIR ?>/wordai.php" onclick="return WordAI.start(this)">Launch Word
 									AI Console</a>
 							</p>
 						</div>
