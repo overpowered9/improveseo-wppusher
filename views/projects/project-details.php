@@ -629,7 +629,7 @@ function pd_seo_meta($post_id, $what) {
         var nonce = jQuery('#pd_preview_nonce').val() || '';
 
         _pdPreviewXhr = jQuery.ajax({
-            url: "<?php echo admin_url('admin-ajax.php'); ?>",
+            url: "<?php echo esc_url( admin_url('admin-ajax.php') ); ?>",
             type: 'POST',
             dataType: 'json',
             data: {

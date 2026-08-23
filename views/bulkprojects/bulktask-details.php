@@ -715,7 +715,7 @@ function btd_datetime($val) {
         });
 
         _iseoPreviewXhr = jQuery.ajax({
-            url: "<?php echo admin_url("admin-ajax.php"); ?>",
+            url: "<?php echo esc_url( admin_url("admin-ajax.php") ); ?>",
             type: 'POST',
             dataType: 'json',
             data: {

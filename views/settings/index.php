@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data.append('bulk', subs[0].checked ? '1' : '0');
             data.append('single', subs[1].checked ? '1' : '0');
             showToggleStatus('Saving…', true);
-            fetch('<?php echo admin_url("admin-ajax.php"); ?>', { method: 'POST', body: data })
+            fetch('<?php echo esc_url( admin_url("admin-ajax.php") ); ?>', { method: 'POST', body: data })
                 .then(function(r) { return r.json(); })
                 .then(function(res) {
                     showToggleStatus(res && res.success ? '✓ Saved' : '✗ Save failed — try again', !!(res && res.success));
@@ -455,7 +455,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data.append('site_code', siteCode);
         data.append('nonce', '<?php echo wp_create_nonce("test_connection_nonce"); ?>');
 
-        fetch('<?php echo admin_url("admin-ajax.php"); ?>', {
+        fetch('<?php echo esc_url( admin_url("admin-ajax.php") ); ?>', {
             method: 'POST',
             body: data
         })

@@ -2267,7 +2267,7 @@ global $ai_modal_type;
     //             nextStepButton.disabled = true;
     //         }
 
-    //         nextStepButton.innerHTML = `${buttonText} <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>" alt="arrow-right">`;
+    //         nextStepButton.innerHTML = `${buttonText} <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ); ?>" alt="arrow-right">`;
     //     }
 
     //     // Event Handlers
@@ -2433,7 +2433,7 @@ global $ai_modal_type;
     //             nextStepButton.disabled = true;
     //         }
 
-    //         nextStepButton.innerHTML = `${buttonText} <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>" alt="arrow-right">`;
+    //         nextStepButton.innerHTML = `${buttonText} <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ); ?>" alt="arrow-right">`;
     //     }
 
     //     // Event Handlers
@@ -2667,7 +2667,7 @@ global $ai_modal_type;
                 nextStepButton.disabled = true;
             }
 
-            nextStepButton.innerHTML = `${buttonText} <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>" alt="arrow-right">`;
+            nextStepButton.innerHTML = `${buttonText} <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ); ?>" alt="arrow-right">`;
         }
 
         // Event Handlers
@@ -2892,7 +2892,7 @@ global $ai_modal_type;
                 jQuery('#keywordtime').text(window.formatEstimatedTime(keywordCount));
             }
 
-            nextButton.innerHTML = `${buttonText} <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>" alt="arrow-right">`;
+            nextButton.innerHTML = `${buttonText} <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ); ?>" alt="arrow-right">`;
         }
 
         // Validate if keyword list has keywords
@@ -3608,13 +3608,13 @@ global $ai_modal_type;
         setValidating: function() {
             if (!this.button) return;
             this.button.disabled = true;
-            this.button.innerHTML = 'Validating... <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>" alt="arrow-right">';
+            this.button.innerHTML = 'Validating... <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ); ?>" alt="arrow-right">';
         },
         
         setProcessing: function() {
             if (!this.button) return;
             this.button.disabled = true;
-            this.button.innerHTML = 'Processing... <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>" alt="arrow-right">';
+            this.button.innerHTML = 'Processing... <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ); ?>" alt="arrow-right">';
         },
         
         setError: function() {

@@ -77,7 +77,7 @@ $url .= $_SERVER['REQUEST_URI'];
 			</button>
 		</form>
 		<?php if ($search): ?>
-			<a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . esc_attr($id)) ?>" class="iseo-clear-btn">&#x2715; Clear</a>
+			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . (int) $id) ); ?>" class="iseo-clear-btn">&#x2715; Clear</a>
 		<?php endif; ?>
 		<?php
 		$_atsbase        = admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $id . '&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
@@ -419,7 +419,7 @@ $url .= $_SERVER['REQUEST_URI'];
 		});
 
 		_iseoPreviewXhr = jQuery.ajax({
-			url: "<?php echo admin_url("admin-ajax.php"); ?>",
+			url: "<?php echo esc_url( admin_url("admin-ajax.php") ); ?>",
 			type: 'POST',
 			dataType: 'json',
 			data: {
@@ -457,7 +457,7 @@ $url .= $_SERVER['REQUEST_URI'];
 	function re_generate(ids) {
 		jQuery
 			.ajax({
-				url: "<?php echo admin_url("admin-ajax.php"); ?>",
+				url: "<?php echo esc_url( admin_url("admin-ajax.php") ); ?>",
 				data: ({
 					action: 're_generate_post',
 					nonce: '<?php echo esc_js( wp_create_nonce( 'improveseo_ajax' ) ); ?>',
@@ -487,10 +487,14 @@ $url .= $_SERVER['REQUEST_URI'];
 
 	function start_build(ids) {
 		var max_iterations = parseInt(jQuery('#max-iterations').val());
-		var export_url = "<?php echo admin_url("admin.php?page=improveseo_projects&action=export_preview_url&id="); ?>";
+		// wp_json_encode() rather than esc_url(): this lands inside a <script> block,
+		// where there is no HTML entity decoding, so esc_url() would leave a literal
+		// &amp; in the query string and the built URL would 404. wp_json_encode()
+		// emits a complete, correctly quoted JS string literal.
+		var export_url = <?php echo wp_json_encode( admin_url( 'admin.php?page=improveseo_projects&action=export_preview_url&id=' ) ); ?>;
 		jQuery
 			.ajax({
-				url: "<?php echo admin_url("admin-ajax.php"); ?>",
+				url: "<?php echo esc_url( admin_url("admin-ajax.php") ); ?>",
 				data: ({
 					action: 'workdex_builder_ajax',
 					nonce: '<?php echo esc_js( wp_create_nonce( 'improveseo_ajax' ) ); ?>',
@@ -540,10 +544,10 @@ $url .= $_SERVER['REQUEST_URI'];
 	var numm_update;
 
 	function start_update(ids) {
-		var new_location = "<?php echo admin_url('admin.php?page=improveseo_projects'); ?>";
+		var new_location = "<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>";
 		var max_iterations = parseInt(jQuery('#max-iterations[data-project="' + ids + '"]').val());
 		jQuery.ajax({
-			url: "<?php echo admin_url("admin-ajax.php"); ?>",
+			url: "<?php echo esc_url( admin_url("admin-ajax.php") ); ?>",
 			data: ({
 				action: 'workdex_builder_update_ajax',
 				nonce: '<?php echo esc_js( wp_create_nonce( 'improveseo_ajax' ) ); ?>',
