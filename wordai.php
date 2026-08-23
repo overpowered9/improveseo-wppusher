@@ -1,5 +1,10 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 use ImproveSEO\View;
 
 define('IMPROVESEO_ROOT', dirname(__FILE__));

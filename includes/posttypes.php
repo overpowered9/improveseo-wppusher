@@ -1,5 +1,10 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 use ImproveSEO\Storage;
 
 add_action('init', 'improveseo_create_posttypes');

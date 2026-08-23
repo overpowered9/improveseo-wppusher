@@ -11,6 +11,11 @@
 
 namespace Carbon;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 use Closure;
 use DateTime;
 use DateTimeZone;

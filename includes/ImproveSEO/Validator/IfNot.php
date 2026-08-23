@@ -2,6 +2,11 @@
 
 namespace ImproveSEO\Validator;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 class IfNot extends BaseValidator
 {
 	public function validate($data, $field, $value, $check = null) 

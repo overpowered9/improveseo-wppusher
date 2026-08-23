@@ -1,5 +1,10 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 /*
 Plugin Name: Improve SEO
 Plugin URI: https://wordpress.org/plugins/improveseo/

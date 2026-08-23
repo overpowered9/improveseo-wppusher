@@ -24,6 +24,11 @@
  */
 namespace lsolesen\pel;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 /**
  * Classes used to hold bytes, both signed and unsigned.
  * The {@link

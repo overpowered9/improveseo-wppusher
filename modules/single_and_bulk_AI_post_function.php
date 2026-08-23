@@ -1,5 +1,10 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 if ( ! function_exists( 'improveseo_normalize_generated_title' ) ) {
 	/**
 	 * Strip a leading label the model prepended to a generated title.

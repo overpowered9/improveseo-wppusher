@@ -1,5 +1,10 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 use ImproveSEO\View;
 
 // When arriving from the onboarding wizard, skip the single/bulk selection screen

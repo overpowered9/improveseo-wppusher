@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } // Exit if accessed directly. ?>
 <div class="PixabayWrap">
 	<!--<h2 class="nav-tab-wrapper">
 		<a class="nav-tab nav-tab-active">Search Images</a>

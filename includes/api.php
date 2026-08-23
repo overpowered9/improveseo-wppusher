@@ -1,4 +1,9 @@
 <?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
 use ImproveSEO\View;
 use ImproveSEO\Spintax;
 use ImproveSEO\Validator;

@@ -1,4 +1,9 @@
-<?php 
+<?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+ 
 
  /*======= loading template files ======*/
 function wt_load_templates( $template_name, $vars = null) {

@@ -24,6 +24,11 @@
  */
 namespace lsolesen\pel;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 /**
  * Namespace for functions operating on Exif tags.
  *

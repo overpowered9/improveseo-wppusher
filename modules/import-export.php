@@ -1,4 +1,9 @@
-<?php 
+<?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+ 
 
 class improveseo_import_export{
 

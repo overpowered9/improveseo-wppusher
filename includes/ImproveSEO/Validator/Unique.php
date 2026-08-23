@@ -2,6 +2,11 @@
 
 namespace ImproveSEO\Validator;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 class Unique extends BaseValidator
 {
 	public static function validate($data, $field, $table, $column = null, $except = null) 

@@ -1,5 +1,10 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 use ImproveSEO\Storage;
 
 add_filter('wp_title', 'improveseo_seo_title');

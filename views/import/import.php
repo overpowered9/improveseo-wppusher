@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } // Exit if accessed directly. ?>
 <div class="project-import-box">
 	<form action="<?php admin_url('admin.php?page=improveseo_projects'); ?>" method="post" enctype="multipart/form-data">
 		<?php wp_nonce_field('import_project_nonce'); ?>

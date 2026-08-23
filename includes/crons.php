@@ -1,5 +1,10 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 use Carbon\Carbon;
 use ImproveSEO\Spintax;
 use ImproveSEO\Models\Task;

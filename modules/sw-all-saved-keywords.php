@@ -1,4 +1,9 @@
 <?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
     
     $saved_rand_nos_keywords = get_option('swsaved_random_nosofkeywords');
         if(empty($saved_rand_nos_keywords)) {

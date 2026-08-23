@@ -2,6 +2,11 @@
 
 namespace ImproveSEO\Models;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 class Task extends AbstractModel
 {
 	public $fillable = array('name', 'content', 'options', 'iteration', 'spintax_iterations', 'max_iterations', 'deleted_at', 'finished_at', 'state', 'cats');

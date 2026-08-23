@@ -2,6 +2,11 @@
 
 namespace ImproveSEO;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 use ImproveSEO\View;
 
 class FlashMessage

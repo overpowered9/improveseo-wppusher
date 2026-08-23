@@ -1,4 +1,9 @@
-<?php 
+<?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+ 
 	
 	if(empty($address)){
 	    echo '<h2>Please Enter The Address and Title with shortcode For Showing Map</h2>';

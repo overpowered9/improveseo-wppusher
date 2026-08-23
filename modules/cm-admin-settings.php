@@ -1,4 +1,9 @@
 <?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
 $saved_random_nos = get_option('get_saved_random_numbers');
 
 $search_shortcode = isset($_GET['search_shortcode']) ? $_GET['search_shortcode'] : '';

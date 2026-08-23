@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } // Exit if accessed directly. ?>
                   <form id="popup_form" method="post" class="pop_up_form">
                    <div class="modal-body">
 				   <div class="row" style="padding: 100px 0px">

@@ -1,5 +1,10 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 use ImproveSEO\View;
 
 $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';

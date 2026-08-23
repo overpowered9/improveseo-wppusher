@@ -1,4 +1,9 @@
 <?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
 if (get_option("improveseo_scheduled_last_execute_time") == false) {
     update_option('improveseo_scheduled_last_execute_time', time());
 }

@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } // Exit if accessed directly. ?>
 <div class="shortcodes-box">
     <div class="project-lists">
         <h3> Testimonials </h3>

@@ -1,5 +1,10 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 // AJAX handler for refreshing keyword lists dropdown
 add_action('wp_ajax_refresh_keyword_lists', 'improveseo_refresh_keyword_lists');
 function improveseo_refresh_keyword_lists() {

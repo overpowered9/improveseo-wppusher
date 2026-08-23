@@ -24,6 +24,11 @@
  */
 namespace lsolesen\pel;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 /**
  * Classes used to hold data for Exif tags of format undefined.
  *

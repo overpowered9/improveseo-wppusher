@@ -1,5 +1,10 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 /**
  * Returns a cache-busting version string based on the file's last-modified time.
  * This ensures that browsers always fetch the latest version after a cPanel upload.

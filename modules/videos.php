@@ -1,4 +1,9 @@
-<?php 
+<?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+ 
 foreach ($id as $p) {
     $data_video = get_option('get_videos_'.$p);
     

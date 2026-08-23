@@ -2,6 +2,11 @@
 
 namespace ImproveSEO\Validator;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 class Numeric extends BaseValidator
 {
 	public static function validate($data, $field)

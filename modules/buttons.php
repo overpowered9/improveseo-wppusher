@@ -1,4 +1,9 @@
-<?php 
+<?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+ 
 foreach ($id as $p) {
       $data_btn = get_option('get_buttons_'.$p);
       

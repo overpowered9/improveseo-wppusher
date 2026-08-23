@@ -2,6 +2,11 @@
 
 namespace ImproveSEO\Models;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+
 class GeoData extends AbstractModel
 {
 	public $table = 'improveseo_geodata';

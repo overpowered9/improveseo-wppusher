@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) { exit; } // Exit if accessed directly. ?>
 <style>
       	.sw-theme-dots>ul.step-anchor:before {
       			top:58px !important;
