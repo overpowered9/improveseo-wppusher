@@ -11,11 +11,11 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 
 &raquo;
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects List</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">Bulk Projects List</a>
 
 &raquo;
 
@@ -54,13 +54,13 @@ $url .= $_SERVER['REQUEST_URI'];
 <div class="global-wrap">
 
 	<div class="head-bar">
-		<img src="<?php echo improveseo_logo_url(); ?>" alt="ImproveSEO logo">
+		<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
 		<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
 	</div>
 	<div class="box-top">
 		<ul class="breadcrumb-seo">
-			<li><a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">Improve SEO</a></li>
-			<li><a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
+			<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">Improve SEO</a></li>
+			<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">Bulk Projects</a></li>
 			<li><?php echo esc_html($project_name); ?></li>
 		</ul>
 	</div>
@@ -73,7 +73,7 @@ $url .= $_SERVER['REQUEST_URI'];
 			<input type="text" name="search" value="<?php echo  esc_attr($search) ?>"
 				class="iseo-search-input" placeholder="Search Here">
 			<button type="submit" class="iseo-search-btn">
-				<img src="<?php echo WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ?>" alt="search">
+				<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ); ?>" alt="search">
 			</button>
 		</form>
 		<?php if ($search): ?>
@@ -257,7 +257,7 @@ $url .= $_SERVER['REQUEST_URI'];
 									</td>
 									<td scope="col" data-label="Action" class="actions-btn" style="width: 4%;">
 										<a href="#" class="action-btn-pop"> <img
-												src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
+												src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ); ?>"
 												alt="ri_more-2-fill"> </a>
 										<div class="actionpopup">
 											<div class="popup-arrow"></div>

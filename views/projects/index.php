@@ -49,7 +49,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 
 &raquo;
 
@@ -65,12 +65,12 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 
 <div class="global-wrap">
 	<div class="head-bar">
-		<img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo">
+		<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
 		<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
 	</div>
 	<div class="box-top">
 		<ul class="breadcrumb-seo">
-			<li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+			<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a></li>
 			<li>Projects List</li>
 		</ul>
 	</div>
@@ -80,11 +80,11 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 			<input type="text" name="search" value="<?php echo  esc_attr($search) ?>"
 				class="iseo-search-input" placeholder="Search Here">
 			<button type="submit" class="iseo-search-btn">
-				<img src="<?php echo WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ?>" alt="search">
+				<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ); ?>" alt="search">
 			</button>
 		</form>
 		<?php if ($search): ?>
-			<a href="<?php echo  admin_url('admin.php?page=improveseo_projects') ?>" class="iseo-clear-btn">&#x2715; Clear</a>
+			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>" class="iseo-clear-btn">&#x2715; Clear</a>
 		<?php endif; ?>
 		<?php
 		$_sbase = admin_url('admin.php?page=improveseo_projects&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
@@ -111,7 +111,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 		</div>
 		<div class="pagination">
 			<?php if ($page > 1): ?>
-				<a href="<?php echo  admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page - 1)) ?>"
+				<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page - 1)) ); ?>"
 					class="prev pagination-btn">
 					< Prev</a>
 					<?php else: ?>
@@ -126,7 +126,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 
 							// Show first page if we're not showing it
 							if ($start_page > 1): ?>
-								<a href="<?php echo  admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=1') ?>"
+								<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=1') ); ?>"
 									class="pagination-btn">1</a>
 								<?php if ($start_page > 2): ?>
 									<span class="pagination-btn">...</span>
@@ -137,7 +137,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 								<?php if ($i == $page): ?>
 									<button class="pagination-btn active"><?php echo  $i ?></button>
 								<?php else: ?>
-									<a href="<?php echo  admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $i) ?>"
+									<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $i) ); ?>"
 										class="pagination-btn"><?php echo  $i ?></a>
 								<?php endif; ?>
 							<?php endfor; ?>
@@ -148,12 +148,12 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 								<?php if ($end_page < $pages - 1): ?>
 									<span class="pagination-btn">...</span>
 								<?php endif; ?>
-								<a href="<?php echo  admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $pages) ?>"
+								<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $pages) ); ?>"
 									class="pagination-btn"><?php echo  $pages ?></a>
 							<?php endif; ?>
 
 							<?php if ($page < $pages): ?>
-								<a href="<?php echo  admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page + 1)) ?>"
+								<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page + 1)) ); ?>"
 									class="next pagination-btn">Next ></a>
 							<?php else: ?>
 								<span class="next pagination-btn disabled">Next ></span>
@@ -166,7 +166,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 	</div>
 	<div class="improve-seo-container">
 		<div class="project-lists">
-			<form id="bulk-delete-form" method="POST" action="<?php echo  admin_url('admin.php?page=improveseo_projects') ?>">
+			<form id="bulk-delete-form" method="POST" action="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>">
 				<?php wp_nonce_field('bulk_delete_projects', 'bulk_delete_nonce'); ?>
 				<input type="hidden" name="action" value="bulk_delete">
 
@@ -260,14 +260,14 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 											data-project="<?php echo $project->id; ?>"
 											value="<?php echo $project->max_iterations; ?>" />
 										<?php if ($project->state == 'Draft'): ?>
-											<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ?>"
+											<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ); ?>"
 												style="width: 160px !important;"
 												class="styling_post_page_action_buttons">Edit Draft</a>
 										<?php endif; ?>
 									</td>
 									<td style="width: 4%;" scope="col" data-label="Action" class="actions-btn">
 										<a href="#" class="action-btn-pop">
-											<img src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
+											<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ); ?>"
 												alt="ri_more-2-fill">
 										</a>
 										<div class="actionpopup">
@@ -289,7 +289,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 														</span>
 													<?php endif; ?>
 												</li>
-												<li><a href="<?php echo  admin_url('admin.php?page=improveseo_projects&action=view_details&id=' . $project->id) ?>" style="max-width: max-content !important;"
+												<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects&action=view_details&id=' . $project->id) ); ?>" style="max-width: max-content !important;"
 														class="popup-link">View Details</a></li>
 												<?php $edit_link = $associated_post ? get_edit_post_link($associated_post->ID, 'raw') : ''; ?>
 												<?php if ($edit_link): ?>
@@ -300,7 +300,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 												</li>
 												<?php endif; ?>
 												<li style="margin: 0px !important;"><a target="_blank"
-														href="<?php echo  admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ?>"
+														href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ); ?>"
 														style="max-width: max-content !important;"
 														class="popup-link delete-link">Delete Post</a></li>
 											</ul>

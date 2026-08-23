@@ -25,7 +25,7 @@ use ImproveSEO\View;
 
 <div class="global-wrap">
 	<div class="head-bar">
-		<img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo">
+		<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
 		<h1 style="font-size: 36px; font-weight: 500;"> Welcome To Improve SEO! </h1>
 	</div>
 	<div class="container">
@@ -41,8 +41,8 @@ use ImproveSEO\View;
 
 
 				<div class="create-ai-col">
-					<a class="Posting__page-button" href="<?php echo admin_url("admin.php?page=improveseo_posting&action=create_post_bulk"); ?>">
-						<img src="<?php echo WT_URL . '/assets/images/latest-images/Multi-device.png' ?>"
+					<a class="Posting__page-button" href="<?php echo esc_url( admin_url("admin.php?page=improveseo_posting&action=create_post_bulk") ); ?>">
+						<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/Multi-device.png' ); ?>"
 							alt="Multi-device">
 						<h3>Bulk Create AI Posts</h3>
 					</a>

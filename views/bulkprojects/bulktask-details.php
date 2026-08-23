@@ -11,16 +11,16 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 
 &raquo;
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects List</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">Bulk Projects List</a>
 
 &raquo;
 
 <?php if ($task->bulktask_id): ?>
-<a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>"><?php echo  esc_html($parent_name) ?></a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ); ?>"><?php echo  esc_html($parent_name) ?></a>
 &raquo;
 <?php endif; ?>
 
@@ -289,25 +289,25 @@ function btd_datetime($val) {
 
 <div class="global-wrap">
     <div class="head-bar">
-        <img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo">
+        <img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
         <h1>ImproveSEO | Post Details</h1>
     </div>
     <div class="box-top btd-box-top">
         <ul class="breadcrumb-seo">
-            <li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
-            <li><a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
+            <li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a></li>
+            <li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">Bulk Projects</a></li>
             <?php if ($task->bulktask_id): ?>
-                <li><a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>"><?php echo  esc_html($parent_name) ?></a></li>
+                <li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ); ?>"><?php echo  esc_html($parent_name) ?></a></li>
             <?php endif; ?>
             <li><?php echo  esc_html($task->keyword_name) ?></li>
         </ul>
         <div class="import-export-btn">
             <?php if ($task->bulktask_id): ?>
-                <a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>" style="text-decoration:none;">
+                <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ); ?>" style="text-decoration:none;">
                     <button>← Back to Post List</button>
                 </a>
             <?php else: ?>
-                <a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>" style="text-decoration:none;">
+                <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>" style="text-decoration:none;">
                     <button>← Back to Bulk Projects</button>
                 </a>
             <?php endif; ?>
@@ -324,12 +324,12 @@ function btd_datetime($val) {
                 <button type="button" onclick="iseoPreviewBulkTask(<?php echo  (int) $task->id ?>)">Preview Post</button>
             <?php endif; ?>
             <?php if (!empty($task->post_id)): ?>
-                <a href="<?php echo  admin_url('post.php?action=edit&post=' . $task->post_id) ?>" target="_blank" style="text-decoration:none;">
+                <a href="<?php echo esc_url( admin_url('post.php?action=edit&post=' . $task->post_id) ); ?>" target="_blank" style="text-decoration:none;">
                     <button>Edit Post</button>
                 </a>
             <?php elseif (!empty($task->ai_content)): ?>
                 <?php // Drafts never get a WordPress post, so edit the generated content in place. ?>
-                <a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=edit_ai_content&id=' . $task->id) ?>" style="text-decoration:none;">
+                <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=edit_ai_content&id=' . $task->id) ); ?>" style="text-decoration:none;">
                     <button>Edit Post Content</button>
                 </a>
             <?php endif; ?>
@@ -351,7 +351,7 @@ function btd_datetime($val) {
                     <div class="btd-label">Parent Project</div>
                     <div class="btd-value">
                         <?php if ($parent_name): ?>
-                            <a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>"><?php echo  esc_html($parent_name) ?></a>
+                            <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ); ?>"><?php echo  esc_html($parent_name) ?></a>
                         <?php else: ?>
                             <span class="na">N/A</span>
                         <?php endif; ?>

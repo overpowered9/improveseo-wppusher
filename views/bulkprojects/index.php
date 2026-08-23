@@ -21,7 +21,7 @@ if (isset($_GET['post_preview'])) {
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 
 &raquo;
 
@@ -36,12 +36,12 @@ if (isset($_GET['post_preview'])) {
 <h1 class="hidden">Bulk Product Listing</h1>
 <div class="global-wrap">
 	<div class="head-bar">
-		<img src="<?php echo improveseo_logo_url(); ?>" alt="ImproveSEO logo">
+		<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
 		<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
 	</div>
 	<div class="box-top">
 		<ul class="breadcrumb-seo">
-			<li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+			<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a></li>
 			<li>Bulk Projects List</li>
 		</ul>
 	</div>
@@ -51,11 +51,11 @@ if (isset($_GET['post_preview'])) {
 			<input type="text" name="search" value="<?php echo  esc_attr($search) ?>"
 				class="iseo-search-input" placeholder="Search Here">
 			<button type="submit" class="iseo-search-btn">
-				<img src="<?php echo WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ?>" alt="search">
+				<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ); ?>" alt="search">
 			</button>
 		</form>
 		<?php if ($search): ?>
-			<a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>" class="iseo-clear-btn">&#x2715; Clear</a>
+			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>" class="iseo-clear-btn">&#x2715; Clear</a>
 		<?php endif; ?>
 		<?php
 		$_bsbase = admin_url('admin.php?page=improveseo_bulkprojects&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
@@ -116,7 +116,7 @@ if (isset($_GET['post_preview'])) {
 			<p><?php echo  $total ?> Items</p>
 		</div>
 	</div>
-	<form id="bulk-actions-form" method="post" action="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">
+	<form id="bulk-actions-form" method="post" action="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">
 		<?php wp_nonce_field('bulk_delete_projects', 'bulk_delete_nonce'); ?>
 		<input type="hidden" name="action" value="" id="bulk-action-input">
 		<div class="improve-seo-container">
@@ -200,7 +200,7 @@ if (isset($_GET['post_preview'])) {
 									<td scope="col" data-label="Action" class="actions-btn" style="width: 4%;">
 
 										<a href="#" class="action-btn-pop"> <img
-												src="<?php echo WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ?>"
+												src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ); ?>"
 												alt="ri_more-2-fill"> </a>
 										<div class="actionpopup">
 											<div class="popup-arrow"></div>
@@ -216,12 +216,12 @@ if (isset($_GET['post_preview'])) {
 													?>
 													<span class="edit">
 														<a class="popup-link" target="_blank" rel="noopener"
-															href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $project->id) ?>">View All Posts Within Project</a>
+															href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $project->id) ); ?>">View All Posts Within Project</a>
 													</span>
 											<?php if ($project->state != 'Stopped' && $project->state != 'Finished' && $project->state != 'Draft') { ?>
 													<span class="edit">
 														<a class="popup-link"
-															href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=stop_bulk_task&id=' . $project->id) ?>"
+															href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=stop_bulk_task&id=' . $project->id) ); ?>"
 															onclick="if(confirm('Are you sure you want to cancel this project? All ongoing tasks will be halted immediately.')) { window.location.href=this.href; } return false;">
 															Cancel Process
 														</a>
@@ -229,13 +229,13 @@ if (isset($_GET['post_preview'])) {
 											<?php } ?>
 													<span class="edit">
 														<a class="popup-link"
-															href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=export_urls&id=' . $project->id . '&name=' . urlencode($project->name) . '&noheader=true') ?>">
+															href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=export_urls&id=' . $project->id . '&name=' . urlencode($project->name) . '&noheader=true') ); ?>">
 															Export URLs to Excel
 														</a>
 													</span>
 													<span class="trash">
 														<a class="popup-link delete-link submitdelete"
-															href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=delete&id=' . $project->id) ?>"
+															href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=delete&id=' . $project->id) ); ?>"
 															onclick="if(confirm('This action will delete the project and all generated posts/pages')) { window.location.href=this.href; } return false;">Delete Project</a>
 													</span>
 												</div>

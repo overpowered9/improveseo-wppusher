@@ -11,11 +11,11 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 
 &raquo;
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_lists') ?>">Improve SEO Lists</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists') ); ?>">Improve SEO Lists</a>
 
 &raquo;
 
@@ -29,18 +29,18 @@ use ImproveSEO\View;
 
 <div class="global-wrap">
         <div class="head-bar">
-            <img src="<?php echo improveseo_logo_url()?>" alt="ImproveSEO logo"> 
+            <img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo"> 
             <h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
         </div>
         <div class="box-top">
             <ul class="breadcrumb-seo">
-                <li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
-                <li><a href="<?php echo  admin_url('admin.php?page=improveseo_lists') ?>"> Keyword Lists </a></li>
+                <li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a></li>
+                <li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists') ); ?>"> Keyword Lists </a></li>
                 <li>Create New List</li>
             </ul>
         </div>
         <div class="improve-seo-form-box">
-            <form class="improve-seo-form-global" action="<?php echo  admin_url('admin.php?page=improveseo_lists&action=do_create&noheader=true') ?>" method="post" >
+            <form class="improve-seo-form-global" action="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=do_create&noheader=true') ); ?>" method="post" >
                 <div class="seo-form-field">
                     <label> Shortcode Name </label>
                     <input type="text" name="name"  placeholder="Ex. List 1"> 

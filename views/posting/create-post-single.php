@@ -44,7 +44,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 
 <!-- <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 
 &raquo;
 
@@ -66,7 +66,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 
 <h1 class="hidden">Create Post</h1>
 <form id="main_form"
-	action="<?php echo admin_url('admin.php?page=improveseo_dashboard&action=do_create_post&noheader=true'); ?>"
+	action="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard&action=do_create_post&noheader=true') ); ?>"
 	class="form-wrap" method="post" onsubmit="if(typeof copyAIFieldsToHiddenInputs==='function') copyAIFieldsToHiddenInputs();">
 	<input type="hidden" name="ai_modal_type" value="single" />
 	<!-- Hidden fields to capture AI popup values for project details -->
@@ -87,7 +87,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 
 			<section class="project-section d-flex flex-row  justify-content-between align-items-center pb-2">
 				<div class="head-bar">
-					<img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSeo">
+					<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSeo">
 					<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
 				</div>
 
@@ -95,7 +95,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 			</section>
 			<div class="box-top">
 				<ul class="breadcrumb-seo">
-					<li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+					<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a></li>
 					<li>Create a Post</li>
 				</ul>
 			</div>
@@ -369,7 +369,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 						<h3 class="hndle ui-sortable-handle"><span>Word AI Options</span></h3>
 						<div class="inside mt-3">
 							<p>
-								<a href="<?php echo  IMPROVESEO_DIR ?>/wordai.php" onclick="return WordAI.start(this)">Launch Word
+								<a href="<?php echo esc_url( IMPROVESEO_DIR ); ?>/wordai.php" onclick="return WordAI.start(this)">Launch Word
 									AI Console</a>
 							</p>
 						</div>

@@ -12,11 +12,11 @@ use ImproveSEO\Validator;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 
 &raquo;
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_authors') ?>">Authors List</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_authors') ); ?>">Authors List</a>
 
 &raquo;
 
@@ -30,18 +30,18 @@ use ImproveSEO\Validator;
 
 <div class="global-wrap">
         <div class="head-bar">
-            <img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo"> 
+            <img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo"> 
             <h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
         </div>
         <div class="box-top">
             <ul class="breadcrumb-seo">
-                <li><a href="<?php echo admin_url('admin.php?page=improveseo_dashboard'); ?>">Improve SEO</a></li>
-                <li><a href="<?php echo admin_url('admin.php?page=improveseo_authors'); ?>"> Authors List </a></li>
+                <li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a></li>
+                <li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_authors') ); ?>"> Authors List </a></li>
                 <li>Create Authors</li>
             </ul>
         </div>
         <div class="improve-seo-form-box new-improve-create-list">
-            <form class="improve-seo-form-global" action="<?php echo admin_url('admin.php?page=improveseo_authors&action=do_create&noheader=true'); ?>" method="post" >
+            <form class="improve-seo-form-global" action="<?php echo esc_url( admin_url('admin.php?page=improveseo_authors&action=do_create&noheader=true') ); ?>" method="post" >
                 <div class="seo-form-field">
                     <label> Number of authors to create </label>
                     <input type="text" placeholder="Ex. 06" name="users" value="<?php echo  Validator::old('users') ?>" required  > 

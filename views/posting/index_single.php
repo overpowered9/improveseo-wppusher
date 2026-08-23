@@ -32,7 +32,7 @@ if ( isset( $_GET['from'] ) && $_GET['from'] === 'onboarding' ) {
 
 <div class="global-wrap">
 	<div class="head-bar">
-		<img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo">
+		<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
 		<h1 style="font-size: 36px; font-weight: 500;"> Welcome To Improve SEO! </h1>
 	</div>
 	<div class="container">
@@ -48,8 +48,8 @@ if ( isset( $_GET['from'] ) && $_GET['from'] === 'onboarding' ) {
 			<div class="create-ai">
 				
 				<div class="create-ai-col">
-					<a class="Posting__post-button" href="<?php echo admin_url("admin.php?page=improveseo_posting&action=create_post_single"); ?>">
-						<img src="<?php echo WT_URL . '/assets/images/latest-images/Mobile-UX-rafiki.png'; ?>"
+					<a class="Posting__post-button" href="<?php echo esc_url( admin_url("admin.php?page=improveseo_posting&action=create_post_single") ); ?>">
+						<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/Mobile-UX-rafiki.png' ); ?>"
 							alt="Create Single AI Post">
 						<h3>Create Single AI Post</h3>
 					</a>

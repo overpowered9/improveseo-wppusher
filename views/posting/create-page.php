@@ -19,7 +19,7 @@ use ImproveSEO\Validator;
 
 <!-- <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 
 &raquo;
 
@@ -37,7 +37,7 @@ use ImproveSEO\Validator;
 
 <h1 class="hidden">Create</h1>
 <form id="main_form"
-	action="<?php echo admin_url('admin.php?page=improveseo_dashboard&action=do_create_post&noheader=true'); ?>"
+	action="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard&action=do_create_post&noheader=true') ); ?>"
 	class="form-wrap" method="post">
 
 	<div class="style_create_page_form">
@@ -46,14 +46,14 @@ use ImproveSEO\Validator;
 			<section class="project-section d-flex flex-row  justify-content-between align-items-center pb-2">
 
 				<div class="head-bar">
-					<img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSeo">
+					<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSeo">
 					<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
 				</div>
 
 			</section>
 			<div class="box-top">
 				<ul class="breadcrumb-seo">
-					<li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+					<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a></li>
 					<li>Create Page</li>
 				</ul>
 			</div>
@@ -268,7 +268,7 @@ use ImproveSEO\Validator;
 						<h3 class="hndle ui-sortable-handle"><span>Word AI Options</span></h3>
 						<div class="inside mt-3">
 							<p>
-								<a href="<?php echo  IMPROVESEO_DIR ?>/wordai.php" onclick="return WordAI.start(this)">Launch Word
+								<a href="<?php echo esc_url( IMPROVESEO_DIR ); ?>/wordai.php" onclick="return WordAI.start(this)">Launch Word
 									AI Console</a>
 							</p>
 						</div>

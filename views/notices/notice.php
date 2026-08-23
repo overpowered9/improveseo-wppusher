@@ -44,7 +44,7 @@
 
 						<div class="is-dismissible notice-improveseo">
 							<p>
-								<strong>Looking to use Improve SEO for non-local, such as affiliate or Amazon?</strong> Check out the <a href="<?php echo admin_url('admin.php?page=improveseo_lists'); ?>">ImproveSEO lists feature!</a>
+								<strong>Looking to use Improve SEO for non-local, such as affiliate or Amazon?</strong> Check out the <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists') ); ?>">ImproveSEO lists feature!</a>
 							</p>
 							<button type="button" class="notice-improveseo-dismiss"></button>
 						</div>

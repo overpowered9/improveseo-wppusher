@@ -11,7 +11,7 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 
 &raquo;
 
@@ -32,20 +32,20 @@ use ImproveSEO\View;
 <div class="global-wrap">
 	<div class="improve-seo-container">
 		<div class="head-bar">
-			<img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo">
+			<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
 			<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
 		</div>
 		<div class="box-top">
 			<ul class="breadcrumb-seo">
-				<li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
+				<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a></li>
 				<li>Modules</li>
 			</ul>
 		</div>
 		<div class="modules-row text-left">
 			<div class="module-box">
-			<a href="<?php echo  admin_url('admin.php?page=improveseo_create_single') ?>">
+			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_create_single') ); ?>">
 				<div class="module-icon justify-between m-0">
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon2.svg' ?>" alt="icon2">
+					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon2.svg' ); ?>" alt="icon2">
 				</div>
 				<div class="line"></div>
 				<h3>Single AI Post </h3>
@@ -55,7 +55,7 @@ use ImproveSEO\View;
 			<div class="module-box">
 			<a href="">
 				<div class="module-icon justify-between m-0">
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon1.svg' ?>" alt="icon1">
+					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon1.svg' ); ?>" alt="icon1">
 				</div>
 				<div class="line"></div>
 				<h3>Meta</h3>
@@ -65,7 +65,7 @@ use ImproveSEO\View;
 			<div class="module-box">
 			<a href="">
 				<div class="module-icon justify-between m-0">
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon3.svg' ?>" alt="icon3">
+					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon3.svg' ); ?>" alt="icon3">
 				</div>
 				<div class="line"> </div>
 				<h3>Tutorials & FAQ</h3>
@@ -75,7 +75,7 @@ use ImproveSEO\View;
 			<div class="module-box">
 			<a href="#">
 				<div class="module-icon justify-between m-0">
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon4.svg' ?>" alt="icon4">
+					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon4.svg' ); ?>" alt="icon4">
 				</div>
 				<div class="line"> </div>
 				<h3>Support</h3>
@@ -83,9 +83,9 @@ use ImproveSEO\View;
 				</a>
 			</div>
 			<div class="module-box">
-			<a href="<?php echo  admin_url('admin.php?page=improveseo_create_bulk') ?>">
+			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_create_bulk') ); ?>">
 				<div class="module-icon justify-between m-0">
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon5.svg' ?>" alt="icon5">
+					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon5.svg' ); ?>" alt="icon5">
 				</div>
 				<div class="line"></div>
 				<h3>Bulk AI Posts </h3>
@@ -94,9 +94,9 @@ use ImproveSEO\View;
 					</a>
 			</div>
 			<div class="module-box">
-			<a href="<?php echo  admin_url('admin.php?page=improveseo_lists') ?>">
+			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists') ); ?>">
 				<div class="module-icon justify-between m-0">
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon6.svg' ?>" alt="icon6">
+					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon6.svg' ); ?>" alt="icon6">
 				</div>
 				<div class="line"> </div>
 				<h3>Keyword Lists </h3>
@@ -105,9 +105,9 @@ use ImproveSEO\View;
 					</a>
 			</div>
 			<div class="module-box">
-			<a href="<?php echo  admin_url('admin.php?page=improveseo_keyword_generator') ?>">
+			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_keyword_generator') ); ?>">
 				<div class="module-icon justify-between m-0">
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/icon7.svg' ?>" alt="icon7">
+					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon7.svg' ); ?>" alt="icon7">
 				</div>
 				<div class="line"> </div>
 				<h3>Keyword Generator </h3>

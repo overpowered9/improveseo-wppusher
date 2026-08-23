@@ -77,7 +77,7 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 ?>
 <div class="global-wrap" style="max-width: 99% !important;">
 	<div class="head-bar">
-		<img src="<?php echo improveseo_logo_url(); ?>" alt="ImproveSEO logo">
+		<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
 		<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
 	</div>
 	<div class="box-top">
@@ -113,7 +113,7 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 			<div class="setting-seo-search-container">
 				<input type="text" class="setting-seo-search-input" placeholder="Search Shortcodes Here">
 				<span class="setting-seo-search-icon"> <img
-						src="<?php echo WT_URL . '/assets/images/latest-images/round-search.svg'; ?>"
+						src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/round-search.svg' ); ?>"
 						alt="round-search"> </span>
 			</div>
 		</div>
@@ -563,7 +563,7 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 							</div>
 							<div class="setting-cross">
 								<label> &nbsp; </label>
-								<img src="<?php echo WT_URL . '/assets/images/latest-images/cross-x.svg'; ?>"
+								<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/cross-x.svg' ); ?>"
 									alt="cross-x">
 							</div>
 							<div class="seo-form-field">
@@ -631,7 +631,7 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 				</div>
 				<div class="setting-video-tab-rgt">
 					<h4> Video Preview </h4>
-					<img src="<?php echo WT_URL . '/assets/images/latest-images/video.png'; ?>" alt="video">
+					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/video.png' ); ?>" alt="video">
 				</div>
 
 			</div>

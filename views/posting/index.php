@@ -27,7 +27,7 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 
 <div class="global-wrap">
 	<div class="head-bar">
-		<img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo">
+		<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
 		<h1 style="font-size: 36px; font-weight: 500;"> Welcome To Improve SEO! </h1>
 	</div>
 	<div class="container">
@@ -41,8 +41,8 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 			<div class="create-ai">
 				<h2 class="title">What would you like to create?</h2>
 				<div class="create-ai-col">
-					<a class="Posting__post-button" href="<?php echo admin_url( 'admin.php?page=improveseo_posting&action=create_post_single' . ( $from_onboarding ? '&from=onboarding' : '' ) ); ?>">
-						<img src="<?php echo WT_URL . '/assets/images/latest-images/Mobile-UX-rafiki.png'; ?>"
+					<a class="Posting__post-button" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_posting&action=create_post_single' . ( $from_onboarding ? '&from=onboarding' : '' ) ) ); ?>">
+						<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/Mobile-UX-rafiki.png' ); ?>"
 							alt="Create Single AI Post">
 						<h3>Create Single AI Post</h3>
 					</a>
@@ -50,8 +50,8 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 
 
 				<div class="create-ai-col"<?php if ( $from_onboarding ) { echo ' style="opacity:0.4;pointer-events:none;"'; } ?>>
-					<a class="Posting__page-button" href="<?php echo admin_url("admin.php?page=improveseo_posting&action=create_post_bulk"); ?>">
-						<img src="<?php echo WT_URL . '/assets/images/latest-images/Multi-device.png' ?>"
+					<a class="Posting__page-button" href="<?php echo esc_url( admin_url("admin.php?page=improveseo_posting&action=create_post_bulk") ); ?>">
+						<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/Multi-device.png' ); ?>"
 							alt="Multi-device">
 						<h3>Create Bulk AI Posts Project</h3>
 					</a>

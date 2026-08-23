@@ -11,7 +11,7 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 
 &raquo;
 
@@ -67,7 +67,7 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
     </div>
     <div class="global-wrap">
         <div class="head-bar">
-            <img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo">
+            <img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
             <h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
         </div>
         <div class="box-top">

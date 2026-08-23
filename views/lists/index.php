@@ -11,7 +11,7 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 
 &raquo;
 
@@ -39,7 +39,7 @@ use ImproveSEO\View;
 </div>
 <div class="global-wrap">
 	<div class="head-bar">
-		<img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo">
+		<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
 		<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
 	</div>
 	<div class="box-top">
@@ -67,7 +67,7 @@ use ImproveSEO\View;
 			<input type="hidden" name="page" value="improveseo_lists" />
 			<input type="hidden" name="action" value="index" />
 			<button type="submit" class="search-btn">
-				<img src="<?php echo WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ?>"
+				<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ); ?>"
 					alt="clarity_search-line">
 			</button>
 		</form>
@@ -137,13 +137,13 @@ use ImproveSEO\View;
 									<td data-label="Action">
 										<div style="display: flex;justify-content: center;">
 											<a
-												href="<?php echo  admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ?>">
-												<img src="<?php echo WT_URL . '/assets/images/latest-images/write.svg' ?>"
+												href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ); ?>">
+												<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/write.svg' ); ?>"
 													alt="write"> </a>
 											<a class="submitdelete"
-												href="<?php echo  admin_url('admin.php?page=improveseo_lists&action=delete&id=' . $item->id . '&noheader=true') ?>"
+												href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=delete&id=' . $item->id . '&noheader=true') ); ?>"
 												onclick="return confirm('Are you sure you want to delete the list?')"> <img
-													src="<?php echo WT_URL . '/assets/images/latest-images/delete.svg' ?>"
+													src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/delete.svg' ); ?>"
 													alt="delete"> </a>
 										</div>
 									</td>

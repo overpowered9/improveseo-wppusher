@@ -11,7 +11,7 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 
 &raquo;
 
@@ -43,7 +43,7 @@ use ImproveSEO\View;
                 <!-- Plugin Identity Bar -->
                 <div class="iseo-identity-bar">
                     <div class="iseo-identity-brand">
-                        <img src="<?php echo improveseo_logo_url()?>" alt="ImproveSEO">
+                        <img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO">
                         <span class="iseo-brand-name">ImproveSEO</span>
                         <span class="iseo-version"><?php echo esc_html( defined('IMPROVESEO_VERSION') ? IMPROVESEO_VERSION : '' ); ?></span>
                     </div>
@@ -55,7 +55,7 @@ use ImproveSEO\View;
                     <!-- Form top bar: breadcrumb navigation + save button -->
                     <div class="iseo-form-topbar">
                         <nav class="iseo-breadcrumb" aria-label="Settings breadcrumb">
-                            <a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+                            <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
                             <span class="iseo-breadcrumb-sep">›</span>
                             <span>Settings</span>
                         </nav>

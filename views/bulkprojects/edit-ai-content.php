@@ -14,16 +14,16 @@ $keyword_name = trim((string) $task->keyword_name);
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 
 &raquo;
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects List</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">Bulk Projects List</a>
 
 &raquo;
 
 <?php if ($task->bulktask_id): ?>
-<a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>">All Tasks</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ); ?>">All Tasks</a>
 &raquo;
 <?php endif; ?>
 
@@ -46,7 +46,7 @@ $keyword_name = trim((string) $task->keyword_name);
 
 	<section class="project-section border-bottom d-flex flex-row justify-content-between align-items-center pb-2">
 		<div class="project-heading d-flex flex-row">
-			<img class="mr-2" src="<?php echo improveseo_logo_url() ?>" alt="ImproveSeo">
+			<img class="mr-2" src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSeo">
 			<h1>Draft: Edit Bulk Post Content</h1>
 		</div>
 	</section>
@@ -54,16 +54,16 @@ $keyword_name = trim((string) $task->keyword_name);
 	<?php // Which draft this is. The keyword lives here now — it is context, not an
 	// editable field, and the project name it belongs to is the field below. ?>
 	<ul class="breadcrumb-seo iseo-bulk-edit-crumbs">
-		<li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
-		<li><a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects') ?>">Bulk Projects</a></li>
+		<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a></li>
+		<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">Bulk Projects</a></li>
 		<?php if ($task->bulktask_id): ?>
-			<li><a href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>"><?php echo  $project_name !== '' ? esc_html($project_name) : 'Untitled project' ?></a></li>
+			<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ); ?>"><?php echo  $project_name !== '' ? esc_html($project_name) : 'Untitled project' ?></a></li>
 		<?php endif; ?>
 		<li><?php echo  $keyword_name !== '' ? esc_html($keyword_name) : 'No keyword' ?></li>
 	</ul>
 
 	<form id="main_form" class="form-wrap" method="post"
-		action="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=save_ai_content&id=' . $task->id . '&noheader=true') ?>">
+		action="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=save_ai_content&id=' . $task->id . '&noheader=true') ); ?>">
 
 		<?php wp_nonce_field('improveseo_save_ai_content_' . $task->id) ?>
 		<input type="hidden" name="max_posts" value="1">
@@ -123,7 +123,7 @@ $keyword_name = trim((string) $task->keyword_name);
 							Save Changes
 						</button>
 						<a class="btn styling_post_page_action_buttons btn-outline-primary"
-							href="<?php echo  admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ?>">
+							href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id) ); ?>">
 							Cancel
 						</a>
 						<button id="preview_on" type="button"

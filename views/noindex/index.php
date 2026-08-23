@@ -8,7 +8,7 @@ use ImproveSEO\View;
 ?>
 
 <?php View::startSection('breadcrumbs') ?>
-	<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+	<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 	&raquo;
 	<span>Tags List</span>
 <?php View::endSection('breadcrumbs') ?>
@@ -51,7 +51,7 @@ use ImproveSEO\View;
 					</strong>
 					<div class="row-actions">
 						<span class="trash">
-							<a href="<?php echo  admin_url('admin.php?page=improveseo_noindex&action=remove&id='. $tag->term_id .'&noheader=true') ?>" onclick="return confirm('Are you sure to delete noindex meta tag from <?php echo  $tag->name ?>?')">Delete noindex key</a>
+							<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_noindex&action=remove&id='. $tag->term_id .'&noheader=true') ); ?>" onclick="return confirm('Are you sure to delete noindex meta tag from <?php echo  $tag->name ?>?')">Delete noindex key</a>
 						</span>
 					</div>
 				</td>

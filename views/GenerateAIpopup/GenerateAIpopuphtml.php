@@ -839,30 +839,30 @@ global $ai_modal_type;
     <div class="improve-ai-modal" role="document">
         <div class="improve-ai-header">
             <span class="improve-ai-title" id="exampleModalLabel"> <img
-                    src="<?php echo WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ?>"
+                    src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ); ?>"
                     alt="iconoir_sparks-solid"> Generate AI Content</span>
             <span class="improve-ai-close-btn"> <img id="close_generate_ai_popup"
-                    src="<?php echo WT_URL . '/assets/images/latest-images/akar-icons_cross.svg' ?>"
+                    src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/akar-icons_cross.svg' ); ?>"
                     alt="akar-icons_cross"> </span>
         </div>
         <div class="improve-ai-body">
             <div class="improve-ai-option">
-                <img src="<?php echo WT_URL . '/assets/images/latest-images/aiai.svg' ?>" alt="Single AI Post">
+                <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/aiai.svg' ); ?>" alt="Single AI Post">
                 <div class="improve-ai-option-box">
                     <button class="btn open_single_AI_Post_popup" id="#exampleModal1" data-toggle="modal"
                         data-target="#exampleModal1">Create
                         Single AI Post </button>
-                    <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_info-filled.svg' ?>"
+                    <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_info-filled.svg' ); ?>"
                         alt="ep_info-filled">
                 </div>
             </div>
             <div class="improve-ai-option">
-                <img src="<?php echo WT_URL . '/assets/images/latest-images/bulk.svg' ?>" alt="Bulk AI Posts">
+                <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/bulk.svg' ); ?>" alt="Bulk AI Posts">
                 <div class="improve-ai-option-box">
                     <button class="btn open_bulk_AI_Post_popup" id="#exampleModal1" data-toggle="modal"
                         data-target="#exampleModal2">Bulk Create
                         AI Posts </button>
-                    <img src="<?php echo WT_URL . '/assets/images/latest-images/ep_info-filled.svg' ?>"
+                    <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_info-filled.svg' ); ?>"
                         alt="ep_info-filled">
                 </div>
             </div>
@@ -891,7 +891,7 @@ global $ai_modal_type;
 
     <div class="improveseo-bulk-ai">
         <div class="singlepost-title">
-            <h1> <img src="<?php echo WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ?>"
+            <h1> <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ); ?>"
                     alt="iconoir_sparks"> Generate Single Al Post</h1>
             <!-- Close (X) removed: X'ing out dropped the user onto the bare edit-post screen with
                  no way forward. The wizard is completed via its Next/Submit flow instead. -->
@@ -1128,11 +1128,11 @@ global $ai_modal_type;
 
                             <div class="title-btn">
                                 <button type="button" id="reload"><img
-                                        src="<?php echo WT_URL . '/assets/images/Vector.png' ?>"
+                                        src="<?php echo esc_url( WT_URL . '/assets/images/Vector.png' ); ?>"
                                         alt="ep_arrow-rights">&nbsp;<span id="reload-btn-text">Generate</span></button>
                                 <label class="step_one_approve_button" for="checkbox_need"><input type="checkbox"
                                         id="checkbox_need" /><span style="display: none;" class="icon"><img
-                                            src="<?php echo WT_URL . '/assets/images/hugeicons_tick-01.png' ?>"
+                                            src="<?php echo esc_url( WT_URL . '/assets/images/hugeicons_tick-01.png' ); ?>"
                                             alt="ep_arrow-rights"></span><span class="label-text">Approve</span></label>
                             </div>
                         </div>
@@ -1340,7 +1340,7 @@ global $ai_modal_type;
                                 <div class="generate-data-widt-ai">
                                     <!-- <h3> Retrieving Article Size... </h3>-->
                                     <!-- <img id="hide_older_genrated_image_on_step3"
-                                    src="<?php echo WT_URL . '/assets/images/83d0e43cd6c5b0bd5633c1a8567f877a.jpeg' ?>"
+                                    src="<?php echo esc_url( WT_URL . '/assets/images/83d0e43cd6c5b0bd5633c1a8567f877a.jpeg' ); ?>"
                                     alt="ep_arrow-rights"> -->
                                     <div id="prompt_image_div" class="col-md-12" style="display:none;">
                                         <div class="iseo-for-line iseo-title-lead">Click the image below to view it at full size.</div>
@@ -1466,10 +1466,10 @@ global $ai_modal_type;
         </form>
         <div class="btn-dev">
             <button id="prevStepButton"> <img
-                    src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-left.svg' ?>" alt="ep_arrow-left">
+                    src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_arrow-left.svg' ); ?>" alt="ep_arrow-left">
                 Previous</button>
             <button id="nextStepButton" class="style_next_button_in_popup">Next <img
-                    src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>"
+                    src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ); ?>"
                     alt="ep_arrow-rights"> </button>
         </div>
     </div>
@@ -1489,10 +1489,10 @@ global $ai_modal_type;
 
     <div class="improveseo-bulk-ai_multi">
         <div class="singlepost-title_multi">
-            <h1><img src="<?php echo WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ?>"
+            <h1><img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ); ?>"
                     alt="iconoir_sparks"> Bulk Create AI Posts</h1>
             <div class="singlepost-close_multi"><img id="close_bulk_post"
-                    src="<?php echo WT_URL . '/assets/images/latest-images/akar-icons_cross.svg' ?>" alt="icons_cross">
+                    src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/akar-icons_cross.svg' ); ?>" alt="icons_cross">
             </div>
         </div>
         <form id="pop_up_multi_form" action="multipost_form_submit" method="post" class="pop_up_multi_form">
@@ -1562,7 +1562,7 @@ global $ai_modal_type;
                                 </p>
                                 <p style="font-size: 14px; color: #0073aa; padding-left: 20px; margin-top: 8px; margin-bottom: 12px;">
                                     To create a new keyword list, click 
-                                    <a href="<?php echo admin_url('admin.php?page=improveseo_keyword_generator'); ?>" 
+                                    <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_keyword_generator') ); ?>" 
                                        target="_blank" 
                                        style="color: #0073aa; text-decoration: underline; font-weight: 500;">
                                         Generate Keywords
@@ -1918,7 +1918,7 @@ global $ai_modal_type;
                 <div class="data_multi">
                     <div class="seo-slide-steps-fours_multi seps-six_multi">
                         <h2 style="padding-left:20px;">Define Save & Publish Preference <img
-                                src="<?php echo WT_URL . '/assets/images/latest-images/nfo-filledss.svg' ?>" alt="info">
+                                src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/nfo-filledss.svg' ); ?>" alt="info">
                         </h2>
                         <div class="radio-container_multi seps-six-col_multi">
                             <div class="schedule_posts_parent">
@@ -2062,10 +2062,10 @@ global $ai_modal_type;
         </form>
         <div class="btn-dev_multi">
             <button id="prevStepButton_multi"><img
-                    src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-left.svg' ?>" alt="prev">
+                    src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_arrow-left.svg' ); ?>" alt="prev">
                 Previous</button>
             <button id="nextStepButton_multi" class="style_next_button_in_popup">Next <img
-                    src="<?php echo WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ?>" alt="next"></button>
+                    src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ); ?>" alt="next"></button>
         </div>
 
     </div>

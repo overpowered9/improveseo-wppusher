@@ -132,7 +132,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 				</button>
 				<?php endif; ?>
 				<?php if ( $_isEditMode ) : ?>
-				<a href="<?php echo admin_url('admin.php?page=improveseo_projects'); ?>"
+				<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>"
 					class="btn styling_post_page_action_buttons btn-outline-primary">Cancel</a>
 				<?php endif; ?>
 				<button id="preview_on" type="button" class="btn styling_post_page_action_buttons btn-outline-primary">Preview Post</button>

@@ -11,11 +11,11 @@ use ImproveSEO\View;
 
 <?php View::startSection('breadcrumbs') ?>
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
 
 &raquo;
 
-<a href="<?php echo  admin_url('admin.php?page=improveseo_projects') ?>">Projects List</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>">Projects List</a>
 
 &raquo;
 
@@ -213,20 +213,20 @@ function pd_seo_meta($post_id, $what) {
 ?>
 <div class="global-wrap improveseo-project-details">
     <div class="head-bar">
-        <img src="<?php echo improveseo_logo_url() ?>" alt="ImproveSEO logo">
+        <img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
         <h1>ImproveSEO | Project Details</h1>
     </div>
     <div class="box-top">
         <div class="improveseo-header-title">
             <ul class="breadcrumb-seo">
-                <li><a href="<?php echo  admin_url('admin.php?page=improveseo_dashboard') ?>">Improve SEO</a></li>
-                <li><a href="<?php echo  admin_url('admin.php?page=improveseo_projects') ?>">Projects List</a></li>
+                <li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a></li>
+                <li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>">Projects List</a></li>
                 <?php // Ellipsised when long (see CSS); title="" keeps the full name readable on hover. ?>
                 <li class="improveseo-header-project-name" title="<?php echo  esc_attr($project->name) ?>"><?php echo  esc_html($project->name) ?></li>
             </ul>
         </div>
         <div class="improveseo-header-actions">
-            <a href="<?php echo  admin_url('admin.php?page=improveseo_projects') ?>" style="text-decoration:none;">
+            <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>" style="text-decoration:none;">
                 <button class="improveseo-header-btn">← Back to Projects</button>
             </a>
             <?php $edit_link = $associated_post ? get_edit_post_link($associated_post->ID, 'raw') : ''; ?>
@@ -235,7 +235,7 @@ function pd_seo_meta($post_id, $what) {
                     <button class="improveseo-header-btn active">Edit Post</button>
                 </a>
             <?php elseif ($project->state === 'Draft'): ?>
-                <a href="<?php echo  admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}") ?>" style="text-decoration:none;">
+                <a href="<?php echo esc_url( admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}") ); ?>" style="text-decoration:none;">
                     <button class="improveseo-header-btn active">Edit Draft</button>
                 </a>
             <?php endif; ?>
