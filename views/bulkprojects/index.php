@@ -72,7 +72,7 @@ if (isset($_GET['post_preview'])) {
 				class="iseo-sort-pill<?php echo  $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?php echo  $_bdate_arrow ?></a>
 		</div>
 		<div class="import-export-btn">
-			<button onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ?>';"
+			<button onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ); ?>';"
 				class="active">+ New Bulk Project</button>
 		</div>
 	</div>
@@ -83,7 +83,7 @@ if (isset($_GET['post_preview'])) {
 		<div class="pagination">
 			<?php if ($page > 1): ?>
 				<button class="prev pagination-btn"
-					onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page - 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
+					onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page - 1) . ($highlight ? '&highlight=' . $highlight : '')) ); ?>'">
 					&lt; Prev
 				</button>
 			<?php else: ?>
@@ -97,13 +97,13 @@ if (isset($_GET['post_preview'])) {
 					<button class="active"><?php echo  $i ?></button>
 				<?php else: ?>
 					<button
-						onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?php echo  $i ?></button>
+						onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ); ?>'"><?php echo  $i ?></button>
 				<?php endif; ?>
 			<?php endfor; ?>
 
 			<?php if ($page < $pages): ?>
 				<button class="next pagination-btn"
-					onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
+					onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ); ?>'">
 					Next &gt;
 				</button>
 			<?php else: ?>

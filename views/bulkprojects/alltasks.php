@@ -98,7 +98,7 @@ $url .= $_SERVER['REQUEST_URI'];
 				class="iseo-sort-pill<?php echo  $orderBy === 'status' ? ' iseo-sort-on' : '' ?>">Status<?php echo  $_atstatus_arrow ?></a>
 		</div>
 		<div class="import-export-btn">
-			<button type="button" onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ?>';"
+			<button type="button" onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ); ?>';"
 				class="active">+ New Bulk Project</button>
 		</div>
 	</div>

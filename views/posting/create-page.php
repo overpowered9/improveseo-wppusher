@@ -161,7 +161,7 @@ use ImproveSEO\Validator;
 											<i class="fa fa-globe"></i>
 											<span class="google-preview-mobile-url">
 												<span class="google-preview-mobile-disabled">
-													<?php echo site_url(); ?></span> › @title
+													<?php echo esc_url( site_url() ); ?></span> › @title
 											</span>
 										</div>
 										<div class="google-mobile-preview-pagename">
@@ -194,7 +194,7 @@ use ImproveSEO\Validator;
 										<div class="google-preview-logo-desktop">
 											<span class="google-preview-desktop-url">
 												<span
-													class="google-preview-desktop-disabled"><?php echo site_url(); ?></span>
+													class="google-preview-desktop-disabled"><?php echo esc_url( site_url() ); ?></span>
 												› @title
 											</span>
 										</div>

@@ -101,7 +101,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 				class="iseo-sort-pill<?php echo  $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?php echo  $_date_arrow ?></a>
 		</div>
 		<div class="import-export-btn">
-			<button onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_posting&action=create_post_single') ?>';"
+			<button onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_posting&action=create_post_single') ); ?>';"
 				class="active">+ New Single Post</button>
 		</div>
 	</div>

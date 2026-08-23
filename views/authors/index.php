@@ -48,7 +48,7 @@ use ImproveSEO\View;
 		</ul>
 		<div class="import-export-btn">
 			<button class="active" id="btn-add"
-				onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_authors&action=create') ?>'">
+				onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_authors&action=create') ); ?>'">
 				Create Authors
 			</button>
 
@@ -58,7 +58,7 @@ use ImproveSEO\View;
 		<div class="pagination">
 			<?php if ($page > 1): ?>
 				<button class="prev pagination-btn"
-					onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_authors&paged=' . ($page - 1)) ?>'">
+					onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_authors&paged=' . ($page - 1)) ); ?>'">
 					&lt; Prev
 				</button>
 			<?php else: ?>
@@ -71,13 +71,13 @@ use ImproveSEO\View;
 				<?php if ($i == $page): ?>
 					<button class="active"><?php echo  $i ?></button>
 				<?php else: ?>
-					<button onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_authors&paged=' . $i) ?>'"><?php echo  $i ?></button>
+					<button onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_authors&paged=' . $i) ); ?>'"><?php echo  $i ?></button>
 				<?php endif; ?>
 			<?php endfor; ?>
 
 			<?php if ($page < $pages): ?>
 				<button class="next pagination-btn"
-					onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_authors&paged=' . ($page + 1)) ?>'">
+					onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_authors&paged=' . ($page + 1)) ); ?>'">
 					Next &gt;
 				</button>
 			<?php else: ?>

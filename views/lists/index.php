@@ -49,13 +49,13 @@ use ImproveSEO\View;
 		</ul>
 		<div class="import-export-btn">
 			<button class="active"
-				onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_lists&action=create') ?>'">
+				onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=create') ); ?>'">
 				Create Keyword List (Manual)
 			</button>
 		</div>
 		<div class="import-export-btn">
 			<button class="active"
-				onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_keyword_generator') ?>'">
+				onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_keyword_generator') ); ?>'">
 				Keyword Generator Tool (Auto)
 			</button>
 		</div>
@@ -74,7 +74,7 @@ use ImproveSEO\View;
 		<div class="pagination">
 			<?php if ($page > 1): ?>
 				<button class="prev pagination-btn"
-					onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_lists&paged=' . ($page - 1) . ($s ? '&s=' . urlencode($s) : '')) ?>'">
+					onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&paged=' . ($page - 1) . ($s ? '&s=' . urlencode($s) : '')) ); ?>'">
 					&lt; Prev
 				</button>
 			<?php else: ?>
@@ -88,13 +88,13 @@ use ImproveSEO\View;
 					<button class="active"><?php echo  $i ?></button>
 				<?php else: ?>
 					<button
-						onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_lists&paged=' . $i . ($s ? '&s=' . urlencode($s) : '')) ?>'"><?php echo  $i ?></button>
+						onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&paged=' . $i . ($s ? '&s=' . urlencode($s) : '')) ); ?>'"><?php echo  $i ?></button>
 				<?php endif; ?>
 			<?php endfor; ?>
 
 			<?php if ($page < $pages): ?>
 				<button class="next pagination-btn"
-					onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_lists&paged=' . ($page + 1) . ($s ? '&s=' . urlencode($s) : '')) ?>'">
+					onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&paged=' . ($page + 1) . ($s ? '&s=' . urlencode($s) : '')) ); ?>'">
 					Next &gt;
 				</button>
 			<?php else: ?>
@@ -123,7 +123,7 @@ use ImproveSEO\View;
 							<?php foreach ($lists as $item): ?>
 								<tr>
 									<td data-label="Name"
-										onclick="window.location.href='<?php echo  admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ?>'"
+										onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ); ?>'"
 										style="cursor: pointer;  padding-top: 20px; vertical-align: text-top;">
 										<strong><?php echo  $item->name ?> </strong>
 									</td>
