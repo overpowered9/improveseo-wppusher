@@ -102,7 +102,7 @@ class Channel
 			(post_author, post_content, post_title, comment_status, ping_status, post_name, post_type,
 			 post_date, post_date_gmt, post_status, post_parent) 
 			VALUES (%s, %s, %s, 'closed', 'closed', %s, %s, %s, %s, %s, %s)", 1, $content["{$this->type}_channel_page"], 
-			$content["{$this->type}_channel_title"], $this->name, 'channel', date('Y-m-d H:i:s'), date('Y-m-d H:i:s'), 'publish', $parent ? $parent->getId() : 0));
+			$content["{$this->type}_channel_title"], $this->name, 'channel', gmdate('Y-m-d H:i:s'), gmdate('Y-m-d H:i:s'), 'publish', $parent ? $parent->getId() : 0));
 		
 		$channel_id = $wpdb->insert_id;
 

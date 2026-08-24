@@ -549,7 +549,7 @@ function improveseo_bulkprojects()
 				$post_title = $value->keyword_name;
 			}
 
-			$post_date = date('Y-m-d H:i:s');
+			$post_date = gmdate('Y-m-d H:i:s');
 			$post_status = 'publish';
 			if ($value->assigning_authors == 'assigning_authors') {
 				$post_author = $value->assigning_authors_value;

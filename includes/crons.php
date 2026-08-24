@@ -128,7 +128,7 @@ function improveseo_parse_tasks() {
 						    else if (preg_match('/bmp/i', $ext))
 						        $imageSrc = imagecreatefrombmp($image);
 
-						    $imagedir = 'uploads/'. date('Y') .'/'. date('m') .'/'. $filename;
+						    $imagedir = 'uploads/'. gmdate('Y') .'/'. gmdate('m') .'/'. $filename;
 							improveseo_check_dir($imagedir);
 
 						    addGpsInfo(
@@ -140,7 +140,7 @@ function improveseo_parse_tasks() {
 						    	$exifLocations[$locationIteration]->location->lng,
 						    	$exifLocations[$locationIteration]->location->lat,
 						    	0,
-						    	date('Y-m-d H:i:s')
+						    	gmdate('Y-m-d H:i:s')
 					    	);
 
 					    	$savedir = "/wp-content/$imagedir";
@@ -229,7 +229,7 @@ function improveseo_parse_tasks() {
 			);
 
 			if ($project->iteration == $project->max_iterations) {
-				$update['finished_at'] = date('Y-m-d H:i:s');
+				$update['finished_at'] = gmdate('Y-m-d H:i:s');
 			}
 
 			if (isset($options['exif_cache'])) {

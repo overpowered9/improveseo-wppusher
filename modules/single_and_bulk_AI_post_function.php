@@ -859,7 +859,7 @@ function fetch_AI_image_callback()
         
         // Generate unique filename
         $file_name = wp_unique_filename($upload_dir['path'], str_replace(" ", "_", str_replace(".", "", $seed_title)));
-        $file_name = $file_name . '_' . rand();
+        $file_name = $file_name . '_' . wp_rand();
         $file_path = $upload_dir['path'] . '/' . $file_name;
         
         if (file_put_contents($file_path, $image_data) !== false) {

@@ -350,11 +350,11 @@ function pd_seo_meta($post_id, $what) {
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Created</div>
-                    <div class="pd-value"><?php echo  $project->created_at ? esc_html(date('M j, Y g:i A', strtotime($project->created_at))) : 'N/A' ?></div>
+                    <div class="pd-value"><?php echo  $project->created_at ? esc_html(gmdate('M j, Y g:i A', strtotime($project->created_at))) : 'N/A' ?></div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Updated</div>
-                    <div class="pd-value"><?php echo  $project->updated_at ? esc_html(date('M j, Y g:i A', strtotime($project->updated_at))) : 'N/A' ?></div>
+                    <div class="pd-value"><?php echo  $project->updated_at ? esc_html(gmdate('M j, Y g:i A', strtotime($project->updated_at))) : 'N/A' ?></div>
                 </div>
                 <?php if ($associated_post): ?>
                 <div class="pd-row">

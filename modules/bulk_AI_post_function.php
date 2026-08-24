@@ -1130,7 +1130,7 @@ function saveContentInTaskList()
 	// ========================================
 	// This runs FIRST and independently - publishes existing drafts whose date has arrived
 	
-	$today = date('Y-m-d');
+	$today = gmdate('Y-m-d');
 	
 	my_plugin_log('saveContentInTaskList: === SCHEDULED POST PUBLISHER START ===');
 	my_plugin_log('saveContentInTaskList: Looking for scheduled posts to publish | Today: ' . $today);
@@ -1846,7 +1846,7 @@ function generateBulkAiImage($title, $AudienceData, $niche = 'general_blog')
     $admin_server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
     $api_endpoint = $admin_server_url . '/api/v1/content-v2/image';
 
-    $seed_title = 'ai_image_' . date('YmdHis');
+    $seed_title = 'ai_image_' . gmdate('YmdHis');
 
     // Prepare request payload for the v2 image route (documentary niche templates)
     $payload = array(
@@ -1967,7 +1967,7 @@ function generateBulkAiImage($title, $AudienceData, $niche = 'general_blog')
     
     // Generate unique filename
     $file_name = wp_unique_filename($upload_dir['path'], str_replace(" ", "_", str_replace(".", "", $seed_title)));
-    $file_name = $file_name . '_' . rand();
+    $file_name = $file_name . '_' . wp_rand();
     $file_path = $upload_dir['path'] . '/' . $file_name;
     
     if (file_put_contents($file_path, $image_data) !== false) {
@@ -2361,7 +2361,7 @@ function multiPostData()
 
 
 
-		$pdate = date('Y-m-d');
+		$pdate = gmdate('Y-m-d');
 
 		$number_of_post_schedule_count = $number_of_post_schedule;
 		
@@ -2438,7 +2438,7 @@ function multiPostData()
 
 					if (($schedule_posts == 'schedule_all_posts')) {
 
-						$published_on = date('Y-m-d');
+						$published_on = gmdate('Y-m-d');
 
 					} elseif ($schedule_posts == 'schedule_posts_input_wise') {
 
@@ -2455,7 +2455,7 @@ function multiPostData()
 							} else {
 
 								// No slots left, move to next day
-								$pdate = date('Y-m-d', strtotime("+1 day", strtotime($pdate)));
+								$pdate = gmdate('Y-m-d', strtotime("+1 day", strtotime($pdate)));
 
 								$number_of_post_schedule_count = $number_of_post_schedule;  // Reset to full quota
 
@@ -2478,7 +2478,7 @@ function multiPostData()
 							} else {
 
 								// No slots left, move to next week
-								$pdate = date('Y-m-d', strtotime("+7 day", strtotime($pdate)));
+								$pdate = gmdate('Y-m-d', strtotime("+7 day", strtotime($pdate)));
 
 								$number_of_post_schedule_count = $number_of_post_schedule;  // Reset to full quota
 

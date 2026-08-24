@@ -1582,7 +1582,11 @@ class WC_Testimonial
 
 			'size' => $list_size,
 
-			'created_at' => date('Y-m-d h:m:s')
+			// Was date('Y-m-d h:m:s'): lowercase h is the 12-hour hour and m is the
+			// MONTH, so this wrote the month into the minutes position - a row created
+			// at 15:04 in August stored "03:08:47". Every other timestamp in the plugin
+			// uses H:i:s.
+			'created_at' => gmdate('Y-m-d H:i:s')
 
 		));
 

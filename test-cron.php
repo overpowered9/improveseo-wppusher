@@ -26,7 +26,7 @@ echo "<p>Testing cron job execution...</p>";
 // Check if cron is scheduled
 $next_scheduled = wp_next_scheduled('cronjob_request_event');
 if ($next_scheduled) {
-    echo "<p>✅ Cron is scheduled. Next run: " . date('Y-m-d H:i:s', $next_scheduled) . "</p>";
+    echo "<p>✅ Cron is scheduled. Next run: " . gmdate('Y-m-d H:i:s', $next_scheduled) . "</p>";
 } else {
     echo "<p>❌ Cron is NOT scheduled!</p>";
     echo "<p>Attempting to schedule it now...</p>";

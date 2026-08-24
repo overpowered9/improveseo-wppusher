@@ -274,7 +274,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 										</div>
 										<div class="google-mobile-preview-description">
 											<span
-												class="google-mobile-preview-description-date"><?php echo date('M d, Y'); ?>
+												class="google-mobile-preview-description-date"><?php echo gmdate('M d, Y'); ?>
 												－ </span>
 											<span class="google-description-content">
 												<?php
@@ -308,7 +308,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 										</div>
 										<div class="google-desktop-preview-description">
 											<span class="google-desktop-preview-description-date">
-												<?php echo date('M d, Y'); ?>－
+												<?php echo gmdate('M d, Y'); ?>－
 											</span>
 											<span class="google-description-content">
 												<?php

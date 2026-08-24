@@ -123,10 +123,10 @@ function improveseo_authors() {
 		for ($i = 1; $i <= $total; $i++) {
 
 
-			$fidx = rand(0, $firstnamesTotal - 1);
+			$fidx = wp_rand(0, $firstnamesTotal - 1);
 
 
-			$lidx = rand(0, $lastnamesTotal - 1);
+			$lidx = wp_rand(0, $lastnamesTotal - 1);
 
 
 
@@ -168,7 +168,7 @@ function improveseo_authors() {
                 'user_login'    =>  $firstname . $lastname,
 
 
-                'user_pass'     =>  $firstname . $lastname . time() . rand(0, 1000000),
+                'user_pass'     =>  $firstname . $lastname . time() . wp_rand(0, 1000000),
 
 
                 'user_email'    =>  $email,

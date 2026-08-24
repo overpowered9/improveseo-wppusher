@@ -114,7 +114,7 @@ function improveseo_permalink($previous = null) {
 
 
 
-	$date = explode(" ",date('Y m d H i s', time()));
+	$date = explode(" ",gmdate('Y m d H i s', time()));
 
 
 	$rewritereplace =

@@ -18,7 +18,7 @@ function improveseo_diagnose_null_data() {
     global $wpdb;
     
     echo "<h2>ImproveSEO Database Diagnostic Report</h2>\n";
-    echo "<p>Generated: " . date('Y-m-d H:i:s') . "</p>\n";
+    echo "<p>Generated: " . gmdate('Y-m-d H:i:s') . "</p>\n";
     echo "<hr>\n";
     
     // Get total task count

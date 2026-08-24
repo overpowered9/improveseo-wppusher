@@ -244,7 +244,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'improveseo') {
 				else if (preg_match ( '/bmp/i', $ext ))
 					$imageSrc = imagecreatefromwbmp ( $image );
 				
-				$imagedir = 'uploads/' . date ( 'Y' ) . '/' . date ( 'm' ) . '/' . $filename;
+				$imagedir = 'uploads/' . gmdate ( 'Y' ) . '/' . gmdate ( 'm' ) . '/' . $filename;
 				
 				include_once 'functions.php';
 				improveseo_check_dir ( $imagedir );

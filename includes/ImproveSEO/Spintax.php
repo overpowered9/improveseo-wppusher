@@ -298,7 +298,7 @@ class Spintax
 
 		if (sizeof($keys[1]) > 0) {
 			foreach ($keys[1] as $key) {
-				$index = $math ? $math[$key]['item'] - 1 : rand(0, sizeof($vars[$key]) - 1);
+				$index = $math ? $math[$key]['item'] - 1 : wp_rand(0, sizeof($vars[$key]) - 1);
 				$renderValue = $vars[$key][$index];
 
 				if (is_array($renderValue) && isset($renderValue['template'])) {

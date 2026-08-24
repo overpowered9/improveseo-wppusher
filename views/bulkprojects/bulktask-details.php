@@ -142,13 +142,13 @@ function btd_datetime($val) {
     }
     if (strlen($val) < 19) {
         $ts = strtotime(substr($val, 0, 10));
-        return $ts === false ? 'N/A' : esc_html(date('M j, Y', $ts));
+        return $ts === false ? 'N/A' : esc_html(gmdate('M j, Y', $ts));
     }
     $ts = strtotime($val);
     if ($ts === false) {
         return 'N/A';
     }
-    return esc_html(date('M j, Y g:i A', $ts));
+    return esc_html(gmdate('M j, Y g:i A', $ts));
 }
 
 ?>

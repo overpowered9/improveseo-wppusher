@@ -88,7 +88,7 @@ if (file_exists($log_file) && is_readable($log_file)) {
 				<td>
 					<?php if ($next_ts): ?>
 						<strong style="color: #2e7d32;">
-							<?php echo esc_html(date('Y-m-d H:i:s', $next_ts)); ?>
+							<?php echo esc_html(gmdate('Y-m-d H:i:s', $next_ts)); ?>
 						</strong>
 						(in <?php echo esc_html(human_time_diff(time(), $next_ts)); ?>)
 					<?php else: ?>

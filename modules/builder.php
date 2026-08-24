@@ -238,7 +238,7 @@ function improveseo_builder()
 
 
 
-	$post_date = date('Y-m-d H:i:s');
+	$post_date = gmdate('Y-m-d H:i:s');
 
 
 
@@ -968,7 +968,7 @@ function improveseo_builder()
 
 
 
-						$imagedir = 'uploads/' . date('Y') . '/' . date('m') . '/' . $filename;
+						$imagedir = 'uploads/' . gmdate('Y') . '/' . gmdate('m') . '/' . $filename;
 
 
 						improveseo_check_dir($imagedir);
@@ -1013,7 +1013,7 @@ function improveseo_builder()
 						if ($location) {
 
 
-							addGpsInfo($imageSrc, WP_CONTENT_DIR . '/' . $imagedir, $exif[2][$idx], $location->lng, $location->lat, 0, date('Y-m-d H:i:s'));
+							addGpsInfo($imageSrc, WP_CONTENT_DIR . '/' . $imagedir, $exif[2][$idx], $location->lng, $location->lat, 0, gmdate('Y-m-d H:i:s'));
 
 
 						}
@@ -1136,7 +1136,7 @@ function improveseo_builder()
 		if (isset($options['distribute'])) {
 
 
-			$author_id = $authors[mt_rand(0, sizeof($authors) - 1)];
+			$author_id = $authors[wp_rand(0, sizeof($authors) - 1)];
 
 
 		}
@@ -1172,7 +1172,7 @@ function improveseo_builder()
 
 
 
-				$post_date = date('Y-m-d H:i:s', rand($date_start, $date_end));
+				$post_date = gmdate('Y-m-d H:i:s', wp_rand($date_start, $date_end));
 
 
 				// $post_date = date('Y-m-d H:i:s',strtotime('+1 Day'));
@@ -1196,7 +1196,7 @@ function improveseo_builder()
 				$date_end = strtotime($date_end1->format('Y-m-d') . ' 23:59:59');
 
 
-				$post_date = date('Y-m-d H:i:s', rand($date_start, $date_end));
+				$post_date = gmdate('Y-m-d H:i:s', wp_rand($date_start, $date_end));
 
 
 				///echo $post_date."<br>";
@@ -1235,7 +1235,7 @@ function improveseo_builder()
 		foreach ($shorts as $short => $max) {
 
 
-			$contentText = str_replace("[$short]", '[' . $short . ' key="' . mt_rand(0, $max) . '"]', $contentText);
+			$contentText = str_replace("[$short]", '[' . $short . ' key="' . wp_rand(0, $max) . '"]', $contentText);
 
 
 		}
@@ -1936,7 +1936,7 @@ function improveseo_builder()
 	if ($project->iteration == $project->max_iterations) {
 
 
-		$update['finished_at'] = date('Y-m-d H:i:s');
+		$update['finished_at'] = gmdate('Y-m-d H:i:s');
 
 
 	}
@@ -2288,7 +2288,7 @@ function improveseo_builder_update()
 
 
 
-	$post_date = date('Y-m-d H:i:s');
+	$post_date = gmdate('Y-m-d H:i:s');
 
 
 
@@ -3018,7 +3018,7 @@ function improveseo_builder_update()
 
 
 
-						$imagedir = 'uploads/' . date('Y') . '/' . date('m') . '/' . $filename;
+						$imagedir = 'uploads/' . gmdate('Y') . '/' . gmdate('m') . '/' . $filename;
 
 
 						improveseo_check_dir($imagedir);
@@ -3063,7 +3063,7 @@ function improveseo_builder_update()
 						if ($location) {
 
 
-							addGpsInfo($imageSrc, WP_CONTENT_DIR . '/' . $imagedir, $exif[2][$idx], $location->lng, $location->lat, 0, date('Y-m-d H:i:s'));
+							addGpsInfo($imageSrc, WP_CONTENT_DIR . '/' . $imagedir, $exif[2][$idx], $location->lng, $location->lat, 0, gmdate('Y-m-d H:i:s'));
 
 
 						}
@@ -3186,7 +3186,7 @@ function improveseo_builder_update()
 		if (isset($options['distribute'])) {
 
 
-			$author_id = $authors[mt_rand(0, sizeof($authors) - 1)];
+			$author_id = $authors[wp_rand(0, sizeof($authors) - 1)];
 
 
 		}
@@ -3222,7 +3222,7 @@ function improveseo_builder_update()
 
 
 
-				$post_date = date('Y-m-d H:i:s', rand($date_start, $date_end));
+				$post_date = gmdate('Y-m-d H:i:s', wp_rand($date_start, $date_end));
 
 
 				// $post_date = date('Y-m-d H:i:s',strtotime('+1 Day'));
@@ -3246,7 +3246,7 @@ function improveseo_builder_update()
 				$date_end = strtotime($date_end1->format('Y-m-d') . ' 23:59:59');
 
 
-				$post_date = date('Y-m-d H:i:s', rand($date_start, $date_end));
+				$post_date = gmdate('Y-m-d H:i:s', wp_rand($date_start, $date_end));
 
 
 				///echo $post_date."<br>";
@@ -3285,7 +3285,7 @@ function improveseo_builder_update()
 		foreach ($shorts as $short => $max) {
 
 
-			$contentText = str_replace("[$short]", '[' . $short . ' key="' . mt_rand(0, $max) . '"]', $contentText);
+			$contentText = str_replace("[$short]", '[' . $short . ' key="' . wp_rand(0, $max) . '"]', $contentText);
 
 
 		}
@@ -3991,7 +3991,7 @@ function improveseo_builder_update()
 		$update['state'] = 'Updated';
 
 
-		$update['finished_at'] = date('Y-m-d H:i:s');
+		$update['finished_at'] = gmdate('Y-m-d H:i:s');
 
 
 	}
