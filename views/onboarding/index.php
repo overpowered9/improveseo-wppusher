@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <head>
 <meta charset="<?php bloginfo( 'charset' ); ?>">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?php esc_html_e( 'ImproveSEO Setup', 'improve-seo' ); ?></title>
+<title><?php esc_html_e( 'ImproveSEO Setup', 'improveseo' ); ?></title>
 <?php
 // Load WP admin styles (so wp_enqueue'd assets work)
 do_action( 'admin_print_styles' );

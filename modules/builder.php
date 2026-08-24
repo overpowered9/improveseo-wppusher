@@ -439,10 +439,10 @@ function improveseo_builder()
 			'labels' => array(
 
 
-				'name' => __(ucfirst($options['permalink_prefix'])),
+				'name' => ucfirst($options['permalink_prefix']),
 
 
-				'singular_name' => __(ucfirst($options['permalink_prefix']))
+				'singular_name' => ucfirst($options['permalink_prefix'])
 
 
 			),
@@ -2489,10 +2489,10 @@ function improveseo_builder_update()
 			'labels' => array(
 
 
-				'name' => __(ucfirst($options['permalink_prefix'])),
+				'name' => ucfirst($options['permalink_prefix']),
 
 
-				'singular_name' => __(ucfirst($options['permalink_prefix']))
+				'singular_name' => ucfirst($options['permalink_prefix'])
 
 
 			),

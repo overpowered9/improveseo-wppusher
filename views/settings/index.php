@@ -59,7 +59,7 @@ use ImproveSEO\View;
                             <span class="iseo-breadcrumb-sep">›</span>
                             <span>Settings</span>
                         </nav>
-                        <input type="submit" class="iseo-btn-save active setting_submit" value="<?php _e('Save Changes') ?>">
+                        <input type="submit" class="iseo-btn-save active setting_submit" value="<?php esc_html_e('Save Changes', 'improveseo') ?>">
                     </div>
 
                     <!-- ── Section 1: Server Connection ──────────────── -->

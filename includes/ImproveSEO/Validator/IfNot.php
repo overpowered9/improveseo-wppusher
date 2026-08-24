@@ -13,6 +13,6 @@ class IfNot extends BaseValidator
 	{
 		$checker = $check ? $check : $data[$field];
 
-		return !isset($data[$field]) || (isset($data[$field]) && $checker == $value) ? true : _('Value not allowed.');
+		return !isset($data[$field]) || (isset($data[$field]) && $checker == $value) ? true : __('Value not allowed.', 'improveseo');
 	}
 }

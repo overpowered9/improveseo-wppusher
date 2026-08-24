@@ -13,7 +13,7 @@ use ImproveSEO\Models\Task;
 function improveseo_add_every_minute($schedules) {
      $schedules['every_minute'] = array(
         'interval'  => 60,
-        'display'   => __( 'Every Minute', 'textdomain' )
+        'display'   => __( 'Every Minute', 'improveseo' )
     );
 
     return $schedules;

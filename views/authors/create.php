@@ -50,7 +50,7 @@ use ImproveSEO\Validator;
                     <h5> It will take some time to create all authors. </h5>  
                 </div>    
                 <div class="seo-form-field">
-                    <input type="submit" class="styling_post_page_action_buttons2 styling_post_page_action_buttons"   value="<?php _e('Create Now') ?>" >
+                    <input type="submit" class="styling_post_page_action_buttons2 styling_post_page_action_buttons"   value="<?php esc_html_e('Create Now', 'improveseo') ?>" >
                 </div>          
             </form>     
         </div>  

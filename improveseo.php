@@ -17,7 +17,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: improve-seo
+Text Domain: improveseo
 */
 
 define("IMPROVESEO_VERSION", "2.0.12");
@@ -510,7 +510,7 @@ function custom_cron_intervals($schedules)
 
 		'interval' => 120,
 
-		'display' => __('Every 2 minutes'),
+		'display' => __('Every 2 minutes', 'improveseo'),
 
 	);
 
@@ -1458,7 +1458,7 @@ class WC_Testimonial
 
 			'id' => $menu_id,
 
-			'title' => __('Improve SEO', 'improve-seo'),
+			'title' => __('Improve SEO', 'improveseo'),
 
 			'href' => admin_url() . '/admin.php?page=improveseo_dashboard',
 

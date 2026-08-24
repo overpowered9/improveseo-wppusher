@@ -42,8 +42,8 @@ function improveseo_create_posttypes() {
 	register_post_type('channel',
 		array(
 			'labels' => array(
-				'name' => __('Channels'),
-				'singular_name' => __('Channel')
+				'name' => __('Channels', 'improveseo'),
+				'singular_name' => __('Channel', 'improveseo')
 			),
 			'public' => true,
 			'publicly_queryable' => true,
@@ -62,8 +62,8 @@ function improveseo_create_posttypes() {
 			register_post_type($type,
 				array(
 					'labels' => array(
-						'name' => __(ucfirst($type)),
-						'singular_name' => __(ucfirst($type))
+						'name' => ucfirst($type),
+						'singular_name' => ucfirst($type)
 					),
 					'public' => true,
 					'publicly_queryable' => true,
