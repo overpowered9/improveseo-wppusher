@@ -528,7 +528,7 @@ function improveseo_expand_geodata($country, $geodata, $tags) {
 					if ((isset($geodata[$key + 1]) && !preg_match("/^$loc/", $geodata[$key + 1])) || !isset($geodata[$key + 1])) {
 
 
-						$cities = $wpdb->get_results("SELECT id, zip FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = '$loc' AND 1=1". (!in_array('zip', $tags) ? ' GROUP BY city, county' : ''));
+						$cities = $wpdb->get_results( ! in_array('zip', $tags) ? $wpdb->prepare("SELECT id, zip FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = %s AND 1=1 GROUP BY city, county", $loc) : $wpdb->prepare("SELECT id, zip FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = %s AND 1=1", $loc) );
 
 
 
@@ -573,10 +573,10 @@ function improveseo_expand_geodata($country, $geodata, $tags) {
 					if ((isset($geodata[$key + 1]) && !preg_match("/^$loccy[1]\/$loccy[2]\//", $geodata[$key + 1])) || !isset($geodata[$key + 1])) {
 
 
-						$city = $wpdb->get_row("SELECT city FROM {$wpdb->prefix}improveseo_us_cities WHERE id = {$loccy[2]}");
+						$city = $wpdb->get_row( $wpdb->prepare("SELECT city FROM {$wpdb->prefix}improveseo_us_cities WHERE id = %d", $loccy[2]) );
 
 
-						$zippy = $wpdb->get_results("SELECT zip FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = '$loccy[1]' AND city = '{$city->city}' AND 1=1");
+						$zippy = $wpdb->get_results( $wpdb->prepare("SELECT zip FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = %s AND city = %s AND 1=1", $loccy[1], $city->city) );
 
 
 
@@ -648,7 +648,7 @@ function improveseo_expand_geodata($country, $geodata, $tags) {
 					if ((isset($geodata[$key + 1]) && !preg_match("/^$loc/", $geodata[$key + 1])) || !isset($geodata[$key + 1])) {
 
 
-						$cities = $wpdb->get_results("SELECT id, postcode FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = '$loc' AND 1=1". (!in_array('zip', $tags) ? ' GROUP BY name' : ''));
+						$cities = $wpdb->get_results( ! in_array('zip', $tags) ? $wpdb->prepare("SELECT id, postcode FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = %s AND 1=1 GROUP BY name", $loc) : $wpdb->prepare("SELECT id, postcode FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = %s AND 1=1", $loc) );
 
 
 
@@ -693,10 +693,10 @@ function improveseo_expand_geodata($country, $geodata, $tags) {
 					if ((isset($geodata[$key + 1]) && !preg_match("/^$loccy[1]\/$loccy[2]\//", $geodata[$key + 1])) || !isset($geodata[$key + 1])) {
 
 
-						$city = $wpdb->get_row("SELECT name FROM {$wpdb->prefix}improveseo_uk_cities WHERE id = {$loccy[2]}");
+						$city = $wpdb->get_row( $wpdb->prepare("SELECT name FROM {$wpdb->prefix}improveseo_uk_cities WHERE id = %d", $loccy[2]) );
 
 
-						$zippy = $wpdb->get_results("SELECT postcode FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = '$loccy[1]' AND name = '{$city->name}' AND 1=1");
+						$zippy = $wpdb->get_results( $wpdb->prepare("SELECT postcode FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = %s AND name = %s AND 1=1", $loccy[1], $city->name) );
 
 
 
@@ -966,7 +966,7 @@ function improveseo_get_geodata($country, $geopath) {
 
 
 
-		$state = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}improveseo_us_states WHERE state_code = '". $path[0] ."'");
+		$state = $wpdb->get_row( $wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_us_states WHERE state_code = %s", $path[0]) );
 
 
 		$result['state'] = $state->state;
@@ -981,7 +981,7 @@ function improveseo_get_geodata($country, $geopath) {
 		if (isset($path[1])) {
 
 
-			$city = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE id = ". $path[1]);
+			$city = $wpdb->get_row( $wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE id = %d", $path[1]) );
 
 
 			$result['city'] = $city->city;
@@ -1008,7 +1008,7 @@ function improveseo_get_geodata($country, $geopath) {
 
 
 
-		$state = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}improveseo_uk_states WHERE id = ". $path[0]);
+		$state = $wpdb->get_row( $wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_uk_states WHERE id = %d", $path[0]) );
 
 
 		$result['state'] = $state->name;
@@ -1023,7 +1023,7 @@ function improveseo_get_geodata($country, $geopath) {
 		if (isset($path[1])) {
 
 
-			$city = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE id = ". $path[1]);
+			$city = $wpdb->get_row( $wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE id = %d", $path[1]) );
 
 
 			$result['city'] = $city->name;

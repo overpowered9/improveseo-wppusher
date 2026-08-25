@@ -108,10 +108,11 @@ function improveseo_bulkprojects()
 				));
 
 				if (!empty($post_ids)) {
-					$post_ids_str = implode(',', array_map('intval', $post_ids));
-					$wpdb->query("DELETE FROM {$wpdb->prefix}posts WHERE ID IN ($post_ids_str)");
+					$post_ids = array_map('intval', $post_ids);
+					$placeholders = implode(',', array_fill(0, count($post_ids), '%d'));
+					$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}posts WHERE ID IN ($placeholders)", $post_ids));
 
-					$wpdb->query("DELETE FROM {$wpdb->prefix}postmeta WHERE post_id IN ($post_ids_str)");
+					$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}postmeta WHERE post_id IN ($placeholders)", $post_ids));
 				}
 
 				$wpdb->query($wpdb->prepare(
@@ -249,12 +250,11 @@ function improveseo_bulkprojects()
 
 	elseif ($action == 'viewAllTasks'):
 		if (isset($_GET['id'])) {
-			$id = $_GET['id'];
+			$id = absint($_GET['id']);
 			$where = array('id' => $id);
 			$sql = 'SELECT * FROM ' . $model->getTable();
-			$sql .= ' WHERE `id`=' . $id;
-			$params = [];
-			$sql = $wpdb->prepare($sql, $params);
+			$sql .= ' WHERE `id` = %d';
+			$sql = $wpdb->prepare($sql, $id);
 			$projects = $wpdb->get_results($sql);
 			if (!empty($projects[0]->name)) {
 				$project_name = $projects[0]->name;
@@ -304,8 +304,9 @@ function improveseo_bulkprojects()
 	elseif ($action == 'viewAiContent'):
 		// Filters
 		$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-		$orderBy = isset($_GET['orderBy']) ? $_GET['orderBy'] : 'created_at';
-		$order = isset($_GET['order']) ? $_GET['order'] : 'DESC';
+		$allowed_order_by = array('created_at', 'keyword_name', 'status');
+		$orderBy = (isset($_GET['orderBy']) && in_array($_GET['orderBy'], $allowed_order_by)) ? $_GET['orderBy'] : 'created_at';
+		$order = (isset($_GET['order']) && in_array(strtoupper($_GET['order']), array('ASC', 'DESC'))) ? strtoupper($_GET['order']) : 'DESC';
 		$highlight = isset($_GET['highlight']) ? $_GET['highlight'] : null;
 
 		$sql = 'SELECT * FROM ' . $detailsTaskModel->getTable();
@@ -432,7 +433,7 @@ function improveseo_bulkprojects()
 		exit;
 
 	elseif ($action == 'delete'):
-		$id = $_GET['id'];
+		$id = absint($_GET['id']);
 		// Delete all posts from this project
 		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));
 		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
@@ -444,7 +445,7 @@ function improveseo_bulkprojects()
 		exit;
 
 	elseif ($action == 'delete_posts'):
-		$id = $_GET['id'];
+		$id = absint($_GET['id']);
 		// Delete all posts from this project
 		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "postmeta WHERE post_id IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s) AND meta_key = 'improveseo_channel'", $id));
 		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));
@@ -455,8 +456,8 @@ function improveseo_bulkprojects()
 		exit;
 
 	elseif ($action == 'stop'):
-		$id = $_GET['id'];
-		$mainid = $_GET['mainid'];
+		$id = absint($_GET['id']);
+		$mainid = absint($_GET['mainid']);
 		// Only cancel tasks that have no WordPress post yet — once a post exists
 		// (scheduled or published) its status is real and must not be overwritten.
 		$stopped = $wpdb->query(
@@ -513,10 +514,10 @@ function improveseo_bulkprojects()
 		exit;
 
 	elseif ($action == 'publish'):
-		$id = $_GET['id'];
+		$id = absint($_GET['id']);
 		$mainid = sanitize_title_with_dashes($_GET['mainid']);
 		global $wpdb;
-		$sql = "SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `id`=" . $id;
+		$sql = $wpdb->prepare("SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `id` = %d", $id);
 		$Bulktasks = $wpdb->get_results($sql);
 		foreach ($Bulktasks as $key => $value) {
 			$catids = [];
@@ -785,7 +786,7 @@ function improveseo_bulkprojects()
 		exit;
 
 	elseif ($action == 'export_project'):
-		$id = $_GET['id'];
+		$id = absint($_GET['id']);
 		$project_name = sanitize_title_with_dashes($_GET['name']);
 		@set_time_limit(0);
 		$data = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}improveseo_tasks where id = %s", $id));
@@ -807,7 +808,7 @@ function improveseo_bulkprojects()
 		exit;
 
 	elseif ($action == 'export_preview_url'):
-		$id = $_GET['id'];
+		$id = absint($_GET['id']);
 		@set_time_limit(0);
 		$urls = [];
 		$posts = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s", $id));
@@ -822,7 +823,7 @@ function improveseo_bulkprojects()
 		exit;
 
 	elseif ($action == 'duplicate'):
-		$id = $_GET['id'];
+		$id = absint($_GET['id']);
 		$task = $model->find($id);
 		$new_id = $model->create(array(
 			'name' => $task->name . ' - Copy',
