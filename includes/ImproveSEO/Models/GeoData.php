@@ -28,14 +28,14 @@ class GeoData extends AbstractModel
 	{
 		global $wpdb;
 
-		return $wpdb->get_results("SELECT state, state_code FROM {$this->getTable()} WHERE country_id = $country_id GROUP BY state");
+		return $wpdb->get_results($wpdb->prepare("SELECT state, state_code FROM {$this->getTable()} WHERE country_id = %d GROUP BY state", $country_id)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
 	}
 
 	public function cities($country_id, $state_code) 
 	{
 		global $wpdb;
 
-		return $wpdb->get_results($wpdb->prepare("SELECT id, place FROM {$this->getTable()} WHERE country_id = $country_id AND state_code = %s GROUP BY place", $state_code));
+		return $wpdb->get_results($wpdb->prepare("SELECT id, place FROM {$this->getTable()} WHERE country_id = %d AND state_code = %s GROUP BY place", $country_id, $state_code)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
 	}
 
 	public function zippo($country_id, $state_code, $city_id) 
@@ -45,7 +45,7 @@ class GeoData extends AbstractModel
 		return $wpdb->get_results($wpdb->prepare("
 			SELECT postal 
 			FROM {$this->getTable()} 
-			WHERE place = (SELECT place FROM {$this->getTable()} WHERE id = $city_id) AND country_id = $country_id AND state_code = %s", $state_code));
+			WHERE place = (SELECT place FROM {$this->getTable()} WHERE id = %d) AND country_id = %d AND state_code = %s", $city_id, $country_id, $state_code)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
 	}
 
 	public function getStateName($country_id, $state_code) 
@@ -53,7 +53,7 @@ class GeoData extends AbstractModel
 		global $wpdb;
 
 		return $wpdb->get_row($wpdb->prepare("
-			SELECT state FROM {$this->getTable()} WHERE country_id = $country_id AND state_code = %s", $state_code))->state;
+			SELECT state FROM {$this->getTable()} WHERE country_id = %d AND state_code = %s", $country_id, $state_code))->state; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
 	}
 
 	public function getStateCitiesAndPostals($country_id, $state_code) 
@@ -61,14 +61,14 @@ class GeoData extends AbstractModel
 		global $wpdb;
 
 		return $wpdb->get_results($wpdb->prepare("
-			SELECT id, postal FROM {$this->getTable()} WHERE country_id = $country_id AND state_code = %s
-			", $state_code));
+			SELECT id, postal FROM {$this->getTable()} WHERE country_id = %d AND state_code = %s
+			", $country_id, $state_code)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
 	}
 
 	public function deleteByCountryId($country_id) 
 	{
 		global $wpdb;
 
-		$wpdb->query("DELETE FROM {$this->getTable()} WHERE country_id = $country_id");
+		$wpdb->query($wpdb->prepare("DELETE FROM {$this->getTable()} WHERE country_id = %d", $country_id)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
 	}
 }

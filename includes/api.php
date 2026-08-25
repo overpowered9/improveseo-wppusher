@@ -77,7 +77,7 @@ function improveseo_handle_api_request() {
 				}
 			} 			// Show states
 			else {
-				$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_us_states" );
+				$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_us_states" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 				foreach ( $states as $state ) {
 					$results [] = array (
 							'id' => $state->state_code,
@@ -92,7 +92,7 @@ function improveseo_handle_api_request() {
 					
 					require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 					include_once 'geo/installer.php';
-					$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_us_states" );
+					$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_us_states" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 					foreach ( $states as $state ) {
 						$results [] = array (
 								'id' => $state->state_code,
@@ -135,7 +135,7 @@ function improveseo_handle_api_request() {
 				}
 			} 			// Show states
 			else {
-				$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_uk_states ORDER BY name" );
+				$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_uk_states ORDER BY name" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 				foreach ( $states as $state ) {
 					$results [] = array (
 							'id' => $state->id,
@@ -150,7 +150,7 @@ function improveseo_handle_api_request() {
 					
 					require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 					include_once 'geo/installer.php';
-					$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_uk_states ORDER BY name" );
+					$states = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_uk_states ORDER BY name" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 					foreach ( $states as $state ) {
 						$results [] = array (
 								'id' => $state->id,
@@ -289,7 +289,7 @@ function improveseo_handle_api_request() {
 				$media 
 		) );
 		
-		$wpdb->query ( $sql );
+		$wpdb->query ( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 		
 		$results ['success'] = 1;
 	} elseif ($act == 'exif') {

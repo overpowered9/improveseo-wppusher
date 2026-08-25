@@ -16,7 +16,7 @@ function improveseo_refresh_keyword_lists() {
     global $wpdb;
     
     // Fetch all keyword lists from database
-    $lists = $wpdb->get_results("SELECT id, name FROM {$wpdb->prefix}improveseo_lists ORDER BY name ASC");
+    $lists = $wpdb->get_results("SELECT id, name FROM {$wpdb->prefix}improveseo_lists ORDER BY name ASC"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
     
     $keyword_lists = array();
     

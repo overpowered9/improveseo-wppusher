@@ -92,8 +92,8 @@ function improveseo_lists() {
 		$sql = $wpdb->prepare($sql, $params);
 
 		// Data
-		$lists = $wpdb->get_results($sql);
-		$total_row = $wpdb->get_row($sqlTotal);
+		$lists = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
+		$total_row = $wpdb->get_row($sqlTotal); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 		$total = $total_row->total;
 		$pages = ceil($total / $limit);
 		$page = floor($offset / $limit) + 1;

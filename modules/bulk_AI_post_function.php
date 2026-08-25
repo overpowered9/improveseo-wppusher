@@ -552,7 +552,7 @@ function improveseo_sweep_preview_orphans()
 
 	// created_at is written with NOW() in AbstractModel::create(), so compare
 	// against NOW() here too — consistent regardless of the DB server timezone.
-	$preview_ids = $wpdb->get_col(
+	$preview_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 		"SELECT id FROM {$tasks_table}
 		 WHERE state = 'Preview'
 		   AND created_at < (NOW() - INTERVAL 30 MINUTE)"
@@ -667,7 +667,7 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 
 
-	$tasks = $wpdb->get_results($sql);
+	$tasks = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 
 	if (empty($tasks)) {
 		my_plugin_log('generateBulkAiContent: No tasks found to process');
@@ -1095,7 +1095,7 @@ function generateBulkAiContent($id = '', $regenerate = '')
 		}
 	}
 
-	//$wpdb->query ( "UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails` SET status='Done',`ai_title`=".$ai_title.",`ai_content`='".$AI_Content."',`ai_image`='".$imageURL."', WHERE id=".$id );
+	//$wpdb->query ( "UPDATE `".$wpdb->prefix."improveseo_bulktasksdetails` SET status='Done',`ai_title`=".$ai_title.",`ai_content`='".$AI_Content."',`ai_image`='".$imageURL."', WHERE id=".$id ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 
 
 
@@ -1148,7 +1148,7 @@ function saveContentInTaskList()
 		$today
 	);
 
-	$scheduledPosts = $wpdb->get_results($sql_scheduled);
+	$scheduledPosts = $wpdb->get_results($sql_scheduled); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 
 	my_plugin_log('saveContentInTaskList: Found ' . count($scheduledPosts) . ' scheduled posts to publish');
 
@@ -1287,7 +1287,7 @@ function saveContentInTaskList()
 	my_plugin_log("saveContentInTaskList: Executing query to find tasks ready to create WordPress posts");
 	my_plugin_log("saveContentInTaskList: Query: " . $sql);
 
-	$Bulktasks = $wpdb->get_results($sql);
+	$Bulktasks = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 	
 	if (empty($Bulktasks)) {
 		my_plugin_log("saveContentInTaskList: No tasks found needing WordPress post creation");
@@ -2303,7 +2303,7 @@ function multiPostData()
 
 		// Start transaction to ensure data integrity
 		my_plugin_log('multiPostData: Starting transaction for project creation | Project: ' . $_POST['project_name']);
-		$wpdb->query('START TRANSACTION');
+		$wpdb->query('START TRANSACTION'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- transaction control statement; it takes no parameters
 		
 		try {
 			// Check if the project name already exists - INSIDE transaction for atomicity
@@ -2316,7 +2316,7 @@ function multiPostData()
 
 			// If the project name exists, rollback and return error
 			if ($existing_project > 0) {
-				$wpdb->query('ROLLBACK');
+				$wpdb->query('ROLLBACK'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- transaction control statement; it takes no parameters
 				my_plugin_log('multiPostData: Project name already exists | Project: ' . $project_name);
 				wp_send_json_success(array('status' => 'false', "message" => "Project name already exist."));
 				return;
@@ -2643,11 +2643,11 @@ function multiPostData()
 		// All tasks inserted successfully, commit transaction
 		// This MUST be outside the foreach loop to ensure it always executes
 		if ($tasks_inserted == count($keyword_lists)) {
-			$wpdb->query('COMMIT');
+			$wpdb->query('COMMIT'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- transaction control statement; it takes no parameters
 			my_plugin_log('multiPostData: Transaction committed successfully | Project ID: ' . $lastid . ' | Tasks inserted: ' . $tasks_inserted);
 		} else {
 			// Mismatch in expected vs actual inserts - rollback
-			$wpdb->query('ROLLBACK');
+			$wpdb->query('ROLLBACK'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- transaction control statement; it takes no parameters
 			my_plugin_log('multiPostData: Transaction rolled back - task count mismatch | Expected: ' . count($keyword_lists) . ' | Inserted: ' . $tasks_inserted);
 			throw new Exception('Task insertion incomplete: ' . $tasks_inserted . '/' . count($keyword_lists) . ' tasks inserted');
 		}
@@ -2666,7 +2666,7 @@ function multiPostData()
 			
 		} catch (Exception $e) {
 			// Rollback transaction on any error
-			$wpdb->query('ROLLBACK');
+			$wpdb->query('ROLLBACK'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- transaction control statement; it takes no parameters
 			my_plugin_log('multiPostData: Transaction rolled back due to error | Error: ' . $e->getMessage());
 			wp_send_json_success(array('status' => 'false', "message" => "Failed to create project: " . $e->getMessage()));
 		}

@@ -112,7 +112,7 @@ class Channel
 		// Rebuild rewrite rules
 		$wp_rewrite->flush_rules();
 
-		$wpdb->query("COMMIT;");
+		$wpdb->query("COMMIT;"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- transaction control statement; it takes no parameters
 		
 		$this->id = $channel_id;
 		$this->content = $content["{$this->type}_channel_page"];
@@ -129,10 +129,10 @@ class Channel
 	{
 		global $wpdb;
 
-		$channel_check = $wpdb->get_row("
+		$channel_check = $wpdb->get_row($wpdb->prepare("
 				SELECT ID, post_content FROM {$wpdb->prefix}posts AS p 
 					INNER JOIN {$wpdb->prefix}postmeta AS pm ON pm.post_id = p.ID 
-				WHERE pm.meta_key = 'improveseo_project_id' AND pm.meta_value = '{$this->project_id}' AND p.post_type = 'channel' AND p.post_name = '{$this->getName()}' AND p.post_status = 'publish'");
+				WHERE pm.meta_key = 'improveseo_project_id' AND pm.meta_value = %s AND p.post_type = 'channel' AND p.post_name = %s AND p.post_status = 'publish'", $this->project_id, $this->getName())); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- core table names are identifiers and cannot be bound
 
 		if (!$channel_check || ($channel_check && !$channel_check->ID)) {
 			return false;

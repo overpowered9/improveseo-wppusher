@@ -373,7 +373,7 @@ function improveseo_builder()
 	if ($options['distribute']) {
 
 
-		$_authors = $wpdb->get_results("SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'improveseo_user' ORDER BY RAND() LIMIT 500");
+		$_authors = $wpdb->get_results("SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'improveseo_user' ORDER BY RAND() LIMIT 500"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 
 
 		foreach ($_authors as $a) {
@@ -524,7 +524,7 @@ function improveseo_builder()
 
 
 
-	$wpdb->query('SET autocommit = 0;');
+	$wpdb->query('SET autocommit = 0;'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- transaction control statement; it takes no parameters
 
 
 
@@ -1795,7 +1795,7 @@ function improveseo_builder()
 
 
 
-				$wpdb->query('COMMIT;');
+				$wpdb->query('COMMIT;'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- transaction control statement; it takes no parameters
 
 
 				$current_post = 0;
@@ -1843,7 +1843,7 @@ function improveseo_builder()
 				$authors = array();
 
 
-				$_authors = $wpdb->get_results("SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'improveseo_user' ORDER BY RAND() LIMIT 500");
+				$_authors = $wpdb->get_results("SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'improveseo_user' ORDER BY RAND() LIMIT 500"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 
 
 				foreach ($_authors as $a) {
@@ -1894,13 +1894,13 @@ function improveseo_builder()
 
 
 
-	$wpdb->query('COMMIT;');
+	$wpdb->query('COMMIT;'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- transaction control statement; it takes no parameters
 
 
 
 
 
-	$wpdb->query("SET autocommit = 1;");
+	$wpdb->query("SET autocommit = 1;"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- transaction control statement; it takes no parameters
 
 
 
@@ -2423,7 +2423,7 @@ function improveseo_builder_update()
 	if ($options['distribute']) {
 
 
-		$_authors = $wpdb->get_results("SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'improveseo_user' ORDER BY RAND() LIMIT 500");
+		$_authors = $wpdb->get_results("SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'improveseo_user' ORDER BY RAND() LIMIT 500"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 
 
 		foreach ($_authors as $a) {
@@ -2574,7 +2574,7 @@ function improveseo_builder_update()
 
 
 
-	$wpdb->query('SET autocommit = 0;');
+	$wpdb->query('SET autocommit = 0;'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- transaction control statement; it takes no parameters
 
 
 
@@ -3844,7 +3844,7 @@ function improveseo_builder_update()
 
 
 
-				$wpdb->query('COMMIT;');
+				$wpdb->query('COMMIT;'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- transaction control statement; it takes no parameters
 
 
 				$current_post = 0;
@@ -3892,7 +3892,7 @@ function improveseo_builder_update()
 				$authors = array();
 
 
-				$_authors = $wpdb->get_results("SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'improveseo_user' ORDER BY RAND() LIMIT 500");
+				$_authors = $wpdb->get_results("SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = 'improveseo_user' ORDER BY RAND() LIMIT 500"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 
 
 				foreach ($_authors as $a) {
@@ -3946,13 +3946,13 @@ function improveseo_builder_update()
 
 
 
-	$wpdb->query('COMMIT;');
+	$wpdb->query('COMMIT;'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- transaction control statement; it takes no parameters
 
 
 
 
 
-	$wpdb->query("SET autocommit = 1;");
+	$wpdb->query("SET autocommit = 1;"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- transaction control statement; it takes no parameters
 
 
 
@@ -4072,7 +4072,7 @@ function improveseo_wp_exist_post_by_title($title)
 	global $wpdb;
 
 
-	$return = $wpdb->get_row("SELECT ID FROM wp_posts WHERE post_title = '" . $title . "' && post_status = 'publish' && post_type = 'post' ", 'ARRAY_N');
+	$return = $wpdb->get_row($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE post_title = %s AND post_status = 'publish' AND post_type = 'post'", $title), 'ARRAY_N'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
 
 
 	

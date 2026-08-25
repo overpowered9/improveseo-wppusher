@@ -86,8 +86,8 @@ function improveseo_shortcodes() {
 		$sql = $wpdb->prepare($sql, $params);
 
 		// Data
-		$shortcodes = $wpdb->get_results($sql);
-		$total_row = $wpdb->get_row($sqlTotal);
+		$shortcodes = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
+		$total_row = $wpdb->get_row($sqlTotal); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 		$total = $total_row->total;
 
 		$all = $model->count();

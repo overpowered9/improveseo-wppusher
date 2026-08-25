@@ -241,8 +241,8 @@ function improveseo_bulkprojects()
 		$sql = $wpdb->prepare($sql, $params);
 
 		// Data
-		$projects = $wpdb->get_results($sql);
-		$total_row = $wpdb->get_row($sqlTotal);
+		$projects = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
+		$total_row = $wpdb->get_row($sqlTotal); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 		$total = $total_row->total;
 		$pages = ceil($total / $limit);
 		$page = floor($offset / $limit) + 1;
@@ -255,7 +255,7 @@ function improveseo_bulkprojects()
 			$sql = 'SELECT * FROM ' . $model->getTable();
 			$sql .= ' WHERE `id` = %d';
 			$sql = $wpdb->prepare($sql, $id);
-			$projects = $wpdb->get_results($sql);
+			$projects = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 			if (!empty($projects[0]->name)) {
 				$project_name = $projects[0]->name;
 			} else {
@@ -294,8 +294,8 @@ function improveseo_bulkprojects()
 		$sql = $wpdb->prepare($sql, $params);
 
 		// Data
-		$projects = $wpdb->get_results($sql);
-		$total_row = $wpdb->get_row($sqlTotal);
+		$projects = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
+		$total_row = $wpdb->get_row($sqlTotal); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 		$total = $total_row->total;
 		$pages = ceil($total / $limit);
 		$page = floor($offset / $limit) + 1;
@@ -315,7 +315,7 @@ function improveseo_bulkprojects()
 		$sql = $wpdb->prepare($sql, $id);
 
 		// Data
-		$projects = $wpdb->get_results($sql);
+		$projects = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 
 		// Draft-only: the preview exists to review content BEFORE it goes live.
 		// Published/Scheduled tasks have a real post — use View Post instead.
@@ -518,7 +518,7 @@ function improveseo_bulkprojects()
 		$mainid = sanitize_title_with_dashes($_GET['mainid']);
 		global $wpdb;
 		$sql = $wpdb->prepare("SELECT * FROM `" . $wpdb->prefix . "improveseo_bulktasksdetails` WHERE `id` = %d", $id);
-		$Bulktasks = $wpdb->get_results($sql);
+		$Bulktasks = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 		foreach ($Bulktasks as $key => $value) {
 			$catids = [];
 			if (!empty($value->cats)) {
@@ -906,7 +906,7 @@ function improveseo_bulkprojects()
 
 		// Fetch the bulk task detail row
 		$sql = $wpdb->prepare("SELECT * FROM " . $detailsTaskModel->getTable() . " WHERE id = %d", $task_id);
-		$task = $wpdb->get_row($sql);
+		$task = $wpdb->get_row($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 
 		if (!$task) {
 			FlashMessage::error('Task not found.');

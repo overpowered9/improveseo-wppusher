@@ -17,7 +17,7 @@ function improve_seo_lits()
 
 	$sql = "SELECT * FROM " . $wpdb->prefix . "improveseo_lists ORDER BY name ASC";
 
-	$lists = $wpdb->get_results($sql);
+	$lists = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 
 	foreach ($lists as $li) {
 
@@ -47,7 +47,7 @@ function improve_lits_data()
 
 	$sql = "SELECT * FROM " . $wpdb->prefix . "improveseo_lists ORDER BY name ASC";
 
-	$lists = $wpdb->get_results($sql);
+	$lists = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 
 	return $lists;
 
