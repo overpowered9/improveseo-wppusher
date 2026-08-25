@@ -345,7 +345,7 @@ function btd_datetime($val) {
             <div class="btd-card-body">
                 <div class="btd-row">
                     <div class="btd-label">Keyword</div>
-                    <div class="btd-value"><?php echo  btd_val($task->keyword_name) ?></div>
+                    <div class="btd-value"><?php echo btd_val($task->keyword_name); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?></div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Parent Project</div>
@@ -361,7 +361,7 @@ function btd_datetime($val) {
                     <div class="btd-label">Keyword List</div>
                     <?php // The controller resolves the stored list ID to its name. ?>
                     <div class="btd-value <?php echo  empty($keyword_list_label) ? 'na' : '' ?>">
-                        <?php echo  btd_val(isset($keyword_list_label) ? $keyword_list_label : '') ?>
+                        <?php echo btd_val(isset($keyword_list_label) ? $keyword_list_label : ''); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="btd-row">
@@ -416,11 +416,11 @@ function btd_datetime($val) {
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Created</div>
-                    <div class="btd-value"><?php echo  btd_datetime($task->created_at) ?></div>
+                    <div class="btd-value"><?php echo btd_datetime($task->created_at); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?></div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Updated</div>
-                    <div class="btd-value"><?php echo  btd_datetime($task->updated_at) ?></div>
+                    <div class="btd-value"><?php echo btd_datetime($task->updated_at); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?></div>
                 </div>
                 <?php if ($associated_post): ?>
                 <div class="btd-row">
@@ -441,43 +441,43 @@ function btd_datetime($val) {
                 <div class="btd-row">
                     <div class="btd-label">Title Type</div>
                     <div class="btd-value <?php echo  empty($task->select_exisiting_options) ? 'na' : '' ?>">
-                        <?php echo  btd_seed_option_label($task->select_exisiting_options) ?>
+                        <?php echo btd_seed_option_label($task->select_exisiting_options); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Tone of Voice</div>
                     <div class="btd-value <?php echo  empty($task->tone_of_voice) ? 'na' : '' ?>">
-                        <?php echo  btd_tone_label($task->tone_of_voice) ?>
+                        <?php echo btd_tone_label($task->tone_of_voice); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Article Size</div>
                     <div class="btd-value <?php echo  empty($task->nos_of_words) ? 'na' : '' ?>">
-                        <?php echo  btd_val($task->nos_of_words) ?>
+                        <?php echo btd_val($task->nos_of_words); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Point of View</div>
                     <div class="btd-value <?php echo  empty($task->point_of_view) ? 'na' : '' ?>">
-                        <?php echo  btd_pov_label($task->point_of_view) ?>
+                        <?php echo btd_pov_label($task->point_of_view); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Language</div>
                     <div class="btd-value <?php echo  empty($task->content_lang) ? 'na' : '' ?>">
-                        <?php echo  btd_val($task->content_lang) ?>
+                        <?php echo btd_val($task->content_lang); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Image Option</div>
                     <div class="btd-value <?php echo  empty($task->aiImage) ? 'na' : '' ?>">
-                        <?php echo  btd_image_label($task->aiImage) ?>
+                        <?php echo btd_image_label($task->aiImage); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">AI Generated Title</div>
                     <div class="btd-value <?php echo  empty($task->ai_title) ? 'na' : '' ?>">
-                        <?php echo  btd_val($task->ai_title) ?>
+                        <?php echo btd_val($task->ai_title); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
             </div>
@@ -501,7 +501,7 @@ function btd_datetime($val) {
                 <div class="btd-row">
                     <div class="btd-label">Focus Keyword</div>
                     <div class="btd-value <?php echo  empty($task->keyword_name) ? 'na' : '' ?>">
-                        <?php echo  btd_val($task->keyword_name) ?>
+                        <?php echo btd_val($task->keyword_name); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="btd-row btd-row-stacked">
@@ -533,11 +533,11 @@ function btd_datetime($val) {
                 ?>
                 <div class="btd-row btd-row-stacked">
                     <div class="btd-label" style="margin-bottom: 6px;">Details to Include</div>
-                    <div class="btd-value <?php echo  empty($task->details_to_include) ? 'na' : '' ?>" style="white-space: pre-wrap;"><?php echo  btd_val($task->details_to_include) ?></div>
+                    <div class="btd-value <?php echo  empty($task->details_to_include) ? 'na' : '' ?>" style="white-space: pre-wrap;"><?php echo btd_val($task->details_to_include); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?></div>
                 </div>
                 <div class="btd-row btd-row-stacked" style="margin-top: 8px;">
                     <div class="btd-label" style="margin-bottom: 6px;">Call to Action</div>
-                    <div class="btd-value <?php echo  empty($task->call_to_action) ? 'na' : '' ?>" style="white-space: pre-wrap;"><?php echo  btd_val($task->call_to_action) ?></div>
+                    <div class="btd-value <?php echo  empty($task->call_to_action) ? 'na' : '' ?>" style="white-space: pre-wrap;"><?php echo btd_val($task->call_to_action); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?></div>
                 </div>
             </div>
         </div>
@@ -549,7 +549,7 @@ function btd_datetime($val) {
                 <div class="btd-row">
                     <div class="btd-label">Schedule Type</div>
                     <div class="btd-value <?php echo  empty($task->schedule_posts) ? 'na' : '' ?>">
-                        <?php echo  btd_schedule_label($task->schedule_posts) ?>
+                        <?php echo btd_schedule_label($task->schedule_posts); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="btd-row">

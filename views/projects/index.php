@@ -192,9 +192,9 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 										<input type="checkbox" id="cb-select-all">
 										<div class="checkbox__checkmark"></div>
 									</label>
-									<h4><?php echo  iseo_sort_link($sort_base, 'name', 'Name', $orderBy, $order) ?></h4>
+									<h4><?php echo iseo_sort_link($sort_base, 'name', 'Name', $orderBy, $order); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns a complete <a> built from esc_url()/esc_html() parts ?></h4>
 								</th>
-								<th><?php echo  iseo_sort_link($sort_base, 'created_at', 'Created At', $orderBy, $order) ?></th>
+								<th><?php echo iseo_sort_link($sort_base, 'created_at', 'Created At', $orderBy, $order); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns a complete <a> built from esc_url()/esc_html() parts ?></th>
 								<th>Last Update</th>
 								<th>Post Status</th>
 								<td></td>

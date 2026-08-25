@@ -38,7 +38,11 @@ function pd_val($arr, $key, $default = 'N/A') {
 
 // Friendly labels for stored values
 function pd_tone_label($val) {
-    return $val && $val !== 'N/A' ? ucfirst($val) : 'N/A';
+    // esc_html() here, not at the call site: every other pd_* / btd_* helper
+    // escapes before returning, and btd_tone_label - this function's twin on the
+    // bulk-task screen - already did. This one did not, so a stored tone value was
+    // echoed raw. Escaping at the call site instead would double-escape the others.
+    return $val && $val !== 'N/A' ? ucfirst(esc_html($val)) : 'N/A';
 }
 
 function pd_seed_option_label($val) {
@@ -389,43 +393,43 @@ function pd_seo_meta($post_id, $what) {
                 <div class="pd-row">
                     <div class="pd-label">Seed Keyword</div>
                     <div class="pd-value <?php echo  pd_val($options, 'ai_seed_keyword') === 'N/A' ? 'na' : '' ?>">
-                        <?php echo  pd_val($options, 'ai_seed_keyword') ?>
+                        <?php echo pd_val($options, 'ai_seed_keyword'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Title Type</div>
                     <div class="pd-value <?php echo  pd_val($options, 'ai_seed_options') === 'N/A' ? 'na' : '' ?>">
-                        <?php echo  pd_seed_option_label(isset($options['ai_seed_options']) ? $options['ai_seed_options'] : '') ?>
+                        <?php echo pd_seed_option_label(isset($options['ai_seed_options']) ? $options['ai_seed_options'] : ''); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Tone of Voice</div>
                     <div class="pd-value <?php echo  pd_val($options, 'ai_content_type') === 'N/A' ? 'na' : '' ?>">
-                        <?php echo  pd_tone_label(pd_val($options, 'ai_content_type')) ?>
+                        <?php echo pd_tone_label(pd_val($options, 'ai_content_type')); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Article Size</div>
                     <div class="pd-value <?php echo  pd_val($options, 'ai_nos_of_words') === 'N/A' ? 'na' : '' ?>">
-                        <?php echo  pd_val($options, 'ai_nos_of_words') ?>
+                        <?php echo pd_val($options, 'ai_nos_of_words'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Point of View</div>
                     <div class="pd-value <?php echo  pd_val($options, 'ai_point_of_view') === 'N/A' ? 'na' : '' ?>">
-                        <?php echo  pd_pov_label(pd_val($options, 'ai_point_of_view')) ?>
+                        <?php echo pd_pov_label(pd_val($options, 'ai_point_of_view')); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Language</div>
                     <div class="pd-value <?php echo  pd_val($options, 'ai_content_lang') === 'N/A' ? 'na' : '' ?>">
-                        <?php echo  pd_val($options, 'ai_content_lang') ?>
+                        <?php echo pd_val($options, 'ai_content_lang'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <div class="pd-row">
                     <div class="pd-label">Image Option</div>
                     <div class="pd-value <?php echo  pd_val($options, 'ai_image_option') === 'N/A' ? 'na' : '' ?>">
-                        <?php echo  pd_image_label(isset($options['ai_image_option']) ? $options['ai_image_option'] : '') ?>
+                        <?php echo pd_image_label(isset($options['ai_image_option']) ? $options['ai_image_option'] : ''); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -447,11 +451,11 @@ function pd_seo_meta($post_id, $what) {
                 ?>
                 <div class="pd-row pd-row-stacked">
                     <div class="pd-label" style="margin-bottom: 6px;">Details to Include</div>
-                    <div class="pd-value <?php echo  pd_val($options, 'ai_details_to_include') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;"><?php echo  pd_val($options, 'ai_details_to_include') ?></div>
+                    <div class="pd-value <?php echo pd_val($options, 'ai_details_to_include') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;"><?php echo  pd_val($options, 'ai_details_to_include'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?></div>
                 </div>
                 <div class="pd-row pd-row-stacked" style="margin-top: 8px;">
                     <div class="pd-label" style="margin-bottom: 6px;">Call to Action</div>
-                    <div class="pd-value <?php echo  pd_val($options, 'ai_call_to_action') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;"><?php echo  pd_val($options, 'ai_call_to_action') ?></div>
+                    <div class="pd-value <?php echo pd_val($options, 'ai_call_to_action') === 'N/A' ? 'na' : '' ?>" style="white-space: pre-wrap;"><?php echo  pd_val($options, 'ai_call_to_action'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?></div>
                 </div>
             </div>
         </div>
