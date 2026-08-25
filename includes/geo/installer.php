@@ -171,34 +171,21 @@ dbDelta ( $sql );
 
 
 
-// The UK/US state and city tables created above are left EMPTY. The seed data
-// sits in us.cities.php / uk.cities.php / us.states.php / uk.states.php in this
-// directory, but each of those files has its entire body wrapped in a block
-// comment, and the include_once calls that would have run them are commented out
-// below as well - so nothing populates these tables and nothing ever has, in
-// this code path. includes/api.php and includes/functions.php still query them
-// for the @city/@state spintax, which is why the CREATE TABLE statements have to
-// stay: dropping them would turn empty results into SQL errors.
+// The UK/US state and city tables created above are intentionally left EMPTY.
+//
+// Seed data for them used to ship as four generated files in this directory
+// (us.cities.php, uk.cities.php, us.states.php, uk.states.php - 8.6 MB in total,
+// most of it a 2009 third-party MySQL dump). Nothing ever loaded them: the
+// include_once calls were commented out, and on top of that the two cities files
+// had their entire bodies inside a block comment. They were deleted in 2.0.12
+// rather than shipped as dead weight in the plugin package.
+//
+// The CREATE TABLE statements above still have to run. includes/api.php and
+// includes/functions.php SELECT from these tables for the @city/@state spintax;
+// against an empty table that returns no rows, but against a table that does not
+// exist it would be a SQL error.
 //
 // An earlier design downloaded the seed files at install time from a hardcoded
 // third-party host over plain HTTP. That fetcher (includes/ImproveSEO/Geo.php)
 // and the commented remnant naming the host were both removed in 2.0.12, so
 // nothing in the tree points at an external source any more.
-$basepath = dirname ( __FILE__ );
-
-/* $wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_us_states;" );
-include_once $basepath . '/us.states.php';
-
-$wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_us_cities;" );
-include_once $basepath . '/us.cities.php';
-
-$wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_uk_states;" );
-include_once $basepath . '/uk.states.php';
-
-$wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_uk_cities;" );
-include_once $basepath . '/uk.cities.php'; */
-
-// Install other countries automatically (deprecated by 1.6.0)
-if ($improveseo_db_version != get_option('improveseo_db_version')) {
-
-}
