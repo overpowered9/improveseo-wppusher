@@ -11,25 +11,50 @@ use ImproveSEO\Models\Country;
 use ImproveSEO\Models\GeoData;
 use ImproveSEO\Models\Shortcode;
 
-if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'improveseo') {
-	$act = $_GET ['action'];
+/**
+ * ?api=improveseo request handler.
+ *
+ * This used to run inline at plugin-include time, which meant it answered
+ * anonymous visitors on every front-end request. It is now deferred to init for
+ * two reasons: init runs after pluggable.php, so the capability check below is
+ * actually callable, and it still runs before any output, so the header() and
+ * exit() calls further down behave exactly as they did before.
+ */
+function improveseo_handle_api_request() {
+	global $wpdb;
+
+	if ( ! isset( $_GET['api'] ) || 'improveseo' !== $_GET['api'] ) {
+		return;
+	}
+
+	// Every caller of this endpoint (posting.js, imagescraper.js,
+	// videoscraper.js, wordai.js) is enqueued in wp-admin and already runs as a
+	// logged-in editor, so gating here costs them nothing.
+	if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
+		status_header( 403 );
+		header( 'Content-Type: application/json' );
+		echo wp_json_encode( array( 'error' => 'forbidden' ) );
+		exit();
+	}
+
+	$act = isset( $_GET['action'] ) ? sanitize_key( wp_unslash( $_GET['action'] ) ) : '';
 	$results = array ();
 	
 	// Generate JSON data for GEO Tree
 	if ($act == 'geo-tree') {
-		$country = $_GET ['country'];
+		$country = isset( $_GET['country'] ) ? sanitize_key( wp_unslash( $_GET['country'] ) ) : '';
 		
 		// Show US Data
 		if ($country == 'us') {
 			if (isset ( $_GET ['id'] ) && $_GET ['id'] != '#') {
-				$id = urldecode ( $_GET ['id'] );
+				$id = urldecode( wp_unslash( $_GET['id'] ) );
 				
 				// Show zip codes
 				if (substr_count ( $id, '/' ) == 1) {
 					list ( $state, $city ) = explode ( '/', $id );
-					$city_obj = $wpdb->get_row ( "SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE id = " . $city );
+					$city_obj = $wpdb->get_row ( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE id = %d", $city ) );
 					
-					$codes = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE county = '{$city_obj->county}' AND state_code = '{$city_obj->state_code}' AND city = '{$city_obj->city}' ORDER BY zip" );
+					$codes = $wpdb->get_results ( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE county = %s AND state_code = %s AND city = %s ORDER BY zip", $city_obj->county, $city_obj->state_code, $city_obj->city ) );
 					
 					foreach ( $codes as $code ) {
 						$results [] = array (
@@ -40,7 +65,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'improveseo') {
 					}
 				} 				// Show cities
 				else {
-					$cities = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = '$id' GROUP BY county, state_code, city ORDER BY city" );
+					$cities = $wpdb->get_results ( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = %s GROUP BY county, state_code, city ORDER BY city", $id ) );
 					
 					foreach ( $cities as $city ) {
 						$results [] = array (
@@ -80,14 +105,14 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'improveseo') {
 		}		// Show UK Data
 		elseif ($country == 'uk') {
 			if (isset ( $_GET ['id'] ) && $_GET ['id'] != '#') {
-				$id = urldecode ( $_GET ['id'] );
+				$id = urldecode( wp_unslash( $_GET['id'] ) );
 				
 				// Show zip codes
 				if (substr_count ( $id, '/' )) {
 					list ( $state, $city ) = explode ( '/', $id );
-					$city_obj = $wpdb->get_row ( "SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE id = $city" );
+					$city_obj = $wpdb->get_row ( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE id = %d", $city ) );
 					
-					$codes = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = '{$city_obj->region_id}' AND name = '{$city_obj->name}' ORDER BY postcode" );
+					$codes = $wpdb->get_results ( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = %s AND name = %s ORDER BY postcode", $city_obj->region_id, $city_obj->name ) );
 					
 					foreach ( $codes as $code ) {
 						$results [] = array (
@@ -98,7 +123,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'improveseo') {
 					}
 				} 				// Show cities
 				else {
-					$cities = $wpdb->get_results ( "SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = '" . $id . "' GROUP BY region_id, name ORDER BY name" );
+					$cities = $wpdb->get_results ( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = %s GROUP BY region_id, name ORDER BY name", $id ) );
 					
 					foreach ( $cities as $city ) {
 						$results [] = array (
@@ -140,7 +165,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'improveseo') {
 			$model = new GeoData ();
 			
 			if (isset ( $_GET ['id'] ) && $_GET ['id'] != '#') {
-				$id = urldecode ( $_GET ['id'] );
+				$id = urldecode( wp_unslash( $_GET['id'] ) );
 				
 				// Show zip codes
 				if (substr_count ( $id, '/' )) {
@@ -289,7 +314,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'improveseo') {
 				'output' => 'json' 
 		);
 		
-		$ch = curl_init ( 'http://wordai.com/users/turing-api.php' );
+		$ch = curl_init ( 'https://wordai.com/users/turing-api.php' );
 		curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, 1 );
 		curl_setopt ( $ch, CURLOPT_POST, 1 );
 		curl_setopt ( $ch, CURLOPT_POSTFIELDS, http_build_query ( $query ) );
@@ -300,6 +325,7 @@ if (isset ( $_GET ['api'] ) && $_GET ['api'] == 'improveseo') {
 	
 	header ( 'Content-Type: application/json' );
 	
-	echo json_encode ( $results );
+	echo wp_json_encode ( $results );
 	exit ();
 }
+add_action( 'init', 'improveseo_handle_api_request' );
