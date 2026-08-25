@@ -87,7 +87,7 @@ use ImproveSEO\View;
 			<?php endif; ?>
 		</div>
 		<div class="import-export">
-			<p><?php echo  $results['avail_roles']['improveseo_user'] ?> Items</p>
+			<p><?php echo esc_html( $results['avail_roles']['improveseo_user'] ); ?> Items</p>
 		</div>
 	</div>
 	<div class="improve-seo-container">
@@ -105,9 +105,9 @@ use ImproveSEO\View;
 						<?php foreach ($users as $user): ?>
 							<tr>
 								<td data-label="Name"> <strong>
-										<div class="improve-seo-letter">A</div> <?php echo  $user->display_name ?>
+										<div class="improve-seo-letter">A</div> <?php echo esc_html( $user->display_name ); ?>
 									</strong> </td>
-								<td data-label="E-Mail"> <?php echo  $user->user_email ?> </td>
+								<td data-label="E-Mail"> <?php echo esc_html( $user->user_email ); ?> </td>
 								<td data-label="Actions" class="Actions_td"> <a href="#"> <img
 											src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ); ?>"
 											alt="ri_more-2-fill"> </a> </td>

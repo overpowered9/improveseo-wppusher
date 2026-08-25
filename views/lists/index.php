@@ -125,7 +125,7 @@ use ImproveSEO\View;
 									<td data-label="Name"
 										onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ); ?>'"
 										style="cursor: pointer;  padding-top: 20px; vertical-align: text-top;">
-										<strong><?php echo  $item->name ?> </strong>
+										<strong><?php echo esc_html( $item->name ); ?> </strong>
 									</td>
 									<td data-label="Content"> <?php
 									if (str_word_count($item->list) > 50):

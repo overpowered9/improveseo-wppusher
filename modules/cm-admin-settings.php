@@ -203,13 +203,13 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 					<label class="form-label text-muted">Testimonial Image</label>
 					<input type="hidden" name="action" value="wt_save_form_fields_for_testimonials">
 					<input type="hidden" name="active_action" value="testimonial">
-					<input type="hidden" class="img-source" name="img_source" value="<?php echo $testi_img_src; ?>">
-					<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
+					<input type="hidden" class="img-source" name="img_source" value="<?php echo esc_attr( $testi_img_src ); ?>">
+					<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo esc_attr( $no ); ?>">
 
 					<div class="upload-box upload-image-js">
 						<?php
 						if ($testi_img_src != ""): ?>
-							<img class="testimonial-img" style="width: 62px;" src="<?php echo $testi_img_src; ?>" />
+							<img class="testimonial-img" style="width: 62px;" src="<?php echo esc_url( $testi_img_src ); ?>" />
 						<?php endif; ?>
 						<p>Drag & Drop Your File here</p>
 						<div class="divider">or</div>
@@ -242,7 +242,7 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 					<label> Google Maps API Key </label>
 					<input type="hidden" name="action" value="wt_save_form_fields_for_googlemaps">
 					<input type="hidden" name="active_action" value="googlemap">
-					<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
+					<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo esc_attr( $no ); ?>">
 					<input type="text" name="tw_maps_apikey" placeholder="" value="<?php echo $tw_maps_apikey; ?>">
 				</div>
 				<div class="seo-form-field">
@@ -266,7 +266,7 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 					<form class="wt-save-admin-settings-buttons improve-seo-form-global">
 						<input type="hidden" name="action" value="wt_save_form_fields_for_buttons">
 						<input type="hidden" name="active_action" value="button">
-						<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
+						<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo esc_attr( $no ); ?>">
 						<div class="seo-form-field">
 							<label> Shortcode Name </label>
 							<input type="text" placeholder="Ex. Button 1" name="tw_button_shortcode_name"
@@ -453,7 +453,7 @@ $video_width = isset($data_video['video_width']) ? $data_video['video_width'] : 
 					<form class="wt-save-admin-settings-videos improve-seo-form-global">
 						<input type="hidden" name="action" value="wt_save_form_fields_for_videos">
 						<input type="hidden" name="active_action" value="videos">
-						<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo $no; ?>">
+						<input type="hidden" class="updateingdata" name="updateandedit_data" value="<?php echo esc_attr( $no ); ?>">
 						<div class="seo-form-field">
 							<label> Shortcode Name </label>
 							<input type="text" name="video_shortcode_name" class="form-control name"

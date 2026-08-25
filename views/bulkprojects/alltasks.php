@@ -42,7 +42,7 @@ $url .= $_SERVER['REQUEST_URI'];
 
 <?php View::render('import/import') ?>
 
-<h1 class="hidden">All Keywords of <?php echo $project_name; ?></h1>
+<h1 class="hidden">All Keywords of <?php echo esc_html( $project_name ); ?></h1>
 <div class="show_loading alert-modal">
 	<h1 class="hidden">All Keywords List</h1>
 	<h2 id="mid_notice"></h2>
@@ -91,11 +91,11 @@ $url .= $_SERVER['REQUEST_URI'];
 		<div class="iseo-sort-controls">
 			<span class="iseo-sort-label">Sort by</span>
 			<a href="<?php echo  esc_url($_atsbase . '&orderBy=keyword_name&order=' . $_atkw_order) ?>"
-				class="iseo-sort-pill<?php echo  $orderBy === 'keyword_name' ? ' iseo-sort-on' : '' ?>">Keyword<?php echo  $_atkw_arrow ?></a>
+				class="iseo-sort-pill<?php echo  $orderBy === 'keyword_name' ? ' iseo-sort-on' : '' ?>">Keyword<?php echo esc_html( $_atkw_arrow ); ?></a>
 			<a href="<?php echo  esc_url($_atsbase . '&orderBy=created_at&order=' . $_atdate_order) ?>"
-				class="iseo-sort-pill<?php echo  $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?php echo  $_atdate_arrow ?></a>
+				class="iseo-sort-pill<?php echo  $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?php echo esc_html( $_atdate_arrow ); ?></a>
 			<a href="<?php echo  esc_url($_atsbase . '&orderBy=status&order=' . $_atstatus_order) ?>"
-				class="iseo-sort-pill<?php echo  $orderBy === 'status' ? ' iseo-sort-on' : '' ?>">Status<?php echo  $_atstatus_arrow ?></a>
+				class="iseo-sort-pill<?php echo  $orderBy === 'status' ? ' iseo-sort-on' : '' ?>">Status<?php echo esc_html( $_atstatus_arrow ); ?></a>
 		</div>
 		<div class="import-export-btn">
 			<button type="button" onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ); ?>';"
@@ -107,7 +107,7 @@ $url .= $_SERVER['REQUEST_URI'];
 	$is_preview = isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' ? 'yes' : 'no';
 	?>
 	<form method="post">
-		<input type="hidden" name="is_preview_available" id="is_preview_available" value="<?php echo $is_preview; ?>" />
+		<input type="hidden" name="is_preview_available" id="is_preview_available" value="<?php echo esc_attr( $is_preview ); ?>" />
 		<?php wp_nonce_field('bulk_delete_tasks', 'bulk_delete_nonce'); ?>
 		<div class="actions">
 			<div>
@@ -201,15 +201,15 @@ $url .= $_SERVER['REQUEST_URI'];
 									<td data-label="Name" style="vertical-align: middle; padding: 15px 10px;">
 										<div style="display: flex; align-items: flex-start; gap: 0px;">
 											<label class="checkbox style-c" style="margin: 0;">
-												<input id="cb-select-<?php echo $project->id; ?>" type="checkbox"
-													name="project_ids[]" value="<?php echo $project->id; ?>">
+												<input id="cb-select-<?php echo esc_attr( $project->id ); ?>" type="checkbox"
+													name="project_ids[]" value="<?php echo esc_attr( $project->id ); ?>">
 												<div class="checkbox__checkmark"></div>
 											</label>
-											<h4 style="margin: 0; word-break: break-word; white-space: pre-line;"> <?php echo  $project->keyword_name ?> </h4>
+											<h4 style="margin: 0; word-break: break-word; white-space: pre-line;"> <?php echo esc_html( $project->keyword_name ); ?> </h4>
 										</div>
 									</td>
-									<td data-label="Language"><?php echo  $project->content_lang ?></td>
-									<td data-label="Size"><?php echo  $project->nos_of_words ?></td>
+									<td data-label="Language"><?php echo esc_html( $project->content_lang ); ?></td>
+									<td data-label="Size"><?php echo esc_html( $project->nos_of_words ); ?></td>
 									<td data-label="Processing" class="status finished"><?php
 									if ($project->status == 'Processing') {
 										echo 'Generating';
@@ -635,7 +635,7 @@ if (isset($_GET['post_preview'])) {
 		$project = $projects[0];
 		if ($project->state == 'Published' && $project->iteration < $project->max_iterations) { ?>
 			<script type="text/javascript">
-				build_project(<?php echo $project->id ?>);
+				build_project(<?php echo esc_js( $project->id ); ?>);
 			</script>
 			<?php
 		} elseif ($project->state == 'Published' && $project->iteration == $project->max_iterations) {

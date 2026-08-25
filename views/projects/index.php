@@ -96,9 +96,9 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 		<div class="iseo-sort-controls">
 			<span class="iseo-sort-label">Sort by</span>
 			<a href="<?php echo  esc_url($_sbase . '&orderBy=name&order=' . $_name_order) ?>"
-				class="iseo-sort-pill<?php echo  $orderBy === 'name' ? ' iseo-sort-on' : '' ?>">Name<?php echo  $_name_arrow ?></a>
+				class="iseo-sort-pill<?php echo  $orderBy === 'name' ? ' iseo-sort-on' : '' ?>">Name<?php echo esc_html( $_name_arrow ); ?></a>
 			<a href="<?php echo  esc_url($_sbase . '&orderBy=created_at&order=' . $_date_order) ?>"
-				class="iseo-sort-pill<?php echo  $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?php echo  $_date_arrow ?></a>
+				class="iseo-sort-pill<?php echo  $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?php echo esc_html( $_date_arrow ); ?></a>
 		</div>
 		<div class="import-export-btn">
 			<button onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_posting&action=create_post_single') ); ?>';"
@@ -207,12 +207,12 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 									<td data-label="Name">
 										<div class="styling_projects_name_td">
 											<label class="checkbox style-c">
-												<input id="cb-select-<?php echo $project->id; ?>" type="checkbox"
-													name="project_ids[]" value="<?php echo $project->id; ?>"
+												<input id="cb-select-<?php echo esc_attr( $project->id ); ?>" type="checkbox"
+													name="project_ids[]" value="<?php echo esc_attr( $project->id ); ?>"
 													class="project-checkbox">
 												<div class="checkbox__checkmark"></div>
 											</label>
-											<h4 class="iseo-project-name" data-id="<?php echo (int) $project->id; ?>"><?php echo  $project->name ?></h4>
+											<h4 class="iseo-project-name" data-id="<?php echo (int) $project->id; ?>"><?php echo esc_html( $project->name ); ?></h4>
 											<button type="button" class="iseo-rename-btn" data-id="<?php echo (int) $project->id; ?>" title="Rename project"
 												style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#aaa;font-size:14px;line-height:1;margin-left:6px;align-self:center;">&#9998;</button>
 										</div>
@@ -247,18 +247,18 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 									</td>
 									<td>
 										<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations): ?>
-											<a href="javascript:build_project(<?php echo  $project->id ?>)"
+											<a href="javascript:build_project(<?php echo esc_attr( $project->id ); ?>)"
 												class="styling_post_page_action_buttons for_width_only_" target="_self">Publish
 												</a>
 										<?php endif; ?>
 										<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations): ?>
-											<a href="javascript:update_project(<?php echo  $project->id ?>)"
+											<a href="javascript:update_project(<?php echo esc_attr( $project->id ); ?>)"
 												style="width: 160px !important;" class="styling_post_page_action_buttons"
 												target="_self">Update posts</a>
 										<?php endif; ?>
 										<input type="hidden" name="max-iterations" id="max-iterations"
-											data-project="<?php echo $project->id; ?>"
-											value="<?php echo $project->max_iterations; ?>" />
+											data-project="<?php echo esc_attr( $project->id ); ?>"
+											value="<?php echo esc_attr( $project->max_iterations ); ?>" />
 										<?php if ($project->state == 'Draft'): ?>
 											<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ); ?>"
 												style="width: 160px !important;"

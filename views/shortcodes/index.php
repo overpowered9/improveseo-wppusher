@@ -64,10 +64,10 @@ use ImproveSEO\View;
 						<tr>
 							<td class="column-title column-primary has-row-actions">
 								<strong class="d-none">
-								<a class="row-title" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_shortcodes&action=edit&id='. $code->id) ); ?>"><?php echo  $code->shortcode ?></a>
+								<a class="row-title" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_shortcodes&action=edit&id='. $code->id) ); ?>"><?php echo esc_html( $code->shortcode ); ?></a>
 								</strong>
 								<p>
-									<?php echo  $code->content ?>
+									<?php echo esc_html( $code->content ); ?>
 								</p>
 								<div class="row-actions">
 									<span class="edit">
@@ -80,7 +80,7 @@ use ImproveSEO\View;
 								</div>
 								<button type="button" class="toggle-row"><span class="screen-reader-text">Show more details</span></button>
 							</td>
-							<td data-colname="Type"><?php echo  $code->type ?></td>
+							<td data-colname="Type"><?php echo esc_html( $code->type ); ?></td>
 							<td data-colname="Created At">
 								<?php
 									$date = new DateTime($code->created_at);

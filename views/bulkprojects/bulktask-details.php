@@ -427,7 +427,7 @@ function btd_datetime($val) {
                     <div class="btd-label">WordPress Post</div>
                     <div class="btd-value">
                         <a href="<?php echo  esc_url($post_url) ?>" target="_blank"><?php echo  esc_html($associated_post->post_title) ?></a>
-                        (ID: <?php echo  $associated_post->ID ?>)
+                        (ID: <?php echo esc_html( $associated_post->ID ); ?>)
                     </div>
                 </div>
                 <?php endif; ?>

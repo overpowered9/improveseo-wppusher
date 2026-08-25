@@ -308,7 +308,7 @@ function pd_seo_meta($post_id, $what) {
                             if ($status_label === 'Published') $badge_class = 'pd-badge-published';
                         }
                         ?>
-                        <span class="pd-badge <?php echo  $badge_class ?>"><?php echo  esc_html($status_label) ?></span>
+                        <span class="pd-badge <?php echo esc_attr( $badge_class ); ?>"><?php echo  esc_html($status_label) ?></span>
                     </div>
                 </div>
                 <?php $pd_post_type = (isset($content['post_type']) && $content['post_type'] !== '') ? $content['post_type'] : ($associated_post ? $associated_post->post_type : ''); ?>
@@ -361,7 +361,7 @@ function pd_seo_meta($post_id, $what) {
                     <div class="pd-label">WordPress Post</div>
                     <div class="pd-value">
                         <a href="<?php echo  esc_url($post_url) ?>" target="_blank"><?php echo  esc_html($associated_post->post_title) ?></a>
-                        (ID: <?php echo  $associated_post->ID ?>)
+                        (ID: <?php echo esc_html( $associated_post->ID ); ?>)
                     </div>
                 </div>
                 <?php endif; ?>

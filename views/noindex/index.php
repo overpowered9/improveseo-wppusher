@@ -23,7 +23,7 @@ use ImproveSEO\View;
 	</p>
 	
 	<p>
-		<span class="displaying-num"><?php echo  $results->total ?> tags</span>
+		<span class="displaying-num"><?php echo esc_html( $results->total ); ?> tags</span>
 		|
 		<span class="pagination-links">
 			<?php echo  paginate_links(array(
@@ -47,16 +47,16 @@ use ImproveSEO\View;
 			<tr>
 				<td class="column-title has-row-actions">
 					<strong>
-						<a class="row-title"><?php echo  $tag->name ?></a>
+						<a class="row-title"><?php echo esc_html( $tag->name ); ?></a>
 					</strong>
 					<div class="row-actions">
 						<span class="trash">
-							<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_noindex&action=remove&id='. $tag->term_id .'&noheader=true') ); ?>" onclick="return confirm('Are you sure to delete noindex meta tag from <?php echo  $tag->name ?>?')">Delete noindex key</a>
+							<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_noindex&action=remove&id='. $tag->term_id .'&noheader=true') ); ?>" onclick="return confirm('Are you sure to delete noindex meta tag from <?php echo esc_html( $tag->name ); ?>?')">Delete noindex key</a>
 						</span>
 					</div>
 				</td>
 				<td>
-					<?php echo  $tag->slug ?>
+					<?php echo esc_html( $tag->slug ); ?>
 				</td>
 			</tr>
 			<?php endforeach; ?>
@@ -65,7 +65,7 @@ use ImproveSEO\View;
 	</form>
 
 	<p>
-		<span class="displaying-num"><?php echo  $results->total ?> tags</span>
+		<span class="displaying-num"><?php echo esc_html( $results->total ); ?> tags</span>
 		|
 		<span class="pagination-links">
 			<?php echo  paginate_links(array(

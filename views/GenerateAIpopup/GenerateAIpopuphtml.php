@@ -46,7 +46,7 @@ global $ai_modal_type;
         // top: 209px;
         left: 0;
         z-index: 999;
-        background: rgb(255, 255, 255) url("<?php echo $image_url1; ?>") center no-repeat;
+        background: rgb(255, 255, 255) url("<?php echo esc_url( $image_url1 ); ?>") center no-repeat;
 
     }
 
@@ -59,7 +59,7 @@ global $ai_modal_type;
         // top: 209px;
         left: 0;
         z-index: 999;
-        background: rgb(255, 255, 255) url("<?php echo $image_url2; ?>") center no-repeat;
+        background: rgb(255, 255, 255) url("<?php echo esc_url( $image_url2 ); ?>") center no-repeat;
 
     }
 
@@ -73,7 +73,7 @@ global $ai_modal_type;
         left: 0;
         z-index: 999;
         /* Keep the 400x400 gif centred in the overlay. */
-        background: rgb(255, 255, 255) url("<?php echo $image_url1; ?>") center no-repeat;
+        background: rgb(255, 255, 255) url("<?php echo esc_url( $image_url1 ); ?>") center no-repeat;
 
     }
 
@@ -85,7 +85,7 @@ global $ai_modal_type;
         height: 100%;
         left: 0;
         z-index: 999;
-        background: rgb(255, 255, 255) url("<?php echo $image_url; ?>") center no-repeat;
+        background: rgb(255, 255, 255) url("<?php echo esc_url( $image_url ); ?>") center no-repeat;
     }
 
     .sw-theme-dots>ul.step-anchor:before {
@@ -974,7 +974,7 @@ global $ai_modal_type;
                     <div class="seo-form-field">
                         <label class="data-label" for="seed_keyword">Seed keyword</label>
                         <input type="text" class="form-control" placeholder="Enter Seed Keyword" id="seed_keyword"
-                            name="seed_keyword" value="<?php echo $prefill_keyword; ?>"></input>
+                            name="seed_keyword" value="<?php echo esc_attr( $prefill_keyword ); ?>"></input>
                         <span id="error_seed_keyword" style="color: red;"></span>
                         <?php if ( $prefill_keyword ) : ?>
                         <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;">

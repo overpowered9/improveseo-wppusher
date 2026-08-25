@@ -67,9 +67,9 @@ if (isset($_GET['post_preview'])) {
 		<div class="iseo-sort-controls">
 			<span class="iseo-sort-label">Sort by</span>
 			<a href="<?php echo  esc_url($_bsbase . '&orderBy=name&order=' . $_bname_order) ?>"
-				class="iseo-sort-pill<?php echo  $orderBy === 'name' ? ' iseo-sort-on' : '' ?>">Name<?php echo  $_bname_arrow ?></a>
+				class="iseo-sort-pill<?php echo  $orderBy === 'name' ? ' iseo-sort-on' : '' ?>">Name<?php echo esc_html( $_bname_arrow ); ?></a>
 			<a href="<?php echo  esc_url($_bsbase . '&orderBy=created_at&order=' . $_bdate_order) ?>"
-				class="iseo-sort-pill<?php echo  $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?php echo  $_bdate_arrow ?></a>
+				class="iseo-sort-pill<?php echo  $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?php echo esc_html( $_bdate_arrow ); ?></a>
 		</div>
 		<div class="import-export-btn">
 			<button onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_posting&action=create_post_bulk') ); ?>';"
@@ -156,8 +156,8 @@ if (isset($_GET['post_preview'])) {
 										<div class="styling_projects_name_td"
 											style="display: flex; width: 100%; flex-wrap: nowrap; padding: 30px 0px; overflow-wrap: break-word;">
 											<label class="checkbox style-c">
-												<input id="cb-select-<?php echo $project->id; ?>" type="checkbox"
-													name="project_ids[]" value="<?php echo $project->id; ?>">
+												<input id="cb-select-<?php echo esc_attr( $project->id ); ?>" type="checkbox"
+													name="project_ids[]" value="<?php echo esc_attr( $project->id ); ?>">
 												<div class="checkbox__checkmark"></div>
 											</label>
 
@@ -166,7 +166,7 @@ if (isset($_GET['post_preview'])) {
 										style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#aaa;font-size:14px;line-height:1;margin-left:6px;">&#9998;</button>
 										</div>
 									</td>
-									<td data-label="Post Count" style="text-align:center;"><?php echo  $project->number_of_tasks ?>
+									<td data-label="Post Count" style="text-align:center;"><?php echo esc_html( $project->number_of_tasks ); ?>
 									</td>
 									<td data-label="Created At"> <?php
 									$date = new DateTime($project->created_at);
