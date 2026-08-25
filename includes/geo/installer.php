@@ -171,13 +171,19 @@ dbDelta ( $sql );
 
 
 
-// Geo data (UK/US states and cities) ships with the plugin as the .php files in
-// this directory and is loaded from there. An earlier design downloaded those
-// files at install time from a hardcoded third-party host over plain HTTP; that
-// code was commented out once the data was bundled, and the commented remnant -
-// including the host name - was removed in 2.0.12 so nothing in the tree points
-// at an external source. The live fetcher it belonged to, includes/ImproveSEO/
-// Geo.php, went with it.
+// The UK/US state and city tables created above are left EMPTY. The seed data
+// sits in us.cities.php / uk.cities.php / us.states.php / uk.states.php in this
+// directory, but each of those files has its entire body wrapped in a block
+// comment, and the include_once calls that would have run them are commented out
+// below as well - so nothing populates these tables and nothing ever has, in
+// this code path. includes/api.php and includes/functions.php still query them
+// for the @city/@state spintax, which is why the CREATE TABLE statements have to
+// stay: dropping them would turn empty results into SQL errors.
+//
+// An earlier design downloaded the seed files at install time from a hardcoded
+// third-party host over plain HTTP. That fetcher (includes/ImproveSEO/Geo.php)
+// and the commented remnant naming the host were both removed in 2.0.12, so
+// nothing in the tree points at an external source any more.
 $basepath = dirname ( __FILE__ );
 
 /* $wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_us_states;" );
