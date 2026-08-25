@@ -45,7 +45,7 @@ use ImproveSEO\Validator;
 			<section class="project-section d-flex flex-row  justify-content-between align-items-center pb-2">
 				<div class="head-bar">
 					<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSeo">
-					<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
+					<h1>ImproveSEO | <?php echo esc_html( IMPROVESEO_VERSION ); ?></h1>
 				</div>
 
 

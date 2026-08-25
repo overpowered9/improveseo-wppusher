@@ -37,7 +37,7 @@ if (isset($_GET['post_preview'])) {
 <div class="global-wrap">
 	<div class="head-bar">
 		<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
-		<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
+		<h1>ImproveSEO | <?php echo esc_html( IMPROVESEO_VERSION ); ?></h1>
 	</div>
 	<div class="box-top">
 		<ul class="breadcrumb-seo">
@@ -94,10 +94,10 @@ if (isset($_GET['post_preview'])) {
 
 			<?php for ($i = 1; $i <= $pages; $i++): ?>
 				<?php if ($i == $page): ?>
-					<button class="active"><?php echo  $i ?></button>
+					<button class="active"><?php echo esc_html( $i ); ?></button>
 				<?php else: ?>
 					<button
-						onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ); ?>'"><?php echo  $i ?></button>
+						onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ); ?>'"><?php echo esc_html( $i ); ?></button>
 				<?php endif; ?>
 			<?php endfor; ?>
 
@@ -113,7 +113,7 @@ if (isset($_GET['post_preview'])) {
 			<?php endif; ?>
 		</div>
 		<div class="import-export">
-			<p><?php echo  $total ?> Items</p>
+			<p><?php echo esc_html( $total ); ?> Items</p>
 		</div>
 	</div>
 	<form id="bulk-actions-form" method="post" action="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">
@@ -323,7 +323,7 @@ if (isset($_GET['post_preview'])) {
 					action: 'rename_bulk_project',
 					id:     id,
 					name:   newName,
-					nonce:  '<?php echo wp_create_nonce("rename_bulk_project_nonce"); ?>'
+					nonce:  '<?php echo esc_js( wp_create_nonce("rename_bulk_project_nonce") ); ?>'
 				}, function (res) {
 					if (res.success) {
 						nameSpan.text(res.data.name);

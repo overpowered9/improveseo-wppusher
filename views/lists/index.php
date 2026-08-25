@@ -40,7 +40,7 @@ use ImproveSEO\View;
 <div class="global-wrap">
 	<div class="head-bar">
 		<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
-		<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
+		<h1>ImproveSEO | <?php echo esc_html( IMPROVESEO_VERSION ); ?></h1>
 	</div>
 	<div class="box-top">
 		<ul class="breadcrumb-seo">
@@ -85,10 +85,10 @@ use ImproveSEO\View;
 
 			<?php for ($i = 1; $i <= $pages; $i++): ?>
 				<?php if ($i == $page): ?>
-					<button class="active"><?php echo  $i ?></button>
+					<button class="active"><?php echo esc_html( $i ); ?></button>
 				<?php else: ?>
 					<button
-						onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&paged=' . $i . ($s ? '&s=' . urlencode($s) : '')) ); ?>'"><?php echo  $i ?></button>
+						onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&paged=' . $i . ($s ? '&s=' . urlencode($s) : '')) ); ?>'"><?php echo esc_html( $i ); ?></button>
 				<?php endif; ?>
 			<?php endfor; ?>
 
@@ -104,7 +104,7 @@ use ImproveSEO\View;
 			<?php endif; ?>
 		</div>
 		<div class="import-export">
-			<p><?php echo  $total ?> Items</p>
+			<p><?php echo esc_html( $total ); ?> Items</p>
 		</div>
 	</div>
 	<div class="improve-seo-container">

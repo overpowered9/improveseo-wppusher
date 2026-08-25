@@ -3299,7 +3299,7 @@ global $ai_modal_type;
                     site_code: siteCode,
                     keyword_count: 1,
                     ai_image_count: 0,
-                    nonce: '<?php echo wp_create_nonce("check_credits_nonce"); ?>'
+                    nonce: '<?php echo esc_js( wp_create_nonce("check_credits_nonce") ); ?>'
                 },
                 success: function(response) {
                     if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) { ImproveSEOLoading.hide(); }
@@ -3374,7 +3374,7 @@ global $ai_modal_type;
                     site_code: siteCode,
                     keyword_count: keywordCount,
                     ai_image_count: 0, // Not checking images at step 1
-                    nonce: '<?php echo wp_create_nonce("check_credits_nonce"); ?>'
+                    nonce: '<?php echo esc_js( wp_create_nonce("check_credits_nonce") ); ?>'
                 },
                 success: function(response) {
                     if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) {
@@ -3516,7 +3516,7 @@ global $ai_modal_type;
                     site_code: siteCode,
                     keyword_count: keywordCount,
                     ai_image_count: aiImageCount,
-                    nonce: '<?php echo wp_create_nonce("check_credits_nonce"); ?>'
+                    nonce: '<?php echo esc_js( wp_create_nonce("check_credits_nonce") ); ?>'
                 },
                 success: function(response) {
                     if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) {
@@ -3905,7 +3905,7 @@ global $ai_modal_type;
                 data: {
                     action: 'create_bulk_category',
                     cat_name: categoryName,
-                    nonce: '<?php echo wp_create_nonce("create_category_nonce"); ?>'
+                    nonce: '<?php echo esc_js( wp_create_nonce("create_category_nonce") ); ?>'
                 },
                 beforeSend: function() {
                     $('#add_category_bulk_btn').prop('disabled', true).text('Adding...');
@@ -3987,7 +3987,7 @@ global $ai_modal_type;
                 data: {
                     action: 'create_bulk_category',
                     cat_name: categoryName,
-                    nonce: '<?php echo wp_create_nonce("create_category_nonce"); ?>'
+                    nonce: '<?php echo esc_js( wp_create_nonce("create_category_nonce") ); ?>'
                 },
                 beforeSend: function() {
                     $('#add_category_single_btn').prop('disabled', true).text('Adding...');

@@ -55,7 +55,7 @@ $url .= $_SERVER['REQUEST_URI'];
 
 	<div class="head-bar">
 		<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
-		<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
+		<h1>ImproveSEO | <?php echo esc_html( IMPROVESEO_VERSION ); ?></h1>
 	</div>
 	<div class="box-top">
 		<ul class="breadcrumb-seo">
@@ -130,10 +130,10 @@ $url .= $_SERVER['REQUEST_URI'];
 				<?php endif; ?>
 				<?php for ($i = 1; $i <= $pages; $i++): ?>
 					<?php if ($i == $page): ?>
-						<button type="button" class="active"><?php echo  $i ?></button>
+						<button type="button" class="active"><?php echo esc_html( $i ); ?></button>
 					<?php else: ?>
 						<button type="button"
-							onclick="window.location.href='<?php echo  esc_js($_atbase . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?php echo  $i ?></button>
+							onclick="window.location.href='<?php echo  esc_js($_atbase . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?php echo esc_html( $i ); ?></button>
 					<?php endif; ?>
 				<?php endfor; ?>
 				<?php if ($page < $pages): ?>
@@ -148,7 +148,7 @@ $url .= $_SERVER['REQUEST_URI'];
 				<?php endif; ?>
 			</div>
 			<div class="import-export">
-				<p><?php echo  $total ?> Items</p>
+				<p><?php echo esc_html( $total ); ?> Items</p>
 			</div>
 			<div class="import-refrsh-seo">
 				<button type="button" class="toggle-row pull-right" onclick="return refreshPage()"> Refresh List
@@ -398,7 +398,7 @@ $url .= $_SERVER['REQUEST_URI'];
 	</form>
 </div>
 <script>
-	var iseoBulkPreviewNonce = '<?php echo wp_create_nonce('improveseo_bulk_preview_by_id'); ?>';
+	var iseoBulkPreviewNonce = '<?php echo esc_js( wp_create_nonce('improveseo_bulk_preview_by_id') ); ?>';
 
 	// Row-level "Preview Post" (Draft rows): same in-modal instant preview as
 	// every other "Preview Post" button — see improveseo_bulk_preview_by_id()

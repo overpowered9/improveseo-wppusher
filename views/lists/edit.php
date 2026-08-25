@@ -33,7 +33,7 @@ use ImproveSEO\Validator;
 		<div class="head-bar">
 			<img src="<?php echo esc_url( improveseo_logo_url() ); ?>"
 				alt="ImproveSEO logo">
-			<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
+			<h1>ImproveSEO | <?php echo esc_html( IMPROVESEO_VERSION ); ?></h1>
 		</div>
 		<div class="box-top">
 			<ul class="breadcrumb-seo">

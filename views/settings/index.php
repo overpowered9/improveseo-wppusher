@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function saveFeatureToggles() {
             var data = new FormData();
             data.append('action', 'improveseo_save_feature_toggles');
-            data.append('nonce', '<?php echo wp_create_nonce("improveseo_feature_toggles_nonce"); ?>');
+            data.append('nonce', '<?php echo esc_js( wp_create_nonce("improveseo_feature_toggles_nonce") ); ?>');
             data.append('enabled', main.checked ? '1' : '0');
             data.append('bulk', subs[0].checked ? '1' : '0');
             data.append('single', subs[1].checked ? '1' : '0');
@@ -453,7 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data.append('action', 'test_improveseo_connection');
         data.append('api_key', apiKey);
         data.append('site_code', siteCode);
-        data.append('nonce', '<?php echo wp_create_nonce("test_connection_nonce"); ?>');
+        data.append('nonce', '<?php echo esc_js( wp_create_nonce("test_connection_nonce") ); ?>');
 
         fetch('<?php echo esc_url( admin_url("admin-ajax.php") ); ?>', {
             method: 'POST',

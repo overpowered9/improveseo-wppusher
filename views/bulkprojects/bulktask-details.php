@@ -699,7 +699,7 @@ function btd_datetime($val) {
 </div>
 
 <script>
-    var iseoBulkPreviewNonce = '<?php echo wp_create_nonce('improveseo_bulk_preview_by_id'); ?>';
+    var iseoBulkPreviewNonce = '<?php echo esc_js( wp_create_nonce('improveseo_bulk_preview_by_id') ); ?>';
 
     function iseoPreviewBulkTask(id) {
         jQuery('#iseo_preview_error').hide();

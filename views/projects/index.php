@@ -66,7 +66,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 <div class="global-wrap">
 	<div class="head-bar">
 		<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
-		<h1>ImproveSEO | <?php echo IMPROVESEO_VERSION; ?></h1>
+		<h1>ImproveSEO | <?php echo esc_html( IMPROVESEO_VERSION ); ?></h1>
 	</div>
 	<div class="box-top">
 		<ul class="breadcrumb-seo">
@@ -135,10 +135,10 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 
 							<?php for ($i = $start_page; $i <= $end_page; $i++): ?>
 								<?php if ($i == $page): ?>
-									<button class="pagination-btn active"><?php echo  $i ?></button>
+									<button class="pagination-btn active"><?php echo esc_html( $i ); ?></button>
 								<?php else: ?>
 									<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $i) ); ?>"
-										class="pagination-btn"><?php echo  $i ?></a>
+										class="pagination-btn"><?php echo esc_html( $i ); ?></a>
 								<?php endif; ?>
 							<?php endfor; ?>
 
@@ -149,7 +149,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 									<span class="pagination-btn">...</span>
 								<?php endif; ?>
 								<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $pages) ); ?>"
-									class="pagination-btn"><?php echo  $pages ?></a>
+									class="pagination-btn"><?php echo esc_html( $pages ); ?></a>
 							<?php endif; ?>
 
 							<?php if ($page < $pages): ?>
@@ -160,7 +160,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 							<?php endif; ?>
 		</div>
 		<div class="import-export">
-			<p>Showing <?php echo  (($page - 1) * $limit) + 1 ?> to <?php echo  min($page * $limit, $total) ?> of <?php echo  $total ?> Items
+			<p>Showing <?php echo  (($page - 1) * $limit) + 1 ?> to <?php echo  min($page * $limit, $total) ?> of <?php echo esc_html( $total ); ?> Items
 			</p>
 		</div>
 	</div>
