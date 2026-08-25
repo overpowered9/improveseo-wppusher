@@ -12,19 +12,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 
-function custom_testimonials_settings(){
-
-
-	$ob = new WC_Testimonial;
-
-
-	$ob->general_admin_notice();
-
-
-    wt_load_templates('cm-admin-settings.php');
-
-
-}
+// Removed with modules/cm-admin-settings.php in 2.0.12: this rendered the
+// Shortcodes settings screen, whose add_submenu_page() registration had already
+// been commented out. wt_load_templates() die()s on a missing file, so leaving
+// the function behind would have turned re-enabling that menu line into a fatal.
 
 
 
@@ -139,7 +130,6 @@ add_submenu_page('improveseo_dashboard', 'Posting', 'Create Posts', 'manage_opti
 
     
 
-    // add_submenu_page('improveseo_dashboard', 'Shortcodes', 'Shortcodes', 'manage_options','improveseo_shortcodes', 'custom_testimonials_settings');
 
     // Hidden onboarding wizard page — not shown in the sidebar nav (parent slug = null)
     add_submenu_page( null, 'ImproveSEO Setup', '', 'manage_options', 'improveseo_onboarding', 'improveseo_onboarding_page' );
