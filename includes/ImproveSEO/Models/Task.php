@@ -30,6 +30,6 @@ class Task extends AbstractModel
 	{
 		global $wpdb;
 
-		return $wpdb->get_results("SELECT * FROM ". $this->getTable() ." WHERE iteration < max_iterations");
+		return $wpdb->get_results("SELECT * FROM ". $this->getTable() ." WHERE iteration < max_iterations"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
 	}
 }

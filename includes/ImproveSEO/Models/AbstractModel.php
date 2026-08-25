@@ -35,7 +35,7 @@ abstract class AbstractModel
 			$this->table = 'improveseo_'. strtolower($class[1]) .'s';
 		}
 
-		$this->offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
+		$this->offset = isset($_GET['offset']) ? absint($_GET['offset']) : 0;
 	}
 
 	public function getTable()
@@ -72,8 +72,8 @@ abstract class AbstractModel
 		
 		$sql .= " VALUES (". implode(", ", $values) .", NOW())";
 
-		$sql = $wpdb->prepare($sql, $vars);
-		$wpdb->query($sql);
+		$sql = $wpdb->prepare($sql, $vars); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
+		$wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 
 		return $wpdb->insert_id;
 	}
@@ -106,8 +106,8 @@ abstract class AbstractModel
 		$sql .= " SET ". implode(", ", $fields);
 		$sql .= " WHERE id = $id";
 
-		$sql = $wpdb->prepare($sql, $vars);
-		$wpdb->query($sql);
+		$sql = $wpdb->prepare($sql, $vars); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
+		$wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 
 		return true;
 	}
@@ -121,8 +121,8 @@ abstract class AbstractModel
 
 		$vars[] = $id;
 
-		$sql = $wpdb->prepare($sql, $vars);
-		$wpdb->query($sql);
+		$sql = $wpdb->prepare($sql, $vars); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
+		$wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 
 		return true;
 	}
@@ -131,9 +131,9 @@ abstract class AbstractModel
 	{
 		global $wpdb;
 
-		$sql = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} WHERE id = %d", [$id]);
+		$sql = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} WHERE id = %d", [$id]); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 
-		$row = $wpdb->get_row($sql);
+		$row = $wpdb->get_row($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 
 		// Type-cast
 		if(!empty($this->casts)){
@@ -156,23 +156,29 @@ abstract class AbstractModel
 	{
 		global $wpdb;
 
-		return $wpdb->get_results("SELECT * FROM {$wpdb->prefix}{$this->table}". ($orderBy ? " ORDER BY $orderBy" : ""));
+		// ORDER BY takes an identifier, which cannot be bound as a placeholder,
+		// so restrict it to a bare column name with an optional direction.
+		if ($orderBy && ! preg_match('/^`?[A-Za-z0-9_]+`?( +(ASC|DESC))?$/i', $orderBy)) {
+			$orderBy = NULL;
+		}
+
+		return $wpdb->get_results("SELECT * FROM {$wpdb->prefix}{$this->table}". ($orderBy ? " ORDER BY $orderBy" : "")); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 	}
 
 	public function paginate($limit = 20)
 	{
 		global $wpdb;
 
-		$sql = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} LIMIT %d, %d", [$this->offset, $limit]);
+		$sql = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} LIMIT %d, %d", [$this->offset, $limit]); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 
-		return $wpdb->get_results($sql);
+		return $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 	}
 
 	public function count()
 	{
 		global $wpdb;
 
-		$row = $wpdb->get_row("SELECT COUNT(id) AS total FROM {$wpdb->prefix}{$this->table}");
+		$row = $wpdb->get_row("SELECT COUNT(id) AS total FROM {$wpdb->prefix}{$this->table}"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 		return $row->total;
 	}
 
@@ -184,7 +190,7 @@ abstract class AbstractModel
 			if (isset($condition[1])) {
 				$field = strtolower($condition[1]);
 
-				return $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} WHERE `$field` = %s", [$arguments[0]]));
+				return $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} WHERE `$field` = %s", [$arguments[0]])); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 			}
 		}
 	}

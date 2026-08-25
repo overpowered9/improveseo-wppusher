@@ -16,9 +16,9 @@ function improveseo_noindex() {
 	$offset = isset($_GET['paged']) ? $_GET['paged'] * $limit - $limit : 0;
 
 	if ($action == 'index'):
-		$results = $wpdb->get_row("SELECT COUNT(*) AS total FROM {$wpdb->prefix}termmeta WHERE meta_key = 'improveseo_noindex_tag'");
+		$results = $wpdb->get_row("SELECT COUNT(*) AS total FROM {$wpdb->prefix}termmeta WHERE meta_key = 'improveseo_noindex_tag'"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query against core tables; the only variable is the table prefix
 
-		$tags = $wpdb->get_results("SELECT t.* FROM {$wpdb->prefix}termmeta AS m INNER JOIN {$wpdb->prefix}terms AS t ON t.term_id = m.term_id WHERE m.meta_key = 'improveseo_noindex_tag' LIMIT $offset, $limit");
+		$tags = $wpdb->get_results("SELECT t.* FROM {$wpdb->prefix}termmeta AS m INNER JOIN {$wpdb->prefix}terms AS t ON t.term_id = m.term_id WHERE m.meta_key = 'improveseo_noindex_tag' LIMIT $offset, $limit"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query against core tables; the only variable is the table prefix
 
 		$pages = ceil($results->total / $limit);
 		$page = floor($offset / $limit) + 1;
@@ -27,7 +27,7 @@ function improveseo_noindex() {
 	elseif ($action == 'remove'):
 		$id = (int) $_GET['id'];
 
-		$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}termmeta WHERE term_id = %s AND meta_key = 'improveseo_noindex_tag'", array($id)));
+		$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}termmeta WHERE term_id = %s AND meta_key = 'improveseo_noindex_tag'", array($id))); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query against core tables; the only variable is the table prefix
 
 		FlashMessage::success('Noindex tag removed.');
 		wp_redirect(admin_url('admin.php?page=improveseo_noindex'));

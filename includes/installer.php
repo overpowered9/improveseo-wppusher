@@ -208,7 +208,7 @@ function improveseo_install() {
 	$sql = "ALTER TABLE ".$table_name." ADD `cats` VARCHAR(255) NOT NULL";
 
 
-	$wpdb->query($sql);
+	$wpdb->query($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- schema statement; the table name is an identifier and cannot be bound
 
 
 
