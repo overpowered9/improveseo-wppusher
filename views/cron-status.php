@@ -46,7 +46,7 @@ $log_file         = WP_CONTENT_DIR . '/debug.log';
 $log_lines        = array();
 
 if (file_exists($log_file) && is_readable($log_file)) {
-	$fp        = @fopen($log_file, 'r');
+	$fp        = @fopen($log_file, 'r'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- seek-to-end tail read of the debug log; WP_Filesystem offers no seek and would read the entire file
 	$buffer    = '';
 	$chunk     = 65536;
 	if ($fp) {
@@ -54,8 +54,8 @@ if (file_exists($log_file) && is_readable($log_file)) {
 		$size = ftell($fp);
 		$read = min($chunk, $size);
 		fseek($fp, -$read, SEEK_END);
-		$buffer = fread($fp, $read);
-		fclose($fp);
+		$buffer = fread($fp, $read); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fread -- seek-to-end tail read of the debug log; WP_Filesystem offers no seek and would read the entire file
+		fclose($fp); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- seek-to-end tail read of the debug log; WP_Filesystem offers no seek and would read the entire file
 		$all = explode("\n", $buffer);
 		foreach ($all as $line) {
 			if (preg_match('/IMPROVESEO CRON|=== CRON JOB/', $line)) {

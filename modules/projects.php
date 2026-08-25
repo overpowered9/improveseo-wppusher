@@ -52,7 +52,7 @@ function improveseo_projects()
     }
 
     //Import uploaded file to Database
-    $file = fopen($_FILES['upload_csv']['tmp_name'], "r");
+    $file = fopen($_FILES['upload_csv']['tmp_name'], "r"); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- streaming fgetcsv() over an uploaded temp file; WP_Filesystem would have to read the whole upload into memory first
 
     $counter = 0;
     while (!feof($file)) {
@@ -81,7 +81,7 @@ function improveseo_projects()
 
     $counter = $counter - 2;
 
-    fclose($file);
+    fclose($file); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- streaming fgetcsv() over an uploaded temp file; WP_Filesystem would have to read the whole upload into memory first
 
     FlashMessage::success($counter . ' Project Imported Successfully.');
   }
@@ -297,12 +297,12 @@ function improveseo_projects()
     header('Expires: 0');
     header('Pragma: public');
 
-    $fh = @fopen('php://output', 'w');
+    $fh = @fopen('php://output', 'w'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- PHP output stream for a file download, not a filesystem path; WP_Filesystem has no equivalent
 
     fprintf($fh, chr(0xEF) . chr(0xBB) . chr(0xBF));
     fputcsv($fh, $header_row);
     fputcsv($fh, $data_row);
-    fclose($fh);
+    fclose($fh); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- PHP output stream for a file download, not a filesystem path; WP_Filesystem has no equivalent
 
     exit;
 

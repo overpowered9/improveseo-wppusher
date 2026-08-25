@@ -1182,7 +1182,7 @@ function improveseo_check_dir($dir) {
 
 
 
-		if (!is_dir($check)) mkdir($check);
+		if (!is_dir($check)) wp_mkdir_p($check);
 
 
 	}

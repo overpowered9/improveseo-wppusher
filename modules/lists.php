@@ -48,7 +48,7 @@ function improveseo_lists() {
 		}
 
 		//Import uploaded file to Database
-		$file = fopen($_FILES['upload_csv']['tmp_name'], "r");
+		$file = fopen($_FILES['upload_csv']['tmp_name'], "r"); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- streaming fgetcsv() over an uploaded temp file; WP_Filesystem would have to read the whole upload into memory first
 		$counter = 0;
 		while (!feof($file)) {
 			$file_content = fgetcsv($file);
@@ -64,7 +64,7 @@ function improveseo_lists() {
 			$counter++;
 		}
 		$counter = $counter-2;  
-		fclose($file);
+		fclose($file); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- streaming fgetcsv() over an uploaded temp file; WP_Filesystem would have to read the whole upload into memory first
 		FlashMessage::success($counter . ' List Imported Successfully.');
 	}
 	

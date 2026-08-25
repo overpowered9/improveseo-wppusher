@@ -49,7 +49,7 @@ function improveseo_bulkprojects()
 		}
 
 		//Import uploaded file to Database
-		$file = fopen($_FILES['upload_csv']['tmp_name'], "r");
+		$file = fopen($_FILES['upload_csv']['tmp_name'], "r"); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- streaming fgetcsv() over an uploaded temp file; WP_Filesystem would have to read the whole upload into memory first
 		$counter = 0;
 		while (!feof($file)) {
 			$file_content = fgetcsv($file);
@@ -73,7 +73,7 @@ function improveseo_bulkprojects()
 			$counter++;
 		}
 		$counter = $counter - 2;
-		fclose($file);
+		fclose($file); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- streaming fgetcsv() over an uploaded temp file; WP_Filesystem would have to read the whole upload into memory first
 		FlashMessage::success($counter . ' Project Imported Successfully.');
 	}
 
@@ -727,7 +727,7 @@ function improveseo_bulkprojects()
 		header('Pragma: public');
 		
 		// Open output stream directly
-		$output = fopen('php://output', 'w');
+		$output = fopen('php://output', 'w'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- PHP output stream for a file download, not a filesystem path; WP_Filesystem has no equivalent
 		
 		// Add UTF-8 BOM for Excel compatibility
 		fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
@@ -771,7 +771,7 @@ function improveseo_bulkprojects()
 			));
 		}
 		
-		fclose($output);
+		fclose($output); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- PHP output stream for a file download, not a filesystem path; WP_Filesystem has no equivalent
 		exit;
 
 	elseif ($action == 'export_all_project'):
@@ -799,11 +799,11 @@ function improveseo_bulkprojects()
 		header('Content-Disposition: attachment; filename=' . basename("$project_name.csv"));
 		header('Expires: 0');
 		header('Pragma: public');
-		$fh = @fopen('php://output', 'w');
+		$fh = @fopen('php://output', 'w'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- PHP output stream for a file download, not a filesystem path; WP_Filesystem has no equivalent
 		fprintf($fh, chr(0xEF) . chr(0xBB) . chr(0xBF));
 		fputcsv($fh, $header_row);
 		fputcsv($fh, $data_row);
-		fclose($fh);
+		fclose($fh); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- PHP output stream for a file download, not a filesystem path; WP_Filesystem has no equivalent
 		exit;
 
 	elseif ($action == 'export_preview_url'):

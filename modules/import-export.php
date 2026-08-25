@@ -22,7 +22,7 @@ class improveseo_import_export{
 		header("Pragma: no-cache");
 		header("Expires: 0");
 
-		$fh = @fopen('php://output', 'w');
+		$fh = @fopen('php://output', 'w'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- PHP output stream for a file download, not a filesystem path; WP_Filesystem has no equivalent
 
 		fprintf($fh, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
@@ -33,7 +33,7 @@ class improveseo_import_export{
 			fputcsv($fh, $data_row);
 		}
 
-		fclose($fh);
+		fclose($fh); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- PHP output stream for a file download, not a filesystem path; WP_Filesystem has no equivalent
     }
 
 
