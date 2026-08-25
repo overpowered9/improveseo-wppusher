@@ -11,6 +11,7 @@ class Required extends BaseValidator
 {
 	public static function validate($data, $field)
 	{
+		/* translators: %s is the form field name. */
 		return isset($data[$field]) && !empty($data[$field]) ? true : sprintf( __( '%s is required', 'improveseo' ), self::fieldName($field) );
 	}
 }
