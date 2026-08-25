@@ -9,7 +9,7 @@ use ImproveSEO\Validator;
 
 <div class="BasicForm__row<?php if (Validator::hasError('shortcode')) echo ' PostForm--error' ?>">
 	<label class="form-label">Shortcode</label>
-	<input type="text" class="form-control" rows="5" name="shortcode" placeholder="Type here..." value="<?php echo  isset($shortcode) ? $shortcode->shortcode : '' ?>">
+	<input type="text" class="form-control" rows="5" name="shortcode" placeholder="Type here..." value="<?php echo esc_attr( isset($shortcode) ? $shortcode->shortcode : '' ); ?>">
 	<?php if (Validator::hasError('shortcode')): ?>
 	<span class="PostForm__error"><?php echo esc_html( Validator::get('shortcode') ); ?></span>
 	<?php endif; ?>
@@ -34,7 +34,7 @@ use ImproveSEO\Validator;
 
 <div class="BasicForm__row<?php if (Validator::hasError('content')) echo ' PostForm--error' ?>">
 	<label class="form-label">Content</label>
-	<textarea class="textarea-control" name="content" rows="5" placeholder="Type here..." <?php if (isset($shortcode) && $shortcode->type == 'static') echo ' disabled' ?>><?php echo  isset($shortcode) ? $shortcode->content : '' ?></textarea>
+	<textarea class="textarea-control" name="content" rows="5" placeholder="Type here..." <?php if (isset($shortcode) && $shortcode->type == 'static') echo ' disabled' ?>><?php echo esc_textarea( isset($shortcode) ? $shortcode->content : '' ); ?></textarea>
 	<?php if (Validator::hasError('content')): ?>
 	<span class="PostForm__error"><?php echo esc_html( Validator::get('content') ); ?></span>
 	<?php endif; ?>

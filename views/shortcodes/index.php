@@ -31,19 +31,19 @@ use ImproveSEO\View;
 			<li class="all">
 				<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_shortcodes&type=all') ); ?>" class="<?php if ($type == 'all') echo 'current' ?>">
 					All
-					<span class="count">(<?php echo  $all ?>)</span>
+					<span class="count">(<?php echo esc_html( $all ); ?>)</span>
 				</a>
 			</li>
 			<li class="static">
 				<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_shortcodes&type=static') ); ?>" class="<?php if ($type == 'static') echo 'current' ?>">
 					Static
-					<span class="count">(<?php echo  $static ?>)</span>
+					<span class="count">(<?php echo esc_html( $static ); ?>)</span>
 				</a>
 			</li>
 			<li class="dynamic">
 				<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_shortcodes&type=dynamic') ); ?>" class="<?php if ($type == 'dynamic') echo 'current' ?>">
 					Dynamic
-					<span class="count">(<?php echo  $dynamic ?>)</span>
+					<span class="count">(<?php echo esc_html( $dynamic ); ?>)</span>
 				</a>
 			</li>
 		</ul>
