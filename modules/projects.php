@@ -246,15 +246,18 @@ function improveseo_projects()
       $urls .= get_permalink($post->post_id) . "\r\n";
     }
 
-    file_put_contents("$project_name.txt", $urls);
-
+    // Streamed straight from memory. This used to file_put_contents() the list to
+    // "$project_name.txt" and then readfile() it back. That path is RELATIVE, so it
+    // resolved against the process working directory - the WordPress root - and the
+    // file was never deleted, so every export left a .txt behind. The content is
+    // already in $urls, so no file needs to exist at all.
     header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename=' . basename("$project_name.txt"));
+    header('Content-Disposition: attachment; filename=' . $project_name . '.txt');
     header('Expires: 0');
     header('Cache-Control: must-revalidate');
     header('Pragma: public');
-    header('Content-Length: ' . filesize("$project_name.txt"));
-    readfile("$project_name.txt");
+    header('Content-Length: ' . strlen($urls));
+    echo $urls; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- plain-text file download, not HTML; escaping would corrupt the URLs
     exit;
 
   elseif ($action == 'export_all_project'):

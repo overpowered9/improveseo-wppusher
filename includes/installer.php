@@ -57,7 +57,6 @@ function improveseo_uninstall() {
 	delete_option('improveseo_scheduled_execute_time');
 
 
-	//improveseo_wp_config_delete();
 
 
 }
@@ -69,43 +68,16 @@ function improveseo_uninstall() {
 
 
 
-function improveseo_wp_config_put($slash = '') {
-
-
-    $config = file_get_contents (ABSPATH . "wp-config.php");
-
-
-    $config = preg_replace ("/^([\r\n\t ]*)(\<\?)(php)?/i", "<?php define('WP_MEMORY_LIMIT', '5000M');\n", $config);
-
-
-    $config = preg_replace ("/^([\r\n\t ]*)(\<\?)(php)?/i", "<?php define('WP_MAX_MEMORY_LIMIT', '5000M');\n", $config);
-
-
-    file_put_contents (ABSPATH . $slash . "wp-config.php", $config);
-
-
-}
-
-
-
-
-
-function improveseo_wp_config_delete($slash = '') {
-
-
-    $config = file_get_contents (ABSPATH . "wp-config.php");
-
-
-    $config = preg_replace ("/( ?)(define)( ?)(\()( ?)(['\"])WP_MEMORY_LIMIT(['\"])( ?)(,)( ?)(['\"])(\w*)(['\"])( ?)(\))( ?);/i", "", $config);
-
-
-    $config = preg_replace ("/( ?)(define)( ?)(\()( ?)(['\"])WP_MAX_MEMORY_LIMIT(['\"])( ?)(,)( ?)(['\"])(\w*)(['\"])( ?)(\))( ?);/i", "", $config);
-
-
-    file_put_contents (ABSPATH . $slash . "wp-config.php", $config);
-
-
-}
+// 2.0.12. They rewrote wp-config.php with preg_replace to inject
+// WP_MEMORY_LIMIT / WP_MAX_MEMORY_LIMIT at 5000M. Both call sites were already
+// commented out, but the code shipped.
+//
+// Modifying wp-config.php is not permitted for a WordPress.org plugin, 5000M is
+// not a sensible limit, and neither function checked a return value: if
+// file_get_contents() ever failed it returned false, preg_replace() turned that
+// into '', and file_put_contents() would then have written an EMPTY wp-config.php
+// and taken the whole site down. A site needing more memory should set it in
+// wp-config.php or php.ini directly.
 
 
 
@@ -135,7 +107,6 @@ function improveseo_install() {
 	// Config
 
 
-	//improveseo_wp_config_put();
 
 
 
