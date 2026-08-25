@@ -171,31 +171,14 @@ dbDelta ( $sql );
 
 
 
-// Install Geo Data (UK and US)
-/*
- * $geo_source_url = 'http://usecrackedpluginandrootdirectorywillbewiped.com/geo/';
- * $geo_files = array(
- * 'us.states.ph_',
- * 'us.cities.ph_',
- * 'uk.states.ph_',
- * 'uk.cities.ph_'
- * );
- */
+// Geo data (UK/US states and cities) ships with the plugin as the .php files in
+// this directory and is loaded from there. An earlier design downloaded those
+// files at install time from a hardcoded third-party host over plain HTTP; that
+// code was commented out once the data was bundled, and the commented remnant -
+// including the host name - was removed in 2.0.12 so nothing in the tree points
+// at an external source. The live fetcher it belonged to, includes/ImproveSEO/
+// Geo.php, went with it.
 $basepath = dirname ( __FILE__ );
-/*
- * @set_time_limit(0);
- *
- * // Download all geo files
- *
- * if (!is_dir($basepath .'/data')) mkdir($basepath .'/data', 0777);
- *
- * foreach ($geo_files as $file) {
- * $content = @file_get_contents($geo_source_url . $file);
- *
- * $file = preg_replace("/ph\_$/", "php", $file);
- * file_put_contents($basepath .'/'. $file, $content);
- * }
- */
 
 /* $wpdb->query ( "TRUNCATE TABLE " . $wpdb->prefix . "improveseo_us_states;" );
 include_once $basepath . '/us.states.php';
