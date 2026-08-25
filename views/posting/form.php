@@ -29,9 +29,9 @@ $google_api_key = get_option('improveseo_google_api_key');
 				echo 'PostForm--error' ?>" style="margin-top: 20px;">
 					<label class="form-label" style="display:block; font-weight:600; margin-bottom:5px;">Project Name</label>
 					<input type="text" name="name" class="PostForm__name form-control" placeholder="Project name here"
-						value="<?php echo  Validator::old('name', $task->name) ?>" required>
+						value="<?php echo esc_attr( Validator::old('name', $task->name) ); ?>" required>
 				<?php if (Validator::hasError('name')): ?>
-					<span class="PostForm__error"><?php echo  Validator::get('name') ?></span>
+					<span class="PostForm__error"><?php echo esc_html( Validator::get('name') ); ?></span>
 				<?php endif; ?>
 			</div>
 
@@ -39,9 +39,9 @@ $google_api_key = get_option('improveseo_google_api_key');
 				echo ' PostForm--error' ?>">
 					<label class="form-label" style="display:block; font-weight:600; margin-bottom:5px;">Post Title</label>
 					<input type="text" id="title" name="title" class="PostForm__title form-control"
-						placeholder="Enter title here" value="<?php echo  Validator::old('title', $task->content['title']) ?>">
+						placeholder="Enter title here" value="<?php echo esc_attr( Validator::old('title', $task->content['title']) ); ?>">
 				<?php if (Validator::hasError('title')): ?>
-					<span class="PostForm__error"><?php echo  Validator::get('title') ?></span>
+					<span class="PostForm__error"><?php echo esc_html( Validator::get('title') ); ?></span>
 				<?php endif; ?>
 
 				<div id="edit-slug-box">
@@ -94,7 +94,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 				),
 			)); ?>
 				<?php if (Validator::hasError('content')): ?>
-					<span class="PostForm__error"><?php echo  Validator::get('content') ?></span>
+					<span class="PostForm__error"><?php echo esc_html( Validator::get('content') ); ?></span>
 				<?php endif; ?>
 			</div>
 

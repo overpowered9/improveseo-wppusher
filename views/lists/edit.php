@@ -52,11 +52,11 @@ use ImproveSEO\Validator;
 						<div class="seo-form-field" style="margin: 0px;">
 							<label> Shortcode Name </label>
 							<input style="width:100%;" type="text" name="name" placeholder="Ex. List 1"
-								value="<?php echo  Validator::old('name', $list->name) ?>">
+								value="<?php echo esc_attr( Validator::old('name', $list->name) ); ?>">
 					</div>
 					<?php if (Validator::hasError('name')): ?>
 
-						<span class="PostForm__error"><?php echo  Validator::get('name') ?></span>
+						<span class="PostForm__error"><?php echo esc_html( Validator::get('name') ); ?></span>
 
 					<?php endif; ?>
 				</div>
@@ -65,10 +65,10 @@ use ImproveSEO\Validator;
 						<div class="seo-form-field">
 							<label> List of Keywords (one per line) </label>
 							<textarea  style="width:100%;"  name="list"
-								placeholder="Type Here..."><?php echo  Validator::old('list', $list->list) ?></textarea>
+								placeholder="Type Here..."><?php echo esc_html( Validator::old('list', $list->list) ); ?></textarea>
 						<?php if (Validator::hasError('list')): ?>
 
-							<span class="PostForm__error"><?php echo  Validator::get('list') ?></span>
+							<span class="PostForm__error"><?php echo esc_html( Validator::get('list') ); ?></span>
 
 						<?php endif; ?>
 					</div>

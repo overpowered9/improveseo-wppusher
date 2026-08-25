@@ -141,4 +141,4 @@ jQuery(function ($) {
 
 
 
-<?php echo View::make('layouts.main') ?>
+<?php View::make('layouts.main'); ?>

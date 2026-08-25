@@ -65,4 +65,4 @@ if ( isset( $_GET['from'] ) && $_GET['from'] === 'onboarding' ) {
 
 
 
-<?php echo View::make('layouts.main') ?>
+<?php View::make('layouts.main'); ?>

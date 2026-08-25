@@ -17,4 +17,4 @@ use ImproveSEO\View;
 </div>
 <?php View::endSection('content') ?>
 
-<?php echo View::make('layouts.main') ?>
+<?php View::make('layouts.main'); ?>

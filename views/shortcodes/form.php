@@ -11,7 +11,7 @@ use ImproveSEO\Validator;
 	<label class="form-label">Shortcode</label>
 	<input type="text" class="form-control" rows="5" name="shortcode" placeholder="Type here..." value="<?php echo  isset($shortcode) ? $shortcode->shortcode : '' ?>">
 	<?php if (Validator::hasError('shortcode')): ?>
-	<span class="PostForm__error"><?php echo  Validator::get('shortcode') ?></span>
+	<span class="PostForm__error"><?php echo esc_html( Validator::get('shortcode') ); ?></span>
 	<?php endif; ?>
 </div>
 
@@ -27,7 +27,7 @@ use ImproveSEO\Validator;
 		<span>Ex.</span>
 	</div>
 	<?php if (Validator::hasError('type')): ?>
-	<span class="PostForm__error"><?php echo  Validator::get('type') ?></span>
+	<span class="PostForm__error"><?php echo esc_html( Validator::get('type') ); ?></span>
 	<?php endif; ?>
 </div>
 <?php endif; ?>
@@ -36,6 +36,6 @@ use ImproveSEO\Validator;
 	<label class="form-label">Content</label>
 	<textarea class="textarea-control" name="content" rows="5" placeholder="Type here..." <?php if (isset($shortcode) && $shortcode->type == 'static') echo ' disabled' ?>><?php echo  isset($shortcode) ? $shortcode->content : '' ?></textarea>
 	<?php if (Validator::hasError('content')): ?>
-	<span class="PostForm__error"><?php echo  Validator::get('content') ?></span>
+	<span class="PostForm__error"><?php echo esc_html( Validator::get('content') ); ?></span>
 	<?php endif; ?>
 </div>

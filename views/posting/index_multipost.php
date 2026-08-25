@@ -60,4 +60,4 @@ use ImproveSEO\View;
 
 
 
-<?php echo View::make('layouts.main') ?>
+<?php View::make('layouts.main'); ?>

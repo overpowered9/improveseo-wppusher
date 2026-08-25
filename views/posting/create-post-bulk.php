@@ -234,7 +234,7 @@ $ai_modal_type = 'bulk';
 										style="padding: 20px; border-radius: 10px !important; border-color: #cccccc; margin-bottom: 20px; "
 										class="full-width form-control textarea-control"
 										placeholder="Meta Title:Here Ex:Mango: Health Benefits"
-										value="<?php echo  Validator::old('custom_title', $task->options['custom_title']) ?>">
+										value="<?php echo esc_attr( Validator::old('custom_title', $task->options['custom_title']) ); ?>">
 									<!-- <span>Ex.</span> -->
 								</div>
 								<div id="custom-title-error" style="display:none; color:red; margin-top:5px;">
@@ -249,7 +249,7 @@ $ai_modal_type = 'bulk';
 								<textarea id="custom-description"
 									placeholder="Meta Description:Discover Mango Magic: Health Benefits, Recipes, and Tips for the Perfect Fruit."
 									name="custom_description" rows="5"
-									class="full-width textarea-control"><?php echo  Validator::old('custom_description', $task->options['custom_description']) ?></textarea>
+									class="full-width textarea-control"><?php echo esc_html( Validator::old('custom_description', $task->options['custom_description']) ); ?></textarea>
 								<!-- <span>Ex.</span> -->
 								<!-- </div> -->
 								<div id="custom-description-error" style="display:none; color:red; margin-top:5px;">Your
@@ -340,4 +340,4 @@ jQuery(document).ready(function($) {
 });
 </script>
 
-<?php echo View::make('layouts.main') ?>
+<?php View::make('layouts.main'); ?>
