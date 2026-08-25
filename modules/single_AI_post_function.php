@@ -23,7 +23,9 @@ function getaaldata()
 
 	wp_parse_str($_POST['value'], $arr);
 
-	$nos_of_words = utf8_decode(urldecode($arr['nos_of_words']));
+	// utf8_decode() removed: deprecated in PHP 8.2 and removed in 9.0, and a no-op
+	// here anyway - nos_of_words is a numeric word count, pure ASCII.
+	$nos_of_words = urldecode($arr['nos_of_words']);
 
 	$seed_keyword = $arr['seed_keyword'];
 

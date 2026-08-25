@@ -114,7 +114,7 @@ function improveseo_authors() {
 		$lastnamesTotal = sizeof($lastnames);
 
 
-		$url = parse_url(get_option('siteurl'));
+		$url = wp_parse_url(get_option('siteurl'));
 
 
 

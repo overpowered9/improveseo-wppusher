@@ -878,7 +878,7 @@ function fetch_AI_image_callback()
                 imagedestroy($original_image);
                 
                 // Delete the original file
-                unlink($file_path);
+                wp_delete_file($file_path);
                 
                 $final_image_url = $upload_dir['url'] . '/' . $webp_file_name;
             } else {

@@ -71,7 +71,7 @@ if (!function_exists('generateAnchorId')) {
      */
     function generateAnchorId($text) {
         // Remove HTML tags, convert to lowercase, replace spaces and special chars with hyphens
-        $id = strtolower(strip_tags($text));
+        $id = strtolower(wp_strip_all_tags($text));
         $id = preg_replace('/[^a-z0-9\s-]/', '', $id);
         $id = preg_replace('/[\s-]+/', '-', $id);
         $id = trim($id, '-');
@@ -1983,7 +1983,7 @@ function generateBulkAiImage($title, $AudienceData, $niche = 'general_blog')
                 
                 if (imagewebp($original_image, $webp_file_path, 90)) {
                     imagedestroy($original_image);
-                    unlink($file_path);
+                    wp_delete_file($file_path);
                     
                     $final_url = $upload_dir['url'] . '/' . $webp_file_name;
                     error_log("generateBulkAiImage: Success! WebP image URL: " . $final_url);
@@ -2196,7 +2196,7 @@ if (!function_exists('improveseo_normalize_cta_url')) {
         }
 
         // Require a dotted host (or localhost) so "https://foo" is discarded.
-        $host = parse_url($filtered, PHP_URL_HOST);
+        $host = wp_parse_url($filtered, PHP_URL_HOST);
         if (!$host || (strpos($host, '.') === false && strtolower($host) !== 'localhost')) {
             return '';
         }

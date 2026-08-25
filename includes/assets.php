@@ -306,7 +306,7 @@ function improveseo_enqueue_onboarding_assets() {
 	);
 
 	$site_url    = home_url( '/' );
-	$parsed_host = parse_url( $site_url, PHP_URL_HOST );
+	$parsed_host = wp_parse_url( $site_url, PHP_URL_HOST );
 	$site_domain = $parsed_host ? preg_replace( '/^www\./i', '', strtolower( $parsed_host ) ) : '';
 
 	$stored_api_key   = get_option( 'improveseo_api_key', '' );
