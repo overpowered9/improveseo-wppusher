@@ -15,7 +15,7 @@ class Shortcode extends AbstractModel
 	{
 		global $wpdb;
 
-		$sql = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} WHERE type = 'static' LIMIT %d, %d", [$this->offset, $limit]); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
+		$sql = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} WHERE type = 'static' LIMIT %d, %d", [$this->offset, $limit]); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
 		return $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
 	}
 
@@ -23,7 +23,7 @@ class Shortcode extends AbstractModel
 	{
 		global $wpdb;
 
-		$row = $wpdb->get_row("SELECT COUNT(*) AS total FROM {$wpdb->prefix}{$this->table} WHERE type = 'static'"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
+		$row = $wpdb->get_row("SELECT COUNT(*) AS total FROM {$wpdb->prefix}{$this->table} WHERE type = 'static'"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
 		return $row->total;
 	}
 
@@ -31,7 +31,7 @@ class Shortcode extends AbstractModel
 	{
 		global $wpdb;
 
-		$sql = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} WHERE type = 'dynamic' LIMIT %d, %d", [$this->offset, $limit]); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
+		$sql = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} WHERE type = 'dynamic' LIMIT %d, %d", [$this->offset, $limit]); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
 		return $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
 	}
 
@@ -39,7 +39,7 @@ class Shortcode extends AbstractModel
 	{
 		global $wpdb;
 
-		$row = $wpdb->get_row("SELECT COUNT(*) AS total FROM {$wpdb->prefix}{$this->table} WHERE type = 'dynamic'"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
+		$row = $wpdb->get_row("SELECT COUNT(*) AS total FROM {$wpdb->prefix}{$this->table} WHERE type = 'dynamic'"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table name is an identifier and cannot be bound as a placeholder
 		return $row->total;
 	}
 }

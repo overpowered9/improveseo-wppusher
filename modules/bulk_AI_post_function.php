@@ -552,11 +552,14 @@ function improveseo_sweep_preview_orphans()
 
 	// created_at is written with NOW() in AbstractModel::create(), so compare
 	// against NOW() here too — consistent regardless of the DB server timezone.
+	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $tasks_table is
+	// $wpdb->prefix plus a literal; the query takes no user input.
 	$preview_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 		"SELECT id FROM {$tasks_table}
 		 WHERE state = 'Preview'
 		   AND created_at < (NOW() - INTERVAL 30 MINUTE)"
 	);
+	// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 	if (empty($preview_ids)) {
 		return;

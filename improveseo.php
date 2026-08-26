@@ -975,7 +975,7 @@ function improveseo_ensure_bulk_meta_columns() {
 		return;
 	}
 
-	$cols = $wpdb->get_col( "SHOW COLUMNS FROM `$table`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
+	$cols = $wpdb->get_col( "SHOW COLUMNS FROM `$table`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 	if ( ! is_array( $cols ) ) {
 		return;
 	}
@@ -989,11 +989,11 @@ function improveseo_ensure_bulk_meta_columns() {
 	}
 
 	if ( ! empty( $adds ) ) {
-		$wpdb->query( "ALTER TABLE `$table` " . implode( ', ', $adds ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
+		$wpdb->query( "ALTER TABLE `$table` " . implode( ', ', $adds ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 		if ( function_exists( 'my_plugin_log' ) ) {
 			my_plugin_log( 'improveseo_ensure_bulk_meta_columns: added ' . implode( ', ', $adds ) . ( $wpdb->last_error ? ' | MySQL Error: ' . $wpdb->last_error : ' | OK' ) );
 		}
-		$cols = $wpdb->get_col( "SHOW COLUMNS FROM `$table`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
+		$cols = $wpdb->get_col( "SHOW COLUMNS FROM `$table`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 	}
 
 	// Only mark ready once both columns are confirmed present.
@@ -1025,17 +1025,17 @@ function improveseo_ensure_bulk_published_on_column() {
 		return;
 	}
 
-	$col = $wpdb->get_row( "SHOW COLUMNS FROM `$table` LIKE 'published_on'" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
+	$col = $wpdb->get_row( "SHOW COLUMNS FROM `$table` LIKE 'published_on'" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 	if ( ! $col ) {
 		return;
 	}
 
 	if ( strtolower( $col->Type ) !== 'varchar(19)' ) {
-		$wpdb->query( "ALTER TABLE `$table` MODIFY `published_on` varchar(19) DEFAULT NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
+		$wpdb->query( "ALTER TABLE `$table` MODIFY `published_on` varchar(19) DEFAULT NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 		if ( function_exists( 'my_plugin_log' ) ) {
 			my_plugin_log( 'improveseo_ensure_bulk_published_on_column: widened published_on to varchar(19)' . ( $wpdb->last_error ? ' | MySQL Error: ' . $wpdb->last_error : ' | OK' ) );
 		}
-		$col = $wpdb->get_row( "SHOW COLUMNS FROM `$table` LIKE 'published_on'" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
+		$col = $wpdb->get_row( "SHOW COLUMNS FROM `$table` LIKE 'published_on'" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
 	}
 
 	if ( $col && strtolower( $col->Type ) === 'varchar(19)' ) {

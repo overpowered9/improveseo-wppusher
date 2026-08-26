@@ -23,7 +23,7 @@ class Unique extends BaseValidator
 			return true;
 		}
 
-		$sql = $wpdb->prepare("SELECT id, $field FROM $table WHERE $field = %s", [$data[$field]]); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the column and table are identifiers, guarded to a bare name just above; the compared value is bound
+		$sql = $wpdb->prepare("SELECT id, $field FROM $table WHERE $field = %s", [$data[$field]]); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the column and table are identifiers, guarded to a bare name just above; the compared value is bound
 		$result = $wpdb->get_row($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the column and table are identifiers, guarded to a bare name just above; the compared value is bound
 
 		/* translators: %s is the form field name. */

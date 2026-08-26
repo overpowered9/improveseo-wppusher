@@ -131,7 +131,7 @@ abstract class AbstractModel
 	{
 		global $wpdb;
 
-		$sql = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} WHERE id = %d", [$id]); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
+		$sql = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} WHERE id = %d", [$id]); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 
 		$row = $wpdb->get_row($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 
@@ -162,14 +162,14 @@ abstract class AbstractModel
 			$orderBy = NULL;
 		}
 
-		return $wpdb->get_results("SELECT * FROM {$wpdb->prefix}{$this->table}". ($orderBy ? " ORDER BY $orderBy" : "")); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
+		return $wpdb->get_results("SELECT * FROM {$wpdb->prefix}{$this->table}". ($orderBy ? " ORDER BY $orderBy" : "")); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 	}
 
 	public function paginate($limit = 20)
 	{
 		global $wpdb;
 
-		$sql = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} LIMIT %d, %d", [$this->offset, $limit]); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
+		$sql = $wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} LIMIT %d, %d", [$this->offset, $limit]); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 
 		return $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 	}
@@ -178,7 +178,7 @@ abstract class AbstractModel
 	{
 		global $wpdb;
 
-		$row = $wpdb->get_row("SELECT COUNT(id) AS total FROM {$wpdb->prefix}{$this->table}"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
+		$row = $wpdb->get_row("SELECT COUNT(id) AS total FROM {$wpdb->prefix}{$this->table}"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 		return $row->total;
 	}
 
@@ -190,7 +190,7 @@ abstract class AbstractModel
 			if (isset($condition[1])) {
 				$field = strtolower($condition[1]);
 
-				return $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} WHERE `$field` = %s", [$arguments[0]])); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
+				return $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}{$this->table} WHERE `$field` = %s", [$arguments[0]])); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- table and column identifiers cannot be bound as placeholders; column names are allowlisted against $this->fillable and every value is bound through prepare()
 			}
 		}
 	}

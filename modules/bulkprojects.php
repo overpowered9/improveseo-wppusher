@@ -108,11 +108,14 @@ function improveseo_bulkprojects()
 				));
 
 				if (!empty($post_ids)) {
+					// Dynamic IN() done the safe way: the ids are cast to int, and
+					// $placeholders is a generated run of %d — one per id — not data.
+					// The ids themselves are still bound through prepare().
 					$post_ids = array_map('intval', $post_ids);
 					$placeholders = implode(',', array_fill(0, count($post_ids), '%d'));
-					$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}posts WHERE ID IN ($placeholders)", $post_ids));
+					$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}posts WHERE ID IN ($placeholders)", $post_ids)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders is a generated %d list, not user data; the ids are bound.
 
-					$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}postmeta WHERE post_id IN ($placeholders)", $post_ids));
+					$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}postmeta WHERE post_id IN ($placeholders)", $post_ids)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders is a generated %d list, not user data; the ids are bound.
 				}
 
 				$wpdb->query($wpdb->prepare(

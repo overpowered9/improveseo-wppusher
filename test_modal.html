@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="assets/js/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="assets/js/jquery.modal.min.css" />
+<link rel="stylesheet" href="assets/css/style.css" />
+<link rel="stylesheet" href="assets/css/made_by_me.css" />
+</head>
+<body>
+<div id="preview_popup" class="modal" style="text-align:center; width:90%; max-width:1100px;">
+	<div id="wh_prev_modal_1">Loading...</div>
+	<div id="wh_prev_modal_2" style="display:none;">
+		<div id="preview_content_area" class="iseo-aicontent-wrap">Content</div>
+	</div>
+</div>
+
+<div class="global-wrap">
+    <div class="head-bar">
+        <h1>Header</h1>
+    </div>
+    <div class="improve-seo-container">
+        <div class="table-responsive">
+            <table class="table">
+                <thead><tr><th>Col 1</th><th>Col 2</th></tr></thead>
+                <tbody>
+                    <tr><td>Item 1</td><td>Action <a href="#" id="open-btn">Open</a></td></tr>
+                    <tr><td>Item 2</td><td>Action</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+$('#open-btn').click(function(e) {
+    e.preventDefault();
+    $('#preview_popup').modal();
+});
+</script>
+</body>
+</html>
