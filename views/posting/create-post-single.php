@@ -175,9 +175,12 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 								$checked = 'checked  onclick="return false"';
 							}
 
-							$select .= "<div class='input-group cta-check m-0'><span><input " . $checked . " id='" . $category->term_id . "' type='checkbox' value='" . $category->term_id . "' name='cats[]'><label for='" . $category->term_id . "'>" . $category->name . "</label></span></div>";
+							$select .= "<div class='input-group cta-check m-0'><span><input " . $checked . " id='" . esc_attr( $category->term_id ) . "' type='checkbox' value='" . esc_attr( $category->term_id ) . "' name='cats[]'><label for='" . esc_attr( $category->term_id ) . "'>" . esc_html( $category->name ) . "</label></span></div>";
 						}
-						echo $select;
+						// $select is assembled just above from esc_attr()/esc_html()'d category
+						// fields plus fixed literals ($checked is only ever '', 'checked', or
+						// 'checked  onclick="return false"'), so it is safe by construction.
+						echo $select; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts above; escaping here would render the checkbox markup as text.
 						?>
 						<!-- Add a new category inline (reuses the create_bulk_category AJAX handler).
 						     A brand-new category is appended as a checked cats[] checkbox so it behaves
@@ -270,18 +273,18 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 											if ($task->options['custom_title'] == "")
 												echo '@title';
 											else
-												echo $task->options['custom_title']; ?>
+												echo esc_html( $task->options['custom_title'] ); ?>
 										</div>
 										<div class="google-mobile-preview-description">
 											<span
-												class="google-mobile-preview-description-date"><?php echo gmdate('M d, Y'); ?>
+												class="google-mobile-preview-description-date"><?php echo esc_html( gmdate('M d, Y') ); ?>
 												－ </span>
 											<span class="google-description-content">
 												<?php
 												if ($task->options['custom_title'] == "") {
 													echo "Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.";
 												} else {
-													echo $task->options['custom_title'];
+													echo esc_html( $task->options['custom_title'] );
 												}
 												?>
 											</span>
@@ -304,18 +307,18 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 											if ($task->options['custom_title'] == "")
 												echo '@title';
 											else
-												echo $task->options['custom_title']; ?>
+												echo esc_html( $task->options['custom_title'] ); ?>
 										</div>
 										<div class="google-desktop-preview-description">
 											<span class="google-desktop-preview-description-date">
-												<?php echo gmdate('M d, Y'); ?>－
+												<?php echo esc_html( gmdate('M d, Y') ); ?>－
 											</span>
 											<span class="google-description-content">
 												<?php
 												if ($task->options['custom_title'] == "") {
 													echo "Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.";
 												} else {
-													echo $task->options['custom_title'];
+													echo esc_html( $task->options['custom_title'] );
 												}
 												?>
 											</span>
