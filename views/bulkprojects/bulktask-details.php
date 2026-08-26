@@ -374,7 +374,7 @@ function btd_datetime($val) {
                         elseif ($status === 'Stoped') $badge = 'btd-badge-stoped';
                         elseif ($status === 'Draft') $badge = 'btd-badge-draft';
                         ?>
-                        <span class="btd-badge <?php echo  $badge ?>"><?php echo  esc_html(btd_content_status_label($status)) ?></span>
+                        <span class="btd-badge <?php echo esc_attr( $badge ) ?>"><?php echo  esc_html(btd_content_status_label($status)) ?></span>
                     </div>
                 </div>
                 <div class="btd-row">
@@ -406,13 +406,13 @@ function btd_datetime($val) {
                             }
                         }
                         ?>
-                        <span class="btd-badge <?php echo  $state_badge ?>"><?php echo  esc_html($post_status_label) ?></span>
+                        <span class="btd-badge <?php echo esc_attr( $state_badge ) ?>"><?php echo  esc_html($post_status_label) ?></span>
                     </div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Published On</div>
                     <?php $btd_published = ($task->status === 'Stoped') ? 'N/A' : btd_datetime($task->published_on); ?>
-                    <div class="btd-value <?php echo  $btd_published === 'N/A' ? 'na' : '' ?>"><?php echo  $btd_published ?></div>
+                    <div class="btd-value <?php echo  $btd_published === 'N/A' ? 'na' : '' ?>"><?php echo esc_html( $btd_published ) ?></div>
                 </div>
                 <div class="btd-row">
                     <div class="btd-label">Created</div>
@@ -568,7 +568,7 @@ function btd_datetime($val) {
                         if ($author) {
                             echo esc_html($author->display_name) . ' (ID: ' . esc_html($task->assigning_authors_value) . ')';
                         } else {
-                            echo btd_val($task->assigning_authors_value);
+                            echo btd_val($task->assigning_authors_value); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- btd_val() applies esc_html() to its return value.
                         }
                         ?>
                     </div>
@@ -591,7 +591,7 @@ function btd_datetime($val) {
                                     $cat_names[] = esc_html($cat->name);
                                 }
                             }
-                            echo !empty($cat_names) ? implode(', ', $cat_names) : btd_val($task->cats);
+                            echo !empty($cat_names) ? esc_html( implode(', ', $cat_names) ) : btd_val($task->cats); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- btd_val() applies esc_html() to its return value.
                         } else {
                             echo 'N/A';
                         }

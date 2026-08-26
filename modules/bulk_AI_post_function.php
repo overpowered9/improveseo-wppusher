@@ -2728,7 +2728,7 @@ function multi_form_data()
 		die();
 	}
 
-	echo str_replace( "'", '`', $text );
+	echo esc_html( str_replace( "'", '`', $text ) );
 	die();
 }
 
@@ -3027,7 +3027,7 @@ function generateTitle($seed_type, $seed_keyword, $content_type, $getAudienceDat
 	// contract of swapping single quotes for backticks so they don't break the markup.
 	$content = improveseo_normalize_generated_title($content);
 
-	echo str_replace("'", '`', $content);
+	echo esc_html( str_replace("'", '`', $content) );
 
 }
 

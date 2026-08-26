@@ -729,13 +729,15 @@ function generateAIpopup()
 
     } else {
 
-        die("File not found: $file_path");
+        // Path logged, not printed - see includes/helpers.php for the same reasoning.
+        error_log( "improveseo: popup template not found: $file_path" );
+        die( 'Plugin template not found.' );
 
     }
 
     $output = ob_get_clean();
 
-    echo $output;
+    echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- assembled above with each value escaped at insertion; escaping the whole string would print the tags.
 
 }
 

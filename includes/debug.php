@@ -27,7 +27,7 @@ function improveseo_debug_message($message) {
 	global $debug;
 	
 	if ($debug) {
-		echo $message .'<br>';
+		echo esc_html( $message ) .'<br>';
 
 		ob_flush();
 		flush();

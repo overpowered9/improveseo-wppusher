@@ -255,7 +255,7 @@ switch ($ai_modal_type) {
 
 		foreach ($seo_list as $li) {
 
-			$list .= '<button data-action="list" class="add-seolistshortcode styling_post_page_shortcode_action_buttons button" id=' . $li . '>@list:' . $li . '</button>';
+			$list .= '<button data-action="list" class="add-seolistshortcode styling_post_page_shortcode_action_buttons button" id="' . esc_attr( $li ) . '">@list:' . esc_html( $li ) . '</button>';
 
 		}
 
@@ -397,7 +397,7 @@ switch ($ai_modal_type) {
 
 	}
 
-	echo $html;
+	echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- assembled above with each value escaped at insertion; escaping the whole string would print the tags.
 
 
 

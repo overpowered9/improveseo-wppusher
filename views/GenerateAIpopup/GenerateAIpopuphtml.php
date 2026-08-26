@@ -1444,10 +1444,14 @@ global $ai_modal_type;
                                     $checked  = ($category->slug === 'improve-seo') ? 'checked' : '';
                                     $disabled = ($category->slug === 'improve-seo') ? 'onclick="return false"' : '';
                                     $style    = ($category->slug === 'improve-seo') ? ' style="background:#1C7293;color:white;"' : '';
-                                    echo '<label class="bulk-category-item"' . $style . '>
+                                    // $checked/$disabled/$style are fixed literals set by the ternaries above; the
+                                            // term id and name are escaped at insertion.
+                                            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- $checked/$disabled/$style are fixed literals from the ternaries above; the term id and name are escaped at insertion.
+                                            echo '<label class="bulk-category-item"' . $style . '>
                                         <input type="checkbox" name="modal_single_cats[]" value="' . esc_attr($category->term_id) . '" ' . $checked . ' ' . $disabled . '>
                                         <span>' . esc_html($category->name) . '</span>
                                     </label>';
+                                            // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
                                 }
                                 ?>
                             </div>
@@ -1579,7 +1583,7 @@ global $ai_modal_type;
                                     style="max-width: 100% !important; width: 100%; padding: 10px 20px !important;">
                                     <option value="">Select a Keyword List</option>
                                     
-                                    <?php echo $html_key_to_send; ?>
+                                    <?php echo $html_key_to_send; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- assembled from fixed literals plus values escaped at insertion; escaping the whole string would print the tags. ?>
                                 </select>
                                 <span id="error_keyword_list_name" style="color: red;"></span>
                             </div>
@@ -1656,7 +1660,7 @@ global $ai_modal_type;
                                 </div>
 
                             </div>
-                            <div style="margin-top: 20px;" class="show_lists"><?php echo $list_to_send; ?> </div>
+                            <div style="margin-top: 20px;" class="show_lists"><?php echo $list_to_send; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- assembled from fixed literals plus values escaped at insertion; escaping the whole string would print the tags. ?> </div>
                             <textarea placeholder="Context Prompt"
                                 style="margin-top: 20px; max-width: 100% !important; width: 100%; display: none; resize:none;"
                                 class="form-control" name="existing_keyword"></textarea>
@@ -1830,10 +1834,12 @@ global $ai_modal_type;
                                             $disabled = 'onclick="return false"';
                                         }
                                         
+                                        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- $checked/$disabled/$style are fixed literals from the ternaries above; the term id and name are escaped at insertion.
                                         echo '<label class="bulk-category-item">
-                                            <input type="checkbox" name="cats[]" value="' . $category->term_id . '" ' . $checked . ' ' . $disabled . '>
-                                            <span>' . $category->name . '</span>
+                                            <input type="checkbox" name="cats[]" value="' . esc_attr($category->term_id) . '" ' . $checked . ' ' . $disabled . '>
+                                            <span>' . esc_html($category->name) . '</span>
                                         </label>';
+                                        // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
                                     }
                                     ?>
                                 </div>
@@ -1966,7 +1972,7 @@ global $ai_modal_type;
 
                         <h2 style="padding-left:20px;">Assign Author</h2>
                         <div style="padding: 0 20px 20px;">
-                            <?php echo $all_auths; ?>
+                            <?php echo $all_auths; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- assembled from fixed literals plus values escaped at insertion; escaping the whole string would print the tags. ?>
                         </div>
 
                         <!-- <h2 style="padding-left:20px;">Choose or Create Category</h2>

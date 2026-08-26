@@ -1842,7 +1842,7 @@ function test_spintax(){
 	$text = improveseo_spintax_the_field($string, $project = array(), 3);
 
 
-	echo $text;
+	echo esc_html( $text );
 
 
 	die;
@@ -2203,7 +2203,7 @@ function improveseo_inject_faq_schema() {
     // Prefer the schema stored at publish time (already valid JSON).
     $stored = get_post_meta( $post->ID, '_improveseo_faq_schema', true );
     if ( ! empty( $stored ) ) {
-        echo "\n" . '<script type="application/ld+json">' . $stored . '</script>' . "\n";
+        echo "\n" . '<script type="application/ld+json">' . $stored . '</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $stored is wp_json_encode() output going inside a ld+json script tag; HTML-escaping it would corrupt the schema, and wp_json_encode escapes forward slashes so a </script> breakout is not possible.
         return;
     }
 

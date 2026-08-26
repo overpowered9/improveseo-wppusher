@@ -1963,7 +1963,7 @@ function improveseo_builder()
 	if ($ajax == 1) {
 
 
-		echo $project->iteration;
+		echo (int) $project->iteration;
 
 
 		die();
@@ -4018,7 +4018,7 @@ function improveseo_builder_update()
 	if ($ajax == 1) {
 
 
-		echo $project->iteration;
+		echo (int) $project->iteration;
 
 
 		die();

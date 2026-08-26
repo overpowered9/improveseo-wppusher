@@ -15,7 +15,10 @@ function wt_load_templates( $template_name, $vars = null) {
     if( file_exists( $template_path ) ){
         include  $template_path ;
     } else {
-       die( "Error while loading file {$template_path}" );
+       // The path is logged rather than printed: it exposes the filesystem layout to whoever
+		// triggered the failure, and is only useful to a developer reading the log anyway.
+		error_log( "improveseo: error while loading file {$template_path}" );
+		die( 'Error while loading a plugin template.' );
     }
 }
 

@@ -245,7 +245,7 @@ function improveseo_handle_api_request() {
 				'media' => 'required' 
 		) )) {
 			header ( $_SERVER ['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500 );
-			echo Validator::get ( 'shortcode' );
+			echo esc_html( Validator::get ( 'shortcode' ) );
 			exit ();
 		}
 		

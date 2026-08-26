@@ -27,7 +27,7 @@ function improveseo_diagnose_null_data() {
     );
     
     echo "<h3>Overview</h3>\n";
-    echo "<p>Total tasks in database: <strong>$total_tasks</strong></p>\n";
+    echo "<p>Total tasks in database: <strong>" . esc_html( $total_tasks ) . "</strong></p>\n";
     
     // Check for NULL ai_title
     $null_titles = $wpdb->get_results(
