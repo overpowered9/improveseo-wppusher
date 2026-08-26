@@ -21,6 +21,11 @@
 	$google_api_key = get_option('improveseo_google_api_key');
 	if ($google_api_key):
 ?>
-<script src="//maps.googleapis.com/maps/api/js?key=<?php echo  $google_api_key ?>&callback=ImageEXIF.initMap"
+<?php
+// Google Maps is a legitimate external dependency (wp.org permits it) and is not
+// enqueued because the callback parameter below hands control to inline code on this
+// page; moving it to wp_enqueue_script() would change when that callback fires.
+?>
+<script<?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- see note above. ?> src="<?php echo esc_url( '//maps.googleapis.com/maps/api/js?key=' . $google_api_key . '&callback=ImageEXIF.initMap' ); ?>"
     async defer></script>
 <?php endif; ?>

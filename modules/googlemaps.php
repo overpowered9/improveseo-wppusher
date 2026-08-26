@@ -23,10 +23,17 @@ if ( ! defined( 'ABSPATH' ) ) {
     
   	
 ?>
-<script src="https://maps.googleapis.com/maps/api/js?key=<?php echo $apikey ?>"></script>
+<?php
+// Google Maps is a legitimate external dependency and is not bundled (wp.org permits it).
+// It is not enqueued because the inline initialiser directly below assumes google.maps is
+// already defined; moving this to wp_enqueue_script() would load it after that code runs.
+?>
+<script src="<?php echo esc_url( 'https://maps.googleapis.com/maps/api/js?key=' . $apikey ); ?>"></script><?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- see note above. ?>
 <script>
     var myMap;
-    var myLatlng = new google.maps.LatLng(<?php echo $lati;?>,<?php echo $longi;?>);
+    // floatval(): these are coordinates being written into JavaScript. Unescaped, a stored
+    // value like "0);alert(1)//" would execute here.
+    var myLatlng = new google.maps.LatLng(<?php echo floatval( $lati );?>,<?php echo floatval( $longi );?>);
     function initialize() {
         var mapOptions = {
             zoom: 8,
@@ -38,7 +45,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         var marker = new google.maps.Marker({
             position: myLatlng,
             map: myMap,
-            title: '<?php echo $title;?>',
+            title: '<?php echo esc_js( $title );?>',
             icon: 'http://www.google.com/intl/en_us/mapfiles/ms/micons/red-dot.png'
         });
     }

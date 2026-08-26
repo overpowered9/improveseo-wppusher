@@ -133,7 +133,9 @@ foreach ($id as $p) {
         }
         $video .= '<iframe class="fitvidsignore" src="'. esc_url( $vimeo_url ) .'" width="'. esc_attr( $video_width ) .'" height="'. esc_attr( $video_height ) .'" frameborder="0" allow="'.$allow.'" style="'.$video_style.' margin:10px 0;"></iframe>';
         if($video_height=="auto" && $video_width=="100%"){
-            $video .= '</div><script src="https://player.vimeo.com/api/player.js"></script>';
+            // Vimeo's player API, required by the iframe embed above and loaded from Vimeo by
+            // design. Not enqueued because it must follow the iframe it drives.
+            $video .= '</div><script src="https://player.vimeo.com/api/player.js"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- see note above.
         }
     }
     $video .= '</span>';

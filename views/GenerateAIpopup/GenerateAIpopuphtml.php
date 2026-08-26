@@ -1,13 +1,13 @@
 <?php if ( ! defined( 'ABSPATH' ) ) { exit; } // Exit if accessed directly. ?>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
-<script type="text/javascript"
-    src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/jquery.smartWizard.min.js"></script>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-<link href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/smart_wizard.min.css" rel="stylesheet"
-    type="text/css" />
-<link href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/smart_wizard_theme_dots.min.css" rel="stylesheet"
-    type="text/css" />
+<?php
+// The Bootstrap, smartWizard and Font Awesome tags that used to sit here are now registered
+// in includes/assets.php (improveseo_enqueue_vendor_assets) and served from assets/vendor/.
+// Three of them came from jsdelivr's GitHub passthrough pinned to "@main", so whoever
+// controlled that repository could push arbitrary JavaScript into wp-admin.
+//
+// They are enqueued in the HEAD, not the footer, so smartWizard is defined before
+// assets/js/custom-plugin-script.js calls .smartWizard() from the footer.
+?>
 <?php
 $plugin_url = plugin_dir_url(dirname(__FILE__, 2)); // Go up 2 levels to the root of the plugin
 $image_url = $plugin_url . 'assets/images/AI-generated.gif';

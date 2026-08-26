@@ -36,7 +36,9 @@ function improveseo_enqueue_admin(){
 	wp_enqueue_style('improveseocss12121', IMPROVESEO_DIR . '/assets/css/made_by_me.css', array(), filemtime(IMPROVESEO_ROOT . '/assets/css/made_by_me.css'));
 	wp_enqueue_style('improveseo-settings-redesign', IMPROVESEO_DIR . '/assets/css/settings-redesign.css', array(), improveseo_asset_ver('assets/css/settings-redesign.css'));
 
-	wp_enqueue_style('improveseo-fa', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css');
+	// Bundled locally: wp.org does not permit loading assets from a remote host, and a CDN
+	// outage would otherwise take the plugin's icons with it. Same file, same version.
+	wp_enqueue_style('improveseo-fa', IMPROVESEO_DIR . '/assets/vendor/css/font-awesome-4.5.0.min.css', array(), improveseo_asset_ver('assets/vendor/css/font-awesome-4.5.0.min.css'));
 
 	wp_enqueue_style('improveseo-modalStyle',IMPROVESEO_DIR . '/assets/js/jquery.modal.min.css');
 
@@ -94,7 +96,9 @@ function improveseo_enqueue_admin(){
 
 	
 
-	wp_enqueue_script('improveseo-underscore', 'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js', array('underscore'));
+	// Bundled locally, same version. The 'underscore' dependency is kept: WordPress ships
+	// its own copy and this loaded on top of it, which is the existing behaviour.
+	wp_enqueue_script('improveseo-underscore', IMPROVESEO_DIR . '/assets/vendor/js/underscore.min.js', array('underscore'), improveseo_asset_ver('assets/vendor/js/underscore.min.js'));
 
 	
 
@@ -264,7 +268,10 @@ add_action( 'after_wp_tiny_mce', 'improveseo_after_wp_tiny_mce' );
 
 function improveseo_after_wp_tiny_mce() {
 
-    printf( '<script type="text/javascript" src="%s"></script>',  IMPROVESEO_DIR.'/assets/js/shortcode-popup-button.js' );
+    // Printed rather than enqueued because after_wp_tiny_mce fires inside the editor's own
+    // output, after the enqueue queue for the page has already been flushed. The URL is a
+    // plugin-local constant, and is escaped regardless.
+    printf( '<script type="text/javascript" src="%s"></script>', esc_url( IMPROVESEO_DIR . '/assets/js/shortcode-popup-button.js' ) ); // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- see note above.
 
 }
 
@@ -358,4 +365,53 @@ function improveseo_enqueue_guide_assets() {
 		improveseo_asset_ver( 'assets/js/onboarding-guide.js' ),
 		true
 	);
+}
+
+
+/**
+ * Vendor assets for the AI wizard screens.
+ *
+ * These were hardcoded <script>/<link> tags at the top of
+ * views/GenerateAIpopup/GenerateAIpopuphtml.php and views/dashboard/index.php, loaded from
+ * four different CDNs. Three of them came from jsdelivr's GitHub passthrough pinned to
+ * "@main", so whoever controlled that repository could push arbitrary JavaScript into the
+ * wp-admin of every site running this plugin. They are now served from the plugin.
+ *
+ * Loaded in the HEAD, not the footer. That is deliberate: the tags they replace sat at the
+ * very top of the template and therefore executed before anything in the footer, and
+ * assets/js/custom-plugin-script.js calls jQuery("#smartwizard").smartWizard() from the
+ * footer. Enqueueing these in the footer would be a coin toss on ordering and would break
+ * the wizard; the head guarantees they are ready first.
+ *
+ * Bootstrap CSS is loaded TWICE, 4.5.2 then 4.3.1, because that is exactly what the template
+ * did — 4.3.1 wins the cascade for any overlapping rule. Collapsing to one version is a
+ * visual change and is deliberately left alone here; it should be a separate, reviewable
+ * commit.
+ *
+ * Scoped to this plugin's own screens so none of it leaks onto other admin pages.
+ */
+add_action( 'admin_enqueue_scripts', 'improveseo_enqueue_vendor_assets' );
+
+function improveseo_enqueue_vendor_assets() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading the current admin screen, not acting on input.
+	$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+	if ( strpos( $page, 'improveseo' ) !== 0 ) {
+		return;
+	}
+
+	$v = 'assets/vendor/';
+
+	wp_enqueue_style( 'improveseo-vendor-bootstrap-452', IMPROVESEO_DIR . '/' . $v . 'css/bootstrap-4.5.2.min.css', array(), improveseo_asset_ver( $v . 'css/bootstrap-4.5.2.min.css' ) );
+	wp_enqueue_style( 'improveseo-vendor-bootstrap-431', IMPROVESEO_DIR . '/' . $v . 'css/bootstrap-4.3.1.min.css', array( 'improveseo-vendor-bootstrap-452' ), improveseo_asset_ver( $v . 'css/bootstrap-4.3.1.min.css' ) );
+	wp_enqueue_style( 'improveseo-vendor-smartwizard', IMPROVESEO_DIR . '/' . $v . 'css/smart_wizard.min.css', array(), improveseo_asset_ver( $v . 'css/smart_wizard.min.css' ) );
+	wp_enqueue_style( 'improveseo-vendor-smartwizard-dots', IMPROVESEO_DIR . '/' . $v . 'css/smart_wizard_theme_dots.min.css', array( 'improveseo-vendor-smartwizard' ), improveseo_asset_ver( $v . 'css/smart_wizard_theme_dots.min.css' ) );
+	wp_enqueue_style( 'improveseo-vendor-fa6', IMPROVESEO_DIR . '/' . $v . 'css/font-awesome-6.6.0.min.css', array(), improveseo_asset_ver( $v . 'css/font-awesome-6.6.0.min.css' ) );
+
+	// Google Fonts stays remote: Plugin Check flags it as non-enqueued but does NOT flag it
+	// as offloading, and wp.org permits it. Enqueueing is all that was missing.
+	wp_enqueue_style( 'improveseo-google-fonts', 'https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap', array(), null );
+
+	// $in_footer = false — see the note above about smartWizard ordering.
+	wp_enqueue_script( 'improveseo-vendor-bootstrap', IMPROVESEO_DIR . '/' . $v . 'js/bootstrap.bundle.min.js', array( 'jquery' ), improveseo_asset_ver( $v . 'js/bootstrap.bundle.min.js' ), false );
+	wp_enqueue_script( 'improveseo-vendor-smartwizard', IMPROVESEO_DIR . '/' . $v . 'js/jquery.smartWizard.min.js', array( 'jquery' ), improveseo_asset_ver( $v . 'js/jquery.smartWizard.min.js' ), false );
 }
