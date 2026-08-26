@@ -13,9 +13,14 @@ use ImproveSEO\Models\Shortcode;
 
 function improveseo_lists() {
 	global $wpdb;
-	$action = isset($_GET['action']) ? $_GET['action'] : 'index';
-	$limit = isset($_GET['limit']) ? $_GET['limit'] : 20;
-	$offset = isset($_GET['paged']) ? $_GET['paged'] * $limit - $limit : 0;
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only list screen, no state change.
+	$action = isset($_GET['action']) ? sanitize_key( wp_unslash( $_GET['action'] ) ) : 'index';
+	// Bound with %d in the LIMIT clause below, so casting here is belt-and-braces for the
+	// query — but the floor of 1 is load-bearing: $limit divides $total further down, and
+	// "?limit=0" reached that division.
+	$limit = isset($_GET['limit']) ? max( 1, absint( wp_unslash( $_GET['limit'] ) ) ) : 20;
+	$offset = isset($_GET['paged']) ? max( 0, absint( wp_unslash( $_GET['paged'] ) ) * $limit - $limit ) : 0;
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 	$model = new Lists();
 
 	// Allowed mime types
@@ -70,9 +75,18 @@ function improveseo_lists() {
 	
 	if ($action == 'index'):
 		// Filters
-		$orderBy = isset($_GET['orderBy']) ? $_GET['orderBy'] : 'name';
-		$order = isset($_GET['order']) ? $_GET['order'] : 'ASC';
-		$s = isset($_GET['s']) ? $_GET['s'] : '';
+		//
+		// orderBy and order are SQL IDENTIFIERS spliced into the ORDER BY clause below, and
+		// $wpdb->prepare() cannot bind an identifier. They were previously taken raw from
+		// $_GET, so "?orderBy=name,(SELECT ...)" was injectable. Both are now matched against
+		// a fixed allowlist and fall back to the default on anything unrecognised — the same
+		// pattern modules/projects.php already uses.
+		$allowed_order_by = array( 'name', 'created_at', 'id' );
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only list screen, no state change.
+		$orderBy = ( isset($_GET['orderBy']) && in_array( wp_unslash( $_GET['orderBy'] ), $allowed_order_by, true ) ) ? wp_unslash( $_GET['orderBy'] ) : 'name';
+		$order = ( isset($_GET['order']) && in_array( strtoupper( wp_unslash( $_GET['order'] ) ), array( 'ASC', 'DESC' ), true ) ) ? strtoupper( wp_unslash( $_GET['order'] ) ) : 'ASC';
+		$s = isset($_GET['s']) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		$where = array();
 		$params = array();
 		$sql = 'SELECT * FROM '. $model->getTable();
@@ -83,13 +97,22 @@ function improveseo_lists() {
 			$sqlTotal .= " WHERE name like '%%%s%%'";
 			$params[] = $s;
 		}
-		$sqlTotal = $wpdb->prepare($sqlTotal, $params);
+		// Only prepare when there is something to bind. With no search term $sqlTotal
+		// carries no placeholders, and $wpdb->prepare() on a placeholder-free query is a
+		// _doing_it_wrong() notice in current WordPress — so the unfiltered list view was
+		// emitting one on every load.
+		if ( $params ) {
+			$sqlTotal = $wpdb->prepare($sqlTotal, $params); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- built above from literals plus Lists::getTable(); the only bound value is the search term.
+		}
+
+		// $orderBy and $order are allowlisted above — prepare() cannot bind an identifier.
 		$sql .= " ORDER BY $orderBy $order";
 		$sql .= " LIMIT %d, %d";
 		$params[] = $offset;
 		$params[] = $limit;
 
-		$sql = $wpdb->prepare($sql, $params);
+		// Always has the two LIMIT placeholders, so this one never needs the guard above.
+		$sql = $wpdb->prepare($sql, $params); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- built above from literals plus Lists::getTable(); every user value is bound.
 
 		// Data
 		$lists = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
