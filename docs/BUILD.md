@@ -105,13 +105,19 @@ mkdir -p "$STAGE/$SLUG" "$OUT"
 # .claude/ directory nobody had thought of — an enumerated list only excludes the dot-files
 # that existed the day it was written, and wp.org rejects any of them. Verified first that no
 # dot-file in this plugin needs to ship: there is no .htaccess, no .user.ini, nothing.
+# The exclude list lives in .distignore, not in this script, so that the two can never
+# drift apart. '.*' is added on top of it as a catch-all: an enumerated list only excludes
+# the dot-files that existed the day it was written, and wp.org rejects any of them. This
+# was a deliberate change after the first run tripped the safety net below on a .claude/
+# directory nobody had anticipated.
+if [ ! -f "$SRC/.distignore" ]; then
+  echo "ERROR: .distignore is missing — refusing to build a ZIP with no exclude list" >&2
+  exit 1
+fi
+
 rsync -a \
   --exclude '.*' \
-  --exclude 'node_modules' \
-  --exclude 'dist' \
-  --exclude 'build-release.sh' \
-  --exclude '*.log' \
-  --exclude 'test_modal.html' \
+  --exclude-from="$SRC/.distignore" \
   "$SRC/" "$STAGE/$SLUG/"
 
 # Belt and braces: catch any dot-file the list above did not anticipate. A new one appearing

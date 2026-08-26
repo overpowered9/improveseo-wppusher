@@ -1,0 +1,36 @@
+# Files and directories excluded from the distributed WordPress.org ZIP.
+#
+# These stay in the repository — they are development and packaging assets — but must not
+# ship, because WP Pusher installs the working tree directly and wp.org rejects several of
+# them outright (dot-files, application files).
+#
+# Consumed by the build procedure in docs/BUILD.md. Format matches `wp dist-archive`:
+# one path or glob per line, relative to the plugin root.
+
+# Version control and editor state
+.git
+.gitignore
+.gitattributes
+.github
+.claude
+.vscode
+.idea
+.DS_Store
+
+# This file, and the build/documentation assets it belongs to
+.distignore
+docs
+PLUGIN-CHECK-NOTES.md
+README.md
+
+# Dev tooling. package-lock.json is an orphan — there is no package.json in this repo.
+docker-compose.yml
+package-lock.json
+node_modules
+
+# Build output
+dist
+
+# Scratch and logs
+test_modal.html
+*.log
