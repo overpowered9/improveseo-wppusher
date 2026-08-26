@@ -124,11 +124,13 @@ function improveseo_bulkprojects()
 					$project_id
 				));
 
+				// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- table name from AbstractModel::getTable(); user values are bound.
 				$wpdb->query($wpdb->prepare(
 					"DELETE FROM " . $detailsTaskModel->getTable() . " 
 						WHERE bulktask_id = %d",
 					$project_id
 				));
+				// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
 				if ($model->delete($project_id)) {
 					$deleted_count++;
@@ -234,14 +236,14 @@ function improveseo_bulkprojects()
 		}
 
 		if ($params) {
-			$sqlTotal = $wpdb->prepare($sqlTotal, $params);
+			$sqlTotal = $wpdb->prepare($sqlTotal, $params); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(), which builds it from $wpdb->prefix and the class name; every user value is bound.
 		}
 
 		$sql .= " ORDER BY $orderBy $order";
 		$sql .= " LIMIT %d, %d";
 		$params[] = $offset;
 		$params[] = $limit;
-		$sql = $wpdb->prepare($sql, $params);
+		$sql = $wpdb->prepare($sql, $params); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(), which builds it from $wpdb->prefix and the class name; every user value is bound.
 
 		// Data
 		$projects = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
@@ -257,7 +259,7 @@ function improveseo_bulkprojects()
 			$where = array('id' => $id);
 			$sql = 'SELECT * FROM ' . $model->getTable();
 			$sql .= ' WHERE `id` = %d';
-			$sql = $wpdb->prepare($sql, $id);
+			$sql = $wpdb->prepare($sql, $id); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(), which builds it from $wpdb->prefix and the class name; every user value is bound.
 			$projects = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 			if (!empty($projects[0]->name)) {
 				$project_name = $projects[0]->name;
@@ -290,11 +292,11 @@ function improveseo_bulkprojects()
 
 		$sql      = 'SELECT * FROM ' . $detailsTaskModel->getTable() . ' WHERE ' . $where_sql;
 		$sqlTotal = 'SELECT COUNT(id) AS total FROM ' . $detailsTaskModel->getTable() . ' WHERE ' . $where_sql;
-		$sqlTotal = $wpdb->prepare($sqlTotal, $params);
+		$sqlTotal = $wpdb->prepare($sqlTotal, $params); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(), which builds it from $wpdb->prefix and the class name; every user value is bound.
 		$sql     .= " ORDER BY $orderBy $order LIMIT %d, %d";
 		$params[] = $offset;
 		$params[] = $limit;
-		$sql = $wpdb->prepare($sql, $params);
+		$sql = $wpdb->prepare($sql, $params); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(), which builds it from $wpdb->prefix and the class name; every user value is bound.
 
 		// Data
 		$projects = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
@@ -315,7 +317,7 @@ function improveseo_bulkprojects()
 		$sql = 'SELECT * FROM ' . $detailsTaskModel->getTable();
 		$sql .= ' WHERE `id` = %d';
 		$sql .= " ORDER BY $orderBy $order";
-		$sql = $wpdb->prepare($sql, $id);
+		$sql = $wpdb->prepare($sql, $id); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(), which builds it from $wpdb->prefix and the class name; every user value is bound.
 
 		// Data
 		$projects = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
@@ -362,7 +364,7 @@ function improveseo_bulkprojects()
 		$project_name = '';
 		if (!empty($task->bulktask_id)) {
 			$project_name = (string) $wpdb->get_var($wpdb->prepare(
-				"SELECT name FROM " . $model->getTable() . " WHERE id = %d",
+				"SELECT name FROM " . $model->getTable() . " WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(), which builds it from $wpdb->prefix and the class name; every user value is bound.
 				$task->bulktask_id
 			));
 		}
@@ -463,6 +465,7 @@ function improveseo_bulkprojects()
 		$mainid = absint($_GET['mainid']);
 		// Only cancel tasks that have no WordPress post yet — once a post exists
 		// (scheduled or published) its status is real and must not be overwritten.
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- table name from AbstractModel::getTable(); user values are bound.
 		$stopped = $wpdb->query(
 			$wpdb->prepare(
 				"UPDATE `" . $detailsTaskModel->getTable() . "`
@@ -472,6 +475,7 @@ function improveseo_bulkprojects()
 				$id
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
 		if ($stopped) {
 			FlashMessage::success('Task has been canceled. Content generation has been halted.');
@@ -871,13 +875,27 @@ function improveseo_bulkprojects()
 					));
 					// If there are posts associated with this project_id, proceed with deletion
 					if (!empty($post_ids)) {
+						// Both queries below used to interpolate implode(',', $post_ids) straight
+						// into IN(), then wrap the result in $wpdb->prepare() with no placeholders
+						// and no arguments. The ids come from the database so nothing was
+						// injectable, but prepare() on a query containing no placeholder is a
+						// _doing_it_wrong() notice — so deleting a bulk project emitted two.
+						//
+						// Switched to the generated-%d-list pattern this same file already uses
+						// when deleting a single project's posts, so the ids are genuinely bound
+						// and the two forms in this file now agree.
+						$post_ids = array_map('intval', $post_ids);
+						$id_placeholders = implode(',', array_fill(0, count($post_ids), '%d'));
+
 						// Delete postmeta entries for 'improveseo_channel' associated with these posts
 						$wpdb->query($wpdb->prepare(
-							"DELETE FROM {$wpdb->prefix}postmeta WHERE post_id IN (" . implode(',', $post_ids) . ") AND meta_key = 'improveseo_channel'"
+							"DELETE FROM {$wpdb->prefix}postmeta WHERE post_id IN ($id_placeholders) AND meta_key = 'improveseo_channel'", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- generated %d list, not user data.
+							$post_ids
 						));
 						// Delete posts associated with this project_id
 						$wpdb->query($wpdb->prepare(
-							"DELETE FROM {$wpdb->prefix}posts WHERE ID IN (" . implode(',', $post_ids) . ")"
+							"DELETE FROM {$wpdb->prefix}posts WHERE ID IN ($id_placeholders)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- generated %d list, not user data.
+							$post_ids
 						));
 						// Delete postmeta entries for 'improveseo_project_id' associated with this project_id
 						$wpdb->query($wpdb->prepare(
@@ -908,7 +926,7 @@ function improveseo_bulkprojects()
 		}
 
 		// Fetch the bulk task detail row
-		$sql = $wpdb->prepare("SELECT * FROM " . $detailsTaskModel->getTable() . " WHERE id = %d", $task_id);
+		$sql = $wpdb->prepare("SELECT * FROM " . $detailsTaskModel->getTable() . " WHERE id = %d", $task_id); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(), which builds it from $wpdb->prefix and the class name; every user value is bound.
 		$task = $wpdb->get_row($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
 
 		if (!$task) {
@@ -920,7 +938,7 @@ function improveseo_bulkprojects()
 		// Get parent project name
 		$parent_name = '';
 		if ($task->bulktask_id) {
-			$parent = $wpdb->get_row($wpdb->prepare("SELECT name FROM " . $model->getTable() . " WHERE id = %d", $task->bulktask_id));
+			$parent = $wpdb->get_row($wpdb->prepare("SELECT name FROM " . $model->getTable() . " WHERE id = %d", $task->bulktask_id)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(), which builds it from $wpdb->prefix and the class name; every user value is bound.
 			if ($parent) {
 				$parent_name = $parent->name;
 			}

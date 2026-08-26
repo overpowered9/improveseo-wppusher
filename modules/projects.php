@@ -173,7 +173,7 @@ function improveseo_projects()
     }
 
     if ($params) {
-      $sqlTotal = $wpdb->prepare($sqlTotal, $params);
+      $sqlTotal = $wpdb->prepare($sqlTotal, $params); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(), which builds it from $wpdb->prefix and the class name; every user value is bound.
     }
 
     $sql .= " ORDER BY $orderBy $order";
@@ -182,7 +182,7 @@ function improveseo_projects()
     $params[] = $offset;
     $params[] = $limit;
 
-    $sql = $wpdb->prepare($sql, $params);
+    $sql = $wpdb->prepare($sql, $params); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(), which builds it from $wpdb->prefix and the class name; every user value is bound.
 
     // Data
     $projects = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above

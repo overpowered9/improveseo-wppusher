@@ -528,7 +528,7 @@ function improveseo_expand_geodata($country, $geodata, $tags) {
 					if ((isset($geodata[$key + 1]) && !preg_match("/^$loc/", $geodata[$key + 1])) || !isset($geodata[$key + 1])) {
 
 
-						$cities = $wpdb->get_results( ! in_array('zip', $tags) ? $wpdb->prepare("SELECT id, zip FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = %s AND 1=1 GROUP BY city, county", $loc) : $wpdb->prepare("SELECT id, zip FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = %s AND 1=1", $loc) );
+						$cities = $wpdb->get_results( ! in_array('zip', $tags) ? $wpdb->prepare("SELECT id, zip FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = %s AND 1=1 GROUP BY city, county", $loc) : $wpdb->prepare("SELECT id, zip FROM {$wpdb->prefix}improveseo_us_cities WHERE state_code = %s AND 1=1", $loc) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- both branches of the ternary are $wpdb->prepare() calls; the tokens flagged here are the ternary CONDITION, not SQL. $loc is gated by preg_match('/^[A-z]{2}$/') above and is bound with %s.
 
 
 
@@ -648,7 +648,7 @@ function improveseo_expand_geodata($country, $geodata, $tags) {
 					if ((isset($geodata[$key + 1]) && !preg_match("/^$loc/", $geodata[$key + 1])) || !isset($geodata[$key + 1])) {
 
 
-						$cities = $wpdb->get_results( ! in_array('zip', $tags) ? $wpdb->prepare("SELECT id, postcode FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = %s AND 1=1 GROUP BY name", $loc) : $wpdb->prepare("SELECT id, postcode FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = %s AND 1=1", $loc) );
+						$cities = $wpdb->get_results( ! in_array('zip', $tags) ? $wpdb->prepare("SELECT id, postcode FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = %s AND 1=1 GROUP BY name", $loc) : $wpdb->prepare("SELECT id, postcode FROM {$wpdb->prefix}improveseo_uk_cities WHERE region_id = %s AND 1=1", $loc) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- both branches of the ternary are $wpdb->prepare() calls; the tokens flagged here are the ternary CONDITION, not SQL. $loc is gated by preg_match('/^[A-z]{2}$/') above and is bound with %s.
 
 
 
