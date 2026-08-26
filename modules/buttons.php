@@ -47,17 +47,17 @@ foreach ($id as $p) {
       
       $btn .= '<span class="improveseo_row">';
       if($tw_button_type=="normal_btn"){
-            $btn .= '<a style="'.$style.'" class="improveseo_btn '.$classes.'" href="'.improveseo_addHttp($link).'">'.$text.'</a>';
+            $btn .= '<a style="'. esc_attr( $style ) .'" class="improveseo_btn '. esc_attr( $classes ) .'" href="'. esc_url( improveseo_addHttp($link) ) .'">'. esc_html( $text ) .'</a>';
       }else{
-            $btn .= '<a style="'.$style.'" class="improveseo_btn '.$classes.'" href="tel:'.$tw_tap_btn_number.'">';
+            $btn .= '<a style="'. esc_attr( $style ) .'" class="improveseo_btn '. esc_attr( $classes ) .'" href="tel:'. rawurlencode( $tw_tap_btn_number ) .'">';
             if($tw_tap_to_call_img_source!=""){
-                  $btn .= '<img src="'.$tw_tap_to_call_img_source.'" />';
+                  $btn .= '<img src="'. esc_url( $tw_tap_to_call_img_source ) .'" />';
             }
 
-            $btn .= $tw_tap_btn_text;
+            $btn .= esc_html( $tw_tap_btn_text );
             $btn .= '</a>';
             //echo '<a style="'.$style.'" class="improveseo_btn '.$classes.'" href="'.$link.'">'.$text.'</a>';
       }
       $btn .= '</span>';
-      echo $btn;
+      echo $btn; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup assembled above with each value escaped at the point it is inserted; escaping the whole string would render the tags as text.
 }

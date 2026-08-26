@@ -27,27 +27,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="improveseo_testimonial_wrapper" id="improveseo_testimonial_wrapper_'.$i.'">';
         $margin = '';
         if($testi_img_src != ''){
-            $html .= '<div style="background-image:url('.$testi_img_src.');" class="improveseo_testimonial_portrait"></div>';
+            $html .= '<div style="background-image:url('. esc_url( $testi_img_src ) .');" class="improveseo_testimonial_portrait"></div>';
         }else{
             //$html .= '<div style="" class="improveseo_testimonial_portrait"></div>';
             $margin = 'margin-left:10px !important';
         }
         
         
-        $html .= '<div class="improveseo_testimonial_description" style="'.$margin.'">
+        $html .= '<div class="improveseo_testimonial_description" style="'. esc_attr( $margin ) .'">
                     <div class="improveseo_testimonial_description_inner">
                         <div class="improveseo_testimonial_content">
-                            <p><span style="">'.$tw_testi_content.'</span></p>
+                            <p><span style="">'. esc_html( $tw_testi_content ) .'</span></p>
                         </div>
                     </div>';
         if($tw_testi_name!=""): 
-            $html .= '<span class="improveseo_testimonial_author">'.$tw_testi_name.'</span>
+            $html .= '<span class="improveseo_testimonial_author">'. esc_html( $tw_testi_name ) .'</span>
                     <p class="improveseo_testimonial_meta">
-                        <span class="improveseo_testimonial_company">'.stripslashes($tw_testi_position).'</span>
+                        <span class="improveseo_testimonial_company">'. esc_html( stripslashes($tw_testi_position) ) .'</span>
                     </p>';
         endif;
                 $html .= '</div>
             </div>
         </div>';
-    echo $html;
+    echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup assembled above with each value escaped at the point it is inserted; escaping the whole string would render the tags as text.
 } ?>

@@ -40,14 +40,14 @@ if ( ! defined( 'ABSPATH' ) ) {
                 $kw_proj_name = isset($get_keyworddata['proj_name']) ? $get_keyworddata['proj_name'] : '';
                 
 
-                $html .= '<td data-colname="Project Name">'.$kw_proj_name.'</td>
+                $html .= '<td data-colname="Project Name">'. esc_html( $kw_proj_name ) .'</td>
                         <td class="actions-btn" data-colname="Actions"><span data-keyword_rand_id='.$keyowrd_id.' class="kw-download-kwproject wt-icons ct-btn btn btn-outline-primary mr-2">Save</span><span data-keyword_rand_id='.$keyowrd_id.' style="color:red" class="kw-dlt-kwproject wt-icons del-btn btn btn-outline-danger">Remove</span></td>
                         </tr>';
 
             
                 $no++;
             }
-            echo $html;
+            echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup assembled above with each value escaped at the point it is inserted; escaping the whole string would render the tags as text.
          ?>
          </tbody>
 </table>

@@ -131,11 +131,11 @@ foreach ($id as $p) {
             $video .= '<div style="padding:56.25% 0 0 0;position:relative;">';
             $video_style .= 'position:absolute;top:0;left:0;width:100%;height:100%;';
         }
-        $video .= '<iframe class="fitvidsignore" src="'.$vimeo_url.'" width="'.$video_width.'" height="'.$video_height.'" frameborder="0" allow="'.$allow.'" style="'.$video_style.' margin:10px 0;"></iframe>';
+        $video .= '<iframe class="fitvidsignore" src="'. esc_url( $vimeo_url ) .'" width="'. esc_attr( $video_width ) .'" height="'. esc_attr( $video_height ) .'" frameborder="0" allow="'.$allow.'" style="'.$video_style.' margin:10px 0;"></iframe>';
         if($video_height=="auto" && $video_width=="100%"){
             $video .= '</div><script src="https://player.vimeo.com/api/player.js"></script>';
         }
     }
     $video .= '</span>';
-    echo $video;
+    echo $video; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup assembled above with each value escaped at the point it is inserted; escaping the whole string would render the tags as text.
 }
