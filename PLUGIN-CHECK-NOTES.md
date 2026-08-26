@@ -106,19 +106,65 @@ contains no dot-files at all, verified after each build.
 
 ## 3. `includes/lsolesen/pel/**` — 60 findings — THIRD-PARTY LIBRARY
 
-The bundled PEL EXIF library. Split by kind:
+The bundled PEL EXIF library (copyright 2004–2007, i.e. PEL ~0.9.x). Split by kind:
 
+* **5 × `OutputNotEscaped`** — statements that genuinely `echo`. **Patched.** See below.
 * **55 × `ExceptionNotEscaped`** — interpolated values inside `throw new …Exception(…)` messages.
-  Not user-facing output unless an exception goes uncaught.
-* **5 × `OutputNotEscaped`** — `Pel.php:271`, `Pel.php:296`, `PelConvert.php:421`. These genuinely
-  echo, via the library's own debug/warning helpers.
+  **Accepted, not patched.** See below.
 
-PEL is genuinely used — 26 references in `includes/functions.php` write GPS EXIF data into
-generated images — so it can be neither deleted nor ignored away. Patching it in place is
-possible but is undone by the next library update.
+### PEL cannot be removed, and cannot be replaced with core functions
 
-**Status: decision pending.** See the options and recommendation in the accompanying analysis.
-Nothing in `includes/lsolesen/` has been modified.
+`addGpsInfo()` (`includes/functions.php:1467`) writes GPS EXIF into generated images for the
+local-SEO feature. Three live call sites: `modules/builder.php:1016`, `modules/builder.php:3066`,
+`includes/crons.php:145`.
+
+The usage is **write-only** — 9 `addEntry()` calls, zero `getEntry()`/`getValue()`, ending in
+`file_put_contents($output, $jpeg->getBytes())`. That matters, because **PHP has no EXIF writer**:
+`exif_read_data()` exists, but there is no `exif_write_*` counterpart, and
+`wp_read_image_metadata()` is read-only. So "drop PEL and use native functions" is not available —
+dropping PEL means dropping image geotagging.
+
+### The 5 `OutputNotEscaped` — patched
+
+| File | Line | Before | After |
+|---|---|---|---|
+| `Pel.php` | 271 | `vprintf($str . "\n", $args)` | `echo esc_html( vsprintf( … ) )` |
+| `Pel.php` | 296 | `vprintf('Warning: ' . …)` | `echo esc_html( vsprintf( … ) )` |
+| `PelConvert.php` | 421 | `printf('%02X ', ord(…))` | `echo esc_html( sprintf( … ) )` |
+| `PelConvert.php` | 424 | `print("\n")` | `echo "\n"` |
+| `PelConvert.php` | 427 | `print("\n")` | `echo "\n"` |
+
+Five lines changed, nothing else. These are the **only** output statements in the entire PEL tree.
+
+Both code paths are unreachable as shipped, so the patch is a hardening measure rather than a live
+fix:
+
+* `Pel::debug()` / `Pel::warning()` are gated on `private static $debug = false`, and
+  `Pel::setDebug()` is never called anywhere in the plugin.
+* `PelConvert::bytesToDump()` has **zero** call sites outside the library.
+
+Verified by running the patched and unpatched classes side by side: `bytesToDump()` output is
+byte-identical across all 256 byte values at six buffer lengths; `debug()`/`warning()` are
+identical both with the flag off (silent) and on (plain-text messages). Output diverges only when a
+message contains HTML, which is exactly the case being fixed. `addGpsInfo()` was then exercised
+end-to-end — a generated JPEG came back a valid image with GPS EXIF that `exif_read_data()` reads
+back to the written coordinates.
+
+### The 55 `ExceptionNotEscaped` — accepted
+
+These reach a screen only via an uncaught exception. Patching them would mean 55 more edits to
+re-apply on every library update, for no behaviour change in any normal path. Not worth the
+maintenance burden; left as-is deliberately.
+
+### Re-applying after a library update
+
+`docs/pel-escaping.patch` holds the 5-line diff and applies cleanly with `git apply` against
+pristine upstream files. Re-apply it after any PEL upgrade, then confirm the escaping sniff reports
+0 `OutputNotEscaped` in `includes/lsolesen/pel/`.
+
+> **Worth doing separately:** the bundled copy is ~18 years old, while upstream `lsolesen/pel` is
+> still maintained and has PHP 8-compatible releases. Upgrading is a real improvement, but it is a
+> library swap that needs `addGpsInfo()` retested — deliberately kept out of this change.
 
 ---
 

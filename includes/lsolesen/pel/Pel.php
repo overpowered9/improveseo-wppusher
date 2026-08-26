@@ -268,7 +268,7 @@ class Pel
         if (self::$debug) {
             $args = func_get_args();
             $str = array_shift($args);
-            vprintf($str . "\n", $args);
+            echo esc_html( vsprintf( $str . "\n", $args ) );
         }
     }
 
@@ -293,7 +293,7 @@ class Pel
         if (self::$debug) {
             $args = func_get_args();
             $str = array_shift($args);
-            vprintf('Warning: ' . $str . "\n", $args);
+            echo esc_html( vsprintf( 'Warning: ' . $str . "\n", $args ) );
         }
     }
 

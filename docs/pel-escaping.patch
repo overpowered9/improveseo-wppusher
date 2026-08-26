@@ -1,0 +1,42 @@
+diff --git a/includes/lsolesen/pel/Pel.php b/includes/lsolesen/pel/Pel.php
+index 24e22aa..4e19a7f 100644
+--- a/includes/lsolesen/pel/Pel.php
++++ b/includes/lsolesen/pel/Pel.php
+@@ -268,7 +268,7 @@ class Pel
+         if (self::$debug) {
+             $args = func_get_args();
+             $str = array_shift($args);
+-            vprintf($str . "\n", $args);
++            echo esc_html( vsprintf( $str . "\n", $args ) );
+         }
+     }
+ 
+@@ -293,7 +293,7 @@ class Pel
+         if (self::$debug) {
+             $args = func_get_args();
+             $str = array_shift($args);
+-            vprintf('Warning: ' . $str . "\n", $args);
++            echo esc_html( vsprintf( 'Warning: ' . $str . "\n", $args ) );
+         }
+     }
+ 
+diff --git a/includes/lsolesen/pel/PelConvert.php b/includes/lsolesen/pel/PelConvert.php
+index 564c2ae..554ab98 100644
+--- a/includes/lsolesen/pel/PelConvert.php
++++ b/includes/lsolesen/pel/PelConvert.php
+@@ -418,12 +418,12 @@ class PelConvert
+         $line = 24;
+ 
+         for ($i = 0; $i < $s; $i ++) {
+-            printf('%02X ', ord($bytes[$i]));
++            echo esc_html( sprintf( '%02X ', ord( $bytes[$i] ) ) );
+ 
+             if (($i + 1) % $line == 0) {
+-                print("\n");
++                echo "\n";
+             }
+         }
+-        print("\n");
++        echo "\n";
+     }
+ }

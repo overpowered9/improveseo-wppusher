@@ -418,12 +418,12 @@ class PelConvert
         $line = 24;
 
         for ($i = 0; $i < $s; $i ++) {
-            printf('%02X ', ord($bytes[$i]));
+            echo esc_html( sprintf( '%02X ', ord( $bytes[$i] ) ) );
 
             if (($i + 1) % $line == 0) {
-                print("\n");
+                echo "\n";
             }
         }
-        print("\n");
+        echo "\n";
     }
 }
