@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     continue;
                 }
                 $html .= '<tr>';
-                $html .= '<td class="column-title column-primary has-row-actions">'.$no.' <button type="button" class="toggle-row"><span class="screen-reader-text">Show more details</span></button></td>';
+                $html .= '<td class="column-title column-primary has-row-actions">'. esc_html( $no ) .' <button type="button" class="toggle-row"><span class="screen-reader-text">Show more details</span></button></td>';
 
                 $kw_proj_name = isset($get_keyworddata['proj_name']) ? $get_keyworddata['proj_name'] : '';
                 

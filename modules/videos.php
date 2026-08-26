@@ -36,8 +36,8 @@ foreach ($id as $p) {
     $video = '<span class="improveseo_row">';
     if($video_type=="upload_video"){
         if($video_url_mp4!="" || $video_url_ogv!="" || $video_url_webm!=""){
-            $video .= '<video id="improveseo_custom_video_upload" width="'.$video_width.'" height="'.$video_height.'"';
-            $video .= ' poster="'.$video_poster_img_source.'"';
+            $video .= '<video id="improveseo_custom_video_upload" width="'. esc_attr( $video_width ) .'" height="'. esc_attr( $video_height ) .'"';
+            $video .= ' poster="'. esc_url( $video_poster_img_source ) .'"';
 
             if($video_autoplay=="yes"){
                 $video .= ' autoplay';
@@ -55,13 +55,13 @@ foreach ($id as $p) {
             $video .= '>';
 
             if($video_url_mp4!="")
-                $video .= '<source src="'.$video_url_mp4.'" type="video/mp4">';
+                $video .= '<source src="'. esc_url( $video_url_mp4 ) .'" type="video/mp4">';
             
             if($video_url_ogv!="")
-                $video .= '<source src="'.$video_url_ogv.'" type="video/ogg">';
+                $video .= '<source src="'. esc_url( $video_url_ogv ) .'" type="video/ogg">';
             
             if($video_url_webm!="")
-                $video .= '<source src="'.$video_url_webm.'" type="video/webm">';
+                $video .= '<source src="'. esc_url( $video_url_webm ) .'" type="video/webm">';
 
             $video .= 'Your browser does not support the video tag.';
             $video .= '</video>';
@@ -104,7 +104,7 @@ foreach ($id as $p) {
             $youtube_url .= '&playlist='.$youtube_id;
         }
 
-        $video .= '<iframe type="text/html" class="fitvidsignore" src="'.$youtube_url.'" width="'.$video_width.'" height="'.$video_height.'" allow="'.$allow.'" style="margin:10px 0;" frameborder="0" allowfullscreen></iframe>';
+        $video .= '<iframe type="text/html" class="fitvidsignore" src="'. esc_url( $youtube_url ) .'" width="'. esc_attr( $video_width ) .'" height="'. esc_attr( $video_height ) .'" allow="'. esc_attr( $allow ) .'" style="margin:10px 0;" frameborder="0" allowfullscreen></iframe>';
     }elseif($video_type=="vimeo"){
         $vimeo_url = improveseo_generate_vimeo_url($video_url_vimeo);
         $vimeo_url .= '?';
@@ -131,7 +131,7 @@ foreach ($id as $p) {
             $video .= '<div style="padding:56.25% 0 0 0;position:relative;">';
             $video_style .= 'position:absolute;top:0;left:0;width:100%;height:100%;';
         }
-        $video .= '<iframe class="fitvidsignore" src="'. esc_url( $vimeo_url ) .'" width="'. esc_attr( $video_width ) .'" height="'. esc_attr( $video_height ) .'" frameborder="0" allow="'.$allow.'" style="'.$video_style.' margin:10px 0;"></iframe>';
+        $video .= '<iframe class="fitvidsignore" src="'. esc_url( $vimeo_url ) .'" width="'. esc_attr( $video_width ) .'" height="'. esc_attr( $video_height ) .'" frameborder="0" allow="'. esc_attr( $allow ) .'" style="'. esc_attr( $video_style ) .' margin:10px 0;"></iframe>';
         if($video_height=="auto" && $video_width=="100%"){
             // Vimeo's player API, required by the iframe embed above and loaded from Vimeo by
             // design. Not enqueued because it must follow the iframe it drives.

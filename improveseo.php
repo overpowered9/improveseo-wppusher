@@ -295,7 +295,7 @@ switch ($ai_modal_type) {
 
 				}
 
-				$html .= '<button data-action="testimonial" data-name="' . $data_name . '" id="' . $id . '" class="sw-hide-btn styling_post_page_shortcode_action_buttons button">Add Testimonial - ' . $display_name . '</button>';
+				$html .= '<button data-action="testimonial" data-name="' . esc_attr( $data_name ) . '" id="' . esc_attr( $id ) . '" class="sw-hide-btn styling_post_page_shortcode_action_buttons button">Add Testimonial - ' . esc_html( $display_name ) . '</button>';
 
 			}
 
@@ -321,7 +321,7 @@ switch ($ai_modal_type) {
 
 				}
 
-				$html .= '<button data-action="button" data-name="' . $data_name . '" id="' . $id . '" class="sw-hide-btn styling_post_page_shortcode_action_buttons button">Add Button - ' . $display_name . '</button>';
+				$html .= '<button data-action="button" data-name="' . esc_attr( $data_name ) . '" id="' . esc_attr( $id ) . '" class="sw-hide-btn styling_post_page_shortcode_action_buttons button">Add Button - ' . esc_html( $display_name ) . '</button>';
 
 			}
 
@@ -347,7 +347,7 @@ switch ($ai_modal_type) {
 
 				}
 
-				$html .= '<button data-action="googlemap" data-name="' . $data_name . '" id="' . $id . '" class="sw-hide-btn styling_post_page_shortcode_action_buttons button">Add GoogleMap - ' . $display_name . '</button>';
+				$html .= '<button data-action="googlemap" data-name="' . esc_attr( $data_name ) . '" id="' . esc_attr( $id ) . '" class="sw-hide-btn styling_post_page_shortcode_action_buttons button">Add GoogleMap - ' . esc_html( $display_name ) . '</button>';
 
 			}
 
@@ -373,7 +373,7 @@ switch ($ai_modal_type) {
 
 				}
 
-				$html .= '<button data-action="video" data-name="' . $data_name . '" id="' . $id . '" class="sw-hide-btn styling_post_page_shortcode_action_buttons button">Add Video - ' . $display_name . '</button>';
+				$html .= '<button data-action="video" data-name="' . esc_attr( $data_name ) . '" id="' . esc_attr( $id ) . '" class="sw-hide-btn styling_post_page_shortcode_action_buttons button">Add Video - ' . esc_html( $display_name ) . '</button>';
 
 			}
 
@@ -391,13 +391,13 @@ switch ($ai_modal_type) {
 
 		foreach ($seo_list as $li) {
 
-			$html .= '<button data-action="list" class="sw-hide-btn styling_post_page_shortcode_action_buttons add-seolistshortcode button" id=' . $li . '>@list:' . $li . '</button>';
+			$html .= '<button data-action="list" class="sw-hide-btn styling_post_page_shortcode_action_buttons add-seolistshortcode button" id="' . esc_attr( $li ) . '">@list:' . esc_html( $li ) . '</button>';
 
 		}
 
 	}
 
-	echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- assembled above with each value escaped at insertion; escaping the whole string would print the tags.
+	echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $html is built above from fixed markup with every interpolated value escaped at the point it is inserted (esc_attr for attributes, esc_html for labels); escaping the whole string here would render the buttons as visible text.
 
 
 
