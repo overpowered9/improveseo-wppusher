@@ -320,49 +320,32 @@ function ChatGPTCall($question)
 
 
 
-	// Set up cURL
+	// wp_remote_post() rather than cURL.
+	//
+	// The original set no CURLOPT_TIMEOUT, so it inherited cURL's default of "no limit".
+	// WordPress defaults to 5 seconds, which is too short for a model call, so an explicit
+	// 60s is set here — the same value the other auxiliary calls in this plugin use. This is
+	// the one behavioural difference in the conversion, and it replaces "hang forever" with
+	// "give up after a minute", which is the safer of the two.
+	$response_obj = wp_remote_post( $apiUrl, array(
+		'method'  => 'POST',
+		'timeout' => 60,
+		'headers' => array(
+			'Content-Type'  => 'application/json',
+			'Authorization' => 'Bearer ' . $apiKey,
+		),
+		'body'    => wp_json_encode( $data ),
+	) );
 
-	$ch = curl_init($apiUrl);
-
-
-
-	// Set cURL options
-
-	curl_setopt($ch, CURLOPT_POST, 1);
-
-	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-	curl_setopt($ch, CURLOPT_HTTPHEADER, [
-
-		'Content-Type: application/json',
-
-		'Authorization: Bearer ' . $apiKey,
-
-	]);
-
-
-
-	// Execute the cURL request
-
-	$response = curl_exec($ch);
-
-
-
-	// Check for cURL errors
-
-	if (curl_errno($ch)) {
-
-		echo 'Curl error: ' . curl_error($ch);
-
+	// The transport error used to be echoed straight to the page, which both leaked the
+	// error text to whoever triggered the request and printed it into the middle of an admin
+	// screen. Logged instead; the caller already handles an empty return.
+	if ( is_wp_error( $response_obj ) ) {
+		error_log( 'improveseo meta request failed: ' . $response_obj->get_error_message() );
+		$response = '';
+	} else {
+		$response = wp_remote_retrieve_body( $response_obj );
 	}
-
-
-
-	// Close cURL session
-
-	curl_close($ch);
 
 
 
@@ -431,39 +414,40 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 	}
 	
 	// Set up cURL for HTTP request to admin server
-	$ch = curl_init($api_endpoint);
-	
-	// Configure cURL options
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-		'Content-Type: application/json',
-		'Accept: application/json',
-		'X-API-Key: ' . $api_key,
-		'X-Site-Code: ' . $site_code
-	));
-	curl_setopt($ch, CURLOPT_TIMEOUT, 480); // 2 minutes timeout for AI generation
-	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 100); // 10 seconds connection timeout
-	
-	// Execute the request
-	$response = curl_exec($ch);
-	$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	
-	// Check for cURL errors
-	if (curl_errno($ch)) {
-		$error = curl_error($ch);
-		curl_close($ch);
-		error_log("createAIpost2 cURL Error: " . $error);
+	// wp_remote_post() rather than cURL. The 480s timeout below is NOT optional detail —
+	// WordPress defaults to 5 seconds, which would abort every article generation, so it is
+	// carried over from the CURLOPT_TIMEOUT this replaces. There is no streaming or write
+	// callback on this request, so nothing is lost by going through the HTTP API.
+	//
+	// CURLOPT_CONNECTTIMEOUT has no separate equivalent in the WP HTTP API; 'timeout' covers
+	// the whole request, and 480 is the larger of the two values, so behaviour is unchanged
+	// except that a stalled connect now waits for the overall timeout instead of 100s.
+	$response_obj = wp_remote_post( $api_endpoint, array(
+		'method'  => 'POST',
+		'timeout' => 480,
+		'headers' => array(
+			'Content-Type' => 'application/json',
+			'Accept'       => 'application/json',
+			'X-API-Key'    => $api_key,
+			'X-Site-Code'  => $site_code,
+		),
+		'body'    => wp_json_encode( $payload ),
+	) );
+
+	// is_wp_error() is the equivalent of the old curl_errno() branch: a transport failure,
+	// not an HTTP error status, which is still checked separately below.
+	if ( is_wp_error( $response_obj ) ) {
+		error_log("createAIpost2 HTTP Error: " . $response_obj->get_error_message());
 		return array(
 			'content' => "Error: Failed to connect to content generation server. Please try again.",
 			'meta_title' => '',
 			'meta_description' => ''
 		);
 	}
-	
-	curl_close($ch);
-	
+
+	$response    = wp_remote_retrieve_body( $response_obj );
+	$http_status = (int) wp_remote_retrieve_response_code( $response_obj );
+
 	// Check HTTP status
 	if ($http_status !== 200) {
 		error_log("createAIpost2 HTTP Error: Status $http_status, Response: " . $response);
@@ -532,7 +516,7 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 	// Log the generation metadata if available (for debugging)
 	if (isset($result['data']['generationMetadata'])) {
 		$metadata = $result['data']['generationMetadata'];
-		error_log("createAIpost2 Generation Metadata: " . json_encode($metadata));
+		error_log("createAIpost2 Generation Metadata: " . wp_json_encode($metadata));
 	}
 	
 	// Return array with all three values

@@ -1864,34 +1864,28 @@ function generateBulkAiImage($title, $AudienceData, $niche = 'general_blog')
     error_log("generateBulkAiImage: Calling API for title: " . $title);
     
     // Set up cURL for HTTP request to admin server
-    $ch = curl_init($api_endpoint);
-    
-    // Configure cURL options
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'Content-Type: application/json',
-        'Accept: application/json',
-        'X-API-Key: ' . $api_key,
-        'X-Site-Code: ' . $site_code
-    ));
-    curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-    
-    // Execute the request
-    $response = curl_exec($ch);
-    $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    
-    // Check for cURL errors
-    if (curl_errno($ch)) {
-        $error = curl_error($ch);
-        curl_close($ch);
-        error_log("generateBulkAiImage cURL Error: " . $error);
-        return false; // ✅ Return false on cURL error
+    // wp_remote_post() rather than cURL. The 120s timeout is carried over from
+    // CURLOPT_TIMEOUT and is load-bearing: WordPress defaults to 5 seconds, which would
+    // abort every image generation.
+    $response_obj = wp_remote_post( $api_endpoint, array(
+        'method'  => 'POST',
+        'timeout' => 120,
+        'headers' => array(
+            'Content-Type' => 'application/json',
+            'Accept'       => 'application/json',
+            'X-API-Key'    => $api_key,
+            'X-Site-Code'  => $site_code,
+        ),
+        'body'    => wp_json_encode( $payload ),
+    ) );
+
+    if ( is_wp_error( $response_obj ) ) {
+        my_plugin_log("Image generation HTTP error: " . $response_obj->get_error_message());
+        return false;
     }
-    
-    curl_close($ch);
+
+    $response    = wp_remote_retrieve_body( $response_obj );
+    $http_status = (int) wp_remote_retrieve_response_code( $response_obj );
     
     error_log("generateBulkAiImage: HTTP Status: " . $http_status);
     error_log("generateBulkAiImage: Response: " . substr($response, 0, 500));
@@ -1939,15 +1933,13 @@ function generateBulkAiImage($title, $AudienceData, $niche = 'general_blog')
     $image_data = false;
 
     if (!empty($image_url) && filter_var($image_url, FILTER_VALIDATE_URL)) {
-        $ch = curl_init($image_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // TLS certificate verification left at cURL's default (on). It was previously
-        // disabled here, which let anyone on the network path substitute the image.
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        $image_data = curl_exec($ch);
-        $download_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        // wp_remote_get() returns the raw body, which is the image bytes. 60s carried over
+        // from CURLOPT_TIMEOUT; redirects are followed by default, matching
+        // CURLOPT_FOLLOWLOCATION. TLS verification stays on (the WP HTTP API default) - it
+        // was previously disabled here, which let anyone on the path substitute the image.
+        $img_response    = wp_remote_get( $image_url, array( 'timeout' => 60 ) );
+        $image_data      = is_wp_error( $img_response ) ? false : wp_remote_retrieve_body( $img_response );
+        $download_status = is_wp_error( $img_response ) ? 0 : (int) wp_remote_retrieve_response_code( $img_response );
         if (!$image_data || $download_status !== 200) {
             error_log("generateBulkAiImage Error: Failed to download image from URL: " . $image_url . " (HTTP " . $download_status . ")");
             return false;
@@ -2056,38 +2048,32 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 	}
 	
 	// Set up cURL for HTTP request to admin server
-	$ch = curl_init($api_endpoint);
-	
-	// Configure cURL options
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-		'Content-Type: application/json',
-		'Accept: application/json',
-		'X-API-Key: ' . $api_key,
-		'X-Site-Code: ' . $site_code
-	));
-	curl_setopt($ch, CURLOPT_TIMEOUT, 480); // 2 minutes timeout for AI generation
-	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 100); // 10 seconds connection timeout
-	
-	// Execute the request
-	$response = curl_exec($ch);
-	$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	
-	// Check for cURL errors
-	if (curl_errno($ch)) {
-		$error = curl_error($ch);
-		curl_close($ch);
-		error_log("createAIpost2 cURL Error: " . $error);
+	// wp_remote_post() rather than cURL. The 480s timeout is carried over from
+	// CURLOPT_TIMEOUT and is load-bearing: WordPress defaults to 5 seconds, which would
+	// abort every article generation.
+	$response_obj = wp_remote_post( $api_endpoint, array(
+		'method'  => 'POST',
+		'timeout' => 480,
+		'headers' => array(
+			'Content-Type' => 'application/json',
+			'Accept'       => 'application/json',
+			'X-API-Key'    => $api_key,
+			'X-Site-Code'  => $site_code,
+		),
+		'body'    => wp_json_encode( $payload ),
+	) );
+
+	if ( is_wp_error( $response_obj ) ) {
+		error_log("createAIpost2bulk HTTP Error: " . $response_obj->get_error_message());
 		return array(
 			'content' => "Error: Failed to connect to content generation server. Please try again.",
 			'meta_title' => '',
 			'meta_description' => ''
 		);
 	}
-	
-	curl_close($ch);
+
+	$response    = wp_remote_retrieve_body( $response_obj );
+	$http_status = (int) wp_remote_retrieve_response_code( $response_obj );
 	
 	// Check HTTP status
 	if ($http_status !== 200) {
@@ -2967,47 +2953,26 @@ function generateTitle_mutli($proj_name, $keyword_list, $content_type)
 
 	// Set up cURL
 
-	$ch = curl_init($apiUrl);
+	// wp_remote_post() rather than cURL. No CURLOPT_TIMEOUT was set, so this inherited
+	// cURL's "no limit" default; 60s is set explicitly because WordPress otherwise defaults
+	// to 5 seconds, which is too short for a model call.
+	$response_obj = wp_remote_post( $apiUrl, array(
+		'method'  => 'POST',
+		'timeout' => 60,
+		'headers' => array(
+			'Content-Type'  => 'application/json',
+			'Authorization' => 'Bearer ' . $apiKey,
+		),
+		'body'    => wp_json_encode( $data ),
+	) );
 
-
-
-	// Set cURL options
-
-	curl_setopt($ch, CURLOPT_POST, 1);
-
-	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-	curl_setopt($ch, CURLOPT_HTTPHEADER, [
-
-		'Content-Type: application/json',
-
-		'Authorization: Bearer ' . $apiKey,
-
-	]);
-
-
-
-	// Execute the cURL request
-
-	$response = curl_exec($ch);
-
-
-
-	// Check for cURL errors
-
-	if (curl_errno($ch)) {
-
-		echo 'Curl error: ' . curl_error($ch);
-
+	// Was echoed to the page; logged instead. The caller copes with an empty response.
+	if ( is_wp_error( $response_obj ) ) {
+		error_log( 'improveseo bulk auxiliary request failed: ' . $response_obj->get_error_message() );
+		$response = '';
+	} else {
+		$response = wp_remote_retrieve_body( $response_obj );
 	}
-
-
-
-	// Close cURL session
-
-	curl_close($ch);
 
 
 

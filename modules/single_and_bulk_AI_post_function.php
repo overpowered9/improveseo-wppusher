@@ -420,64 +420,27 @@ function ImageBasicPrompt($title)
 	// Set up cURL
 
 
-	$ch = curl_init($apiUrl);
+	// wp_remote_post() rather than cURL. No CURLOPT_TIMEOUT was set here, so this inherited
+	// cURL's "no limit" default; WordPress defaults to 5 seconds, too short for a model call,
+	// so 60s is set explicitly - the same value the other auxiliary calls in this plugin use.
+	$response_obj = wp_remote_post( $apiUrl, array(
+		'method'  => 'POST',
+		'timeout' => 60,
+		'headers' => array(
+			'Content-Type'  => 'application/json',
+			'Authorization' => 'Bearer ' . $apiKey,
+		),
+		'body'    => wp_json_encode( $data ),
+	) );
 
-
-
-
-
-	// Set cURL options
-
-
-	curl_setopt($ch, CURLOPT_POST, 1);
-
-
-	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-
-
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-
-	curl_setopt($ch, CURLOPT_HTTPHEADER, [
-
-
-		'Content-Type: application/json',
-
-
-		'Authorization: Bearer ' . $apiKey,
-
-
-	]);
-
-
-
-
-
-	// Execute the cURL request
-
-
-	$response = curl_exec($ch);
-
-
-
-
-
-	// Check for cURL errors
-
-
-	if (curl_errno($ch)) {
-
-
-		echo 'Curl error: ' . curl_error($ch);
-
-
+	// The transport error used to be echoed straight to the page. Logged instead; the
+	// caller already copes with an empty response.
+	if ( is_wp_error( $response_obj ) ) {
+		error_log( 'improveseo auxiliary request failed: ' . $response_obj->get_error_message() );
+		$response = '';
+	} else {
+		$response = wp_remote_retrieve_body( $response_obj );
 	}
-
-
-	// Close cURL session
-
-
-	curl_close($ch);
 
 
 	// Decode and display the response
@@ -765,35 +728,30 @@ function fetch_AI_image_callback()
         }
         
         // Set up cURL for HTTP request to admin server
-        $ch = curl_init($api_endpoint);
-        
-        // Configure cURL options
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json',
-            'Accept: application/json',
-            'X-API-Key: ' . $api_key,
-            'X-Site-Code: ' . $site_code
-        ));
-        curl_setopt($ch, CURLOPT_TIMEOUT, 120); // 2 minutes timeout for image generation
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        
-        // Execute the request
-        $response = curl_exec($ch);
-        $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        
-        // Check for cURL errors
-        if (curl_errno($ch)) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            error_log("fetch_AI_image cURL Error: " . $error);
+        // wp_remote_post() rather than cURL. The 120s timeout is carried over from
+        // CURLOPT_TIMEOUT and is load-bearing: WordPress defaults to 5 seconds, which would
+        // abort every image generation. CURLOPT_CONNECTTIMEOUT has no separate equivalent in
+        // the WP HTTP API - 'timeout' covers the whole request.
+        $response_obj = wp_remote_post( $api_endpoint, array(
+            'method'  => 'POST',
+            'timeout' => 120,
+            'headers' => array(
+                'Content-Type' => 'application/json',
+                'Accept'       => 'application/json',
+                'X-API-Key'    => $api_key,
+                'X-Site-Code'  => $site_code,
+            ),
+            'body'    => wp_json_encode( $payload ),
+        ) );
+
+        if ( is_wp_error( $response_obj ) ) {
+            error_log("fetch_AI_image HTTP Error: " . $response_obj->get_error_message());
             wp_send_json_error('Failed to connect to image generation server. Please try again.');
             wp_die();
         }
-        
-        curl_close($ch);
+
+        $response    = wp_remote_retrieve_body( $response_obj );
+        $http_status = (int) wp_remote_retrieve_response_code( $response_obj );
         
         // Check HTTP status
         if ($http_status !== 200) {
@@ -834,13 +792,17 @@ function fetch_AI_image_callback()
         $image_data = false;
 
         if (!empty($image_url)) {
-            $ch = curl_init($image_url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            // TLS certificate verification left at cURL's default (on). It was previously
-            // disabled here, which let anyone on the network path substitute the image.
-            curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-            $image_data = curl_exec($ch);
-            curl_close($ch);
+            // wp_remote_get() returns the raw body, which is what the image bytes are.
+            // 60s carried over from CURLOPT_TIMEOUT. TLS verification stays on - it is the
+            // WP HTTP API default, and it was previously disabled here, which let anyone on
+            // the network path substitute the image.
+            $img_response = wp_remote_get( $image_url, array( 'timeout' => 60 ) );
+            if ( is_wp_error( $img_response ) ) {
+                error_log( 'fetch_AI_image download failed: ' . $img_response->get_error_message() );
+                $image_data = false;
+            } else {
+                $image_data = wp_remote_retrieve_body( $img_response );
+            }
         } elseif (!empty($data_uri)) {
             $comma = strpos($data_uri, ',');
             $b64 = ($comma !== false) ? substr($data_uri, $comma + 1) : $data_uri;

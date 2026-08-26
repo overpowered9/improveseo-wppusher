@@ -314,13 +314,23 @@ function improveseo_handle_api_request() {
 				'output' => 'json' 
 		);
 		
-		$ch = curl_init ( 'https://wordai.com/users/turing-api.php' );
-		curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, 1 );
-		curl_setopt ( $ch, CURLOPT_POST, 1 );
-		curl_setopt ( $ch, CURLOPT_POSTFIELDS, http_build_query ( $query ) );
-		
-		$results = json_decode ( curl_exec ( $ch ), true );
-		curl_close ( $ch );
+		// wp_remote_post() rather than cURL. Passing $query as an array makes the WP HTTP
+		// API form-encode it, which is exactly what http_build_query() did here. No
+		// CURLOPT_TIMEOUT was set, so this inherited cURL's "no limit" default; 60s is set
+		// explicitly because WordPress otherwise defaults to 5 seconds.
+		$wordai_response = wp_remote_post( 'https://wordai.com/users/turing-api.php', array(
+			'method'  => 'POST',
+			'timeout' => 60,
+			'body'    => $query,
+		) );
+
+		$results = is_wp_error( $wordai_response )
+			? null
+			: json_decode( wp_remote_retrieve_body( $wordai_response ), true );
+
+		if ( is_wp_error( $wordai_response ) ) {
+			error_log( 'improveseo WordAI request failed: ' . $wordai_response->get_error_message() );
+		}
 	}
 	
 	header ( 'Content-Type: application/json' );
