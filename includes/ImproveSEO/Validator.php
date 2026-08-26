@@ -90,7 +90,13 @@ class Validator
 						self::error($field, $result);
 					}
 				} else {
-					throw new ValidatorException("Validator $rule: class $validatorClass doesn't exist");
+					// esc_html() on the interpolated values: an uncaught exception prints its
+					// message, so a throw is an output path like any other. $rule is derived
+					// from the validation rules declared in calling code rather than from
+					// request data, so this is defence in depth rather than a live hole — but
+					// it costs nothing and the sniff is right that the message can reach a
+					// screen.
+					throw new ValidatorException( "Validator " . esc_html( $rule ) . ": class " . esc_html( $validatorClass ) . " doesn't exist" );
 				}
 			}
 		}
