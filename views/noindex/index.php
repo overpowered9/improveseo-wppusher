@@ -26,12 +26,12 @@ use ImproveSEO\View;
 		<span class="displaying-num"><?php echo esc_html( $results->total ); ?> tags</span>
 		|
 		<span class="pagination-links">
-			<?php echo  paginate_links(array(
+			<?php echo wp_kses_post( paginate_links(array(
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
 				'base' => admin_url('admin.php?page=improveseo_noindex%_%')
-			)) ?>
+			)) ) ?>
 		</span>
 	</p>
 	<form method="get">
@@ -68,12 +68,12 @@ use ImproveSEO\View;
 		<span class="displaying-num"><?php echo esc_html( $results->total ); ?> tags</span>
 		|
 		<span class="pagination-links">
-			<?php echo  paginate_links(array(
+			<?php echo wp_kses_post( paginate_links(array(
 				'total' => $pages,
 				'current' => $page,
 				'format' => '&paged=%#%',
 				'base' => admin_url('admin.php?page=improveseo_noindex%_%')
-			)) ?>
+			)) ) ?>
 		</span>
 	</p>
 <?php View::endSection('content') ?>

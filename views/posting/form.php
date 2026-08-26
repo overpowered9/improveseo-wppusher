@@ -11,7 +11,7 @@ use ImproveSEO\Models\Country;
 wp_enqueue_script('post');
 ?>
 
-<input type="hidden" name="post_type" value="<?php echo  isset($task) ? $task->content['post_type'] : $post_type ?>" />
+<input type="hidden" name="post_type" value="<?php echo esc_attr( isset($task) ? $task->content['post_type'] : $post_type ) ?>" />
 <?php
 $word_ai_pass = get_option('improveseo_word_ai_pass');
 $word_ai_email = get_option('improveseo_word_ai_email');
@@ -51,7 +51,7 @@ $google_api_key = get_option('improveseo_google_api_key');
 					<?php // Permalink display + "non-editable URL structure" note removed by request (single,
 					// bulk and edit screens). Removed server-side so it never renders — no flash/flicker,
 					// unlike the earlier JS hide. The hidden permalink input below still submits with the form. ?>
-					<input type="hidden" class="form-control" name="permalink" value="<?php echo  $old_permalink ?>">
+					<input type="hidden" class="form-control" name="permalink" value="<?php echo esc_attr( $old_permalink ) ?>">
 					<p id="too-many-posts" class="notice notice-error" style="display: none;">Your project contains more
 						than 5,000 pages. While Improve SEO can create hundreds of thousands of posts per project, it is
 						recommended to split your project into multiple smaller projects if you are using shared hosting
@@ -139,7 +139,14 @@ $google_api_key = get_option('improveseo_google_api_key');
 				<?php wp_nonce_field('improveseo_instant_preview', 'iseo_preview_nonce', false); ?>
 			</div>
 
-			<?php echo $site_link; ?>
+			<?php
+			// Commented out rather than escaped: $site_link is never assigned anywhere in
+			// the plugin (checked across every PHP file, including compact()/extract()
+			// callers). It emitted an "Undefined variable" warning on every render of this
+			// form and printed nothing, so escaping it would only have escaped a warning.
+			// Left in place rather than deleted in case it is meant to be wired up later.
+			// echo $site_link;
+			?>
 
 
 			<!-- Post preview: renders the current title + content server-side (the

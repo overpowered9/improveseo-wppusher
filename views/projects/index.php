@@ -160,7 +160,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 							<?php endif; ?>
 		</div>
 		<div class="import-export">
-			<p>Showing <?php echo  (($page - 1) * $limit) + 1 ?> to <?php echo  min($page * $limit, $total) ?> of <?php echo esc_html( $total ); ?> Items
+			<p>Showing <?php echo esc_html( (($page - 1) * $limit) + 1 ) ?> to <?php echo esc_html( min($page * $limit, $total) ) ?> of <?php echo esc_html( $total ); ?> Items
 			</p>
 		</div>
 	</div>
@@ -277,7 +277,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 													<?php
 													$associated_post = get_post_by_project_id($project->id);
 													if ($associated_post): ?>
-														<a href="<?php echo  get_permalink($associated_post->ID) ?>" target="_blank"
+														<a href="<?php echo esc_url( get_permalink($associated_post->ID) ) ?>" target="_blank"
 															style="max-width: max-content !important;" class="popup-link">
 															View Post
 														</a>

@@ -2,14 +2,21 @@
 <div class="wrap improveseo-page">
 
 	<div class="Breadcrumbs">
-		<?php echo  ImproveSEO\View::section('breadcrumbs') ?>
+		<?php
+		// Rendered template output from this plugin's own view layer, not user data.
+		// It is echoed unescaped by design: section('content') below carries entire admin
+		// screens — <style>, <script>, <form>, <input>, <select> — and wp_kses_post() would
+		// strip all of it. Escaping belongs in the individual templates, at the point each
+		// value is emitted, which is what the rest of this pass is doing.
+		echo ImproveSEO\View::section('breadcrumbs'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- plugin view-layer output; see note above.
+		?>
 	</div>
 
 	<?php
 		ImproveSEO\FlashMessage::handle();
 	?>
 
-	<?php echo  ImproveSEO\View::section('content') ?>
+	<?php echo ImproveSEO\View::section('content'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- plugin view-layer output; escaping here would strip every form control and stylesheet on every admin screen. ?>
 </div>
 
 <div id="improveseo-help-fab">

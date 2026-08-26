@@ -24,7 +24,7 @@ use ImproveSEO\View;
 <h1 class="hidden">Preview Post</h1>
 <div class="show_loading alert-modal">
 	<h1 class="hidden">Preview Post</h1>
-	<h2 id="mid_notice"><a href="<?php echo $url; ?>">Refresh List</a></h2>
+	<h2 id="mid_notice"><a href="<?php echo esc_url( $url ); ?>">Refresh List</a></h2>
 </div>
 
 <div class="iseo-aicontent-wrap">

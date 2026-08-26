@@ -84,7 +84,7 @@ use ImproveSEO\View;
 							<td data-colname="Created At">
 								<?php
 									$date = new DateTime($code->created_at);
-									echo $date->format('d/m/Y H:i:s');
+									echo esc_html( $date->format('d/m/Y H:i:s') );
 								?>
 							</td>
 						</tr>

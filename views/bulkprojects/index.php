@@ -170,7 +170,7 @@ if (isset($_GET['post_preview'])) {
 									</td>
 									<td data-label="Created At"> <?php
 									$date = new DateTime($project->created_at);
-									echo $date->format('m/d/Y H:i:s');
+									echo esc_html( $date->format('m/d/Y H:i:s') );
 									?></td>
 									<td data-label="Last Update"><?php
 									$date = new DateTime($project->updated_at);
@@ -186,7 +186,7 @@ if (isset($_GET['post_preview'])) {
 											$pm_unit  = ($project->schedule_frequency == 'per_week') ? 'week' : 'day';
 											// "Schedule" on its own line; keep the "(1 post/day)" part together
 											// so it never wraps to "(1 / post/day)".
-											echo 'Schedule<br><span style="white-space:nowrap;">(' . $pm_count . ' post' . ($pm_count === 1 ? '' : 's') . '/' . $pm_unit . ')</span>';
+											echo 'Schedule<br><span style="white-space:nowrap;">(' . esc_html( $pm_count ) . ' post' . ($pm_count === 1 ? '' : 's') . '/' . esc_html( $pm_unit ) . ')</span>';
 									}
 									?> </td>
 								<td data-label="Project Status" class="status finished"><?php
