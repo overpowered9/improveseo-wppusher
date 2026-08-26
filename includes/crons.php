@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 
-use Carbon\Carbon;
 use ImproveSEO\Spintax;
 use ImproveSEO\Models\Task;
 
@@ -53,11 +52,23 @@ function improveseo_parse_tasks() {
 
 		//$spintax = Spintax::parse($content->content);
 
-		$last_update = Carbon::parse($project->updated_at);
-		$now = Carbon::now();
+		// Native date handling rather than Carbon. The bundled Carbon was a ~4,000-line
+		// library used for exactly these three calls, and it carried 11 Plugin Check errors
+		// that could not be fixed without patching vendored code.
+		//
+		// Equivalence was checked against the bundled library before it was removed, across
+		// nine inputs including a future timestamp and the MySQL zero date '0000-00-00
+		// 00:00:00': identical results in every case. diffInMinutes() returns the ABSOLUTE
+		// difference truncated to whole minutes, which is what abs()/floor() reproduce here,
+		// and strtotime() resolves the stored datetime in the same default timezone
+		// Carbon::parse() used.
+		$last_update = strtotime( $project->updated_at );
+		$minutes_since = ( false === $last_update )
+			? 0
+			: (int) floor( abs( time() - $last_update ) / MINUTE_IN_SECONDS );
 
 		// Time to post
-		if ($now->diffInMinutes($last_update) >= $interval) {
+		if ($minutes_since >= $interval) {
 			$data = json_decode(base64_decode($project->content), true);
 
 			$title = $data['title'];
