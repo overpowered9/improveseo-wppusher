@@ -62,7 +62,7 @@ use ImproveSEO\View;
 	</div>
 	<div class="actions search-form-box">
 		<form class="improve-seo-form-global" method="GET">
-			<input type="text" id="post-search-input" name="s" value="<?php echo  htmlspecialchars($s); ?>"
+			<input type="text" id="post-search-input" name="s" value="<?php echo esc_attr( $s ); ?>"
 				placeholder="Search Here">
 			<input type="hidden" name="page" value="improveseo_lists" />
 			<input type="hidden" name="action" value="index" />
@@ -129,9 +129,9 @@ use ImproveSEO\View;
 									</td>
 									<td data-label="Content"> <?php
 									if (str_word_count($item->list) > 50):
-										echo "<span class='list-content-overflow'>" . $item->list . "</span>";
+										echo "<span class='list-content-overflow'>" . esc_html( $item->list ) . "</span>";
 									else:
-										echo $item->list;
+										echo esc_html( $item->list );
 									endif;
 									?></td>
 									<td data-label="Action">

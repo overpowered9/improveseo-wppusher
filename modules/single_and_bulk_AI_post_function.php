@@ -499,7 +499,7 @@ function upload_image_callback()
 			$image_url = $movefile['url'];
 
 
-			echo $image_url; // Return the image URL
+			echo esc_url( $image_url ); // Return the image URL
 
 
 		} else {

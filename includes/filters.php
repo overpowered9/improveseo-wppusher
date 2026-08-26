@@ -160,6 +160,8 @@ function improveseo_hide_improveseo_category(){
         $category_id = '';
     }
     
-    echo '<style type="text/css">.cat-item-'.$category_id.' { display:none; }</style>';
+    // The id is cast to int: it is spliced into a CSS selector, where escaping functions
+		// do not apply, so the type cast is what makes it safe.
+		echo '<style type="text/css">.cat-item-'. (int) $category_id .' { display:none; }</style>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed CSS around an integer.
 }
 add_action('wp_head', 'improveseo_hide_improveseo_category');

@@ -167,7 +167,7 @@ use ImproveSEO\View;
                     <div style="display: none;">
                         <div class="seo-form-field">
                             <label> Chat GPT Key (Legacy - Hidden) </label>
-                            <input type="text" placeholder="Ex. sadfe456fds2v1xczv86s65g4s5fd4gr6e5tge5r4g54321xc86dssdfewtwerPP" name="improveseo_chatgpt_api_key" value="<?php echo get_option('improveseo_chatgpt_api_key'); ?>">
+                            <input type="text" placeholder="Ex. sadfe456fds2v1xczv86s65g4s5fd4gr6e5tge5r4g54321xc86dssdfewtwerPP" name="improveseo_chatgpt_api_key" value="<?php echo esc_attr( get_option('improveseo_chatgpt_api_key') ); ?>">
                         </div>
                     </div>
 

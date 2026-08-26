@@ -377,7 +377,7 @@ $url .= $_SERVER['REQUEST_URI'];
 													: esc_url($act['href']);
 											?>
 												<span class="primary">
-													<a class="popup-link" href="<?php echo $act_href; ?>"<?php
+													<a class="popup-link" href="<?php echo esc_url( $act_href ); ?>"<?php
 														if (!empty($act['target'])) echo ' target="' . esc_attr($act['target']) . '"';
 														if (!empty($act['target']) && $act['target'] === '_blank') echo ' rel="noopener"';
 														if (!empty($act['onclick'])) echo ' onclick="' . esc_attr($act['onclick']) . '"';
@@ -646,7 +646,7 @@ if (isset($_GET['post_preview'])) {
 
 if (isset($_GET['build_posts_id'])) { ?>
 	<script type='text/javascript'>
-		update_project(<?php echo  $_GET['build_posts_id'] ?>);
+		update_project(<?php echo (int) ( $_GET['build_posts_id'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only id used to build a JS call. ?>);
 	</script>
 <?php } ?>
 

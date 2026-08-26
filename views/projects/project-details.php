@@ -318,7 +318,7 @@ function pd_seo_meta($post_id, $what) {
                 <?php $pd_post_type = (isset($content['post_type']) && $content['post_type'] !== '') ? $content['post_type'] : ($associated_post ? $associated_post->post_type : ''); ?>
                 <div class="pd-row">
                     <div class="pd-label">Post Type</div>
-                    <div class="pd-value <?php echo  $pd_post_type === '' ? 'na' : '' ?>"><?php echo  $pd_post_type !== '' ? ucfirst(esc_html($pd_post_type)) : 'N/A' ?></div>
+                    <div class="pd-value <?php echo  $pd_post_type === '' ? 'na' : '' ?>"><?php echo  $pd_post_type !== '' ? esc_html( ucfirst( $pd_post_type ) ) : 'N/A' ?></div>
                 </div>
                 <?php if (intval($project->max_iterations) > 1): // single-post projects are always 1/1 — only meaningful for multi-post ?>
                 <div class="pd-row">

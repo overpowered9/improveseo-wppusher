@@ -174,7 +174,7 @@ if (isset($_GET['post_preview'])) {
 									?></td>
 									<td data-label="Last Update"><?php
 									$date = new DateTime($project->updated_at);
-									echo $date->format('m/d/Y H:i:s');
+									echo esc_html( $date->format('m/d/Y H:i:s') );
 									?></td>
 									<td data-label="Publish Mode"> <?php
 									if ($project->schedule_posts == 'draft_posts') {

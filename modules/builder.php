@@ -175,7 +175,7 @@ function improveseo_builder()
 		} else {
 
 
-			echo '<h3>Please, build posts/pages from <a href="' . admin_url('admin.php?page=improveseo_projects') . '">projects list.</a></h3>';
+			echo '<h3>Please, build posts/pages from <a href="' . esc_url( admin_url('admin.php?page=improveseo_projects') ) . '">projects list.</a></h3>';
 
 
 		}
@@ -2174,7 +2174,7 @@ function improveseo_builder_update()
 		} else {
 
 
-			echo '<h3>Please, build posts/pages from <a href="' . admin_url('admin.php?page=improveseo_projects') . '">projects list.</a></h3>';
+			echo '<h3>Please, build posts/pages from <a href="' . esc_url( admin_url('admin.php?page=improveseo_projects') ) . '">projects list.</a></h3>';
 
 
 		}

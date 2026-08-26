@@ -219,11 +219,11 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 									</td>
 									<td data-label="Created At"><?php
 									$date = new DateTime($project->created_at);
-									echo $date->format('m/d/Y H:i:s');
+									echo esc_html( $date->format('m/d/Y H:i:s') );
 									?></td>
 									<td data-label="Last Update"><?php
 									$date = new DateTime($project->updated_at);
-									echo $date->format('m/d/Y H:i:s');
+									echo esc_html( $date->format('m/d/Y H:i:s') );
 									?></td>
 									<td data-label="Status" class="status finished">
 
