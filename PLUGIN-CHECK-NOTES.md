@@ -64,19 +64,81 @@ text_domain=improveseo           ->   0 TextDomainMismatch errors
 
 ### What makes them disappear
 
-Two independent levers — **either one alone is sufficient**:
+The fix is to make the plugin **directory** `improveseo`, matching the declared domain. Not to
+change the domain. Two levers, either sufficient on its own:
 
-1. **At packaging time (already solved).** Build the release with the procedure in
-   `docs/BUILD.md`. It produces a ZIP whose top-level directory is `improveseo/`, so the folder
-   matches the declared domain. This is what wp.org receives, and it needs no repository change.
-2. **At WP Pusher level (optional).** WP Pusher names the install directory after the GitHub
-   repository. Renaming the repo `improveseo-wppusher` → `improveseo` would make the *installed*
-   folder match too, so live scans stop reporting it. Note this changes the install path, so
-   existing sites would likely need a reinstall rather than an update — worth doing only if you
-   want the live scan clean, not for submission.
+1. **At packaging time (solved).** `docs/BUILD.md` and `.github/workflows/release.yml` produce a
+   ZIP whose top-level directory is `improveseo/`. Deploying that release asset gives the live
+   site the right directory name. This is the recommended route because it clears the
+   `hidden_files` findings in §2 at the same time.
+2. **Rename the source of the directory name.** WP Pusher names the install directory after the
+   GitHub repository, so renaming `improveseo-wppusher` → `improveseo` also works. Needed only
+   as a fallback if WP Pusher turns out to name the directory from the repository rather than
+   from the ZIP.
 
-> **Run Plugin Check against the built ZIP, not the WP Pusher install.** The install will always
-> report these; the ZIP does not.
+> **Run Plugin Check against the built ZIP, not the WP Pusher install.** A branch-tracking
+> install will always report these; the ZIP does not.
+
+### Renaming the plugin directory: the pre-flight that matters
+
+Changing a plugin's directory **deactivates it**. WordPress keys the `active_plugins` option by
+folder path, so `improveseo-wppusher/improveseo.php` stops resolving and WordPress drops it.
+That fires `register_deactivation_hook`, so the question that has to be answered *before* any
+rename is what that hook does.
+
+`improveseo.php:146` registers `improveseo_uninstall()`. Despite the name, `includes/installer.php:45`
+does only three things:
+
+```php
+wp_clear_scheduled_hook('improveseo_parse_tasks_hook');
+delete_option('improveseo_scheduled_last_execute_time');
+delete_option('improveseo_scheduled_execute_time');
+```
+
+**It is data-safe.** Traced in full:
+
+* No `DROP TABLE`, no post or term deletion, no deletion of the API key, site code, project,
+  task or settings options. There is no `uninstall.php` and no `register_uninstall_hook()`.
+* `improveseo_parse_tasks_hook` is **never scheduled** — the only `wp_schedule_event()` for it is
+  commented out at `includes/installer.php:127`. Clearing it is a no-op.
+* Both deleted options **self-heal on the next page load**: `includes/ScheduledPosts.php:7-12`
+  recreates them with the same defaults `installer.php:374-377` uses (`time()` and `20`).
+* The real cron, `cronjob_request_event`, is re-registered by `improveseo_ensure_cron_scheduled()`
+  on `init` (`improveseo.php:525`), guarded by `wp_next_scheduled()` so it cannot double-schedule.
+
+**The one real consequence:** resetting `improveseo_scheduled_last_execute_time` to `time()`
+restarts the 300-second window in `ScheduledPosts.php`, so scheduled-post processing can be
+delayed by up to five minutes once, immediately after the rename. Nothing is lost.
+
+Nothing else depends on the directory name — verified, not assumed:
+
+| Check | Result |
+|---|---|
+| Literal `improveseo-wppusher` in any PHP/JS/CSS | **0 occurrences** |
+| `plugin_basename()` | not used anywhere |
+| Path constants (`IMPROVESEO_ROOT`, `IMPROVESEO_DIR`, `WT_PATH`, `WT_URL`) | all derived from `plugin_dir_path(__FILE__)` / `plugin_dir_url(__FILE__)` — relative, rename-safe |
+| Option keys, cron hook names, post types, meta keys, nonce actions | all `improveseo_*`, none folder-derived |
+
+### The rename procedure
+
+```bash
+wp plugin deactivate improveseo-wppusher          # explicit, rather than letting the rename do it
+mv wp-content/plugins/improveseo-wppusher wp-content/plugins/improveseo
+wp plugin activate improveseo
+wp plugin list --name=improveseo --field=file     # improveseo/improveseo.php
+wp cron event list | grep cronjob_request_event   # re-registered on the next init
+wp plugin check improveseo --format=table         # 0 TextDomainMismatch
+```
+
+Rollback is the same two commands in reverse:
+
+```bash
+wp plugin deactivate improveseo && mv wp-content/plugins/improveseo wp-content/plugins/improveseo-wppusher
+wp plugin activate improveseo-wppusher
+```
+
+A manual rename is undone by the next branch-tracking WP Pusher push, which recreates the old
+directory. Pair it with the release-asset deployment in `docs/BUILD.md`, or it will not stick.
 
 ### One real gap, unrelated to the mismatch
 
@@ -84,11 +146,15 @@ Internationalisation is **not functional** in this plugin, and fixing the domain
 that:
 
 * `load_plugin_textdomain()` is never called.
+* `wp_set_script_translations()` is never called, and no JS uses `@wordpress/i18n`.
 * There is no `languages/` directory.
 * There are no `.pot`, `.po` or `.mo` files.
 
-So the ~31 translatable strings resolve to their English source regardless. If translations are
-ever wanted, that is a small feature (loader + `languages/` + generated `.pot`), not a lint fix.
+So all 14 translatable strings resolve to their English source regardless. **This also means a
+domain change carries no translation-regression risk today** — there is nothing to regress. It
+would still be the wrong change: it would bake a deployment accident into the plugin's identity
+and contradict the published `Plugin URI`. If translations are ever wanted, that is a small
+feature (loader + `languages/` + generated `.pot`), not a lint fix.
 
 ---
 
