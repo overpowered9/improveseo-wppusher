@@ -3318,6 +3318,19 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   padding: 10px 25px;
 }
 
+/* style.css:2947 reserves 35% of the table for the Name column. Keyword list names
+   are short — "bees", "colors" — so that left a wide empty band between the name and
+   its keywords. 22% still fits the longest names in this plugin without wrapping
+   (`anti-fog-snorkeling-mask` is the worst case) and hands the reclaimed width to
+   Content, which needs it: fewer wrapped lines means less scrolling inside the box.
+
+   Scoped to .iseo-keyword-lists — the projects, bulk and authors lists have longer
+   names and keep the 35%. */
+.project-lists table.iseo-keyword-lists td[data-label="Name"],
+.project-lists table.iseo-keyword-lists thead th:first-child {
+  width: 22%;
+}
+
 /* improveseo_style.css:1176 declares .list-content-overflow with
    `overflow-y: scroll`, which paints a scrollbar gutter even when nothing
    overflows. `auto` shows it only when the list actually needs scrolling.
