@@ -84,7 +84,7 @@ wp plugin check improveseo --format=table          # 0 errors
 
 If the install directory still comes out as `improveseo-wppusher`, WP Pusher is naming it from
 the repository rather than from the ZIP's top-level directory. In that case rename the GitHub
-repository to `improveseo` as well — see `PLUGIN-CHECK-NOTES.md` §1 for the reactivation
+repository to `improveseo` as well — see `docs/RENAME-RUNBOOK.md` for the step-by-step
 procedure, which applies to any change of the plugin directory name.
 
 > **Adding `.github/` does not make things worse in the meantime.** Verified against Plugin Check
