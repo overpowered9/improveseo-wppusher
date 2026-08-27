@@ -3295,12 +3295,15 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
    Restoring `separate` re-enables the spacing — and the rounded row corners
    from td:first-child / td:last-child, which also need a separated table.
 
-   Scoped to this one table via .iseo-keyword-lists rather than to
-   `.project-lists table`, so the projects, bulk and authors lists keep the
-   spacing they already have. */
+   No border-spacing is declared here on purpose. `.project-lists table` already
+   sets `0 10px`, which is the value the projects, bulk and authors lists use;
+   once the table is separated again that inherited figure simply takes effect,
+   so this page ends up with exactly the same row rhythm as the rest of the
+   admin rather than a number invented for this one screen.
+
+   Scoped to this one table via .iseo-keyword-lists so nothing else changes. */
 .project-lists table.iseo-keyword-lists {
   border-collapse: separate;
-  border-spacing: 0 24px;
 }
 
 /* improveseo_style.css:1176 declares .list-content-overflow with
