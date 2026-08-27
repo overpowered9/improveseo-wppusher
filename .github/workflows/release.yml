@@ -1,0 +1,128 @@
+# Build the distributable plugin ZIP and attach it to a GitHub Release.
+#
+# WHY THIS EXISTS
+#
+# WP Pusher installs the repository tree verbatim, which puts two classes of Plugin Check
+# error on the live site that cannot be fixed by editing PHP:
+#
+#   1. hidden_files — .gitignore, .gitattributes and .distignore ship with the plugin.
+#      Deleting them from the repository is the wrong fix; they belong in version control.
+#
+#   2. TextDomainMismatch — Plugin Check derives the expected text domain from the plugin
+#      FOLDER, which WP Pusher names after the repository ("improveseo-wppusher"), while the
+#      code and the plugin header declare "improveseo".
+#
+# Both disappear when the plugin is distributed as a ZIP whose top-level directory is the
+# plugin SLUG and which contains no dot-files. This workflow produces exactly that, so the
+# live site can be deployed from the release asset instead of from the source tree.
+#
+# The exclude list lives in .distignore — NOT in this file — so the workflow and the manual
+# build procedure in docs/BUILD.md can never drift apart.
+
+name: Build release ZIP
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build and release (e.g. v2.0.13)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Read the version from the plugin header
+        id: version
+        run: |
+          set -euo pipefail
+          VERSION="$(grep -m1 '^Version:' improveseo.php | sed 's/Version:[[:space:]]*//' | tr -d '\r')"
+          STABLE="$(grep -m1 '^Stable tag:' readme.txt | sed 's/Stable tag:[[:space:]]*//' | tr -d '\r')"
+          if [ -z "$VERSION" ]; then
+            echo "::error::Could not read Version from the improveseo.php header"
+            exit 1
+          fi
+          # A Version/Stable tag mismatch makes an update serve the wrong files, and it is
+          # invisible until someone reports a bad upgrade. Fail the build instead.
+          if [ "$VERSION" != "$STABLE" ]; then
+            echo "::error::Version ($VERSION) and readme.txt Stable tag ($STABLE) disagree."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Building improveseo $VERSION"
+
+      - name: Stage a clean copy of the plugin
+        run: |
+          set -euo pipefail
+          if [ ! -f .distignore ]; then
+            echo "::error::.distignore is missing — refusing to build a ZIP with no exclude list"
+            exit 1
+          fi
+          mkdir -p stage/improveseo
+          # '.*' on top of .distignore is a deliberate catch-all: an enumerated list only
+          # excludes the dot-files that existed the day it was written, and wp.org rejects
+          # any of them. Verified that no dot-file in this plugin needs to ship — there is
+          # no .htaccess and no .user.ini.
+          rsync -a \
+            --exclude '.*' \
+            --exclude-from=.distignore \
+            --exclude 'stage' \
+            ./ stage/improveseo/
+
+      - name: Refuse to ship a hidden file
+        run: |
+          set -euo pipefail
+          LEFTOVER="$(find stage/improveseo -name '.*' -not -name '.' -not -name '..' || true)"
+          if [ -n "$LEFTOVER" ]; then
+            echo "::error::Hidden files survived the exclude list:"
+            echo "$LEFTOVER"
+            echo "Add them to .distignore and re-run."
+            exit 1
+          fi
+          echo "No hidden files. $(find stage/improveseo -type f | wc -l) files staged."
+
+      - name: Verify the top-level directory matches the text domain
+        run: |
+          set -euo pipefail
+          DOMAIN="$(grep -m1 '^Text Domain:' improveseo.php | sed 's/Text Domain:[[:space:]]*//' | tr -d '\r')"
+          # This is the whole point of the ZIP: the folder name is what Plugin Check compares
+          # the text domain against. If they ever diverge, the mismatch errors come back.
+          if [ "$DOMAIN" != "improveseo" ]; then
+            echo "::error::Text Domain is '$DOMAIN' but the ZIP builds an 'improveseo/' directory."
+            exit 1
+          fi
+          echo "Text Domain '$DOMAIN' matches the staged directory name."
+
+      - name: Create the ZIP
+        run: |
+          set -euo pipefail
+          cd stage && zip -rq ../improveseo.zip improveseo
+
+      - name: Upload the ZIP as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: improveseo-${{ steps.version.outputs.version }}
+          path: improveseo.zip
+
+      - name: Attach the ZIP to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          # A stable asset name means the deployment target URL never changes between
+          # releases, which is what lets WP Pusher track it.
+          files: improveseo.zip
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          name: Improve SEO ${{ steps.version.outputs.version }}
+          body: |
+            Distributable build of Improve SEO ${{ steps.version.outputs.version }}.
+
+            `improveseo.zip` unpacks to a top-level `improveseo/` directory and contains no
+            dot-files or development tooling. Deploy this asset rather than the source tree.

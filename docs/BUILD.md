@@ -27,7 +27,81 @@ The code was never wrong.
 The WP Pusher install will always report those findings. **Unzip the release and scan that** —
 that is the number wp.org will actually see.
 
+---
+
+## Releasing: the automated build
+
+`.github/workflows/release.yml` builds the ZIP on CI and attaches it to a GitHub Release. It is
+the same procedure as the manual script below and reads the same `.distignore`, so the two
+cannot drift apart.
+
+### Cutting a release
+
+```bash
+# 1. Bump the version in BOTH places — the workflow fails the build if they disagree.
+#    improveseo.php : Version: / IMPROVESEO_VERSION
+#    readme.txt     : Stable tag: + a == x.y.z == changelog entry
+# 2. Commit, then tag and push.
+git tag v2.0.13
+git push origin v2.0.13
+```
+
+The workflow then runs four gates before it will publish anything:
+
+| Gate | Fails the build when |
+|---|---|
+| Version / Stable tag | the header `Version` and `readme.txt` `Stable tag` disagree |
+| `.distignore` present | the exclude list is missing — it refuses to build without one |
+| Hidden-file sweep | any dot-file survives `--exclude '.*'` plus `.distignore` |
+| Text domain | `Text Domain:` is not `improveseo`, i.e. it no longer matches the ZIP's directory |
+
+The result is attached to the release as `improveseo.zip`. The asset name is deliberately stable
+across releases so a deployment target URL never has to change.
+
+`workflow_dispatch` is also enabled, so a release can be rebuilt from the Actions tab without
+re-tagging.
+
+---
+
+## Deploying: point WP Pusher at the release, not the branch
+
+This is what actually clears the 17 errors **on the live site**, and it is the only thing that
+does. `.distignore` is read by the build, not by WP Pusher — while WP Pusher deploys a branch it
+copies the tree verbatim, dot-files and all, into a directory named after the repository.
+
+In **WP Pusher → Plugins → Improve SEO**, switch the plugin from tracking a *branch* to tracking
+*releases* (WP Pusher labels this "Link releases" / "Use release assets" depending on version),
+then push a tag as above.
+
+### Verify after the first release-based deploy
+
+```bash
+wp plugin list --name=improveseo --field=file     # improveseo/improveseo.php, not improveseo-wppusher/…
+ls wp-content/plugins/improveseo/                  # exists
+ls -a wp-content/plugins/improveseo/ | grep '^\.'  # no output
+wp plugin check improveseo --format=table          # 0 errors
+```
+
+If the install directory still comes out as `improveseo-wppusher`, WP Pusher is naming it from
+the repository rather than from the ZIP's top-level directory. In that case rename the GitHub
+repository to `improveseo` as well — see `PLUGIN-CHECK-NOTES.md` §1 for the reactivation
+procedure, which applies to any change of the plugin directory name.
+
+> **Adding `.github/` does not make things worse in the meantime.** Verified against Plugin Check
+> 2.1.0: a `.github` directory is reported as a *warning* (`github_directory`), not an error. The
+> working-tree scan stays at exactly 3 errors — the same three dot-files — until the deployment
+> method changes.
+
+---
+
 ## The build script
+
+Save this outside the plugin directory (for example `~/build-improveseo.sh`), `chmod +x` it, and
+run it from the plugin root. It is kept here rather than committed as a `.sh` so that it cannot
+be flagged as an application file, and so it can never end up inside the ZIP it produces.
+
+It exists for local builds and as the reference the CI workflow mirrors; day-to-day releases
+should go through the workflow above.
 
 Save this outside the plugin directory (for example `~/build-improveseo.sh`), `chmod +x` it, and
 run it from the plugin root. It is kept here rather than committed as a `.sh` so that it cannot
