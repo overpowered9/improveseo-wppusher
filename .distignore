@@ -16,6 +16,7 @@
 .vscode
 .idea
 .DS_Store
+.editorconfig
 
 # This file, and the build/documentation assets it belongs to
 .distignore
@@ -28,9 +29,23 @@ docker-compose.yml
 package-lock.json
 node_modules
 
+# Dependency manifests and linter config. None of these exist in the tree today; they are
+# listed as forward guards, because an enumerated list only excludes what existed the day it
+# was written and wp.org rejects all of them.
+composer.json
+composer.lock
+phpcs.xml
+phpcs.xml.dist
+.phpcs.xml
+.phpcs.xml.dist
+
+# Tests
+tests
+
 # Build output
 dist
 
 # Scratch and logs
 test_modal.html
 *.log
+*.xlsx

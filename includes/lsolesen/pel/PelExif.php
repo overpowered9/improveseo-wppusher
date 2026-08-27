@@ -24,6 +24,12 @@
  */
 namespace lsolesen\pel;
 
+// Third-party PEL library. The values interpolated into the `throw new Pel*Exception(...)`
+// statements below are constructor arguments — ints, byte offsets and class constants, consumed
+// by printf-style specifiers and as PelTag::getName() array keys — not output. esc_html() would
+// coerce their type. No catch block in this plugin renders them. See PLUGIN-CHECK-NOTES.md.
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Third-party library; constructor arguments, never rendered. See PLUGIN-CHECK-NOTES.md.
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -162,3 +168,5 @@ class PelExif extends PelJpegContent
         return Pel::tra("Dumping Exif data...\n") . $this->tiff->__toString();
     }
 }
+
+// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped

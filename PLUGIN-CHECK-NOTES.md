@@ -92,15 +92,32 @@ ever wanted, that is a small feature (loader + `languages/` + generated `.pot`),
 
 ---
 
-## 2. `hidden_files` — 2 findings — PACKAGING
+## 2. `hidden_files` — 3 findings — PACKAGING
 
-> Hidden files are not permitted. (`.gitignore`, `.gitattributes`)
+> Hidden files are not permitted. (`.gitignore`, `.gitattributes`, `.distignore`)
 
 They ship because WP Pusher installs the working tree directly. **Do not delete them from the
-repository** — `.gitignore` is what keeps `.env` and build output out of version control.
+repository** — `.gitignore` is what keeps `.env` and build output out of version control, and
+`.distignore` is the exclude list that keeps all three out of the ZIP.
 
 Excluded from the distribution instead: see `.distignore` and `docs/BUILD.md`. The built ZIP
 contains no dot-files at all, verified after each build.
+
+### Audit, 2026-08-27
+
+`.claude/settings.local.json` was **tracked in git**. `.gitignore` lists `/.claude`, but the file
+had been committed before that rule existed, and ignore rules never apply to already-tracked
+files — so WP Pusher deployed it to the live site. Untracked with `git rm --cached`; the file
+stays on disk for local use. The scan did not report it because the deployed copy predates it.
+
+`.distignore` was also extended with forward guards for paths that do not exist in the tree today
+(`composer.json`, `composer.lock`, `phpcs.xml*`, `.phpcs.xml*`, `tests`, `.editorconfig`,
+`*.xlsx`). An enumerated exclude list only covers what existed the day it was written; the build
+script's `--exclude '.*'` catch-all and its hard-fail safety net cover the rest.
+
+No other dev-only file ships. `PLUGIN-CHECK-NOTES.md`, `README.md`, `docs/`, `package-lock.json`
+(an orphan — there is no `package.json`) and `test_modal.html` are all in `.distignore`;
+`docker-compose.yml` is untracked, so WP Pusher never sees it.
 
 ---
 
@@ -109,8 +126,8 @@ contains no dot-files at all, verified after each build.
 The bundled PEL EXIF library (copyright 2004–2007, i.e. PEL ~0.9.x). Split by kind:
 
 * **5 × `OutputNotEscaped`** — statements that genuinely `echo`. **Patched.** See below.
-* **55 × `ExceptionNotEscaped`** — interpolated values inside `throw new …Exception(…)` messages.
-  **Accepted, not patched.** See below.
+* **55 × `ExceptionNotEscaped`** — values passed into `throw new Pel*Exception(…)`.
+  **Suppressed with a scoped, justified annotation.** See below.
 
 ### PEL cannot be removed, and cannot be replaced with core functions
 
@@ -150,17 +167,81 @@ message contains HTML, which is exactly the case being fixed. `addGpsInfo()` was
 end-to-end — a generated JPEG came back a valid image with GPS EXIF that `exif_read_data()` reads
 back to the written coordinates.
 
-### The 55 `ExceptionNotEscaped` — accepted
+### The 55 `ExceptionNotEscaped` — suppressed with a scoped annotation
 
-These reach a screen only via an uncaught exception. Patching them would mean 55 more edits to
-re-apply on every library update, for no behaviour change in any normal path. Not worth the
-maintenance burden; left as-is deliberately.
+Six files carry a file-level `phpcs:disable` for this one sniff, with a matching `phpcs:enable`
+at the end. Two annotation lines and four lines of explanation per file; **no library logic,
+message format, or indentation is changed.** Every other sniff still runs over these files.
+
+| File | Findings |
+|---|---|
+| `PelIfd.php` | 29 |
+| `PelDataWindow.php` | 8 |
+| `PelEntryTime.php` | 8 |
+| `PelTiff.php` | 6 |
+| `PelJpeg.php` | 3 |
+| `PelExif.php` | 1 |
+
+#### Why not `esc_html()` at the throw sites
+
+Because it is a **behaviour change, not a no-op**. Most of the 55 are not `sprintf` format
+arguments — they are typed constructor arguments:
+
+```php
+throw new PelUnexpectedFormatException($this->type, $tag, $format, PelFormat::ASCII);
+throw new PelWrongComponentCountException($this->type, $tag, $components, 20);
+throw new PelJpegInvalidMarkerException($marker, $i);
+```
+
+Those constructors consume the arguments internally through `%d` / `%02X` specifiers and use
+`$tag` as an array key in `PelTag::getName()`. `esc_html()` returns a string, so wrapping them
+coerces every `int` and class constant to `string` and changes what the constructor receives.
+Escaping `PelFormat::ASCII` is meaningless. So the sniff is firing on values that are not output
+at all, and "fixing" it would be the riskiest change in the file.
+
+#### Why there is nothing to escape at the point of output
+
+Traced, because that is the question the sniff is a proxy for:
+
+* The only PEL entry point in first-party code is `addGpsInfo()` (`includes/functions.php:1467`),
+  called from `modules/builder.php:1016`, `modules/builder.php:3066` and `includes/crons.php:145`.
+* **No `catch` block anywhere in the plugin handles a PEL exception.** The `catch ( \Throwable $e )`
+  blocks at `modules/builder.php:1394` and `:3443` wrap the featured-image code — a different
+  block — and route to `error_log()`, not to output.
+* No `catch` in the plugin echoes, prints, or passes a caught message into `wp_die()`,
+  `add_settings_error()` or an admin notice.
+* The interpolated values are library-internal integers, byte offsets, class constants and
+  `gettype()` results — never user input.
+
+There is therefore no point of output to escape.
+
+#### Verified
+
+Confirmed with PHPCS 3.x + WPCS 3.4.1, and with Plugin Check 2.1.0 itself:
+
+```
+--ignore-annotations  ->  55 ExceptionNotEscaped   (matches the original scan exactly)
+default (annotations) ->   0 ExceptionNotEscaped
+wp plugin check       ->   0 errors against dist/improveseo.zip
+```
+
+`OutputNotEscaped` stays at 0 in both modes — the annotation is scoped to `ExceptionNotEscaped`
+and does not mask the five patched `echo` statements above.
 
 ### Re-applying after a library update
 
-`docs/pel-escaping.patch` holds the 5-line diff and applies cleanly with `git apply` against
-pristine upstream files. Re-apply it after any PEL upgrade, then confirm the escaping sniff reports
-0 `OutputNotEscaped` in `includes/lsolesen/pel/`.
+`docs/pel-escaping.patch` holds the whole PEL delta — the 5-line escaping diff **and** the
+annotations in the six files above — and applies with `git apply` against pristine upstream files.
+Re-apply it after any PEL upgrade, then confirm the escaping sniff reports 0 `OutputNotEscaped`
+and 0 `ExceptionNotEscaped` in `includes/lsolesen/pel/`.
+
+If a PEL upgrade adds a new file that throws with interpolated values, it needs the same two
+annotation lines. The check that catches it:
+
+```bash
+phpcs --standard=WordPress --sniffs=WordPress.Security.EscapeOutput -s \
+      --report=csv includes/lsolesen/pel | tail -n +2 | wc -l   # expect 0
+```
 
 > **Worth doing separately:** the bundled copy is ~18 years old, while upstream `lsolesen/pel` is
 > still maintained and has PHP 8-compatible releases. Upgrading is a real improvement, but it is a

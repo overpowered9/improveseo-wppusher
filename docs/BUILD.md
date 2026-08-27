@@ -6,7 +6,7 @@ the code:
 
 | Finding | Why it appears |
 |---|---|
-| `hidden_files` (2) | `.gitignore` and `.gitattributes` ship because WP Pusher installs the working tree directly. Deleting them from the repository would be the wrong fix — `.gitignore` is what keeps `.env` and build output out of version control. |
+| `hidden_files` (3) | `.gitignore`, `.gitattributes` and `.distignore` ship because WP Pusher installs the working tree directly. Deleting them from the repository would be the wrong fix — `.gitignore` is what keeps `.env` and build output out of version control, and `.distignore` is the exclude list this build reads. |
 | `TextDomainMismatch` (14) | Plugin Check derives the expected text domain from the plugin **folder**, which WP Pusher names after the repository (`improveseo-wppusher`). The code and the header both declare `improveseo`, matching the published `Plugin URI`. |
 | `application_detected` | Any `.sh` in the plugin directory is treated as an application file — which is why the build script below lives in this document rather than as a file in the repo. |
 
@@ -164,10 +164,21 @@ grep -m1 '^Stable tag:' /tmp/verify/improveseo/readme.txt
 
 ## What remains after all this
 
-The `includes/lsolesen/pel/` EXIF library still reports ~60 findings. It is genuinely used — 26
-references in `includes/functions.php` write GPS EXIF data into generated images — so it can be
-neither removed nor patched (a patch is lost on the next update). Fixing those means updating or
-replacing the library, which is its own piece of work.
+**Nothing, as far as errors go.** Verified 2026-08-27 against Plugin Check 2.1.0 on WordPress
+7.0.2: `wp plugin check improveseo` reports **0 errors** against the unzipped
+`dist/improveseo.zip`.
+
+The `includes/lsolesen/pel/` EXIF library used to account for 60 of them. Five were real `echo`
+statements and are patched; the other 55 were `ExceptionNotEscaped` on values that are never
+output, and carry a scoped, justified `phpcs:disable` in six files. The reasoning, the trace
+showing no catch block renders a PEL exception, and the re-apply procedure are in
+`PLUGIN-CHECK-NOTES.md` §3. The library itself is genuinely used — `addGpsInfo()` writes GPS EXIF
+into generated images — and PHP has no native EXIF *writer*, so it cannot simply be dropped.
+
+Warnings are a separate matter and are **not** addressed by this build: the same run reports
+~2,870 of them, dominated by `NonPrefixedVariableFound`, `MissingUnslash`, `InputNotSanitized`
+and `NonceVerification`. wp.org blocks on errors, not warnings, but these are worth their own
+piece of work.
 
 `includes/Carbon/` used to report 11. It was removed rather than patched: it was a ~4,000-line
 library used for exactly three calls in `includes/crons.php`, replaced with native date handling

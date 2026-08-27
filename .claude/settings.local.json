@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(dir \"c:\\\\separate\\\\github\\\\user-cms\")",
-      "Bash(node -e ' *)"
-    ]
-  }
-}

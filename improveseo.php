@@ -11,7 +11,7 @@ Plugin URI: https://wordpress.org/plugins/improveseo/
 Description: Creates a large number of pages/posts and customize them to rank in Google.
 Author: Improve SEO Team
 Author URI: https://improveseoplugin.com/
-Version: 2.0.12
+Version: 2.0.13
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.4
@@ -20,7 +20,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: improveseo
 */
 
-define("IMPROVESEO_VERSION", "2.0.12");
+define("IMPROVESEO_VERSION", "2.0.13");
 
 define('IMPROVESEO_ROOT', dirname(__FILE__));
 

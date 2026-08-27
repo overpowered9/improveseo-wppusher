@@ -40,3 +40,142 @@ index 564c2ae..554ab98 100644
 +        echo "\n";
      }
  }
+
+diff --git a/includes/lsolesen/pel/PelDataWindow.php b/includes/lsolesen/pel/PelDataWindow.php
+index de84291..2ddfdec 100644
+--- a/includes/lsolesen/pel/PelDataWindow.php
++++ b/includes/lsolesen/pel/PelDataWindow.php
+@@ -24,6 +24,12 @@
+  */
+ namespace lsolesen\pel;
+ 
++// Third-party PEL library. The values interpolated into the `throw new Pel*Exception(...)`
++// statements below are constructor arguments — ints, byte offsets and class constants, consumed
++// by printf-style specifiers and as PelTag::getName() array keys — not output. esc_html() would
++// coerce their type. No catch block in this plugin renders them. See PLUGIN-CHECK-NOTES.md.
++// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Third-party library; constructor arguments, never rendered. See PLUGIN-CHECK-NOTES.md.
++
+ if ( ! defined( 'ABSPATH' ) ) {
+ 	exit; // Exit if accessed directly.
+ }
+@@ -555,3 +561,5 @@ class PelDataWindow
+         return Pel::fmt('DataWindow: %d bytes in [%d, %d] of %d bytes', $this->size, $this->start, $this->start + $this->size, strlen($this->data));
+     }
+ }
++
++// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+diff --git a/includes/lsolesen/pel/PelEntryTime.php b/includes/lsolesen/pel/PelEntryTime.php
+index 8a1f3e5..1b66693 100644
+--- a/includes/lsolesen/pel/PelEntryTime.php
++++ b/includes/lsolesen/pel/PelEntryTime.php
+@@ -24,6 +24,12 @@
+  */
+ namespace lsolesen\pel;
+ 
++// Third-party PEL library. The values interpolated into the `throw new Pel*Exception(...)`
++// statements below are constructor arguments — ints, byte offsets and class constants, consumed
++// by printf-style specifiers and as PelTag::getName() array keys — not output. esc_html() would
++// coerce their type. No catch block in this plugin renders them. See PLUGIN-CHECK-NOTES.md.
++// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Third-party library; constructor arguments, never rendered. See PLUGIN-CHECK-NOTES.md.
++
+ if ( ! defined( 'ABSPATH' ) ) {
+ 	exit; // Exit if accessed directly.
+ }
+@@ -344,3 +350,5 @@ class PelEntryTime extends PelEntryAscii
+         return false;
+     }
+ }
++
++// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+diff --git a/includes/lsolesen/pel/PelExif.php b/includes/lsolesen/pel/PelExif.php
+index 417dcd3..2a221ba 100644
+--- a/includes/lsolesen/pel/PelExif.php
++++ b/includes/lsolesen/pel/PelExif.php
+@@ -24,6 +24,12 @@
+  */
+ namespace lsolesen\pel;
+ 
++// Third-party PEL library. The values interpolated into the `throw new Pel*Exception(...)`
++// statements below are constructor arguments — ints, byte offsets and class constants, consumed
++// by printf-style specifiers and as PelTag::getName() array keys — not output. esc_html() would
++// coerce their type. No catch block in this plugin renders them. See PLUGIN-CHECK-NOTES.md.
++// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Third-party library; constructor arguments, never rendered. See PLUGIN-CHECK-NOTES.md.
++
+ if ( ! defined( 'ABSPATH' ) ) {
+ 	exit; // Exit if accessed directly.
+ }
+@@ -162,3 +168,5 @@ class PelExif extends PelJpegContent
+         return Pel::tra("Dumping Exif data...\n") . $this->tiff->__toString();
+     }
+ }
++
++// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+diff --git a/includes/lsolesen/pel/PelIfd.php b/includes/lsolesen/pel/PelIfd.php
+index 8709e43..c393e2e 100644
+--- a/includes/lsolesen/pel/PelIfd.php
++++ b/includes/lsolesen/pel/PelIfd.php
+@@ -24,6 +24,12 @@
+  */
+ namespace lsolesen\pel;
+ 
++// Third-party PEL library. The values interpolated into the `throw new Pel*Exception(...)`
++// statements below are constructor arguments — ints, byte offsets and class constants, consumed
++// by printf-style specifiers and as PelTag::getName() array keys — not output. esc_html() would
++// coerce their type. No catch block in this plugin renders them. See PLUGIN-CHECK-NOTES.md.
++// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Third-party library; constructor arguments, never rendered. See PLUGIN-CHECK-NOTES.md.
++
+ if ( ! defined( 'ABSPATH' ) ) {
+ 	exit; // Exit if accessed directly.
+ }
+@@ -1213,3 +1219,5 @@ class PelIfd implements \IteratorAggregate, \ArrayAccess
+         return $str;
+     }
+ }
++
++// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+diff --git a/includes/lsolesen/pel/PelJpeg.php b/includes/lsolesen/pel/PelJpeg.php
+index 05327f5..530808e 100644
+--- a/includes/lsolesen/pel/PelJpeg.php
++++ b/includes/lsolesen/pel/PelJpeg.php
+@@ -24,6 +24,12 @@
+  */
+ namespace lsolesen\pel;
+ 
++// Third-party PEL library. The values interpolated into the `throw new Pel*Exception(...)`
++// statements below are constructor arguments — ints, byte offsets and class constants, consumed
++// by printf-style specifiers and as PelTag::getName() array keys — not output. esc_html() would
++// coerce their type. No catch block in this plugin renders them. See PLUGIN-CHECK-NOTES.md.
++// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Third-party library; constructor arguments, never rendered. See PLUGIN-CHECK-NOTES.md.
++
+ if ( ! defined( 'ABSPATH' ) ) {
+ 	exit; // Exit if accessed directly.
+ }
+@@ -669,3 +675,5 @@ class PelJpeg
+         return $d->getByte($i) == PelJpegMarker::SOI;
+     }
+ }
++
++// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+diff --git a/includes/lsolesen/pel/PelTiff.php b/includes/lsolesen/pel/PelTiff.php
+index 1665a5f..c06d5ad 100644
+--- a/includes/lsolesen/pel/PelTiff.php
++++ b/includes/lsolesen/pel/PelTiff.php
+@@ -24,6 +24,12 @@
+  */
+ namespace lsolesen\pel;
+ 
++// Third-party PEL library. The values interpolated into the `throw new Pel*Exception(...)`
++// statements below are constructor arguments — ints, byte offsets and class constants, consumed
++// by printf-style specifiers and as PelTag::getName() array keys — not output. esc_html() would
++// coerce their type. No catch block in this plugin renders them. See PLUGIN-CHECK-NOTES.md.
++// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Third-party library; constructor arguments, never rendered. See PLUGIN-CHECK-NOTES.md.
++
+ if ( ! defined( 'ABSPATH' ) ) {
+ 	exit; // Exit if accessed directly.
+ }
+@@ -302,3 +308,5 @@ class PelTiff
+         return $d->getShort(2) == self::TIFF_HEADER;
+     }
+ }
++
++// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped

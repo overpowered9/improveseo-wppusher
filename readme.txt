@@ -4,7 +4,7 @@ Tags: seo, ai content, content generator, bulk posts, openai
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.0.12
+Stable tag: 2.0.13
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,6 +75,10 @@ it is published.
 
 == Changelog ==
 
+= 2.0.13 =
+* Packaging: the release archive now excludes every development file and dot-file.
+* Housekeeping: documented why the bundled EXIF library's exception messages are exempt from the output-escaping rule — they are never rendered.
+
 = 2.0.12 =
 * Security: authenticated the plugin's public endpoint and prepared its SQL.
 * Security: prepared the remaining direct database queries.
@@ -83,6 +87,9 @@ it is published.
 * Removed development-only scripts from the distributed plugin.
 
 == Upgrade Notice ==
+
+= 2.0.13 =
+Packaging and documentation only. No functional changes.
 
 = 2.0.12 =
 Security release. Update is recommended for all users.
