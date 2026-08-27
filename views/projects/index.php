@@ -197,7 +197,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 								<th><?php echo iseo_sort_link($sort_base, 'created_at', 'Created At', $orderBy, $order); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns a complete <a> built from esc_url()/esc_html() parts ?></th>
 								<th>Last Update</th>
 								<th>Post Status</th>
-								<td></td>
+								<th></th>
 								<th>Action</th>
 							</tr>
 						</thead>
@@ -205,14 +205,15 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 							<?php foreach ($projects as $project): ?>
 								<tr>
 									<td data-label="Name">
-										<div class="styling_projects_name_td">
+										<div class="styling_projects_name_td"
+											style="display: flex; width: 100%; flex-wrap: nowrap; padding: 30px 0px; overflow-wrap: break-word;">
 											<label class="checkbox style-c">
 												<input id="cb-select-<?php echo esc_attr( $project->id ); ?>" type="checkbox"
 													name="project_ids[]" value="<?php echo esc_attr( $project->id ); ?>"
 													class="project-checkbox">
 												<div class="checkbox__checkmark"></div>
 											</label>
-											<h4 class="iseo-project-name" data-id="<?php echo (int) $project->id; ?>"><?php echo esc_html( $project->name ); ?></h4>
+											<span class="iseo-project-name" data-id="<?php echo (int) $project->id; ?>"><?php echo esc_html( $project->name ); ?></span>
 											<button type="button" class="iseo-rename-btn" data-id="<?php echo (int) $project->id; ?>" title="Rename project"
 												style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#aaa;font-size:14px;line-height:1;margin-left:6px;align-self:center;">&#9998;</button>
 										</div>
@@ -462,7 +463,10 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 			var projectNames = [];
 			checkedBoxes.each(function () {
 				var row = $(this).closest('tr');
-				var projectName = row.find('h4').text();
+				// Target the name by class rather than by tag: it is a <span> matching the
+				// bulk list, so row.find('h4') would return nothing and the confirmation
+				// dialog would list blank names.
+				var projectName = row.find('.iseo-project-name').text();
 				projectNames.push(projectName);
 			});
 

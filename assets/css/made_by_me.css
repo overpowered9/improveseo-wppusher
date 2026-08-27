@@ -3262,3 +3262,23 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   margin: 0;
   line-height: 1.7;
 }
+
+/* ── List header: keep the select-all checkbox on the same line as the column label ──
+   .checkbox.style-c is position:relative with its only child (.checkbox__checkmark)
+   absolutely positioned, so the <label> is an empty inline box. Beside the taller
+   inline-block <h4> it baseline-aligns low, and the checkmark pinned at top:4px then
+   renders *below* the word "Name". Laying the label out as an inline-flex box and
+   middle-aligning both parts puts it back beside the label.
+
+   Scoped to header cells that actually contain a checkbox — the projects, bulk
+   projects and bulk alltasks lists — so every other .project-lists table is untouched. */
+.project-lists table thead th > .checkbox.style-c {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  min-height: 20px;
+}
+
+.project-lists table thead th > .checkbox.style-c + h4 {
+  vertical-align: middle;
+}
