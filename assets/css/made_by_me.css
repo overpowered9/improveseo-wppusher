@@ -3283,20 +3283,36 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   vertical-align: middle;
 }
 
-/* ── Keyword Lists: uniform row heights ──
-   improveseo_style.css:1176 declares .list-content-overflow as height:100px with
-   overflow-y:scroll. Two problems: `scroll` paints a scrollbar gutter even when
-   nothing overflows, and the view only applied the class to lists over 50 words, so
-   a five-word list rendered a single-line row next to a 100px one and the heights
-   jumped down the page. The view now applies the class to every row; this switches
-   the overflow to `auto` so the scrollbar appears only when it is needed.
+/* ── Keyword Lists: row spacing ──
+   The rows ran together as one dense block. `.project-lists table` already asks for
+   `border-spacing: 0 10px`, but that declaration is INERT on this page: Bootstrap
+   (assets/vendor/css/bootstrap-4.5.2.min.css, loaded after style.css) sets
+   `table { border-collapse: collapse }`, and border-spacing does nothing on a
+   collapsed table. Nothing in the plugin ever set border-collapse back, so the
+   gap never rendered here. The projects and bulk lists look correctly spaced
+   because Bootstrap is not enqueued on those screens.
 
-   Overridden here rather than edited in place: improveseo_style.css is enqueued with
-   a hardcoded '1.1' version (improveseo.php:2172), so an edit there would not reach
-   browsers that have it cached, while made_by_me.css is versioned with filemtime().
-   The extra .project-lists qualifier keeps this winning on specificity regardless of
-   which of the two stylesheets loads last. */
+   Restoring `separate` re-enables the spacing — and the rounded row corners
+   from td:first-child / td:last-child, which also need a separated table.
+
+   Scoped to this one table via .iseo-keyword-lists rather than to
+   `.project-lists table`, so the projects, bulk and authors lists keep the
+   spacing they already have. */
+.project-lists table.iseo-keyword-lists {
+  border-collapse: separate;
+  border-spacing: 0 24px;
+}
+
+/* improveseo_style.css:1176 declares .list-content-overflow with
+   `overflow-y: scroll`, which paints a scrollbar gutter even when nothing
+   overflows. `auto` shows it only when the list actually needs scrolling.
+
+   Overridden here rather than edited in place: improveseo_style.css is enqueued
+   with a hardcoded '1.1' version (improveseo.php:2172), so an edit there would not
+   reach browsers holding a cached copy, while made_by_me.css is versioned with
+   filemtime(). Note made_by_me.css loads *before* improveseo_style.css on this
+   page, so the .project-lists qualifier is what wins it — specificity (0,2,0 vs
+   0,1,0), not source order. */
 .project-lists .list-content-overflow {
-  height: 100px;
   overflow-y: auto;
 }

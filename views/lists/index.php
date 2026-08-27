@@ -110,7 +110,12 @@ use ImproveSEO\View;
 	<div class="improve-seo-container">
 		<div class="project-lists">
 			<div class="table-responsive">
-				<table class="table project_table_listing">
+				<?php
+				// iseo-keyword-lists is a hook for this page's row spacing only. The
+				// border-spacing on `.project-lists table` is shared with the projects,
+				// bulk and authors lists, so it must not be widened globally.
+				?>
+				<table class="table project_table_listing iseo-keyword-lists">
 					<thead>
 						<tr>
 							<th> Name </th>
@@ -122,24 +127,34 @@ use ImproveSEO\View;
 						<?php if (!empty($lists)): ?>
 							<?php foreach ($lists as $item): ?>
 								<tr>
+									<?php
+									// All three cells top-align on the first line. Previously only the Name
+									// carried `vertical-align: text-top` while Content and Action fell back to
+									// the default middle, so in a multi-line row nothing lined up.
+									?>
 									<td data-label="Name"
 										onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ); ?>'"
-										style="cursor: pointer;">
+										style="cursor: pointer; vertical-align: top; padding-top: 20px;">
 										<strong><?php echo esc_html( $item->name ); ?> </strong>
 									</td>
-									<td data-label="Content"><?php
-									// Every row gets the same fixed-height box, not just lists over 50
-									// words: sizing the cell to its content made neighbouring rows jump
-									// between a single line and 100px. The scrollbar only appears when
-									// the content actually overflows — see .list-content-overflow.
-									?><span class="list-content-overflow"><?php echo esc_html( $item->list ); ?></span></td>
+									<td data-label="Content" style="vertical-align: top; padding-top: 20px;"><?php
+									// Long lists keep the fixed-height scroll box; short ones stay their
+									// natural height. Row separation comes from the spacing between rows,
+									// not from padding every row out to a uniform height.
+									if (str_word_count($item->list) > 50):
+										echo "<span class='list-content-overflow'>" . esc_html( $item->list ) . "</span>";
+									else:
+										echo esc_html( $item->list );
+									endif;
+									?></td>
 									<?php
-									// Symmetric padding: td:last-child in style.css sets `padding: 0 25px 0 0`,
-									// which pushed the centred icons left of the cell's visual centre and left
-									// a wide gap on the right. Not given .actions-btn like the project lists —
-									// that class only strips the focus outline, which these links need.
+									// Symmetric horizontal padding: td:last-child in style.css sets
+									// `padding: 0 25px 0 0`, which pushed the centred icons left of the cell's
+									// visual centre and left a wide gap on the right. Not given .actions-btn
+									// like the project lists — that class only strips the focus outline, which
+									// these links need.
 									?>
-									<td data-label="Action" style="padding: 0 25px;">
+									<td data-label="Action" style="vertical-align: top; padding: 20px 25px;">
 										<div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
 											<a
 												href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ); ?>">
