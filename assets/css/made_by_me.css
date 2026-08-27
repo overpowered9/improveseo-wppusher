@@ -3306,6 +3306,18 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   border-collapse: separate;
 }
 
+/* The Action heading sat hard against the left edge of its column while the icons
+   below it were centred, so the label pointed at empty space. `.project-lists table
+   th:last-child` gives that cell `text-align: left` and `padding: 0 25px 0 0`; the
+   body cell was already given symmetric 25px padding, so matching the header's
+   padding and centring the text puts the label directly over the icons.
+   Name and Content are left-aligned and already sit flush with their column
+   contents, so they are deliberately left alone. */
+.project-lists table.iseo-keyword-lists thead th:last-child {
+  text-align: center;
+  padding: 10px 25px;
+}
+
 /* improveseo_style.css:1176 declares .list-content-overflow with
    `overflow-y: scroll`, which paints a scrollbar gutter even when nothing
    overflows. `auto` shows it only when the list actually needs scrolling.
