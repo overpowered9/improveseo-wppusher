@@ -3331,6 +3331,20 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   width: 22%;
 }
 
+/* The Name heading sat 10px lower than Content and Action. All three headers are
+   `vertical-align: bottom`, but `.project-lists table th:first-child` sets
+   `padding: 0 0 0 25px` — no bottom padding — while the other headers get the
+   `padding: 10px 20px` from `.project-lists table thead th`. Bottom-aligned text in
+   a cell with 10px less bottom padding drops by exactly that 10px. Measured in the
+   rendered page: Name textTop 558.6 against 548.6 for the other two.
+
+   Restoring the 10px vertical padding lands all three on the same baseline. The
+   25px left indent is kept — that is what aligns the heading with the names
+   below it. */
+.project-lists table.iseo-keyword-lists thead th:first-child {
+  padding: 10px 0 10px 25px;
+}
+
 /* improveseo_style.css:1176 declares .list-content-overflow with
    `overflow-y: scroll`, which paints a scrollbar gutter even when nothing
    overflows. `auto` shows it only when the list actually needs scrolling.
