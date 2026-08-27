@@ -115,7 +115,7 @@ use ImproveSEO\View;
 						<tr>
 							<th> Name </th>
 							<th>Content</th>
-							<th> </th>
+							<th>Action</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -124,18 +124,23 @@ use ImproveSEO\View;
 								<tr>
 									<td data-label="Name"
 										onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ); ?>'"
-										style="cursor: pointer;  padding-top: 20px; vertical-align: text-top;">
+										style="cursor: pointer;">
 										<strong><?php echo esc_html( $item->name ); ?> </strong>
 									</td>
-									<td data-label="Content"> <?php
-									if (str_word_count($item->list) > 50):
-										echo "<span class='list-content-overflow'>" . esc_html( $item->list ) . "</span>";
-									else:
-										echo esc_html( $item->list );
-									endif;
-									?></td>
-									<td data-label="Action">
-										<div style="display: flex;justify-content: center;">
+									<td data-label="Content"><?php
+									// Every row gets the same fixed-height box, not just lists over 50
+									// words: sizing the cell to its content made neighbouring rows jump
+									// between a single line and 100px. The scrollbar only appears when
+									// the content actually overflows — see .list-content-overflow.
+									?><span class="list-content-overflow"><?php echo esc_html( $item->list ); ?></span></td>
+									<?php
+									// Symmetric padding: td:last-child in style.css sets `padding: 0 25px 0 0`,
+									// which pushed the centred icons left of the cell's visual centre and left
+									// a wide gap on the right. Not given .actions-btn like the project lists —
+									// that class only strips the focus outline, which these links need.
+									?>
+									<td data-label="Action" style="padding: 0 25px;">
+										<div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
 											<a
 												href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ); ?>">
 												<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/write.svg' ); ?>"
