@@ -1171,6 +1171,49 @@ global $ai_modal_type;
                     <div style="clear: both"> </div>
                     
                     <div style="clear: both"> </div>
+                    <?php
+                    // Article Size sits on Step 1, not Step 2, because it is what the post COSTS.
+                    // The server prices content per size variant (small/medium/large), so neither
+                    // the estimate below nor the Step 1 credit pre-check can be priced until the
+                    // size is known. While this lived on Step 2 the pre-check had to assume
+                    // "medium" for every post, and a Large run was gated at the wrong price.
+                    //
+                    // The three <option value> strings are the WIRE FORMAT: the server's
+                    // variantFromWords() matches these literals. Do not reword them.
+                    //
+                    // The select carries an inline max-width because it no longer sits inside
+                    // .step-opton2-content-box, whose rule in made_by_me.css was what lifted the
+                    // `.wp-core-ui select` 25rem cap. Without it this field would render narrower
+                    // than the Step 1 fields above it.
+                    ?>
+                    <div class="seo-form-field">
+                        <label for="post_size">Article Size
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How long should my post be?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Post Length</strong>
+                                    <span class="iseo-tip-item"><b>Small</b> (600 &ndash; 1,200 words) is good for lightweight, easy to read blog posts.</span>
+                                    <span class="iseo-tip-item"><b>Medium</b> (1,200 &ndash; 2,400 words) is a great starting point for most niches.</span>
+                                    <span class="iseo-tip-item">Longer posts often rank better for competitive keywords.</span>
+                                </span>
+                            </span>
+                        </label>
+                        <select class="form-control" name="nos_of_words" required
+                            style="max-width: 100% !important;" id="post_size">
+                            <option value="600 to 1200 words">Small (600 to 1200 words) </option>
+                            <option value="1200 to 2400 words">Medium (1200 to 2400 words) </option>
+                            <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
+                        </select>
+                        <input type="text" id="post_size_select" readonly style="width: 100% !important; display: none !important;"
+                            value="600-1200 words">
+                        <?php
+                        // Filled by iseoCreditEstimate (script block further down) once the server's
+                        // price table has arrived. Deliberately empty in the markup: the price table
+                        // is fetched per wizard session, and a number baked in server-side here would
+                        // survive in page cache and go stale.
+                        ?>
+                        <div class="iseo-credit-estimate" id="iseo_credit_estimate_single" aria-live="polite"></div>
+                    </div>
                     <!-- Visible by default: the default title type is Smart Title (seed_option2),
                          which needs the Generate/Approve area. JS hides it for Exact Keyword. -->
                     <div class="seo-form-field hide_on_seed_option1 ">
@@ -1227,39 +1270,13 @@ global $ai_modal_type;
 
                 <!-- option 2 -->
                 <div class="data">
+                    <?php
+                    // Article Size used to be the first of THREE columns in this row; it now lives on
+                    // Step 1 (see the comment there for why). The row is left as two columns on
+                    // purpose rather than re-laid-out: .step-opton-col is flex: 1, so Point of View
+                    // and Select Language simply take half each.
+                    ?>
                     <div class="step-opton2-content-box">
-                        <div class="step-opton-col">
-                            <div class="seo-form-field">
-                                <label for="sel1">Article Size
-                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How long should my post be?">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
-                                            <strong>Post Length</strong>
-                                            <span class="iseo-tip-item"><b>Small</b> (600 &ndash; 1,200 words) is good for lightweight, easy to read blog posts.</span>
-                                            <span class="iseo-tip-item"><b>Medium</b> (1,200 &ndash; 2,400 words) is a great starting point for most niches.</span>
-                                            <span class="iseo-tip-item">Longer posts often rank better for competitive keywords.</span>
-                                        </span>
-                                    </span>
-                                </label>
-                                <!-- <select class="content-opt custom-selcected" name="nos_of_words" required
-                                    id="post_size">
-                                    <option value="600 to 1200 words">Small (600-1200 words)</option>
-                                    <option value="1200 to 2400 words">Medium (1200 to 2400 words)</option>
-                                    <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
-                                </select> -->
-                                <select class="form-control" name="nos_of_words" required
-                                    style="max-width: 100% !important;" id="post_size">
-                                      <option value="600 to 1200 words">Small (600 to 1200 words) </option>
-                                        <option value="1200 to 2400 words">Medium (1200 to 2400 words) </option>
-                                        <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
-
-                                </select>
-                                <input type="text" id="post_size_select" readonly style="width: 100% !important; display: none !important;"
-                                    value="600-1200 words">
-                            </div>
-
-                        </div>
-
                         <div class="step-opton-col">
                             <div class="seo-form-field">
                                 <label for="size">Point of View
@@ -1826,6 +1843,47 @@ global $ai_modal_type;
                                 <div id="google_suggestion_container" style="width:100%;"></div>
                                 <div id="ai_suggestion_container" style="width:100%;"></div>
                             </div>
+                            <?php
+                            // Article size sits between the keyword list and the tone so the panel
+                            // reads keywords -> size -> tone, and so the estimate below can multiply
+                            // the per-post price by the keyword count the user has just chosen. It
+                            // was on Step 2, which put the two halves of the project's cost on
+                            // different panels and left the Step 1 credit gate pricing every run at
+                            // "medium" — a Large bulk run passed a gate it could not afford.
+                            //
+                            // The <option value> strings are the WIRE FORMAT matched by the server's
+                            // variantFromWords(). Do not reword them.
+                            ?>
+                            <div id="bulk_article_size">
+                                <label style="padding-left:20px;" for="post_size_bulk">Article size
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How long should these posts be?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                            <strong>Choose a post length that will be applied to all posts within this bulk project:</strong>
+                                            <span class="iseo-tip-item"><b>Small</b> (600 &ndash; 1,200 words) is good for lightweight, easy to read blog posts.</span>
+                                            <span class="iseo-tip-item"><b>Medium</b> (1,200 &ndash; 2,400 words) is a great starting point for most niches.</span>
+                                            <span class="iseo-tip-item">Longer posts often rank better for competitive keywords.</span>
+                                        </span>
+                                    </span>
+                                </label>
+                                <select class="form-control" name="nos_of_words" required
+                                    style="max-width: 100% !important; width: 100%;    padding: 10px 20px !important;"
+                                    id="post_size_bulk">
+                                    <option value="600 to 1200 words">Small (600 to 1200 words) </option>
+                                    <option value="1200 to 2400 words">Medium (1200 to 2400 words) </option>
+                                    <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
+                                </select>
+                                <?php // Filled by iseoCreditEstimate; empty until the price table arrives. ?>
+                                <div class="iseo-credit-estimate" id="iseo_credit_estimate_bulk" aria-live="polite"></div>
+                            </div>
+                            <?php // Hidden mirror of the selection, kept with the field it mirrors. ?>
+                            <div class="row" style="display: none;">
+                                <div class="form-group col-md-12">
+                                    <input type="text" id="post_size_select_bulk" readonly
+                                        style="width: 100% !important;  padding: 10px 20px !important;"
+                                        value="600-1200 words">
+                                </div>
+                            </div>
                             <div id="tone_of_voice">
                                 <label style="padding-left:20px;" for="cotnt_type"> Tone of Voice
                                     <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which tone of voice should I choose?">
@@ -1910,41 +1968,11 @@ global $ai_modal_type;
                 <div class="data_multi">
                     <div class="bulk-widths1170_multi">
                         <div class="improve-seo-form-global_multi">
-                            <div class="row">
-
-                                <div class="form-group col-md-12">
-                                    <label style="padding-left:20px;" for="sel1">Article size
-                                        <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How long should these posts be?">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                            <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
-                                                <strong>Choose a post length that will be applied to all posts within this bulk project:</strong>
-                                                <span class="iseo-tip-item"><b>Small</b> (600 &ndash; 1,200 words) is good for lightweight, easy to read blog posts.</span>
-                                                <span class="iseo-tip-item"><b>Medium</b> (1,200 &ndash; 2,400 words) is a great starting point for most niches.</span>
-                                                <span class="iseo-tip-item">Longer posts often rank better for competitive keywords.</span>
-                                            </span>
-                                        </span>
-                                    </label>
-                                    <select class="form-control" name="nos_of_words" required
-                                        style="max-width: 100% !important;  padding: 10px 20px !important;"
-                                        id="post_size_bulk">
-
-                                        <option value="600 to 1200 words">Small (600 to 1200 words) </option>
-                                        <option value="1200 to 2400 words">Medium (1200 to 2400 words) </option>
-                                        <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
-
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row" style="display: none;">
-
-                                <div class="form-group col-md-12">
-
-                                    <input type="text" id="post_size_select_bulk" readonly
-                                        style="width: 100% !important;  padding: 10px 20px !important;"
-                                        value="600-1200 words">
-
-                                </div>
-                            </div>
+                            <?php
+                            // Article size and its hidden mirror used to open this panel; both moved
+                            // to bulk Step 1, next to the keyword list they are multiplied against.
+                            // See the comment there.
+                            ?>
                             <div class="row only_for_multi_mobile">
                                 <div class="form-group col">
                                     <label style="padding-left:20px;" for="sel1">Point of View
@@ -3603,6 +3631,181 @@ global $ai_modal_type;
         jQuery(this).hide();
     });
     
+    /* ── ISEO credit estimate ───────────────────────────────────────────────────
+       Live cost preview under the Article Size dropdown in both wizards.
+
+       Display only, and deliberately powerless: the server prices every action and
+       its atomic reservation at generation time is the real gate. Two rules follow
+       from that, and both matter more than showing something:
+
+         1. No cached price table -> render NOTHING. A confident wrong number here is
+            worse than an empty box, because the user plans against it and is then
+            charged something else.
+         2. A size string the table does not recognise falls back to "medium", which
+            is what the server's variantFromWords() does. Failing closed to the SAME
+            variant on both sides is what keeps the preview and the charge in
+            agreement; failing closed differently would be a quiet mispricing.
+
+       The price table and balance are fetched ONCE per wizard session, on modal open,
+       and every dropdown change recomputes locally — a round trip per change would
+       put a cold-starting server between the user and a dropdown. The Step 1 credit
+       check returns the same two fields, so its response refreshes the cache free.
+    ───────────────────────────────────────────────────────────────────────────── */
+    var iseoCreditEstimate = (function () {
+        var balance   = null;   // pooled ISEO credits; null until a fetch succeeds
+        var requested = false;  // one fetch attempt per wizard session, success or not
+
+        // Mirror of the server's variantFromWords(). These three literals are the wire
+        // format carried by the <option value>s, not display text.
+        function variantFromWords(words) {
+            switch (String(words == null ? '' : words).trim()) {
+                case '600 to 1200 words':  return 'small';
+                case '2400 to 3600 words': return 'large';
+                case '1200 to 2400 words': return 'medium';
+            }
+            return 'medium';
+        }
+
+        // Per-post price for the selected size, or null when there is no price to
+        // quote — which is the signal to draw nothing at all (rule 1 above).
+        function unitPrice(words) {
+            var pricing = window.iseoCreditPricing;
+            if (!pricing || !pricing.content) return null;
+            var amount = pricing.content[variantFromWords(words)];
+            return (typeof amount === 'number' && amount > 0) ? amount : null;
+        }
+
+        // Same non-empty-line count the rest of the bulk wizard uses.
+        function keywordCount() {
+            var text = jQuery('#keyword_list').val();
+            if (!text) return 0;
+            return text.split('\n').filter(function (line) {
+                return line.trim().length > 0;
+            }).length;
+        }
+
+        function num(n) { return '<b>' + String(n) + '</b>'; }
+
+        // Trailing " · balance · remaining after", or the shortfall. Returns '' when the
+        // balance is unknown, so a failed fetch degrades to just the price rather than
+        // to a subtraction from nothing.
+        function balanceTail(cost) {
+            if (balance === null) return '';
+            var tail = ' &middot; Your balance: ' + num(balance);
+            if (cost > balance) {
+                return tail + ' &middot; Short by ' + num(cost - balance) + ' &mdash; top up to generate.';
+            }
+            return tail + ' &middot; Remaining after: ' + num(balance - cost);
+        }
+
+        function paint($el, html, isShort) {
+            $el.toggleClass('is-warning', !!isShort).html(html);
+        }
+
+        function renderSingle() {
+            var $el = jQuery('#iseo_credit_estimate_single');
+            if (!$el.length) return;
+
+            var unit = unitPrice(jQuery('#post_size').val());
+            if (unit === null) { $el.removeClass('is-warning').empty(); return; }
+
+            paint($el,
+                'This article will use ' + num(unit) + ' ISEO credits' + balanceTail(unit),
+                balance !== null && unit > balance);
+        }
+
+        function renderBulk() {
+            var $el = jQuery('#iseo_credit_estimate_bulk');
+            if (!$el.length) return;
+
+            var unit = unitPrice(jQuery('#post_size_bulk').val());
+            if (unit === null) { $el.removeClass('is-warning').empty(); return; }
+
+            var count = keywordCount();
+
+            // No keyword list yet means no project total exists. Quoting the per-post
+            // price is honest; subtracting ONE post from the balance would advertise a
+            // "remaining after" for a one-post run nobody asked for.
+            if (count < 1) {
+                paint($el,
+                    'Each post will use ' + num(unit) + ' ISEO credits'
+                        + (balance === null ? '' : ' &middot; Your balance: ' + num(balance))
+                        + ' &middot; Add keywords to see the project total',
+                    false);
+                return;
+            }
+
+            var cost = count * unit;
+            paint($el,
+                count + ' post' + (count === 1 ? '' : 's') + ' &times; ' + unit + ' credits = '
+                    + num(cost) + ' ISEO credits' + balanceTail(cost),
+                balance !== null && cost > balance);
+        }
+
+        function render() { renderSingle(); renderBulk(); }
+
+        // Both fields come back on every check_bulk_credits response, so the Step 1 gate
+        // keeps the preview current without a second call.
+        function cacheFrom(data) {
+            if (!data) return;
+            if (data.pricing) { window.iseoCreditPricing = data.pricing; }
+            if (typeof data.credits_total === 'number') {
+                balance = data.credits_total;
+            } else if (data.content_check && typeof data.content_check.available === 'number') {
+                balance = data.content_check.available;   // response shape before credits_total
+            }
+            render();
+        }
+
+        // One attempt per wizard session. A failure is deliberately not retried: the
+        // preview is a convenience, and retrying would re-hit a cold server on every
+        // modal open to produce a box that stays empty either way.
+        function ensureFetched() {
+            if (requested) { render(); return; }
+            requested = true;
+
+            var apiKey   = '<?php echo esc_js(get_option("improveseo_api_key")); ?>';
+            var siteCode = '<?php echo esc_js(get_option("improveseo_site_code")); ?>';
+            if (!apiKey || !siteCode) { return; }   // not connected — nothing to quote
+
+            jQuery.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'check_bulk_credits',
+                    api_key: apiKey,
+                    site_code: siteCode,
+                    keyword_count: 0,   // pricing + balance only; nothing is being gated here
+                    ai_image_count: 0,
+                    article_size: jQuery('#post_size').val() || '',
+                    nonce: '<?php echo wp_create_nonce("check_credits_nonce"); ?>'
+                },
+                success: function (response) {
+                    if (response && response.success) { cacheFrom(response.data); }
+                }
+                // No error branch, on purpose: rule 1. Nothing cached, nothing drawn.
+            });
+        }
+
+        jQuery(function () {
+            jQuery(document).on('change', '#post_size, #post_size_bulk', render);
+
+            // The bulk total moves with the keyword list as well as the size. 'input'
+            // catches typing and paste — but the list picker and the Google-suggest
+            // fetch write the textarea with .val(), which fires no event at all. Hence
+            // the ajaxComplete sweep: the writers live in several files this module does
+            // not own, and re-rendering one small node is cheaper than hooking each.
+            jQuery(document).on('input change', '#keyword_list', renderBulk);
+            jQuery(document).ajaxComplete(function () {
+                if (jQuery('#iseo_credit_estimate_bulk').is(':visible')) { renderBulk(); }
+            });
+
+            jQuery(document).on('shown.bs.modal', '#exampleModal1, #exampleModal2', ensureFetched);
+        });
+
+        return { refresh: render, cacheFrom: cacheFrom, unitPrice: unitPrice, variantFromWords: variantFromWords };
+    })();
+
     // Single Post: Content Credit Check Function
     function checkSingleContentCredits() {
         return new Promise(function(resolve, reject) {
@@ -3636,14 +3839,25 @@ global $ai_modal_type;
                     site_code: siteCode,
                     keyword_count: 1,
                     ai_image_count: 0,
+                    // Article Size now lives on this panel, so the gate can be priced on the
+                    // size the user actually picked instead of assuming medium.
+                    article_size: jQuery('#post_size').val() || '',
                     nonce: '<?php echo wp_create_nonce("check_credits_nonce"); ?>'
                 },
                 success: function(response) {
                     if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) { ImproveSEOLoading.hide(); }
                     if (response.success) {
                         var d = response.data;
+                        // Refresh the cost preview from the same response that gates the step.
+                        if (typeof iseoCreditEstimate !== 'undefined') { iseoCreditEstimate.cacheFrom(d); }
                         if (d.content_check && !d.content_check.sufficient) {
-                            showImproveSEONotification('warning', 'Not Enough Content Credits', 'Content credits required: 1\nCredits available now: ' + d.content_check.available + '\n\nYou don\'t have enough credits to generate this post. Please purchase more to continue.', 'https://account.improveseoplugin.com//pricing');
+                            // Read the amount off the response rather than recomputing it. This
+                            // said a flat "required: 1" for a post the server charges 6/10/14 for,
+                            // which is how a user could be told they were one credit short of a
+                            // fourteen-credit article.
+                            var needed = (d.content_check && d.content_check.needed != null)
+                                ? d.content_check.needed : '';
+                            showImproveSEONotification('warning', 'Not Enough Content Credits', 'ISEO credits required: ' + needed + '\nCredits available now: ' + d.content_check.available + '\n\nYou don\'t have enough credits to generate this post. Please purchase more to continue.', 'https://account.improveseoplugin.com//pricing');
                             reject('insufficient_content_credits');
                             return;
                         }
@@ -3711,6 +3925,10 @@ global $ai_modal_type;
                     site_code: siteCode,
                     keyword_count: keywordCount,
                     ai_image_count: 0, // Not checking images at step 1
+                    // Article Size now lives on this panel, so the gate is priced on the size
+                    // the user picked. Without it a Large run was checked at the medium price
+                    // and passed a gate it could not afford.
+                    article_size: jQuery('#post_size_bulk').val() || '',
                     nonce: '<?php echo wp_create_nonce("check_credits_nonce"); ?>'
                 },
                 success: function(response) {
@@ -3733,19 +3951,42 @@ global $ai_modal_type;
                             return;
                         }
                         
-                        // Cache the server's price list for the regenerate dialog's cost line.
-                        // Display only — the server prices and charges; see iseoRegenCostNote().
-                        if (data.pricing) { window.iseoCreditPricing = data.pricing; }
+                        // Cache the server's price list for the regenerate dialog's cost line and
+                        // the Article Size cost preview. Display only — the server prices and
+                        // charges; see iseoRegenCostNote() and iseoCreditEstimate.
+                        if (typeof iseoCreditEstimate !== 'undefined') {
+                            iseoCreditEstimate.cacheFrom(data);
+                        } else if (data.pricing) {
+                            window.iseoCreditPricing = data.pricing;
+                        }
+
+                        // Both dialogs below report CREDITS, read off the response. They used to
+                        // report keywordCount — the number of POSTS — as though a post cost one
+                        // credit, so a 40-post run costing 400 credits was announced as "required:
+                        // 40" and its "remaining after" was 360 credits too high. The unit price is
+                        // the server's, echoed back, so these numbers are the ones the check was
+                        // actually made against.
+                        const creditsNeeded = (data.content_check && data.content_check.needed != null)
+                            ? data.content_check.needed : null;
+                        const unitPrice = (data.content_unit != null) ? data.content_unit : null;
 
                         // Check 2: Content credits insufficient
                         if (data.content_check && !data.content_check.sufficient) {
-                            const shortBy = data.content_check.needed - data.content_check.available;
+                            const shortBy = creditsNeeded - data.content_check.available;
+                            // How many posts the balance DOES cover, at the selected size. The old
+                            // copy told the user to cut the list to `available` posts, which was the
+                            // credit balance mislabelled as a post count.
+                            const affordable = unitPrice
+                                ? Math.floor(data.content_check.available / unitPrice)
+                                : null;
                             const msg =
-                                'Content credits required: ' + keywordCount + '\n' +
+                                'ISEO credits required: ' + creditsNeeded +
+                                (unitPrice ? ' (' + keywordCount + ' post(s) × ' + unitPrice + ')' : '') + '\n' +
                                 'Credits available now: ' + data.content_check.available + '\n' +
                                 'Short by: ' + shortBy + '\n\n' +
-                                'Reduce your keyword list to ' + data.content_check.available +
-                                ' post(s), or purchase more credits to continue.';
+                                (affordable !== null
+                                    ? 'Reduce your keyword list to ' + affordable + ' post(s), or purchase more credits to continue.'
+                                    : 'Purchase more credits to continue.');
 
                             showImproveSEONotification(
                                 'warning',
@@ -3756,7 +3997,7 @@ global $ai_modal_type;
                             reject('insufficient_content_credits');
                             return;
                         }
-                        
+
                         // Content credits are sufficient — confirm before advancing.
                         // resolve() runs on OK/close so the wizard only moves forward
                         // once the user acknowledges the credit usage.
@@ -3764,9 +4005,10 @@ global $ai_modal_type;
                             type: 'success',
                             title: 'Confirm Content Generation',
                             message:
-                                'Content credits required: ' + keywordCount + '\n' +
+                                'ISEO credits required: ' + creditsNeeded +
+                                (unitPrice ? ' (' + keywordCount + ' post(s) × ' + unitPrice + ')' : '') + '\n' +
                                 'Credits available now: ' + data.content_check.available + '\n' +
-                                'Remaining after generation: ' + (data.content_check.available - keywordCount) + '\n\n' +
+                                'Remaining after generation: ' + (data.content_check.available - creditsNeeded) + '\n\n' +
                                 'Click OK to confirm and continue.',
                             buttonText: 'OK',
                             onClose: function () { resolve(data); }

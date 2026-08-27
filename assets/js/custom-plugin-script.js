@@ -581,6 +581,29 @@ function iseoRunContentGeneration() {
 }
 
 /**
+ * Mirror of the admin server's variantFromWords().
+ *
+ * The three strings it matches are the <option value>s of the Article Size dropdowns — the wire
+ * format, not display text. Anything unrecognised falls back to "medium" because that is what the
+ * server does: failing closed to a different variant on either side would price a regeneration at
+ * one figure and charge another.
+ *
+ * Replaces an indexOf("600")/indexOf("2400") prefix test which happened to work on today's three
+ * literals but would silently mis-bucket any new size that opened with the same digits.
+ */
+function iseoContentVariant(words) {
+  switch (String(words == null ? "" : words).trim()) {
+    case "600 to 1200 words":
+      return "small";
+    case "2400 to 3600 words":
+      return "large";
+    case "1200 to 2400 words":
+      return "medium";
+  }
+  return "medium";
+}
+
+/**
  * Informational cost line for the regenerate dialog.
  *
  * The server prices the action and is the only thing that can charge; this is display only. It
@@ -596,9 +619,12 @@ function iseoRegenCostNote(kind) {
         ? "Regenerating this image uses " + pricing.image_regen + " ISEO credits."
         : "";
     }
-    var words = jQuery("#nos_of_words").val() || "";
-    var sizeLabel = words.indexOf("600") === 0 ? "small" : (words.indexOf("2400") === 0 ? "large" : "medium");
-    var amount = pricing.content_regen && pricing.content_regen[sizeLabel];
+    // #post_size is the single wizard's Article Size select, #post_size_bulk the bulk one.
+    // This used to read #nos_of_words — an id that exists nowhere: nos_of_words is the field
+    // NAME. .val() on an empty set is undefined, so every regen resolved to "medium" and a
+    // Large regeneration was advertised at the medium price and charged the large one.
+    var words = jQuery("#post_size").val() || jQuery("#post_size_bulk").val() || "";
+    var amount = pricing.content_regen && pricing.content_regen[iseoContentVariant(words)];
     return typeof amount === "number"
       ? "Regenerating this article uses " + amount + " ISEO credits."
       : "";
