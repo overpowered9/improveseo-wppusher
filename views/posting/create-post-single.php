@@ -135,17 +135,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 					<button type="button" class="handlediv button-link" aria-expanded="true">
 						<span class="toggle-indicator" aria-hidden="true"></span>
 					</button>
-					<?php // stopPropagation keeps the marker from also collapsing the postbox, whose
-					      // toggle is bound to this handle. ?>
-					<h3 class="hndle ui-sortable-handle"><span>Categories</span>
-						<span class="iseo-info-tip" tabindex="0" role="button" aria-label="Why assign a category?" onclick="event.stopPropagation();">
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-							<?php // --end: this sidebar is only 28% wide, so the box opens leftward. ?>
-							<span class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--end" role="tooltip">
-								Choose one or more categories to keep your posts organized on your website. Improve SEO is selected by default &mdash; you can add other categories or create a new one below.
-							</span>
-						</span>
-					</h3>
+					<h3 class="hndle ui-sortable-handle"><span>Categories</span></h3>
 					<div class="inside mt-2">
 						<?php
 						$cat_pre = array();
@@ -253,15 +243,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 					<button type="button" class="handlediv button-link" aria-expanded="true">
 						<span class="toggle-indicator" aria-hidden="true"></span>
 					</button>
-					<h3 class="hndle ui-sortable-handle"><span>Google Preview</span>
-						<span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is the Google preview?" onclick="event.stopPropagation();">
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-							<span class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--end is-interactive" role="tooltip">
-								Below you can preview how your post will show inside Google on their search results page. The below meta title and meta description were approved by you inside the Wizard. You can make now further edits as needed.
-								<span class="iseo-tip-para">Note: If you have another SEO plugin installed on this website, the meta title and meta description for this post might be generated according to those SEO plugins, and may differ and override the meta title and description below. <a href="https://account.improveseoplugin.com/tutorial" target="_blank" rel="noopener noreferrer">Learn More</a></span>
-							</span>
-						</span>
-					</h3>
+					<h3 class="hndle ui-sortable-handle"><span>Google Preview</span></h3>
 					<div class="inside mt-2">
 						<div id="google-preview" class="google-preview">
 							<div class="input-group mt-4 cta-check">

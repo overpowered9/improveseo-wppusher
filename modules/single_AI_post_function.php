@@ -115,12 +115,6 @@ function getaaldata()
 		$brand_profile['services'] = array( $bp_service );
 	}
 
-	// Regen identity + optional user steer, both carried on the wizard form so they arrive with
-	// the CURRENT (possibly edited) inputs. The server prices the regeneration from its own
-	// history; nothing here claims a discount.
-	$target_key         = isset($arr['target_key']) ? sanitize_text_field($arr['target_key']) : '';
-	$custom_instruction = isset($arr['custom_instruction']) ? (string) $arr['custom_instruction'] : '';
-
 	$generation_result = createAIpost2(
 
 		$seed_keyword,
@@ -155,11 +149,7 @@ function getaaldata()
 
 		$brand_profile,
 
-		$cta_url,
-
-		$target_key,
-
-		$custom_instruction
+		$cta_url
 
 	);
 
@@ -380,7 +370,7 @@ function ChatGPTCall($question)
 
 
 }
-function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '', $niche = 'general_blog', $niche_data = array(), $brand_profile = array(), $cta_url = '', $target_key = '', $custom_instruction = '')
+function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '', $niche = 'general_blog', $niche_data = array(), $brand_profile = array(), $cta_url = '')
 {
 	global $wpdb, $user_ID;
 
@@ -421,17 +411,6 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 	}
 	if (!empty($cta_url)) {
 		$payload['cta_url'] = $cta_url;
-	}
-	// Names the post slot so the server can recognise a repeat generation and charge the cheaper
-	// regen price. Regen status is decided by the SERVER from its own generation history — this
-	// only identifies the slot, and no flag here can claim a discount.
-	if (!empty($target_key)) {
-		$payload['target_key'] = $target_key;
-	}
-	// Optional user steer from the regenerate dialog, for this one run. Sent through as-is: the
-	// server sanitises it and contains it structurally inside the prompt.
-	if (!empty($custom_instruction)) {
-		$payload['custom_instruction'] = $custom_instruction;
 	}
 	
 	// Set up cURL for HTTP request to admin server

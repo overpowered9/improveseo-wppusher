@@ -145,12 +145,6 @@ register_activation_hook(__FILE__, 'improveseo_install_data');
 
 register_deactivation_hook(__FILE__, 'improveseo_uninstall');
 
-// Tell ImproveSEO this site is going offline, and stop the heartbeat. Must be
-// registered here rather than in includes/connection-status.php, where it is
-// defined: register_deactivation_hook() keys on the plugin's ENTRY file, and
-// __FILE__ inside an include is the include.
-register_deactivation_hook(__FILE__, 'improveseo_connection_on_deactivate');
-
 
 
 function improveseo_load_media_files()

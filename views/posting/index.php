@@ -41,15 +41,10 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 			<div class="create-ai">
 				<h2 class="title">What would you like to create?</h2>
 				<div class="create-ai-col">
-					<a class="Posting__post-button" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_posting&action=create_post_single' . ( $from_onboarding ? '&from=onboarding' : '' ) ) ); ?>" aria-describedby="iseo-tip-single-post">
+					<a class="Posting__post-button" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_posting&action=create_post_single' . ( $from_onboarding ? '&from=onboarding' : '' ) ) ); ?>">
 						<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/Mobile-UX-rafiki.png' ); ?>"
 							alt="Create Single AI Post">
-						<h3>Create Single AI Post
-							<span class="create-ai-tip">
-								<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-								<span class="create-ai-tip-bubble" id="iseo-tip-single-post" role="tooltip">Create a single post based on a chosen seed keyword</span>
-							</span>
-						</h3>
+						<h3>Create Single AI Post</h3>
 					</a>
 				</div>
 
@@ -58,16 +53,8 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 					<a class="Posting__page-button" href="<?php echo esc_url( admin_url("admin.php?page=improveseo_posting&action=create_post_bulk") ); ?>">
 						<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/Multi-device.png' ); ?>"
 							alt="Multi-device">
+						<h3>Create Bulk AI Posts Project</h3>
 					</a>
-					<?php // The hint links to Keyword Lists, and a link cannot be nested inside the card's
-					      // own <a> — so the title carries the link and the hint sits outside it. ?>
-					<h3>
-						<a class="Posting__page-button" href="<?php echo esc_url( admin_url("admin.php?page=improveseo_posting&action=create_post_bulk") ); ?>" aria-describedby="iseo-tip-bulk-post">Create Bulk AI Posts Project</a>
-						<span class="create-ai-tip">
-							<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-							<span class="create-ai-tip-bubble is-wide is-interactive" id="iseo-tip-bulk-post" role="tooltip">Create a project with multiple posts based on a keyword list. Don&rsquo;t have a keyword list? <a href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_lists' ) ); ?>">Create one</a> before you get started.</span>
-						</span>
-					</h3>
 				</div>
 			</div>
 		</div>

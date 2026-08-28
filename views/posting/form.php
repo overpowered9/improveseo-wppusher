@@ -18,13 +18,6 @@ $word_ai_email = get_option('improveseo_word_ai_email');
 
 $pixabay_key = get_option('improveseo_pixabay_key');
 $google_api_key = get_option('improveseo_google_api_key');
-
-// This view also renders the bulk create screen and the edit-post screen. The hover
-// hints below are written for the single create flow specifically — they name the
-// Wizard and the create-mode button labels ("Create & Publish Post", "Save As Draft"),
-// which read as wrong on the other two. Only create-post-single.php sets this global.
-global $ai_modal_type;
-$_isSingleCreate = isset($ai_modal_type) && $ai_modal_type === 'single';
 ?>
 
 
@@ -34,14 +27,7 @@ $_isSingleCreate = isset($ai_modal_type) && $ai_modal_type === 'single';
 		<div id="post-body-content">
 			<div class="PostForm__name-wrap input-group <?php if (Validator::hasError('name'))
 				echo 'PostForm--error' ?>" style="margin-top: 20px;">
-					<label class="form-label" style="display:block; font-weight:600; margin-bottom:5px;">Project Name<?php if ($_isSingleCreate) : ?>
-						<span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is the project name for?">
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-							<span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
-								Project name is an internal name for your reference only and won&rsquo;t be published. You can edit it, if you like.
-							</span>
-						</span>
-					<?php endif; ?></label>
+					<label class="form-label" style="display:block; font-weight:600; margin-bottom:5px;">Project Name</label>
 					<input type="text" name="name" class="PostForm__name form-control" placeholder="Project name here"
 						value="<?php echo esc_attr( Validator::old('name', $task->name) ); ?>" required>
 				<?php if (Validator::hasError('name')): ?>
@@ -51,14 +37,7 @@ $_isSingleCreate = isset($ai_modal_type) && $ai_modal_type === 'single';
 
 			<div class="PostForm__title-wrap input-group <?php if (Validator::hasError('title'))
 				echo ' PostForm--error' ?>">
-					<label class="form-label" style="display:block; font-weight:600; margin-bottom:5px;">Post Title<?php if ($_isSingleCreate) : ?>
-						<span class="iseo-info-tip" tabindex="0" role="button" aria-label="Where does this post title come from?">
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-							<span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
-								This is the post title that you approved inside the Wizard, you can edit it.
-							</span>
-						</span>
-					<?php endif; ?></label>
+					<label class="form-label" style="display:block; font-weight:600; margin-bottom:5px;">Post Title</label>
 					<input type="text" id="title" name="title" class="PostForm__title form-control"
 						placeholder="Enter title here" value="<?php echo esc_attr( Validator::old('title', $task->content['title']) ); ?>">
 				<?php if (Validator::hasError('title')): ?>
@@ -82,18 +61,6 @@ $_isSingleCreate = isset($ai_modal_type) && $ai_modal_type === 'single';
 
 			<div class="PostForm__body-wrap <?php if (Validator::hasError('content'))
 				echo ' PostForm--error' ?>">
-				<?php if ($_isSingleCreate) : ?>
-				<?php // Header for the editor frame below, styled to match the Project Name and
-				      // Post Title labels above it. ?>
-				<label class="form-label" for="content" style="display:block; font-weight:600; margin-bottom:5px;">Edit Post Content
-					<span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is this content?">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-						<span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
-							Below is your final post content that you approved inside the Wizard. Review it one more time before you finalize it. You can make manual edits as needed.
-						</span>
-					</span>
-				</label>
-				<?php endif; ?>
 				<?php wp_editor(Validator::old('content', $task->content['content']), 'content', array(
 				'_content_editor_dfw' => '',
 				'drag_drop_upload' => true,
@@ -153,56 +120,22 @@ $_isSingleCreate = isset($ai_modal_type) && $ai_modal_type === 'single';
 				});
 			</script>
 			<?php endif; ?>
-			<?php // Each button is paired with its hint inside a .PostForm__btn-group so the
-			      // marker travels with its own button; the row's own gap is widened to keep
-			      // the groups from reading as one crowded block. The hint boxes are right-
-			      // aligned (--end) because this row sits against the right edge. ?>
 			<div id="post_form_buttons" class="PostForm__buttons">
-				<span class="PostForm__btn-group">
-					<button name="create" type="submit" formtarget="_self"
-						class="btn styling_post_page_action_buttons btn-outline-primary">
-						<?php echo $_isEditMode ? 'Publish Post' : 'Create &amp; Publish Post'; ?>
-					</button>
-					<?php if ($_isSingleCreate) : ?>
-					<span class="iseo-info-tip" tabindex="0" role="button" aria-label="What does publishing do?">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-						<span class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--end" role="tooltip">
-							Ready to publish your post? Click &lsquo;Create &amp; Publish Post&rsquo;.
-						</span>
-					</span>
-					<?php endif; ?>
-				</span>
+				<button name="create" type="submit" formtarget="_self"
+					class="btn styling_post_page_action_buttons btn-outline-primary">
+					<?php echo $_isEditMode ? 'Publish Post' : 'Create &amp; Publish Post'; ?>
+				</button>
 				<?php if ( ! $_isPublished ) : ?>
-				<span class="PostForm__btn-group">
-					<button name="draft" type="submit" formtarget="_self"
-						class="btn styling_post_page_action_buttons btn-outline-primary">
-						<?php echo $_isEditMode ? 'Save Changes' : 'Save As Draft'; ?>
-					</button>
-					<?php if ($_isSingleCreate) : ?>
-					<span class="iseo-info-tip" tabindex="0" role="button" aria-label="What does saving as a draft do?">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-						<span class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--end" role="tooltip">
-							Not ready to publish yet? Click &lsquo;Save As Draft&rsquo; to save this post as draft. You can come back later and make further manual edits as needed before publishing it.
-						</span>
-					</span>
-					<?php endif; ?>
-				</span>
+				<button name="draft" type="submit" formtarget="_self"
+					class="btn styling_post_page_action_buttons btn-outline-primary">
+					<?php echo $_isEditMode ? 'Save Changes' : 'Save As Draft'; ?>
+				</button>
 				<?php endif; ?>
 				<?php if ( $_isEditMode ) : ?>
 				<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>"
 					class="btn styling_post_page_action_buttons btn-outline-primary">Cancel</a>
 				<?php endif; ?>
-				<span class="PostForm__btn-group">
-					<button id="preview_on" type="button" class="btn styling_post_page_action_buttons btn-outline-primary">Preview Post</button>
-					<?php if ($_isSingleCreate) : ?>
-					<span class="iseo-info-tip" tabindex="0" role="button" aria-label="What does the preview show?">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-						<span class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--end" role="tooltip">
-							Would like to preview how your post will look like when published? Click &lsquo;Preview Post&rsquo;. Note: it might take up to 30 seconds to generate the preview.
-						</span>
-					</span>
-					<?php endif; ?>
-				</span>
+				<button id="preview_on" type="button" class="btn styling_post_page_action_buttons btn-outline-primary">Preview Post</button>
 				<?php wp_nonce_field('improveseo_instant_preview', 'iseo_preview_nonce', false); ?>
 			</div>
 
