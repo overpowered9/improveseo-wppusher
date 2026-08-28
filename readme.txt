@@ -1,5 +1,5 @@
 === Improve SEO ===
-Contributors: improveseoteam
+Contributors: nateg108, improveseoteam
 Tags: seo, ai content, content generator, bulk posts, openai
 Requires at least: 5.0
 Tested up to: 7.1
@@ -80,6 +80,7 @@ it is published.
 * Housekeeping: documented why the bundled EXIF library's exception messages are exempt from the output-escaping rule — they are never rendered.
 
 = 2.0.12 =
+* Security: fixed an unauthenticated arbitrary file upload in the image upload handler. Reported by Joao Ramos Maciel.
 * Security: authenticated the plugin's public endpoint and prepared its SQL.
 * Security: prepared the remaining direct database queries.
 * Security: stopped writing to wp-config.php and to the WordPress root directory.
