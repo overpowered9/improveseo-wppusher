@@ -208,17 +208,26 @@ function pd_seo_meta($post_id, $what) {
 <?php
 // `improveseo-project-details` scopes this page's header rules in
 // assets/css/made_by_me.css. The action buttons deliberately do NOT use the
-// plugin-wide `.import-export-btn` class: that rule gives every button a 50px
-// pill radius with no flex-shrink guard, so once flex compressed them below
-// their intrinsic width the radius started swallowing the label. This page owns
+// plugin-wide `.import-export-btn` class: that rule pairs a 50px pill radius
+// with no flex-shrink guard, so on a smaller laptop the buttons were squeezed
+// narrower than their labels, the labels wrapped to two lines, the extra height
+// let the pill radius grow, and the buttons visibly rounded off. This page owns
 // `.improveseo-header-actions` / `.improveseo-header-btn` instead, which keeps
 // the shared class (and the 6 other screens using it) untouched and means the
-// new rules never have to fight it with !important.
+// new rules never have to fight it with !important. The full mechanism is
+// written up next to the rules themselves in made_by_me.css.
 ?>
 <div class="global-wrap improveseo-project-details">
     <div class="head-bar">
         <img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
-        <h1>ImproveSEO | Project Details</h1>
+        <h1>ImproveSEO | Project Details
+            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is on this page?">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                    On this page you will find basic information about this post, and content details that were used to create your post. The information shown on this page is for information purposes only.
+                </span>
+            </span>
+        </h1>
     </div>
     <div class="box-top">
         <div class="improveseo-header-title">

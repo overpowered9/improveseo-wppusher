@@ -547,6 +547,36 @@ function upload_keyword_image_callback()
 }
 
 
+/**
+ * PHP mirror of the admin server's variantFromWords().
+ *
+ * The server prices content per size variant and resolves that variant from the SAME three
+ * literal strings the Article Size dropdowns carry as their <option value>s — they are the wire
+ * format, not display text. Matching them here is what lets the pre-check quote the price the
+ * server will actually charge.
+ *
+ * Anything unrecognised falls back to 'medium' rather than erroring, because that is what the
+ * server does. Failing closed to a DIFFERENT variant on either side would be worse than not
+ * checking at all: the gate would pass a run the server then refuses, or block one it would
+ * have allowed.
+ *
+ * @param string $words One of the three <option value> literals.
+ * @return string 'small'|'medium'|'large'
+ */
+function improveseo_content_variant_from_words( $words ) {
+	switch ( trim( (string) $words ) ) {
+		case '600 to 1200 words':
+			return 'small';
+		case '2400 to 3600 words':
+			return 'large';
+		case '1200 to 2400 words':
+			return 'medium';
+	}
+
+	return 'medium';
+}
+
+
 // AJAX handler for bulk post credit check
 add_action('wp_ajax_check_bulk_credits', 'check_bulk_credits_callback');
 
@@ -564,7 +594,11 @@ function check_bulk_credits_callback() {
 	$site_code = sanitize_text_field($_POST['site_code']);
 	$keyword_count = intval($_POST['keyword_count']);
 	$ai_image_count = intval($_POST['ai_image_count']);
-	
+	// Optional: the Article Size dropdown's raw value. Absent from older callers, and absent is
+	// indistinguishable from unrecognised here — both resolve to medium, which is the variant the
+	// check assumed unconditionally before this parameter existed.
+	$article_size = isset($_POST['article_size']) ? sanitize_text_field(wp_unslash($_POST['article_size'])) : '';
+
 	if (empty($api_key) || empty($site_code)) {
 		wp_send_json_error(array('error' => 'API credentials not configured'));
 	}
@@ -593,8 +627,15 @@ function check_bulk_credits_callback() {
 		wp_send_json_error(array('error' => $data['error'] ?? 'Failed to retrieve user status'));
 	}
 	
-	// Extract data from response
+	// Extract data from response.
+	// credits_total is the single ISEO pool. The legacy {images, content, keywords} keys are a
+	// compatibility shim the server keeps populated with that SAME pooled number for one release,
+	// so this still works against a server that has not been redeployed yet.
 	$credits = $data['credits'] ?? array('images' => 0, 'content' => 0, 'keywords' => 0);
+	if (isset($data['credits_total'])) {
+		$credits['total'] = intval($data['credits_total']);
+	}
+	$result = array('pricing' => isset($data['pricing']) && is_array($data['pricing']) ? $data['pricing'] : array());
 	$subscription = $data['subscription'] ?? null;
 	
 	// Get plan information from subscription
@@ -621,22 +662,74 @@ function check_bulk_credits_callback() {
 		'plan_name' => $plan_name
 	);
 	
-	// Check 2: Content credits
-	$content_credits = intval($credits['content']);
+	// Checks 2 and 3 used to assume a flat 1 credit per post and 1 per image, and read the
+	// per-type balances. There is one ISEO pool now, priced per action, so both are costed from
+	// the server's published pricing block and checked against the SAME pooled balance.
+	//
+	// This is a UX pre-check only. The real gate is the server's atomic reservation at generation
+	// time — this exists so a bulk run fails early and legibly instead of part-way through.
+	$pool = isset($credits['total']) ? intval($credits['total']) : intval($credits['content']);
+	$pricing = isset($result['pricing']) && is_array($result['pricing']) ? $result['pricing'] : array();
+
+	// Price the size the user actually picked. This used to read $pricing['content']['medium']
+	// unconditionally, which was wrong the moment the sizes stopped costing the same: a Large run
+	// was checked at the medium price and passed a gate it could not afford, then died part-way
+	// through when the server's reservation refused it — the exact failure this pre-check exists
+	// to prevent.
+	//
+	// Two separate fallbacks, and they mean different things:
+	//   - unknown/absent article_size    -> 'medium' variant (improveseo_content_variant_from_words)
+	//   - server published no price      -> flat 1, the pre-pricing behaviour, so an un-redeployed
+	//                                       server still gates exactly as it did before.
+	$content_variant = improveseo_content_variant_from_words($article_size);
+
+	$content_unit = 1;
+	if (isset($pricing['content'][$content_variant])) {
+		$content_unit = max(1, intval($pricing['content'][$content_variant]));
+	} elseif (isset($pricing['content']['medium'])) {
+		// Variant priced nowhere but medium is — better a known-wrong-but-published number than
+		// the flat 1, which would under-state the cost by an order of magnitude.
+		$content_unit = max(1, intval($pricing['content']['medium']));
+	}
+	$image_unit = isset($pricing['image']) ? max(1, intval($pricing['image'])) : 1;
+
+	$content_needed = $keyword_count * $content_unit;
+	$image_needed   = $ai_image_count * $image_unit;
+
 	$checks['content_check'] = array(
-		'sufficient' => $content_credits >= $keyword_count,
-		'needed' => $keyword_count,
-		'available' => $content_credits
+		'sufficient' => $pool >= $content_needed,
+		'needed' => $content_needed,
+		'available' => $pool
 	);
-	
-	// Check 3: Image credits (only for AI-generated images)
-	$image_credits = intval($credits['images']);
+
 	$checks['image_check'] = array(
-		'sufficient' => $image_credits >= $ai_image_count,
-		'needed' => $ai_image_count,
-		'available' => $image_credits
+		'sufficient' => $pool >= $image_needed,
+		'needed' => $image_needed,
+		'available' => $pool
 	);
-	
+
+	// Both actions draw on ONE pool, so a run needs the sum — checking them separately would pass
+	// a bulk job that can afford the articles or the images but not both.
+	$checks['combined_check'] = array(
+		'sufficient' => $pool >= ($content_needed + $image_needed),
+		'needed' => $content_needed + $image_needed,
+		'available' => $pool
+	);
+	$checks['pricing'] = $pricing;
+
+	// Echo back the unit prices and the variant they came from, so a caller renders the SAME
+	// numbers this check was made against. Without this the dialog would have to re-derive the
+	// price from the pricing table on its own, and any disagreement between the two derivations
+	// would show the user one number while gating them on another.
+	$checks['content_variant'] = $content_variant;
+	$checks['content_unit']    = $content_unit;
+	$checks['image_unit']      = $image_unit;
+
+	// The pooled balance under its own name. content_check.available already carries it, but that
+	// reads as "available for the content check" — callers that only want the balance (the cost
+	// preview under Article Size) should not have to go through a check to find it.
+	$checks['credits_total'] = $pool;
+
 	wp_send_json_success($checks);
 }
 
@@ -711,6 +804,18 @@ function fetch_AI_image_callback()
             );
             $bp_city = get_option('improveseo_business_city', '');
             if ($bp_city) { $payload['city'] = $bp_city; }
+            // Identifies this image slot so the server can recognise a repeat generation and
+            // charge the cheaper regen price. The server decides regen status from its OWN
+            // history — this only names the slot, it never asserts a discount.
+            if (!empty($_POST['target_key'])) {
+                $payload['target_key'] = sanitize_text_field(wp_unslash($_POST['target_key']));
+            }
+            // Optional user steer from the regenerate dialog. Passed through untouched: the
+            // server sanitises it and contains it structurally in the prompt, and stripping it
+            // here would only give false assurance since the request can be forged anyway.
+            if (!empty($_POST['custom_instruction'])) {
+                $payload['custom_instruction'] = wp_unslash($_POST['custom_instruction']);
+            }
             // noedit: pass the raw prompt straight to the image model (v2 uses it verbatim)
             if ($noedit) { $payload['prompt'] = $title; }
         } else {

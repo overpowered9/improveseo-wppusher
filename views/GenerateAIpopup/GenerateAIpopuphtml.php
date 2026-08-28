@@ -362,6 +362,16 @@ global $ai_modal_type;
         align-items: center !important;
         gap: 12px !important;
         margin: 20px 0 8px;            /* directly under the content card */
+        /* Change Image / Regenerate Content / Review Input, stacked in that order. */
+        flex-direction: column;
+    }
+    /* One button plus its hover hint. The marker hangs off the right of the button, so
+       the row is wider than the button — every row is built the same way, which keeps
+       the buttons themselves aligned with each other. */
+    .iseo-action-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
     /* Bottom buttons: compact (same as the top-right stack) and close together. The
        fixed width keeps the group well within the card, and margin:0 defeats any
@@ -411,6 +421,13 @@ global $ai_modal_type;
     .iseo-regen-hint b {
         color: #1C7293;
         font-weight: 600;
+    }
+    /* Keeps the nav hint marker beside the Next/Approve/Submit button rather than
+       stranded in the middle of the bar, which is what space-between would do to it. */
+    .iseo-nav-btn-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
 
 
@@ -950,6 +967,28 @@ global $ai_modal_type;
 
         <form id="popup_form" method="post" class="pop_up_form improve-seo-form-global">
 
+            <?php
+            // Regeneration target key.
+            //
+            // The server prices a regeneration lower than a first generation, but it will only do
+            // so when it can prove this slot has been generated before — it looks for an earlier
+            // user_generations row with the same key. A client flag is ignored, so without this
+            // field every regeneration is charged at the full first-generation price.
+            //
+            // Minted per wizard session because there is nothing else stable to use: in this flow
+            // the WordPress post does not exist yet (it is created on publish), so there is no post
+            // ID to send. It is deliberately NOT derived from the keyword or title — regeneration
+            // is supposed to run on EDITED inputs, and a content-derived key would change exactly
+            // when the user edits, silently losing them the discount.
+            //
+            // Carried in the form, so it serialises with everything else on submit and is stored
+            // on the project row; the Edit Draft screen then reuses the same key.
+            $iseo_target_key = 'iseo_tk_' . bin2hex( random_bytes( 16 ) );
+            ?>
+            <input type="hidden" name="target_key" id="iseo_target_key" value="<?php echo esc_attr( $iseo_target_key ); ?>">
+            <?php // Filled by the regenerate modal; cleared after each submit so it never leaks into the next run. ?>
+            <input type="hidden" name="custom_instruction" id="iseo_custom_instruction" value="">
+
             <div class="improveseo-sections">
 
                 <!-- option 1  -->
@@ -972,7 +1011,15 @@ global $ai_modal_type;
                     }
                     ?>
                     <div class="seo-form-field">
-                        <label class="data-label" for="seed_keyword">Seed keyword</label>
+                        <label class="data-label" for="seed_keyword">Seed keyword
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a seed keyword?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Enter your Keyword</strong>
+                                    Enter what your ideal customer is searching for in search engines (like Google) and AI chatbots to find services like yours, for example &lsquo;dog grooming santa fe&rsquo;. This seed keyword will be the main topic for this post.
+                                </span>
+                            </span>
+                        </label>
                         <input type="text" class="form-control" placeholder="Enter Seed Keyword" id="seed_keyword"
                             name="seed_keyword" value="<?php echo esc_attr( $prefill_keyword ); ?>"></input>
                         <span id="error_seed_keyword" style="color: red;"></span>
@@ -1017,7 +1064,15 @@ global $ai_modal_type;
                     }
                     ?>
                     <div class="seo-form-field">
-                        <label class="data-label" for="niche_select">Business niche</label>
+                        <label class="data-label" for="niche_select">Business niche
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a business niche?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Pick your Business Niche</strong>
+                                    (Optional) Choose the niche that best matches your business, for example &lsquo;Pet Services/Vet&rsquo;. This tailors the writing style, post structure, and cover-image look to your industry.
+                                </span>
+                            </span>
+                        </label>
                         <select id="niche_select" name="niche" class="form-control custom-selcected" style="max-width:100% !important;">
                             <?php
                             $iseo_niches = array(
@@ -1063,7 +1118,17 @@ global $ai_modal_type;
                     <div class="seo-form-field">
                         <div class="title-tune">
                             <div class="title">
-                                <label for="seed_options">Select Title Type</label>
+                                <label for="seed_options">Select Title Type
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which title type should I choose?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field is-interactive" role="tooltip">
+                                            <strong>Choose Title Style</strong>
+                                            <span class="iseo-tip-item"><b>Smart Title:</b> Generates a classical blog post title optimized for search engines and AI chatbots.</span>
+                                            <span class="iseo-tip-item"><b>Question-Style Title:</b> Generates a post title in the form of a question. This can be helpful for SEO purposes because search engines and AI chatbots love when you answer questions people are actually asking.</span>
+                                            <span class="iseo-tip-item"><b>Exact Keyword as Title:</b> we will use the exact seed keyword you entered above as your title. Note: this is a manual advanced SEO title option. <a href="https://account.improveseoplugin.com/tutorial" target="_blank" rel="noopener noreferrer">Learn More</a></span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <select id="seed_select" name="seed_options" id="title" class="custom-selcected">
 
                                     <option value="seed_option2">Smart Title (AI-Generated)</option>
@@ -1074,7 +1139,16 @@ global $ai_modal_type;
                             <span id="error_seed_select" style="color: red;"></span>
                             <div style="clear: both"> </div>
                             <div class="tune" id="seed">
-                                <label for="tune">Tone of voice</label>
+                                <label for="tune">Tone of voice
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which tone of voice should I choose?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--end is-interactive" role="tooltip">
+                                            <strong>Set Your Tone of Voice</strong>
+                                            Choose the writing style for your audience. For example, &lsquo;Professional&rsquo; suits service businesses; &lsquo;Informational&rsquo; works well for how-to guides.
+                                            <span class="iseo-tip-para"><a href="https://account.improveseoplugin.com/tutorial" target="_blank" rel="noopener noreferrer">Learn more about which tone of voice to choose</a></span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <select name="content_type" id="cotnt_type" id="tune" class="custom-selcected">
                                     
                                     <option value="friendly">Friendly</option>
@@ -1098,12 +1172,64 @@ global $ai_modal_type;
                     <div style="clear: both"> </div>
                     
                     <div style="clear: both"> </div>
+                    <?php
+                    // Article Size sits on Step 1, not Step 2, because it is what the post COSTS.
+                    // The server prices content per size variant (small/medium/large), so neither
+                    // the estimate below nor the Step 1 credit pre-check can be priced until the
+                    // size is known. While this lived on Step 2 the pre-check had to assume
+                    // "medium" for every post, and a Large run was gated at the wrong price.
+                    //
+                    // The three <option value> strings are the WIRE FORMAT: the server's
+                    // variantFromWords() matches these literals. Do not reword them.
+                    //
+                    // The select carries an inline max-width because it no longer sits inside
+                    // .step-opton2-content-box, whose rule in made_by_me.css was what lifted the
+                    // `.wp-core-ui select` 25rem cap. Without it this field would render narrower
+                    // than the Step 1 fields above it.
+                    ?>
+                    <div class="seo-form-field">
+                        <label for="post_size">Article Size
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How long should my post be?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Post Length</strong>
+                                    <span class="iseo-tip-item"><b>Small</b> (600 &ndash; 1,200 words) is good for lightweight, easy to read blog posts.</span>
+                                    <span class="iseo-tip-item"><b>Medium</b> (1,200 &ndash; 2,400 words) is a great starting point for most niches.</span>
+                                    <span class="iseo-tip-item">Longer posts often rank better for competitive keywords.</span>
+                                </span>
+                            </span>
+                        </label>
+                        <select class="form-control" name="nos_of_words" required
+                            style="max-width: 100% !important;" id="post_size">
+                            <option value="600 to 1200 words">Small (600 to 1200 words) </option>
+                            <option value="1200 to 2400 words">Medium (1200 to 2400 words) </option>
+                            <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
+                        </select>
+                        <input type="text" id="post_size_select" readonly style="width: 100% !important; display: none !important;"
+                            value="600-1200 words">
+                        <?php
+                        // Filled by iseoCreditEstimate (script block further down) once the server's
+                        // price table has arrived. Deliberately empty in the markup: the price table
+                        // is fetched per wizard session, and a number baked in server-side here would
+                        // survive in page cache and go stale.
+                        ?>
+                        <div class="iseo-credit-estimate" id="iseo_credit_estimate_single" aria-live="polite"></div>
+                    </div>
                     <!-- Visible by default: the default title type is Smart Title (seed_option2),
                          which needs the Generate/Approve area. JS hides it for Exact Keyword. -->
                     <div class="seo-form-field hide_on_seed_option1 ">
                         <div class="generate-title">
                             <div class="title-input">
-                                <label for="Generate">AI Generated Title</label>
+                                <label for="Generate">AI Generated Title
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How do I generate and approve a title?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                            <strong>Generate &amp; Approve your Title</strong>
+                                            Click the Generate button on the right to create an optimized post title from your seed keyword based on the &lsquo;Title Type&rsquo; selection you made above.
+                                            <span class="iseo-tip-para">You can regenerate and edit the title until you are satisfied with it. Click &lsquo;Approve&rsquo; below the &lsquo;Generate&rsquo; button to confirm and proceed.</span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <span id="maintitle">
                                     <div class="resultdata">
                                         <textarea class="title-text" name="maintitlearea" id="maintitlearea"
@@ -1145,32 +1271,27 @@ global $ai_modal_type;
 
                 <!-- option 2 -->
                 <div class="data">
+                    <?php
+                    // Article Size used to be the first of THREE columns in this row; it now lives on
+                    // Step 1 (see the comment there for why). The row is left as two columns on
+                    // purpose rather than re-laid-out: .step-opton-col is flex: 1, so Point of View
+                    // and Select Language simply take half each.
+                    ?>
                     <div class="step-opton2-content-box">
                         <div class="step-opton-col">
                             <div class="seo-form-field">
-                                <label for="sel1">Article Size</label>
-                                <!-- <select class="content-opt custom-selcected" name="nos_of_words" required
-                                    id="post_size">
-                                    <option value="600 to 1200 words">Small (600-1200 words)</option>
-                                    <option value="1200 to 2400 words">Medium (1200 to 2400 words)</option>
-                                    <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
-                                </select> -->
-                                <select class="form-control" name="nos_of_words" required
-                                    style="max-width: 100% !important;" id="post_size">
-                                      <option value="600 to 1200 words">Small (600 to 1200 words) </option>
-                                        <option value="1200 to 2400 words">Medium (1200 to 2400 words) </option>
-                                        <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
-
-                                </select>
-                                <input type="text" id="post_size_select" readonly style="width: 100% !important; display: none !important;"
-                                    value="600-1200 words">
-                            </div>
-
-                        </div>
-
-                        <div class="step-opton-col">
-                            <div class="seo-form-field">
-                                <label for="size">Point of View</label>
+                                <label for="size">Point of View
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which point of view should I choose?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                            <strong>Point of View</strong>
+                                            Choose from which perspective the post shall be written:
+                                            <span class="iseo-tip-item"><b>Speaking to the Reader</b> (you, your): you are addressing the reader directly. This option is recommended for engaging, direct copy.</span>
+                                            <span class="iseo-tip-item"><b>Business Voice</b> (we, our): you are talking from the perspective of your company and your team. This option is recommended if you write an informational piece about your business.</span>
+                                            <span class="iseo-tip-item"><b>Personal Voice</b> (I, mine): you are talking from your own perspective as the business owner. This option is recommended for sharing your personal experience (trust building).</span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <select class="content-opt custom-selcected" name="point_of_view" id="size">
                                     <option value="none">Auto (AI Decides)</option>
                                     <option value="Second Person (you,your,yours)">Speaking to the Reader ("you", "your")</option>
@@ -1195,7 +1316,14 @@ global $ai_modal_type;
 
                     </div>
                     <div class="seo-form-field iseo-details-block">
-                        <label class="iseo-details-head">Details for this article <small style="color:#888;font-weight:normal;margin-left:6px;">(optional &mdash; tailored to your niche)</small></label>
+                        <label class="iseo-details-head">Details for this article <small style="color:#888;font-weight:normal;margin-left:6px;">(optional &mdash; tailored to your niche)</small>
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Why should I add details?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    Google and AI chatbots like high quality and unique content. Provide as many details relevant to your business and this post to significantly improve the quality of this post.
+                                </span>
+                            </span>
+                        </label>
                         <!-- Niche-specific fields are rendered here by iseoRenderNicheFields() based on the
                              Business Niche selected in Step 1. Each input is named nd_<id> and flows into niche_data. -->
                         <div id="niche_fields_container" class="niche-fields"></div>
@@ -1204,17 +1332,31 @@ global $ai_modal_type;
                         </span>
                     </div>
                     <div class="seo-form-field">
-                        <label for="call_to_action">Call to Action Text<a href="#" data-toggle="Information" title="Information">
-                                <div class="dashicons dashicons-info-outline" aria-hidden="true"><br>
-                                </div>
-                            </a></label>
+                        <?php // Replaced a stub info icon whose only content was title="Information". ?>
+                        <label for="call_to_action">Call to Action Text
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a call to action?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Call to Action</strong>
+                                    What action do you want readers to take? E.g. Contact us for a free quote.
+                                </span>
+                            </span>
+                        </label>
                         <textarea class="form-control" id="call_to_action" rows="3" name="call_to_action"
                             onkeypress="return countContentCallToAction()" onblur="LimitText(this,1000,2)"
                             placeholder="What action would you like the reader of your content to take?"></textarea>
                         <span id="countContentCallToAction"></span>
                     </div>
                     <div class="seo-form-field">
-                        <label for="cta_url">Call to Action URL <small style="color:#888; font-weight:normal; margin-left:6px;">(optional)</small></label>
+                        <label for="cta_url">Call to Action URL <small style="color:#888; font-weight:normal; margin-left:6px;">(optional)</small>
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is the call to action URL for?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Call to Action URL</strong>
+                                    Add the URL where you want readers to go &mdash; e.g. your contact page or booking form. Leave blank if you don&rsquo;t want to add a link.
+                                </span>
+                            </span>
+                        </label>
                         <input type="text" id="cta_url" name="cta_url" class="form-control"
                             placeholder="https://example.com/contact">
                         <span id="error_cta_url" style="color:red; display:block;"></span>
@@ -1386,14 +1528,47 @@ global $ai_modal_type;
                                         onclick="iseoOpenFullPreview(); return false;">&#10530; Open full preview in a new tab</button>
                                 </div>
 
-                                <!-- Single, centred Regenerate button (#generateapivalue, relabelled after the
-                                     first generation). The old in-preview "Approve Content" button was removed:
-                                     the wizard's own bottom nav button ("Approve Content" on this step) advances
-                                     the flow, so it was redundant. The hint tells the user how to get different
-                                     content — go back and change their inputs. -->
+                                <!-- Centred stack of the three things a user can do with the result:
+                                     swap the cover image only, regenerate the article (#generateapivalue,
+                                     relabelled "Regenerate Content" after the first generation), or go
+                                     back and revise the inputs. Approving happens on the wizard's own
+                                     bottom nav button, which reads "Approve Content" on this step — an
+                                     in-preview Approve button used to sit here and was removed as
+                                     redundant. Only Regenerate spends a credit. -->
                                 <div class="iseo-content-actions iseo-content-actions-bottom">
-                                    <input type="button" name="genaipost" class="iseo-content-btn iseo-regenerate-content"
-                                        id="generateapivalue" value="Generate AI Post" />
+                                    <span class="iseo-action-row">
+                                        <button type="button" class="iseo-content-btn" id="iseoChangeImageBtn">Change Image</button>
+                                        <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How do I change just the image?">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                            <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                                <strong>Want to change the image only?</strong>
+                                                If you want to change the post image only, you can do so without regenerating the whole post. Click on &lsquo;Change Image&rsquo; and create or upload a different image.
+                                            </span>
+                                        </span>
+                                    </span>
+                                    <span class="iseo-action-row">
+                                        <input type="button" name="genaipost" class="iseo-content-btn iseo-regenerate-content"
+                                            id="generateapivalue" value="Generate AI Post" />
+                                        <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What does regenerating do?">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                            <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                                <strong>Regenerate Content</strong>
+                                                Something not right with your post? Click on &lsquo;Review Input&rsquo; to go back to the beginning of this wizard and review and change any inputs you have made so far. Once you made all necessary changes click on &lsquo;Regenerate Content&rsquo; to generate the post based on your revised inputs. Regenerating content will use an additional content credit.
+                                                <span class="iseo-tip-para">Note: you will be able to make manual edits in a later step before you finalize and publish your post.</span>
+                                            </span>
+                                        </span>
+                                    </span>
+                                    <span class="iseo-action-row">
+                                        <button type="button" class="iseo-content-btn" id="iseoReviewInputBtn">Review Input</button>
+                                        <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What does reviewing my inputs do?">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                            <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                                <strong>Review your Inputs</strong>
+                                                Something not right with your post? Click on &lsquo;Review Input&rsquo; to go back to the beginning of this wizard and review and change any inputs you have made so far. Once you made all necessary changes click on &lsquo;Regenerate Content&rsquo; to generate the post based on your revised inputs. Regenerating content will use an additional content credit.
+                                                <span class="iseo-tip-para">Note: you will be able to make manual edits in a next step before you finalize and publish your post.</span>
+                                            </span>
+                                        </span>
+                                    </span>
                                 </div>
                                 <p class="iseo-regen-hint">Want a different result? Go back to <b>Step&nbsp;1</b>, tweak your inputs, then regenerate.</p>
                             </div>
@@ -1407,12 +1582,28 @@ global $ai_modal_type;
                 <!-- option 5 -->
                 <div class="data meta-data">
                     <div class="seo-form-field">
-                        <label for="meta_title">Meta Title</label>
+                        <label for="meta_title">Meta Title
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a meta title?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>SEO Meta Title</strong>
+                                    This meta title appears on the SERP (search engine results page), for example, when your post ranks in Google. We suggested one, but you can edit it freely. For best results keep it under 60 characters.
+                                </span>
+                            </span>
+                        </label>
                         <input type="text" id="meta_title" name="meta_title" placeholder="Enter title..." />
                         <span class="iseo-meta-count" id="meta_title_count" data-max="60" data-min="0">0 / 60</span>
                     </div>
                     <div class="seo-form-field">
-                        <label for="meta_descreption">Meta Description</label>
+                        <label for="meta_descreption">Meta Description
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a meta description?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Meta Description</strong>
+                                    A short description shown under the meta title in search engines like Google. We suggested one, but you can edit it freely. For best results keep it under 160 characters and make it compelling to increase clicks!
+                                </span>
+                            </span>
+                        </label>
                         <textarea id="meta_descreption" name="meta_descreption"
                             placeholder="Enter description...."></textarea>
                         <span class="iseo-meta-count" id="meta_descreption_count" data-max="160" data-min="150">0 / 160</span>
@@ -1428,13 +1619,29 @@ global $ai_modal_type;
                 <!-- option 6 — Project Name & Category -->
                 <div class="data project-name-data">
                     <div class="seo-form-field">
-                        <label for="modal_project_name">Project Name</label>
+                        <label for="modal_project_name">Project Name
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is the project name for?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Project Name</strong>
+                                    We&rsquo;ve auto-filled an internal name based on the seed keyword that you provided earlier &mdash; it&rsquo;s for your reference only and won&rsquo;t be published. You can edit it, if you like.
+                                </span>
+                            </span>
+                        </label>
                         <input type="text" id="modal_project_name" name="modal_project_name" class="form-control" placeholder="Enter project name...">
                         <span>Auto-filled from your keyword — you can edit it.</span>
                     </div>
 
                     <div class="category-selection-section" style="margin-top: 20px;">
-                        <h3 style="font-size:18px; font-weight:400; color:rgba(80,87,94,0.8); margin-bottom:10px; text-align:left;">Assign Categories</h3>
+                        <h3 style="font-size:18px; font-weight:400; color:rgba(80,87,94,0.8); margin-bottom:10px; text-align:left;">Assign Categories
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Why assign a category?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong>Assign a Category</strong>
+                                    Choose one or more categories to keep your posts organized on your website. Improve SEO is selected by default &mdash; you can add other categories or create a new one below.
+                                </span>
+                            </span>
+                        </h3>
                         <div class="bulk-category-box" style="padding: 16px !important; margin-bottom: 0 !important;">
                             <div class="bulk-category-list" id="single-modal-category-list" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
                                 <?php
@@ -1472,9 +1679,26 @@ global $ai_modal_type;
             <button id="prevStepButton"> <img
                     src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_arrow-left.svg' ); ?>" alt="ep_arrow-left">
                 Previous</button>
-            <button id="nextStepButton" class="style_next_button_in_popup">Next <img
-                    src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ); ?>"
-                    alt="ep_arrow-rights"> </button>
+            <?php // The nav button changes role per step, so its hint travels with it and swaps
+                  // copy to match. iseoUpdateNavTip() shows the [data-nav-step] matching the step
+                  // and hides the marker where there is nothing to say. ?>
+            <span class="iseo-nav-btn-group">
+                <span class="iseo-info-tip" id="iseoNavTip" tabindex="0" role="button" aria-label="What does this button do?" style="display:none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--end iseo-info-tip-bubble--above" role="tooltip">
+                        <span data-nav-step="4" style="display:none;">
+                            <strong>Review &amp; Approve</strong>
+                            Satisfied with the post? Click &lsquo;Approve Content&rsquo; to continue.
+                        </span>
+                        <span data-nav-step="6" style="display:none;">
+                            Click &lsquo;Submit&rsquo; to continue.
+                        </span>
+                    </span>
+                </span>
+                <button id="nextStepButton" class="style_next_button_in_popup">Next <img
+                        src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ); ?>"
+                        alt="ep_arrow-rights"> </button>
+            </span>
         </div>
     </div>
 
@@ -1560,7 +1784,16 @@ global $ai_modal_type;
                     <div class="bulk-widths1170_multi">
                         <div class="improve-seo-form-global_multi">
                             <div class="form-group">
-                                <label style="padding-left:20px;" for="keyword_list_name">Create New or Select an exisiting keyword list.</label>
+                                <label style="padding-left:20px;" for="keyword_list_name">Create New or Select an exisiting keyword list.
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a keyword list for?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field is-interactive" role="tooltip">
+                                            A Bulk Post Project allows you to generate posts in bulk based on a keyword list, one post per keyword.
+                                            <span class="iseo-tip-para">Ideally, you have already prepared a keyword list and select it below.</span>
+                                            <span class="iseo-tip-para">If you haven&rsquo;t, create a new keyword list here: <a href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_lists' ) ); ?>" target="_blank" rel="noopener noreferrer">Generate Keyword List</a>. Once you are done, start a new bulk project.</span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <p style="font-size: 14px; color: #666; padding-left: 20px; margin-top: 5px;">
                                     Keyword list allows you to generate posts in bulk, one post per keyword.
                                 </p>
@@ -1588,7 +1821,14 @@ global $ai_modal_type;
                                 <span id="error_keyword_list_name" style="color: red;"></span>
                             </div>
                             <div class="form-group" id="keyword_list_container" style="display: none;">
-                                <label style="padding-left:20px;" for="keyword_list">Keywords (at least one)</label>
+                                <label style="padding-left:20px;" for="keyword_list">Keywords (at least one)
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What are these keywords?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                            Below all keywords from you selected keyword list are shown, you can edit this list for this bulk project. The minimum number of keyword required is one.
+                                        </span>
+                                    </span>
+                                </label>
                                 <textarea id="keyword_list" name="keyword_list" class="form-control" rows="10"
                                     style="max-width: 100% !important; width: 100%;"></textarea>
                                 <div id="keyword_count"></div>
@@ -1608,8 +1848,58 @@ global $ai_modal_type;
                                 <div id="google_suggestion_container" style="width:100%;"></div>
                                 <div id="ai_suggestion_container" style="width:100%;"></div>
                             </div>
+                            <?php
+                            // Article size sits between the keyword list and the tone so the panel
+                            // reads keywords -> size -> tone, and so the estimate below can multiply
+                            // the per-post price by the keyword count the user has just chosen. It
+                            // was on Step 2, which put the two halves of the project's cost on
+                            // different panels and left the Step 1 credit gate pricing every run at
+                            // "medium" — a Large bulk run passed a gate it could not afford.
+                            //
+                            // The <option value> strings are the WIRE FORMAT matched by the server's
+                            // variantFromWords(). Do not reword them.
+                            ?>
+                            <div id="bulk_article_size">
+                                <label style="padding-left:20px;" for="post_size_bulk">Article size
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How long should these posts be?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                            <strong>Choose a post length that will be applied to all posts within this bulk project:</strong>
+                                            <span class="iseo-tip-item"><b>Small</b> (600 &ndash; 1,200 words) is good for lightweight, easy to read blog posts.</span>
+                                            <span class="iseo-tip-item"><b>Medium</b> (1,200 &ndash; 2,400 words) is a great starting point for most niches.</span>
+                                            <span class="iseo-tip-item">Longer posts often rank better for competitive keywords.</span>
+                                        </span>
+                                    </span>
+                                </label>
+                                <select class="form-control" name="nos_of_words" required
+                                    style="max-width: 100% !important; width: 100%;    padding: 10px 20px !important;"
+                                    id="post_size_bulk">
+                                    <option value="600 to 1200 words">Small (600 to 1200 words) </option>
+                                    <option value="1200 to 2400 words">Medium (1200 to 2400 words) </option>
+                                    <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
+                                </select>
+                                <?php // Filled by iseoCreditEstimate; empty until the price table arrives. ?>
+                                <div class="iseo-credit-estimate" id="iseo_credit_estimate_bulk" aria-live="polite"></div>
+                            </div>
+                            <?php // Hidden mirror of the selection, kept with the field it mirrors. ?>
+                            <div class="row" style="display: none;">
+                                <div class="form-group col-md-12">
+                                    <input type="text" id="post_size_select_bulk" readonly
+                                        style="width: 100% !important;  padding: 10px 20px !important;"
+                                        value="600-1200 words">
+                                </div>
+                            </div>
                             <div id="tone_of_voice">
-                                <label style="padding-left:20px;" for="cotnt_type"> Tone of Voice</label>
+                                <label style="padding-left:20px;" for="cotnt_type"> Tone of Voice
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which tone of voice should I choose?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field is-interactive" role="tooltip">
+                                            <strong>Set Your Tone of Voice</strong>
+                                            Choose the writing style for your audience. For example, &lsquo;Professional&rsquo; suits service businesses; &lsquo;Informational&rsquo; works well for how-to guides.
+                                            <span class="iseo-tip-para"><a href="https://account.improveseoplugin.com/tutorial" target="_blank" rel="noopener noreferrer">Learn more about which tone of voice to choose</a></span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <select class="form-control" name="content_type" id="cotnt_type"
                                     style="max-width: 100% !important; width: 100%;    padding: 10px 20px !important;">
                                     <!-- <option value="">Tone of Voice</option> -->
@@ -1629,7 +1919,17 @@ global $ai_modal_type;
                                 <span id="error_cotnt_type" style="color: red;"></span>
                                 <div class="form-group col-md-1"></div>
                             </div>
-                            <label style="padding-left:20px;" for="existing_select">Select Title Type</label>
+                            <label style="padding-left:20px;" for="existing_select">Select Title Type
+                                <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which title type should I choose?">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field is-interactive" role="tooltip">
+                                        <strong>Choose one title style for all posts within this bulk project:</strong>
+                                        <span class="iseo-tip-item"><b>Smart Title:</b> Generates a classical blog post title optimized for search engines and AI chatbots.</span>
+                                        <span class="iseo-tip-item"><b>Question-Style Title:</b> Generates a post title in the form of a question. This can be helpful for SEO purposes because search engines and AI chatbots love when you answer questions people are actually asking.</span>
+                                        <span class="iseo-tip-item"><b>Exact Keyword as Title:</b> we will use the exact keyword as your title. Note: this is a manual advanced SEO title option. <a href="https://account.improveseoplugin.com/tutorial" target="_blank" rel="noopener noreferrer">Learn More</a></span>
+                                    </span>
+                                </span>
+                            </label>
                             <select id="existing_select" name="select_exisiting_options" class="form-control"
                                 style="max-width: 100% !important; width: 100%;    padding: 10px 20px !important;">
                                 <!-- <option value="">Select</option> -->
@@ -1639,14 +1939,15 @@ global $ai_modal_type;
                             </select>
                             <span id="error_existing_select" style="color: red;"></span>
                             <div class="form-group col-md-12" style="padding: 20px 0px !important;">
-                                <label style="padding-left:20px;" for="sel1">Details to Include <a href="#"
-                                        class="underline_none_for_a_tag"
-                                        data-toggle="Please ensure the information you input aligns with the Main Keyword and Title. For example, information about dogs should not be added if you are writing about roofing."
-                                        title="Please ensure the information you input aligns with the Main Keyword and Title. For example, information about dogs should not be added if you are writing about roofing.">
-                                        <div class="dashicons dashicons-info-outline" aria-hidden="true">
-                                            <br>
-                                        </div>
-                                    </a></label>
+                                <?php // Replaced an info icon that carried its guidance in a title="" attribute only. ?>
+                                <label style="padding-left:20px;" for="sel1">Details to Include
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Why should I add details?">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                            Google and AI chatbots like high quality and unique content. Provide as many details relevant to your business and all posts within this project to significantly improve the quality of the content.
+                                        </span>
+                                    </span>
+                                </label>
                                 <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
                                     name="details_to_include" style=" max-width: 100% !important; width: 100%;"
                                     onkeypress="return countContent()" OnBlur="LimitText(this,1000,1)"></textarea>
@@ -1672,34 +1973,25 @@ global $ai_modal_type;
                 <div class="data_multi">
                     <div class="bulk-widths1170_multi">
                         <div class="improve-seo-form-global_multi">
-                            <div class="row">
-
-                                <div class="form-group col-md-12">
-                                    <label style="padding-left:20px;" for="sel1">Article size</label>
-                                    <select class="form-control" name="nos_of_words" required
-                                        style="max-width: 100% !important;  padding: 10px 20px !important;"
-                                        id="post_size_bulk">
-
-                                        <option value="600 to 1200 words">Small (600 to 1200 words) </option>
-                                        <option value="1200 to 2400 words">Medium (1200 to 2400 words) </option>
-                                        <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
-
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row" style="display: none;">
-
-                                <div class="form-group col-md-12">
-
-                                    <input type="text" id="post_size_select_bulk" readonly
-                                        style="width: 100% !important;  padding: 10px 20px !important;"
-                                        value="600-1200 words">
-
-                                </div>
-                            </div>
+                            <?php
+                            // Article size and its hidden mirror used to open this panel; both moved
+                            // to bulk Step 1, next to the keyword list they are multiplied against.
+                            // See the comment there.
+                            ?>
                             <div class="row only_for_multi_mobile">
                                 <div class="form-group col">
-                                    <label style="padding-left:20px;" for="sel1">Point of View</label>
+                                    <label style="padding-left:20px;" for="sel1">Point of View
+                                        <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which point of view should I choose?">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                            <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                                <strong>Point of View</strong>
+                                                Choose from which perspective the posts within this bulk project shall be written:
+                                                <span class="iseo-tip-item"><b>Speaking to the Reader</b> (you, your): you are addressing the reader directly. This option is recommended for engaging, direct copy.</span>
+                                                <span class="iseo-tip-item"><b>Business Voice</b> (we, our): you are talking from the perspective of your company and your team. This option is recommended if you write an informational piece about your business.</span>
+                                                <span class="iseo-tip-item"><b>Personal Voice</b> (I, mine): you are talking from your own perspective as the business owner. This option is recommended for sharing your personal experience (trust building).</span>
+                                            </span>
+                                        </span>
+                                    </label>
                                     <select class="form-control" name="point_of_view"
                                         style="max-width: 100% !important;  padding: 10px 20px !important;">
 
@@ -1727,12 +2019,17 @@ global $ai_modal_type;
                             <div class="row">
                                 <div class="form-group col-md-12">
                                     <div class="seo-form-field">
-                                        <label for="call_to_action_multi">Call to Action Text<a href="#"
-                                                class="underline_none_for_a_tag" data-toggle="Information"
-                                                title="Information">
-                                                <div class="dashicons dashicons-info-outline" aria-hidden="true"><br>
-                                                </div>
-                                            </a></label>
+                                        <?php // Replaced a stub info icon whose only content was title="Information". ?>
+                                        <label for="call_to_action_multi">Call to Action Text
+                                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a call to action?">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                                    <strong>Call to Action</strong>
+                                                    What action do you want readers to take? E.g. Contact us for a free quote.
+                                                    <span class="iseo-tip-para">Note: This will apply to all posts within this bulk project.</span>
+                                                </span>
+                                            </span>
+                                        </label>
                                         <textarea class="form-control" id="call_to_action_multi" rows="3" name="call_to_action"
                                             onkeypress="return countContentCallToAction()" onblur="LimitText(this,1000,2)"
                                             placeholder="What action would you like the reader of your content to take?"
@@ -1740,7 +2037,16 @@ global $ai_modal_type;
                                             id="countContentCallToAction"></span>
                                     </div>
                                     <div class="seo-form-field" style="margin-top:30px;">
-                                        <label for="cta_url_multi">Call to Action URL <small style="color:#888; font-weight:normal; margin-left:6px;">(optional)</small></label>
+                                        <label for="cta_url_multi">Call to Action URL <small style="color:#888; font-weight:normal; margin-left:6px;">(optional)</small>
+                                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is the call to action URL for?">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                                    <strong>Call to Action URL</strong>
+                                                    Add the URL where you want readers to go &mdash; e.g. your contact page or booking form. Leave blank if you don&rsquo;t want to add a link.
+                                                    <span class="iseo-tip-para">Note: This will apply to all posts within this bulk project.</span>
+                                                </span>
+                                            </span>
+                                        </label>
                                         <input type="text" id="cta_url_multi" name="cta_url" class="form-control"
                                             placeholder="https://example.com/contact" style="max-width:100% !important;">
                                         <span id="error_cta_url_multi" style="color:red; display:block; padding-left:20px;"></span>
@@ -1811,7 +2117,16 @@ global $ai_modal_type;
                 <div class="data_multi">
                     <div class="fourth_ttepss_multi">
                         <div class="category-selection-section">
-                            <h2 style="padding-left:20px; margin-bottom: 20px;">Assign Categories to Posts</h2>
+                            <h2 style="padding-left:20px; margin-bottom: 20px;">Assign Categories to Posts
+                                <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Why assign a category?">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                        <strong>Assign a Category</strong>
+                                        Choose one or more categories to keep your posts organized on your website. Improve SEO is selected by default &mdash; you can add other categories or create a new one below.
+                                        <span class="iseo-tip-para">Note: Your category selection will apply to all posts within this bulk project.</span>
+                                    </span>
+                                </span>
+                            </h2>
                             
                             <!-- Category Selection -->
                             <div class="bulk-category-box">
@@ -1923,8 +2238,14 @@ global $ai_modal_type;
                 <!-- Step 6 Content -->
                 <div class="data_multi">
                     <div class="seo-slide-steps-fours_multi seps-six_multi">
-                        <h2 style="padding-left:20px;">Define Save & Publish Preference <img
-                                src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/nfo-filledss.svg' ); ?>" alt="info">
+                        <?php // Replaced a decorative info image that carried no explanation at all. ?>
+                        <h2 style="padding-left:20px;">Define Save &amp; Publish Preference
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is this preference for?">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    Choose how all posts within this project should be saved or published.
+                                </span>
+                            </span>
                         </h2>
                         <div class="radio-container_multi seps-six-col_multi">
                             <div class="schedule_posts_parent">
@@ -2673,7 +2994,26 @@ global $ai_modal_type;
                 nextStepButton.disabled = true;
             }
 
+            iseoUpdateNavTip(stepValue);
+
             nextStepButton.innerHTML = `${buttonText} <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ep_arrow-rights.svg' ); ?>" alt="arrow-right">`;
+        }
+
+        /* The nav button is a single element that changes role as the wizard advances, so
+           its hint has to change with it — and stay hidden on the steps where the button
+           is just "Next" and there is nothing worth saying. */
+        function iseoUpdateNavTip(stepValue) {
+            var tip = document.getElementById('iseoNavTip');
+            if (!tip) return;
+
+            var shown = false;
+            tip.querySelectorAll('[data-nav-step]').forEach(function (copy) {
+                var matches = parseInt(copy.getAttribute('data-nav-step'), 10) === stepValue;
+                copy.style.display = matches ? 'block' : 'none';
+                if (matches) shown = true;
+            });
+
+            tip.style.display = shown ? 'inline-flex' : 'none';
         }
 
         // Event Handlers
@@ -2816,6 +3156,33 @@ global $ai_modal_type;
             prevStepButton.disabled = (currentStep === 0);
             updateNextButtonState();
         });
+
+        /* Step 4 shortcuts. "Change Image" returns to Add Media, "Review Input" returns to
+           the first step. Both walk back by clicking Previous rather than setting the step
+           directly, so every side effect of the normal Back path still runs — step label,
+           progress bar, scroll, validation reset. Neither costs a credit: returning to
+           Step 4 preserves existing content and only re-composites the cover image
+           (see updateButtonText), so only the Regenerate button spends one. */
+        function iseoGoBackToStep(targetStepValue) {
+            var guard = 0;
+            while (parseInt(stepInput.value, 10) > targetStepValue && guard++ < 12) {
+                prevStepButton.click();
+            }
+        }
+
+        var iseoChangeImageBtn = document.getElementById('iseoChangeImageBtn');
+        if (iseoChangeImageBtn) {
+            iseoChangeImageBtn.addEventListener('click', function () {
+                iseoGoBackToStep(3);   // Add Media
+            });
+        }
+
+        var iseoReviewInputBtn = document.getElementById('iseoReviewInputBtn');
+        if (iseoReviewInputBtn) {
+            iseoReviewInputBtn.addEventListener('click', function () {
+                iseoGoBackToStep(1);   // Keyword & Post Title
+            });
+        }
     });
 
 
@@ -3272,6 +3639,181 @@ global $ai_modal_type;
         jQuery(this).hide();
     });
     
+    /* ── ISEO credit estimate ───────────────────────────────────────────────────
+       Live cost preview under the Article Size dropdown in both wizards.
+
+       Display only, and deliberately powerless: the server prices every action and
+       its atomic reservation at generation time is the real gate. Two rules follow
+       from that, and both matter more than showing something:
+
+         1. No cached price table -> render NOTHING. A confident wrong number here is
+            worse than an empty box, because the user plans against it and is then
+            charged something else.
+         2. A size string the table does not recognise falls back to "medium", which
+            is what the server's variantFromWords() does. Failing closed to the SAME
+            variant on both sides is what keeps the preview and the charge in
+            agreement; failing closed differently would be a quiet mispricing.
+
+       The price table and balance are fetched ONCE per wizard session, on modal open,
+       and every dropdown change recomputes locally — a round trip per change would
+       put a cold-starting server between the user and a dropdown. The Step 1 credit
+       check returns the same two fields, so its response refreshes the cache free.
+    ───────────────────────────────────────────────────────────────────────────── */
+    var iseoCreditEstimate = (function () {
+        var balance   = null;   // pooled ISEO credits; null until a fetch succeeds
+        var requested = false;  // one fetch attempt per wizard session, success or not
+
+        // Mirror of the server's variantFromWords(). These three literals are the wire
+        // format carried by the <option value>s, not display text.
+        function variantFromWords(words) {
+            switch (String(words == null ? '' : words).trim()) {
+                case '600 to 1200 words':  return 'small';
+                case '2400 to 3600 words': return 'large';
+                case '1200 to 2400 words': return 'medium';
+            }
+            return 'medium';
+        }
+
+        // Per-post price for the selected size, or null when there is no price to
+        // quote — which is the signal to draw nothing at all (rule 1 above).
+        function unitPrice(words) {
+            var pricing = window.iseoCreditPricing;
+            if (!pricing || !pricing.content) return null;
+            var amount = pricing.content[variantFromWords(words)];
+            return (typeof amount === 'number' && amount > 0) ? amount : null;
+        }
+
+        // Same non-empty-line count the rest of the bulk wizard uses.
+        function keywordCount() {
+            var text = jQuery('#keyword_list').val();
+            if (!text) return 0;
+            return text.split('\n').filter(function (line) {
+                return line.trim().length > 0;
+            }).length;
+        }
+
+        function num(n) { return '<b>' + String(n) + '</b>'; }
+
+        // Trailing " · balance · remaining after", or the shortfall. Returns '' when the
+        // balance is unknown, so a failed fetch degrades to just the price rather than
+        // to a subtraction from nothing.
+        function balanceTail(cost) {
+            if (balance === null) return '';
+            var tail = ' &middot; Your balance: ' + num(balance);
+            if (cost > balance) {
+                return tail + ' &middot; Short by ' + num(cost - balance) + ' &mdash; top up to generate.';
+            }
+            return tail + ' &middot; Remaining after: ' + num(balance - cost);
+        }
+
+        function paint($el, html, isShort) {
+            $el.toggleClass('is-warning', !!isShort).html(html);
+        }
+
+        function renderSingle() {
+            var $el = jQuery('#iseo_credit_estimate_single');
+            if (!$el.length) return;
+
+            var unit = unitPrice(jQuery('#post_size').val());
+            if (unit === null) { $el.removeClass('is-warning').empty(); return; }
+
+            paint($el,
+                'This article will use ' + num(unit) + ' ISEO credits' + balanceTail(unit),
+                balance !== null && unit > balance);
+        }
+
+        function renderBulk() {
+            var $el = jQuery('#iseo_credit_estimate_bulk');
+            if (!$el.length) return;
+
+            var unit = unitPrice(jQuery('#post_size_bulk').val());
+            if (unit === null) { $el.removeClass('is-warning').empty(); return; }
+
+            var count = keywordCount();
+
+            // No keyword list yet means no project total exists. Quoting the per-post
+            // price is honest; subtracting ONE post from the balance would advertise a
+            // "remaining after" for a one-post run nobody asked for.
+            if (count < 1) {
+                paint($el,
+                    'Each post will use ' + num(unit) + ' ISEO credits'
+                        + (balance === null ? '' : ' &middot; Your balance: ' + num(balance))
+                        + ' &middot; Add keywords to see the project total',
+                    false);
+                return;
+            }
+
+            var cost = count * unit;
+            paint($el,
+                count + ' post' + (count === 1 ? '' : 's') + ' &times; ' + unit + ' credits = '
+                    + num(cost) + ' ISEO credits' + balanceTail(cost),
+                balance !== null && cost > balance);
+        }
+
+        function render() { renderSingle(); renderBulk(); }
+
+        // Both fields come back on every check_bulk_credits response, so the Step 1 gate
+        // keeps the preview current without a second call.
+        function cacheFrom(data) {
+            if (!data) return;
+            if (data.pricing) { window.iseoCreditPricing = data.pricing; }
+            if (typeof data.credits_total === 'number') {
+                balance = data.credits_total;
+            } else if (data.content_check && typeof data.content_check.available === 'number') {
+                balance = data.content_check.available;   // response shape before credits_total
+            }
+            render();
+        }
+
+        // One attempt per wizard session. A failure is deliberately not retried: the
+        // preview is a convenience, and retrying would re-hit a cold server on every
+        // modal open to produce a box that stays empty either way.
+        function ensureFetched() {
+            if (requested) { render(); return; }
+            requested = true;
+
+            var apiKey   = '<?php echo esc_js(get_option("improveseo_api_key")); ?>';
+            var siteCode = '<?php echo esc_js(get_option("improveseo_site_code")); ?>';
+            if (!apiKey || !siteCode) { return; }   // not connected — nothing to quote
+
+            jQuery.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'check_bulk_credits',
+                    api_key: apiKey,
+                    site_code: siteCode,
+                    keyword_count: 0,   // pricing + balance only; nothing is being gated here
+                    ai_image_count: 0,
+                    article_size: jQuery('#post_size').val() || '',
+                    nonce: '<?php echo esc_js( wp_create_nonce("check_credits_nonce") ); ?>'
+                },
+                success: function (response) {
+                    if (response && response.success) { cacheFrom(response.data); }
+                }
+                // No error branch, on purpose: rule 1. Nothing cached, nothing drawn.
+            });
+        }
+
+        jQuery(function () {
+            jQuery(document).on('change', '#post_size, #post_size_bulk', render);
+
+            // The bulk total moves with the keyword list as well as the size. 'input'
+            // catches typing and paste — but the list picker and the Google-suggest
+            // fetch write the textarea with .val(), which fires no event at all. Hence
+            // the ajaxComplete sweep: the writers live in several files this module does
+            // not own, and re-rendering one small node is cheaper than hooking each.
+            jQuery(document).on('input change', '#keyword_list', renderBulk);
+            jQuery(document).ajaxComplete(function () {
+                if (jQuery('#iseo_credit_estimate_bulk').is(':visible')) { renderBulk(); }
+            });
+
+            jQuery(document).on('shown.bs.modal', '#exampleModal1, #exampleModal2', ensureFetched);
+        });
+
+        return { refresh: render, cacheFrom: cacheFrom, unitPrice: unitPrice, variantFromWords: variantFromWords };
+    })();
+
     // Single Post: Content Credit Check Function
     function checkSingleContentCredits() {
         return new Promise(function(resolve, reject) {
@@ -3305,14 +3847,25 @@ global $ai_modal_type;
                     site_code: siteCode,
                     keyword_count: 1,
                     ai_image_count: 0,
+                    // Article Size now lives on this panel, so the gate can be priced on the
+                    // size the user actually picked instead of assuming medium.
+                    article_size: jQuery('#post_size').val() || '',
                     nonce: '<?php echo esc_js( wp_create_nonce("check_credits_nonce") ); ?>'
                 },
                 success: function(response) {
                     if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) { ImproveSEOLoading.hide(); }
                     if (response.success) {
                         var d = response.data;
+                        // Refresh the cost preview from the same response that gates the step.
+                        if (typeof iseoCreditEstimate !== 'undefined') { iseoCreditEstimate.cacheFrom(d); }
                         if (d.content_check && !d.content_check.sufficient) {
-                            showImproveSEONotification('warning', 'Not Enough Content Credits', 'Content credits required: 1\nCredits available now: ' + d.content_check.available + '\n\nYou don\'t have enough credits to generate this post. Please purchase more to continue.', 'https://account.improveseoplugin.com//pricing');
+                            // Read the amount off the response rather than recomputing it. This
+                            // said a flat "required: 1" for a post the server charges 6/10/14 for,
+                            // which is how a user could be told they were one credit short of a
+                            // fourteen-credit article.
+                            var needed = (d.content_check && d.content_check.needed != null)
+                                ? d.content_check.needed : '';
+                            showImproveSEONotification('warning', 'Not Enough Content Credits', 'ISEO credits required: ' + needed + '\nCredits available now: ' + d.content_check.available + '\n\nYou don\'t have enough credits to generate this post. Please purchase more to continue.', 'https://account.improveseoplugin.com//pricing');
                             reject('insufficient_content_credits');
                             return;
                         }
@@ -3380,6 +3933,10 @@ global $ai_modal_type;
                     site_code: siteCode,
                     keyword_count: keywordCount,
                     ai_image_count: 0, // Not checking images at step 1
+                    // Article Size now lives on this panel, so the gate is priced on the size
+                    // the user picked. Without it a Large run was checked at the medium price
+                    // and passed a gate it could not afford.
+                    article_size: jQuery('#post_size_bulk').val() || '',
                     nonce: '<?php echo esc_js( wp_create_nonce("check_credits_nonce") ); ?>'
                 },
                 success: function(response) {
@@ -3402,15 +3959,42 @@ global $ai_modal_type;
                             return;
                         }
                         
+                        // Cache the server's price list for the regenerate dialog's cost line and
+                        // the Article Size cost preview. Display only — the server prices and
+                        // charges; see iseoRegenCostNote() and iseoCreditEstimate.
+                        if (typeof iseoCreditEstimate !== 'undefined') {
+                            iseoCreditEstimate.cacheFrom(data);
+                        } else if (data.pricing) {
+                            window.iseoCreditPricing = data.pricing;
+                        }
+
+                        // Both dialogs below report CREDITS, read off the response. They used to
+                        // report keywordCount — the number of POSTS — as though a post cost one
+                        // credit, so a 40-post run costing 400 credits was announced as "required:
+                        // 40" and its "remaining after" was 360 credits too high. The unit price is
+                        // the server's, echoed back, so these numbers are the ones the check was
+                        // actually made against.
+                        const creditsNeeded = (data.content_check && data.content_check.needed != null)
+                            ? data.content_check.needed : null;
+                        const unitPrice = (data.content_unit != null) ? data.content_unit : null;
+
                         // Check 2: Content credits insufficient
                         if (data.content_check && !data.content_check.sufficient) {
-                            const shortBy = keywordCount - data.content_check.available;
+                            const shortBy = creditsNeeded - data.content_check.available;
+                            // How many posts the balance DOES cover, at the selected size. The old
+                            // copy told the user to cut the list to `available` posts, which was the
+                            // credit balance mislabelled as a post count.
+                            const affordable = unitPrice
+                                ? Math.floor(data.content_check.available / unitPrice)
+                                : null;
                             const msg =
-                                'Content credits required: ' + keywordCount + '\n' +
+                                'ISEO credits required: ' + creditsNeeded +
+                                (unitPrice ? ' (' + keywordCount + ' post(s) × ' + unitPrice + ')' : '') + '\n' +
                                 'Credits available now: ' + data.content_check.available + '\n' +
                                 'Short by: ' + shortBy + '\n\n' +
-                                'Reduce your keyword list to ' + data.content_check.available +
-                                ' post(s), or purchase more credits to continue.';
+                                (affordable !== null
+                                    ? 'Reduce your keyword list to ' + affordable + ' post(s), or purchase more credits to continue.'
+                                    : 'Purchase more credits to continue.');
 
                             showImproveSEONotification(
                                 'warning',
@@ -3421,7 +4005,7 @@ global $ai_modal_type;
                             reject('insufficient_content_credits');
                             return;
                         }
-                        
+
                         // Content credits are sufficient — confirm before advancing.
                         // resolve() runs on OK/close so the wizard only moves forward
                         // once the user acknowledges the credit usage.
@@ -3429,9 +4013,10 @@ global $ai_modal_type;
                             type: 'success',
                             title: 'Confirm Content Generation',
                             message:
-                                'Content credits required: ' + keywordCount + '\n' +
+                                'ISEO credits required: ' + creditsNeeded +
+                                (unitPrice ? ' (' + keywordCount + ' post(s) × ' + unitPrice + ')' : '') + '\n' +
                                 'Credits available now: ' + data.content_check.available + '\n' +
-                                'Remaining after generation: ' + (data.content_check.available - keywordCount) + '\n\n' +
+                                'Remaining after generation: ' + (data.content_check.available - creditsNeeded) + '\n\n' +
                                 'Click OK to confirm and continue.',
                             buttonText: 'OK',
                             onClose: function () { resolve(data); }
@@ -4399,4 +4984,197 @@ global $ai_modal_type;
     // Initialize state
     applyDisabledUI(!hasSeed());
   });
+</script>
+<?php
+// ── Regenerate: optional custom-instruction dialog ───────────────────────────
+// Shown before a regeneration of either the article or the cover image. The user can add a
+// free-text steer for that one run, or Skip to regenerate exactly as before.
+//
+// The instruction is untrusted input. It is NOT sanitised here — client-side stripping would be
+// trivially bypassable and would give false assurance; the server sanitises it and, more
+// importantly, contains it structurally by placing it in a delimited, subordinate block of the
+// user prompt (see services/generation-history.ts). This markup only collects it.
+//
+// One dialog serves both buttons: iseoRegenerateDialog.open() takes the callback to run once the
+// user chooses, so content and image share the identical flow.
+?>
+<div id="iseo-regen-modal" class="improveseo-regen-modal" aria-hidden="true" role="dialog"
+     aria-modal="true" aria-labelledby="iseo-regen-title" style="display:none;">
+    <div class="improveseo-regen-backdrop" data-iseo-regen-dismiss></div>
+    <div class="improveseo-regen-panel" role="document">
+        <h2 class="improveseo-regen-title" id="iseo-regen-title">Regenerate</h2>
+        <p class="improveseo-regen-lead" id="iseo-regen-lead">
+            Add any instructions for this regeneration, or skip to regenerate with your current settings.
+        </p>
+        <label class="improveseo-regen-label" for="iseo-regen-instruction">
+            Custom instructions <span class="improveseo-regen-optional">(optional)</span>
+        </label>
+        <textarea id="iseo-regen-instruction" class="improveseo-regen-textarea" rows="5"
+                  maxlength="2000"
+                  placeholder="For example: focus on pricing for small businesses, keep the tone plainer, and mention our 10-year guarantee."></textarea>
+        <div class="improveseo-regen-count"><span id="iseo-regen-count">0</span> / 2000</div>
+        <p class="improveseo-regen-note" id="iseo-regen-cost"></p>
+        <div class="improveseo-regen-actions">
+            <button type="button" class="improveseo-regen-btn improveseo-regen-btn--ghost"
+                    id="iseo-regen-cancel">Cancel</button>
+            <button type="button" class="improveseo-regen-btn improveseo-regen-btn--ghost"
+                    id="iseo-regen-skip">Skip</button>
+            <button type="button" class="improveseo-regen-btn improveseo-regen-btn--primary"
+                    id="iseo-regen-submit">Regenerate</button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Scoped to .improveseo-regen-* so nothing here can reach WP core admin, Astra or Elementor. */
+.improveseo-regen-modal { position: fixed; inset: 0; z-index: 160000; display: flex;
+    align-items: center; justify-content: center; }
+.improveseo-regen-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, .55); }
+.improveseo-regen-panel { position: relative; width: min(560px, calc(100vw - 40px));
+    max-height: calc(100vh - 80px); overflow-y: auto; background: #fff; border-radius: 12px;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, .28); padding: 26px 28px 22px; box-sizing: border-box; }
+.improveseo-regen-title { margin: 0 0 8px; font-size: 20px; font-weight: 600; color: #1d2327;
+    line-height: 1.3; }
+.improveseo-regen-lead { margin: 0 0 18px; font-size: 14px; line-height: 1.6; color: #50575e; }
+.improveseo-regen-label { display: block; font-size: 13px; font-weight: 600; color: #1d2327;
+    margin-bottom: 6px; }
+.improveseo-regen-optional { font-weight: 400; color: #787c82; }
+.improveseo-regen-textarea { width: 100%; box-sizing: border-box; border: 1px solid #c3c4c7;
+    border-radius: 8px; padding: 10px 12px; font-size: 14px; line-height: 1.6; resize: vertical;
+    font-family: inherit; }
+.improveseo-regen-textarea:focus { outline: none; border-color: #1C7293;
+    box-shadow: 0 0 0 1px #1C7293; }
+.improveseo-regen-count { text-align: right; font-size: 12px; color: #787c82; margin-top: 6px; }
+.improveseo-regen-note { margin: 10px 0 0; font-size: 13px; color: #50575e; min-height: 18px; }
+.improveseo-regen-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;
+    margin-top: 20px; }
+.improveseo-regen-btn { flex-shrink: 0; white-space: nowrap; min-height: 40px; padding: 9px 18px;
+    line-height: 1.2; box-sizing: border-box; border-radius: 6px; font-size: 14px; cursor: pointer;
+    border: 1px solid #1C7293; background: transparent; color: #1C7293; }
+.improveseo-regen-btn--primary { background: #1C7293; color: #fff; }
+.improveseo-regen-btn--ghost { border-color: #c3c4c7; color: #50575e; }
+.improveseo-regen-btn:hover { opacity: .9; }
+@media (max-width: 600px) {
+    .improveseo-regen-panel { padding: 20px 18px 18px; }
+    .improveseo-regen-actions .improveseo-regen-btn { flex: 1 1 auto; }
+}
+</style>
+
+<script>
+/**
+ * Regenerate dialog. One instance, reused by the article and image regenerate buttons.
+ *
+ * open({ title, lead, cost, onConfirm }) — onConfirm(instruction) runs on both Submit and Skip;
+ * Skip simply passes an empty string. Cancel closes without regenerating, so a misclick on
+ * "Regenerate" never spends a credit.
+ */
+window.iseoRegenerateDialog = (function () {
+    var $modal, $text, $count, $cost, $title, $lead, pending = null, bound = false;
+
+    function els() {
+        if (!$modal || !$modal.length) {
+            $modal = jQuery('#iseo-regen-modal');
+            $text  = jQuery('#iseo-regen-instruction');
+            $count = jQuery('#iseo-regen-count');
+            $cost  = jQuery('#iseo-regen-cost');
+            $title = jQuery('#iseo-regen-title');
+            $lead  = jQuery('#iseo-regen-lead');
+            bind();
+        }
+        return $modal;
+    }
+
+    /**
+     * Handlers are bound DIRECTLY to the dialog, not delegated from document.
+     *
+     * They used to be document-delegated, which stopped working the moment the isolation guard
+     * below was added — the guard deliberately prevents these events reaching document, so a
+     * delegated handler would never fire. Binding here keeps both properties: nothing escapes to
+     * the page, and the dialog's own controls still work.
+     */
+    function bind() {
+        if (bound || !$modal.length) return;
+        bound = true;
+
+        // ── Input isolation ──────────────────────────────────────────────────────────────
+        // The reported bug: the textarea could not be typed into.
+        //
+        // This dialog renders as a top-level sibling of the wizard modal. Bootstrap's modal
+        // installs a document-level `focusin` trap (_enforceFocus) that pulls focus back to the
+        // modal whenever focus lands on anything the modal does not contain — which is precisely
+        // this dialog. The caret is stolen on every keystroke, so nothing can be typed. Bootstrap
+        // is not enqueued by this plugin, but the site runs Elementor / Astra / Element Pack, and
+        // any of them can load it in wp-admin; jQuery-Modal and Select2 install similar global
+        // key handlers.
+        //
+        // Stopping these events at the dialog root means no document-level listener — from this
+        // plugin or any other — ever sees them, so none can steal focus or swallow a keystroke.
+        // Scoped to the dialog, so nothing else on the page is affected.
+        $modal.on('focusin focusout keydown keypress keyup input mousedown touchstart', function (e) {
+            e.stopPropagation();
+        });
+
+        // Escape closes. Bound HERE rather than on document, because the guard above stops the
+        // event before document would see it.
+        $modal.on('keydown', function (e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                e.preventDefault();
+                close();
+            }
+        });
+
+        $text.on('input', function () { $count.text(String(jQuery(this).val().length)); });
+        jQuery('#iseo-regen-submit').on('click', function () { finish(jQuery.trim($text.val() || '')); });
+        jQuery('#iseo-regen-skip').on('click', function () { finish(''); });
+        jQuery('#iseo-regen-cancel').on('click', function () { close(); });
+        $modal.find('[data-iseo-regen-dismiss]').on('click', function () { close(); });
+
+        // Clicking the panel must never reach the backdrop's dismiss handler.
+        $modal.find('.improveseo-regen-panel').on('click', function (e) { e.stopPropagation(); });
+    }
+
+    function close() {
+        els().hide().attr('aria-hidden', 'true');
+        pending = null;
+    }
+
+    function finish(instruction) {
+        var cb = pending;
+        close();
+        // Cleared on the way out so an instruction can never carry into the NEXT regeneration —
+        // the user would have no way of telling it was still attached.
+        $text.val('');
+        $count.text('0');
+        if (typeof cb === 'function') cb(instruction);
+    }
+
+    function open(opts) {
+        opts = opts || {};
+        els();
+
+        // Re-parent to <body> before showing.
+        //
+        // As rendered, this markup sits wherever the popup template was included, which can be
+        // inside a container that is position/transform/overflow-scoped — enough to clip a
+        // position:fixed dialog or to put it inside another component's focus scope. Moving it to
+        // body puts it in the top-level stacking context and outside every such scope. Done once;
+        // after the first open it is already there.
+        if ($modal.parent()[0] !== document.body) {
+            $modal.appendTo(document.body);
+        }
+
+        pending = opts.onConfirm;
+        $title.text(opts.title || 'Regenerate');
+        $lead.text(opts.lead || 'Add any instructions for this regeneration, or skip to regenerate with your current settings.');
+        $cost.text(opts.cost || '');
+        $text.val('');
+        $count.text('0');
+        $modal.show().attr('aria-hidden', 'false');
+
+        // Focus after paint so the caret lands in the textarea rather than the dialog container.
+        window.setTimeout(function () { $text.trigger('focus'); }, 0);
+    }
+
+    return { open: open, close: close };
+})();
 </script>
