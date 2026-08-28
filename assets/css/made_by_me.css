@@ -3410,3 +3410,56 @@ form#popup_form .iseo-credit-estimate {
 .project-lists .list-content-overflow {
   overflow-y: auto;
 }
+
+/* ── Wizard Step 1: two fields side by side ───────────────────────────────────
+   Article Size moved from Content Settings to Keyword & Post Title (it is what the
+   post costs, so the credit estimate has to live beside it). On its own it left a
+   full-width row holding one narrow select, with the field it belongs beside —
+   Business niche in the single wizard, Tone of Voice in the bulk one — stacked
+   above it.
+
+   Same shape as the existing `.title-tune` row in step.css:145 (flex, 20px gutter,
+   equal columns) rather than a new visual language, and it collapses at the same
+   760px breakpoint the rest of this panel uses. align-items:flex-start keeps the
+   two columns top-aligned when one carries a hint line or a credit estimate and the
+   other does not — stretch would drag the shorter field's control out of line.
+   min-width:0 lets a column shrink below its select's intrinsic width instead of
+   overflowing the panel. */
+.iseo-step1-pair {
+  display: flex;
+  width: 100%;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.iseo-step1-pair > .iseo-step1-col {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The columns carry the field's own bottom margin, so the row must not add another. */
+.iseo-step1-pair > .iseo-step1-col > .seo-form-field {
+  margin-bottom: 0;
+}
+
+/* Make both controls fill their half. The fields only carried `max-width: 100%`,
+   which was enough while each sat alone on a full-width row — it sized to content
+   and the row was wide enough to hide it. In a half-width column that leaves the
+   two selects visibly different widths. Same treatment the Step 2 row already gets
+   at `form#popup_form .step-opton2-content-box select`, including overriding the
+   `.wp-core-ui select` 25rem cap that would otherwise clip the wider column. */
+.iseo-step1-pair select,
+.iseo-step1-pair input[type="text"],
+.iseo-step1-pair textarea {
+  width: 100%;
+  max-width: 100% !important;
+}
+
+@media only screen and (max-width: 760px) {
+  .iseo-step1-pair {
+    flex-wrap: wrap;
+  }
+  .iseo-step1-pair > .iseo-step1-col {
+    min-width: 100%;
+  }
+}

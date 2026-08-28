@@ -1063,57 +1063,111 @@ global $ai_modal_type;
                         }
                     }
                     ?>
-                    <div class="seo-form-field">
-                        <label class="data-label" for="niche_select">Business niche
-                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a business niche?">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
-                                    <strong>Pick your Business Niche</strong>
-                                    (Optional) Choose the niche that best matches your business, for example &lsquo;Pet Services/Vet&rsquo;. This tailors the writing style, post structure, and cover-image look to your industry.
+                    <?php
+                    // Business niche and Article Size share a row: both are settings for the
+                    // post as a whole rather than for its title, and pairing them keeps Step 1
+                    // to three bands (keyword, these two, title) instead of four.
+                    ?>
+                    <div class="iseo-step1-pair">
+                        <div class="iseo-step1-col">
+                        <div class="seo-form-field">
+                            <label class="data-label" for="niche_select">Business niche
+                                <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a business niche?">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                        <strong>Pick your Business Niche</strong>
+                                        (Optional) Choose the niche that best matches your business, for example &lsquo;Pet Services/Vet&rsquo;. This tailors the writing style, post structure, and cover-image look to your industry.
+                                    </span>
                                 </span>
+                            </label>
+                            <select id="niche_select" name="niche" class="form-control custom-selcected" style="max-width:100% !important;">
+                                <?php
+                                $iseo_niches = array(
+                                    'hvac' => 'HVAC / Heating & Cooling',
+                                    'plumbing' => 'Plumbing',
+                                    'electrical' => 'Electrical',
+                                    'roofing' => 'Roofing / Exterior',
+                                    'contractor' => 'Contractor / Remodeling / Construction',
+                                    'landscaping' => 'Landscaping / Tree Service',
+                                    'home_services' => 'Home Services (Pest Control, Cleaning, Locksmith, Moving, etc.)',
+                                    'dental' => 'Dental / Orthodontics',
+                                    'medical' => 'Medical / Health Clinic',
+                                    'wellness' => 'Wellness / Chiropractic / Massage',
+                                    'fitness' => 'Fitness / Personal Training',
+                                    'beauty' => 'Beauty / Salon / Spa',
+                                    'pet_services' => 'Pet Services / Vet',
+                                    'auto_repair' => 'Auto Repair / Body Shop',
+                                    'legal_services' => 'Legal Services (Personal Injury, Family Law, etc.)',
+                                    'realestate' => 'Real Estate Agent / Broker',
+                                    'mortgage' => 'Financial Services (Mortgage, Insurance, etc.)',
+                                    'accounting' => 'Accounting / Bookkeeping / Tax',
+                                    'education' => 'Tutoring / Test Prep / Education',
+                                    'restaurant' => 'Restaurant / Cafe / Bakery',
+                                    'ecommerce' => 'Ecommerce / Product Review',
+                                    'general_blog' => 'General Blog / Digital Content',
+                                    'other' => 'Other',
+                                );
+                                $iseo_selected = $iseo_prefill_niche ? $iseo_prefill_niche : 'general_blog';
+                                foreach ( $iseo_niches as $iseo_val => $iseo_label ) {
+                                    printf( '<option value="%s"%s>%s</option>', esc_attr( $iseo_val ), selected( $iseo_selected, $iseo_val, false ), esc_html( $iseo_label ) );
+                                }
+                                ?>
+                            </select>
+                            <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;">
+                                Drives the writing style, structure and cover-image look for your niche.
                             </span>
-                        </label>
-                        <select id="niche_select" name="niche" class="form-control custom-selcected" style="max-width:100% !important;">
+                        </div>
+                        <div class="seo-form-field" id="niche_other_wrap" style="display:none;">
+                            <label class="data-label" for="niche_other">What's your niche?</label>
+                            <input type="text" class="form-control" placeholder="e.g. Wedding photography, solar installation, boat rentals"
+                                id="niche_other" name="niche_other">
+                        </div>
+                        </div>
+                        <div class="iseo-step1-col">
+                        <?php
+                        // Article Size sits on Step 1, not Step 2, because it is what the post COSTS.
+                        // The server prices content per size variant (small/medium/large), so neither
+                        // the estimate below nor the Step 1 credit pre-check can be priced until the
+                        // size is known. While this lived on Step 2 the pre-check had to assume
+                        // "medium" for every post, and a Large run was gated at the wrong price.
+                        //
+                        // The three <option value> strings are the WIRE FORMAT: the server's
+                        // variantFromWords() matches these literals. Do not reword them.
+                        //
+                        // The select keeps its inline max-width, but what actually makes it fill its
+                        // half of the row is `.iseo-step1-pair select` in made_by_me.css, which also
+                        // lifts the `.wp-core-ui select` 25rem cap the way .step-opton2-content-box
+                        // did while this field lived on Step 2.
+                        ?>
+                        <div class="seo-form-field">
+                            <label for="post_size">Article Size
+                                <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How long should my post be?">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                        <strong>Post Length</strong>
+                                        <span class="iseo-tip-item"><b>Small</b> (600 &ndash; 1,200 words) is good for lightweight, easy to read blog posts.</span>
+                                        <span class="iseo-tip-item"><b>Medium</b> (1,200 &ndash; 2,400 words) is a great starting point for most niches.</span>
+                                        <span class="iseo-tip-item">Longer posts often rank better for competitive keywords.</span>
+                                    </span>
+                                </span>
+                            </label>
+                            <select class="form-control" name="nos_of_words" required
+                                style="max-width: 100% !important;" id="post_size">
+                                <option value="600 to 1200 words">Small (600 to 1200 words) </option>
+                                <option value="1200 to 2400 words">Medium (1200 to 2400 words) </option>
+                                <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
+                            </select>
+                            <input type="text" id="post_size_select" readonly style="width: 100% !important; display: none !important;"
+                                value="600-1200 words">
                             <?php
-                            $iseo_niches = array(
-                                'hvac' => 'HVAC / Heating & Cooling',
-                                'plumbing' => 'Plumbing',
-                                'electrical' => 'Electrical',
-                                'roofing' => 'Roofing / Exterior',
-                                'contractor' => 'Contractor / Remodeling / Construction',
-                                'landscaping' => 'Landscaping / Tree Service',
-                                'home_services' => 'Home Services (Pest Control, Cleaning, Locksmith, Moving, etc.)',
-                                'dental' => 'Dental / Orthodontics',
-                                'medical' => 'Medical / Health Clinic',
-                                'wellness' => 'Wellness / Chiropractic / Massage',
-                                'fitness' => 'Fitness / Personal Training',
-                                'beauty' => 'Beauty / Salon / Spa',
-                                'pet_services' => 'Pet Services / Vet',
-                                'auto_repair' => 'Auto Repair / Body Shop',
-                                'legal_services' => 'Legal Services (Personal Injury, Family Law, etc.)',
-                                'realestate' => 'Real Estate Agent / Broker',
-                                'mortgage' => 'Financial Services (Mortgage, Insurance, etc.)',
-                                'accounting' => 'Accounting / Bookkeeping / Tax',
-                                'education' => 'Tutoring / Test Prep / Education',
-                                'restaurant' => 'Restaurant / Cafe / Bakery',
-                                'ecommerce' => 'Ecommerce / Product Review',
-                                'general_blog' => 'General Blog / Digital Content',
-                                'other' => 'Other',
-                            );
-                            $iseo_selected = $iseo_prefill_niche ? $iseo_prefill_niche : 'general_blog';
-                            foreach ( $iseo_niches as $iseo_val => $iseo_label ) {
-                                printf( '<option value="%s"%s>%s</option>', esc_attr( $iseo_val ), selected( $iseo_selected, $iseo_val, false ), esc_html( $iseo_label ) );
-                            }
+                            // Filled by iseoCreditEstimate (script block further down) once the server's
+                            // price table has arrived. Deliberately empty in the markup: the price table
+                            // is fetched per wizard session, and a number baked in server-side here would
+                            // survive in page cache and go stale.
                             ?>
-                        </select>
-                        <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;">
-                            Drives the writing style, structure and cover-image look for your niche.
-                        </span>
-                    </div>
-                    <div class="seo-form-field" id="niche_other_wrap" style="display:none;">
-                        <label class="data-label" for="niche_other">What's your niche?</label>
-                        <input type="text" class="form-control" placeholder="e.g. Wedding photography, solar installation, boat rentals"
-                            id="niche_other" name="niche_other">
+                            <div class="iseo-credit-estimate" id="iseo_credit_estimate_single" aria-live="polite"></div>
+                        </div>
+                        </div>
                     </div>
                     <div class="seo-form-field">
                         <div class="title-tune">
@@ -1172,49 +1226,6 @@ global $ai_modal_type;
                     <div style="clear: both"> </div>
                     
                     <div style="clear: both"> </div>
-                    <?php
-                    // Article Size sits on Step 1, not Step 2, because it is what the post COSTS.
-                    // The server prices content per size variant (small/medium/large), so neither
-                    // the estimate below nor the Step 1 credit pre-check can be priced until the
-                    // size is known. While this lived on Step 2 the pre-check had to assume
-                    // "medium" for every post, and a Large run was gated at the wrong price.
-                    //
-                    // The three <option value> strings are the WIRE FORMAT: the server's
-                    // variantFromWords() matches these literals. Do not reword them.
-                    //
-                    // The select carries an inline max-width because it no longer sits inside
-                    // .step-opton2-content-box, whose rule in made_by_me.css was what lifted the
-                    // `.wp-core-ui select` 25rem cap. Without it this field would render narrower
-                    // than the Step 1 fields above it.
-                    ?>
-                    <div class="seo-form-field">
-                        <label for="post_size">Article Size
-                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How long should my post be?">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
-                                    <strong>Post Length</strong>
-                                    <span class="iseo-tip-item"><b>Small</b> (600 &ndash; 1,200 words) is good for lightweight, easy to read blog posts.</span>
-                                    <span class="iseo-tip-item"><b>Medium</b> (1,200 &ndash; 2,400 words) is a great starting point for most niches.</span>
-                                    <span class="iseo-tip-item">Longer posts often rank better for competitive keywords.</span>
-                                </span>
-                            </span>
-                        </label>
-                        <select class="form-control" name="nos_of_words" required
-                            style="max-width: 100% !important;" id="post_size">
-                            <option value="600 to 1200 words">Small (600 to 1200 words) </option>
-                            <option value="1200 to 2400 words">Medium (1200 to 2400 words) </option>
-                            <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
-                        </select>
-                        <input type="text" id="post_size_select" readonly style="width: 100% !important; display: none !important;"
-                            value="600-1200 words">
-                        <?php
-                        // Filled by iseoCreditEstimate (script block further down) once the server's
-                        // price table has arrived. Deliberately empty in the markup: the price table
-                        // is fetched per wizard session, and a number baked in server-side here would
-                        // survive in page cache and go stale.
-                        ?>
-                        <div class="iseo-credit-estimate" id="iseo_credit_estimate_single" aria-live="polite"></div>
-                    </div>
                     <!-- Visible by default: the default title type is Smart Title (seed_option2),
                          which needs the Generate/Approve area. JS hides it for Exact Keyword. -->
                     <div class="seo-form-field hide_on_seed_option1 ">
@@ -1859,6 +1870,13 @@ global $ai_modal_type;
                             // The <option value> strings are the WIRE FORMAT matched by the server's
                             // variantFromWords(). Do not reword them.
                             ?>
+                            <?php
+                            // The bulk panel has no Business niche field, so Article size pairs
+                            // with Tone of Voice — the other project-wide setting next to it —
+                            // giving the same two-up row the single wizard now uses.
+                            ?>
+                            <div class="iseo-step1-pair">
+                            <div class="iseo-step1-col">
                             <div id="bulk_article_size">
                                 <label style="padding-left:20px;" for="post_size_bulk">Article size
                                     <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How long should these posts be?">
@@ -1881,6 +1899,7 @@ global $ai_modal_type;
                                 <?php // Filled by iseoCreditEstimate; empty until the price table arrives. ?>
                                 <div class="iseo-credit-estimate" id="iseo_credit_estimate_bulk" aria-live="polite"></div>
                             </div>
+                            </div>
                             <?php // Hidden mirror of the selection, kept with the field it mirrors. ?>
                             <div class="row" style="display: none;">
                                 <div class="form-group col-md-12">
@@ -1889,6 +1908,7 @@ global $ai_modal_type;
                                         value="600-1200 words">
                                 </div>
                             </div>
+                            <div class="iseo-step1-col">
                             <div id="tone_of_voice">
                                 <label style="padding-left:20px;" for="cotnt_type"> Tone of Voice
                                     <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which tone of voice should I choose?">
@@ -1918,6 +1938,8 @@ global $ai_modal_type;
                                 </select>
                                 <span id="error_cotnt_type" style="color: red;"></span>
                                 <div class="form-group col-md-1"></div>
+                            </div>
+                            </div>
                             </div>
                             <label style="padding-left:20px;" for="existing_select">Select Title Type
                                 <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Which title type should I choose?">
