@@ -1776,17 +1776,19 @@ form.improve-seo-form-global select {
   background-repeat: no-repeat;
 }
 
-/* Step-2 selects row: Article Size / Point of View / Select Language.
-   These three columns previously ran at flex 1.8 / 0.7 to buy the Point of View
-   field extra room for its longest option ("Speaking to the Reader ..."). That
-   bought the room at the cost of visibly unequal gutters — a tight gap between
-   Article Size and Point of View, and a wide one before Select Language — so the
-   row no longer read as one set of matching fields.
-   Equal thirds instead (step.css already declares flex: 1 and gap: 20px on this
+/* Step-2 selects row: Point of View / Select Language.
+   Article Size was the first of three columns here until it moved to Step 1, where
+   the credit estimate it drives lives. Nothing below needed changing for that: the
+   rule is flex: 1, so the two remaining columns take half each.
+   These columns previously ran at flex 1.8 / 0.7 to buy the Point of View field
+   extra room for its longest option ("Speaking to the Reader ..."). That bought the
+   room at the cost of visibly unequal gutters, so the row no longer read as one set
+   of matching fields.
+   Equal shares instead (step.css already declares flex: 1 and gap: 20px on this
    row; restated here so the removed overrides cannot come back via load order),
    and give every select in the row the SAME chevron clearance rather than
-   padding one field specially. Only #size used to set width: 100%, so the other
-   two sized themselves differently — that is the rest of the misalignment. */
+   padding one field specially. Only #size used to set width: 100%, so the others
+   sized themselves differently — that is the rest of the misalignment. */
 .step-opton2-content-box .step-opton-col {
   flex: 1;
 }
@@ -3357,4 +3359,43 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
    0,1,0), not source order. */
 .project-lists .list-content-overflow {
   overflow-y: auto;
+}
+
+/* ── ISEO credit estimate ──────────────────────────────────────────────────────
+   The cost preview under each Article Size dropdown, filled by iseoCreditEstimate
+   in GenerateAIpopuphtml.php.
+
+   Styled as a hint rather than a notice: it is present on every visit to the panel,
+   so anything box-like would compete with the field it annotates. It only escalates
+   when the run costs more credits than the balance holds — that IS the exception
+   worth interrupting for, and .is-warning is added by the same code that computes
+   the shortfall.
+
+   Left padding matches the bulk panel's own 20px label inset so the line sits under
+   the label rather than under the modal edge; the single wizard's fields are not
+   inset, hence the override. Empty is the resting state (no price table, nothing to
+   say), and :empty removes the margin so an unfilled node leaves no gap. */
+.iseo-credit-estimate {
+  font-family: "Poppins", serif;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: rgba(80, 87, 94, 0.75);
+  margin-top: 8px;
+  padding-left: 20px;
+}
+.iseo-credit-estimate:empty {
+  margin-top: 0;
+}
+.iseo-credit-estimate b {
+  font-weight: 600;
+  color: #50575e;
+}
+.iseo-credit-estimate.is-warning {
+  color: #b3521a;
+}
+.iseo-credit-estimate.is-warning b {
+  color: #b3521a;
+}
+form#popup_form .iseo-credit-estimate {
+  padding-left: 0;
 }
