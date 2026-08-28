@@ -39,13 +39,13 @@
  *    2  niche-other       (modal) #niche_other                next-btn      ← optional: only when niche === "Other"
  *    3  title-type        (modal) #seed_select               next-btn      ← seed_option2 pre-selected
  *    4  tone              (modal) #cotnt_type                next-btn      ← select before generating
- *    5  title-generate    (modal) #reload                    click-target  ← click to generate AI title
- *    6  read-title        (modal) #maintitlearea              next-btn      ← optional: only when the field is actually on screen
- *    7  title-approve     (modal) .step_one_approve_button   click-target  ← click Approve checkbox
- *    8  title-next        (modal) #nextStepButton            wizard-next   ← glow Next after approval
+ *    5  article-size      (modal) #post_size                 next-btn      ← moved from the Content Settings panel with the field
+ *    6  custom-length     (modal) #post_size_select          next-btn      ← optional: only when length is set to Custom
+ *    7  title-generate    (modal) #reload                    click-target  ← click to generate AI title
+ *    8  read-title        (modal) #maintitlearea              next-btn      ← optional: only when the field is actually on screen
+ *    9  title-approve     (modal) .step_one_approve_button   click-target  ← click Approve checkbox
+ *   10  title-next        (modal) #nextStepButton            wizard-next   ← glow Next after approval; polls #size, the first field on the NEXT panel
  * Wizard-step 1 (Content Settings):
- *    9  article-size      (modal) #post_size                 next-btn
- *   10  custom-length     (modal) #post_size_select           next-btn      ← optional: only when length is set to Custom
  *   11  point-of-view     (modal) #size                       next-btn
  *   12  language          (modal) #language                   next-btn
  *   13  niche-details     (modal) #niche_fields_container      next-btn      ← dynamic per-niche fields
@@ -176,6 +176,22 @@
             message: 'Choose the writing style for your audience. <em>Professional</em> suits service businesses; <em>Informational</em> works well for how-to guides.',
             position: 'right', advance: 'next-btn'
         },
+        /* 3b */ {
+            // Moved here with the field itself: Article Size left the Content Settings
+            // panel for Keyword & Post Title, so the card that describes it has to follow
+            // or the guide points at an element on a panel the user is not on.
+            phase: 'modal', wizardStep: 0, target: '#post_size',
+            title: 'Article Length',
+            message: 'Longer articles often rank better for competitive keywords. <em>Medium (1,200–2,400 words)</em> is a great starting point for most niches. The line underneath shows what it costs in ISEO credits and what you will have left.',
+            position: 'right', advance: 'next-btn'
+        },
+        /* 3c */ {
+            // Only shown when the length dropdown is set to a custom range.
+            phase: 'modal', wizardStep: 0, target: '#post_size_select', optional: true,
+            title: 'Your Custom Length',
+            message: 'This is the word range your custom choice works out to. Change the dropdown above if it is not what you wanted.',
+            position: 'right', advance: 'next-btn'
+        },
         /* 4 */ {
             key: 'title-generate', phase: 'modal', wizardStep: 0, target: '#reload',
             title: 'Generate your Title',
@@ -200,64 +216,55 @@
             key: 'title-next', phase: 'modal', wizardStep: 0, target: '#nextStepButton',
             title: 'Title Approved!',
             message: 'Great! Now click <strong>{button}</strong> below to move on to the content settings.',
-            position: 'left', advance: 'wizard-next', pollTarget: '#post_size'
+            // Polls for the FIRST field on the Content Settings panel, to detect that the
+            // panel actually changed. This was '#post_size', which now sits on THIS panel,
+            // where it is visible the whole time, so waitForVisible() would fire instantly
+            // and skip the card forward before the user had clicked anything.
+            position: 'left', advance: 'wizard-next', pollTarget: '#size'
         },
         /* 7 */ {
-            phase: 'modal', wizardStep: 1, target: '#post_size',
-            title: 'Article Length',
-            message: 'Longer articles often rank better for competitive keywords. <em>Medium (1,200\u20132,400 words)</em> is a great starting point for most niches.',
-            position: 'right', advance: 'next-btn'
-        },
-        /* 7b */ {
-            // Only shown when the length dropdown is set to a custom range.
-            phase: 'modal', wizardStep: 1, target: '#post_size_select', optional: true,
-            title: 'Your Custom Length',
-            message: 'This is the word range your custom choice works out to. Change the dropdown above if it is not what you wanted.',
-            position: 'right', advance: 'next-btn'
-        },
-        /* 8 */ {
             phase: 'modal', wizardStep: 1, target: '#size',
             title: 'Point of View',
             message: 'Choose how the article addresses the reader. <em>Second Person (you, your)</em> is recommended for engaging, direct copy.',
             position: 'right', advance: 'next-btn'
         },
-        /* 9 */ {
+        /* 8 */ {
             phase: 'modal', wizardStep: 1, target: '#language',
             title: 'Content Language',
             message: 'Select the language and regional variant for your article. Match this to your target audience\u2019s location.',
             position: 'right', advance: 'next-btn'
         },
-        /* 10 */ {
+        /* 9 */ {
             phase: 'modal', wizardStep: 1, target: '#niche_fields_container',
             title: 'Add Niche Details',
             message: '(Optional) These prompts adapt to your niche. Add real specifics — pricing, a local detail, a recent result — to make the article concrete and locally relevant. Your business name and location come from Settings automatically.',
             position: 'right', advance: 'next-btn'
         },
-        /* 11 */ {
+        /* 10 */ {
             phase: 'modal', wizardStep: 1, target: '#call_to_action',
             title: 'Call to Action',
             message: '(Optional) Tell the AI what action you want readers to take \u2014 e.g. <em>Contact us for a free quote</em>.',
             position: 'right', advance: 'next-btn'
         },
-        /* 12 */ {
+        /* 11 */ {
             phase: 'modal', wizardStep: 1, target: '#cta_url',
             title: 'Call to Action URL',
             message: '(Optional) Add the URL where you want readers to go \u2014 e.g. your contact page or booking form. Leave blank if you don\u2019t need a link.',
             position: 'right', advance: 'next-btn'
         },
-        /* 13 */ {
+        /* 12 */ {
             phase: 'modal', wizardStep: 1, target: '#nextStepButton',
             title: 'Content Settings Done!',
             message: 'All content settings are saved. Click <strong>{button}</strong> below to move on to image selection.',
             position: 'left', advance: 'wizard-next'
         },
-        /* 14 */ {
+        /* 13 */ {
             key: 'media-select', phase: 'modal', wizardStep: 2, target: 'label[for="AI_image"]',
             title: 'Select Image Option',
             message: 'Pick <strong>AI image from title</strong> — the quickest option. We’ll create a cover from your article title. You can switch methods anytime before generating.',
             position: 'right', advance: 'click-target', dock: true
         },
-        /* 15 */ {
+        /* 14 */ {
             key: 'media-next', phase: 'modal', wizardStep: 2, target: '#nextStepButton',
             title: 'Cover Image Ready',
             // Reached only once the chosen method actually finished (image generated, or
@@ -272,43 +279,43 @@
             // Falls through to buildTooltip()'s own {button}-tokenized default hint,
             // same as every other wizard-next step.
         },
-        /* 16 */ {
+        /* 15 */ {
             key: 'approve-content', phase: 'modal', wizardStep: 3, target: '#nextStepButton',
             title: 'Review & Approve',
             message: 'Your article is ready \u2014 scroll up in this window to read it. Not quite right? Use <strong>Re-Generate AI Post</strong> to write it again. Happy with it? Click <strong>{button}</strong> below to continue.',
             position: 'left', advance: 'wizard-next'
         },
-        /* 17 */ {
+        /* 16 */ {
             phase: 'modal', wizardStep: 4, target: '#meta_title',
             title: 'SEO Meta Title',
             message: 'This title appears in Google search results. Keep it under 60 characters. The AI has suggested one \u2014 you can edit it freely.',
             position: 'right', advance: 'next-btn'
         },
-        /* 18 */ {
+        /* 17 */ {
             phase: 'modal', wizardStep: 4, target: '#meta_descreption',
             title: 'Meta Description',
             message: 'A short description shown under your page title in Google. Keep it under 160 characters \u2014 make it compelling to increase clicks.',
             position: 'right', advance: 'next-btn'
         },
-        /* 19 */ {
+        /* 18 */ {
             phase: 'modal', wizardStep: 4, target: '#nextStepButton',
             title: 'SEO Details Done!',
             message: 'Happy with your SEO title and description? Click <strong>Next \u2192</strong> below to continue to your project name.',
             position: 'left', advance: 'wizard-next', pollTarget: '#modal_project_name'
         },
-        /* 20 */ {
+        /* 19 */ {
             phase: 'modal', wizardStep: 5, target: '#modal_project_name',
             title: 'Check the Project Name',
             message: 'We\u2019ve auto-filled an internal name from your keyword \u2014 it\u2019s for your reference only and won\u2019t be published. Give it a quick read, edit it if you like, then click <strong>Next \u2192</strong>.',
             position: 'bottom', advance: 'next-btn'
         },
-        /* 21 */ {
+        /* 20 */ {
             phase: 'modal', wizardStep: 5, target: '.category-selection-section',
             title: 'Assign a Category',
             message: 'Tick any categories this post belongs to. Need a new one? Type it in the box below and press <strong>Add</strong> \u2014 it is created and ticked for you. When done, click <strong>Next \u2192</strong>.',
             position: 'top', advance: 'next-btn'
         },
-        /* 22 */ {
+        /* 21 */ {
             key: 'submit', phase: 'modal', wizardStep: 5, target: '#nextStepButton',
             title: 'Publish your Article! \uD83C\uDF89',
             // {button} is replaced with the wizard button's live label — see
@@ -322,25 +329,25 @@
            After the wizard modal closes and fills the form, these four steps
            walk the user through reviewing the filled-in form before publishing.
            NOTE: copy strings below are placeholders — reword as needed.       */
-        /* 23 */ {
+        /* 22 */ {
             key: 'review-project', phase: 'page', target: '.PostForm__name-wrap',
             title: 'Check your project name',
             message: 'This is an internal name for your reference. Review it and edit if you\u2019d like, then click <strong>Next \u2192</strong>.',
             position: 'left', advance: 'next-btn'
         },
-        /* 24 */ {
+        /* 23 */ {
             key: 'review-title', phase: 'page', target: '.PostForm__title-wrap',
             title: 'Review your post title',
             message: 'This is the title readers and search engines will see. Make sure it reads well, then click <strong>Next \u2192</strong>.',
             position: 'left', advance: 'next-btn'
         },
-        /* 25 */ {
+        /* 24 */ {
             key: 'review-content', phase: 'page', target: '.PostForm__body-wrap',
             title: 'Review your content',
             message: 'Read through your article. Edit anything you\u2019d like directly here, then click <strong>Next \u2192</strong>.',
             position: 'left', advance: 'next-btn'
         },
-        /* 26 */ {
+        /* 25 */ {
             key: 'review-publish', phase: 'page', target: 'button[name="create"]',
             title: 'You\u2019re ready to publish! \uD83C\uDF89',
             message: 'Click <strong>Create \u0026amp; Publish Post</strong> to publish your first article now. You can also <strong>Save As Draft</strong> to finish later or use <strong>Post preview</strong> to see how it looks before publishing.',
