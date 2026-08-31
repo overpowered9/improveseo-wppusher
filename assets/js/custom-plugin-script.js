@@ -181,6 +181,7 @@ function GenerateCustomImage() {
   formData.append("action", "fetch_AI_image");
   formData.append("nonce", typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "");
   formData.append("target_key", iseoImageTargetKey());
+  formData.append("custom_instruction", jQuery("#iseo_custom_instruction").val() || "");
 
   formData.append("title", title);
 
@@ -262,6 +263,7 @@ jQuery("#generate_i_image").on("click", function () {
   formData.append("action", "fetch_AI_image");
   formData.append("nonce", typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "");
   formData.append("target_key", iseoImageTargetKey());
+  formData.append("custom_instruction", jQuery("#iseo_custom_instruction").val() || "");
 
   formData.append("title", title);
 
@@ -495,13 +497,37 @@ function iseoRerunMetaIfOverLimit(triesLeft) {
 }
 
 jQuery("#generateapivalue").on("click", function () {
-  // Regenerating (content already generated) spends another content credit, so warn
-  // and let the user confirm first. The first "Generate" is expected, so it skips this.
+  // A regeneration (content already present) spends credits again, so it is confirmed first.
+  // The old confirm() is replaced by the regenerate dialog, which both confirms AND collects an
+  // optional custom instruction for this one run. Cancel closes without generating, so a misclick
+  // cannot spend credits. The FIRST generation is expected, so it skips the dialog entirely.
   var alreadyGenerated = !!jQuery.trim(jQuery("#showmydataindiv1").data("articleHtml") || "");
-  if (alreadyGenerated && !confirm("This will use 1 content credit. Continue?")) {
+  if (alreadyGenerated) {
+    window.iseoRegenerateDialog.open({
+      title: "Regenerate content",
+      lead: "This rewrites the article using your current inputs — including any edits you have just made. Add instructions for this run, or skip to regenerate as-is.",
+      cost: iseoRegenCostNote("content"),
+      onConfirm: function (instruction) {
+        jQuery("#iseo_custom_instruction").val(instruction || "");
+        iseoRunContentGeneration();
+      }
+    });
     return;
   }
-  console.log("Debug Message when gen ai is clicked");
+  // First generation: no dialog, and no instruction carried in from a previous run.
+  jQuery("#iseo_custom_instruction").val("");
+  iseoRunContentGeneration();
+});
+
+/**
+ * The content generation request itself.
+ *
+ * Split out of the click handler so a first generation and a dialog-confirmed regeneration run
+ * byte-identical code. The form is serialised HERE, at call time, so a regeneration always sends
+ * the user's CURRENT inputs (edited keyword, tone, niche fields) rather than a snapshot taken at
+ * the first run — that is what makes regeneration edit-aware.
+ */
+function iseoRunContentGeneration() {
   jQuery("#loadingAIData").show();
 
   jQuery("#for_testing_only").css("display", "none");
@@ -635,7 +661,34 @@ jQuery("#generateapivalue").on("click", function () {
       console.log("error of generate single ai", error);
     },
   });
-});
+}
+
+/**
+ * Informational cost line for the regenerate dialog.
+ *
+ * The server prices the action and is the only thing that can charge; this is display only. It
+ * reads the pricing block published by /users/status and deliberately says NOTHING rather than
+ * guessing when that has not been cached yet — a wrong number here would be worse than none.
+ */
+function iseoRegenCostNote(kind) {
+  try {
+    var pricing = window.iseoCreditPricing;
+    if (!pricing) return "";
+    if (kind === "image") {
+      return typeof pricing.image_regen === "number"
+        ? "Regenerating this image uses " + pricing.image_regen + " ISEO credits."
+        : "";
+    }
+    var words = jQuery("#nos_of_words").val() || "";
+    var sizeLabel = words.indexOf("600") === 0 ? "small" : (words.indexOf("2400") === 0 ? "large" : "medium");
+    var amount = pricing.content_regen && pricing.content_regen[sizeLabel];
+    return typeof amount === "number"
+      ? "Regenerating this article uses " + amount + " ISEO credits."
+      : "";
+  } catch (e) {
+    return "";
+  }
+}
 
 function textToHtml(text) {
   return "<p>" + text.replace(/\n/g, "</p><p>") + "</p>";
@@ -1261,6 +1314,29 @@ function refreshAIImage() {
   // Triggered by the panel's Generate / Regenerate button. Shows the same
   // #loadingAIImage GIF used by the custom-prompt path while the request is in
   // flight, and disables the button to prevent double submits.
+  //
+  // When an image already exists this is a REGENERATION: it spends credits again, so it goes
+  // through the same dialog the article uses — confirming the spend and collecting an optional
+  // instruction for this one run. The first generation goes straight through.
+  var alreadyHasImage = !!jQuery.trim(jQuery("#ai-image-display").html() || "");
+  if (alreadyHasImage && !window._iseoImageRegenConfirmed) {
+    window.iseoRegenerateDialog.open({
+      title: "Regenerate image",
+      lead: "This creates a new cover image from your current title and settings. Add instructions for this run, or skip to regenerate as-is.",
+      cost: iseoRegenCostNote("image"),
+      onConfirm: function (instruction) {
+        jQuery("#iseo_custom_instruction").val(instruction || "");
+        // Guard so the re-entry does not re-open the dialog; cleared in the finally-ish paths below.
+        window._iseoImageRegenConfirmed = true;
+        try { refreshAIImage(); } finally { window._iseoImageRegenConfirmed = false; }
+      }
+    });
+    return false;
+  }
+  if (!alreadyHasImage) {
+    // First image for this post: never carry an instruction in from an earlier run.
+    jQuery("#iseo_custom_instruction").val("");
+  }
   var $btn = jQuery("#AIrefreshOption button");
   var $preview = jQuery("#iseo-preview-title");
   var $hint = jQuery("#AIrefreshOption .iseo-hint");
@@ -1288,6 +1364,7 @@ function refreshAIImage() {
   formData.append("action", "fetch_AI_image");
   formData.append("nonce", typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "");
   formData.append("target_key", iseoImageTargetKey());
+  formData.append("custom_instruction", jQuery("#iseo_custom_instruction").val() || "");
   formData.append("title", title);
   // v2 (OpenAI) cover image with the selected niche; PHP falls back to legacy Flux when use_v2 is absent.
   formData.append("niche", window.iseoSelectedNiche());

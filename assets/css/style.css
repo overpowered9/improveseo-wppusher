@@ -363,6 +363,109 @@ input:checked + .switch:before {
   border-radius: 20px;
   box-shadow: 3px 3px 25px rgba(0, 0, 0, 0.1);
   width: calc(50% - 25px);
+  position: relative;
+}
+
+/* Hover hint on the creation cards: an info marker sits to the right of the card
+   title and a small box explains what the card will do. Shown while the pointer is
+   anywhere over the card (not just the marker) and on keyboard focus of the link. */
+.create-ai-tip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  color: #9ca3af;
+  cursor: help;
+  vertical-align: middle;
+}
+
+.create-ai-tip svg {
+  display: block;
+}
+
+.create-ai-tip-bubble {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: -8px;
+  left: auto;
+  width: 230px;
+  max-width: 70vw;
+  padding: 10px 12px;
+  background: #1f2937;
+  color: #e5e7eb;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.1px;
+  text-align: left;
+  white-space: normal;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 60;
+}
+
+.create-ai-tip-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  right: 11px;
+  border: 6px solid transparent;
+  border-bottom-color: #1f2937;
+}
+
+/* For hints long enough that the default width turns them into a narrow column. */
+.create-ai-tip-bubble.is-wide {
+  width: 280px;
+}
+
+/* A hint holding a link has to be reachable by the pointer, unlike the plain ones.
+   Hovering it keeps the box open because it is a descendant of the card. */
+.create-ai-tip-bubble.is-interactive {
+  pointer-events: auto;
+}
+
+/* Scoped through .create-ai-col so these beat the card-wide `a` rules below, which
+   strip underlines, and the `h3 a` colour rule, which would paint this link dark
+   grey on a dark box. */
+.create-ai-col .create-ai-tip-bubble a {
+  color: #8ec5df;
+  text-decoration: underline !important;
+}
+
+.create-ai-col .create-ai-tip-bubble a:hover,
+.create-ai-col .create-ai-tip-bubble a:focus {
+  color: #ffffff;
+}
+
+/* Cards whose title is its own link (needed so the hint can sit outside the link)
+   must still read as a heading, not as a blue WordPress admin link. The focus ring
+   is left alone — it is the only cue a keyboard user gets on the title. */
+.create-ai-col h3 a,
+.create-ai-col h3 a:hover,
+.create-ai-col h3 a:focus {
+  color: inherit;
+}
+
+/* Two shapes to cover: the marker nested inside the card link (plain hints) and the
+   marker sitting next to it as a sibling (hints that carry a link of their own). */
+.create-ai-col:hover .create-ai-tip,
+.create-ai-col a:focus .create-ai-tip,
+.create-ai-col a:focus + .create-ai-tip {
+  color: #1c7293;
+}
+
+.create-ai-col:hover .create-ai-tip-bubble,
+.create-ai-col a:focus .create-ai-tip-bubble,
+.create-ai-col a:focus + .create-ai-tip .create-ai-tip-bubble {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .create-ai-col a:hover {

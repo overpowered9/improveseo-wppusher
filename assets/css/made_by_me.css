@@ -1626,7 +1626,19 @@ div#post-body-content {
 #post_form_buttons {
   display: flex;
   justify-content: end;
-  column-gap: 20px;
+  /* Widened from 20px: each button now carries its own hover-hint marker, and at the
+     old gap the marker sat as close to the next button as to its own. */
+  column-gap: 34px;
+  row-gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* One action button plus the marker that explains it. */
+.PostForm__btn-group {
+  display: flex;
+  align-items: center;
+  gap: 9px;
 }
 
 .styling_post_page_action_buttons {
@@ -3265,101 +3277,6 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   line-height: 1.7;
 }
 
-/* ── List header: keep the select-all checkbox on the same line as the column label ──
-   .checkbox.style-c is position:relative with its only child (.checkbox__checkmark)
-   absolutely positioned, so the <label> is an empty inline box. Beside the taller
-   inline-block <h4> it baseline-aligns low, and the checkmark pinned at top:4px then
-   renders *below* the word "Name". Laying the label out as an inline-flex box and
-   middle-aligning both parts puts it back beside the label.
-
-   Scoped to header cells that actually contain a checkbox — the projects, bulk
-   projects and bulk alltasks lists — so every other .project-lists table is untouched. */
-.project-lists table thead th > .checkbox.style-c {
-  display: inline-flex;
-  align-items: center;
-  vertical-align: middle;
-  min-height: 20px;
-}
-
-.project-lists table thead th > .checkbox.style-c + h4 {
-  vertical-align: middle;
-}
-
-/* ── Keyword Lists: row spacing ──
-   The rows ran together as one dense block. `.project-lists table` already asks for
-   `border-spacing: 0 10px`, but that declaration is INERT on this page: Bootstrap
-   (assets/vendor/css/bootstrap-4.5.2.min.css, loaded after style.css) sets
-   `table { border-collapse: collapse }`, and border-spacing does nothing on a
-   collapsed table. Nothing in the plugin ever set border-collapse back, so the
-   gap never rendered here. The projects and bulk lists look correctly spaced
-   because Bootstrap is not enqueued on those screens.
-
-   Restoring `separate` re-enables the spacing — and the rounded row corners
-   from td:first-child / td:last-child, which also need a separated table.
-
-   No border-spacing is declared here on purpose. `.project-lists table` already
-   sets `0 10px`, which is the value the projects, bulk and authors lists use;
-   once the table is separated again that inherited figure simply takes effect,
-   so this page ends up with exactly the same row rhythm as the rest of the
-   admin rather than a number invented for this one screen.
-
-   Scoped to this one table via .iseo-keyword-lists so nothing else changes. */
-.project-lists table.iseo-keyword-lists {
-  border-collapse: separate;
-}
-
-/* The Action heading sat hard against the left edge of its column while the icons
-   below it were centred, so the label pointed at empty space. `.project-lists table
-   th:last-child` gives that cell `text-align: left` and `padding: 0 25px 0 0`; the
-   body cell was already given symmetric 25px padding, so matching the header's
-   padding and centring the text puts the label directly over the icons.
-   Name and Content are left-aligned and already sit flush with their column
-   contents, so they are deliberately left alone. */
-.project-lists table.iseo-keyword-lists thead th:last-child {
-  text-align: center;
-  padding: 10px 25px;
-}
-
-/* style.css:2947 reserves 35% of the table for the Name column. Keyword list names
-   are short — "bees", "colors" — so that left a wide empty band between the name and
-   its keywords. 22% still fits the longest names in this plugin without wrapping
-   (`anti-fog-snorkeling-mask` is the worst case) and hands the reclaimed width to
-   Content, which needs it: fewer wrapped lines means less scrolling inside the box.
-
-   Scoped to .iseo-keyword-lists — the projects, bulk and authors lists have longer
-   names and keep the 35%. */
-.project-lists table.iseo-keyword-lists td[data-label="Name"],
-.project-lists table.iseo-keyword-lists thead th:first-child {
-  width: 22%;
-}
-
-/* The Name heading sat 10px lower than Content and Action. All three headers are
-   `vertical-align: bottom`, but `.project-lists table th:first-child` sets
-   `padding: 0 0 0 25px` — no bottom padding — while the other headers get the
-   `padding: 10px 20px` from `.project-lists table thead th`. Bottom-aligned text in
-   a cell with 10px less bottom padding drops by exactly that 10px. Measured in the
-   rendered page: Name textTop 558.6 against 548.6 for the other two.
-
-   Restoring the 10px vertical padding lands all three on the same baseline. The
-   25px left indent is kept — that is what aligns the heading with the names
-   below it. */
-.project-lists table.iseo-keyword-lists thead th:first-child {
-  padding: 10px 0 10px 25px;
-}
-
-/* improveseo_style.css:1176 declares .list-content-overflow with
-   `overflow-y: scroll`, which paints a scrollbar gutter even when nothing
-   overflows. `auto` shows it only when the list actually needs scrolling.
-
-   Overridden here rather than edited in place: improveseo_style.css is enqueued
-   with a hardcoded '1.1' version (improveseo.php:2172), so an edit there would not
-   reach browsers holding a cached copy, while made_by_me.css is versioned with
-   filemtime(). Note made_by_me.css loads *before* improveseo_style.css on this
-   page, so the .project-lists qualifier is what wins it — specificity (0,2,0 vs
-   0,1,0), not source order. */
-.project-lists .list-content-overflow {
-  overflow-y: auto;
-}
 
 /* ── ISEO credit estimate ──────────────────────────────────────────────────────
    The cost preview under each Article Size dropdown, filled by iseoCreditEstimate

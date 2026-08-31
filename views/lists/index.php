@@ -110,52 +110,32 @@ use ImproveSEO\View;
 	<div class="improve-seo-container">
 		<div class="project-lists">
 			<div class="table-responsive">
-				<?php
-				// iseo-keyword-lists is a hook for this page's row spacing only. The
-				// border-spacing on `.project-lists table` is shared with the projects,
-				// bulk and authors lists, so it must not be widened globally.
-				?>
-				<table class="table project_table_listing iseo-keyword-lists">
+				<table class="table project_table_listing">
 					<thead>
 						<tr>
 							<th> Name </th>
 							<th>Content</th>
-							<th>Action</th>
+							<th> </th>
 						</tr>
 					</thead>
 					<tbody>
 						<?php if (!empty($lists)): ?>
 							<?php foreach ($lists as $item): ?>
 								<tr>
-									<?php
-									// All three cells top-align on the first line. Previously only the Name
-									// carried `vertical-align: text-top` while Content and Action fell back to
-									// the default middle, so in a multi-line row nothing lined up.
-									?>
 									<td data-label="Name"
 										onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ); ?>'"
-										style="cursor: pointer; vertical-align: top; padding-top: 20px;">
+										style="cursor: pointer;  padding-top: 20px; vertical-align: text-top;">
 										<strong><?php echo esc_html( $item->name ); ?> </strong>
 									</td>
-									<td data-label="Content" style="vertical-align: top; padding-top: 20px;"><?php
-									// Long lists keep the fixed-height scroll box; short ones stay their
-									// natural height. Row separation comes from the spacing between rows,
-									// not from padding every row out to a uniform height.
+									<td data-label="Content"> <?php
 									if (str_word_count($item->list) > 50):
 										echo "<span class='list-content-overflow'>" . esc_html( $item->list ) . "</span>";
 									else:
 										echo esc_html( $item->list );
 									endif;
 									?></td>
-									<?php
-									// Symmetric horizontal padding: td:last-child in style.css sets
-									// `padding: 0 25px 0 0`, which pushed the centred icons left of the cell's
-									// visual centre and left a wide gap on the right. Not given .actions-btn
-									// like the project lists — that class only strips the focus outline, which
-									// these links need.
-									?>
-									<td data-label="Action" style="vertical-align: top; padding: 20px 25px;">
-										<div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+									<td data-label="Action">
+										<div style="display: flex;justify-content: center;">
 											<a
 												href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ); ?>">
 												<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/write.svg' ); ?>"

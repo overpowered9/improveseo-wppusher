@@ -31,7 +31,9 @@ function improveseo_enqueue_admin(){
 
 
 	wp_enqueue_style('improveseo-tree', IMPROVESEO_DIR . '/assets/css/tree.min.css');
-	wp_enqueue_style('improveseo-latest-css1', IMPROVESEO_DIR . '/assets/css/style.css');
+	// Versioned on file mtime so CSS edits reach browsers that cached the previous
+	// deploy — without this WP stamps ?ver=<wp-version>, which rarely changes.
+	wp_enqueue_style('improveseo-latest-css1', IMPROVESEO_DIR . '/assets/css/style.css', array(), improveseo_asset_ver('assets/css/style.css'));
 	wp_enqueue_style('improveseo-latest-css2', IMPROVESEO_DIR . '/assets/css/step.css');
 	wp_enqueue_style('improveseocss12121', IMPROVESEO_DIR . '/assets/css/made_by_me.css', array(), filemtime(IMPROVESEO_ROOT . '/assets/css/made_by_me.css'));
 	wp_enqueue_style('improveseo-settings-redesign', IMPROVESEO_DIR . '/assets/css/settings-redesign.css', array(), improveseo_asset_ver('assets/css/settings-redesign.css'));
@@ -388,28 +390,63 @@ function improveseo_enqueue_guide_assets() {
  * visual change and is deliberately left alone here; it should be a separate, reviewable
  * commit.
  *
- * Scoped to this plugin's own screens so none of it leaks onto other admin pages.
+ * SCOPING — each bundle loads on exactly the screens whose template carried its tags, and
+ * nowhere else. This matters: an earlier version of this function enqueued everything on
+ * every `improveseo*` page, which put Bootstrap in front of six screens that had never seen
+ * it (Keyword Lists, Projects, Bulk Projects, Keyword Generator, Settings, Onboarding).
+ * Bootstrap's `table { border-collapse: collapse }` alone silently changed the row spacing
+ * and rounded corners on every list table. Removing the CDNs is the security fix; widening
+ * where they load was an unintended side effect, not part of it.
+ *
+ *   - Bootstrap + smartWizard  → the four screens that render generateAIpopup():
+ *                                improveseo_posting with action create_post, create_page,
+ *                                create_post_single or create_post_bulk (see the callers in
+ *                                views/posting/, routed by improveseo_posting() in
+ *                                modules/posting.php).
+ *   - Font Awesome 6 + Google Fonts → improveseo_dashboard, the only template that had them.
+ *
+ * PRIORITY 40, not the default 10. On stable-merges-aug these were <link> tags in the document
+ * BODY, which made them the LAST stylesheets in the cascade — after everything enqueued into
+ * the head. load_admin_files() (improveseo.php, priority 30) enqueues improveseo_style.css and
+ * poppins_fonts, and nothing in the plugin enqueues a style above 30. At the default priority
+ * this bundle landed BEFORE improveseo_style.css, so that file won all 17 of its overlapping
+ * selectors — .btn, .btn-primary, .btn-outline-primary, .btn-danger and their :hover/:focus
+ * states, plus .border-bottom and a:hover — inverting every button on the four wizard screens.
+ * 40 restores stable's cascade order without reintroducing a remote or non-enqueued asset.
+ *
+ * This only reorders the head block; it does not move scripts to the footer. The $in_footer
+ * = false arguments below still hold, so Bootstrap and smartWizard are still parsed before
+ * custom-plugin-script.js calls .smartWizard() from the footer.
  */
-add_action( 'admin_enqueue_scripts', 'improveseo_enqueue_vendor_assets' );
+add_action( 'admin_enqueue_scripts', 'improveseo_enqueue_vendor_assets', 40 );
 
 function improveseo_enqueue_vendor_assets() {
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading the current admin screen, not acting on input.
-	$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
-	if ( strpos( $page, 'improveseo' ) !== 0 ) {
-		return;
-	}
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- reading the current admin screen, not acting on input.
+	$page   = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+	$action = isset( $_GET['action'] ) ? sanitize_key( wp_unslash( $_GET['action'] ) ) : '';
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	$v = 'assets/vendor/';
+
+	// ── Dashboard only ──────────────────────────────────────────────────────────
+	if ( 'improveseo_dashboard' === $page ) {
+		wp_enqueue_style( 'improveseo-vendor-fa6', IMPROVESEO_DIR . '/' . $v . 'css/font-awesome-6.6.0.min.css', array(), improveseo_asset_ver( $v . 'css/font-awesome-6.6.0.min.css' ) );
+
+		// Google Fonts stays remote: Plugin Check flags it as non-enqueued but does NOT flag it
+		// as offloading, and wp.org permits it. Enqueueing is all that was missing.
+		wp_enqueue_style( 'improveseo-google-fonts', 'https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap', array(), null );
+	}
+
+	// ── The AI wizard screens only ──────────────────────────────────────────────
+	$wizard_actions = array( 'create_post', 'create_page', 'create_post_single', 'create_post_bulk' );
+	if ( 'improveseo_posting' !== $page || ! in_array( $action, $wizard_actions, true ) ) {
+		return;
+	}
 
 	wp_enqueue_style( 'improveseo-vendor-bootstrap-452', IMPROVESEO_DIR . '/' . $v . 'css/bootstrap-4.5.2.min.css', array(), improveseo_asset_ver( $v . 'css/bootstrap-4.5.2.min.css' ) );
 	wp_enqueue_style( 'improveseo-vendor-bootstrap-431', IMPROVESEO_DIR . '/' . $v . 'css/bootstrap-4.3.1.min.css', array( 'improveseo-vendor-bootstrap-452' ), improveseo_asset_ver( $v . 'css/bootstrap-4.3.1.min.css' ) );
 	wp_enqueue_style( 'improveseo-vendor-smartwizard', IMPROVESEO_DIR . '/' . $v . 'css/smart_wizard.min.css', array(), improveseo_asset_ver( $v . 'css/smart_wizard.min.css' ) );
 	wp_enqueue_style( 'improveseo-vendor-smartwizard-dots', IMPROVESEO_DIR . '/' . $v . 'css/smart_wizard_theme_dots.min.css', array( 'improveseo-vendor-smartwizard' ), improveseo_asset_ver( $v . 'css/smart_wizard_theme_dots.min.css' ) );
-	wp_enqueue_style( 'improveseo-vendor-fa6', IMPROVESEO_DIR . '/' . $v . 'css/font-awesome-6.6.0.min.css', array(), improveseo_asset_ver( $v . 'css/font-awesome-6.6.0.min.css' ) );
-
-	// Google Fonts stays remote: Plugin Check flags it as non-enqueued but does NOT flag it
-	// as offloading, and wp.org permits it. Enqueueing is all that was missing.
-	wp_enqueue_style( 'improveseo-google-fonts', 'https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap', array(), null );
 
 	// $in_footer = false — see the note above about smartWizard ordering.
 	wp_enqueue_script( 'improveseo-vendor-bootstrap', IMPROVESEO_DIR . '/' . $v . 'js/bootstrap.bundle.min.js', array( 'jquery' ), improveseo_asset_ver( $v . 'js/bootstrap.bundle.min.js' ), false );
