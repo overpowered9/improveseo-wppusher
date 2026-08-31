@@ -949,6 +949,27 @@ global $ai_modal_type;
         </div>
 
         <form id="popup_form" method="post" class="pop_up_form improve-seo-form-global">
+            <?php
+            // The slot this piece of work occupies, sent with every generation request.
+            //
+            // The server prices a regeneration cheaper (ISEO_COST_IMAGE_REGEN) but only when it can
+            // PROVE this slot has been generated before — isRegeneration() looks for an earlier
+            // successful user_generations row with the same key, and returns false immediately on an
+            // empty one. A client flag is ignored. So without this field every regeneration is
+            // charged at the full first-generation price, which is what was happening.
+            //
+            // Minted per wizard session because there is nothing else stable to use: in this flow
+            // the WordPress post does not exist yet (it is created on publish), so there is no post
+            // ID to send. Deliberately NOT derived from the keyword or title — regeneration is
+            // supposed to run on EDITED inputs, and a content-derived key would change exactly when
+            // the user edits, silently losing them the discount.
+            //
+            // A reload mints a new key, so the first generation after a reload is priced as a first
+            // generation. That is the safe direction to fail: it can only ever overcharge relative
+            // to the discount, never undercharge.
+            $iseo_target_key = 'iseo_tk_' . bin2hex( random_bytes( 16 ) );
+            ?>
+            <input type="hidden" name="target_key" id="iseo_target_key" value="<?php echo esc_attr( $iseo_target_key ); ?>">
 
             <div class="improveseo-sections">
 
@@ -3387,6 +3408,19 @@ global $ai_modal_type;
             return (typeof amount === 'number' && amount > 0) ? amount : null;
         }
 
+        // Price of REgenerating a cover, or null when unknown.
+        //
+        // The server charges this only when it can prove the slot has been generated before, which
+        // it does from its own user_generations history keyed on the target_key the wizard sends.
+        // The client never claims it, so this is display only — but with #iseo_target_key now on
+        // the form the two agree: the second press of Generate really is billed at this price.
+        function imageRegenPrice() {
+            var pricing = window.iseoCreditPricing;
+            if (!pricing) return null;
+            var amount = pricing.image_regen;
+            return (typeof amount === 'number' && amount > 0) ? amount : null;
+        }
+
         // "5 image credits" / "1 image credit".
         function imageCreditWords(n) {
             return n + ' image credit' + (n === 1 ? '' : 's');
@@ -3547,7 +3581,8 @@ global $ai_modal_type;
 
         return { refresh: render, cacheFrom: cacheFrom, unitPrice: unitPrice,
                  variantFromWords: variantFromWords, imagePrice: imagePrice,
-                 imageCreditWords: imageCreditWords, renderMediaCosts: renderMediaCosts };
+                 imageCreditWords: imageCreditWords, renderMediaCosts: renderMediaCosts,
+                 imageRegenPrice: imageRegenPrice };
     })();
 
     // Single Post: Content Credit Check Function

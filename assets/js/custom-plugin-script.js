@@ -22,6 +22,23 @@ function improveseoIsTrialEnded(msg) {
  * lands, so both are guarded: with no figure to quote the copy stays truthful but unnumbered rather
  * than falling back to a number that might be wrong.
  */
+/**
+ * The slot key for a COVER IMAGE generation.
+ *
+ * Derived from the wizard's post-level target_key rather than minted separately, so the article and
+ * its image are recognisably part of the same piece of work while still being distinct slots — an
+ * article regen must not make the next image look like a regen.
+ *
+ * The server prices the second and later generation of the same slot at ISEO_COST_IMAGE_REGEN. It
+ * decides that itself, from its own history; the client cannot claim it. Falling back to an empty
+ * string when the field is absent means the server prices at FULL price, which is the correct
+ * direction to fail.
+ */
+function iseoImageTargetKey() {
+  var base = jQuery("#iseo_target_key").val() || "";
+  return base ? base + ":image" : "";
+}
+
 function improveseoImageCostWords() {
   try {
     var est = window.iseoCreditEstimate;
@@ -42,12 +59,34 @@ function improveseoImageCostHint() {
     : "Costs " + words + " when you press Generate.";
 }
 
-/** "Cover image ready. 5 image credits used." — after a successful generation. */
+/**
+ * "Cover image ready. 5 image credits used. Regenerating costs 3 image credits." — after a
+ * successful generation.
+ *
+ * The regen sentence is forward-looking and only correct because the wizard now sends a
+ * target_key: the server prices the second and later generation of the same slot at
+ * ISEO_COST_IMAGE_REGEN, and with no key it would price every press at full price instead. It is
+ * appended only when the server actually published a regen price, so an older server that does not
+ * simply gets the shorter sentence rather than a quote it will not honour.
+ */
 function improveseoImageUsedHint() {
   var words = improveseoImageCostWords();
-  return words === null
+  var base = words === null
     ? "Cover image ready."
     : "Cover image ready. " + words + " used.";
+
+  try {
+    var est = window.iseoCreditEstimate;
+    if (est && typeof est.imageRegenPrice === "function") {
+      var regen = est.imageRegenPrice();
+      if (regen !== null) {
+        return base + " Regenerating costs " + est.imageCreditWords(regen) + ".";
+      }
+    }
+  } catch (e) {
+    /* fall through to the shorter sentence */
+  }
+  return base;
 }
 
 function improveseoShowCreditNotice(msg, kind) {
@@ -141,6 +180,7 @@ function GenerateCustomImage() {
 
   formData.append("action", "fetch_AI_image");
   formData.append("nonce", typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "");
+  formData.append("target_key", iseoImageTargetKey());
 
   formData.append("title", title);
 
@@ -221,6 +261,7 @@ jQuery("#generate_i_image").on("click", function () {
 
   formData.append("action", "fetch_AI_image");
   formData.append("nonce", typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "");
+  formData.append("target_key", iseoImageTargetKey());
 
   formData.append("title", title);
 
@@ -1246,6 +1287,7 @@ function refreshAIImage() {
   var formData = new FormData();
   formData.append("action", "fetch_AI_image");
   formData.append("nonce", typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "");
+  formData.append("target_key", iseoImageTargetKey());
   formData.append("title", title);
   // v2 (OpenAI) cover image with the selected niche; PHP falls back to legacy Flux when use_v2 is absent.
   formData.append("niche", window.iseoSelectedNiche());

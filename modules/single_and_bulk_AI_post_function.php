@@ -812,6 +812,15 @@ function fetch_AI_image_callback()
             );
             $bp_city = get_option('improveseo_business_city', '');
             if ($bp_city) { $payload['city'] = $bp_city; }
+            // The slot this image occupies. The v2 route reads target_key from the body and prices
+            // the second and later generation of the same slot at ISEO_COST_IMAGE_REGEN instead of
+            // ISEO_COST_IMAGE. Without it isRegeneration() sees an empty key, returns false, and
+            // every regeneration is charged at the full first-generation price.
+            //
+            // Only sent when non-empty: an empty string would be indistinguishable from absent to
+            // the server anyway, and omitting it keeps the payload honest about what is known.
+            $target_key = isset($_POST['target_key']) ? sanitize_text_field(wp_unslash($_POST['target_key'])) : '';
+            if ($target_key !== '') { $payload['target_key'] = $target_key; }
             // noedit: pass the raw prompt straight to the image model (v2 uses it verbatim)
             if ($noedit) { $payload['prompt'] = $title; }
         } else {
