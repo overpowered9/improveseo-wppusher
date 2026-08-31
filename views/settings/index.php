@@ -428,27 +428,48 @@ document.addEventListener('DOMContentLoaded', function() {
           + '</div>';
     }
 
-    // Test server connection
-    document.getElementById('test_server_connection').addEventListener('click', function() {
-        const button = this;
+    /**
+     * Ask the server whether the saved API Key and Site Code actually work together.
+     *
+     * The server is the only thing that can answer this: it resolves the user from the key, then
+     * requires the site code to belong to a website that user owns (findWebsiteByCode in
+     * apiAuth.middleware.ts). A key that is valid on its own paired with another website's code
+     * comes back 403 "Website not found or not authorized", which is exactly the mistake this
+     * screen invites — the key is shared across a customer's sites, the code is not.
+     *
+     * `auto` distinguishes the check this page runs for itself on load from the one the button
+     * runs. They differ only in chrome: the automatic one must not seize the button or shout while
+     * it is working, because the user did not ask for it and may be mid-edit.
+     */
+    function improveseoRunConnectionCheck(auto) {
+        const button    = document.getElementById('test_server_connection');
         const statusDiv = document.getElementById('connection_status');
+        const apiKey    = document.querySelector('input[name="improveseo_api_key"]').value.trim();
+        const siteCode  = document.querySelector('input[name="improveseo_site_code"]').value.trim();
 
-        // Get form values (server URL is fixed)
-        const apiKey = document.querySelector('input[name="improveseo_api_key"]').value;
-        const siteCode = document.querySelector('input[name="improveseo_site_code"]').value;
-
-        // Validate inputs
         if (!apiKey || !siteCode) {
-            statusDiv.innerHTML = '<div class="iseo-status-error">❌ Please fill in API Key and Site Code first.</div>';
+            // Nothing to check. Silent when automatic: a fresh install has no credentials yet and
+            // an error on first sight of the screen would read as a fault.
+            if (!auto) {
+                statusDiv.innerHTML = '<div class="iseo-status-error">❌ Please fill in API Key and Site Code first.</div>';
+            }
             return;
         }
 
-        // Show loading
-        button.disabled = true;
-        button.textContent = '🔄 Testing Connection...';
-        statusDiv.innerHTML = '<div class="iseo-status-loading">⏳ Testing connection to ImproveSEO server...</div>';
+        if (!auto) {
+            button.disabled = true;
+            button.textContent = '🔄 Testing Connection...';
+        }
+        statusDiv.innerHTML = auto
+            ? '<div class="iseo-status-loading">⏳ Checking connection…</div>'
+            : '<div class="iseo-status-loading">⏳ Testing connection to ImproveSEO server...</div>';
 
-        // Test connection using WordPress AJAX
+        const restore = function () {
+            if (auto) { return; }
+            button.disabled = false;
+            button.textContent = '🔌 Test Server Connection';
+        };
+
         const data = new FormData();
         data.append('action', 'test_improveseo_connection');
         data.append('api_key', apiKey);
@@ -461,33 +482,44 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(result => {
-            button.disabled = false;
-            button.textContent = '🔌 Test Server Connection';
-
+            restore();
             if (result.success) {
                 statusDiv.innerHTML = renderConnectionPanel(result.data);
             } else {
+                // The server's own message is shown verbatim — "Invalid API key" and "Website not
+                // found or not authorized" say precisely which of the two fields is wrong, which a
+                // generic "connection failed" would throw away.
+                const err = (result.data && result.data.error) ? result.data.error : 'Unknown error';
                 statusDiv.innerHTML = `
                     <div class="iseo-status-error">
-                        ❌ <div><strong>Connection Failed!</strong><br>
-                        Error: ${result.data.error || 'Unknown error'}<br>
-                        Please check your settings and try again.</div>
+                        ❌ <div><strong>Not connected.</strong><br>
+                        ${err}<br>
+                        Check that the API Key and Site Code are both copied from the same website in your ImproveSEO Dashboard.</div>
                     </div>
                 `;
             }
         })
         .catch(error => {
-            button.disabled = false;
-            button.textContent = '🔌 Test Server Connection';
+            restore();
             statusDiv.innerHTML = `
                 <div class="iseo-status-error">
-                    ❌ <div><strong>Connection Test Failed!</strong><br>
-                    Error: ${error.message}<br>
-                    Please check your server URL and network connection.</div>
+                    ❌ <div><strong>Could not reach the ImproveSEO server.</strong><br>
+                    ${error.message}<br>
+                    Your settings are saved. Press Test Server Connection to try again.</div>
                 </div>
             `;
         });
+    }
+
+    document.getElementById('test_server_connection').addEventListener('click', function () {
+        improveseoRunConnectionCheck(false);
     });
+
+    // Answer "did that work?" without making the user hunt for the button. The save itself stays
+    // fire-and-forget on the PHP side (includes/connection-status.php) so a cold-starting server
+    // cannot hold the settings page; this runs after the page is already interactive, so a slow
+    // server costs nothing but a spinner in one corner.
+    improveseoRunConnectionCheck(true);
 });
 </script>
 

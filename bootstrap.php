@@ -48,6 +48,9 @@ include_once 'includes/seo.php';
 
 include_once 'includes/settings.php';
 
+// After settings.php — it hooks the two options that file registers.
+include_once 'includes/connection-status.php';
+
 include_once 'includes/shortcode-popup.php';
 
 include_once 'includes/ScheduledPosts.php';
