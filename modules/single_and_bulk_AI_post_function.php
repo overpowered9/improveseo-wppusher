@@ -700,11 +700,20 @@ function check_bulk_credits_callback() {
 	);
 	
 	// Check 3: Image credits (only for AI-generated images)
-	$image_credits = intval($credits['images']);
+	//
+	// 'needed' is CREDITS, not a count of images. It used to be $ai_image_count compared against
+	// the balance, which silently assumed one image costs one credit. At ISEO_COST_IMAGE=5 that
+	// under-gated a run by 5x: the pre-check passed and the server's reservation then refused it
+	// part-way through — the exact failure this pre-check exists to prevent. $image_needed is
+	// $ai_image_count * $image_unit, priced from the server's published table just above.
+	//
+	// This mirrors what content already does. $checks['image_unit'] is emitted below so a caller
+	// can render "N images x unit credits" against the SAME unit price the gate used, rather than
+	// re-deriving it and risking showing one number while gating on another.
 	$checks['image_check'] = array(
-		'sufficient' => $image_credits >= $ai_image_count,
-		'needed' => $ai_image_count,
-		'available' => $image_credits
+		'sufficient' => $pool >= $image_needed,
+		'needed' => $image_needed,
+		'available' => $pool
 	);
 
 	// Both actions draw on ONE pool, so a run needs the sum — checking them separately would pass

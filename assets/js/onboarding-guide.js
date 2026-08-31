@@ -106,7 +106,7 @@
             done: '#AI-Image-uploaded-path',
             startOn: { target: '#AIrefreshOption button', event: 'click' },
             selectTitle:   'AI Image From Title',
-            selectMessage: 'We’ll write a prompt from your title and create a cover. Press <strong>Generate AI image</strong>. Uses 1 image credit.',
+            selectMessage: 'We’ll write a prompt from your title and create a cover. Press <strong>Generate AI image</strong>. Uses {imageCost}.',
             busyTitle:     'Creating your cover image &#x23F3;',
             busyMessage:   'Creating your cover image — this usually takes 20–60 seconds. Please wait.',
             doneTitle:     'Cover Image Ready',
@@ -117,7 +117,7 @@
             done: '#AI-Prompt-Image-uploaded-path',
             startOn: { target: '#generate_i_image', event: 'click' },
             selectTitle:   'AI Image - Custom Prompt',
-            selectMessage: 'Describe the cover image you want, then press <strong>Generate AI Image</strong>. Uses 1 image credit.',
+            selectMessage: 'Describe the cover image you want, then press <strong>Generate AI Image</strong>. Uses {imageCost}.',
             busyTitle:     'Creating your cover image &#x23F3;',
             busyMessage:   'Creating your cover image — please wait.',
             doneTitle:     'Cover Image Ready',
@@ -639,9 +639,42 @@
         return text || 'Next';
     }
 
+    /**
+     * "5 image credits" / "1 image credit", from the server's published price table.
+     *
+     * Read through iseoCreditEstimate (GenerateAIpopuphtml.php), which is the one place the
+     * pricing block is cached. Returns null when the guide is running somewhere that module is
+     * not present, or before its single fetch has landed.
+     */
+    function imageCostWords() {
+        try {
+            var est = window.iseoCreditEstimate;
+            if (!est || typeof est.imagePrice !== 'function') return null;
+            var price = est.imagePrice();
+            return price === null ? null : est.imageCreditWords(price);
+        } catch (e) {
+            return null;
+        }
+    }
+
     function applyCopyTokens(text) {
-        if (typeof text !== 'string' || text.indexOf('{button}') === -1) return text;
-        return text.split('{button}').join(wizardButtonLabel());
+        if (typeof text !== 'string') return text;
+
+        if (text.indexOf('{button}') !== -1) {
+            text = text.split('{button}').join(wizardButtonLabel());
+        }
+
+        // {imageCost} carried the literal "1 image credit" until the price became configurable
+        // on the server. With no figure available the sentence drops to the unnumbered form
+        // rather than quoting a number the server may not charge.
+        if (text.indexOf('{imageCost}') !== -1) {
+            var words = imageCostWords();
+            text = words === null
+                ? text.split(' Uses {imageCost}.').join(' Uses image credits.')
+                : text.split('{imageCost}').join(words);
+        }
+
+        return text;
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -1107,8 +1140,11 @@
         var html = '<div class="iseo-guide-tooltip-inner">';
         html += '<div class="iseo-guide-progress"><div class="iseo-guide-progress-bar" style="width:' + (pct || 50) + '%"></div></div>';
         html += '<div class="iseo-guide-header"><span class="iseo-guide-bot">&#x1F916;</span><span class="iseo-guide-step-counter">' + (counterLabel || 'Please wait\u2026') + '</span></div>';
-        html += '<div class="iseo-guide-title">' + (title || 'Generating\u2026 &#x23F3;') + '</div>';
-        html += '<div class="iseo-guide-message">' + (message || 'This may take a moment \u2014 please wait.') + '</div>';
+        // Tokens run here as well as in buildTooltip(): the media-method copy
+        // (selectMessage, which carries {imageCost}) reaches the user through THIS
+        // renderer, not that one, so skipping the pass would print the token literally.
+        html += '<div class="iseo-guide-title">' + applyCopyTokens(title || 'Generating\u2026 &#x23F3;') + '</div>';
+        html += '<div class="iseo-guide-message">' + applyCopyTokens(message || 'This may take a moment \u2014 please wait.') + '</div>';
         html += '<div class="iseo-guide-actions"><button class="iseo-guide-btn-skip" type="button">Skip guide</button></div>';
         html += '</div>';
         $tooltip.html(html).show();

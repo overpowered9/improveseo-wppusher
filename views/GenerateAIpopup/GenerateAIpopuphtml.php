@@ -1281,7 +1281,7 @@ global $ai_modal_type;
                                     <span class="iseo-media-title">AI Image From Title</span>
                                     <span class="iseo-media-desc">Fastest &mdash; we write the prompt from your title and generate a cover for you.</span>
                                 </span>
-                                <span class="iseo-media-cost"><span class="iseo-cost-dot"></span>Uses 1 image credit</span>
+                                <span class="iseo-media-cost" data-iseo-cost="image"><span class="iseo-cost-dot"></span>Uses image credits</span>
                             </label>
 
                             <input type="radio" class="iseo-media-radio" name="aiImage" value="manually_promt_image" id="manually_promt_image">
@@ -1292,7 +1292,7 @@ global $ai_modal_type;
                                     <span class="iseo-media-title">AI Image - Custom Prompt</span>
                                     <span class="iseo-media-desc">We draft a prompt from your title &mdash; edit it your way, then generate.</span>
                                 </span>
-                                <span class="iseo-media-cost"><span class="iseo-cost-dot"></span>Uses 1 image credit</span>
+                                <span class="iseo-media-cost" data-iseo-cost="image"><span class="iseo-cost-dot"></span>Uses image credits</span>
                             </label>
 
                             <input type="radio" class="iseo-media-radio" name="aiImage" value="Manually_image" id="Manually_image">
@@ -1341,7 +1341,7 @@ global $ai_modal_type;
                                 </div>
                                 <div class="iseo-title-actions" id="AIrefreshOption">
                                     <button type="button" class="style_next_button_in_popup" onclick="return refreshAIImage()" style="padding: 12px 30px !important;">Generate AI image</button>
-                                    <span class="iseo-hint">Costs 1 image credit when you press Generate.</span>
+                                    <span class="iseo-hint" data-iseo-cost="image-hint">Costs image credits when you press Generate.</span>
                                 </div>
                             </div>
                             <input type="hidden" id="AI-Image-uploaded-path" name="AI-Image-uploaded-path">
@@ -3375,6 +3375,48 @@ global $ai_modal_type;
             return (typeof amount === 'number' && amount > 0) ? amount : null;
         }
 
+        // Price of one AI cover image, or null when there is no price to quote — same
+        // fail-closed shape as unitPrice(), so an unfetched table draws nothing rather
+        // than a wrong number. This is ISEO_COST_IMAGE on the admin server; the cards
+        // used to hardcode 1, which was wrong the moment an image stopped costing one
+        // credit.
+        function imagePrice() {
+            var pricing = window.iseoCreditPricing;
+            if (!pricing) return null;
+            var amount = pricing.image;
+            return (typeof amount === 'number' && amount > 0) ? amount : null;
+        }
+
+        // "5 image credits" / "1 image credit".
+        function imageCreditWords(n) {
+            return n + ' image credit' + (n === 1 ? '' : 's');
+        }
+
+        // Fill the Add Media cards and the generate hint from the live table. Both the
+        // markup fallback and this function avoid stating a figure when the price is
+        // unknown: vague beats wrong for a number the user is about to be charged.
+        function renderMediaCosts() {
+            var price = imagePrice();
+
+            jQuery('[data-iseo-cost="image"]').each(function () {
+                var $dot = jQuery(this).find('.iseo-cost-dot');
+                jQuery(this)
+                    .text(price === null ? 'Uses image credits' : 'Uses ' + imageCreditWords(price))
+                    .prepend($dot);
+            });
+
+            jQuery('[data-iseo-cost="image-hint"]').each(function () {
+                // Only the resting copy is owned here. Once a cover has been generated
+                // custom-plugin-script.js swaps this node to the "ready" message and adds
+                // .ok; overwriting that on a later refresh would undo the confirmation the
+                // user just got.
+                if (jQuery(this).hasClass('ok')) return;
+                jQuery(this).text(price === null
+                    ? 'Costs image credits when you press Generate.'
+                    : 'Costs ' + imageCreditWords(price) + ' when you press Generate.');
+            });
+        }
+
         // Same non-empty-line count the rest of the bulk wizard uses.
         function keywordCount() {
             var text = jQuery('#keyword_list').val();
@@ -3442,7 +3484,7 @@ global $ai_modal_type;
                 balance !== null && cost > balance);
         }
 
-        function render() { renderSingle(); renderBulk(); }
+        function render() { renderSingle(); renderBulk(); renderMediaCosts(); }
 
         // Both fields come back on every check_bulk_credits response, so the Step 1 gate
         // keeps the preview current without a second call.
@@ -3503,7 +3545,9 @@ global $ai_modal_type;
             jQuery(document).on('shown.bs.modal', '#exampleModal1, #exampleModal2', ensureFetched);
         });
 
-        return { refresh: render, cacheFrom: cacheFrom, unitPrice: unitPrice, variantFromWords: variantFromWords };
+        return { refresh: render, cacheFrom: cacheFrom, unitPrice: unitPrice,
+                 variantFromWords: variantFromWords, imagePrice: imagePrice,
+                 imageCreditWords: imageCreditWords, renderMediaCosts: renderMediaCosts };
     })();
 
     // Single Post: Content Credit Check Function
@@ -3811,15 +3855,25 @@ global $ai_modal_type;
                         // Only check image credits at this step (content already checked at step 1)
                         // Check: Image credits insufficient
                         if (data.image_check && !data.image_check.sufficient) {
+                            // needed/available/shortage are all CREDITS. They used to be a count of
+                            // images, on the assumption that an image costs one credit.
                             const needed = data.image_check.needed;
                             const available = data.image_check.available;
                             const shortage = needed - available;
+
+                            // The advice has to be in IMAGES, not credits — "switch 10 keywords" for
+                            // a 10-credit shortfall would be wrong by the unit price. Ceil because a
+                            // partly-covered image still has to be switched. Falls back to the old
+                            // one-for-one wording only if the server published no unit price.
+                            const imageUnit = (typeof data.image_unit === 'number' && data.image_unit > 0)
+                                ? data.image_unit : 1;
+                            const switchCount = Math.ceil(shortage / imageUnit);
 
                             const msg =
                                 'Image credits required: ' + needed + '\n' +
                                 'Credits available now: ' + available + '\n' +
                                 'Short by: ' + shortage + '\n\n' +
-                                'Switch ' + shortage + ' keyword(s) to "Upload Image", or purchase more credits to continue.';
+                                'Switch ' + switchCount + ' keyword(s) to "Upload Image", or purchase more credits to continue.';
 
                             showImproveSEONotification(
                                 'warning',
@@ -3838,10 +3892,17 @@ global $ai_modal_type;
                             ImproveSEONotification.show({
                                 type: 'success',
                                 title: 'Confirm AI Image Generation',
+                                // aiImageCount is a COUNT of images. It used to be reported as the
+                                // credit cost and subtracted from the credit balance, so at
+                                // ISEO_COST_IMAGE=5 a one-image run said "required: 1" and
+                                // overstated what was left by 4. image_check.needed is the priced
+                                // figure the gate itself used.
                                 message:
-                                    'Image credits required: ' + aiImageCount + '\n' +
+                                    aiImageCount + ' image' + (aiImageCount === 1 ? '' : 's') +
+                                        ' × ' + (data.image_unit || 1) + ' = ' +
+                                        data.image_check.needed + ' ISEO credits\n' +
                                     'Credits available now: ' + data.image_check.available + '\n' +
-                                    'Remaining after generation: ' + (data.image_check.available - aiImageCount) + '\n\n' +
+                                    'Remaining after generation: ' + (data.image_check.available - data.image_check.needed) + '\n\n' +
                                     'Click OK to confirm and continue.',
                                 buttonText: 'OK',
                                 onClose: function () { resolve(data); }

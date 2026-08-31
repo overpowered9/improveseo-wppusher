@@ -10,6 +10,46 @@ function improveseoIsTrialEnded(msg) {
   return typeof msg === 'string' && /trial has ended|trial ended/i.test(msg);
 }
 
+/**
+ * Cover-image cost copy, priced from the server's published table.
+ *
+ * The figure is ISEO_COST_IMAGE on the admin server, reaching the browser in the pricing block on
+ * /users/status and cached by iseoCreditEstimate in GenerateAIpopuphtml.php. These strings used to
+ * hardcode "1 image credit", which was wrong the moment an image stopped costing one credit and
+ * left the wizard quoting a price the server would not charge.
+ *
+ * iseoCreditEstimate only exists on the wizard screens, and the price is null until its one fetch
+ * lands, so both are guarded: with no figure to quote the copy stays truthful but unnumbered rather
+ * than falling back to a number that might be wrong.
+ */
+function improveseoImageCostWords() {
+  try {
+    var est = window.iseoCreditEstimate;
+    if (!est || typeof est.imagePrice !== "function") return null;
+    var price = est.imagePrice();
+    if (price === null) return null;
+    return est.imageCreditWords(price);
+  } catch (e) {
+    return null;
+  }
+}
+
+/** "Costs 5 image credits when you press Generate." — the resting hint. */
+function improveseoImageCostHint() {
+  var words = improveseoImageCostWords();
+  return words === null
+    ? "Costs image credits when you press Generate."
+    : "Costs " + words + " when you press Generate.";
+}
+
+/** "Cover image ready. 5 image credits used." — after a successful generation. */
+function improveseoImageUsedHint() {
+  var words = improveseoImageCostWords();
+  return words === null
+    ? "Cover image ready."
+    : "Cover image ready. " + words + " used.";
+}
+
 function improveseoShowCreditNotice(msg, kind) {
   var trialEnded = improveseoIsTrialEnded(msg);
   showImproveSEONotification(
@@ -1223,7 +1263,7 @@ function refreshAIImage() {
 
       if (response.success === false) {
         $btn.text(originalText);
-        $hint.removeClass("ok").text("Costs 1 image credit when you press Generate.");
+        $hint.removeClass("ok").text(improveseoImageCostHint());
         if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits') || response.data.includes('trial'))) {
           improveseoShowCreditNotice(response.data, 'image');
         } else {
@@ -1245,12 +1285,12 @@ function refreshAIImage() {
       // An image now exists — the lead text can accurately point at it.
       jQuery("#AI_image_div .iseo-title-lead").text("Click the image to view it at full size.");
       $btn.text("Regenerate image");
-      $hint.addClass("ok").text("Cover image ready. 1 image credit used.");
+      $hint.addClass("ok").text(improveseoImageUsedHint());
     },
     error: function () {
       jQuery("#loadingAIImage").hide();
       $btn.prop("disabled", false).text(originalText);
-      $hint.removeClass("ok").text("Costs 1 image credit when you press Generate.");
+      $hint.removeClass("ok").text(improveseoImageCostHint());
       showImproveSEONotification(
         'error',
         'Image Generation Failed',
@@ -1365,14 +1405,14 @@ jQuery(document).ready(function (jQuery) {
         jQuery("#iseo-preview-title").addClass("has-image");
         jQuery("#AI_image_div .iseo-title-lead").text("Click the image to view it at full size.");
         jQuery("#AIrefreshOption button").text("Regenerate image");
-        jQuery("#AIrefreshOption .iseo-hint").addClass("ok").text("Cover image ready. 1 image credit used.");
+        jQuery("#AIrefreshOption .iseo-hint").addClass("ok").text(improveseoImageUsedHint());
       } else {
         jQuery("#iseo-preview-title").removeClass("has-image");
         // Set from JS too (not just the PHP markup) so the correct wording shows even
         // if the updated view file hasn't been redeployed yet.
         jQuery("#AI_image_div .iseo-title-lead").text("Click the button below to generate your cover image.");
         jQuery("#AIrefreshOption button").text("Generate AI image");
-        jQuery("#AIrefreshOption .iseo-hint").removeClass("ok").text("Costs 1 image credit when you press Generate.");
+        jQuery("#AIrefreshOption .iseo-hint").removeClass("ok").text(improveseoImageCostHint());
       }
     }
   });
