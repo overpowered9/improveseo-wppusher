@@ -3316,3 +3316,52 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
 form#popup_form .iseo-credit-estimate {
   padding-left: 0;
 }
+
+/* ── Wizard nav: make a disabled Previous actually look disabled ───────────────
+   Both wizards disable Previous on their first step (prevStepButton.disabled and
+   prevButton.disabled in GenerateAIpopuphtml.php). Nothing styled that state, and
+   the base rules — step.css for the single wizard, .btn-dev_multi above for the
+   bulk one — hard-set `color`, `border` and `cursor: pointer`. Worse, their
+   :hover/:focus rules are not qualified with :enabled, and :hover still matches a
+   disabled element, so hovering the dead button filled it dark and turned the
+   label white exactly as if it were live.
+
+   The result was a button that looked and felt fully interactive on step 1 but
+   did nothing — reported as "Previous is not working". It is not broken; it is
+   correctly unavailable on the first step and had no way of saying so.
+
+   Only the :disabled state is styled here, so the enabled rendering is byte-for-
+   byte what it was. Both wizards are covered: the single one's rules live in
+   step.css, which is enqueued WITHOUT a version string, so a fix written there
+   would not reach browsers holding a cached copy; made_by_me.css is versioned on
+   filemtime and is enqueued after step.css, so it both busts cache and wins. */
+.improveseo-bulk-ai .btn-dev button:disabled,
+.improveseo-bulk-ai_multi .btn-dev_multi button:disabled {
+  color: #9aa5ad;
+  border-color: #d3d8dc;
+  background: transparent;
+  cursor: not-allowed;
+}
+
+/* Re-stated at :disabled specificity so the unqualified :hover/:focus rules above
+   cannot repaint a disabled button as an active one. */
+.improveseo-bulk-ai .btn-dev button:disabled:hover,
+.improveseo-bulk-ai .btn-dev button:disabled:focus,
+.improveseo-bulk-ai_multi .btn-dev_multi button:disabled:hover,
+.improveseo-bulk-ai_multi .btn-dev_multi button:disabled:focus {
+  color: #9aa5ad;
+  border-color: #d3d8dc;
+  background: transparent;
+}
+
+/* The chevron is a dark SVG; the :hover rules brighten it to white. Mute it to
+   match the label, and stop that brightening while disabled. */
+.improveseo-bulk-ai .btn-dev button:disabled img,
+.improveseo-bulk-ai .btn-dev button:disabled:hover img,
+.improveseo-bulk-ai .btn-dev button:disabled:focus img,
+.improveseo-bulk-ai_multi .btn-dev_multi button:disabled img,
+.improveseo-bulk-ai_multi .btn-dev_multi button:disabled:hover img,
+.improveseo-bulk-ai_multi .btn-dev_multi button:disabled:focus img {
+  filter: grayscale(1);
+  opacity: 0.45;
+}
