@@ -686,17 +686,24 @@ function check_bulk_credits_callback() {
 	}
 	$image_unit = isset($pricing['image']) ? max(1, intval($pricing['image'])) : 1;
 
-	// Per-type balance, still used by the content_check below. The pooled model that
-	// replaced it upstream is not on this branch, so this check stays as it was.
-	$content_credits = intval($credits['content']);
-
 	$content_needed = $keyword_count * $content_unit;
 	$image_needed   = $ai_image_count * $image_unit;
 
+	// 'needed' is CREDITS, not a count of posts.
+	//
+	// It used to be $keyword_count compared against the balance, which assumed a post costs one
+	// credit. At the medium price of 10 a 12-post run was announced as "required: 12" and its
+	// "remaining after" was 108 credits too high, while the estimate line directly above the same
+	// dialog correctly said 120 — the two disagreed on screen.
+	//
+	// $content_needed is $keyword_count * $content_unit, and $content_unit comes from the server's
+	// published table for the size the user actually picked, so Small/Medium/Large price at their
+	// own rates rather than all at one. Every client consumer already expects credits here; this
+	// was the only half still reporting a count.
 	$checks['content_check'] = array(
-		'sufficient' => $content_credits >= $keyword_count,
-		'needed' => $keyword_count,
-		'available' => $content_credits
+		'sufficient' => $pool >= $content_needed,
+		'needed' => $content_needed,
+		'available' => $pool
 	);
 	
 	// Check 3: Image credits (only for AI-generated images)
