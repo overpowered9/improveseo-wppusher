@@ -2766,6 +2766,18 @@ function getGPTdata()
 		die();
 	}
 
+	// Second line of defence behind the client-side connection guard.
+	//
+	// Without this, a site with no API key answers HTTP 200 with an EMPTY BODY —
+	// improveseo_call_auxiliary_api() bails early and generateTitle() echoes nothing — which the
+	// browser cannot tell apart from the model returning a blank title. That ambiguity is why the
+	// user was shown "Title Generation Failed / check your connection" instead of the connect
+	// modal. A named sentinel lets the client respond to the actual cause.
+	if ( ! improveseo_is_server_configured() ) {
+		echo 'Error: not_connected';
+		die();
+	}
+
 
 
 	$getAudienceData = getAudienceData($seed_keyword);

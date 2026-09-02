@@ -357,27 +357,22 @@ document.addEventListener('DOMContentLoaded', function() {
         var cd = d.credit_details || null;
 
         // Plan / trial status line + badge.
-        // Rename map: the server may still return stale plan names that have
-        // since been rebranded. Keys are lowercase WITHOUT the word "plan".
-        // Keep this map updated when plan names change.
-        var planRenameMap = { 'pro': 'Scale' };
+        //
+        // The label itself comes from iseoPlanLabel() in views/layouts/main.php — one resolver
+        // shared with the bulk-post gate, so the same account can never be named "Scale" here
+        // and "Pro" there. This screen only chooses the colour and the sentence beneath it.
         var badgeText, badgeColor, statusLine;
+        badgeText = (typeof iseoPlanLabel === 'function')
+            ? iseoPlanLabel(plan, d.subscription, trial)
+            : ((plan && plan.name) ? plan.name : 'Connected');
+
         if (plan && plan.is_paid) {
-            var displayName = plan.name || 'Paid';
-            // Strip a trailing ' plan' / ' Plan' the server may include, so the
-            // lookup key is always the bare plan name (e.g. 'pro', not 'pro plan').
-            var bareName = displayName.replace(/\s+plan$/i, '');
-            var lowerBare = bareName.toLowerCase();
-            if (planRenameMap[lowerBare]) { bareName = planRenameMap[lowerBare]; }
-            badgeText = esc(bareName) + ' plan';
             badgeColor = '#0f7b6c';
             statusLine = 'Active subscription — full access.';
         } else if (trial && trial.expired) {
-            badgeText = 'Trial ended';
             badgeColor = '#b3521a';
             statusLine = 'Your free trial has ended. Upgrade to restore full access — any credits you purchased remain usable.';
         } else if (trial && trial.active) {
-            badgeText = 'Free Trial';
             badgeColor = '#0f7b6c';
             var days = (trial.days_remaining != null) ? trial.days_remaining : null;
             var ends = trial.ends_at ? new Date(trial.ends_at).toLocaleDateString() : '';
@@ -385,30 +380,76 @@ document.addEventListener('DOMContentLoaded', function() {
                 + (days != null ? ' — ' + days + ' day' + (days === 1 ? '' : 's') + ' left' : '')
                 + (ends ? ' (ends ' + esc(ends) + ')' : '') + '.';
         } else {
-            badgeText = plan ? esc(plan.name || 'Free') : 'Connected';
             badgeColor = '#0f7b6c';
             statusLine = 'Account connected.';
         }
+        badgeText = esc(badgeText);
 
-        // Credit rows — prefer the plan/purchased breakdown, fall back to flat totals.
-        var types = [['content', 'Content'], ['images', 'Images'], ['keywords', 'Keyword lists']];
-        var rows = types.map(function(t) {
-            var key = t[0], label = t[1];
-            var total = '—', breakdown = '';
-            if (cd && cd[key]) {
-                total = cd[key].total;
-                var pr = cd[key].plan_remaining, pu = cd[key].purchased_remaining;
-                if (pr != null && pu != null) {
-                    breakdown = '<span style="color:#6b7280;font-weight:400;"> (' + pr + ' plan + ' + pu + ' purchased)</span>';
-                }
-            } else if (d.credits && d.credits[key] != null) {
-                total = d.credits[key];
-            }
-            return '<div style="display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;">'
-                 + '<span style="color:#374151;">' + label + '</span>'
-                 + '<span style="font-weight:700;color:#111827;">' + total + breakdown + '</span>'
+        // ── Credits ────────────────────────────────────────────────────────────────────
+        // One pooled balance, presented the way the CMS presents it under TOTAL CREDITS
+        // REMAINING. This used to be three rows — Content / Images / Keyword lists — which
+        // read as three separate allowances but were the same pool printed three times, so
+        // the two screens described the same account in incompatible ways.
+        var pooled = (cd && cd.content) ? cd.content : null;
+        var total = null;
+        if (pooled && pooled.total != null)              { total = pooled.total; }
+        else if (d.credits && d.credits.total != null)   { total = d.credits.total; }
+        else if (d.credits && d.credits.content != null) { total = d.credits.content; }
+
+        // What the balance buys. Priced from the server's own table — the same one
+        // check_bulk_credits() gates against — so the estimate here and the cost shown in the
+        // generation wizard cannot drift apart. No pricing published, no claim made.
+        var pricing = d.pricing || null;
+        var perPiece = null;
+        if (pricing && pricing.content && pricing.content.medium != null && pricing.image != null) {
+            perPiece = parseInt(pricing.content.medium, 10) + parseInt(pricing.image, 10);
+        }
+        var pieces = (perPiece > 0 && total != null && !isNaN(parseInt(total, 10)))
+            ? Math.round(parseInt(total, 10) / perPiece)
+            : null;
+
+        // Breakdown rows. Each is emitted only when the server actually supplied the number,
+        // so an older server shows a smaller card rather than a row of dashes.
+        var breakdownRows = '';
+        function creditRow(label, note, value) {
+            return '<div class="iseo-credits-row">'
+                 + '<div class="iseo-credits-row-label"><span>' + esc(label) + '</span>'
+                 + (note ? '<small>' + esc(note) + '</small>' : '')
+                 + '</div>'
+                 + '<span class="iseo-credits-row-value">' + esc(value) + '</span>'
                  + '</div>';
-        }).join('');
+        }
+        if (pooled && pooled.plan_remaining != null) {
+            breakdownRows += creditRow('Plan credits', 'Included with your subscription', pooled.plan_remaining);
+        }
+        if (pooled && pooled.purchased_remaining != null) {
+            breakdownRows += creditRow('Purchased credits', 'Top-ups you bought', pooled.purchased_remaining);
+        }
+        // Expiry is optional: the endpoint does not publish it today. Read it defensively under
+        // the names it would most plausibly arrive as, and render nothing at all when absent —
+        // an invented or blank date on a billing screen is worse than no row.
+        var nextExpiryAmount = (pooled && pooled.next_expiry_amount != null) ? pooled.next_expiry_amount
+                             : ((d.credits && d.credits.next_expiry_amount != null) ? d.credits.next_expiry_amount : null);
+        var nextExpiryDate = (pooled && (pooled.next_expiry_at || pooled.next_expiry)) || (d.credits && (d.credits.next_expiry_at || d.credits.next_expiry)) || null;
+        if (nextExpiryDate) {
+            var parsed = new Date(nextExpiryDate);
+            var when = isNaN(parsed.getTime()) ? String(nextExpiryDate) : parsed.toLocaleDateString();
+            breakdownRows += creditRow('Next to expire', 'on ' + when, nextExpiryAmount != null ? nextExpiryAmount : '—');
+        }
+
+        var creditsCard = ''
+          + '<div class="iseo-credits-card">'
+          +   '<div class="iseo-credits-heading">Total credits remaining</div>'
+          +   '<div class="iseo-credits-total">' + esc(total != null ? total : '—') + '</div>'
+          +   (pieces != null
+                ? '<div class="iseo-credits-hint">This equals approximately ' + esc(pieces)
+                  + ' piece' + (pieces === 1 ? '' : 's') + ' of SEO content with AI Images</div>'
+                : '')
+          +   (breakdownRows
+                ? '<button type="button" class="iseo-credits-toggle" aria-expanded="true">Hide breakdown</button>'
+                  + '<div class="iseo-credits-breakdown">' + breakdownRows + '</div>'
+                : '')
+          + '</div>';
 
         var who = esc(d.email || d.user || 'Authenticated');
 
@@ -420,13 +461,24 @@ document.addEventListener('DOMContentLoaded', function() {
           +     '<span style="margin-left:auto;background:' + badgeColor + ';color:#fff;font-size:11px;font-weight:700;letter-spacing:.03em;padding:3px 9px;border-radius:9999px;">' + badgeText + '</span>'
           +   '</div>'
           +   '<div style="color:#4b5563;font-size:13px;margin-bottom:12px;line-height:1.5;">' + statusLine + '</div>'
-          +   '<div style="border-top:1px solid #e5eeec;padding-top:10px;">'
-          +     '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#6b7280;text-transform:uppercase;margin-bottom:6px;">Credits</div>'
-          +     rows
-          +   '</div>'
+          +   creditsCard
           +   '<div style="border-top:1px solid #e5eeec;margin-top:10px;padding-top:8px;font-size:12px;color:#6b7280;">Account: ' + who + ' · Server: ' + esc(d.server || 'Connected') + '</div>'
           + '</div>';
     }
+
+    /**
+     * Show/Hide breakdown, bound once by delegation because the card is re-rendered on every
+     * connection check — a handler bound to the button itself would be thrown away with it.
+     */
+    document.addEventListener('click', function (e) {
+        var toggle = e.target.closest ? e.target.closest('.iseo-credits-toggle') : null;
+        if (!toggle) { return; }
+        var breakdown = toggle.parentNode.querySelector('.iseo-credits-breakdown');
+        if (!breakdown) { return; }
+        var hidden = breakdown.classList.toggle('is-hidden');
+        toggle.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+        toggle.textContent = hidden ? 'Show breakdown' : 'Hide breakdown';
+    });
 
     /**
      * Ask the server whether the saved API Key and Site Code actually work together.

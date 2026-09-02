@@ -124,9 +124,17 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
             return;
         }
 
+        // Keyword generation spends credits, so an unconnected site gets the same modal every
+        // other generation surface shows. This used to be a bare alert() that named a screen
+        // ("settings") instead of offering the connect flow.
+        if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) {
+            return;
+        }
+
         var apiKey = '<?php echo esc_js(get_option("improveseo_api_key")); ?>';
         var siteCode = '<?php echo esc_js(get_option("improveseo_site_code")); ?>';
         if (!apiKey || !siteCode) {
+            // Reached only if the guard helper is unavailable on this screen.
             alert('Missing API credentials. Please configure API Key and Site Code in settings.');
             return;
         }

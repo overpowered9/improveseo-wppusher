@@ -158,6 +158,10 @@ function getShortCodeDetails(value) {
 }
 
 function GenerateCustomImage() {
+  // Guarded before the spinner goes up, so an unconnected site gets the modal over a still
+  // page rather than a loader that never resolves behind it.
+  if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) { return; }
+
   jQuery("#loadingAIImage").show();
 
   var seed_select = jQuery("#seed_select").val();
@@ -239,6 +243,8 @@ function GenerateCustomImage() {
 }
 
 jQuery("#generate_i_image").on("click", function () {
+  if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) { return; }
+
   jQuery("#loadingAIImage").show();
   jQuery("#hide_older_genrated_image_on_step3").hide();
 
@@ -459,6 +465,13 @@ function iseoRerunMetaIfOverLimit(triesLeft) {
   var descOver = (jQuery("#meta_descreption").val() || "").length > 160;
   if (!titleOver && !descOver) return; // check passes — nothing to do
 
+  // A rerun spends credits, but the user did not ask for this one — it fires automatically
+  // when the generated meta comes back over length. So check silently and fall through to the
+  // clamp below instead of throwing the connection modal at them mid-flow.
+  if (typeof iseoIsConnected === 'function' && !iseoIsConnected()) {
+    triesLeft = 0;
+  }
+
   if (triesLeft <= 0) {
     // Reruns exhausted — clamp on a word boundary as the final guarantee.
     jQuery("#meta_title").val(iseoClampMetaLength(jQuery("#meta_title").val(), 60));
@@ -497,6 +510,10 @@ function iseoRerunMetaIfOverLimit(triesLeft) {
 }
 
 jQuery("#generateapivalue").on("click", function () {
+  // Checked before the regenerate dialog opens: asking the user to confirm a spend they cannot
+  // make is a worse experience than telling them the site isn't connected.
+  if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) { return; }
+
   // A regeneration (content already present) spends credits again, so it is confirmed first.
   // The old confirm() is replaced by the regenerate dialog, which both confirms AND collects an
   // optional custom instruction for this one run. Cancel closes without generating, so a misclick
@@ -528,6 +545,10 @@ jQuery("#generateapivalue").on("click", function () {
  * the first run — that is what makes regeneration edit-aware.
  */
 function iseoRunContentGeneration() {
+  // Also guarded at the entry point above; repeated here because this function is reachable
+  // from the regenerate dialog's confirm callback, not only from that click.
+  if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) { return; }
+
   jQuery("#loadingAIData").show();
 
   jQuery("#for_testing_only").css("display", "none");
@@ -1318,6 +1339,11 @@ function refreshAIImage() {
   // When an image already exists this is a REGENERATION: it spends credits again, so it goes
   // through the same dialog the article uses — confirming the spend and collecting an optional
   // instruction for this one run. The first generation goes straight through.
+  //
+  // Connection is checked ahead of the dialog for the same reason as the article path: there is
+  // no point confirming a spend the site cannot make.
+  if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) { return false; }
+
   var alreadyHasImage = !!jQuery.trim(jQuery("#ai-image-display").html() || "");
   if (alreadyHasImage && !window._iseoImageRegenConfirmed) {
     window.iseoRegenerateDialog.open({
@@ -1797,6 +1823,12 @@ function resetSmartWizard() {
 
 // Function to generate AI title
 function generateAITitle() {
+  // Generating a title spends credits, so an unconnected site is stopped here with the same
+  // modal the bulk flow shows. Without this the request went out, came back as an empty 200
+  // (improveseo_call_auxiliary_api bails when there are no credentials) and surfaced as a
+  // generic "Title Generation Failed" toast that told the user nothing about the real cause.
+  if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) { return; }
+
   var seedtype = jQuery("#seed_select").val();
   var seedkeyword = jQuery("#seed_keyword").val();
   seedkeyword = seedkeyword ? seedkeyword.trim() : "";
@@ -1863,10 +1895,19 @@ function generateAITitle() {
       }
 
       // The server echoes the title directly; an empty body means the auxiliary
-      // call failed (e.g. missing API key/site code, or the server route errored).
-      // A 200 with empty text isn't caught by .fail(), so surface it here instead
-      // of silently dropping a blank title into the field.
+      // call failed (e.g. the server route errored), and a 200 with empty text isn't
+      // caught by .fail(), so surface it here instead of silently dropping a blank
+      // title into the field.
       var generatedTitle = (typeof data === 'string') ? data.trim() : '';
+
+      // "Not connected" is a different problem with a different remedy, and getGPTdata now
+      // names it rather than returning the same empty body as a generation failure. Show the
+      // connect modal, not a toast telling the user to go and inspect Settings themselves.
+      if (generatedTitle === 'Error: not_connected') {
+        if (typeof iseoRequireConnection === 'function') { iseoRequireConnection(); return; }
+        generatedTitle = '';
+      }
+
       if (!generatedTitle) {
         if (typeof ImproveSEONotification !== 'undefined') {
           ImproveSEONotification.error(
@@ -1924,6 +1965,10 @@ jQuery("#seed_select").on("change", function () {
 });
 
 function SaveResultsButton() {
+  // Guarded before the textarea is overwritten with "Wait! Generating content..." — otherwise
+  // the modal appears over a box claiming work is under way that never started.
+  if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) { return; }
+
   var keyword_id = jQuery("#project_name").val();
 
   var keyword_list = jQuery("#keyword_list").val();

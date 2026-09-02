@@ -4007,10 +4007,27 @@ global $ai_modal_type;
                         
                         // Check 1: Plan restriction (Grow/Basic plan)
                         if (data.plan_check && !data.plan_check.allowed) {
+                            // Named through the same resolver the Settings badge uses. This used
+                            // to print plan_name straight from the server, so one account could be
+                            // "Scale" in Settings and "Pro" here.
+                            //
+                            // check_bulk_credits defaults to slug 'unknown' / id 0 / name 'Unknown'
+                            // when the response carried no subscription block, so that case is
+                            // reported as unpaid — "Your current plan (Free Plan)" rather than the
+                            // meaningless "(Unknown)".
+                            var pc = data.plan_check;
+                            var hasSubscription = (pc.plan_id > 0) || (pc.plan_slug && pc.plan_slug !== 'unknown');
+                            var planLabel = (typeof iseoPlanLabel === 'function')
+                                ? iseoPlanLabel(
+                                    { is_paid: !!hasSubscription, name: pc.plan_name },
+                                    { plan: { id: pc.plan_id, slug: pc.plan_slug, name: pc.plan_name } },
+                                    null
+                                  )
+                                : pc.plan_name;
                             showImproveSEONotification(
                                 'warning',
                                 'Plan Upgrade Required',
-                                'Your current plan (' + data.plan_check.plan_name + ') does not support Bulk Posts. Please upgrade to access this feature.',
+                                'Your current plan (' + planLabel + ') does not support Bulk Posts. Please upgrade to access this feature.',
                                 'https://account.improveseoplugin.com//pricing'
                             );
                             reject('plan_restriction');

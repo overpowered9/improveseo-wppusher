@@ -308,8 +308,12 @@
     padding: 0;
 }
 
-/* ── Guide Block (credentials instructions) ────────────────── */
-.iseo-guide-block {
+/* ── Guide Block (credentials instructions) ──────────────────
+   Scoped to .iseo-settings-page. `.iseo-guide-title` is also the onboarding tour's tooltip
+   heading (assets/css/onboarding-guide.css), and this sheet loads on every plugin screen while
+   that one loads on the posting page — so the unscoped rules below were overriding the tour's
+   heading with Settings' typography wherever the two met. */
+.iseo-settings-page .iseo-guide-block {
     background: #F0FDF9;
     border: 1px solid #BBF7D0;
     border-radius: 8px;
@@ -317,16 +321,24 @@
     margin-top: 20px;
 }
 
-.iseo-guide-title {
+/* Spacing note: the gap under the heading and the gap between steps are tuned together so
+   every gap from the heading down to step 4 reads as the same. The list items do NOT set
+   their own margin anywhere else in this file — they inherit `dd, li { margin-bottom: 18px }`
+   from made_by_me.css, which is enqueued just before this sheet. That is what made the
+   heading sit tight against step 1 while the steps themselves sprawled.
+
+   Heading -> step 1 = 12px margin + 2.6px half-leading (13px/1.4) + 5px half-leading (12.5px/1.8) ≈ 19.6px
+   Step    -> step   = 5px + 10px margin + 5px = 20px */
+.iseo-settings-page .iseo-guide-title {
     font-size: 13px !important;
     color: #065F46 !important;
-    margin: 0 0 8px !important;
+    margin: 0 0 12px !important;
     padding: 0 !important;
     font-weight: 600 !important;
     line-height: 1.4 !important;
 }
 
-.iseo-guide-steps {
+.iseo-settings-page .iseo-guide-steps {
     margin: 0 !important;
     padding-left: 20px !important;
     font-size: 12.5px !important;
@@ -334,13 +346,23 @@
     line-height: 1.8 !important;
 }
 
-.iseo-guide-steps a {
+/* Class specificity is enough to beat the bare `li` rule in made_by_me.css. */
+.iseo-settings-page .iseo-guide-steps li {
+    margin-bottom: 10px;
+}
+
+/* Without this the block sits bottom-heavy: the last item's margin adds to the block padding. */
+.iseo-settings-page .iseo-guide-steps li:last-child {
+    margin-bottom: 0;
+}
+
+.iseo-settings-page .iseo-guide-steps a {
     color: #1C7293;
     text-decoration: none;
     font-weight: 500;
 }
 
-.iseo-guide-steps a:hover {
+.iseo-settings-page .iseo-guide-steps a:hover {
     text-decoration: underline;
 }
 
@@ -497,6 +519,97 @@
     border: 1px solid #FECACA;
     border-radius: 8px;
     line-height: 1.55;
+}
+
+/* ── Credits Card ──────────────────────────────────────────────
+   Mirrors the "TOTAL CREDITS REMAINING" card on the CMS Credits & Subscription page, so the
+   balance reads the same on both sides of the product. Built by renderConnectionPanel() in
+   views/settings/index.php. There is one pooled balance, hence one number rather than the
+   per-type rows this replaced. */
+.iseo-credits-card {
+    border-top: 1px solid #E5EEEC;
+    margin-top: 12px;
+    padding-top: 12px;
+}
+
+.iseo-credits-heading {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #6B7280;
+}
+
+.iseo-credits-total {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: #111827;
+    margin-top: 4px;
+}
+
+.iseo-credits-hint {
+    font-size: 12.5px;
+    color: #6B7280;
+    line-height: 1.5;
+    margin-top: 2px;
+}
+
+.iseo-credits-toggle {
+    background: none;
+    border: 0;
+    padding: 0;
+    margin-top: 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #0F7B6C;
+    cursor: pointer;
+}
+
+.iseo-credits-toggle:hover {
+    text-decoration: underline;
+}
+
+.iseo-credits-breakdown {
+    margin-top: 8px;
+    border-top: 1px solid #E5EEEC;
+}
+
+.iseo-credits-breakdown.is-hidden {
+    display: none;
+}
+
+.iseo-credits-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 8px 0;
+    border-bottom: 1px solid #F1F5F4;
+}
+
+.iseo-credits-row:last-child {
+    border-bottom: 0;
+}
+
+.iseo-credits-row-label {
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+    color: #374151;
+}
+
+.iseo-credits-row-label small {
+    font-size: 11.5px;
+    color: #9CA3AF;
+    line-height: 1.4;
+    margin-top: 1px;
+}
+
+.iseo-credits-row-value {
+    font-weight: 700;
+    color: #111827;
+    white-space: nowrap;
 }
 
 .iseo-status-loading {

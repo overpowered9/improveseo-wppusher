@@ -100,6 +100,16 @@ function test_improveseo_connection() {
             'credit_details' => isset($result['credit_details']) ? $result['credit_details'] : null,
             'plan'           => isset($result['plan']) ? $result['plan'] : null,
             'trial'          => isset($result['trial']) ? $result['trial'] : null,
+            // The subscription block carries plan.slug and plan.id. Those are stable
+            // identifiers; plan.name is a display string the server has already rebranded
+            // once (a Scale account still answers "Pro"), so the badge resolves from the
+            // slug first and only falls back to the name. Dropping this field here was
+            // why Settings could not tell Scale from Optimize.
+            'subscription'   => isset($result['subscription']) ? $result['subscription'] : null,
+            // Unit prices for the pooled credit balance, so the credits card can say what
+            // the remaining balance actually buys using the SAME numbers the bulk gate
+            // prices against (see check_bulk_credits in single_and_bulk_AI_post_function.php).
+            'pricing'        => isset($result['pricing']) ? $result['pricing'] : null,
         ));
     } else {
         $error_data = json_decode($body, true);

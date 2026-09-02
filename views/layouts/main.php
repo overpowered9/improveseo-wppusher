@@ -84,8 +84,13 @@
 			Connect it to start generating content.
 		</p>
 
-		<!-- CTA Button -->
-		<a id="iseo-guard-connect-btn" href="#" style="display:inline-block; padding:12px 28px; background:#0f7b6c; color:#fff; font-size:14px; font-weight:600; border-radius:8px; text-decoration:none; transition:background 0.2s; letter-spacing:0.01em;">
+		<!-- CTA Button.
+		     The destination is rendered here by PHP rather than assigned by the script below.
+		     It used to be href="#" with the real URL read from main_ajax_vars, but that object
+		     is localized onto a FOOTER script while this markup is inline in the body, so the
+		     read ran before the variable existed and the href stayed "#" — the button did
+		     nothing at all. Rendering it server-side removes the ordering question entirely. -->
+		<a id="iseo-guard-connect-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_onboarding' ) ); ?>" style="display:inline-block; padding:12px 28px; background:#0f7b6c; color:#fff; font-size:14px; font-weight:600; border-radius:8px; text-decoration:none; transition:background 0.2s; letter-spacing:0.01em;">
 			Connect Website
 		</a>
 	</div>
@@ -118,12 +123,21 @@
 	var connectBtn = document.getElementById('iseo-guard-connect-btn');
 	if (!overlay) return;
 
-	// Set the connect button's href from the localized PHP variable.
-	var onboardingUrl = (typeof main_ajax_vars !== 'undefined' && main_ajax_vars.iseo_onboarding_url)
-		? main_ajax_vars.iseo_onboarding_url
-		: '';
-	if (connectBtn && onboardingUrl) {
-		connectBtn.href = onboardingUrl;
+	// The onboarding wizard is the only route that actually stores an API key and site
+	// code: it opens the CMS connect flow and exchanges the returned token. Rendered by
+	// PHP so it is correct at parse time; main_ajax_vars is not consulted for it any more.
+	var onboardingUrl = '<?php echo esc_js( admin_url( 'admin.php?page=improveseo_onboarding' ) ); ?>';
+
+	// Belt and braces: if anything ever strips or blanks the href, a click still navigates
+	// rather than silently scrolling to the top of the page.
+	if (connectBtn) {
+		connectBtn.addEventListener('click', function(e) {
+			var href = connectBtn.getAttribute('href');
+			if (!href || href === '#') {
+				e.preventDefault();
+				window.location.href = onboardingUrl;
+			}
+		});
 	}
 
 	function showModal() {
@@ -145,16 +159,101 @@
 		if (e.key === 'Escape' && overlay.style.display === 'flex') hideModal();
 	});
 
+	// Connection state, rendered by PHP for the same reason as the href above: reading it
+	// only from main_ajax_vars meant "footer script not loaded yet" was indistinguishable
+	// from "not connected", which would pop the modal on a perfectly connected site.
+	// main_ajax_vars still wins when present so anything that refreshes it stays authoritative.
+	var iseoConnectedFlag = <?php echo ( ! empty( get_option( 'improveseo_api_key', '' ) ) && ! empty( get_option( 'improveseo_site_code', '' ) ) ) ? 'true' : 'false'; ?>;
+
+	/**
+	 * Silent connection check, for background work the user did not initiate. Interrupting an
+	 * automatic retry with a modal would blame the user for something they never asked for.
+	 *
+	 * @returns {boolean} true if connected.
+	 */
+	window.iseoIsConnected = function() {
+		return (typeof main_ajax_vars !== 'undefined' && typeof main_ajax_vars.iseo_connected !== 'undefined')
+			? (main_ajax_vars.iseo_connected === '1')
+			: iseoConnectedFlag;
+	};
+
 	/**
 	 * @returns {boolean} true if connected, false if not (modal shown).
 	 */
 	window.iseoRequireConnection = function() {
-		var connected = (typeof main_ajax_vars !== 'undefined' && main_ajax_vars.iseo_connected === '1');
-		if (!connected) {
+		if (!window.iseoIsConnected()) {
 			showModal();
 			return false;
 		}
 		return true;
 	};
 })();
+
+/**
+ * Canonical plan label for the whole plugin.
+ *
+ * The server's plan.name is a display string that has already been rebranded once: a Scale
+ * account still answers "Pro" and an Optimize account answers "Starter". Echoing it gave two
+ * screens two different names for one account. Resolution order is therefore most-stable
+ * first — subscription.plan.slug, then the (de-suffixed) name, then the plan id.
+ *
+ * @param {object} plan         The `plan` block: { is_paid, name }.
+ * @param {object} subscription The `subscription` block: { plan: { id, slug, name } }.
+ * @param {object} trial        The `trial` block: { active, expired, days_remaining, ends_at }.
+ * @returns {string} One of: Free Trial, Trial ended, Free Plan, Grow Plan, Optimize Plan,
+ *                   Scale Plan, Enterprise Plan, or a title-cased passthrough.
+ */
+window.iseoPlanLabel = function(plan, subscription, trial) {
+	plan  = plan  || {};
+	trial = trial || {};
+
+	var subPlan = (subscription && subscription.plan) ? subscription.plan : {};
+
+	// Trial states stand on their own — they are not a plan tier.
+	if (trial.expired && plan.is_paid !== true) { return 'Trial ended'; }
+	if (trial.active  && plan.is_paid !== true) { return 'Free Trial'; }
+
+	// An account without a paid subscription is on the free plan, whatever stale paid name
+	// the server may still be carrying against it. This is what stopped free accounts from
+	// being labelled "Pro Plan".
+	if (plan.is_paid !== true) { return 'Free Plan'; }
+
+	// Legacy names on the left, current lineup on the right. Keys are lowercase and carry no
+	// trailing "plan" — the caller strips that below, so "Pro" and "Pro Plan" both key as 'pro'.
+	var canonical = {
+		'pro':        'Scale',
+		'scale':      'Scale',
+		'starter':    'Optimize',
+		'optimize':   'Optimize',
+		'basic':      'Grow',
+		'grow':       'Grow',
+		'free':       'Free',
+		'enterprise': 'Enterprise'
+	};
+
+	function bare(value) {
+		return String(value == null ? '' : value).replace(/\s+plan$/i, '').trim();
+	}
+
+	var candidates = [ bare(subPlan.slug), bare(subPlan.name), bare(plan.name) ];
+	for (var i = 0; i < candidates.length; i++) {
+		if (!candidates[i]) { continue; }
+		var key = candidates[i].toLowerCase().replace(/[\s_]+/g, '-');
+		if (canonical[key]) { return canonical[key] + ' Plan'; }
+		// A slug like 'free-trial' has no tier of its own.
+		if (key === 'free-trial' || key === 'trial') { return 'Free Trial'; }
+	}
+
+	// Last resort. The id map predates the five-plan lineup, so it is only consulted when the
+	// server sent neither a slug nor a name.
+	var byId = { 1: 'Grow', 2: 'Scale', 3: 'Enterprise' };
+	var planId = (subPlan.id != null) ? parseInt(subPlan.id, 10) : NaN;
+	if (!isNaN(planId) && byId[planId]) { return byId[planId] + ' Plan'; }
+
+	// Unknown but paid: show what the server said rather than guessing a tier, title-cased and
+	// suffixed exactly once.
+	var raw = bare(subPlan.name) || bare(plan.name);
+	if (!raw) { return 'Paid Plan'; }
+	return raw.replace(/\S+/g, function(w) { return w.charAt(0).toUpperCase() + w.slice(1); }) + ' Plan';
+};
 </script>
