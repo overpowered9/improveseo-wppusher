@@ -90,8 +90,11 @@ use ImproveSEO\View;
                             </div>
 
                             <!-- I2 — both credentials now come from the Websites tab, so the
-                                 steps no longer send the user to Settings for the API Key.
+                                 steps no longer send the user to Settings for the API Key,
+                                 and the block is titled by what it helps you do rather than
+                                 by which fields it fills.
                                  OLD:
+                                   <p class="iseo-guide-title"><strong>How to Get API Key &amp; Site Code - Step by Step</strong></p>
                                    <li>Visit your ImproveSEO Dashboard</li>
                                    <li><strong>API Key:</strong> Go to the Settings tab, copy your API Key and paste above</li>
                                    <li><strong>Site Code:</strong> Go to the Websites tab and add the domain you want to connect</li>
@@ -99,7 +102,7 @@ use ImproveSEO\View;
                                    <li>Save settings and start generating content!</li>
                             -->
                             <div class="iseo-guide-block">
-                                <p class="iseo-guide-title"><strong>How to Get API Key &amp; Site Code - Step by Step</strong></p>
+                                <p class="iseo-guide-title"><strong>How to connect this website to your ImproveSEO user account</strong></p>
                                 <ol class="iseo-guide-steps">
                                     <li>Visit your <a href="https://account.improveseoplugin.com/" target="_blank">ImproveSEO Dashboard</a></li>
                                     <li>Go to the <strong>Websites</strong> tab and add the website you want to connect</li>
