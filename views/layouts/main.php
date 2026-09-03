@@ -73,7 +73,8 @@
 
 		<!-- Subtitle -->
 		<p style="margin:0 0 24px; font-size:14px; color:#6b7280; line-height:1.5;">
-			Connect it to start generating content.
+			Connect to start generating content. On the Settings page, after saving changes and
+			testing server connection, close this popup by clicking &times; and continue generating.
 		</p>
 
 		<!-- CTA Button -->
