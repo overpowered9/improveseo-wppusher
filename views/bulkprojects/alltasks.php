@@ -444,6 +444,19 @@ $url .= $_SERVER['REQUEST_URI'];
 	}
 
 	function re_generatepost(id) {
+		// Connection guard. Regenerating a bulk post spends credits, so it belongs behind the
+		// same check as every other credit-consuming action — but this screen had none, which
+		// is why an unconnected site got the "do not close this page" overlay, a long wait and
+		// then a bare "Failed to regenerate content" alert, instead of being told the actual
+		// problem the way the wizards do.
+		//
+		// Runs BEFORE the overlay is shown: putting it after would flash the blocking overlay
+		// up behind the modal and leave it there, since the early return skips the code that
+		// hides it again.
+		if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) {
+			return;
+		}
+
 		jQuery('.show_loading').css("display", "block");
 		jQuery(".show_loading h2").html("Post is re-generating, Please wait ...<br><strong style='color: #d63638; margin-top: 10px; display: inline-block;'>Do not close this page!</strong>");
 		re_generate(id);
