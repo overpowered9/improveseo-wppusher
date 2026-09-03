@@ -80,6 +80,28 @@
 		<a id="iseo-guard-connect-btn" href="#" style="display:inline-block; padding:12px 28px; background:#0f7b6c; color:#fff; font-size:14px; font-weight:600; border-radius:8px; text-decoration:none; transition:background 0.2s; letter-spacing:0.01em;">
 			Connect Website
 		</a>
+
+		<?php
+		// Recovery note for the case this modal handles badly on its own.
+		//
+		// iseo_connected is read from a PHP value localised at PAGE LOAD (see
+		// includes/assets.php), so a user who connects in another tab — or who fixes their
+		// credentials in Settings and comes back — still trips this guard on the stale flag
+		// until the page is reloaded. To them the modal looks broken: they ARE connected and
+		// it keeps refusing them. Without this note the only obvious way out is the CTA,
+		// which sends an already-connected user back through onboarding.
+		//
+		// So: name the real fix (Save Changes + Test Server Connection in Settings) and say
+		// plainly that the ✕ is the way back to what they were doing. Button labels are
+		// quoted verbatim from views/settings/index.php — if those are renamed, rename them
+		// here too or this becomes a set of instructions pointing at nothing.
+		?>
+		<div style="margin-top:22px; padding-top:18px; border-top:1px solid #e5e7eb; font-size:13px; color:#6b7280; line-height:1.6; text-align:left;">
+			<strong style="display:block; margin-bottom:4px; color:#374151; font-weight:600;">Already have your API Key and Site Code?</strong>
+			Open <a id="iseo-guard-settings-link" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_settings' ) ); ?>">Settings</a>,
+			click <strong>Save Changes</strong>, then run <strong>Test Server Connection</strong>.
+			Once it reports success, close this message with <strong>&times;</strong> and carry on generating.
+		</div>
 	</div>
 </div>
 
@@ -88,8 +110,20 @@
 	from { opacity: 0; transform: translateY(12px) scale(0.97); }
 	to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-#iseo-connection-guard-overlay a:hover {
+/* Scoped to the CTA specifically. This was `#iseo-connection-guard-overlay a:hover`,
+   which hit EVERY link in the modal — so the plain-text Settings link in the note
+   below the button would grow a dark green block on hover and read as a second,
+   competing button. */
+#iseo-guard-connect-btn:hover {
 	background: #0e6b5e !important;
+}
+#iseo-guard-settings-link {
+	color: #0f7b6c;
+	font-weight: 600;
+	text-decoration: underline;
+}
+#iseo-guard-settings-link:hover {
+	color: #0e6b5e;
 }
 #iseo-guard-close:hover {
 	color: #374151 !important;
