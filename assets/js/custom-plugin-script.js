@@ -1822,10 +1822,28 @@ function generateAITitle() {
       var generatedTitle = (typeof data === 'string') ? data.trim() : '';
       if (!generatedTitle) {
         if (typeof ImproveSEONotification !== 'undefined') {
-          ImproveSEONotification.error(
-            'We couldn\'t generate a title. On the Settings page, save your changes and run Test Server Connection — then close this popup and try again.',
-            'Title Generation Failed'
-          );
+          // This dialog has exactly one button (see ImproveSEONotification.show), so that
+          // button IS the action — it opens Settings rather than only dismissing, since an
+          // empty title response is almost always a credentials problem fixed there.
+          //
+          // New tab, deliberately: this fires mid-wizard, and navigating away in the same
+          // tab would discard the keyword, title type and tone the user has already filled
+          // in. They fix Settings next door and come back to a wizard still intact.
+          //
+          // Falls back to a plain OK when the URL was not localised (an older page load),
+          // so the button can never look like an action and then do nothing.
+          var iseoSettingsUrl = (typeof main_ajax_vars !== 'undefined' && main_ajax_vars.iseo_settings_url)
+            ? main_ajax_vars.iseo_settings_url
+            : '';
+          ImproveSEONotification.show({
+            type: 'error',
+            title: 'Title Generation Failed',
+            message: 'We couldn\'t generate a title. On the Settings page, save your changes and run Test Server Connection — then close this popup and try again.',
+            buttonText: iseoSettingsUrl ? 'Go to Settings' : 'OK',
+            onClose: function () {
+              if (iseoSettingsUrl) { window.open(iseoSettingsUrl, '_blank'); }
+            }
+          });
         } else {
           alert("We couldn't generate a title. Please try again.");
         }

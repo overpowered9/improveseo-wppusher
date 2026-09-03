@@ -51,6 +51,10 @@ function improveseo_enqueue_admin(){
 		// credit-consuming actions on sites that haven't finished setup.
 		'iseo_connected'		=>	( ! empty( get_option( 'improveseo_api_key', '' ) ) && ! empty( get_option( 'improveseo_site_code', '' ) ) ) ? '1' : '0',
 		'iseo_onboarding_url'	=>	admin_url( 'admin.php?page=improveseo_onboarding' ),
+		// Target for the "Go to Settings" button on the title-generation failure dialog.
+		// That failure is almost always a credentials problem, so the dialog's one button
+		// takes the user to where it is fixed instead of just dismissing.
+		'iseo_settings_url'		=>	admin_url( 'admin.php?page=improveseo_settings' ),
 		)
 
 	);
