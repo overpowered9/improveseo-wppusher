@@ -106,6 +106,13 @@ function test_improveseo_connection() {
             // slug first and only falls back to the name. Dropping this field here was
             // why Settings could not tell Scale from Optimize.
             'subscription'   => isset($result['subscription']) ? $result['subscription'] : null,
+            // Same per-batch expiry data the CMS's credits page reads from
+            // /credits/:user_id — 'balance' is the single next-expiry summary,
+            // 'lots' is every batch with its own date. Without these the
+            // credits card's breakdown had no expiry to show at all. Null-safe:
+            // an un-redeployed server simply omits them.
+            'balance'        => isset($result['balance']) ? $result['balance'] : null,
+            'lots'           => isset($result['lots']) ? $result['lots'] : null,
             // Unit prices for the pooled credit balance, so the credits card can say what
             // the remaining balance actually buys using the SAME numbers the bulk gate
             // prices against (see check_bulk_credits in single_and_bulk_AI_post_function.php).

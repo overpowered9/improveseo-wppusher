@@ -411,46 +411,152 @@ document.addEventListener('DOMContentLoaded', function() {
             ? Math.round(parseInt(total, 10) / perPiece)
             : null;
 
-        // Breakdown rows. Each is emitted only when the server actually supplied the number,
-        // so an older server shows a smaller card rather than a row of dashes.
+        // Breakdown rows.
+        //
+        // Mirrors CreditBreakdown.jsx / creditBreakdown.js on the CMS: one row per
+        // BATCH (source + expiry date), not one row per source. A pooled
+        // plan_remaining/purchased_remaining split cannot say which batch expires
+        // when — the CMS moved off that shape for the same reason. d.lots carries
+        // the batches (added server-side alongside credit_details, see
+        // getCreditLotSummary in users.routes.ts); an older, un-redeployed server
+        // omits it, and the two-row pooled view below is what this card showed
+        // before lots existed.
         var breakdownRows = '';
-        function creditRow(label, note, value) {
-            return '<div class="iseo-credits-row">'
-                 + '<div class="iseo-credits-row-label"><span>' + esc(label) + '</span>'
-                 + (note ? '<small>' + esc(note) + '</small>' : '')
-                 + '</div>'
-                 + '<span class="iseo-credits-row-value">' + esc(value) + '</span>'
-                 + '</div>';
+        var breakdownFooterHtml = '';
+        var lots = Array.isArray(d.lots) ? d.lots : null;
+        var trialActive = !!(trial && trial.active);
+        var trialEndsOn = trialActive ? trial.ends_at : null;
+
+        function formatExpiry(value) {
+            if (!value) { return null; }
+            var parsed = new Date(value);
+            return isNaN(parsed.getTime())
+                ? null
+                : parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
         }
-        if (pooled && pooled.plan_remaining != null) {
-            breakdownRows += creditRow('Plan credits', 'Included with your subscription', pooled.plan_remaining);
+        // Whole calendar days from today (UTC) to an expiry date, so "expiring
+        // soon" cannot flip a day early or late depending on the visitor's
+        // timezone offset.
+        function daysUntil(value) {
+            var parsed = value ? new Date(value) : null;
+            if (!parsed || isNaN(parsed.getTime())) { return null; }
+            var now = new Date();
+            var startUTC = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+            var endUTC = Date.UTC(parsed.getUTCFullYear(), parsed.getUTCMonth(), parsed.getUTCDate());
+            return Math.round((endUTC - startUTC) / 86400000);
         }
-        if (pooled && pooled.purchased_remaining != null) {
-            breakdownRows += creditRow('Purchased credits', 'Top-ups you bought', pooled.purchased_remaining);
+        function fmtAmount(n) {
+            return Number(n).toLocaleString();
         }
-        // Expiry is optional: the endpoint does not publish it today. Read it defensively under
-        // the names it would most plausibly arrive as, and render nothing at all when absent —
-        // an invented or blank date on a billing screen is worse than no row.
-        var nextExpiryAmount = (pooled && pooled.next_expiry_amount != null) ? pooled.next_expiry_amount
-                             : ((d.credits && d.credits.next_expiry_amount != null) ? d.credits.next_expiry_amount : null);
-        var nextExpiryDate = (pooled && (pooled.next_expiry_at || pooled.next_expiry)) || (d.credits && (d.credits.next_expiry_at || d.credits.next_expiry)) || null;
-        if (nextExpiryDate) {
-            var parsed = new Date(nextExpiryDate);
-            var when = isNaN(parsed.getTime()) ? String(nextExpiryDate) : parsed.toLocaleDateString();
-            breakdownRows += creditRow('Next to expire', 'on ' + when, nextExpiryAmount != null ? nextExpiryAmount : '—');
+
+        if (lots && lots.length) {
+            // A trial's plan lot IS the trial grant; the expiry stored on it is a
+            // two-month default that never actually applies (the trial-end path
+            // zeroes those credits first) — see creditBreakdown.js on the CMS for
+            // the full reasoning. Substituting the real trial end here keeps this
+            // card from promising two months of use for credits with days left.
+            var cleanLots = lots
+                .filter(function (l) { return l && Number(l.remaining) > 0; })
+                .map(function (l) {
+                    var isPlan = l.source === 'plan';
+                    return {
+                        source: isPlan ? 'plan' : 'purchased',
+                        expiresOn: (trialEndsOn && isPlan) ? trialEndsOn : (l.expires_on || null),
+                        remaining: Number(l.remaining) || 0,
+                    };
+                });
+
+            // A plan balance spans at most two billing cycles, so at most two plan
+            // batches exist; the later-expiring one is necessarily this cycle's.
+            var planExpiries = cleanLots
+                .filter(function (l) { return l.source === 'plan'; })
+                .map(function (l) { return l.expiresOn; })
+                .filter(Boolean)
+                .sort();
+            var latestPlanExpiry = planExpiries.length ? planExpiries[planExpiries.length - 1] : null;
+            var severalPlanBatches = new Set(planExpiries).size > 1;
+
+            function planLabel(expiresOn) {
+                if (trialActive) { return 'Free trial credits'; }
+                if (!severalPlanBatches) { return 'Plan credits'; }
+                return expiresOn === latestPlanExpiry ? 'Plan credits — this cycle' : 'Plan credits — last cycle';
+            }
+
+            var lotRows = cleanLots.map(function (l) {
+                var days = daysUntil(l.expiresOn);
+                return {
+                    source: l.source,
+                    label: l.source === 'plan' ? planLabel(l.expiresOn) : 'Purchased credits',
+                    remaining: l.remaining,
+                    expiresOn: l.expiresOn,
+                    expiresLabel: formatExpiry(l.expiresOn),
+                    // Same 14-day window the CMS flags (EXPIRING_SOON_DAYS).
+                    expiringSoon: days != null && days >= 0 && days <= 14,
+                };
+            });
+
+            // Soonest-first — both the display order and the order the credits are
+            // actually spent (first-expiring-first), so the list cannot misrepresent
+            // which balance is at risk. No date sorts last: it cannot be urgent.
+            lotRows.sort(function (a, b) {
+                if (a.expiresOn == null) { return 1; }
+                if (b.expiresOn == null) { return -1; }
+                if (a.expiresOn !== b.expiresOn) { return a.expiresOn < b.expiresOn ? -1 : 1; }
+                if (a.source === b.source) { return 0; }
+                return a.source === 'plan' ? -1 : 1;
+            });
+
+            breakdownRows = lotRows.map(function (row) {
+                // The flag span is rendered on every row, visible or not — a
+                // conditionally-present 3rd element would change the flex
+                // distribution and shift the amount sideways only on flagged
+                // rows. Reserving it keeps the amount column aligned down every
+                // row, flagged or not (same reasoning as the CMS's grid column).
+                return '<div class="iseo-credits-row' + (row.expiringSoon ? ' is-expiring-soon' : '') + '">'
+                     + '<div class="iseo-credits-row-label"><span>' + esc(row.label) + '</span>'
+                     + '<small>' + esc(row.expiresLabel ? ('expiring ' + row.expiresLabel) : 'no expiry date') + '</small>'
+                     + '</div>'
+                     + '<span class="iseo-credits-row-value">' + esc(fmtAmount(row.remaining)) + '</span>'
+                     + '<span class="iseo-credits-row-flag"' + (row.expiringSoon ? '' : ' aria-hidden="true"') + '>Expiring soon</span>'
+                     + '</div>';
+            }).join('');
+
+            breakdownFooterHtml = '<div class="iseo-credits-footer">' + esc(
+                trialActive
+                    ? 'Free trial credits are usable until your trial ends. Credits expiring soonest are used first.'
+                    : 'Plan credits stay usable for two billing cycles. Credits expiring soonest are used first.'
+            ) + '</div>';
+        } else {
+            // Fallback for a server that has not shipped per-batch data yet: the
+            // pooled plan-vs-purchased split, no dates — what this card showed
+            // before d.lots existed.
+            function creditRow(label, note, value) {
+                return '<div class="iseo-credits-row">'
+                     + '<div class="iseo-credits-row-label"><span>' + esc(label) + '</span>'
+                     + (note ? '<small>' + esc(note) + '</small>' : '')
+                     + '</div>'
+                     + '<span class="iseo-credits-row-value">' + esc(fmtAmount(value)) + '</span>'
+                     + '</div>';
+            }
+            if (pooled && pooled.plan_remaining != null) {
+                breakdownRows += creditRow('Plan credits', 'Included with your subscription', pooled.plan_remaining);
+            }
+            if (pooled && pooled.purchased_remaining != null) {
+                breakdownRows += creditRow('Purchased credits', 'Top-ups you bought', pooled.purchased_remaining);
+            }
         }
 
         var creditsCard = ''
           + '<div class="iseo-credits-card">'
           +   '<div class="iseo-credits-heading">Total credits remaining</div>'
-          +   '<div class="iseo-credits-total">' + esc(total != null ? total : '—') + '</div>'
+          +   '<div class="iseo-credits-total">' + esc(total != null ? fmtAmount(total) : '—') + '</div>'
           +   (pieces != null
                 ? '<div class="iseo-credits-hint">This equals approximately ' + esc(pieces)
                   + ' piece' + (pieces === 1 ? '' : 's') + ' of SEO content with AI Images</div>'
                 : '')
           +   (breakdownRows
                 ? '<button type="button" class="iseo-credits-toggle" aria-expanded="true">Hide breakdown</button>'
-                  + '<div class="iseo-credits-breakdown">' + breakdownRows + '</div>'
+                  + '<div class="iseo-credits-breakdown">' + breakdownRows + breakdownFooterHtml + '</div>'
                 : '')
           + '</div>';
 

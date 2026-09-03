@@ -612,6 +612,42 @@
     white-space: nowrap;
 }
 
+/* Same amber the CMS breakdown flags an expiring batch with (its EXPIRING
+   constant) — deliberately not the theme's error/warning colours there, since
+   this is a deadline rather than a fault, and kept identical here so the
+   warning reads as the same signal on both sides of the product. */
+.iseo-credits-row.is-expiring-soon .iseo-credits-row-label span,
+.iseo-credits-row.is-expiring-soon .iseo-credits-row-label small,
+.iseo-credits-row.is-expiring-soon .iseo-credits-row-value {
+    color: #B45309;
+}
+
+/* Present on every lot row but only VISIBLE when expiring soon — kept in the
+   flow (not display:none) so its column reserves the same width on every row
+   and the amount next to it never shifts sideways depending on whether this
+   row happens to be flagged. */
+.iseo-credits-row-flag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: #B45309;
+    white-space: nowrap;
+    margin-left: 8px;
+    visibility: hidden;
+}
+
+.iseo-credits-row.is-expiring-soon .iseo-credits-row-flag {
+    visibility: visible;
+}
+
+.iseo-credits-footer {
+    font-size: 11.5px;
+    color: #9CA3AF;
+    line-height: 1.5;
+    margin-top: 4px;
+}
+
 .iseo-status-loading {
     display: flex;
     align-items: center;
