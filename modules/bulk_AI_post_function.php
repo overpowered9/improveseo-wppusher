@@ -3006,16 +3006,30 @@ function generateTitle($seed_type, $seed_keyword, $content_type, $getAudienceDat
 	// seed_option3 wants the title phrased as a question.
 	$title_type = ($seed_type == 'seed_option3') ? 'question' : 'normal';
 
+	$aux_error = '';
 	$content = improveseo_call_auxiliary_api('title', array(
 		'seed_keyword'  => (string) $seed_keyword,
 		'audience_data' => (string) $getAudienceData,
 		'title_type'    => $title_type,
-	));
+	), $aux_error);
 
 	// Strip surrounding quotes and any leading "Title:"-style label the model
 	// prepended (same normalizer the bulk path uses), then mirror the historical
 	// contract of swapping single quotes for backticks so they don't break the markup.
 	$content = improveseo_normalize_generated_title($content);
+
+	// Failure used to be an EMPTY BODY, which is why the browser could only ever say "we
+	// couldn't generate a title": a blank response carries no reason. The reason exists —
+	// the server sent one and it went to error_log, where a site owner never looks.
+	//
+	// Sent as a prefixed marker rather than JSON because this endpoint's contract is a bare
+	// title string that the client drops straight into a field; switching it to JSON would
+	// break every existing caller. A real title can never begin with this marker, since
+	// improveseo_normalize_generated_title() strips leading labels and punctuation.
+	if ($content === '') {
+		echo 'ISEO_ERROR::' . ($aux_error !== '' ? $aux_error : 'Title generation failed for an unknown reason.');
+		return;
+	}
 
 	echo str_replace("'", '`', $content);
 

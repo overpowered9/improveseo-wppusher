@@ -1820,6 +1820,17 @@ function generateAITitle() {
       // A 200 with empty text isn't caught by .fail(), so surface it here instead
       // of silently dropping a blank title into the field.
       var generatedTitle = (typeof data === 'string') ? data.trim() : '';
+
+      // The server now sends ISEO_ERROR::<reason> instead of an empty body when the
+      // auxiliary call fails, so this dialog can name the actual cause — bad credentials,
+      // server unreachable — rather than the generic failure it showed before, which gave
+      // the user nothing to act on and no way to tell those cases apart.
+      var iseoFailureReason = '';
+      if (generatedTitle.indexOf('ISEO_ERROR::') === 0) {
+        iseoFailureReason = generatedTitle.slice('ISEO_ERROR::'.length).trim();
+        generatedTitle = '';
+      }
+
       if (!generatedTitle) {
         if (typeof ImproveSEONotification !== 'undefined') {
           // This dialog has exactly one button (see ImproveSEONotification.show), so that
@@ -1838,7 +1849,8 @@ function generateAITitle() {
           ImproveSEONotification.show({
             type: 'error',
             title: 'Title Generation Failed',
-            message: 'We couldn\'t generate a title. On the Settings page, save your changes and run Test Server Connection — then close this popup and try again.',
+            message: (iseoFailureReason ? iseoFailureReason + ' ' : 'We couldn\'t generate a title. ')
+              + 'On the Settings page, save your changes and run Test Server Connection — then close this popup and try again.',
             buttonText: iseoSettingsUrl ? 'Go to Settings' : 'OK',
             onClose: function () {
               if (iseoSettingsUrl) { window.open(iseoSettingsUrl, '_blank'); }

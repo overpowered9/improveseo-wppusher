@@ -92,16 +92,27 @@ if ( ! function_exists( 'improveseo_strip_style_script_tags' ) ) {
  * that previously hit OpenAI directly via improveseo_chatgpt_api_key. The server
  * route does not charge credits; it only requires a valid API key + site code.
  *
- * @param string $type    'meta_title' | 'meta_description' | 'audience_data'
+ * @param string $type    'meta_title' | 'meta_description' | 'audience_data' | 'title' | 'keyword_context'
  * @param array  $payload Extra fields: seed_keyword (required), title, content
- * @return string Generated text, or '' on any failure (logged via error_log).
+ * @param string $error   OUT. Set to a human-readable reason on failure, '' on success.
+ *                        Every failure here used to go to error_log and nothing else, so a
+ *                        caller could only ever report "it didn't work" — which is why the
+ *                        title dialog could tell a user their credentials were rejected only
+ *                        as a generic failure they had no way to act on. The server already
+ *                        says exactly what is wrong ("API key and site code are required");
+ *                        this hands that sentence back so the UI can show it. Optional and
+ *                        by reference, so the five existing callers are unaffected.
+ * @return string Generated text, or '' on any failure (also logged via error_log).
  */
-function improveseo_call_auxiliary_api( $type, array $payload = array() ) {
+function improveseo_call_auxiliary_api( $type, array $payload = array(), &$error = null ) {
+	$error = '';
+
 	$api_key   = get_option( 'improveseo_api_key' );
 	$site_code = get_option( 'improveseo_site_code' );
 
 	if ( empty( $api_key ) || empty( $site_code ) ) {
 		error_log( 'improveseo_call_auxiliary_api: missing API key or site code; cannot call /auxiliary' );
+		$error = 'Your ImproveSEO API Key or Site Code is not saved on this site.';
 		return '';
 	}
 
@@ -123,6 +134,7 @@ function improveseo_call_auxiliary_api( $type, array $payload = array() ) {
 
 	if ( is_wp_error( $response ) ) {
 		error_log( 'improveseo_call_auxiliary_api: HTTP error for type=' . $type . ' — ' . $response->get_error_message() );
+		$error = 'Could not reach the ImproveSEO server. Check this site\'s internet connection and try again.';
 		return '';
 	}
 
@@ -133,10 +145,30 @@ function improveseo_call_auxiliary_api( $type, array $payload = array() ) {
 	if ( $status !== 200 || ! is_array( $data ) || empty( $data['success'] ) ) {
 		$err = is_array( $data ) && isset( $data['error'] ) ? $data['error'] : 'unknown';
 		error_log( 'improveseo_call_auxiliary_api: failure type=' . $type . ' | status=' . $status . ' | error=' . $err );
+
+		// The server's own sentence is the most useful thing available and is written for
+		// humans, so it is passed through as-is. 401/403 is always the same cause and gets
+		// said plainly, because "Unauthorized" tells a site owner nothing actionable.
+		if ( 401 === $status || 403 === $status ) {
+			$error = 'ImproveSEO rejected this site\'s API Key or Site Code.';
+		} elseif ( 'unknown' !== $err && is_string( $err ) && $err !== '' ) {
+			$error = $err;
+		} else {
+			$error = 'The ImproveSEO server returned an error (HTTP ' . (int) $status . ').';
+		}
+
 		return '';
 	}
 
-	return isset( $data['data']['text'] ) ? (string) $data['data']['text'] : '';
+	$text = isset( $data['data']['text'] ) ? (string) $data['data']['text'] : '';
+	if ( trim( $text ) === '' ) {
+		// A 200 with success:true but nothing in it. Rare, but it used to be indistinguishable
+		// from every other failure, so it is named rather than folded into the generic case.
+		error_log( 'improveseo_call_auxiliary_api: empty text for type=' . $type . ' despite success response' );
+		$error = 'ImproveSEO returned an empty result. Please try again.';
+	}
+
+	return $text;
 }
 
 
