@@ -1832,33 +1832,11 @@ function generateAITitle() {
       }
 
       if (!generatedTitle) {
-        if (typeof ImproveSEONotification !== 'undefined') {
-          // This dialog has exactly one button (see ImproveSEONotification.show), so that
-          // button IS the action — it opens Settings rather than only dismissing, since an
-          // empty title response is almost always a credentials problem fixed there.
-          //
-          // New tab, deliberately: this fires mid-wizard, and navigating away in the same
-          // tab would discard the keyword, title type and tone the user has already filled
-          // in. They fix Settings next door and come back to a wizard still intact.
-          //
-          // Falls back to a plain OK when the URL was not localised (an older page load),
-          // so the button can never look like an action and then do nothing.
-          var iseoSettingsUrl = (typeof main_ajax_vars !== 'undefined' && main_ajax_vars.iseo_settings_url)
-            ? main_ajax_vars.iseo_settings_url
-            : '';
-          ImproveSEONotification.show({
-            type: 'error',
-            title: 'Title Generation Failed',
-            message: (iseoFailureReason ? iseoFailureReason + ' ' : 'We couldn\'t generate a title. ')
-              + 'On the Settings page, save your changes and run Test Server Connection — then close this popup and try again.',
-            buttonText: iseoSettingsUrl ? 'Go to Settings' : 'OK',
-            onClose: function () {
-              if (iseoSettingsUrl) { window.open(iseoSettingsUrl, '_blank'); }
-            }
-          });
-        } else {
-          alert("We couldn't generate a title. Please try again.");
-        }
+        iseoShowGenerationFailure(
+          'Title Generation Failed',
+          iseoFailureReason,
+          "We couldn't generate a title."
+        );
         return;
       }
 
@@ -1906,6 +1884,45 @@ jQuery("#seed_select").on("change", function () {
   }
 });
 
+/**
+ * Failure dialog for a generation call ImproveSEO refused or could not answer.
+ *
+ * Shared by the title and details paths so both report the SAME way. Both used to fail
+ * differently and uselessly — the title with a generic sentence, the details by writing the
+ * error into the user's form field — and neither said which of "no credentials" or
+ * "credentials rejected" had happened, though the server distinguishes them.
+ *
+ * `reason` is the server's own explanation when it sent one; `fallback` covers the case where
+ * it did not (a transport failure, where there is no server sentence to quote).
+ *
+ * The single button is the action: it opens Settings in a NEW tab, because these fire
+ * mid-wizard and navigating away in place would discard everything already filled in. Falls
+ * back to a plain OK if the URL was not localised, so the button is never a dead end.
+ */
+function iseoShowGenerationFailure(dialogTitle, reason, fallback) {
+  var settingsUrl = (typeof main_ajax_vars !== "undefined" && main_ajax_vars.iseo_settings_url)
+    ? main_ajax_vars.iseo_settings_url
+    : "";
+
+  var message = (reason ? reason : fallback)
+    + " On the Settings page, save your changes and run Test Server Connection — then close this popup and try again.";
+
+  if (typeof ImproveSEONotification === "undefined") {
+    alert(message);
+    return;
+  }
+
+  ImproveSEONotification.show({
+    type: "error",
+    title: dialogTitle,
+    message: message,
+    buttonText: settingsUrl ? "Go to Settings" : "OK",
+    onClose: function () {
+      if (settingsUrl) { window.open(settingsUrl, "_blank"); }
+    }
+  });
+}
+
 function SaveResultsButton() {
   var keyword_id = jQuery("#project_name").val();
 
@@ -1913,9 +1930,16 @@ function SaveResultsButton() {
 
   var content_type = jQuery('#pop_up_multi_form [name="content_type"]').val() || '';
 
+  // Remember what was in the field so a failure can put it back. Every failure path used to
+  // leave either an error sentence or the "Wait!" placeholder sitting in the textarea, which
+  // is the Details to Include the project is generated from — so the user's own typed notes
+  // were destroyed by a failed call, and replaced with text that would be sent to the model.
+  var $details = jQuery("#exampleFormControlTextarea1");
+  var previousDetails = $details.val();
+
   // Show loading message and disable button
-  jQuery("#exampleFormControlTextarea1").text("Wait! Generating content...");
-  jQuery("#exampleFormControlTextarea1").val("Wait! Generating content...");
+  $details.text("Wait! Generating content...");
+  $details.val("Wait! Generating content...");
 
   // Disable the button to prevent multiple clicks
   var button = jQuery('input[onclick="return SaveResultsButton();"]');
@@ -1930,17 +1954,31 @@ function SaveResultsButton() {
       content_type: content_type,
     })
     .success(function (data) {
-      jQuery("#exampleFormControlTextarea1").text(data);
-      jQuery("#exampleFormControlTextarea1").val(data);
-      // alert(data);
+      var text = (typeof data === "string") ? data.trim() : "";
+
+      // A failure arrives as ISEO_ERROR::<reason> and must NOT be written into the field:
+      // this textarea is the Details to Include, so an error sentence left here would be
+      // submitted with the project and fed to the model as if the user had typed it.
+      if (text.indexOf("ISEO_ERROR::") === 0) {
+        $details.val(previousDetails);
+        iseoShowGenerationFailure(
+          "Details Generation Failed",
+          text.slice("ISEO_ERROR::".length).trim(),
+          "We couldn't generate the details."
+        );
+        return;
+      }
+
+      $details.text(data);
+      $details.val(data);
     })
     .fail(function () {
-      // Handle error case
-      jQuery("#exampleFormControlTextarea1").text(
-        "Error generating content. Please try again."
-      );
-      jQuery("#exampleFormControlTextarea1").val(
-        "Error generating content. Please try again."
+      // Transport failure: the server sent no reason, so there is none to quote.
+      $details.val(previousDetails);
+      iseoShowGenerationFailure(
+        "Details Generation Failed",
+        "",
+        "Could not reach the ImproveSEO server."
       );
     })
     .always(function () {

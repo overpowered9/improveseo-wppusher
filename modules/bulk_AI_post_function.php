@@ -2706,15 +2706,24 @@ function multi_form_data()
 {
 	$keyword_list = isset( $_REQUEST['keyword_list'] ) ? sanitize_textarea_field( $_REQUEST['keyword_list'] ) : '';
 
+	// Failures go out as ISEO_ERROR::<reason>, never as a bare sentence.
+	//
+	// Whatever this endpoint returns is written STRAIGHT into the "Details to Include"
+	// textarea by the client, which cannot tell prose from an error. So an error echoed as
+	// plain text BECAME the field's content: the user was left looking at "Error: Could not
+	// generate context. Please check your API credentials and try again." sitting in their
+	// form as though the AI had written it — and, worse, it would have been submitted with
+	// the project and fed to the model as the details to include.
 	if ( empty( trim( $keyword_list ) ) ) {
-		echo 'Error: No keywords provided.';
+		echo 'ISEO_ERROR::No keywords provided. Add at least one keyword first.';
 		die();
 	}
 
-	$text = improveseo_call_auxiliary_api( 'keyword_context', array( 'seed_keyword' => $keyword_list ) );
+	$aux_error = '';
+	$text = improveseo_call_auxiliary_api( 'keyword_context', array( 'seed_keyword' => $keyword_list ), $aux_error );
 
 	if ( empty( $text ) ) {
-		echo 'Error: Could not generate context. Please check your API credentials and try again.';
+		echo 'ISEO_ERROR::' . ( $aux_error !== '' ? $aux_error : 'Could not generate the details for these keywords.' );
 		die();
 	}
 
