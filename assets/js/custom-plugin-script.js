@@ -1823,7 +1823,7 @@ function generateAITitle() {
       if (!generatedTitle) {
         if (typeof ImproveSEONotification !== 'undefined') {
           ImproveSEONotification.error(
-            'We couldn\'t generate a title. Please check your ImproveSEO connection in Settings and try again.',
+            'We couldn\'t generate a title. On the Settings page, save your changes and run Test Server Connection — then close this popup and try again.',
             'Title Generation Failed'
           );
         } else {
