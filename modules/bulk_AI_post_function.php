@@ -2716,15 +2716,27 @@ function multi_form_data()
 
 	$keyword_list = isset( $_REQUEST['keyword_list'] ) ? sanitize_textarea_field( $_REQUEST['keyword_list'] ) : '';
 
+	// Failures go out as ISEO_ERROR::<reason>, never as a bare sentence.
+	//
+	// Whatever this endpoint returns is written STRAIGHT into the "Details to Include"
+	// textarea by the client, which cannot tell prose from an error. So an error echoed as
+	// plain text BECAME the field's content: the user was left looking at "Error: Could not
+	// generate context. Please check your API credentials and try again." sitting in their
+	// form as though the AI had written it — and, worse, it would have been submitted with
+	// the project and fed to the model as the details to include.
 	if ( empty( trim( $keyword_list ) ) ) {
-		echo 'Error: No keywords provided.';
+		echo 'ISEO_ERROR::No keywords provided. Add at least one keyword first.';
 		die();
 	}
 
-	$text = improveseo_call_auxiliary_api( 'keyword_context', array( 'seed_keyword' => $keyword_list ) );
+	$aux_error = '';
+	$text = improveseo_call_auxiliary_api( 'keyword_context', array( 'seed_keyword' => $keyword_list ), $aux_error );
 
 	if ( empty( $text ) ) {
-		echo 'Error: Could not generate context. Please check your API credentials and try again.';
+		// Escaped like the success path below and like generateTitle(): part of this is the
+		// admin server's own sentence, so it is remote text and gets the same treatment.
+		// iseoDecodeEntities() on the client undoes it for display.
+		echo 'ISEO_ERROR::' . esc_html( $aux_error !== '' ? $aux_error : 'Could not generate the details for these keywords.' );
 		die();
 	}
 
@@ -3028,16 +3040,35 @@ function generateTitle($seed_type, $seed_keyword, $content_type, $getAudienceDat
 	// seed_option3 wants the title phrased as a question.
 	$title_type = ($seed_type == 'seed_option3') ? 'question' : 'normal';
 
+	$aux_error = '';
 	$content = improveseo_call_auxiliary_api('title', array(
 		'seed_keyword'  => (string) $seed_keyword,
 		'audience_data' => (string) $getAudienceData,
 		'title_type'    => $title_type,
-	));
+	), $aux_error);
 
 	// Strip surrounding quotes and any leading "Title:"-style label the model
 	// prepended (same normalizer the bulk path uses), then mirror the historical
 	// contract of swapping single quotes for backticks so they don't break the markup.
 	$content = improveseo_normalize_generated_title($content);
+
+	// Failure used to be an EMPTY BODY, which is why the browser could only ever say "we
+	// couldn't generate a title": a blank response carries no reason. The reason exists —
+	// the server sent one and it went to error_log, where a site owner never looks.
+	//
+	// Sent as a prefixed marker rather than JSON because this endpoint's contract is a bare
+	// title string that the client drops straight into a field; switching it to JSON would
+	// break every existing caller. A real title can never begin with this marker, since
+	// improveseo_normalize_generated_title() strips leading labels and punctuation.
+	//
+	// The reason is escaped like every other echo on this branch — it is partly remote text
+	// (the admin server's own error sentence), so it gets the same treatment as the title.
+	// The client calls iseoDecodeEntities() before display, which is what stops an escaped
+	// apostrophe reaching the user as "site&#039;s".
+	if ($content === '') {
+		echo 'ISEO_ERROR::' . esc_html( $aux_error !== '' ? $aux_error : 'Title generation failed for an unknown reason.' );
+		return;
+	}
 
 	echo esc_html( str_replace("'", '`', $content) );
 
