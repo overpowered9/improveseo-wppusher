@@ -56,9 +56,7 @@
 <!-- ── Connection Guard Modal ─────────────────────────────────────────────
      Shown globally when an unconnected site attempts a credit-consuming action
      (content generation, image generation, keyword generation). The modal blocks
-     the action and sends the user to Settings, where credentials are entered and
-     verified. Not the onboarding wizard: that is a free-trial sign-up flow, wrong for
-     someone who already has an account or whose saved key is simply incorrect.
+     the action and directs the user to the onboarding wizard to connect first.
      The guard function iseoRequireConnection() returns true when connected (caller
      should proceed) or false when not (modal is shown, caller should return). -->
 <div id="iseo-connection-guard-overlay" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.55); backdrop-filter:blur(2px); align-items:center; justify-content:center;">
@@ -92,22 +90,8 @@
 		     It used to be href="#" with the real URL read from main_ajax_vars, but that object
 		     is localized onto a FOOTER script while this markup is inline in the body, so the
 		     read ran before the variable existed and the href stayed "#" — the button did
-		     nothing at all. Rendering it server-side removes the ordering question entirely.
-
-		     Goes to SETTINGS, not the onboarding wizard. Onboarding opens the CMS free-trial
-		     sign-up flow, which assumes the visitor has no account — so a user already signed
-		     in to a CMS account, or one whose credentials are merely wrong (right site code,
-		     wrong API key), was pushed into a "start your free trial" modal that had nothing
-		     to do with their problem. Settings is where both cases are actually resolved: paste
-		     the key, Save Changes, Test Server Connection. The subtitle above describes exactly
-		     that route, so the button has to land on the page it names.
-
-		     Opens in a NEW TAB, and that is what makes the subtitle's instruction true. It tells
-		     the user to come back and "close this popup by clicking ×" — which is only possible
-		     if the popup still exists. Navigating in place would unload this page: returning by
-		     Back gives a fresh load with the modal gone, the wizard reset, and any keyword or
-		     title already entered lost. In a new tab the work sits untouched next door. -->
-		<a id="iseo-guard-connect-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_settings' ) ); ?>" target="_blank" rel="noopener noreferrer" style="display:inline-block; padding:12px 28px; background:#0f7b6c; color:#fff; font-size:14px; font-weight:600; border-radius:8px; text-decoration:none; transition:background 0.2s; letter-spacing:0.01em;">
+		     nothing at all. Rendering it server-side removes the ordering question entirely. -->
+		<a id="iseo-guard-connect-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_onboarding' ) ); ?>" style="display:inline-block; padding:12px 28px; background:#0f7b6c; color:#fff; font-size:14px; font-weight:600; border-radius:8px; text-decoration:none; transition:background 0.2s; letter-spacing:0.01em;">
 			Connect Website
 		</a>
 	</div>
@@ -140,10 +124,10 @@
 	var connectBtn = document.getElementById('iseo-guard-connect-btn');
 	if (!overlay) return;
 
-	// Settings, matching the button's href above — see the comment there for why this is not
-	// the onboarding wizard. Rendered by PHP so it is correct at parse time; main_ajax_vars is
-	// not consulted for it any more.
-	var settingsUrl = '<?php echo esc_js( admin_url( 'admin.php?page=improveseo_settings' ) ); ?>';
+	// The onboarding wizard is the only route that actually stores an API key and site
+	// code: it opens the CMS connect flow and exchanges the returned token. Rendered by
+	// PHP so it is correct at parse time; main_ajax_vars is not consulted for it any more.
+	var onboardingUrl = '<?php echo esc_js( admin_url( 'admin.php?page=improveseo_onboarding' ) ); ?>';
 
 	// Belt and braces: if anything ever strips or blanks the href, a click still navigates
 	// rather than silently scrolling to the top of the page.
@@ -152,10 +136,7 @@
 			var href = connectBtn.getAttribute('href');
 			if (!href || href === '#') {
 				e.preventDefault();
-				// New tab, same as the href's target — see the comment on the button. Losing
-				// this page would strand the user with an instruction to close a popup that
-				// no longer exists.
-				window.open(settingsUrl, '_blank', 'noopener');
+				window.location.href = onboardingUrl;
 			}
 		});
 	}
