@@ -461,6 +461,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     var isPlan = l.source === 'plan';
                     return {
                         source: isPlan ? 'plan' : 'purchased',
+                        // From the server's is_free (credit_lots joined to
+                        // subscription_plans) — true only for a Free Plan's
+                        // own allotment, never for a paid plan's. Threaded
+                        // through so planLabel() can name it, without
+                        // touching `source` itself (still just plan/purchased
+                        // everywhere else this card uses it — sorting, the
+                        // trial-active branch below).
+                        isFree: isPlan && !!l.is_free,
                         expiresOn: (trialEndsOn && isPlan) ? trialEndsOn : (l.expires_on || null),
                         remaining: Number(l.remaining) || 0,
                     };
@@ -476,8 +484,18 @@ document.addEventListener('DOMContentLoaded', function() {
             var latestPlanExpiry = planExpiries.length ? planExpiries[planExpiries.length - 1] : null;
             var severalPlanBatches = new Set(planExpiries).size > 1;
 
-            function planLabel(expiresOn) {
+            function planLabel(expiresOn, isFree) {
+                // Active-trial wording takes priority over isFree: the two can
+                // both be true (a Free Trial's own lot IS free-plan-sourced),
+                // and "Free trial credits" is the more specific, already-correct
+                // answer for that case — this must not regress it.
                 if (trialActive) { return 'Free trial credits'; }
+                // Free Plan (not mid-trial — trial ended, or none at all) still
+                // holding its free allotment: this is the case that used to fall
+                // all the way through to generic "Plan credits", which is what
+                // the account's own "Free Plan" status line was reported as
+                // contradicting.
+                if (isFree) { return 'Free credits'; }
                 if (!severalPlanBatches) { return 'Plan credits'; }
                 return expiresOn === latestPlanExpiry ? 'Plan credits — this cycle' : 'Plan credits — last cycle';
             }
@@ -486,7 +504,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var days = daysUntil(l.expiresOn);
                 return {
                     source: l.source,
-                    label: l.source === 'plan' ? planLabel(l.expiresOn) : 'Purchased credits',
+                    label: l.source === 'plan' ? planLabel(l.expiresOn, l.isFree) : 'Purchased credits',
                     remaining: l.remaining,
                     expiresOn: l.expiresOn,
                     expiresLabel: formatExpiry(l.expiresOn),
