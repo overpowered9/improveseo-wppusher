@@ -436,3 +436,38 @@ function improveseo_get_shortcodes(){
 
 
 
+
+/**
+ * Report whether this site currently has ImproveSEO credentials stored.
+ *
+ * Exists because iseo_connected is a PAGE-LOAD SNAPSHOT. It is computed in PHP when the admin
+ * page renders and localized into main_ajax_vars, so a tab opened BEFORE the credentials were
+ * saved keeps answering "not connected" for as long as it stays open.
+ *
+ * That is what broke the documented recovery flow. The guard modal sends the user to Settings
+ * in a second tab; they paste the key, Save Changes, and come back — but the first tab is still
+ * holding the stale '0', so closing the modal with the X and pressing Generate simply raised the
+ * modal again. The settings had saved correctly the whole time; the page just never re-read them.
+ *
+ * Deliberately a LOCAL check, matching exactly what iseo_connected means: are both options
+ * non-empty. It does not call the admin server, because this runs on tab focus and must stay
+ * instant — and because "are the credentials correct" is a different question, already answered
+ * further down the line by the 401 path, which reports the real reason.
+ *
+ * @return void Sends JSON { connected: '1'|'0' }.
+ */
+add_action( 'wp_ajax_improveseo_connection_state', 'improveseo_ajax_connection_state' );
+
+function improveseo_ajax_connection_state() {
+	if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'improveseo_connection_state_nonce' ) ) {
+		wp_send_json_error( array( 'connected' => '0' ), 403 );
+	}
+
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'connected' => '0' ), 403 );
+	}
+
+	$connected = ( ! empty( get_option( 'improveseo_api_key', '' ) ) && ! empty( get_option( 'improveseo_site_code', '' ) ) ) ? '1' : '0';
+
+	wp_send_json_success( array( 'connected' => $connected ) );
+}

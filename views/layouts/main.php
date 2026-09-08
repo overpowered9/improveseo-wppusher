@@ -168,16 +168,75 @@
 	}
 
 	if (closeBtn) {
-		closeBtn.addEventListener('click', hideModal);
+		closeBtn.addEventListener('click', function() { hideModal(); iseoRefreshConnectionState(); });
 	}
 	// Close on overlay click (outside the card)
 	overlay.addEventListener('click', function(e) {
-		if (e.target === overlay) hideModal();
+		if (e.target === overlay) { hideModal(); iseoRefreshConnectionState(); }
 	});
 	// Close on Escape key
 	document.addEventListener('keydown', function(e) {
-		if (e.key === 'Escape' && overlay.style.display === 'flex') hideModal();
+		if (e.key === 'Escape' && overlay.style.display === 'flex') { hideModal(); iseoRefreshConnectionState(); }
 	});
+
+	/* ── Keeping the connection flag fresh ──────────────────────────────────────
+	   Everything below exists because the flag is a PAGE-LOAD SNAPSHOT, and the
+	   recovery flow this modal prescribes spans two tabs.
+
+	   The user is sent to Settings in a second tab, saves a valid API key and site
+	   code, and returns here. The save worked — but THIS page still holds the '0'
+	   it was rendered with, so closing the modal and pressing Generate raised the
+	   modal straight back. It looked exactly like "my settings did not save", when
+	   in fact nothing had re-read them.
+
+	   Re-checked on the two moments that precede a retry: returning to the tab, and
+	   dismissing the modal. Both fire well before the user can reach a Generate
+	   button, so the flag is current by the time the guard consults it. The check is
+	   a local options lookup, so it is cheap enough to run on focus.
+	───────────────────────────────────────────────────────────────────────────── */
+	var iseoRefreshInFlight = false;
+
+	function iseoRefreshConnectionState() {
+		if (iseoRefreshInFlight) { return; }
+		if (typeof main_ajax_vars === 'undefined' || !main_ajax_vars.iseo_connection_nonce) { return; }
+		if (typeof ajaxurl === 'undefined') { return; }
+
+		// Already connected — nothing a refresh could improve, and the guard is not in the way.
+		if (window.iseoIsConnected && window.iseoIsConnected()) { return; }
+
+		iseoRefreshInFlight = true;
+
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', ajaxurl, true);
+		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		xhr.onload = function() {
+			iseoRefreshInFlight = false;
+			try {
+				var res = JSON.parse(xhr.responseText);
+				if (res && res.success && res.data && res.data.connected === '1') {
+					// Update BOTH sources iseoIsConnected() consults, so the guard agrees with
+					// itself no matter which one it falls back to.
+					if (typeof main_ajax_vars !== 'undefined') { main_ajax_vars.iseo_connected = '1'; }
+					iseoConnectedFlag = true;
+					hideModal();
+				}
+			} catch (e) {
+				// A malformed reply leaves the flag alone: staying blocked is the safe failure,
+				// since the server is the real gate and would refuse the generation anyway.
+			}
+		};
+		xhr.onerror = function() { iseoRefreshInFlight = false; };
+		xhr.send('action=improveseo_connection_state&nonce=' + encodeURIComponent(main_ajax_vars.iseo_connection_nonce));
+	}
+
+	// Coming back from the Settings tab is the moment the flag most needs re-reading.
+	window.addEventListener('focus', iseoRefreshConnectionState);
+	document.addEventListener('visibilitychange', function() {
+		if (!document.hidden) { iseoRefreshConnectionState(); }
+	});
+
+	// Exposed so a caller that has just fixed credentials can force a re-read.
+	window.iseoRefreshConnectionState = iseoRefreshConnectionState;
 
 	// Connection state, rendered by PHP for the same reason as the href above: reading it
 	// only from main_ajax_vars meant "footer script not loaded yet" was indistinguishable

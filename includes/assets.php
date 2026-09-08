@@ -56,7 +56,14 @@ function improveseo_enqueue_admin(){
 		// Connection guard: true when both API key AND site code are stored.
 		// Used by the global connection-guard modal (main.php layout) to block
 		// credit-consuming actions on sites that haven't finished setup.
+		//
+		// This is a SNAPSHOT taken when the page renders. A tab opened before the credentials
+		// were saved keeps answering "not connected" until it is reloaded, so the guard also
+		// re-checks it live via improveseo_connection_state — see the nonce below.
 		'iseo_connected'		=>	( ! empty( get_option( 'improveseo_api_key', '' ) ) && ! empty( get_option( 'improveseo_site_code', '' ) ) ) ? '1' : '0',
+		// Lets the guard refresh the snapshot above without a page reload, which is what makes
+		// "save in the other tab, come back, close the popup, carry on" actually work.
+		'iseo_connection_nonce'	=>	wp_create_nonce( 'improveseo_connection_state_nonce' ),
 		'iseo_onboarding_url'	=>	admin_url( 'admin.php?page=improveseo_onboarding' ),
 		// Target for the "Go to Settings" button on the title-generation failure dialog.
 		// That failure is almost always a credentials problem, so the dialog's one button
