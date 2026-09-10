@@ -56,7 +56,9 @@
 <!-- ── Connection Guard Modal ─────────────────────────────────────────────
      Shown globally when an unconnected site attempts a credit-consuming action
      (content generation, image generation, keyword generation). The modal blocks
-     the action and directs the user to the onboarding wizard to connect first.
+     the action and sends the user to Settings, where credentials are entered and
+     verified. Not the onboarding wizard: that is a free-trial sign-up flow, wrong for
+     someone who already has an account or whose saved key is simply incorrect.
      The guard function iseoRequireConnection() returns true when connected (caller
      should proceed) or false when not (modal is shown, caller should return). -->
 <div id="iseo-connection-guard-overlay" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.55); backdrop-filter:blur(2px); align-items:center; justify-content:center;">
@@ -90,8 +92,22 @@
 		     It used to be href="#" with the real URL read from main_ajax_vars, but that object
 		     is localized onto a FOOTER script while this markup is inline in the body, so the
 		     read ran before the variable existed and the href stayed "#" — the button did
-		     nothing at all. Rendering it server-side removes the ordering question entirely. -->
-		<a id="iseo-guard-connect-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_onboarding' ) ); ?>" style="display:inline-block; padding:12px 28px; background:#0f7b6c; color:#fff; font-size:14px; font-weight:600; border-radius:8px; text-decoration:none; transition:background 0.2s; letter-spacing:0.01em;">
+		     nothing at all. Rendering it server-side removes the ordering question entirely.
+
+		     Goes to SETTINGS, not the onboarding wizard. Onboarding opens the CMS free-trial
+		     sign-up flow, which assumes the visitor has no account — so a user already signed
+		     in to a CMS account, or one whose credentials are merely wrong (right site code,
+		     wrong API key), was pushed into a "start your free trial" modal that had nothing
+		     to do with their problem. Settings is where both cases are actually resolved: paste
+		     the key, Save Changes, Test Server Connection. The subtitle above describes exactly
+		     that route, so the button has to land on the page it names.
+
+		     Opens in a NEW TAB, and that is what makes the subtitle's instruction true. It tells
+		     the user to come back and "close this popup by clicking ×" — which is only possible
+		     if the popup still exists. Navigating in place would unload this page: returning by
+		     Back gives a fresh load with the modal gone, the wizard reset, and any keyword or
+		     title already entered lost. In a new tab the work sits untouched next door. -->
+		<a id="iseo-guard-connect-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_settings' ) ); ?>" target="_blank" rel="noopener noreferrer" style="display:inline-block; padding:12px 28px; background:#0f7b6c; color:#fff; font-size:14px; font-weight:600; border-radius:8px; text-decoration:none; transition:background 0.2s; letter-spacing:0.01em;">
 			Connect Website
 		</a>
 	</div>
@@ -124,10 +140,10 @@
 	var connectBtn = document.getElementById('iseo-guard-connect-btn');
 	if (!overlay) return;
 
-	// The onboarding wizard is the only route that actually stores an API key and site
-	// code: it opens the CMS connect flow and exchanges the returned token. Rendered by
-	// PHP so it is correct at parse time; main_ajax_vars is not consulted for it any more.
-	var onboardingUrl = '<?php echo esc_js( admin_url( 'admin.php?page=improveseo_onboarding' ) ); ?>';
+	// Settings, matching the button's href above — see the comment there for why this is not
+	// the onboarding wizard. Rendered by PHP so it is correct at parse time; main_ajax_vars is
+	// not consulted for it any more.
+	var settingsUrl = '<?php echo esc_js( admin_url( 'admin.php?page=improveseo_settings' ) ); ?>';
 
 	// Belt and braces: if anything ever strips or blanks the href, a click still navigates
 	// rather than silently scrolling to the top of the page.
@@ -136,7 +152,10 @@
 			var href = connectBtn.getAttribute('href');
 			if (!href || href === '#') {
 				e.preventDefault();
-				window.location.href = onboardingUrl;
+				// New tab, same as the href's target — see the comment on the button. Losing
+				// this page would strand the user with an instruction to close a popup that
+				// no longer exists.
+				window.open(settingsUrl, '_blank', 'noopener');
 			}
 		});
 	}
@@ -149,16 +168,75 @@
 	}
 
 	if (closeBtn) {
-		closeBtn.addEventListener('click', hideModal);
+		closeBtn.addEventListener('click', function() { hideModal(); iseoRefreshConnectionState(); });
 	}
 	// Close on overlay click (outside the card)
 	overlay.addEventListener('click', function(e) {
-		if (e.target === overlay) hideModal();
+		if (e.target === overlay) { hideModal(); iseoRefreshConnectionState(); }
 	});
 	// Close on Escape key
 	document.addEventListener('keydown', function(e) {
-		if (e.key === 'Escape' && overlay.style.display === 'flex') hideModal();
+		if (e.key === 'Escape' && overlay.style.display === 'flex') { hideModal(); iseoRefreshConnectionState(); }
 	});
+
+	/* ── Keeping the connection flag fresh ──────────────────────────────────────
+	   Everything below exists because the flag is a PAGE-LOAD SNAPSHOT, and the
+	   recovery flow this modal prescribes spans two tabs.
+
+	   The user is sent to Settings in a second tab, saves a valid API key and site
+	   code, and returns here. The save worked — but THIS page still holds the '0'
+	   it was rendered with, so closing the modal and pressing Generate raised the
+	   modal straight back. It looked exactly like "my settings did not save", when
+	   in fact nothing had re-read them.
+
+	   Re-checked on the two moments that precede a retry: returning to the tab, and
+	   dismissing the modal. Both fire well before the user can reach a Generate
+	   button, so the flag is current by the time the guard consults it. The check is
+	   a local options lookup, so it is cheap enough to run on focus.
+	───────────────────────────────────────────────────────────────────────────── */
+	var iseoRefreshInFlight = false;
+
+	function iseoRefreshConnectionState() {
+		if (iseoRefreshInFlight) { return; }
+		if (typeof main_ajax_vars === 'undefined' || !main_ajax_vars.iseo_connection_nonce) { return; }
+		if (typeof ajaxurl === 'undefined') { return; }
+
+		// Already connected — nothing a refresh could improve, and the guard is not in the way.
+		if (window.iseoIsConnected && window.iseoIsConnected()) { return; }
+
+		iseoRefreshInFlight = true;
+
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', ajaxurl, true);
+		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		xhr.onload = function() {
+			iseoRefreshInFlight = false;
+			try {
+				var res = JSON.parse(xhr.responseText);
+				if (res && res.success && res.data && res.data.connected === '1') {
+					// Update BOTH sources iseoIsConnected() consults, so the guard agrees with
+					// itself no matter which one it falls back to.
+					if (typeof main_ajax_vars !== 'undefined') { main_ajax_vars.iseo_connected = '1'; }
+					iseoConnectedFlag = true;
+					hideModal();
+				}
+			} catch (e) {
+				// A malformed reply leaves the flag alone: staying blocked is the safe failure,
+				// since the server is the real gate and would refuse the generation anyway.
+			}
+		};
+		xhr.onerror = function() { iseoRefreshInFlight = false; };
+		xhr.send('action=improveseo_connection_state&nonce=' + encodeURIComponent(main_ajax_vars.iseo_connection_nonce));
+	}
+
+	// Coming back from the Settings tab is the moment the flag most needs re-reading.
+	window.addEventListener('focus', iseoRefreshConnectionState);
+	document.addEventListener('visibilitychange', function() {
+		if (!document.hidden) { iseoRefreshConnectionState(); }
+	});
+
+	// Exposed so a caller that has just fixed credentials can force a re-read.
+	window.iseoRefreshConnectionState = iseoRefreshConnectionState;
 
 	// Connection state, rendered by PHP for the same reason as the href above: reading it
 	// only from main_ajax_vars meant "footer script not loaded yet" was indistinguishable
