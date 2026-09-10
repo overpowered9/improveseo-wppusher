@@ -178,6 +178,20 @@ function improveseo_connection_report_change() {
 		// for this site's first article.
 		improveseo_connection_ping($now['api_key'], $now['site_code'], false);
 
+		// If this save REPLACED a different, still-valid pair of credentials — a
+		// different ImproveSEO account was connected here before — tell the
+		// server that pair is done too. This is the only moment the OLD pair can
+		// still authenticate a disconnect report for itself; a second from now
+		// the options hold the new values and there is no way to speak as the
+		// old account again. Without this, the old account's website row kept
+		// reading Active until its heartbeat window lapsed (up to 24h) or
+		// forever on a pre-heartbeat build — the same domain showed Active under
+		// two accounts at once. The comparison guards a plain re-save of
+		// unchanged credentials, which must not fire a spurious disconnect.
+		if ($was_key !== '' && $was_code !== '' && ($was_key !== $now['api_key'] || $was_code !== $now['site_code'])) {
+			improveseo_connection_report_disconnect($was_key, $was_code);
+		}
+
 		// Make sure the heartbeat is running for the newly connected site.
 		improveseo_connection_ensure_heartbeat();
 		return;
