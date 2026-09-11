@@ -60,7 +60,7 @@ html.wp-toolbar {
 			</p>
 
 			<ul class="iseo-benefits">
-				<li><span class="iseo-check">✓</span> 10 free credits each for articles, images &amp; keywords</li>
+				<li><span class="iseo-check">✓</span> 100 free credits which equals about 5 pieces of SEO content with AI Image</li>
 				<li><span class="iseo-check">✓</span> Auto-publish directly to WordPress</li>
 				<li><span class="iseo-check">✓</span> Full keyword research toolkit</li>
 				<li><span class="iseo-check">✓</span> No credit card required</li>
@@ -137,7 +137,7 @@ html.wp-toolbar {
 			<div id="iseo-s3-new">
 				<p class="iseo-subline">
 					Your <strong>7-day free trial</strong> is active — <strong id="iseo-days-remaining">7</strong> days remaining.
-					You have <strong>10 free credits</strong> each for articles, images and keywords.
+					You have <strong>100 free credits</strong>, which equals about 5 pieces of SEO content with AI Image.
 				</p>
 			</div>
 			<div id="iseo-s3-reconnect" style="display:none;">
@@ -153,7 +153,7 @@ html.wp-toolbar {
 
 			<div class="iseo-credit-notice">
 				<span class="iseo-credit-icon">&#9432;</span>
-				<span>Each AI-generated article uses <strong>1 credit</strong>. When your trial ends or your credits run out, upgrade any time — no surprise charges.</span>
+				<span>Each piece of SEO content with an AI image uses about <strong>20 credits</strong>. When your trial ends or your credits run out, upgrade any time — no surprise charges.</span>
 			</div>
 
 			<button type="button" id="iseo-btn-continue-setup" class="iseo-btn iseo-btn-primary iseo-btn-large">
