@@ -77,6 +77,22 @@ function improveseo_enqueue_admin(){
 
 	wp_enqueue_script('improveseo-dialog', IMPROVESEO_DIR . '/assets/js/dialog.js', array('jquery'), improveseo_asset_ver('assets/js/dialog.js'), true);
 
+	// Daily Keyword Generator allowance notice. Loaded wherever the rest of the plugin's admin
+	// assets are, because generate() runs both on the Keyword Generator page and inside the post
+	// wizards; the file only defines a function until a 429 calls it.
+	wp_enqueue_script('improveseo-keyword-allowance', IMPROVESEO_DIR . '/assets/js/keyword-allowance.js', array(), improveseo_asset_ver('assets/js/keyword-allowance.js'), true);
+	wp_localize_script('improveseo-keyword-allowance', 'improveseoKeywordAllowance', array(
+		// The manual keyword-list screen (modules/lists.php, action=create). Raw rather than
+		// esc_url(): it is assigned to an href from JS, where an entity-encoded & would break it.
+		'manualListUrl' => esc_url_raw( admin_url( 'admin.php?page=improveseo_lists&action=create' ) ),
+		'i18n'          => array(
+			'exhausted'    => __( 'Your daily Keyword Generator tool allowance is exhausted. You will be able to use the Keyword Generator tool again tomorrow.', 'improveseo' ),
+			'manualBefore' => __( 'Meanwhile you have the option to manually create', 'improveseo' ),
+			'manualLink'   => __( 'keyword lists', 'improveseo' ),
+			'ok'           => __( 'Ok', 'improveseo' ),
+		),
+	));
+
 
 
 	wp_enqueue_script('improveseo-posting', IMPROVESEO_DIR . '/assets/js/posting.js', array('jquery'), improveseo_asset_ver('assets/js/posting.js'), true);

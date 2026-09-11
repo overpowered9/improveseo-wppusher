@@ -121,9 +121,13 @@ function test_improveseo_connection() {
     } else {
         $error_data = json_decode($body, true);
         $error_message = isset($error_data['error']) ? $error_data['error'] : "Server returned status code: $status_code";
-        
+
+        // The HTTP status travels with the message so Settings can tell "these credentials are
+        // not connected to an ImproveSEO account" (401/403) apart from a server fault (5xx) —
+        // the two call for different instructions.
         wp_send_json_error(array(
-            'error' => $error_message
+            'error'  => $error_message,
+            'status' => (int) $status_code,
         ));
     }
 }

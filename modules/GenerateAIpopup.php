@@ -644,6 +644,12 @@ function generateAIpopup()
                 },
                 error: function (xhr, status, error) {
                     console.error('❌ Keyword generation failed:', status, error, xhr.responseText);
+                    // Daily allowance spent — see assets/js/keyword-allowance.js. The keyword-lists
+                    // link opens in a new tab here so the wizard in progress is not unloaded.
+                    if (typeof window.iseoHandleKeywordGeneratorError === 'function'
+                        && window.iseoHandleKeywordGeneratorError(xhr, { newTab: true, returnFocus: btn[0] })) {
+                        return;
+                    }
                     var serverError = (xhr.responseJSON && xhr.responseJSON.error) || '';
                     if (xhr.status === 402) {
                         alert(serverError || 'Insufficient keyword credits. Please upgrade your plan or buy credits.');

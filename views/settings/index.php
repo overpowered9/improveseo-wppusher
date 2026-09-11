@@ -113,9 +113,17 @@ use ImproveSEO\View;
 
                         </div>
                         <div class="iseo-card-footer">
-                            <button type="button" id="test_server_connection" class="iseo-btn-secondary">
-                                🔌 Test Server Connection
-                            </button>
+                            <div class="iseo-connection-actions">
+                                <button type="button" id="test_server_connection" class="iseo-btn-secondary" aria-describedby="iseo-confirm-connection-tip">
+                                    🔌 <?php esc_html_e( 'Confirm website connection', 'improveseo' ); ?>
+                                </button>
+                                <span class="iseo-info-tip" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'About Confirm website connection', 'improveseo' ); ?>">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    <span id="iseo-confirm-connection-tip" class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--above" role="tooltip">
+                                        <?php esc_html_e( "Click 'Confirm website connection' to confirm that this website is properly connected to your ImproveSEO user account.", 'improveseo' ); ?>
+                                    </span>
+                                </span>
+                            </div>
                             <div id="connection_status" class="iseo-connection-status"></div>
                         </div>
                     </div>
@@ -620,6 +628,24 @@ document.addEventListener('DOMContentLoaded', function() {
      * runs. They differ only in chrome: the automatic one must not seize the button or shout while
      * it is working, because the user did not ask for it and may be mid-edit.
      */
+    // Same string as the button's markup, so restoring it after a click cannot drift from it.
+    const ISEO_CONFIRM_LABEL = '🔌 ' + <?php echo wp_json_encode( __( 'Confirm website connection', 'improveseo' ) ); ?>;
+
+    // Shown whenever the answer is "these credentials do not connect this website to an
+    // account" — including a click with a field left empty. It points back at the steps printed
+    // just above the button rather than paraphrasing them.
+    const ISEO_NOT_CONNECTED_HTML =
+        '<div class="iseo-status-error">❌ <div><strong>Not connected.</strong><br>' +
+        'This website is not connected to your ImproveSEO user account. Follow the steps as outlined above under ' +
+        '\'<strong>How to connect this website to your ImproveSEO user account</strong>\'</div></div>';
+
+    // For text that did not originate on this page (server or network messages).
+    function iseoEscapeHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+
     function improveseoRunConnectionCheck(auto) {
         const button    = document.getElementById('test_server_connection');
         const statusDiv = document.getElementById('connection_status');
@@ -630,23 +656,23 @@ document.addEventListener('DOMContentLoaded', function() {
             // Nothing to check. Silent when automatic: a fresh install has no credentials yet and
             // an error on first sight of the screen would read as a fault.
             if (!auto) {
-                statusDiv.innerHTML = '<div class="iseo-status-error">❌ Please fill in API Key and Site Code first.</div>';
+                statusDiv.innerHTML = ISEO_NOT_CONNECTED_HTML;
             }
             return;
         }
 
         if (!auto) {
             button.disabled = true;
-            button.textContent = '🔄 Testing Connection...';
+            button.textContent = '🔄 Confirming connection…';
         }
         statusDiv.innerHTML = auto
             ? '<div class="iseo-status-loading">⏳ Checking connection…</div>'
-            : '<div class="iseo-status-loading">⏳ Testing connection to ImproveSEO server...</div>';
+            : '<div class="iseo-status-loading">⏳ Confirming this website\'s connection…</div>';
 
         const restore = function () {
             if (auto) { return; }
             button.disabled = false;
-            button.textContent = '🔌 Test Server Connection';
+            button.textContent = ISEO_CONFIRM_LABEL;
         };
 
         const data = new FormData();
@@ -665,15 +691,22 @@ document.addEventListener('DOMContentLoaded', function() {
             if (result.success) {
                 statusDiv.innerHTML = renderConnectionPanel(result.data);
             } else {
-                // The server's own message is shown verbatim — "Invalid API key" and "Website not
-                // found or not authorized" say precisely which of the two fields is wrong, which a
-                // generic "connection failed" would throw away.
-                const err = (result.data && result.data.error) ? result.data.error : 'Unknown error';
+                const failure = result.data || {};
+                // 401 (API key unknown) and 403 (site code not on that key's account — the
+                // "Website not found or not authorized" case) mean the same thing to the user:
+                // this website is not connected to their account. The steps above are the fix.
+                if (failure.status === 401 || failure.status === 403) {
+                    statusDiv.innerHTML = ISEO_NOT_CONNECTED_HTML;
+                    return;
+                }
+                // Anything else is the server failing to answer, not a verdict on the credentials,
+                // so saying "not connected" would send the user to fix something that is not broken.
+                const err = failure.error || failure.message || 'Unknown error';
                 statusDiv.innerHTML = `
                     <div class="iseo-status-error">
-                        ❌ <div><strong>Not connected.</strong><br>
-                        ${err}<br>
-                        Check that the API Key and Site Code are both copied from the same website in your ImproveSEO Dashboard.</div>
+                        ❌ <div><strong>Could not confirm the connection.</strong><br>
+                        ${iseoEscapeHtml(err)}<br>
+                        Your settings are saved. Press Confirm website connection to try again.</div>
                     </div>
                 `;
             }
@@ -683,8 +716,8 @@ document.addEventListener('DOMContentLoaded', function() {
             statusDiv.innerHTML = `
                 <div class="iseo-status-error">
                     ❌ <div><strong>Could not reach the ImproveSEO server.</strong><br>
-                    ${error.message}<br>
-                    Your settings are saved. Press Test Server Connection to try again.</div>
+                    ${iseoEscapeHtml(error.message)}<br>
+                    Your settings are saved. Press Confirm website connection to try again.</div>
                 </div>
             `;
         });

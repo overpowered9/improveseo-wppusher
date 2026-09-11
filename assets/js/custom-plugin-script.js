@@ -2013,7 +2013,7 @@ function iseoShowGenerationFailure(dialogTitle, reason, fallback) {
     : "";
 
   var message = (reason ? reason : fallback)
-    + " On the Settings page, save your changes and run Test Server Connection — then close this popup and try again.";
+    + " On the Settings page, save your changes and click Confirm website connection — then close this popup and try again.";
 
   if (typeof ImproveSEONotification === "undefined") {
     alert(message);
