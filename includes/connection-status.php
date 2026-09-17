@@ -81,6 +81,84 @@ function improveseo_connection_log($message) {
 	}
 }
 
+/**
+ * This site's own domain, as the server's apiAuth middleware expects it: bare
+ * host, no scheme. Sent as x-site-domain on every authenticated request so the
+ * server can refuse a site code that is valid for the account but was issued
+ * for a DIFFERENT one of that account's websites — something api_key + site_code
+ * ownership alone cannot catch (see improveseo_verify_connection() below).
+ */
+function improveseo_connection_domain_header() {
+	return (string) wp_parse_url( home_url(), PHP_URL_HOST );
+}
+
+/**
+ * The one live check of whether an API Key + Site Code pair actually connects
+ * this website — shared by the Settings save gate (includes/settings.php) and
+ * the "Confirm website connection" button (includes/ajax.php), so there is a
+ * single definition of "connected" instead of two that can drift.
+ *
+ * Blocking, unlike improveseo_connection_ping() below: both callers need the
+ * answer before they can proceed (refuse the save, or render the result panel),
+ * where the ping is fire-and-forget bookkeeping nobody is waiting on.
+ *
+ * @return array{connected: bool, status: int|null, error: string|null, data: array|null}
+ */
+function improveseo_verify_connection($api_key, $site_code, $timeout = 20) {
+	$api_key   = trim((string) $api_key);
+	$site_code = trim((string) $site_code);
+
+	if ($api_key === '' || $site_code === '') {
+		return array(
+			'connected' => false,
+			'status'    => null,
+			'error'     => 'Missing required fields: API Key or Site Code',
+			'data'      => null,
+		);
+	}
+
+	$response = wp_remote_get(
+		IMPROVESEO_CONNECTION_SERVER . '/api/v1/users/status',
+		array(
+			'timeout' => $timeout,
+			'headers' => array(
+				'x-api-key'     => $api_key,
+				'x-site-code'   => $site_code,
+				'x-site-domain' => improveseo_connection_domain_header(),
+				'Content-Type'  => 'application/json',
+			),
+		)
+	);
+
+	if (is_wp_error($response)) {
+		return array(
+			'connected' => false,
+			'status'    => null,
+			'error'     => 'Failed to connect to server: ' . $response->get_error_message(),
+			'data'      => null,
+		);
+	}
+
+	$status_code = wp_remote_retrieve_response_code($response);
+	$body        = json_decode(wp_remote_retrieve_body($response), true);
+
+	if ($status_code === 200) {
+		return array(
+			'connected' => true,
+			'status'    => $status_code,
+			'error'     => null,
+			'data'      => is_array($body) ? $body : array(),
+		);
+	}
+
+	return array(
+		'connected' => false,
+		'status'    => (int) $status_code,
+		'error'     => (is_array($body) && isset($body['error'])) ? $body['error'] : "Server returned status code: $status_code",
+		'data'      => null,
+	);
+}
+
 
 /* ── 1 & 2. Reporting a change of credentials ───────────────────────────── */
 
@@ -266,9 +344,10 @@ add_action(IMPROVESEO_HEARTBEAT_HOOK, 'improveseo_connection_heartbeat');
  */
 function improveseo_connection_ping($api_key, $site_code, $is_heartbeat) {
 	$headers = array(
-		'x-api-key'    => $api_key,
-		'x-site-code'  => $site_code,
-		'Content-Type' => 'application/json',
+		'x-api-key'     => $api_key,
+		'x-site-code'   => $site_code,
+		'x-site-domain' => improveseo_connection_domain_header(),
+		'Content-Type'  => 'application/json',
 	);
 	if ($is_heartbeat) {
 		$headers['x-plugin-heartbeat'] = '1';
@@ -339,9 +418,10 @@ function improveseo_connection_report_disconnect($api_key, $site_code) {
 			'blocking' => false,
 			'timeout'  => 1,
 			'headers'  => array(
-				'x-api-key'    => $api_key,
-				'x-site-code'  => $site_code,
-				'Content-Type' => 'application/json',
+				'x-api-key'     => $api_key,
+				'x-site-code'   => $site_code,
+				'x-site-domain' => improveseo_connection_domain_header(),
+				'Content-Type'  => 'application/json',
 			),
 			'body' => '{}',
 		)

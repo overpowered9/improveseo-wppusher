@@ -152,6 +152,13 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
             contentType: 'application/json',
             timeout: 90000,
             headers: {
+                // Deliberately NO X-Site-Domain here, unlike the plugin's server-side calls.
+                // This request goes browser → admin server, so adding a custom header would
+                // put it in the CORS preflight, and a plugin update that landed BEFORE the
+                // server's allow-list was deployed would break keyword generation outright.
+                // The browser already sends Origin on a cross-origin request, which the
+                // server's domain check reads as its fallback signal — same enforcement,
+                // no deploy-order coupling.
                 'X-API-Key': apiKey,
                 'X-Site-Code': siteCode
             },
@@ -175,8 +182,15 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
                 var serverError = (xhr.responseJSON && xhr.responseJSON.error) || '';
                 if (xhr.status === 402) {
                     alert(serverError || 'Insufficient keyword credits. Please upgrade your plan or buy credits.');
-                } else if (xhr.status === 401) {
-                    alert('Authentication failed. Please check your API credentials in settings.');
+                } else if (xhr.status === 401 || xhr.status === 403) {
+                    // Wrong API Key / Site Code, or a site code that belongs to a different one
+                    // of the account's websites — same guard modal every other generation surface
+                    // shows, not a raw alert.
+                    if (typeof window.iseoShowConnectionGuard === 'function') {
+                        window.iseoShowConnectionGuard();
+                    } else {
+                        alert('Authentication failed. Please check your API credentials in settings.');
+                    }
                 } else {
                     alert(serverError || 'Keyword generation failed. Please try again.');
                 }

@@ -53,83 +53,57 @@ function test_improveseo_connection() {
         wp_die('Security check failed');
     }
     
-    // Use fixed server URL
-    $server_url = 'https://imporve-seo-admin-server-nzbm.onrender.com';
     $api_key = sanitize_text_field($_POST['api_key']);
     $site_code = sanitize_text_field($_POST['site_code']);
-    
-    // Validate inputs
-    if (empty($api_key) || empty($site_code)) {
-        wp_send_json_error(array(
-            'error' => 'Missing required fields: API Key or Site Code'
-        ));
-        return;
-    }
-    
-    // Test the connection by making a simple request to the server
-    $test_url = rtrim($server_url, '/') . '/api/v1/users/status';
-    
-    $response = wp_remote_get($test_url, array(
-        'timeout' => 10,
-        'headers' => array(
-            'x-api-key' => $api_key,
-            'x-site-code' => $site_code,
-            'Content-Type' => 'application/json'
-        )
-    ));
-    
-    if (is_wp_error($response)) {
-        wp_send_json_error(array(
-            'error' => 'Failed to connect to server: ' . $response->get_error_message()
-        ));
-        return;
-    }
-    
-    $status_code = wp_remote_retrieve_response_code($response);
-    $body = wp_remote_retrieve_body($response);
-    
-    if ($status_code === 200) {
-        $result = json_decode($body, true);
-        wp_send_json_success(array(
-            'server'         => 'Connected successfully',
-            'user'           => isset($result['user']) ? $result['user'] : 'Authenticated',
-            'email'          => isset($result['email']) ? $result['email'] : null,
-            'credits'        => isset($result['credits']) ? $result['credits'] : null,
-            // Richer plan/trial/credit context (added server-side) so the settings panel can
-            // explain the account state. Null-safe: older servers simply omit these.
-            'credit_details' => isset($result['credit_details']) ? $result['credit_details'] : null,
-            'plan'           => isset($result['plan']) ? $result['plan'] : null,
-            'trial'          => isset($result['trial']) ? $result['trial'] : null,
-            // The subscription block carries plan.slug and plan.id. Those are stable
-            // identifiers; plan.name is a display string the server has already rebranded
-            // once (a Scale account still answers "Pro"), so the badge resolves from the
-            // slug first and only falls back to the name. Dropping this field here was
-            // why Settings could not tell Scale from Optimize.
-            'subscription'   => isset($result['subscription']) ? $result['subscription'] : null,
-            // Same per-batch expiry data the CMS's credits page reads from
-            // /credits/:user_id — 'balance' is the single next-expiry summary,
-            // 'lots' is every batch with its own date. Without these the
-            // credits card's breakdown had no expiry to show at all. Null-safe:
-            // an un-redeployed server simply omits them.
-            'balance'        => isset($result['balance']) ? $result['balance'] : null,
-            'lots'           => isset($result['lots']) ? $result['lots'] : null,
-            // Unit prices for the pooled credit balance, so the credits card can say what
-            // the remaining balance actually buys using the SAME numbers the bulk gate
-            // prices against (see check_bulk_credits in single_and_bulk_AI_post_function.php).
-            'pricing'        => isset($result['pricing']) ? $result['pricing'] : null,
-        ));
-    } else {
-        $error_data = json_decode($body, true);
-        $error_message = isset($error_data['error']) ? $error_data['error'] : "Server returned status code: $status_code";
 
-        // The HTTP status travels with the message so Settings can tell "these credentials are
-        // not connected to an ImproveSEO account" (401/403) apart from a server fault (5xx) —
-        // the two call for different instructions.
+    // Shared with the Settings save gate (includes/settings.php) — one definition
+    // of "connected", including the live domain check the server now enforces.
+    //
+    // IMPROVESEO_CONNECTION_TIMEOUT (30s), not the 10s this used to pass. The admin server
+    // cold-starts on Render and that routinely takes longer than 10 seconds — the constant
+    // exists for exactly this reason. 10s mattered little when this only backed the
+    // "Confirm website connection" button, but the Save Changes gate now blocks on the same
+    // call, so giving up early would refuse to save perfectly valid credentials whenever the
+    // server happened to be asleep.
+    $check = improveseo_verify_connection($api_key, $site_code, IMPROVESEO_CONNECTION_TIMEOUT);
+
+    if (!$check['connected']) {
         wp_send_json_error(array(
-            'error'  => $error_message,
-            'status' => (int) $status_code,
+            'error'  => $check['error'],
+            'status' => $check['status'],
         ));
+        return;
     }
+
+    $result = $check['data'];
+    wp_send_json_success(array(
+        'server'         => 'Connected successfully',
+        'user'           => isset($result['user']) ? $result['user'] : 'Authenticated',
+        'email'          => isset($result['email']) ? $result['email'] : null,
+        'credits'        => isset($result['credits']) ? $result['credits'] : null,
+        // Richer plan/trial/credit context (added server-side) so the settings panel can
+        // explain the account state. Null-safe: older servers simply omit these.
+        'credit_details' => isset($result['credit_details']) ? $result['credit_details'] : null,
+        'plan'           => isset($result['plan']) ? $result['plan'] : null,
+        'trial'          => isset($result['trial']) ? $result['trial'] : null,
+        // The subscription block carries plan.slug and plan.id. Those are stable
+        // identifiers; plan.name is a display string the server has already rebranded
+        // once (a Scale account still answers "Pro"), so the badge resolves from the
+        // slug first and only falls back to the name. Dropping this field here was
+        // why Settings could not tell Scale from Optimize.
+        'subscription'   => isset($result['subscription']) ? $result['subscription'] : null,
+        // Same per-batch expiry data the CMS's credits page reads from
+        // /credits/:user_id — 'balance' is the single next-expiry summary,
+        // 'lots' is every batch with its own date. Without these the
+        // credits card's breakdown had no expiry to show at all. Null-safe:
+        // an un-redeployed server simply omits them.
+        'balance'        => isset($result['balance']) ? $result['balance'] : null,
+        'lots'           => isset($result['lots']) ? $result['lots'] : null,
+        // Unit prices for the pooled credit balance, so the credits card can say what
+        // the remaining balance actually buys using the SAME numbers the bulk gate
+        // prices against (see check_bulk_credits in single_and_bulk_AI_post_function.php).
+        'pricing'        => isset($result['pricing']) ? $result['pricing'] : null,
+    ));
 }
 
 

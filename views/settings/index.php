@@ -52,6 +52,15 @@ use ImproveSEO\View;
                 <form class="improve-seo-form-global iseo-settings-form" method="post" action="options.php">
                     <?php settings_fields('improveseo_settings'); ?>
 
+                    <?php
+                    // Renders any add_settings_error('improveseo_settings', ...) calls fired by
+                    // improveseo_sanitize_and_verify_credentials_field() during the save this page
+                    // just redirected from — e.g. the API Key / Site Code being rejected by the
+                    // live connection check. Without this call the errors are recorded but never
+                    // shown, and a refused save would look identical to a successful one.
+                    settings_errors('improveseo_settings');
+                    ?>
+
                     <!-- Form top bar: breadcrumb navigation + save button -->
                     <div class="iseo-form-topbar">
                         <nav class="iseo-breadcrumb" aria-label="Settings breadcrumb">
@@ -646,7 +655,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function improveseoRunConnectionCheck(auto) {
+    /**
+     * @param {boolean} auto - true for the silent on-load/on-focus check; false for the
+     *   "Confirm website connection" button click, which owns the button's busy state.
+     * @param {function(boolean, object=)=} onDone - called once with (connected, failure).
+     *   Lets a caller (the Save-button submit gate below) react to the result without
+     *   duplicating this function's request/response handling.
+     * @param {string=} context - 'presubmit' swaps the network/5xx-failure copy from
+     *   "your settings are saved" (true for the Confirm button, which runs after a save)
+     *   to "settings have not been saved" (true here, which runs before one).
+     */
+    function improveseoRunConnectionCheck(auto, onDone, context) {
         const button    = document.getElementById('test_server_connection');
         const statusDiv = document.getElementById('connection_status');
         const apiKey    = document.querySelector('input[name="improveseo_api_key"]').value.trim();
@@ -690,36 +709,47 @@ document.addEventListener('DOMContentLoaded', function() {
             restore();
             if (result.success) {
                 statusDiv.innerHTML = renderConnectionPanel(result.data);
+                if (onDone) { onDone(true); }
             } else {
                 const failure = result.data || {};
-                // 401 (API key unknown) and 403 (site code not on that key's account — the
-                // "Website not found or not authorized" case) mean the same thing to the user:
+                // 401 (API key unknown) and 403 (site code not on that key's account, OR — now
+                // that the admin server enforces x-site-domain — a site code that belongs to a
+                // DIFFERENT one of this account's websites) mean the same thing to the user:
                 // this website is not connected to their account. The steps above are the fix.
                 if (failure.status === 401 || failure.status === 403) {
                     statusDiv.innerHTML = ISEO_NOT_CONNECTED_HTML;
+                    if (onDone) { onDone(false, failure); }
                     return;
                 }
                 // Anything else is the server failing to answer, not a verdict on the credentials,
                 // so saying "not connected" would send the user to fix something that is not broken.
                 const err = failure.error || failure.message || 'Unknown error';
+                const savedNote = context === 'presubmit'
+                    ? 'Settings have not been saved — try Save Changes again.'
+                    : 'Your settings are saved. Press Confirm website connection to try again.';
                 statusDiv.innerHTML = `
                     <div class="iseo-status-error">
                         ❌ <div><strong>Could not confirm the connection.</strong><br>
                         ${iseoEscapeHtml(err)}<br>
-                        Your settings are saved. Press Confirm website connection to try again.</div>
+                        ${savedNote}</div>
                     </div>
                 `;
+                if (onDone) { onDone(false, failure); }
             }
         })
         .catch(error => {
             restore();
+            const savedNote = context === 'presubmit'
+                ? 'Settings have not been saved — try Save Changes again.'
+                : 'Your settings are saved. Press Confirm website connection to try again.';
             statusDiv.innerHTML = `
                 <div class="iseo-status-error">
                     ❌ <div><strong>Could not reach the ImproveSEO server.</strong><br>
                     ${iseoEscapeHtml(error.message)}<br>
-                    Your settings are saved. Press Confirm website connection to try again.</div>
+                    ${savedNote}</div>
                 </div>
             `;
+            if (onDone) { onDone(false, { error: error.message }); }
         });
     }
 
@@ -727,10 +757,83 @@ document.addEventListener('DOMContentLoaded', function() {
         improveseoRunConnectionCheck(false);
     });
 
-    // Answer "did that work?" without making the user hunt for the button. The save itself stays
-    // fire-and-forget on the PHP side (includes/connection-status.php) so a cold-starting server
-    // cannot hold the settings page; this runs after the page is already interactive, so a slow
-    // server costs nothing but a spinner in one corner.
+    /**
+     * Save-button gate: block the native options.php submit until we know the pair
+     * verifies, using the same live check as the Confirm-connection button — so a bad
+     * pairing is caught without a wasted page reload. This is UX only; includes/settings.php
+     * enforces the real gate server-side (sanitize_callback on both options), so a direct
+     * POST or JS-disabled browser is still refused there.
+     */
+    (function () {
+        const settingsForm = document.querySelector('form.iseo-settings-form');
+        if (!settingsForm) { return; }
+
+        var iseoBypassSubmitGate = false;
+
+        settingsForm.addEventListener('submit', function (e) {
+            if (iseoBypassSubmitGate) { return; } // programmatic re-submit after a passed check
+
+            const apiInput  = document.querySelector('input[name="improveseo_api_key"]');
+            const codeInput = document.querySelector('input[name="improveseo_site_code"]');
+            const apiKey    = apiInput.value.trim();
+            const siteCode  = codeInput.value.trim();
+
+            // Clearing both fields disconnects the site — nothing to verify, let it save.
+            if (!apiKey && !siteCode) { return; }
+
+            // Credentials untouched — don't hold this save hostage to a network call.
+            //
+            // defaultValue is the value PHP rendered into the markup, i.e. what is currently
+            // stored, so this is "did the user actually edit either field". These inputs share
+            // a form with Business Type / City / Service, and most saves after setup only touch
+            // those: verifying anyway would mean a cold or unreachable admin server blocks an
+            // edit that has nothing to do with the connection. Mirrors the same skip in
+            // improveseo_sanitize_and_verify_credentials_field().
+            if (apiKey === apiInput.defaultValue.trim() && siteCode === codeInput.defaultValue.trim()) {
+                return;
+            }
+
+            e.preventDefault();
+
+            const statusDiv = document.getElementById('connection_status');
+
+            // Incomplete pair: same message the server-side gate would show, without
+            // spending a round trip on the admin server to learn what we already know.
+            if (!apiKey || !siteCode) {
+                statusDiv.innerHTML = ISEO_NOT_CONNECTED_HTML;
+                return;
+            }
+
+            const saveBtn = settingsForm.querySelector('.setting_submit');
+            const originalLabel = saveBtn ? saveBtn.value : '';
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.value = 'Verifying connection…';
+            }
+
+            improveseoRunConnectionCheck(true, function (connected) {
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.value = originalLabel;
+                }
+                if (connected) {
+                    iseoBypassSubmitGate = true;
+                    settingsForm.submit();
+                }
+                // Not connected: stay on the page, the inline panel above already explains why.
+            }, 'presubmit');
+        });
+    })();
+
+    // Answer "did that work?" on page load without making the user hunt for the button — it
+    // runs after the page is already interactive, so a slow server costs nothing but a spinner
+    // in one corner.
+    //
+    // NOTE this is no longer the only live check on this screen: editing either credential and
+    // pressing Save Changes now verifies BEFORE the form is allowed through (see the submit gate
+    // above, and the authoritative one in includes/sanitize callbacks). The connection ping in
+    // includes/connection-status.php is still fire-and-forget — that one is only CMS status
+    // bookkeeping and nothing waits on its answer.
     improveseoRunConnectionCheck(true);
 });
 </script>

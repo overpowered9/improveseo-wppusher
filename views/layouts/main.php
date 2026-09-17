@@ -266,6 +266,16 @@
 		}
 		return true;
 	};
+
+	/**
+	 * Show this same modal on a LIVE rejection — the admin server actually returned
+	 * 401/403 on a real request (wrong key, wrong-account site code, or a site code
+	 * that belongs to a different one of the account's own websites) — as opposed to
+	 * iseoRequireConnection()'s pre-flight check, which only ever catches empty fields.
+	 * Exposed directly so any AJAX error handler in the plugin can call it without
+	 * re-deriving showModal() or duplicating this markup.
+	 */
+	window.iseoShowConnectionGuard = showModal;
 })();
 
 /**

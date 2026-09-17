@@ -158,6 +158,25 @@ $content = $generation_result['content'];
 $meta_title = $generation_result['meta_title'];
 $meta_descreption = $generation_result['meta_description'];
 
+// The server rejected this site's API Key or Site Code, so stop here.
+//
+// The meta title and description fallbacks below authenticate exactly the same way and would
+// be rejected for exactly the same reason — two more round trips that cannot succeed, on top
+// of one that already failed, before the browser is told anything. Against a cold admin
+// server that is most of a minute spent proving the same point three times.
+//
+// The sentinel already carries everything the client needs: custom-plugin-script.js matches
+// it on `content` and opens the connection guard modal, so returning now shows the user the
+// same thing, sooner.
+if (strpos($content, 'ISEO_NOT_CONNECTED::') === 0) {
+	wp_send_json_success(array(
+		"search_data"      => $search_data,
+		"content"          => $content,
+		"meta_title"       => '',
+		"meta_descreption" => '',
+	));
+}
+
 // Fallback to separate GPT calls only if server didn't return meta data
 if (empty($meta_title)) {
 	$meta_title = generateMetaTitle($arr['ai_tittle'], $arr['seed_keyword']);
@@ -426,10 +445,11 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 		'method'  => 'POST',
 		'timeout' => 480,
 		'headers' => array(
-			'Content-Type' => 'application/json',
-			'Accept'       => 'application/json',
-			'X-API-Key'    => $api_key,
-			'X-Site-Code'  => $site_code,
+			'Content-Type'  => 'application/json',
+			'Accept'        => 'application/json',
+			'X-API-Key'     => $api_key,
+			'X-Site-Code'   => $site_code,
+			'X-Site-Domain' => improveseo_connection_domain_header(),
 		),
 		'body'    => wp_json_encode( $payload ),
 	) );
@@ -451,12 +471,25 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 	// Check HTTP status
 	if ($http_status !== 200) {
 		error_log("createAIpost2 HTTP Error: Status $http_status, Response: " . $response);
-		// Keep the legacy prefix (the admin JS matches on it) and append the server's own
-		// message, so a trial-ended block reads differently from plain out-of-credits.
 		$err_body = json_decode($response, true);
-		$err_msg  = ( is_array($err_body) && ! empty($err_body['error']) ) ? ' — ' . $err_body['error'] : '';
+		$err_msg  = ( is_array($err_body) && ! empty($err_body['error']) ) ? $err_body['error'] : '';
+
+		// A rejected pairing (wrong key, wrong account, or — since apiAuth.middleware.ts
+		// enforces x-site-domain — a site code that belongs to a different one of the
+		// account's websites) gets its own sentinel so the wizard shows the shared
+		// connect-guard modal instead of dumping this text into the content preview as
+		// though it were the generated article.
+		if ($http_status === 401 || $http_status === 403) {
+			return array(
+				'content' => 'ISEO_NOT_CONNECTED::' . ( $err_msg !== '' ? $err_msg : "ImproveSEO rejected this site's API Key or Site Code." ),
+				'meta_title' => '',
+				'meta_description' => ''
+			);
+		}
+
+		// Keep the legacy prefix (the admin JS matches on it) for every other status.
 		return array(
-			'content' => "Error: Content generation server returned error status: $http_status" . $err_msg,
+			'content' => "Error: Content generation server returned error status: $http_status" . ( $err_msg !== '' ? ' — ' . $err_msg : '' ),
 			'meta_title' => '',
 			'meta_description' => ''
 		);

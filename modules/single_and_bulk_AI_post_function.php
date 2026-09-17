@@ -107,10 +107,16 @@ if ( ! function_exists( 'improveseo_strip_style_script_tags' ) ) {
  *                        says exactly what is wrong ("API key and site code are required");
  *                        this hands that sentence back so the UI can show it. Optional and
  *                        by reference, so the five existing callers are unaffected.
+ * @param bool   $is_not_connected  Set true by reference only on a real 401/403 from the
+ *                        server — a rejected pairing, as opposed to a missing/unreachable
+ *                        one — so a caller that surfaces $error to the browser can route
+ *                        THIS specific case to the shared connection-guard modal instead of
+ *                        a generic failure dialog. Optional, existing callers unaffected.
  * @return string Generated text, or '' on any failure (also logged via error_log).
  */
-function improveseo_call_auxiliary_api( $type, array $payload = array(), &$error = null ) {
+function improveseo_call_auxiliary_api( $type, array $payload = array(), &$error = null, &$is_not_connected = null ) {
 	$error = '';
+	$is_not_connected = false;
 
 	$api_key   = get_option( 'improveseo_api_key' );
 	$site_code = get_option( 'improveseo_site_code' );
@@ -128,10 +134,11 @@ function improveseo_call_auxiliary_api( $type, array $payload = array(), &$error
 
 	$response = wp_remote_post( $endpoint, array(
 		'headers' => array(
-			'Content-Type' => 'application/json',
-			'Accept'       => 'application/json',
-			'X-API-Key'    => $api_key,
-			'X-Site-Code'  => $site_code,
+			'Content-Type'  => 'application/json',
+			'Accept'        => 'application/json',
+			'X-API-Key'     => $api_key,
+			'X-Site-Code'   => $site_code,
+			'X-Site-Domain' => improveseo_connection_domain_header(),
 		),
 		'body'    => wp_json_encode( $body ),
 		'timeout' => 60,
@@ -153,9 +160,12 @@ function improveseo_call_auxiliary_api( $type, array $payload = array(), &$error
 
 		// The server's own sentence is the most useful thing available and is written for
 		// humans, so it is passed through as-is. 401/403 is always the same cause and gets
-		// said plainly, because "Unauthorized" tells a site owner nothing actionable.
+		// said plainly, because "Unauthorized" tells a site owner nothing actionable. Also
+		// covers a site code the server now rejects for belonging to a DIFFERENT one of the
+		// account's websites — see apiAuth.middleware.ts's x-site-domain enforcement.
 		if ( 401 === $status || 403 === $status ) {
 			$error = 'ImproveSEO rejected this site\'s API Key or Site Code.';
+			$is_not_connected = true;
 		} elseif ( 'unknown' !== $err && is_string( $err ) && $err !== '' ) {
 			$error = $err;
 		} else {
@@ -210,9 +220,10 @@ function improveseo_get_account_email( $force = false, $timeout = 15 ) {
 		'https://imporve-seo-admin-server-nzbm.onrender.com/api/v1/users/status',
 		array(
 			'headers' => array(
-				'x-api-key'   => $api_key,
-				'x-site-code' => $site_code,
-				'Accept'      => 'application/json',
+				'x-api-key'     => $api_key,
+				'x-site-code'   => $site_code,
+				'x-site-domain' => improveseo_connection_domain_header(),
+				'Accept'        => 'application/json',
 			),
 			'timeout' => max( 5, (int) $timeout ),
 		)
@@ -643,20 +654,28 @@ function check_bulk_credits_callback() {
 		'headers' => array(
 			'x-api-key' => $api_key,
 			'x-site-code' => $site_code,
+			'x-site-domain' => improveseo_connection_domain_header(),
 			'Content-Type' => 'application/json'
 		),
 		'timeout' => 30
 	));
-	
+
 	if (is_wp_error($response)) {
 		wp_send_json_error(array('error' => 'Unable to connect to ImproveSEO server'));
 	}
-	
+
+	$status_code = wp_remote_retrieve_response_code($response);
 	$body = wp_remote_retrieve_body($response);
 	$data = json_decode($body, true);
-	
+
 	if (!$data || !isset($data['success']) || !$data['success']) {
-		wp_send_json_error(array('error' => $data['error'] ?? 'Failed to retrieve user status'));
+		// Status travels with the message so the caller can show the shared connect-guard
+		// modal on a confirmed 401/403 (wrong pairing, or a site code that belongs to a
+		// different one of the account's websites) instead of a generic failure notice.
+		wp_send_json_error(array(
+			'error'  => $data['error'] ?? 'Failed to retrieve user status',
+			'status' => (int) $status_code,
+		));
 	}
 	
 	// Extract data from response
@@ -885,10 +904,11 @@ function fetch_AI_image_callback()
             'method'  => 'POST',
             'timeout' => 120,
             'headers' => array(
-                'Content-Type' => 'application/json',
-                'Accept'       => 'application/json',
-                'X-API-Key'    => $api_key,
-                'X-Site-Code'  => $site_code,
+                'Content-Type'  => 'application/json',
+                'Accept'        => 'application/json',
+                'X-API-Key'     => $api_key,
+                'X-Site-Code'   => $site_code,
+                'X-Site-Domain' => improveseo_connection_domain_header(),
             ),
             'body'    => wp_json_encode( $payload ),
         ) );
@@ -911,6 +931,16 @@ function fetch_AI_image_callback()
             $err_msg  = ( is_array($err_body) && ! empty($err_body['error']) )
                 ? $err_body['error']
                 : "Image generation server returned error status: $http_status";
+
+            // A rejected pairing (wrong key, wrong account, or a site code that belongs to a
+            // different one of the account's websites) gets the same sentinel prefix used
+            // elsewhere in the plugin (response.data here is a plain string, matched with
+            // .includes() by the JS callers, so the shape can't change) so those callers can
+            // show the shared connect-guard modal instead of a generic failure notice.
+            if ($http_status === 401 || $http_status === 403) {
+                $err_msg = 'ISEO_NOT_CONNECTED::' . $err_msg;
+            }
+
             wp_send_json_error($err_msg);
             wp_die();
         }

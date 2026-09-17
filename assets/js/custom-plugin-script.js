@@ -209,7 +209,12 @@ function GenerateCustomImage() {
       // Check for insufficient credits error (HTTP 402)
       if (response.success === false) {
         jQuery("#loadingAIImage").hide();
-        if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits') || response.data.includes('trial'))) {
+        // A confirmed 401/403 (wrong API Key/Site Code, or a site code that belongs to a
+        // different one of the account's websites) gets the same connect-guard modal every
+        // other generation surface shows.
+        if (response.data && response.data.indexOf('ISEO_NOT_CONNECTED::') === 0 && typeof window.iseoShowConnectionGuard === 'function') {
+          window.iseoShowConnectionGuard();
+        } else if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits') || response.data.includes('trial'))) {
           improveseoShowCreditNotice(response.data, 'image');
         } else {
           // Show error notification for other failures (500, network, etc.)
@@ -222,7 +227,7 @@ function GenerateCustomImage() {
         }
         return;
       }
-      
+
       jQuery("#AI_image_div").html(
         "<img src='" +
           response.data +
@@ -297,7 +302,12 @@ jQuery("#generate_i_image").on("click", function () {
       // Check for insufficient credits error (HTTP 402)
       if (response.success === false) {
         jQuery("#loadingAIImage").hide();
-        if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits') || response.data.includes('trial'))) {
+        // A confirmed 401/403 (wrong API Key/Site Code, or a site code that belongs to a
+        // different one of the account's websites) gets the same connect-guard modal every
+        // other generation surface shows.
+        if (response.data && response.data.indexOf('ISEO_NOT_CONNECTED::') === 0 && typeof window.iseoShowConnectionGuard === 'function') {
+          window.iseoShowConnectionGuard();
+        } else if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits') || response.data.includes('trial'))) {
           improveseoShowCreditNotice(response.data, 'image');
         } else {
           // Show error notification for other failures (500, network, etc.)
@@ -310,7 +320,7 @@ jQuery("#generate_i_image").on("click", function () {
         }
         return;
       }
-      
+
       jQuery("#ai-with-prompt-image-display").html(
         "<img src='" +
           response.data +
@@ -582,6 +592,25 @@ function iseoRunContentGeneration() {
       // jQuery("#loadingImage").hide();
 
       console.log("response of generate single ai", response);
+
+      // A confirmed rejection (wrong API Key/Site Code, or a site code that belongs to a
+      // different one of the account's websites) gets the same connect-guard modal every
+      // other generation surface shows, instead of being dumped into the content preview
+      // as though it were the generated article.
+      if (response.data && response.data.content?.indexOf('ISEO_NOT_CONNECTED::') === 0) {
+        jQuery("#loadingAIData").hide();
+        if (typeof window.iseoShowConnectionGuard === 'function') {
+          window.iseoShowConnectionGuard();
+        } else {
+          showImproveSEONotification(
+            'error',
+            'Generation Error',
+            response.data.content.slice('ISEO_NOT_CONNECTED::'.length),
+            null
+          );
+        }
+        return;
+      }
 
       // Check for insufficient credits error
       if (response.success === false || response.data.content?.includes('Error: Content generation server returned error status: 402')) {
@@ -1409,7 +1438,12 @@ function refreshAIImage() {
       if (response.success === false) {
         $btn.text(originalText);
         $hint.removeClass("ok").text(improveseoImageCostHint());
-        if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits') || response.data.includes('trial'))) {
+        // A confirmed 401/403 (wrong API Key/Site Code, or a site code that belongs to a
+        // different one of the account's websites) gets the same connect-guard modal every
+        // other generation surface shows.
+        if (response.data && response.data.indexOf('ISEO_NOT_CONNECTED::') === 0 && typeof window.iseoShowConnectionGuard === 'function') {
+          window.iseoShowConnectionGuard();
+        } else if (response.data && (response.data.includes('402') || response.data.includes('Insufficient') || response.data.includes('credits') || response.data.includes('trial'))) {
           improveseoShowCreditNotice(response.data, 'image');
         } else {
           showImproveSEONotification(
@@ -1910,6 +1944,19 @@ function generateAITitle() {
         generatedTitle = "";
       }
 
+      // ISEO_NOT_CONNECTED::<reason> means credentials DO exist but the server rejected this
+      // exact pairing (wrong key, wrong account, or — since apiAuth.middleware.ts enforces
+      // x-site-domain — a site code that belongs to a different one of the account's
+      // websites). iseoRequireConnection() above can't see this: locally the fields look
+      // fine. Same connect-guard modal every other generation surface shows for this case.
+      if (generatedTitle.indexOf("ISEO_NOT_CONNECTED::") === 0) {
+        if (typeof window.iseoShowConnectionGuard === "function") {
+          window.iseoShowConnectionGuard();
+          return;
+        }
+        generatedTitle = "";
+      }
+
       // ISEO_ERROR::<reason> means credentials DO exist but the call still failed — rejected
       // by the server, unreachable, or answered empty. That is the case the sentinel above
       // cannot see, and the server sends its own sentence so the dialog can name the cause
@@ -2068,6 +2115,24 @@ function SaveResultsButton() {
     })
     .success(function (data) {
       var text = (typeof data === "string") ? data.trim() : "";
+
+      // A confirmed rejection (wrong API Key/Site Code, or a site code that belongs to a
+      // different one of the account's websites) gets the same connect-guard modal every
+      // other generation surface shows, instead of a generic failure dialog naming a cause
+      // the user can't act on from here.
+      if (text.indexOf("ISEO_NOT_CONNECTED::") === 0) {
+        $details.val(previousDetails);
+        if (typeof window.iseoShowConnectionGuard === "function") {
+          window.iseoShowConnectionGuard();
+        } else {
+          iseoShowGenerationFailure(
+            "Details Generation Failed",
+            iseoDecodeEntities(text.slice("ISEO_NOT_CONNECTED::".length).trim()),
+            "We couldn't generate the details."
+          );
+        }
+        return;
+      }
 
       // A failure arrives as ISEO_ERROR::<reason> and must NOT be written into the field:
       // this textarea is the Details to Include, so an error sentence left here would be

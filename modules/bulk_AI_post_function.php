@@ -509,6 +509,7 @@ if (!function_exists('improveseo_notify_bulk_status')) {
             'headers'  => array(
                 'x-api-key'     => $api_key,
                 'x-site-code'   => $site_code,
+                'x-site-domain' => improveseo_connection_domain_header(),
                 'Content-Type'  => 'application/json',
             ),
             'body'     => wp_json_encode($body),
@@ -860,10 +861,12 @@ function generateBulkAiContent($id = '', $regenerate = '')
 	if ($value->aiImage == 'AI_image_one') {
 
 		$imageURL = generateBulkAiImage($ai_title, $getAudienceData, $iseo_niche);
-		
-		// Check if image generation failed (returns false)
-		if ($imageURL === false) {
-			my_plugin_log('generateBulkAiContent: Image generation FAILED for task ' . $id);
+
+		// Check if image generation failed (returns false, or the 'ISEO_NOT_CONNECTED'
+		// sentinel on a confirmed 401/403 — see generateBulkAiImage). Either way this is
+		// not a URL, so it must not be stored as one.
+		if ($imageURL === false || $imageURL === 'ISEO_NOT_CONNECTED') {
+			my_plugin_log('generateBulkAiContent: Image generation FAILED for task ' . $id . ($imageURL === 'ISEO_NOT_CONNECTED' ? ' (credentials rejected — reconnect in Settings)' : ''));
 			$imageURL = ''; // Set empty string for database
 		} else {
 			my_plugin_log('generateBulkAiContent: Image generated successfully for task ' . $id . ' | URL: ' . substr($imageURL, 0, 100) . '...');
@@ -956,13 +959,19 @@ function generateBulkAiContent($id = '', $regenerate = '')
 		return false;
 	}
 	
-	// Check if content is suspiciously short (likely an error message)
-	// Real articles should be at least 100 characters
-	if (strlen($AI_Content) < 100 && (
-		stripos($AI_Content, 'Error') !== false || 
+	// Check if content is suspiciously short (likely an error message), OR is the explicit
+	// "credentials rejected" sentinel from createAIpost2bulk.
+	//
+	// The sentinel is matched by name rather than left to the length/keyword heuristic below
+	// it. That heuristic only catches an error string UNDER 100 characters: the sentinel
+	// carries the admin server's own message, so a longer message from a future server build
+	// would sail past this check and be persisted and PUBLISHED as the body of a blog post.
+	// Matching the marker itself cannot drift that way.
+	if (strpos($AI_Content, 'Error: ISEO_NOT_CONNECTED') === 0 || (strlen($AI_Content) < 100 && (
+		stripos($AI_Content, 'Error') !== false ||
 		stripos($AI_Content, 'Failed') !== false ||
 		stripos($AI_Content, 'failed to open stream') !== false ||
-		stripos($AI_Content, 'connection') !== false)) {
+		stripos($AI_Content, 'connection') !== false))) {
 		
 		my_plugin_log('generateBulkAiContent: ERROR - Content appears to be an error message for task ' . $id . ': ' . substr($AI_Content, 0, 100) . '... | Saving title/image, resetting status for content retry.');
 		
@@ -1871,10 +1880,11 @@ function generateBulkAiImage($title, $AudienceData, $niche = 'general_blog')
         'method'  => 'POST',
         'timeout' => 120,
         'headers' => array(
-            'Content-Type' => 'application/json',
-            'Accept'       => 'application/json',
-            'X-API-Key'    => $api_key,
-            'X-Site-Code'  => $site_code,
+            'Content-Type'  => 'application/json',
+            'Accept'        => 'application/json',
+            'X-API-Key'     => $api_key,
+            'X-Site-Code'   => $site_code,
+            'X-Site-Domain' => improveseo_connection_domain_header(),
         ),
         'body'    => wp_json_encode( $payload ),
     ) );
@@ -1897,14 +1907,23 @@ function generateBulkAiImage($title, $AudienceData, $niche = 'general_blog')
         // Check for specific error types
         if ($http_status === 402) {
             error_log("generateBulkAiImage: Insufficient credits (HTTP 402)");
-        } else if ($http_status === 401) {
-            error_log("generateBulkAiImage: Authentication failed (HTTP 401)");
+        } else if ($http_status === 401 || $http_status === 403) {
+            // A rejected pairing — wrong key, wrong account, or (since apiAuth.middleware.ts
+            // enforces x-site-domain) a site code that belongs to a different one of the
+            // account's websites — used to look identical to any other transient image
+            // failure: error_log only, then `false`, which the caller (generateBulkAiContent)
+            // treats as "retry later" and resets the task to Pending forever. my_plugin_log is
+            // what an operator actually has a chance of seeing (see the other log lines in
+            // this file), and the distinct sentinel lets a future caller stop retrying a
+            // pairing that will never succeed instead of looping silently.
+            my_plugin_log("generateBulkAiImage: ImproveSEO rejected this site's API Key or Site Code (HTTP $http_status). Reconnect in Settings.");
+            return 'ISEO_NOT_CONNECTED';
         } else if ($http_status === 400) {
             error_log("generateBulkAiImage: Bad request (HTTP 400)");
         } else if ($http_status >= 500) {
             error_log("generateBulkAiImage: Server error (HTTP " . $http_status . ")");
         }
-        
+
         return false; // ✅ Return false - do NOT store HTTP status as image URL
     }
     
@@ -2055,10 +2074,11 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 		'method'  => 'POST',
 		'timeout' => 480,
 		'headers' => array(
-			'Content-Type' => 'application/json',
-			'Accept'       => 'application/json',
-			'X-API-Key'    => $api_key,
-			'X-Site-Code'  => $site_code,
+			'Content-Type'  => 'application/json',
+			'Accept'        => 'application/json',
+			'X-API-Key'     => $api_key,
+			'X-Site-Code'   => $site_code,
+			'X-Site-Domain' => improveseo_connection_domain_header(),
 		),
 		'body'    => wp_json_encode( $payload ),
 	) );
@@ -2074,16 +2094,31 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 
 	$response    = wp_remote_retrieve_body( $response_obj );
 	$http_status = (int) wp_remote_retrieve_response_code( $response_obj );
-	
+
 	// Check HTTP status
 	if ($http_status !== 200) {
 		error_log("createAIpost2 HTTP Error: Status $http_status, Response: " . $response);
-		// Keep the legacy prefix (the admin JS matches on it) and append the server's own
-		// message, so a trial-ended block reads differently from plain out-of-credits.
 		$err_body = json_decode($response, true);
-		$err_msg  = ( is_array($err_body) && ! empty($err_body['error']) ) ? ' — ' . $err_body['error'] : '';
+		$err_msg  = ( is_array($err_body) && ! empty($err_body['error']) ) ? $err_body['error'] : '';
+
+		// A rejected pairing (wrong key, wrong account, or — since apiAuth.middleware.ts
+		// enforces x-site-domain — a site code that belongs to a different one of the
+		// account's websites) is logged plainly for an operator, and still keeps the "Error"
+		// substring generateBulkAiContent's short-content check matches on (see its retry
+		// logic just above where $AI_Content is inspected), so the task retries exactly as it
+		// already did for any other failure rather than saving this text as the post body.
+		if ($http_status === 401 || $http_status === 403) {
+			my_plugin_log("createAIpost2bulk: ImproveSEO rejected this site's API Key or Site Code (HTTP $http_status). Reconnect in Settings.");
+			return array(
+				'content' => "Error: ISEO_NOT_CONNECTED - " . ( $err_msg !== '' ? $err_msg : "ImproveSEO rejected this site's API Key or Site Code." ),
+				'meta_title' => '',
+				'meta_description' => ''
+			);
+		}
+
+		// Keep the legacy prefix (the admin JS matches on it) for every other status.
 		return array(
-			'content' => "Error: Content generation server returned error status: $http_status" . $err_msg,
+			'content' => "Error: Content generation server returned error status: $http_status" . ( $err_msg !== '' ? ' — ' . $err_msg : '' ),
 			'meta_title' => '',
 			'meta_description' => ''
 		);
@@ -2730,13 +2765,18 @@ function multi_form_data()
 	}
 
 	$aux_error = '';
-	$text = improveseo_call_auxiliary_api( 'keyword_context', array( 'seed_keyword' => $keyword_list ), $aux_error );
+	$aux_not_connected = false;
+	$text = improveseo_call_auxiliary_api( 'keyword_context', array( 'seed_keyword' => $keyword_list ), $aux_error, $aux_not_connected );
 
 	if ( empty( $text ) ) {
+		// A confirmed 401/403 gets its own sentinel so the client shows the connect modal
+		// instead of the generic failure dialog — the same modal every other generation
+		// surface shows for a rejected pairing.
+		$prefix = $aux_not_connected ? 'ISEO_NOT_CONNECTED::' : 'ISEO_ERROR::';
 		// Escaped like the success path below and like generateTitle(): part of this is the
 		// admin server's own sentence, so it is remote text and gets the same treatment.
 		// iseoDecodeEntities() on the client undoes it for display.
-		echo 'ISEO_ERROR::' . esc_html( $aux_error !== '' ? $aux_error : 'Could not generate the details for these keywords.' );
+		echo $prefix . esc_html( $aux_error !== '' ? $aux_error : 'Could not generate the details for these keywords.' );
 		die();
 	}
 
@@ -3041,11 +3081,12 @@ function generateTitle($seed_type, $seed_keyword, $content_type, $getAudienceDat
 	$title_type = ($seed_type == 'seed_option3') ? 'question' : 'normal';
 
 	$aux_error = '';
+	$aux_not_connected = false;
 	$content = improveseo_call_auxiliary_api('title', array(
 		'seed_keyword'  => (string) $seed_keyword,
 		'audience_data' => (string) $getAudienceData,
 		'title_type'    => $title_type,
-	), $aux_error);
+	), $aux_error, $aux_not_connected);
 
 	// Strip surrounding quotes and any leading "Title:"-style label the model
 	// prepended (same normalizer the bulk path uses), then mirror the historical
@@ -3066,7 +3107,10 @@ function generateTitle($seed_type, $seed_keyword, $content_type, $getAudienceDat
 	// The client calls iseoDecodeEntities() before display, which is what stops an escaped
 	// apostrophe reaching the user as "site&#039;s".
 	if ($content === '') {
-		echo 'ISEO_ERROR::' . esc_html( $aux_error !== '' ? $aux_error : 'Title generation failed for an unknown reason.' );
+		// A confirmed 401/403 gets its own sentinel — see multi_form_data() above — so the
+		// client shows the connect modal instead of the generic failure dialog.
+		$prefix = $aux_not_connected ? 'ISEO_NOT_CONNECTED::' : 'ISEO_ERROR::';
+		echo $prefix . esc_html( $aux_error !== '' ? $aux_error : 'Title generation failed for an unknown reason.' );
 		return;
 	}
 

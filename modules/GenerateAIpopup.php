@@ -630,6 +630,11 @@ function generateAIpopup()
                 contentType: 'application/json',
                 timeout: 90000,
                 headers: {
+                    // Deliberately NO X-Site-Domain — see views/features/keyword.php for the
+                    // reasoning: a custom header on this browser → admin server call joins the
+                    // CORS preflight and would break keyword generation if the plugin shipped
+                    // before the server's allow-list. Origin is sent automatically and the
+                    // server's domain check falls back to it.
                     'X-API-Key': apiKey,
                     'X-Site-Code': siteCode
                 },
@@ -653,8 +658,15 @@ function generateAIpopup()
                     var serverError = (xhr.responseJSON && xhr.responseJSON.error) || '';
                     if (xhr.status === 402) {
                         alert(serverError || 'Insufficient keyword credits. Please upgrade your plan or buy credits.');
-                    } else if (xhr.status === 401) {
-                        alert('Authentication failed. Please check your API credentials in settings.');
+                    } else if (xhr.status === 401 || xhr.status === 403) {
+                        // The server rejected the API Key or Site Code (wrong pairing, or a site
+                        // code that belongs to a different one of the account's websites) — same
+                        // guard modal shown everywhere else this can happen, not a raw alert.
+                        if (typeof window.iseoShowConnectionGuard === 'function') {
+                            window.iseoShowConnectionGuard();
+                        } else {
+                            alert('Authentication failed. Please check your API credentials in settings.');
+                        }
                     } else {
                         alert(serverError || 'Keyword generation failed. Please try again.');
                     }

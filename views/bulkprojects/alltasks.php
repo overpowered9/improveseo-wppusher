@@ -462,9 +462,83 @@ $url .= $_SERVER['REQUEST_URI'];
 			return;
 		}
 
-		jQuery('.show_loading').css("display", "block");
-		jQuery(".show_loading h2").html("Post is re-generating, Please wait ...<br><strong style='color: #d63638; margin-top: 10px; display: inline-block;'>Do not close this page!</strong>");
-		re_generate(id);
+		// Then the LIVE check, for the same reason the wizard runs one at step 0: the guard above
+		// only proves the two fields are filled in, not that they still work.
+		//
+		// This matters more here than anywhere else in the plugin, because re_generate_post()
+		// never contacts the admin server — it blanks the task, marks it Pending and leaves the
+		// work to cron. So a site whose API Key or Site Code is being rejected gets told
+		// "Content has been Re-Generated successfully", and then the task fails silently on every
+		// cron pass from now on, with nothing on screen ever saying why.
+		//
+		// check_bulk_credits is reused rather than reimplemented: it already asks /users/status,
+		// which is behind the server's auth middleware, so ONE response answers both questions in
+		// the right order — rejected credentials come back 401/403, and only once those pass does
+		// it price the job and report whether the balance covers it. Its handlers below show the
+		// connect modal or the credit notice accordingly.
+		iseoVerifyBeforeRegenerate(function () {
+			jQuery('.show_loading').css("display", "block");
+			jQuery(".show_loading h2").html("Post is re-generating, Please wait ...<br><strong style='color: #d63638; margin-top: 10px; display: inline-block;'>Do not close this page!</strong>");
+			re_generate(id);
+		});
+	}
+
+	/**
+	 * Ask the server whether this site can regenerate a post right now, and only then run onOk().
+	 *
+	 * article_size is deliberately left empty: this screen does not carry the per-task word count,
+	 * and check_bulk_credits treats an absent size as medium. That makes this an approximation for
+	 * a Large post — acceptable because it is a pre-check whose only job is to fail early and
+	 * legibly. The authoritative gate is still the server's atomic credit reservation at
+	 * generation time, which cannot be approximated away.
+	 */
+	function iseoVerifyBeforeRegenerate(onOk) {
+		jQuery.ajax({
+			url: "<?php echo esc_url( admin_url("admin-ajax.php") ); ?>",
+			type: 'POST',
+			data: {
+				action: 'check_bulk_credits',
+				api_key: '<?php echo esc_js( get_option("improveseo_api_key") ); ?>',
+				site_code: '<?php echo esc_js( get_option("improveseo_site_code") ); ?>',
+				keyword_count: 1,
+				ai_image_count: 0,
+				article_size: '',
+				nonce: '<?php echo esc_js( wp_create_nonce("check_credits_nonce") ); ?>'
+			},
+			success: function (response) {
+				if (!response || !response.success) {
+					var failStatus = response && response.data && response.data.status;
+					// Credentials rejected — same connect modal every other surface shows.
+					if ((failStatus === 401 || failStatus === 403) && typeof window.iseoShowConnectionGuard === 'function') {
+						window.iseoShowConnectionGuard();
+						return;
+					}
+					alert((response && response.data && (response.data.error || response.data.message)) || 'Unable to verify your account. Please try again.');
+					return;
+				}
+
+				var d = response.data || {};
+				if (d.content_check && !d.content_check.sufficient) {
+					var needed = (d.content_check.needed != null) ? d.content_check.needed : '';
+					// The "estimated" wording is not hedging — this screen has no per-task word
+					// count, so the figure above is priced as a medium article (see the note on
+					// article_size in the request). Saying so keeps the number honest rather than
+					// presenting an approximation as the exact charge.
+					alert('Not enough credits to regenerate this post.\n\n' +
+						  'ISEO credits required: ' + needed + ' (estimated)' +
+						  '\nCredits available now: ' + d.content_check.available +
+						  '\n\nThis estimate assumes a medium-size article — a larger post can cost more. ' +
+						  'The exact amount is taken when the post is generated.' +
+						  '\n\nPlease purchase more credits to continue.');
+					return;
+				}
+
+				onOk();
+			},
+			error: function () {
+				alert('Could not reach the ImproveSEO server to verify your account. Please try again.');
+			}
+		});
 	}
 
 	function re_generate(ids) {

@@ -3929,7 +3929,15 @@ global $ai_modal_type;
                         }
                         resolve(d);
                     } else {
-                        showImproveSEONotification('error', 'Credit Check Failed', (response.data && response.data.message) ? response.data.message : 'Unable to verify credits. Please try again.', null);
+                        // A confirmed 401/403 (wrong API Key/Site Code, or a site code that
+                        // belongs to a different one of the account's websites) gets the same
+                        // connect-guard modal every other generation surface shows.
+                        var failStatus = response.data && response.data.status;
+                        if ((failStatus === 401 || failStatus === 403) && typeof window.iseoShowConnectionGuard === 'function') {
+                            window.iseoShowConnectionGuard();
+                        } else {
+                            showImproveSEONotification('error', 'Credit Check Failed', (response.data && (response.data.message || response.data.error)) ? (response.data.message || response.data.error) : 'Unable to verify credits. Please try again.', null);
+                        }
                         reject('check_failed');
                     }
                 },
@@ -4101,12 +4109,20 @@ global $ai_modal_type;
                         });
                         
                     } else {
-                        showImproveSEONotification(
-                            'error',
-                            'Credit Check Failed',
-                            response.data && response.data.message ? response.data.message : 'Unable to verify credits. Please try again.',
-                            null
-                        );
+                        // A confirmed 401/403 (wrong API Key/Site Code, or a site code that
+                        // belongs to a different one of the account's websites) gets the same
+                        // connect-guard modal every other generation surface shows.
+                        var bulkFailStatus = response.data && response.data.status;
+                        if ((bulkFailStatus === 401 || bulkFailStatus === 403) && typeof window.iseoShowConnectionGuard === 'function') {
+                            window.iseoShowConnectionGuard();
+                        } else {
+                            showImproveSEONotification(
+                                'error',
+                                'Credit Check Failed',
+                                response.data && (response.data.message || response.data.error) ? (response.data.message || response.data.error) : 'Unable to verify credits. Please try again.',
+                                null
+                            );
+                        }
                         reject('check_failed');
                     }
                 },
@@ -4114,7 +4130,7 @@ global $ai_modal_type;
                     if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.hide) {
                         ImproveSEOLoading.hide();
                     }
-                    
+
                     showImproveSEONotification(
                         'error',
                         'Connection Error',
@@ -4254,12 +4270,20 @@ global $ai_modal_type;
                             resolve(data);
                         }
                     } else {
-                        showImproveSEONotification(
-                            'error',
-                            'Credit Check Failed',
-                            response.data.error || 'Unable to verify credits. Please try again.',
-                            null
-                        );
+                        // A confirmed 401/403 (wrong API Key/Site Code, or a site code that
+                        // belongs to a different one of the account's websites) gets the same
+                        // connect-guard modal every other generation surface shows.
+                        var imgFailStatus = response.data && response.data.status;
+                        if ((imgFailStatus === 401 || imgFailStatus === 403) && typeof window.iseoShowConnectionGuard === 'function') {
+                            window.iseoShowConnectionGuard();
+                        } else {
+                            showImproveSEONotification(
+                                'error',
+                                'Credit Check Failed',
+                                (response.data && response.data.error) || 'Unable to verify credits. Please try again.',
+                                null
+                            );
+                        }
                         reject('check_failed');
                     }
                 },
