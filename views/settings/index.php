@@ -416,17 +416,10 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (d.credits && d.credits.total != null)   { total = d.credits.total; }
         else if (d.credits && d.credits.content != null) { total = d.credits.content; }
 
-        // What the balance buys. Priced from the server's own table — the same one
-        // check_bulk_credits() gates against — so the estimate here and the cost shown in the
-        // generation wizard cannot drift apart. No pricing published, no claim made.
-        var pricing = d.pricing || null;
-        var perPiece = null;
-        if (pricing && pricing.content && pricing.content.medium != null && pricing.image != null) {
-            perPiece = parseInt(pricing.content.medium, 10) + parseInt(pricing.image, 10);
-        }
-        var pieces = (perPiece > 0 && total != null && !isNaN(parseInt(total, 10)))
-            ? Math.round(parseInt(total, 10) / perPiece)
-            : null;
+        // What the balance buys. The number is the admin server's (GET /credits/estimate,
+        // fetched by test_improveseo_connection), the same one the CMS shows — this used to
+        // divide here by article + image and read 7 pieces where the CMS read 5.
+        var pieces = (d.pieces != null && !isNaN(parseInt(d.pieces, 10))) ? parseInt(d.pieces, 10) : null;
 
         // Breakdown rows.
         //

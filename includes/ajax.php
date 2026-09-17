@@ -76,6 +76,17 @@ function test_improveseo_connection() {
     }
 
     $result = $check['data'];
+
+    // The balance, read the same way the settings panel reads it.
+    $credits_total = null;
+    if (isset($result['credits_total'])) {
+        $credits_total = $result['credits_total'];
+    } elseif (isset($result['credit_details']['content']['total'])) {
+        $credits_total = $result['credit_details']['content']['total'];
+    } elseif (isset($result['credits']['content'])) {
+        $credits_total = $result['credits']['content'];
+    }
+
     wp_send_json_success(array(
         'server'         => 'Connected successfully',
         'user'           => isset($result['user']) ? $result['user'] : 'Authenticated',
@@ -103,7 +114,41 @@ function test_improveseo_connection() {
         // the remaining balance actually buys using the SAME numbers the bulk gate
         // prices against (see check_bulk_credits in single_and_bulk_AI_post_function.php).
         'pricing'        => isset($result['pricing']) ? $result['pricing'] : null,
+        // "This equals approximately N pieces" — the server's figure, from the same
+        // endpoint the CMS uses, so one balance reads the same in both. Null when
+        // the server could not answer; the panel then omits the line.
+        'pieces'         => $credits_total !== null ? improveseo_estimate_pieces($credits_total) : null,
     ));
+}
+
+/**
+ * How many pieces of content a number of credits buys, from the admin server.
+ *
+ * GET /api/v1/credits/estimate is the ONE place this is calculated. The plugin used
+ * to divide the balance itself (by article + image, rounded), so 100 credits read as
+ * 7 pieces here and 5 in the CMS.
+ *
+ * @return int|null  null when the server did not answer — never a local guess.
+ */
+function improveseo_estimate_pieces($credits) {
+    $credits = (int) $credits;
+    if ($credits < 0) {
+        return null;
+    }
+
+    $response = wp_remote_get(
+        add_query_arg('credits', $credits, IMPROVESEO_CONNECTION_SERVER . '/api/v1/credits/estimate'),
+        array('timeout' => 15)
+    );
+    if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
+        return null;
+    }
+
+    $body = json_decode(wp_remote_retrieve_body($response), true);
+    if (!isset($body['data']['estimates'][0]['pieces'])) {
+        return null;
+    }
+    return (int) $body['data']['estimates'][0]['pieces'];
 }
 
 
