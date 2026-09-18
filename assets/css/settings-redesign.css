@@ -1085,3 +1085,149 @@
 .iseo-features-form {
     display: contents;
 }
+
+/* ── "Your settings were not saved" modal ─────────────────────
+   Raised by views/settings/index.php when Save Changes refuses an API Key + Site Code pair —
+   rejected by the server, an incomplete pair, or the server not answering at all. Same card as
+   the allowance notice above and the connection guard in views/layouts/main.php, because all
+   three are the same event to a user: something they asked for did not happen, and here is why.
+
+   NOT scoped under .iseo-settings-page: the overlay is a sibling of that wrapper, so it can
+   escape any stacking context the page's grid or cards create. */
+.iseo-save-issue-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+}
+
+/* The `hidden` attribute is how the script opens and closes this, and the `display:flex` above
+   would otherwise beat it: `hidden` only carries a UA-sheet `display:none`, which any author
+   rule outranks. Restating it here at higher specificity is what makes the attribute work. */
+.iseo-save-issue-overlay[hidden] {
+    display: none;
+}
+
+.iseo-save-issue-dialog {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 440px;
+    padding: 36px 32px 28px;
+    background: #FFFFFF;
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    text-align: center;
+    animation: iseoSaveIssueIn 0.2s ease-out;
+}
+
+.iseo-save-issue-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    padding: 4px;
+    border: none;
+    background: none;
+    color: #9CA3AF;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+.iseo-save-issue-close:hover,
+.iseo-save-issue-close:focus {
+    color: #374151;
+}
+
+.iseo-save-issue-icon {
+    margin-bottom: 16px;
+    color: #D97706;
+}
+.iseo-save-issue-icon svg {
+    display: inline-block;
+}
+
+.iseo-save-issue-title {
+    margin: 0 0 8px;
+    color: #111827;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+/* One flex column so a line that is hidden leaves no gap behind it, and the 24px above the
+   button always sits under whichever lines are actually showing. */
+.iseo-save-issue-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0 0 24px;
+}
+
+.iseo-save-issue-text {
+    margin: 0;
+    color: #6B7280;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.iseo-save-issue-detail {
+    margin: 0;
+    color: #9CA3AF;
+    font-size: 12px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.iseo-save-issue-hint {
+    margin: 0;
+    color: #6B7280;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.iseo-save-issue-link {
+    color: #0F7B6C;
+    font-weight: 600;
+    text-decoration: underline;
+}
+.iseo-save-issue-link:hover,
+.iseo-save-issue-link:focus {
+    color: #0E6B5E;
+}
+
+.iseo-save-issue-ok {
+    min-width: 110px;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 8px;
+    background: #0F7B6C;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.iseo-save-issue-ok:hover {
+    background: #0E6B5E;
+}
+.iseo-save-issue-ok:focus-visible {
+    outline: 2px solid #0F7B6C;
+    outline-offset: 2px;
+}
+
+@keyframes iseoSaveIssueIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .iseo-save-issue-dialog {
+        animation: none;
+    }
+}

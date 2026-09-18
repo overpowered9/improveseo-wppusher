@@ -53,12 +53,44 @@ use ImproveSEO\View;
                     <?php settings_fields('improveseo_settings'); ?>
 
                     <?php
-                    // Renders any add_settings_error('improveseo_settings', ...) calls fired by
-                    // improveseo_sanitize_and_verify_credentials_field() during the save this page
-                    // just redirected from — e.g. the API Key / Site Code being rejected by the
-                    // live connection check. Without this call the errors are recorded but never
-                    // shown, and a refused save would look identical to a successful one.
-                    settings_errors('improveseo_settings');
+                    // Errors recorded by improveseo_sanitize_and_verify_credentials_field() during
+                    // the save this page just redirected from — e.g. the API Key / Site Code being
+                    // rejected by the live connection check. Without reading them here they are
+                    // recorded but never shown, and a refused save would look identical to a
+                    // successful one.
+                    //
+                    // The three credential codes are lifted OUT of the inline notice list and handed
+                    // to the modal at the bottom of this file instead. That is where a refusal is
+                    // reported when JavaScript is on (the submit gate never reaches options.php at
+                    // all), so routing the no-JS path to the same place keeps one refusal looking
+                    // like one refusal rather than two unrelated messages. Everything else — above
+                    // all WordPress's own "Settings saved." — still renders as a normal notice.
+                    $iseo_modal_error_codes = array( 'iseo_incomplete_pair', 'iseo_not_connected', 'iseo_verify_unreachable' );
+                    $iseo_save_failure      = '';
+                    $iseo_save_failure_code = '';
+
+                    foreach ( get_settings_errors( 'improveseo_settings' ) as $iseo_error ) {
+                        if ( in_array( $iseo_error['code'], $iseo_modal_error_codes, true ) ) {
+                            if ( '' === $iseo_save_failure ) {
+                                $iseo_save_failure      = $iseo_error['message'];
+                                $iseo_save_failure_code = $iseo_error['code'];
+                            }
+                            continue;
+                        }
+
+                        // Same markup settings_errors() would have emitted, including its
+                        // 'updated' → 'success' rename, so the surviving notices are unchanged.
+                        $iseo_notice_type = ( 'updated' === $iseo_error['type'] ) ? 'success' : $iseo_error['type'];
+                        if ( ! in_array( $iseo_notice_type, array( 'error', 'success', 'warning', 'info' ), true ) ) {
+                            $iseo_notice_type = 'info';
+                        }
+                        printf(
+                            '<div id="%s" class="notice notice-%s settings-error is-dismissible"><p><strong>%s</strong></p></div>',
+                            esc_attr( 'setting-error-' . $iseo_error['code'] ),
+                            esc_attr( $iseo_notice_type ),
+                            esc_html( $iseo_error['message'] )
+                        );
+                    }
                     ?>
 
                     <!-- Form top bar: breadcrumb navigation + save button -->
@@ -295,6 +327,54 @@ use ImproveSEO\View;
     </div><!-- .iseo-settings-grid -->
 
 </div><!-- .iseo-settings-page -->
+
+<!-- ── Save-refused modal ─────────────────────────────────────────────────
+     Save Changes already refuses an API Key + Site Code pair the server does not accept —
+     the submit gate in the script below client-side, improveseo_sanitize_and_verify_credentials_field()
+     server-side. It used to say so only by rewriting #connection_status, at the BOTTOM of the
+     connection card, below the guide block and a scroll or two down on a laptop, while the Save
+     button is at the top. Pressing Save and seeing the page sit still is indistinguishable from
+     pressing Save and having it work, which is exactly the complaint.
+
+     Deliberately its own element rather than the shared connection guard in views/layouts/main.php:
+     that modal's whole job is to send someone TO this page, and its copy ("This site isn't
+     connected", button "Connect Website" → Settings) is nonsense once you are standing on Settings.
+     What it borrows is the look — card, type scale, greys, amber icon, teal button — via the same
+     stylesheet the Keyword Generator's allowance notice uses, so every blocking notice in the
+     plugin reads as one family. -->
+<div id="iseo-save-issue-overlay" class="iseo-save-issue-overlay" hidden>
+	<div class="iseo-save-issue-dialog" role="alertdialog" aria-modal="true" aria-labelledby="iseo-save-issue-title" aria-describedby="iseo-save-issue-text">
+
+		<button type="button" id="iseo-save-issue-close" class="iseo-save-issue-close" aria-label="<?php esc_attr_e( 'Close', 'improveseo' ); ?>">&times;</button>
+
+		<div class="iseo-save-issue-icon">
+			<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+				<circle cx="12" cy="12" r="10"></circle>
+				<line x1="12" y1="8" x2="12" y2="12"></line>
+				<line x1="12" y1="16" x2="12.01" y2="16"></line>
+			</svg>
+		</div>
+
+		<h3 id="iseo-save-issue-title" class="iseo-save-issue-title"></h3>
+
+		<div class="iseo-save-issue-body">
+			<p id="iseo-save-issue-text" class="iseo-save-issue-text"></p>
+			<!-- The server's or the network's own words, when there are any. Quieter than the
+			     sentence above: it explains nothing to most people, but it is the one thing that
+			     helps when someone sends the screenshot to support. -->
+			<p id="iseo-save-issue-detail" class="iseo-save-issue-detail" hidden></p>
+			<!-- Shown only when the credentials themselves are the problem — pointless, and
+			     actively misleading, when the server simply could not be reached. -->
+			<p id="iseo-save-issue-hint" class="iseo-save-issue-hint" hidden>
+				Both values come from your <a class="iseo-save-issue-link" href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer">ImproveSEO Dashboard</a> &rarr; Websites tab, for THIS website.
+			</p>
+		</div>
+
+		<!-- Dismiss, and nothing else. The fields that need correcting are on the page behind this
+		     card, so the button closes and puts the cursor in the first of them. -->
+		<button type="button" id="iseo-save-issue-ok" class="iseo-save-issue-ok">Got it</button>
+	</div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -648,6 +728,102 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    /* ── "That save did not go through" ─────────────────────────────────────
+       The refusal used to be reported only by rewriting #connection_status, which sits at the
+       BOTTOM of the connection card — below the guide block, two screens down on a laptop —
+       while Save Changes is at the top. Pressing Save and seeing the page sit still is
+       indistinguishable from pressing Save and having it work, which is the whole complaint.
+       The panel is still written (it is the connection card's own state, and it survives the
+       modal being dismissed); the modal is what makes the refusal impossible to walk past.
+
+       Markup and styling: see #iseo-save-issue-overlay above. */
+    const iseoSaveIssueOverlay = document.getElementById('iseo-save-issue-overlay');
+
+    // Where the cursor goes when the modal closes: the field most likely to be wrong, and the
+    // reason the modal has no link of its own — everything it asks for is on the page behind it.
+    function iseoFocusCredentialField() {
+        const apiInput = document.querySelector('input[name="improveseo_api_key"]');
+        if (apiInput) { apiInput.focus(); }
+    }
+
+    function iseoHideSaveIssue(refocus) {
+        if (!iseoSaveIssueOverlay) { return; }
+        iseoSaveIssueOverlay.hidden = true;
+        if (refocus) { iseoFocusCredentialField(); }
+    }
+
+    /**
+     * @param {{title: string, text: string, hint: boolean}} issue - the refusal, in the user's terms.
+     * @param {string=} detail - the server's or the network's own words, when there are any.
+     *   Shown underneath, smaller: it explains nothing to most people, but it is the only thing
+     *   that helps when someone pastes a screenshot into support.
+     */
+    function iseoShowSaveIssue(issue, detail) {
+        if (!iseoSaveIssueOverlay) { return; }
+
+        document.getElementById('iseo-save-issue-title').textContent = issue.title;
+        document.getElementById('iseo-save-issue-text').textContent  = issue.text;
+
+        // textContent, not innerHTML: `detail` carries server and network strings that never
+        // originated on this page.
+        const detailEl = document.getElementById('iseo-save-issue-detail');
+        detailEl.textContent = detail || '';
+        detailEl.hidden      = !detail;
+
+        document.getElementById('iseo-save-issue-hint').hidden = !issue.hint;
+
+        iseoSaveIssueOverlay.hidden = false;
+
+        const ok = document.getElementById('iseo-save-issue-ok');
+        if (ok) { ok.focus(); }
+    }
+
+    // The three refusals this screen can produce. Worded for someone who has just pressed Save
+    // Changes, so each one says what happened to their settings — "not saved", "previous
+    // settings kept" — before it says what to do, because that is the question the silent
+    // version of this screen left them asking.
+    const ISEO_SAVE_ISSUES = {
+        // Live 401/403: wrong key, a site code from another account, or a site code issued for
+        // a DIFFERENT one of this account's websites (the admin server enforces x-site-domain).
+        // All three are one thing to the user: this pair does not connect THIS website.
+        rejected: {
+            title: 'These credentials were not saved',
+            text: 'ImproveSEO did not accept this API Key and Site Code for this website, so your previously saved settings have been kept. Check that you copied both values from the entry for this website, then press Save Changes again.',
+            hint: true
+        },
+        incomplete: {
+            title: 'Enter both the API Key and the Site Code',
+            text: 'A connection needs both values, so nothing has been saved. Fill in both fields — or clear both, to disconnect this website from ImproveSEO.',
+            hint: true
+        },
+        // Not a verdict on the credentials: the server never answered. Saying "not connected"
+        // here would send someone off to fix something that is not broken.
+        unreachable: {
+            title: 'Could not verify your credentials',
+            text: 'The ImproveSEO server did not answer, so nothing has been saved. This is usually temporary — press Save Changes again in a moment.',
+            hint: false
+        }
+    };
+
+    (function () {
+        if (!iseoSaveIssueOverlay) { return; }
+
+        const closeBtn = document.getElementById('iseo-save-issue-close');
+        const okBtn    = document.getElementById('iseo-save-issue-ok');
+
+        if (closeBtn) { closeBtn.addEventListener('click', function () { iseoHideSaveIssue(true); }); }
+        if (okBtn)    { okBtn.addEventListener('click',    function () { iseoHideSaveIssue(true); }); }
+
+        // Click outside the card, and Escape — same two dismissals as the connection guard, so
+        // the two modals do not behave differently for looking the same.
+        iseoSaveIssueOverlay.addEventListener('click', function (e) {
+            if (e.target === iseoSaveIssueOverlay) { iseoHideSaveIssue(true); }
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !iseoSaveIssueOverlay.hidden) { iseoHideSaveIssue(true); }
+        });
+    })();
+
     /**
      * @param {boolean} auto - true for the silent on-load/on-focus check; false for the
      *   "Confirm website connection" button click, which owns the button's busy state.
@@ -790,10 +966,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const statusDiv = document.getElementById('connection_status');
 
-            // Incomplete pair: same message the server-side gate would show, without
-            // spending a round trip on the admin server to learn what we already know.
+            // Incomplete pair: same refusal the server-side gate would give, without spending
+            // a round trip on the admin server to learn what we already know.
             if (!apiKey || !siteCode) {
                 statusDiv.innerHTML = ISEO_NOT_CONNECTED_HTML;
+                iseoShowSaveIssue(ISEO_SAVE_ISSUES.incomplete);
                 return;
             }
 
@@ -804,7 +981,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 saveBtn.value = 'Verifying connection…';
             }
 
-            improveseoRunConnectionCheck(true, function (connected) {
+            improveseoRunConnectionCheck(true, function (connected, failure) {
                 if (saveBtn) {
                     saveBtn.disabled = false;
                     saveBtn.value = originalLabel;
@@ -812,11 +989,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (connected) {
                     iseoBypassSubmitGate = true;
                     settingsForm.submit();
+                    return;
                 }
-                // Not connected: stay on the page, the inline panel above already explains why.
+
+                // Not connected: stay on the page. The inline panel has already been written by
+                // the check itself; the modal is what actually tells someone standing at the Save
+                // button, two screens above it, that their credentials were not stored.
+                //
+                // 401/403 is a verdict on the pair; anything else (timeout, 5xx, DNS) is the
+                // server failing to answer, and the two must not be worded the same — see the
+                // copy in ISEO_SAVE_ISSUES.
+                failure = failure || {};
+                if (failure.status === 401 || failure.status === 403) {
+                    iseoShowSaveIssue(ISEO_SAVE_ISSUES.rejected);
+                } else {
+                    iseoShowSaveIssue(ISEO_SAVE_ISSUES.unreachable, failure.error || failure.message || '');
+                }
             }, 'presubmit');
         });
     })();
+
+<?php if ( '' !== $iseo_save_failure ) : ?>
+    // A save that reached options.php and was refused THERE — the no-JS path, or anything that
+    // POSTs this form directly. The submit gate above normally catches these before the request
+    // leaves the page, so this only fires when it did not run; the wording is the server's own,
+    // shown in the same card as every other refusal instead of as a notice that scrolls away.
+    iseoShowSaveIssue({
+        title: <?php echo wp_json_encode( __( 'Your settings were not saved', 'improveseo' ) ); ?>,
+        text:  <?php echo wp_json_encode( $iseo_save_failure ); ?>,
+        hint:  <?php echo ( 'iseo_verify_unreachable' === $iseo_save_failure_code ) ? 'false' : 'true'; ?>
+    });
+<?php endif; ?>
 
     // Answer "did that work?" on page load without making the user hunt for the button — it
     // runs after the page is already interactive, so a slow server costs nothing but a spinner
