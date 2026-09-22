@@ -241,13 +241,17 @@ ul.breadcrumb-seo li a:hover {
   margin: 0 0 10px;
 }
 
-/* ── Dashboard Quick Start card ─────────────────────────────────────────────
-   One card, sized like a module-box (it borrows that class for width/padding/
-   border/shadow), placed in its own row above the module grid so it is the
-   first thing on the page. A left accent bar + tinted background carry the
-   state (checking / ready / low credits / not connected) the module cards
-   never could. */
+/* ── Dashboard Quick Start / Guided Start cards ──────────────────────────────
+   Each card is sized like a module-box (they borrow that class for width/
+   padding/border/shadow), placed in their own row above the module grid so
+   they are the first thing on the page. A left accent bar + tinted background
+   carry the state (checking / ready / low credits / not connected) the
+   module cards never could. Flex + wrap/gap mirrors .modules-row below so
+   Guided Start sits beside Quick Start at the same width, not stacked under it. */
 .iseo-quickstart-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
   padding: 0 20px;
   margin-top: 20px;
 }
@@ -260,6 +264,14 @@ ul.breadcrumb-seo li a:hover {
   gap: 14px;
   border-left: 4px solid #90a4ae;
   background-color: #f5f6f8;
+}
+
+/* display:flex above otherwise beats the browser's default [hidden]{display:none} —
+   author CSS always outranks that UA-stylesheet rule, so Guided Start (or Quick
+   Start's own msg lines) would render even while marked hidden. Higher specificity
+   (class + attribute) restores it. */
+.iseo-quickstart-card[hidden] {
+  display: none;
 }
 
 .iseo-quickstart-icon {
@@ -318,6 +330,18 @@ ul.breadcrumb-seo li a:hover {
 
 .iseo-quickstart-card[data-state="disconnected"] .iseo-quickstart-icon { background-color: #b32d2e; }
 .iseo-quickstart-card[data-state="disconnected"] .iseo-quickstart-link { color: #b32d2e; }
+
+/* Guided Start only ever appears once Quick Start has settled on 'ready', so unlike
+   Quick Start it carries no data-state of its own — always the brand light blue, which
+   also keeps it visually distinct from Quick Start's green "ready" accent when the two
+   are shown side by side. */
+.iseo-guidedstart-card {
+  border-left-color: #2DA4FD;
+  background-color: #eaf6ff;
+}
+
+.iseo-guidedstart-card .iseo-quickstart-icon { background-color: #2DA4FD; }
+.iseo-guidedstart-card .iseo-quickstart-link { color: #1a7fd1; }
 
 @media (max-width: 782px) {
   .iseo-quickstart-card {

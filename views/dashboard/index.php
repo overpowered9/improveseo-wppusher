@@ -102,11 +102,43 @@ use ImproveSEO\View;
 					<?php endif; ?>
 				</div>
 			</div>
+
+			<?php
+			// Guided Start — a second, optional card next to Quick Start: "I don't just want to
+			// create content, I want a guided tour of how." Only makes sense once Quick Start's
+			// own check has settled on 'ready' (connected AND enough credits), so it starts
+			// hidden and JS reveals it — it can never be shown server-side, credits are never
+			// known at render time. No no-JS fallback here (unlike Quick Start): this is a
+			// nice-to-have, not the answer to "can I create content", so with JS off it simply
+			// stays hidden rather than guessing an account state it cannot verify.
+			//
+			// The "modified onboarding flow" is not a new flow: it's the SAME guided,
+			// tooltip-driven tour of the single-post wizard that step 5 of the original setup
+			// wizard already links to (assets/js/onboarding.js' firstContentUrl) — see
+			// assets/js/onboarding-guide.js and its activation in
+			// views/posting/create-post-single.php ($_GET['from'] === 'onboarding'). Reusing
+			// that URL means there is one guided tour, entered from two places, not a second
+			// one to keep in sync.
+			$iseo_gs_guide_url = admin_url('admin.php?page=improveseo_posting&from=onboarding');
+			?>
+			<div class="module-box iseo-quickstart-card iseo-guidedstart-card" id="iseo-guidedstart-card" hidden>
+				<div class="iseo-quickstart-icon" aria-hidden="true">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+				</div>
+				<div class="iseo-quickstart-body">
+					<h3 class="iseo-quickstart-title">Guided Start</h3>
+					<p class="iseo-quickstart-msg" data-qs-msg="ready">
+						Still learning how to get started? Create content with our step-by-step Wizard Guide.
+						<a href="<?php echo esc_url( $iseo_gs_guide_url ); ?>" class="iseo-quickstart-link">Start the guide</a>
+					</p>
+				</div>
+			</div>
 		</div>
 		<?php if ( $iseo_qs_has_creds ) : ?>
 		<script>
 		document.addEventListener('DOMContentLoaded', function () {
-			var card = document.getElementById('iseo-quickstart-card');
+			var card       = document.getElementById('iseo-quickstart-card');
+			var guideCard  = document.getElementById('iseo-guidedstart-card');
 			if (!card || card.getAttribute('data-state') !== 'loading') { return; }
 
 			function iseoQsShow(state) {
@@ -114,6 +146,9 @@ use ImproveSEO\View;
 				card.querySelectorAll('[data-qs-msg]').forEach(function (el) {
 					el.hidden = el.getAttribute('data-qs-msg') !== state;
 				});
+				// Guided Start only makes sense once we know the account is connected AND has
+				// enough credits — the same 'ready' state Quick Start's own message uses.
+				if (guideCard) { guideCard.hidden = (state !== 'ready'); }
 			}
 
 			var data = new FormData();
