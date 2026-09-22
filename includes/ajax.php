@@ -77,6 +77,10 @@ function test_improveseo_connection() {
 
     $result = $check['data'];
 
+    // Feeds the site-wide low-credits/expiring-soon notice (includes/connection-status.php)
+    // with fresh data right away, rather than leaving it to wait for the next heartbeat.
+    improveseo_store_credit_snapshot($result);
+
     // The balance, read the same way the settings panel reads it.
     $credits_total = null;
     if (isset($result['credits_total'])) {

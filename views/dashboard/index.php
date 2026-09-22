@@ -179,7 +179,10 @@ use ImproveSEO\View;
 					else if (d.credits && d.credits.total != null) { total = d.credits.total; }
 					else if (d.credits && d.credits.content != null) { total = d.credits.content; }
 
-					iseoQsShow((total != null && total < 10) ? 'low' : 'ready');
+					// IMPROVESEO_LOW_CREDIT_THRESHOLD (includes/connection-status.php) — the same
+					// number the site-wide low-credits notice uses, so "low" never means two
+					// different things on the same site.
+					iseoQsShow((total != null && total < <?php echo (int) IMPROVESEO_LOW_CREDIT_THRESHOLD; ?>) ? 'low' : 'ready');
 				})
 				.catch(function () { iseoQsShow('ready'); });
 		});

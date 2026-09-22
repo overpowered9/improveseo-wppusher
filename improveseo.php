@@ -713,7 +713,12 @@ function improveseo_hide_other_notices()
 
 		if ( isset( $my_current_screen->base ) && strpos( $my_current_screen->base, 'improveseo' ) !== false ) {
 
-			echo '<style>.notice{ display:none !important;}</style>';
+			// :not(.iseo-global-notice) exempts the site-wide connection/credit banner
+			// (includes/connection-status.php, improveseo_global_notices()) — hiding it
+			// specifically on this plugin's OWN screens would mean the one place someone
+			// goes to fix "not connected" or "low on credits" is the one place that
+			// hides the notice telling them so.
+			echo '<style>.notice:not(.iseo-global-notice){ display:none !important;}</style>';
 
 		}
 

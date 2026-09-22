@@ -61,6 +61,15 @@ define('IMPROVESEO_CONNECTION_TIMEOUT', 30);
 
 define('IMPROVESEO_HEARTBEAT_HOOK', 'improveseo_heartbeat_event');
 
+/**
+ * "Low" for both the Dashboard's Quick Start card and the site-wide notice below —
+ * ONE number, so the two can never disagree about what counts as running low.
+ */
+define('IMPROVESEO_LOW_CREDIT_THRESHOLD', 10);
+
+/** How close to expiry a credit batch has to be before the site-wide notice mentions it. */
+define('IMPROVESEO_EXPIRY_WARNING_DAYS', 14);
+
 /** The two options that together make up a connection. */
 function improveseo_connection_option_names() {
 	return array('improveseo_api_key', 'improveseo_site_code');
@@ -390,6 +399,15 @@ function improveseo_connection_ping($api_key, $site_code, $is_heartbeat) {
 		// here: we stop being counted as connected because we stop checking in,
 		// which is the correct outcome.
 		improveseo_connection_log('heartbeat rejected with HTTP ' . $code);
+		return;
+	}
+
+	// Feeds improveseo_global_notices() below: the heartbeat is the one call in this
+	// file that runs unprompted and on a schedule, which makes it the natural place to
+	// keep that notice's cache fresh without a live request on every wp-admin page load.
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+	if ( is_array( $body ) && ! empty( $body['success'] ) ) {
+		improveseo_store_credit_snapshot( $body );
 	}
 }
 
@@ -453,4 +471,171 @@ function improveseo_connection_on_deactivate() {
 	improveseo_connection_report_disconnect($creds['api_key'], $creds['site_code']);
 
 	wp_clear_scheduled_hook(IMPROVESEO_HEARTBEAT_HOOK);
+}
+
+
+/* ── Site-wide "you should look at this" notice ─────────────────────────── */
+
+/**
+ * Cache the two facts improveseo_global_notices() needs — the remaining balance and
+ * the soonest expiry — from a /users/status response body.
+ *
+ * Called from every place in the plugin that already gets a live, verified response
+ * body: the heartbeat above, the Settings save gate (includes/settings.php), and the
+ * "Confirm website connection" button (includes/ajax.php). That keeps this cache at
+ * most an hour stale (the heartbeat's own interval) and usually much fresher, without
+ * improveseo_global_notices() ever making its own live call — it runs on EVERY
+ * wp-admin page, and this plugin's admin server must never sit on that path.
+ */
+function improveseo_store_credit_snapshot($data) {
+	if (!is_array($data)) {
+		return;
+	}
+
+	// Same fallback order as test_improveseo_connection() in includes/ajax.php — one
+	// place this total is read from a response body, not a second copy that could
+	// disagree with it.
+	$total = null;
+	if (isset($data['credits_total'])) {
+		$total = (int) $data['credits_total'];
+	} elseif (isset($data['credit_details']['content']['total'])) {
+		$total = (int) $data['credit_details']['content']['total'];
+	} elseif (isset($data['credits']['content'])) {
+		$total = (int) $data['credits']['content'];
+	}
+
+	if ($total === null) {
+		// Nothing usable in this response — leave any previous snapshot in place
+		// rather than overwrite good data with nothing.
+		return;
+	}
+
+	$next_expiry_at     = null;
+	$next_expiry_amount = null;
+
+	if (!empty($data['balance']['next_expiry_at'])) {
+		$next_expiry_at     = sanitize_text_field( (string) $data['balance']['next_expiry_at'] );
+		$next_expiry_amount = isset($data['balance']['next_expiry_amount']) ? (int) $data['balance']['next_expiry_amount'] : null;
+	} elseif (!empty($data['lots'][0]['expires_on'])) {
+		// Older/partial response with lots but no balance summary. lots is already
+		// ordered soonest-first server-side (see getCreditLotSummary), so [0] is it.
+		$next_expiry_at     = sanitize_text_field( (string) $data['lots'][0]['expires_on'] );
+		$next_expiry_amount = isset($data['lots'][0]['remaining']) ? (int) $data['lots'][0]['remaining'] : null;
+	}
+
+	// autoload=false: only improveseo_global_notices() (wp-admin only) ever reads
+	// this, so it has no business riding along on every front-end request's alloptions.
+	update_option(
+		'improveseo_credit_snapshot',
+		array(
+			'total'              => $total,
+			'next_expiry_at'     => $next_expiry_at,
+			'next_expiry_amount' => $next_expiry_amount,
+			'checked_at'         => time(),
+		),
+		false
+	);
+}
+
+/**
+ * The site-wide banner: every wp-admin screen, not just this plugin's own. Three
+ * independent checks, each printing its own <div class="notice">:
+ *
+ *   1. Not connected at all — known locally (get_option, no network), always
+ *      accurate, so it can be checked directly on every page load.
+ *   2. Connected but under IMPROVESEO_LOW_CREDIT_THRESHOLD credits — read from the
+ *      cached snapshot above. Never a live call here.
+ *   3. Connected, but the soonest credit batch expires within
+ *      IMPROVESEO_EXPIRY_WARNING_DAYS days — same cached snapshot.
+ *
+ * manage_options-only, like the rest of this plugin's admin-facing checks: a
+ * contributor cannot act on any of these anyway. Skipped on the onboarding wizard
+ * itself, whose entire purpose is connecting the account — stacking "you're not
+ * connected" on top of the screen that connects you says the same thing twice.
+ */
+add_action('admin_notices', 'improveseo_global_notices');
+
+function improveseo_global_notices() {
+	if (!current_user_can('manage_options')) {
+		return;
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading which admin
+	// screen this is, not acting on input.
+	if (isset($_GET['page']) && $_GET['page'] === 'improveseo_onboarding') {
+		return;
+	}
+
+	$creds = improveseo_connection_credentials();
+
+	if ($creds['api_key'] === '' || $creds['site_code'] === '') {
+		printf(
+			'<div class="notice notice-error iseo-global-notice"><p>%s <a href="%s"><strong>%s</strong></a></p></div>',
+			esc_html__( 'ImproveSEO: this website is not connected to your ImproveSEO account.', 'improveseo' ),
+			esc_url( admin_url( 'admin.php?page=improveseo_settings#iseo-connect-guide' ) ),
+			esc_html__( 'Connect now', 'improveseo' )
+		);
+		return;
+	}
+
+	$snapshot = get_option('improveseo_credit_snapshot');
+	if (!is_array($snapshot) || !isset($snapshot['total'])) {
+		// No data yet — the first heartbeat hasn't landed. Nothing confirmed wrong
+		// to report, and reporting "0 credits" from an empty snapshot would be a
+		// false alarm.
+		return;
+	}
+
+	$plans_url = 'https://account.improveseoplugin.com/credits?view=plans';
+
+	if ($snapshot['total'] < IMPROVESEO_LOW_CREDIT_THRESHOLD) {
+		printf(
+			'<div class="notice notice-warning iseo-global-notice"><p>%s <a href="%s" target="_blank" rel="noopener noreferrer"><strong>%s</strong></a></p></div>',
+			sprintf(
+				/* translators: %d: credits remaining */
+				esc_html__( 'ImproveSEO: you are running low on credits (%d left).', 'improveseo' ),
+				(int) $snapshot['total']
+			),
+			esc_url( $plans_url ),
+			esc_html__( 'Get more credits now', 'improveseo' )
+		);
+	}
+
+	if (empty($snapshot['next_expiry_at'])) {
+		return;
+	}
+
+	$expiry_ts = strtotime( $snapshot['next_expiry_at'] . ' 00:00:00 UTC' );
+	if ($expiry_ts === false) {
+		return;
+	}
+
+	$days_left = (int) ceil( ($expiry_ts - time()) / DAY_IN_SECONDS );
+	if ($days_left < 0 || $days_left > IMPROVESEO_EXPIRY_WARNING_DAYS) {
+		return;
+	}
+
+	$amount    = isset($snapshot['next_expiry_amount']) ? (int) $snapshot['next_expiry_amount'] : null;
+	$when      = date_i18n( get_option('date_format'), $expiry_ts );
+	$days_word = sprintf( _n( '%d day', '%d days', $days_left, 'improveseo' ), $days_left );
+
+	printf(
+		'<div class="notice notice-warning iseo-global-notice"><p>%s <a href="%s" target="_blank" rel="noopener noreferrer"><strong>%s</strong></a></p></div>',
+		$amount !== null
+			? sprintf(
+				/* translators: 1: credits expiring, 2: expiry date, 3: "N day(s)" */
+				esc_html__( 'ImproveSEO: %1$d credits expire on %2$s (%3$s left).', 'improveseo' ),
+				$amount,
+				esc_html( $when ),
+				esc_html( $days_word )
+			)
+			: sprintf(
+				/* translators: 1: expiry date, 2: "N day(s)" */
+				esc_html__( 'ImproveSEO: some of your credits expire on %1$s (%2$s left).', 'improveseo' ),
+				esc_html( $when ),
+				esc_html( $days_word )
+			),
+		esc_url( $plans_url ),
+		esc_html__( 'Manage your plan', 'improveseo' )
+	);
 }
