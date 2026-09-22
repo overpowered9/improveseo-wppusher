@@ -133,6 +133,37 @@ use ImproveSEO\View;
 					</p>
 				</div>
 			</div>
+
+			<?php
+			// Support cards — styled and worded to match the account CMS's own "New here? /
+			// Need a hand?" pair (user-cms/src/components/Dashboard.js), not a new design: same
+			// warm-card background, same orange accent, same copy, same destinations (the CMS's
+			// Support page holds both the Knowledge Base/tutorials and the ticket form). Always
+			// shown — unlike Quick Start/Guided Start, "get help" doesn't depend on whether the
+			// site is connected or has credits.
+			$iseo_support_kb_url     = 'https://account.improveseoplugin.com/support';
+			$iseo_support_ticket_url = 'https://account.improveseoplugin.com/support?newTicket=1';
+			?>
+			<div class="module-box iseo-quickstart-card iseo-support-card">
+				<div class="iseo-quickstart-icon iseo-support-icon" aria-hidden="true">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+				</div>
+				<div class="iseo-quickstart-body">
+					<h3 class="iseo-quickstart-title">New here?</h3>
+					<p class="iseo-quickstart-msg">Watch the 4-minute setup walkthrough or browse the Knowledge Base.</p>
+					<a href="<?php echo esc_url( $iseo_support_kb_url ); ?>" class="iseo-support-cta" target="_blank" rel="noopener noreferrer">Open tutorials</a>
+				</div>
+			</div>
+			<div class="module-box iseo-quickstart-card iseo-support-card">
+				<div class="iseo-quickstart-icon iseo-support-icon" aria-hidden="true">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"></path><line x1="9" y1="4" x2="9" y2="20"></line></svg>
+				</div>
+				<div class="iseo-quickstart-body">
+					<h3 class="iseo-quickstart-title">Need a hand?</h3>
+					<p class="iseo-quickstart-msg">Typical reply within one business day.</p>
+					<a href="<?php echo esc_url( $iseo_support_ticket_url ); ?>" class="iseo-support-cta" target="_blank" rel="noopener noreferrer">Submit a ticket</a>
+				</div>
+			</div>
 		</div>
 		<?php if ( $iseo_qs_has_creds ) : ?>
 		<script>

@@ -351,6 +351,39 @@ ul.breadcrumb-seo li a:hover {
 .iseo-guidedstart-card .iseo-quickstart-icon { background-color: #2DA4FD; }
 .iseo-guidedstart-card .iseo-quickstart-link { color: #1a7fd1; }
 
+/* Support cards — same warm-card / orange-accent / gradient-button styling as the
+   account CMS's own "New here? / Need a hand?" pair (user-cms/src/components/
+   Dashboard.js: C.warmCard #F4F1DE, C.accentOrange #FF7A59, C.gradientOrange), not a
+   new look invented for the plugin. Always shown, so unlike Quick Start/Guided Start
+   they carry no data-state and need no [hidden] handling. */
+.iseo-support-card {
+  border-left-color: #FF7A59;
+  background-color: #F4F1DE;
+  flex-direction: column;
+}
+
+.iseo-support-icon {
+  background-color: #FF7A59;
+}
+
+.iseo-support-cta {
+  display: inline-block;
+  align-self: flex-start;
+  margin-top: 12px;
+  padding: 8px 20px;
+  background: linear-gradient(45deg, #A7391E 0%, #FF7A59 100%);
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none !important;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(167, 57, 30, 0.25);
+}
+
+.iseo-support-cta:hover {
+  opacity: 0.9;
+}
+
 @media (max-width: 782px) {
   .iseo-quickstart-card {
     max-width: 100%;
