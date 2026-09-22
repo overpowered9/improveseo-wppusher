@@ -142,7 +142,7 @@ use ImproveSEO\View;
                                    <li>A Site Code will be generated, copy the Site Code and paste above</li>
                                    <li>Save settings and start generating content!</li>
                             -->
-                            <div class="iseo-guide-block">
+                            <div class="iseo-guide-block" id="iseo-connect-guide" style="scroll-margin-top: 48px;">
                                 <p class="iseo-guide-title"><strong>How to connect this website to your ImproveSEO user account</strong></p>
                                 <ol class="iseo-guide-steps">
                                     <li>Visit your <a href="https://account.improveseoplugin.com/" target="_blank">ImproveSEO Dashboard</a></li>

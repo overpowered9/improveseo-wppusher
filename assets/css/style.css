@@ -241,6 +241,90 @@ ul.breadcrumb-seo li a:hover {
   margin: 0 0 10px;
 }
 
+/* ── Dashboard Quick Start card ─────────────────────────────────────────────
+   One card, sized like a module-box (it borrows that class for width/padding/
+   border/shadow), placed in its own row above the module grid so it is the
+   first thing on the page. A left accent bar + tinted background carry the
+   state (checking / ready / low credits / not connected) the module cards
+   never could. */
+.iseo-quickstart-row {
+  padding: 0 20px;
+  margin-top: 20px;
+}
+
+.iseo-quickstart-card {
+  /* Width/max-width/padding/border/shadow come from .module-box — this really is
+     "the size of one old dashboard card", not an approximation of it. */
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border-left: 4px solid #90a4ae;
+  background-color: #f5f6f8;
+}
+
+.iseo-quickstart-icon {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2DA4FD;
+  color: #ffffff;
+}
+
+.iseo-quickstart-body {
+  min-width: 0;
+}
+
+.iseo-quickstart-title {
+  font-size: 16px !important;
+  margin: 0 0 4px !important;
+  color: #000000;
+}
+
+.iseo-quickstart-msg {
+  font-size: 15px;
+  color: #3c434a;
+  margin: 0 !important;
+}
+
+.iseo-quickstart-link {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.iseo-quickstart-card[data-state="ready"] {
+  border-left-color: #0f7b6c;
+  background-color: #eafaf6;
+}
+
+.iseo-quickstart-card[data-state="ready"] .iseo-quickstart-icon { background-color: #0f7b6c; }
+.iseo-quickstart-card[data-state="ready"] .iseo-quickstart-link { color: #0f7b6c; }
+
+.iseo-quickstart-card[data-state="low"] {
+  border-left-color: #b3521a;
+  background-color: #fff4e5;
+}
+
+.iseo-quickstart-card[data-state="low"] .iseo-quickstart-icon { background-color: #b3521a; }
+.iseo-quickstart-card[data-state="low"] .iseo-quickstart-link { color: #b3521a; }
+
+.iseo-quickstart-card[data-state="disconnected"] {
+  border-left-color: #b32d2e;
+  background-color: #fdecea;
+}
+
+.iseo-quickstart-card[data-state="disconnected"] .iseo-quickstart-icon { background-color: #b32d2e; }
+.iseo-quickstart-card[data-state="disconnected"] .iseo-quickstart-link { color: #b32d2e; }
+
+@media (max-width: 782px) {
+  .iseo-quickstart-card {
+    max-width: 100%;
+  }
+}
+
 .module .pro-label {
   font-size: 12px;
   background-color: #1C7293;

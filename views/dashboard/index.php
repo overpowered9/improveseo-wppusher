@@ -40,6 +40,116 @@ use ImproveSEO\View;
 				<li>Modules</li>
 			</ul>
 		</div>
+		<?php
+		// Quick Start card — one glance at "can I create content right now?", which the module
+		// cards below never answered: they look identical whether the site is connected, out
+		// of credits, or neither.
+		//
+		// Whether credentials exist at all is known locally (get_option, no network), so a
+		// disconnected site renders its final state immediately. Whether the account actually
+		// has enough credits is not local — that needs the admin server — so a connected site
+		// renders a "checking" state and JS fills in "ready" or "low credits" the same way
+		// Settings already does: the existing test_improveseo_connection AJAX action (see
+		// includes/ajax.php and its use in views/settings/index.php), so a cold admin server
+		// never blocks this page from loading, and there is one definition of "connected" /
+		// one place credit totals are parsed, not a second copy here.
+		$iseo_qs_creds       = improveseo_connection_credentials();
+		$iseo_qs_has_creds   = ($iseo_qs_creds['api_key'] !== '' && $iseo_qs_creds['site_code'] !== '');
+		$iseo_qs_state       = $iseo_qs_has_creds ? 'loading' : 'disconnected';
+		$iseo_qs_create_url  = admin_url('admin.php?page=improveseo_posting');
+		$iseo_qs_connect_url = admin_url('admin.php?page=improveseo_settings#iseo-connect-guide');
+		$iseo_qs_plans_url   = 'https://account.improveseoplugin.com/credits?view=plans';
+		?>
+		<div class="iseo-quickstart-row">
+			<div class="module-box iseo-quickstart-card" id="iseo-quickstart-card" data-state="<?php echo esc_attr( $iseo_qs_state ); ?>">
+				<div class="iseo-quickstart-icon" aria-hidden="true">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path></svg>
+				</div>
+				<div class="iseo-quickstart-body">
+					<h3 class="iseo-quickstart-title">Quick Start</h3>
+
+					<p class="iseo-quickstart-msg" data-qs-msg="loading" <?php echo ( 'loading' === $iseo_qs_state ) ? '' : 'hidden'; ?>>
+						Checking your account&hellip;
+					</p>
+
+					<p class="iseo-quickstart-msg" data-qs-msg="ready" <?php echo ( 'ready' === $iseo_qs_state ) ? '' : 'hidden'; ?>>
+						Create local SEO content now!
+						<a href="<?php echo esc_url( $iseo_qs_create_url ); ?>" class="iseo-quickstart-link">Create now</a>
+					</p>
+
+					<p class="iseo-quickstart-msg" data-qs-msg="low" <?php echo ( 'low' === $iseo_qs_state ) ? '' : 'hidden'; ?>>
+						It looks like you are low on credits.
+						<a href="<?php echo esc_url( $iseo_qs_plans_url ); ?>" class="iseo-quickstart-link" target="_blank" rel="noopener noreferrer">Get more credits now</a>
+						to create content!
+					</p>
+
+					<p class="iseo-quickstart-msg" data-qs-msg="disconnected" <?php echo ( 'disconnected' === $iseo_qs_state ) ? '' : 'hidden'; ?>>
+						It looks like this website is not connected to your ImproveSEO user account yet.
+						<a href="<?php echo esc_url( $iseo_qs_connect_url ); ?>" class="iseo-quickstart-link">Connect now</a>
+						to create content!
+					</p>
+
+					<?php if ( $iseo_qs_has_creds ) : ?>
+					<!-- No-JS fallback: with JS disabled the credit check never runs, so show the
+					     optimistic "ready" message (we DO know credentials exist) instead of leaving
+					     the page stuck on "Checking your account…" forever. -->
+					<noscript>
+						<style>
+							#iseo-quickstart-card [data-qs-msg="loading"] { display: none; }
+							#iseo-quickstart-card [data-qs-msg="ready"]   { display: block; }
+						</style>
+					</noscript>
+					<?php endif; ?>
+				</div>
+			</div>
+		</div>
+		<?php if ( $iseo_qs_has_creds ) : ?>
+		<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			var card = document.getElementById('iseo-quickstart-card');
+			if (!card || card.getAttribute('data-state') !== 'loading') { return; }
+
+			function iseoQsShow(state) {
+				card.setAttribute('data-state', state);
+				card.querySelectorAll('[data-qs-msg]').forEach(function (el) {
+					el.hidden = el.getAttribute('data-qs-msg') !== state;
+				});
+			}
+
+			var data = new FormData();
+			data.append('action', 'test_improveseo_connection');
+			data.append('api_key', <?php echo wp_json_encode( $iseo_qs_creds['api_key'] ); ?>);
+			data.append('site_code', <?php echo wp_json_encode( $iseo_qs_creds['site_code'] ); ?>);
+			data.append('nonce', <?php echo wp_json_encode( wp_create_nonce('test_connection_nonce') ); ?>);
+
+			fetch(<?php echo wp_json_encode( admin_url('admin-ajax.php') ); ?>, { method: 'POST', body: data })
+				.then(function (r) { return r.json(); })
+				.then(function (result) {
+					if (!result || !result.success) {
+						// 401/403 means the stored credentials no longer work (key rotated, site
+						// removed on the CMS) — everything else (timeout, 5xx, offline) says
+						// nothing about whether we're connected, so don't accuse the user of being
+						// disconnected over a network hiccup; default to letting them try to create.
+						var status = result && result.data && result.data.status;
+						iseoQsShow((status === 401 || status === 403) ? 'disconnected' : 'ready');
+						return;
+					}
+
+					// Same fields the settings panel reads (views/settings/index.php,
+					// renderConnectionPanel) — one place this total is parsed.
+					var d     = result.data || {};
+					var cd    = (d.credit_details && d.credit_details.content) ? d.credit_details.content : null;
+					var total = null;
+					if (cd && cd.total != null) { total = cd.total; }
+					else if (d.credits && d.credits.total != null) { total = d.credits.total; }
+					else if (d.credits && d.credits.content != null) { total = d.credits.content; }
+
+					iseoQsShow((total != null && total < 10) ? 'low' : 'ready');
+				})
+				.catch(function () { iseoQsShow('ready'); });
+		});
+		</script>
+		<?php endif; ?>
 		<div class="modules-row text-left">
 			<div class="module-box">
 			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_create_single') ); ?>">
