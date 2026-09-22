@@ -150,11 +150,19 @@ ul.breadcrumb-seo li a:hover {
   border-radius: 4px;
 }
 
+.iseo-section-title {
+  font-size: 18px !important;
+  font-weight: bold;
+  color: #1d2327;
+  margin: 30px 0 0 !important;
+  padding: 0 20px;
+}
+
 .modules-row {
   display: flex;
   flex-wrap: wrap;
   gap: 40px;
-  margin-top: 30px;
+  margin-top: 15px;
   padding: 0 20px;
 }
 
