@@ -104,6 +104,40 @@ use ImproveSEO\View;
 			</div>
 
 			<?php
+			// Active Plan card — upper row, right of Quick Start. Mirrors the account CMS's
+			// own "Active Plan Card" (user-cms/src/components/CreditManagement.jsx): plan
+			// name, next billing (or trial end) date, and the same two-button pattern
+			// (derivePlanActions in utils/subscriptionState.js always returns exactly two —
+			// "Manage Plan" + "Cancel Subscription" for a running paid plan, "Choose a Plan"
+			// + "Get more credits" otherwise). Both buttons point at the CMS's plans page —
+			// that is genuinely where "Cancel Subscription" lives (the CMS's own Cancel
+			// button opens its confirm dialog from that same screen), not a plugin-side
+			// workaround for lacking a real cancel action.
+			//
+			// Plan name goes through window.iseoPlanLabel() (views/layouts/main.php) — the
+			// plugin's own existing canonical resolver, already used by Settings, so this
+			// card cannot name a plan differently from anywhere else in the plugin.
+			//
+			// Hidden until the same AJAX call Quick Start already makes resolves — no second
+			// network request, and (like Guided Start) it never renders server-side since
+			// plan/subscription data isn't known at render time.
+			?>
+			<div class="module-box iseo-quickstart-card iseo-plan-card" id="iseo-plan-card" hidden>
+				<div class="iseo-plan-head">
+					<div class="iseo-quickstart-icon iseo-plan-icon" aria-hidden="true">
+						<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"></path></svg>
+					</div>
+					<span class="iseo-plan-eyebrow" id="iseo-plan-status">ACTIVE PLAN</span>
+				</div>
+				<h3 class="iseo-quickstart-title" id="iseo-plan-name">&mdash;</h3>
+				<p class="iseo-quickstart-msg" id="iseo-plan-date"></p>
+				<div class="iseo-plan-actions">
+					<a href="<?php echo esc_url( $iseo_qs_plans_url ); ?>" class="iseo-plan-btn iseo-plan-btn-primary" id="iseo-plan-btn-primary" target="_blank" rel="noopener noreferrer">Manage Plan</a>
+					<a href="<?php echo esc_url( $iseo_qs_plans_url ); ?>" class="iseo-plan-btn iseo-plan-btn-quiet" id="iseo-plan-btn-secondary" target="_blank" rel="noopener noreferrer">Cancel Subscription</a>
+				</div>
+			</div>
+
+			<?php
 			// Guided Start — a second, optional card next to Quick Start: "I don't just want to
 			// create content, I want a guided tour of how." Only makes sense once Quick Start's
 			// own check has settled on 'ready' (connected AND enough credits), so it starts
@@ -182,6 +216,60 @@ use ImproveSEO\View;
 				if (guideCard) { guideCard.hidden = (state !== 'ready'); }
 			}
 
+			function iseoFormatDate(iso) {
+				if (!iso) { return null; }
+				var parsed = new Date(iso);
+				if (isNaN(parsed.getTime())) { return null; }
+				return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+			}
+
+			// Populated only on a successful response — a failed/unreachable check has no
+			// plan data to show, so the card stays hidden rather than guessing.
+			function iseoPopulatePlanCard(d) {
+				var planCard = document.getElementById('iseo-plan-card');
+				if (!planCard) { return; }
+
+				var plan  = d.plan  || {};
+				var sub   = d.subscription || {};
+				var trial = d.trial || {};
+
+				var label = (typeof window.iseoPlanLabel === 'function')
+					? window.iseoPlanLabel(plan, d.subscription, trial)
+					: (plan.name || 'Your Plan');
+
+				var isPaid     = plan.is_paid === true;
+				var cancelling = isPaid && sub && sub.cancel_at_period_end === true;
+
+				document.getElementById('iseo-plan-name').textContent = label;
+
+				var statusEl     = document.getElementById('iseo-plan-status');
+				var dateEl       = document.getElementById('iseo-plan-date');
+				var primaryBtn   = document.getElementById('iseo-plan-btn-primary');
+				var secondaryBtn = document.getElementById('iseo-plan-btn-secondary');
+
+				if (isPaid) {
+					planCard.setAttribute('data-plan-state', cancelling ? 'cancelling' : 'active');
+					statusEl.textContent = cancelling ? 'CANCELLING' : 'ACTIVE PLAN';
+
+					var billDate = iseoFormatDate(sub.next_billing_date);
+					dateEl.textContent = billDate ? (cancelling ? 'Access ends ' + billDate : 'Renews on ' + billDate) : '';
+
+					primaryBtn.textContent   = 'Manage Plan';
+					secondaryBtn.textContent = 'Cancel Subscription';
+				} else {
+					planCard.setAttribute('data-plan-state', 'free');
+					statusEl.textContent = label.toUpperCase();
+
+					var trialEnd = trial.active ? iseoFormatDate(trial.ends_at) : null;
+					dateEl.textContent = trialEnd ? ('Trial ends ' + trialEnd) : '';
+
+					primaryBtn.textContent   = 'Choose a Plan';
+					secondaryBtn.textContent = 'Get more credits';
+				}
+
+				planCard.hidden = false;
+			}
+
 			var data = new FormData();
 			data.append('action', 'test_improveseo_connection');
 			data.append('api_key', <?php echo wp_json_encode( $iseo_qs_creds['api_key'] ); ?>);
@@ -204,6 +292,7 @@ use ImproveSEO\View;
 					// Same fields the settings panel reads (views/settings/index.php,
 					// renderConnectionPanel) — one place this total is parsed.
 					var d     = result.data || {};
+					iseoPopulatePlanCard(d);
 					var cd    = (d.credit_details && d.credit_details.content) ? d.credit_details.content : null;
 					var total = null;
 					if (cd && cd.total != null) { total = cd.total; }

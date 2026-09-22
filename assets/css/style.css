@@ -384,6 +384,80 @@ ul.breadcrumb-seo li a:hover {
   opacity: 0.9;
 }
 
+/* Active Plan card — same palette as the CMS's own Active Plan Card (
+   user-cms/src/components/CreditManagement.jsx: ORANGE #E55432, ORANGE_LIGHT
+   #FEF0EA, ORANGE_GRADIENT linear-gradient(135deg,#BF3A1A 0%,#E86340 100%)),
+   not a new one invented for the plugin. */
+.iseo-plan-card {
+  flex-direction: column;
+  border-left-color: #E55432;
+  background-color: #FEF0EA;
+}
+
+.iseo-plan-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.iseo-plan-icon {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 0;
+  background: linear-gradient(135deg, #BF3A1A 0%, #E86340 100%);
+}
+
+.iseo-plan-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #E55432;
+}
+
+#iseo-plan-date {
+  color: #8A8F85;
+}
+
+.iseo-plan-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.iseo-plan-btn {
+  display: block;
+  text-align: center;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none !important;
+}
+
+.iseo-plan-btn-primary {
+  background: linear-gradient(135deg, #BF3A1A 0%, #E86340 100%);
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(190, 58, 26, 0.3);
+}
+
+.iseo-plan-btn-primary:hover {
+  filter: brightness(1.06);
+}
+
+.iseo-plan-btn-quiet {
+  background-color: #ffffff;
+  color: #8A8F85 !important;
+  border: 1px solid #DDE0D8;
+}
+
+.iseo-plan-btn-quiet:hover {
+  background-color: #F8F8F4;
+}
+
 @media (max-width: 782px) {
   .iseo-quickstart-card {
     max-width: 100%;
