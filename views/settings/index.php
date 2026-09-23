@@ -60,20 +60,23 @@ use ImproveSEO\View;
                     // successful one.
                     //
                     // The three credential codes are lifted OUT of the inline notice list and handed
-                    // to the modal at the bottom of this file instead. That is where a refusal is
-                    // reported when JavaScript is on (the submit gate never reaches options.php at
-                    // all), so routing the no-JS path to the same place keeps one refusal looking
-                    // like one refusal rather than two unrelated messages. Everything else — above
-                    // all WordPress's own "Settings saved." — still renders as a normal notice.
-                    $iseo_modal_error_codes = array( 'iseo_incomplete_pair', 'iseo_not_connected', 'iseo_verify_unreachable' );
-                    $iseo_save_failure      = '';
-                    $iseo_save_failure_code = '';
+                    // to the modal at the bottom of this file instead, as the matching
+                    // ISEO_SAVE_ISSUES key. That is where a refusal is reported when JavaScript is
+                    // on (the submit gate never reaches options.php at all), so routing this path
+                    // to the same entry keeps one refusal looking like one refusal, word for word,
+                    // rather than two unrelated messages. Everything else — above all WordPress's
+                    // own "Settings saved." — still renders as a normal notice.
+                    $iseo_modal_error_issues = array(
+                        'iseo_not_connected'      => 'rejected',
+                        'iseo_incomplete_pair'    => 'incomplete',
+                        'iseo_verify_unreachable' => 'unreachable',
+                    );
+                    $iseo_save_failure_issue = '';
 
                     foreach ( get_settings_errors( 'improveseo_settings' ) as $iseo_error ) {
-                        if ( in_array( $iseo_error['code'], $iseo_modal_error_codes, true ) ) {
-                            if ( '' === $iseo_save_failure ) {
-                                $iseo_save_failure      = $iseo_error['message'];
-                                $iseo_save_failure_code = $iseo_error['code'];
+                        if ( isset( $iseo_modal_error_issues[ $iseo_error['code'] ] ) ) {
+                            if ( '' === $iseo_save_failure_issue ) {
+                                $iseo_save_failure_issue = $iseo_modal_error_issues[ $iseo_error['code'] ];
                             }
                             continue;
                         }
@@ -363,11 +366,20 @@ use ImproveSEO\View;
 			     sentence above: it explains nothing to most people, but it is the one thing that
 			     helps when someone sends the screenshot to support. -->
 			<p id="iseo-save-issue-detail" class="iseo-save-issue-detail" hidden></p>
-			<!-- Shown only when the credentials themselves are the problem — pointless, and
-			     actively misleading, when the server simply could not be reached. -->
-			<p id="iseo-save-issue-hint" class="iseo-save-issue-hint" hidden>
-				Both values come from your <a class="iseo-save-issue-link" href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer">ImproveSEO Dashboard</a> &rarr; Websites tab, for THIS website.
+			<!-- Where to find the right values, one line per refusal — at most one is shown, chosen
+			     by the issue's `hint` key. Static markup rather than a string written into the page,
+			     so the dashboard link stays real HTML without an innerHTML write. Neither is shown
+			     when the server simply could not be reached: there, pointing at the credentials would
+			     send someone off to fix something that is not broken. -->
+			<p class="iseo-save-issue-hint" data-iseo-hint="rejected" hidden>
+				You will find the correct API Key and Site Code combination for this website on your <a class="iseo-save-issue-link" href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer">ImproveSEO Dashboard</a> &rarr; Websites tab
 			</p>
+			<p class="iseo-save-issue-hint" data-iseo-hint="incomplete" hidden>
+				You will find the API Key and Site Code for this website on your <a class="iseo-save-issue-link" href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer">ImproveSEO Dashboard</a> &rarr; Websites tab
+			</p>
+			<!-- A closing line some refusals add after the hint (the incomplete pair's "how to
+			     disconnect instead"). Plain text, so it is written with textContent. -->
+			<p id="iseo-save-issue-note" class="iseo-save-issue-hint" hidden></p>
 		</div>
 
 		<!-- Dismiss, and nothing else. The fields that need correcting are on the page behind this
@@ -753,7 +765,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * @param {{title: string, text: string, hint: boolean}} issue - the refusal, in the user's terms.
+     * @param {{title: string, text: string, hint: ?string, note: (string|undefined)}} issue - the
+     *   refusal, in the user's terms. `hint` names the data-iseo-hint line to show ('rejected',
+     *   'incomplete') or is null for none; `note` is an optional closing line.
      * @param {string=} detail - the server's or the network's own words, when there are any.
      *   Shown underneath, smaller: it explains nothing to most people, but it is the only thing
      *   that helps when someone pastes a screenshot into support.
@@ -770,7 +784,13 @@ document.addEventListener('DOMContentLoaded', function() {
         detailEl.textContent = detail || '';
         detailEl.hidden      = !detail;
 
-        document.getElementById('iseo-save-issue-hint').hidden = !issue.hint;
+        iseoSaveIssueOverlay.querySelectorAll('[data-iseo-hint]').forEach(function (hintEl) {
+            hintEl.hidden = hintEl.getAttribute('data-iseo-hint') !== issue.hint;
+        });
+
+        const noteEl = document.getElementById('iseo-save-issue-note');
+        noteEl.textContent = issue.note || '';
+        noteEl.hidden      = !issue.note;
 
         iseoSaveIssueOverlay.hidden = false;
 
@@ -778,30 +798,35 @@ document.addEventListener('DOMContentLoaded', function() {
         if (ok) { ok.focus(); }
     }
 
-    // The three refusals this screen can produce. Worded for someone who has just pressed Save
-    // Changes, so each one says what happened to their settings — "not saved", "previous
-    // settings kept" — before it says what to do, because that is the question the silent
-    // version of this screen left them asking.
+    // The three refusals this screen can produce, and the ONE place their copy lives: the submit
+    // gate below and the server-side fallback at the bottom of this script both show these
+    // entries, so a refusal reads the same whichever path caught it. Worded for someone who has
+    // just pressed Save Changes, so each title says their update was not saved before the body
+    // says what to do — that is the question the silent version of this screen left them asking.
     const ISEO_SAVE_ISSUES = {
         // Live 401/403: wrong key, a site code from another account, or a site code issued for
         // a DIFFERENT one of this account's websites (the admin server enforces x-site-domain).
         // All three are one thing to the user: this pair does not connect THIS website.
         rejected: {
-            title: 'These credentials were not saved',
-            text: 'ImproveSEO did not accept this API Key and Site Code for this website, so your previously saved settings have been kept. Check that you copied both values from the entry for this website, then press Save Changes again.',
-            hint: true
+            title: 'Your update was not saved',
+            text: 'The API Key and Site Code combination for this website is not correct.',
+            hint: 'rejected'
         },
+        // Only one of the two filled in. Also reached from the Single and Bulk wizards, whose
+        // "Connect Website" button opens this screen — so the note spells out the other valid
+        // outcome, disconnecting, for someone who did not arrive here to connect.
         incomplete: {
-            title: 'Enter both the API Key and the Site Code',
-            text: 'A connection needs both values, so nothing has been saved. Fill in both fields — or clear both, to disconnect this website from ImproveSEO.',
-            hint: true
+            title: 'Your update was not saved',
+            text: 'To connect this website to your ImproveSEO account, both, the API Key and the Site Code are required.',
+            hint: 'incomplete',
+            note: 'To disconnect this website from your ImproveSEO account, clear both fields - API Key and Site Code - and click save.'
         },
         // Not a verdict on the credentials: the server never answered. Saying "not connected"
         // here would send someone off to fix something that is not broken.
         unreachable: {
             title: 'Could not verify your credentials',
             text: 'The ImproveSEO server did not answer, so nothing has been saved. This is usually temporary — press Save Changes again in a moment.',
-            hint: false
+            hint: null
         }
     };
 
@@ -1009,16 +1034,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     })();
 
-<?php if ( '' !== $iseo_save_failure ) : ?>
-    // A save that reached options.php and was refused THERE — the no-JS path, or anything that
-    // POSTs this form directly. The submit gate above normally catches these before the request
-    // leaves the page, so this only fires when it did not run; the wording is the server's own,
-    // shown in the same card as every other refusal instead of as a notice that scrolls away.
-    iseoShowSaveIssue({
-        title: <?php echo wp_json_encode( __( 'Your settings were not saved', 'improveseo' ) ); ?>,
-        text:  <?php echo wp_json_encode( $iseo_save_failure ); ?>,
-        hint:  <?php echo ( 'iseo_verify_unreachable' === $iseo_save_failure_code ) ? 'false' : 'true'; ?>
-    });
+<?php if ( '' !== $iseo_save_failure_issue ) : ?>
+    // A save that reached options.php and was refused THERE — anything that POSTs this form
+    // without the submit gate above having run first. The gate normally catches these before the
+    // request leaves the page. Shown as the same ISEO_SAVE_ISSUES entry the gate would have used,
+    // in the same card, instead of as a notice that scrolls away.
+    iseoShowSaveIssue(ISEO_SAVE_ISSUES[<?php echo wp_json_encode( $iseo_save_failure_issue ); ?>]);
 <?php endif; ?>
 
     // Answer "did that work?" on page load without making the user hunt for the button — it

@@ -123,7 +123,7 @@ function improveseo_sanitize_and_verify_credentials_field($option, $value) {
 		add_settings_error(
 			'improveseo_settings',
 			'iseo_incomplete_pair',
-			__('Enter both the API Key and Site Code, or leave both blank to disconnect.', 'improveseo'),
+			__('To connect this website to your ImproveSEO account, both, the API Key and the Site Code are required.', 'improveseo'),
 			'error'
 		);
 		return $old_value;
@@ -152,7 +152,7 @@ function improveseo_sanitize_and_verify_credentials_field($option, $value) {
 		add_settings_error(
 			'improveseo_settings',
 			'iseo_not_connected',
-			__("ImproveSEO rejected this site's API Key or Site Code — check you copied the code for THIS website, then Save Changes again.", 'improveseo'),
+			__('The API Key and Site Code combination for this website is not correct.', 'improveseo'),
 			'error'
 		);
 	} else {

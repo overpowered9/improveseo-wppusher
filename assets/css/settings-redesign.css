@@ -1086,7 +1086,7 @@
     display: contents;
 }
 
-/* ── "Your settings were not saved" modal ─────────────────────
+/* ── "Your update was not saved" modal ────────────────────────
    Raised by views/settings/index.php when Save Changes refuses an API Key + Site Code pair —
    rejected by the server, an incomplete pair, or the server not answering at all. Same card as
    the allowance notice above and the connection guard in views/layouts/main.php, because all
