@@ -483,8 +483,250 @@ ul.breadcrumb-seo li a:hover {
   color: #8A8F85;
 }
 
+/* ── Row 2: Content Metrics + Review Business Details ───────────────────── */
+.iseo-row-2 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  padding: 0 20px;
+  margin-top: 20px;
+}
+
+/* "Size of two old dashboard cards": module-box's own 25% width, doubled.
+   Compound selector (.module-box.iseo-metrics-card), not .iseo-metrics-card alone:
+   .module-box has several of its OWN max-width overrides at narrower breakpoints
+   further down this file (@media max-width: 1600px and others) that would
+   otherwise win on source order at ordinary screen widths — a compound selector's
+   higher specificity beats a plain .module-box rule regardless of which media
+   query it sits in or how far below this one it is. */
+.module-box.iseo-metrics-card {
+  max-width: calc(50% - 20px);
+  background-color: #ffffff;
+}
+
+.iseo-metrics-stats {
+  display: flex;
+  gap: 24px;
+  margin: 16px 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #ededed;
+}
+
+.iseo-metrics-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+}
+
+.iseo-metrics-stat-clickable {
+  cursor: pointer;
+}
+
+.iseo-metrics-stat-clickable:hover .iseo-metrics-num {
+  color: #1C7293;
+}
+
+.iseo-metrics-num {
+  font-family: Manrope, sans-serif;
+  font-weight: 800;
+  font-size: 26px;
+  color: #1A1A1A;
+  line-height: 1.1;
+}
+
+.iseo-metrics-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8A8F85;
+}
+
+.iseo-metrics-latest-heading {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8A8F85;
+  margin: 0 0 8px !important;
+}
+
+/* .module-box a.iseo-metrics-latest-row, not .iseo-metrics-latest-row alone: the
+   original .module-box a rule (display:flex; flex-direction:column — the whole
+   old card used to be one big clickable link) has specificity (class + tag) that
+   beats a single class, and would otherwise stack the title above the badge
+   instead of placing them in a row. flex-direction is set explicitly here even
+   though `row` is the default: the cascade resolves PER PROPERTY, not per rule —
+   winning the specificity fight on `display` does not also win it for a property
+   this rule never declares, so without an explicit `row` here .module-box a's
+   flex-direction: column keeps applying regardless of which rule "wins" overall. */
+.module-box a.iseo-metrics-latest-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid #ededed;
+  text-decoration: none !important;
+  color: inherit;
+}
+
+.iseo-metrics-latest-row:first-of-type {
+  border-top: none;
+}
+
+.iseo-metrics-latest-title {
+  font-size: 14px;
+  color: #3c434a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.iseo-metrics-latest-badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.iseo-metrics-badge-publish { background-color: #eafaf6; color: #0f7b6c; }
+.iseo-metrics-badge-draft   { background-color: #f0f0ea; color: #6B6F68; }
+.iseo-metrics-badge-future  { background-color: #eaf6ff; color: #1a7fd1; }
+
+/* Review Business Details — the plugin's own brand mint (see assets/css/onboarding.css:
+   "Brand palette: primary #1C7293 · dark #0B132B · mint #2EC4B6"), distinct from Active
+   Plan's orange and the Credits cards' CMS teal. */
+.iseo-bizdetails-card {
+  border-left-color: #2EC4B6;
+  background-color: #eafbf9;
+}
+
+.iseo-bizdetails-icon {
+  background-color: #2EC4B6;
+}
+
+.iseo-bizdetails-progress-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 9999px;
+  background-color: rgba(46, 196, 182, 0.2);
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.iseo-bizdetails-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background-color: #2EC4B6;
+}
+
+.iseo-bizdetails-progress-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1C7293;
+  margin: 4px 0 0 !important;
+}
+
+.iseo-bizdetails-missing {
+  font-size: 12px;
+  color: #8A8F85;
+  margin: 4px 0 8px !important;
+}
+
+/* ── Drafts modal ─────────────────────────────────────────────────────────
+   Same overlay pattern as #iseo-connection-guard-overlay (views/layouts/main.php) —
+   fixed, centred, dismissible by backdrop click or Escape — as a CSS class rather
+   than that modal's inline styles, matching this file's own convention. */
+.iseo-drafts-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iseo-drafts-modal-overlay[hidden] {
+  display: none;
+}
+
+.iseo-drafts-modal {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 28px 28px 20px;
+  max-width: 480px;
+  width: 90%;
+  max-height: 70vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.iseo-drafts-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #9ca3af;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+}
+
+.iseo-drafts-modal-close:hover {
+  color: #374151;
+}
+
+.iseo-drafts-modal-title {
+  font-size: 18px !important;
+  margin: 0 0 16px !important;
+}
+
+.iseo-drafts-modal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid #ededed;
+}
+
+.iseo-drafts-modal-row:first-child {
+  border-top: none;
+}
+
+.iseo-drafts-modal-row-title {
+  font-size: 14px;
+  color: #3c434a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (max-width: 782px) {
-  .iseo-quickstart-card {
+  /* Compound selectors, not .iseo-quickstart-card / .iseo-metrics-card alone: a phone
+     width also matches the wider @media (max-width: 1600px) breakpoint below, whose
+     plain .module-box rule sits LATER in this file and would otherwise win the
+     tie on source order — every card in this row would silently stay quarter-width
+     (or, for Content Metrics, half-width) all the way down to a phone screen. */
+  .module-box.iseo-quickstart-card {
+    max-width: 100%;
+  }
+
+  .module-box.iseo-metrics-card {
     max-width: 100%;
   }
 }

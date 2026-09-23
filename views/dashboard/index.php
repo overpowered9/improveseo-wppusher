@@ -59,6 +59,42 @@ use ImproveSEO\View;
 		$iseo_qs_create_url  = admin_url('admin.php?page=improveseo_posting');
 		$iseo_qs_connect_url = admin_url('admin.php?page=improveseo_settings#iseo-connect-guide');
 		$iseo_qs_plans_url   = 'https://account.improveseoplugin.com/credits?view=plans';
+
+		/**
+		 * The same four conditional lines Quick Start's own card (below) prints inline —
+		 * factored out so the Content Metrics card's empty state ("no posts yet" reuses the
+		 * same "what do I do next" line, per request) cannot drift into different wording
+		 * from a second hand-copied set of <p> tags. Quick Start's own markup is left as its
+		 * existing inline copy rather than switched to call this, so this addition cannot
+		 * alter behaviour already shipped and verified.
+		 *
+		 * iseoQsShow() below updates every element carrying a given data-qs-msg value on the
+		 * PAGE, not just within one container, so both copies stay in sync from one fetch.
+		 */
+		function iseo_render_qs_messages( $state, $create_url, $connect_url, $plans_url ) {
+			?>
+			<p class="iseo-quickstart-msg" data-qs-msg="loading" <?php echo ( 'loading' === $state ) ? '' : 'hidden'; ?>>
+				Checking your account&hellip;
+			</p>
+
+			<p class="iseo-quickstart-msg" data-qs-msg="ready" <?php echo ( 'ready' === $state ) ? '' : 'hidden'; ?>>
+				Create local SEO content now!
+				<a href="<?php echo esc_url( $create_url ); ?>" class="iseo-quickstart-link">Create now</a>
+			</p>
+
+			<p class="iseo-quickstart-msg" data-qs-msg="low" <?php echo ( 'low' === $state ) ? '' : 'hidden'; ?>>
+				It looks like you are low on credits.
+				<a href="<?php echo esc_url( $plans_url ); ?>" class="iseo-quickstart-link" target="_blank" rel="noopener noreferrer">Get more credits now</a>
+				to create content!
+			</p>
+
+			<p class="iseo-quickstart-msg" data-qs-msg="disconnected" <?php echo ( 'disconnected' === $state ) ? '' : 'hidden'; ?>>
+				It looks like this website is not connected to your ImproveSEO user account yet.
+				<a href="<?php echo esc_url( $connect_url ); ?>" class="iseo-quickstart-link">Connect now</a>
+				to create content!
+			</p>
+			<?php
+		}
 		?>
 		<div class="iseo-quickstart-row">
 			<div class="module-box iseo-quickstart-card" id="iseo-quickstart-card" data-state="<?php echo esc_attr( $iseo_qs_state ); ?>">
@@ -259,7 +295,10 @@ use ImproveSEO\View;
 
 			function iseoQsShow(state) {
 				card.setAttribute('data-state', state);
-				card.querySelectorAll('[data-qs-msg]').forEach(function (el) {
+				// document-wide, not card-scoped: the Content Metrics card's empty state mirrors
+				// these same four lines (iseo_render_qs_messages() in PHP above) so both copies
+				// resolve from this one fetch instead of needing a second AJAX call.
+				document.querySelectorAll('[data-qs-msg]').forEach(function (el) {
 					el.hidden = el.getAttribute('data-qs-msg') !== state;
 				});
 				// Guided Start only makes sense once we know the account is connected AND has
@@ -418,6 +457,187 @@ use ImproveSEO\View;
 		});
 		</script>
 		<?php endif; ?>
+
+		<?php
+		// ── Row 2: Content Metrics (left, two-card width) + Review Business Details
+		// (right, one-card width) ───────────────────────────────────────────────────
+		//
+		// Content Metrics counts real WordPress posts, not rows in this plugin's own
+		// project tables — a project only becomes a post once it's actually built, and
+		// single-post and bulk projects both tag the post they build with the SAME
+		// postmeta key (improveseo_project_id; see modules/projects.php and
+		// modules/bulkprojects.php), so one query covers both without caring which
+		// created it. This is entirely local WordPress data — no network call, no
+		// waiting on the admin server, unlike everything else on this page so far.
+		global $wpdb;
+
+		// DISTINCT rather than GROUP BY: guards the (currently never-happening, but
+		// unenforced) case of a post carrying the meta key twice, without pulling in
+		// MySQL's stricter GROUP BY column rules for no benefit.
+		$iseo_cm_posts = $wpdb->get_results(
+			"SELECT DISTINCT p.ID, p.post_status, p.post_date
+			 FROM {$wpdb->posts} p
+			 INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = 'improveseo_project_id'
+			 WHERE p.post_status IN ('publish','draft','future')
+			 ORDER BY p.post_date DESC"
+		); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text, no user input.
+
+		$iseo_cm_published = 0;
+		$iseo_cm_draft      = 0;
+		$iseo_cm_scheduled  = 0;
+		$iseo_cm_draft_posts = array();
+
+		foreach ( $iseo_cm_posts as $iseo_cm_post ) {
+			if ( 'publish' === $iseo_cm_post->post_status ) {
+				$iseo_cm_published++;
+			} elseif ( 'draft' === $iseo_cm_post->post_status ) {
+				$iseo_cm_draft++;
+				$iseo_cm_draft_posts[] = $iseo_cm_post;
+			} elseif ( 'future' === $iseo_cm_post->post_status ) {
+				$iseo_cm_scheduled++;
+			}
+		}
+
+		$iseo_cm_total   = count( $iseo_cm_posts );
+		$iseo_cm_latest3 = array_slice( $iseo_cm_posts, 0, 3 );
+
+		$iseo_cm_status_labels = array(
+			'publish' => 'Published',
+			'draft'   => 'Draft',
+			'future'  => 'Scheduled',
+		);
+
+		// Business Details completeness — the three fields Settings' "Business Details"
+		// section collects (views/settings/index.php, includes/settings.php). Only three
+		// exist today, so "percent complete" is just filled-count / 3; if more fields are
+		// added later this list is the one place to extend, not a separately maintained count.
+		$iseo_bd_fields = array(
+			'improveseo_business_type'    => 'Business Type',
+			'improveseo_business_city'    => 'City / Location',
+			'improveseo_business_service' => 'Main Service',
+		);
+		$iseo_bd_missing = array();
+		foreach ( $iseo_bd_fields as $iseo_bd_option => $iseo_bd_label ) {
+			if ( '' === trim( (string) get_option( $iseo_bd_option, '' ) ) ) {
+				$iseo_bd_missing[] = $iseo_bd_label;
+			}
+		}
+		$iseo_bd_filled_count = count( $iseo_bd_fields ) - count( $iseo_bd_missing );
+		$iseo_bd_percent      = (int) round( ( $iseo_bd_filled_count / count( $iseo_bd_fields ) ) * 100 );
+		$iseo_bd_settings_url = admin_url( 'admin.php?page=improveseo_settings#iseo-business-details' );
+		?>
+		<div class="iseo-row-2">
+			<div class="module-box iseo-metrics-card">
+				<h3 class="iseo-quickstart-title">Content Metrics</h3>
+
+				<?php if ( $iseo_cm_total > 0 ) : ?>
+					<div class="iseo-metrics-stats" role="group" aria-label="Content metrics">
+						<div class="iseo-metrics-stat">
+							<span class="iseo-metrics-num"><?php echo esc_html( $iseo_cm_published ); ?></span>
+							<span class="iseo-metrics-label">Published</span>
+						</div>
+						<?php if ( $iseo_cm_draft > 0 ) : ?>
+						<button type="button" class="iseo-metrics-stat iseo-metrics-stat-clickable" id="iseo-drafts-toggle" aria-haspopup="dialog">
+							<span class="iseo-metrics-num"><?php echo esc_html( $iseo_cm_draft ); ?></span>
+							<span class="iseo-metrics-label">In Draft</span>
+						</button>
+						<?php else : ?>
+						<div class="iseo-metrics-stat">
+							<span class="iseo-metrics-num"><?php echo esc_html( $iseo_cm_draft ); ?></span>
+							<span class="iseo-metrics-label">In Draft</span>
+						</div>
+						<?php endif; ?>
+						<div class="iseo-metrics-stat">
+							<span class="iseo-metrics-num"><?php echo esc_html( $iseo_cm_scheduled ); ?></span>
+							<span class="iseo-metrics-label">Scheduled</span>
+						</div>
+					</div>
+
+					<div class="iseo-metrics-latest">
+						<p class="iseo-metrics-latest-heading">Latest projects</p>
+						<?php foreach ( $iseo_cm_latest3 as $iseo_cm_p ) : ?>
+							<a class="iseo-metrics-latest-row" href="<?php echo esc_url( get_edit_post_link( $iseo_cm_p->ID ) ); ?>">
+								<span class="iseo-metrics-latest-title"><?php echo esc_html( get_the_title( $iseo_cm_p->ID ) ? get_the_title( $iseo_cm_p->ID ) : '(no title)' ); ?></span>
+								<span class="iseo-metrics-latest-badge iseo-metrics-badge-<?php echo esc_attr( $iseo_cm_p->post_status ); ?>"><?php echo esc_html( $iseo_cm_status_labels[ $iseo_cm_p->post_status ] ); ?></span>
+							</a>
+						<?php endforeach; ?>
+					</div>
+				<?php else : ?>
+					<p class="iseo-quickstart-msg">No posts created yet.</p>
+					<?php iseo_render_qs_messages( $iseo_qs_state, $iseo_qs_create_url, $iseo_qs_connect_url, $iseo_qs_plans_url ); ?>
+				<?php endif; ?>
+			</div>
+
+			<?php
+			// Review Business Details — right, one-card width, underneath Credits Remaining.
+			// The three fields it points at live in Settings' "Business Details" section
+			// (views/settings/index.php), which is what makes them usable for AI content —
+			// see modules/single_AI_post_function.php's brand_profile, built from these same
+			// three options.
+			?>
+			<div class="module-box iseo-quickstart-card iseo-bizdetails-card">
+				<div class="iseo-quickstart-icon iseo-bizdetails-icon" aria-hidden="true">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+				</div>
+				<div class="iseo-quickstart-body">
+					<h3 class="iseo-quickstart-title">Review Business Details</h3>
+					<p class="iseo-quickstart-msg">Make sure it's complete and always up to date, to produce the best possible content for your business.</p>
+
+					<div class="iseo-bizdetails-progress-track" role="progressbar" aria-valuenow="<?php echo esc_attr( $iseo_bd_percent ); ?>" aria-valuemin="0" aria-valuemax="100" aria-label="Business details completeness">
+						<div class="iseo-bizdetails-progress-fill" style="width: <?php echo esc_attr( $iseo_bd_percent ); ?>%;"></div>
+					</div>
+					<p class="iseo-bizdetails-progress-label"><?php echo esc_html( $iseo_bd_percent ); ?>% complete</p>
+
+					<?php if ( ! empty( $iseo_bd_missing ) ) : ?>
+						<p class="iseo-bizdetails-missing">Missing: <?php echo esc_html( implode( ', ', $iseo_bd_missing ) ); ?></p>
+					<?php endif; ?>
+
+					<a href="<?php echo esc_url( $iseo_bd_settings_url ); ?>" class="iseo-quickstart-link"><?php echo empty( $iseo_bd_missing ) ? 'Review details' : 'Complete details'; ?></a>
+				</div>
+			</div>
+		</div>
+
+		<?php if ( ! empty( $iseo_cm_draft_posts ) ) : ?>
+		<!-- Drafts modal — every draft this plugin built (not just the latest 3), each
+		     linking straight to its own post editor so it can be edited, published, or
+		     deleted from there. Pure local DOM toggle: the list is rendered once, server-
+		     side, from the same query above — no AJAX round trip to open it. -->
+		<div id="iseo-drafts-modal-overlay" class="iseo-drafts-modal-overlay" hidden>
+			<div class="iseo-drafts-modal" role="dialog" aria-modal="true" aria-labelledby="iseo-drafts-modal-title">
+				<button type="button" id="iseo-drafts-modal-close" class="iseo-drafts-modal-close" aria-label="Close">&times;</button>
+				<h3 id="iseo-drafts-modal-title" class="iseo-drafts-modal-title">Draft posts (<?php echo esc_html( $iseo_cm_draft ); ?>)</h3>
+				<div class="iseo-drafts-modal-list">
+					<?php foreach ( $iseo_cm_draft_posts as $iseo_cm_draft_post ) : ?>
+						<div class="iseo-drafts-modal-row">
+							<span class="iseo-drafts-modal-row-title"><?php echo esc_html( get_the_title( $iseo_cm_draft_post->ID ) ? get_the_title( $iseo_cm_draft_post->ID ) : '(no title)' ); ?></span>
+							<a href="<?php echo esc_url( get_edit_post_link( $iseo_cm_draft_post->ID ) ); ?>" class="iseo-plan-btn iseo-plan-btn-quiet">Edit</a>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			</div>
+		</div>
+		<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			var toggle  = document.getElementById('iseo-drafts-toggle');
+			var overlay = document.getElementById('iseo-drafts-modal-overlay');
+			var closeBtn = document.getElementById('iseo-drafts-modal-close');
+			if (!toggle || !overlay) { return; }
+
+			function openModal() { overlay.hidden = false; }
+			function closeModal() { overlay.hidden = true; }
+
+			toggle.addEventListener('click', openModal);
+			if (closeBtn) { closeBtn.addEventListener('click', closeModal); }
+			overlay.addEventListener('click', function (e) {
+				if (e.target === overlay) { closeModal(); }
+			});
+			document.addEventListener('keydown', function (e) {
+				if (e.key === 'Escape' && !overlay.hidden) { closeModal(); }
+			});
+		});
+		</script>
+		<?php endif; ?>
+
 		<h2 class="iseo-section-title">Quick Links</h2>
 		<div class="modules-row text-left">
 			<div class="module-box">
