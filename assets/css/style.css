@@ -458,6 +458,31 @@ ul.breadcrumb-seo li a:hover {
   background-color: #F8F8F4;
 }
 
+/* Credits Remaining / Credits Used — the CMS's own teal (TEAL #1C7C73 in
+   CreditManagement.jsx and Dashboard.js's Credits Card), so the two credit-stat
+   cards read as one family, distinct from Active Plan's orange (account/billing)
+   and Quick Start's state-based colours (this site's content workflow). */
+.iseo-credits-card {
+  border-left-color: #1C7C73;
+  background-color: #E8F3F1;
+}
+
+.iseo-credits-icon {
+  background-color: #1C7C73;
+}
+
+.iseo-credits-figure {
+  font-family: Manrope, sans-serif;
+  font-weight: 800;
+  font-size: 22px !important;
+  color: #1A1A1A;
+}
+
+#iseo-credits-remaining-expiry,
+#iseo-credits-used-note {
+  color: #8A8F85;
+}
+
 @media (max-width: 782px) {
   .iseo-quickstart-card {
     max-width: 100%;

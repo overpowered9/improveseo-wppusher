@@ -104,6 +104,57 @@ use ImproveSEO\View;
 			</div>
 
 			<?php
+			// Credits Remaining card — upper row, left of Active Plan. Mirrors the CMS's own
+			// "Total Credits Remaining" panel (user-cms/src/components/CreditManagement.jsx):
+			// the balance, and when the soonest batch expires. The expiry line reuses the exact
+			// wording the site-wide notice already uses (includes/connection-status.php,
+			// improveseo_global_notices()) — one sentence for "credits are expiring", not two
+			// that could disagree.
+			//
+			// Same data the site-wide notice's snapshot is built from (credit_details.content,
+			// balance.next_expiry_at/amount) — read here straight from the SAME AJAX response
+			// Quick Start's own check already fetches, not a second network call. Hidden until
+			// that resolves, like Active Plan.
+			?>
+			<div class="module-box iseo-quickstart-card iseo-credits-card" id="iseo-credits-remaining-card" hidden>
+				<div class="iseo-quickstart-icon iseo-credits-icon" aria-hidden="true">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v10M9 9.5a2.5 2.5 0 0 1 2.5-2.5h1a2 2 0 1 1 0 4h-1a2 2 0 1 0 0 4h1a2.5 2.5 0 0 0 2.5-2.5"></path></svg>
+				</div>
+				<div class="iseo-quickstart-body">
+					<h3 class="iseo-quickstart-title">Credits Remaining</h3>
+					<p class="iseo-quickstart-msg iseo-credits-figure" id="iseo-credits-remaining-figure">&mdash;</p>
+					<p class="iseo-quickstart-msg" id="iseo-credits-remaining-expiry"></p>
+				</div>
+			</div>
+
+			<?php
+			// Credits Used card — right of Credits Remaining, still left of Active Plan.
+			// Mirrors the CMS's "Credits Used This Cycle" card (CreditUsageCard.jsx), but only
+			// the pooled total: the CMS's per-action split (content/images/keywords, with its
+			// own segmented bar) is computed from GET /credit-usage/:user_id, an endpoint the
+			// plugin has no access to — it authenticates with the api_key/site_code pair that
+			// only /users/status accepts (see validateApiAccess in the admin server's routes),
+			// not the Supabase session the CMS calls that endpoint with. Building that split
+			// blind, against an endpoint never exercised from the plugin side, risks shipping
+			// something wrong with no way to verify it here.
+			//
+			// What IS available on /users/status: credit_details.content.allotment (the plan's
+			// per-cycle grant) and .plan_remaining (what's left of it) — allotment minus
+			// plan_remaining is genuinely "spent from this cycle's allowance", just not broken
+			// down by what it was spent on.
+			?>
+			<div class="module-box iseo-quickstart-card iseo-credits-card iseo-credits-used-card" id="iseo-credits-used-card" hidden>
+				<div class="iseo-quickstart-icon iseo-credits-icon" aria-hidden="true">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+				</div>
+				<div class="iseo-quickstart-body">
+					<h3 class="iseo-quickstart-title">Credits Used</h3>
+					<p class="iseo-quickstart-msg iseo-credits-figure" id="iseo-credits-used-figure">&mdash;</p>
+					<p class="iseo-quickstart-msg" id="iseo-credits-used-note">this cycle</p>
+				</div>
+			</div>
+
+			<?php
 			// Active Plan card — upper row, right of Quick Start. Mirrors the account CMS's
 			// own "Active Plan Card" (user-cms/src/components/CreditManagement.jsx): plan
 			// name, next billing (or trial end) date, and the same two-button pattern
@@ -270,6 +321,63 @@ use ImproveSEO\View;
 				planCard.hidden = false;
 			}
 
+			// Same fallback chain used everywhere else in this file and in includes/ajax.php's
+			// test_improveseo_connection() — one place this total is read from a response body.
+			function iseoReadCreditsTotal(d) {
+				var cd = (d.credit_details && d.credit_details.content) ? d.credit_details.content : null;
+				if (cd && cd.total != null) { return cd.total; }
+				if (d.credits && d.credits.total != null) { return d.credits.total; }
+				if (d.credits && d.credits.content != null) { return d.credits.content; }
+				return null;
+			}
+
+			function iseoPopulateCreditsRemaining(d) {
+				var el = document.getElementById('iseo-credits-remaining-card');
+				if (!el) { return; }
+
+				var total = iseoReadCreditsTotal(d);
+				document.getElementById('iseo-credits-remaining-figure').textContent =
+					(total != null) ? total.toLocaleString() + ' credits' : '—';
+
+				// Same fields, same wording as the site-wide notice (includes/connection-status.php,
+				// improveseo_global_notices()) — one description of "credits are expiring soon".
+				var expiryEl   = document.getElementById('iseo-credits-remaining-expiry');
+				var balance    = d.balance || {};
+				var expiryAt   = balance.next_expiry_at || null;
+				var expiryAmt  = balance.next_expiry_amount;
+				var expiryDate = iseoFormatDate(expiryAt);
+				expiryEl.textContent = (expiryDate && expiryAmt != null)
+					? expiryAmt.toLocaleString() + ' credits expire on ' + expiryDate
+					: (total != null ? 'No credits expiring soon' : '');
+
+				el.hidden = false;
+			}
+
+			function iseoPopulateCreditsUsed(d) {
+				var el = document.getElementById('iseo-credits-used-card');
+				if (!el) { return; }
+
+				var cd        = (d.credit_details && d.credit_details.content) ? d.credit_details.content : null;
+				var allotment = cd && cd.allotment != null ? cd.allotment : null;
+				var planLeft  = cd && cd.plan_remaining != null ? cd.plan_remaining : null;
+
+				var figureEl = document.getElementById('iseo-credits-used-figure');
+				var noteEl   = document.getElementById('iseo-credits-used-note');
+
+				if (allotment != null && allotment > 0 && planLeft != null) {
+					var used = Math.max(0, allotment - planLeft);
+					figureEl.textContent = used.toLocaleString() + ' credits';
+					noteEl.textContent = 'of ' + allotment.toLocaleString() + ' this cycle';
+				} else {
+					// No monthly allotment to measure against — a Basic/pack-only account, or an
+					// older server response missing these fields. Nothing false to report.
+					figureEl.textContent = '—';
+					noteEl.textContent = 'No monthly allotment on your current plan';
+				}
+
+				el.hidden = false;
+			}
+
 			var data = new FormData();
 			data.append('action', 'test_improveseo_connection');
 			data.append('api_key', <?php echo wp_json_encode( $iseo_qs_creds['api_key'] ); ?>);
@@ -293,6 +401,8 @@ use ImproveSEO\View;
 					// renderConnectionPanel) — one place this total is parsed.
 					var d     = result.data || {};
 					iseoPopulatePlanCard(d);
+					iseoPopulateCreditsRemaining(d);
+					iseoPopulateCreditsUsed(d);
 					var cd    = (d.credit_details && d.credit_details.content) ? d.credit_details.content : null;
 					var total = null;
 					if (cd && cd.total != null) { total = cd.total; }
