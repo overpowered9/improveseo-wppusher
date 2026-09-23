@@ -315,34 +315,31 @@ ul.breadcrumb-seo li a:hover {
   text-decoration: underline;
 }
 
-.iseo-quickstart-card[data-state="ready"] {
-  border-left-color: #0f7b6c;
-  background-color: #eafaf6;
-}
-
-.iseo-quickstart-card[data-state="ready"] .iseo-quickstart-icon { background-color: #0f7b6c; }
-.iseo-quickstart-card[data-state="ready"] .iseo-quickstart-link { color: #0f7b6c; }
-
-.iseo-quickstart-card[data-state="low"] {
-  border-left-color: #b3521a;
-  background-color: #fff4e5;
-}
-
-.iseo-quickstart-card[data-state="low"] .iseo-quickstart-icon { background-color: #b3521a; }
-.iseo-quickstart-card[data-state="low"] .iseo-quickstart-link { color: #b3521a; }
-
+/* One sky-blue accent regardless of state — the message text still says whether
+   you're ready, low on credits, or disconnected; only the colour no longer
+   changes with it. Written as one rule instead of three per-state copies, since
+   there is nothing left to vary between them. */
+.iseo-quickstart-card[data-state="ready"],
+.iseo-quickstart-card[data-state="low"],
 .iseo-quickstart-card[data-state="disconnected"] {
-  border-left-color: #b32d2e;
-  background-color: #fdecea;
+  border-left-color: #2DA4FD;
+  background-color: #eaf6ff;
 }
 
-.iseo-quickstart-card[data-state="disconnected"] .iseo-quickstart-icon { background-color: #b32d2e; }
-.iseo-quickstart-card[data-state="disconnected"] .iseo-quickstart-link { color: #b32d2e; }
+.iseo-quickstart-card[data-state="ready"] .iseo-quickstart-icon,
+.iseo-quickstart-card[data-state="low"] .iseo-quickstart-icon,
+.iseo-quickstart-card[data-state="disconnected"] .iseo-quickstart-icon {
+  background-color: #2DA4FD;
+}
 
-/* Guided Start only ever appears once Quick Start has settled on 'ready', so unlike
-   Quick Start it carries no data-state of its own — always the brand light blue, which
-   also keeps it visually distinct from Quick Start's green "ready" accent when the two
-   are shown side by side. */
+.iseo-quickstart-card[data-state="ready"] .iseo-quickstart-link,
+.iseo-quickstart-card[data-state="low"] .iseo-quickstart-link,
+.iseo-quickstart-card[data-state="disconnected"] .iseo-quickstart-link {
+  color: #1a7fd1;
+}
+
+/* Guided Start carries no data-state of its own — always this same sky blue,
+   the one accent every card on this row now shares. */
 .iseo-guidedstart-card {
   border-left-color: #2DA4FD;
   background-color: #eaf6ff;
@@ -353,17 +350,17 @@ ul.breadcrumb-seo li a:hover {
 
 /* Support cards — same warm-card / orange-accent / gradient-button styling as the
    account CMS's own "New here? / Need a hand?" pair (user-cms/src/components/
-   Dashboard.js: C.warmCard #F4F1DE, C.accentOrange #FF7A59, C.gradientOrange), not a
-   new look invented for the plugin. Always shown, so unlike Quick Start/Guided Start
-   they carry no data-state and need no [hidden] handling. */
+   Dashboard.js), though recoloured sky blue to match every other card on this
+   page rather than keeping the CMS's own orange. Always shown, so unlike Quick
+   Start/Guided Start they carry no data-state and need no [hidden] handling. */
 .iseo-support-card {
-  border-left-color: #FF7A59;
-  background-color: #F4F1DE;
+  border-left-color: #2DA4FD;
+  background-color: #eaf6ff;
   flex-direction: column;
 }
 
 .iseo-support-icon {
-  background-color: #FF7A59;
+  background-color: #2DA4FD;
 }
 
 .iseo-support-cta {
@@ -371,27 +368,26 @@ ul.breadcrumb-seo li a:hover {
   align-self: flex-start;
   margin-top: 12px;
   padding: 8px 20px;
-  background: linear-gradient(45deg, #A7391E 0%, #FF7A59 100%);
+  background: linear-gradient(135deg, #1a7fd1 0%, #5AB7FD 100%);
   color: #ffffff !important;
   font-weight: 700;
   font-size: 13px;
   text-decoration: none !important;
   border-radius: 10px;
-  box-shadow: 0px 4px 12px rgba(167, 57, 30, 0.25);
+  box-shadow: 0px 4px 12px rgba(26, 127, 209, 0.25);
 }
 
 .iseo-support-cta:hover {
   opacity: 0.9;
 }
 
-/* Active Plan card — same palette as the CMS's own Active Plan Card (
-   user-cms/src/components/CreditManagement.jsx: ORANGE #E55432, ORANGE_LIGHT
-   #FEF0EA, ORANGE_GRADIENT linear-gradient(135deg,#BF3A1A 0%,#E86340 100%)),
-   not a new one invented for the plugin. */
+/* Active Plan card — same layout as the CMS's own Active Plan Card
+   (user-cms/src/components/CreditManagement.jsx), recoloured sky blue to
+   match every other card on this page rather than the CMS's own orange. */
 .iseo-plan-card {
   flex-direction: column;
-  border-left-color: #E55432;
-  background-color: #FEF0EA;
+  border-left-color: #2DA4FD;
+  background-color: #eaf6ff;
 }
 
 .iseo-plan-head {
@@ -405,7 +401,7 @@ ul.breadcrumb-seo li a:hover {
   width: 32px;
   height: 32px;
   margin-bottom: 0;
-  background: linear-gradient(135deg, #BF3A1A 0%, #E86340 100%);
+  background: linear-gradient(135deg, #1a7fd1 0%, #5AB7FD 100%);
 }
 
 .iseo-plan-eyebrow {
@@ -413,7 +409,7 @@ ul.breadcrumb-seo li a:hover {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #E55432;
+  color: #1a7fd1;
 }
 
 #iseo-plan-date {
@@ -439,9 +435,9 @@ ul.breadcrumb-seo li a:hover {
 }
 
 .iseo-plan-btn-primary {
-  background: linear-gradient(135deg, #BF3A1A 0%, #E86340 100%);
+  background: linear-gradient(135deg, #1a7fd1 0%, #5AB7FD 100%);
   color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(190, 58, 26, 0.3);
+  box-shadow: 0 4px 14px rgba(26, 127, 209, 0.3);
 }
 
 .iseo-plan-btn-primary:hover {
@@ -458,17 +454,15 @@ ul.breadcrumb-seo li a:hover {
   background-color: #F8F8F4;
 }
 
-/* Credits Remaining / Credits Used — the CMS's own teal (TEAL #1C7C73 in
-   CreditManagement.jsx and Dashboard.js's Credits Card), so the two credit-stat
-   cards read as one family, distinct from Active Plan's orange (account/billing)
-   and Quick Start's state-based colours (this site's content workflow). */
+/* Credits Remaining / Credits Used — same sky blue as every other card on this
+   page, not the CMS's own teal, so the whole row reads as one family. */
 .iseo-credits-card {
-  border-left-color: #1C7C73;
-  background-color: #E8F3F1;
+  border-left-color: #2DA4FD;
+  background-color: #eaf6ff;
 }
 
 .iseo-credits-icon {
-  background-color: #1C7C73;
+  background-color: #2DA4FD;
 }
 
 .iseo-credits-figure {
@@ -501,7 +495,13 @@ ul.breadcrumb-seo li a:hover {
    query it sits in or how far below this one it is. */
 .module-box.iseo-metrics-card {
   max-width: calc(50% - 20px);
-  background-color: #ffffff;
+  /* Full shorthand, not just border-left-color: this card has no
+     .iseo-quickstart-card class (its layout is a plain top-to-bottom stack, not
+     that class's icon-beside-body row), so it never had the 4px accent bar
+     every other card gets from that base rule — this gives it the same bar
+     directly rather than pulling in a class built for a different layout. */
+  border-left: 4px solid #2DA4FD;
+  background-color: #eaf6ff;
 }
 
 .iseo-metrics-stats {
@@ -528,7 +528,7 @@ ul.breadcrumb-seo li a:hover {
 }
 
 .iseo-metrics-stat-clickable:hover .iseo-metrics-num {
-  color: #1C7293;
+  color: #1a7fd1;
 }
 
 .iseo-metrics-num {
@@ -603,23 +603,22 @@ ul.breadcrumb-seo li a:hover {
 .iseo-metrics-badge-draft   { background-color: #f0f0ea; color: #6B6F68; }
 .iseo-metrics-badge-future  { background-color: #eaf6ff; color: #1a7fd1; }
 
-/* Review Business Details — the plugin's own brand mint (see assets/css/onboarding.css:
-   "Brand palette: primary #1C7293 · dark #0B132B · mint #2EC4B6"), distinct from Active
-   Plan's orange and the Credits cards' CMS teal. */
+/* Review Business Details — same sky blue as every other card, not the plugin's
+   mint or the Credits cards' old teal. */
 .iseo-bizdetails-card {
-  border-left-color: #2EC4B6;
-  background-color: #eafbf9;
+  border-left-color: #2DA4FD;
+  background-color: #eaf6ff;
 }
 
 .iseo-bizdetails-icon {
-  background-color: #2EC4B6;
+  background-color: #2DA4FD;
 }
 
 .iseo-bizdetails-progress-track {
   width: 100%;
   height: 8px;
   border-radius: 9999px;
-  background-color: rgba(46, 196, 182, 0.2);
+  background-color: rgba(45, 164, 253, 0.2);
   overflow: hidden;
   margin-top: 10px;
 }
@@ -627,13 +626,13 @@ ul.breadcrumb-seo li a:hover {
 .iseo-bizdetails-progress-fill {
   height: 100%;
   border-radius: 9999px;
-  background-color: #2EC4B6;
+  background-color: #2DA4FD;
 }
 
 .iseo-bizdetails-progress-label {
   font-size: 12px;
   font-weight: 700;
-  color: #1C7293;
+  color: #1a7fd1;
   margin: 4px 0 0 !important;
 }
 
