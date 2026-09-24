@@ -4827,6 +4827,15 @@ global $ai_modal_type;
                 });
             }
         });
+
+        // Arrived from Keyword Lists' "Create Bulk Project From Keyword List" icon: the list is
+        // already selected server-side (see $preselected_list_id in modules/GenerateAIpopup.php),
+        // but selecting in markup fires no change event. Run the same load a manual pick does,
+        // so the keywords, count, time estimate and cost preview are filled in too. An empty
+        // value is the placeholder — a plain visit — and is left alone.
+        if (jQuery('#keyword_list_name').val()) {
+            jQuery('#keyword_list_name').trigger('change');
+        }
     });
 
 </script>

@@ -211,9 +211,16 @@ function generateAIpopup()
 
     $all_keywords = [];
 
+    // Keyword Lists → "Create Bulk Project From Keyword List" opens the Bulk wizard with
+    // &keyword_list=<id>, so that list arrives already picked. Read-only and only ever compared
+    // against real list IDs below: an unknown or stale ID matches nothing and leaves the
+    // "Select a Keyword List" placeholder in place, exactly as a plain visit would.
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- pre-selects a dropdown option; changes nothing.
+    $preselected_list_id = isset($_GET['keyword_list']) ? absint(wp_unslash($_GET['keyword_list'])) : 0;
+
     foreach ($listdata as $list_key => $list_value) {
 
-        $html_key .= '<option value="' . esc_attr($list_value->id) . '">' . esc_html($list_value->name) . '</option>';
+        $html_key .= '<option value="' . esc_attr($list_value->id) . '"' . selected($preselected_list_id, (int) $list_value->id, false) . '>' . esc_html($list_value->name) . '</option>';
 
         $all_keywords[$list_value->id] = $list_value->list;
 

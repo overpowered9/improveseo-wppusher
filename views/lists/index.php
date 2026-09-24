@@ -25,18 +25,6 @@ use ImproveSEO\View;
 
 <?php View::render('import/import') ?>
 
-<div class="seo-breadcumb">
-	<div class="seo-text">
-		<p> Improve SEO lists allow you to input a list of keywords or niches that you would like to target and use
-			improve SEO to quickly create posts for all of them. </p>
-		<p> This is handy if you have a list of hundreds of keywords that you would like to bulk create posts for (for
-			example, lists of amazon products or a list of long-tail keywords). </p>
-		<p> Improve SEO will create one post/page for every item in the list. In order to activate improve SEO lists, be
-			sure to use the shortcode in the title (you can use it elsewhere too, but make sure it's in the title). </p>
-		<p> You can embed your list by using <code>@list:listname</code> (this will also be shown on the create a
-			project page and when you create your list, so no need to memorize it). </p>
-	</div>
-</div>
 <div class="global-wrap">
 	<div class="head-bar">
 		<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
@@ -47,19 +35,35 @@ use ImproveSEO\View;
 			<li><a href="#">Improve SEO</a></li>
 			<li>Keyword Lists</li>
 		</ul>
-		<div class="import-export-btn">
-			<button class="active"
-				onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=create') ); ?>'">
-				Create Keyword List (Manual)
-			</button>
-		</div>
-		<div class="import-export-btn">
-			<button class="active"
-				onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_keyword_generator') ); ?>'">
-				Keyword Generator Tool (Auto)
-			</button>
-		</div>
 	</div>
+	<!-- The two ways to make a list, as cards rather than the old pair of pill buttons, so each
+	     one can say what it is for. Each card is a single link: the whole card is the target. -->
+	<section class="iseo-kwl-create" aria-labelledby="iseo-kwl-create-title">
+		<h2 id="iseo-kwl-create-title" class="iseo-kwl-create-title">Create Keyword List</h2>
+		<p class="iseo-kwl-create-lead">You need a keyword list to use Bulk Post Generation. Choose how you want to create it.</p>
+		<div class="iseo-kwl-cards">
+			<a class="iseo-kwl-card" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_lists&action=create' ) ); ?>">
+				<span class="iseo-kwl-card-icon" aria-hidden="true">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="8" y="2" width="8" height="4" rx="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><line x1="8" y1="11" x2="16" y2="11"></line><line x1="8" y1="15" x2="16" y2="15"></line><line x1="8" y1="19" x2="13" y2="19"></line></svg>
+				</span>
+				<span class="iseo-kwl-card-body">
+					<span class="iseo-kwl-card-title">Paste My Keywords</span>
+					<span class="iseo-kwl-card-text">Use a list you've already prepared.</span>
+				</span>
+				<svg class="iseo-kwl-card-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="9 18 15 12 9 6"></polyline></svg>
+			</a>
+			<a class="iseo-kwl-card" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_keyword_generator' ) ); ?>">
+				<span class="iseo-kwl-card-icon" aria-hidden="true">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M10 3l1.9 5.1L17 10l-5.1 1.9L10 17l-1.9-5.1L3 10l5.1-1.9z"></path><path d="M18 14l.9 2.1L21 17l-2.1.9L18 20l-.9-2.1L15 17l2.1-.9z"></path><path d="M18 3v3M16.5 4.5h3"></path></svg>
+				</span>
+				<span class="iseo-kwl-card-body">
+					<span class="iseo-kwl-card-title">Generate Keywords for Me</span>
+					<span class="iseo-kwl-card-text">Build a list of related keywords automatically.</span>
+				</span>
+				<svg class="iseo-kwl-card-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="9 18 15 12 9 6"></polyline></svg>
+			</a>
+		</div>
+	</section>
 	<div class="actions search-form-box">
 		<form class="improve-seo-form-global" method="GET">
 			<input type="text" id="post-search-input" name="s" value="<?php echo esc_attr( $s ); ?>"
@@ -113,8 +117,8 @@ use ImproveSEO\View;
 				<table class="table project_table_listing">
 					<thead>
 						<tr>
-							<th> Name </th>
-							<th>Content</th>
+							<th>Keyword List</th>
+							<th>Keyword List Preview</th>
 							<th> </th>
 						</tr>
 					</thead>
@@ -122,12 +126,15 @@ use ImproveSEO\View;
 						<?php if (!empty($lists)): ?>
 							<?php foreach ($lists as $item): ?>
 								<tr>
-									<td data-label="Name"
+									<?php // data-label is not just markup: under 767px style.css prints it as the
+									      // cell's visible label, so it has to match the column header. The class
+									      // carries the column width that used to hang off data-label="Name". ?>
+									<td data-label="Keyword List" class="iseo-kwl-col-name"
 										onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ); ?>'"
 										style="cursor: pointer;  padding-top: 20px; vertical-align: text-top;">
 										<strong><?php echo esc_html( $item->name ); ?> </strong>
 									</td>
-									<td data-label="Content"> <?php
+									<td data-label="Keyword List Preview"> <?php
 									if (str_word_count($item->list) > 50):
 										echo "<span class='list-content-overflow'>" . esc_html( $item->list ) . "</span>";
 									else:
@@ -135,16 +142,29 @@ use ImproveSEO\View;
 									endif;
 									?></td>
 									<td data-label="Action">
-										<div style="display: flex;justify-content: center;">
-											<a
-												href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ); ?>">
-												<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/write.svg' ); ?>"
-													alt="write"> </a>
-											<a class="submitdelete"
+										<?php // Each icon names itself twice: aria-label for screen readers, and the
+										      // hover/focus bubble for everyone else (aria-hidden, so it is not read
+										      // out a second time; alt="" for the same reason). ?>
+										<div class="iseo-kwl-actions">
+											<a class="iseo-kwl-action"
+												href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_posting&action=create_post_bulk&keyword_list=' . absint( $item->id ) ) ); ?>"
+												aria-label="Create Bulk Project From Keyword List">
+												<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/create-bulk.svg' ); ?>" alt="">
+												<span class="iseo-kwl-action-tip" aria-hidden="true">Create Bulk Project From Keyword List</span>
+											</a>
+											<a class="iseo-kwl-action"
+												href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=edit&id=' . $item->id) ); ?>"
+												aria-label="Edit Keyword List">
+												<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/write.svg' ); ?>" alt="">
+												<span class="iseo-kwl-action-tip" aria-hidden="true">Edit Keyword List</span>
+											</a>
+											<a class="iseo-kwl-action submitdelete"
 												href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=delete&id=' . $item->id . '&noheader=true') ); ?>"
-												onclick="return confirm('Are you sure you want to delete the list?')"> <img
-													src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/delete.svg' ); ?>"
-													alt="delete"> </a>
+												onclick="return confirm('Are you sure you want to delete the list?')"
+												aria-label="Delete Keyword List">
+												<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/delete.svg' ); ?>" alt="">
+												<span class="iseo-kwl-action-tip" aria-hidden="true">Delete Keyword List</span>
+											</a>
 										</div>
 									</td>
 								</tr>
