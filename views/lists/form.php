@@ -13,7 +13,7 @@ use ImproveSEO\Validator;
 
 <div class="BasicForm__row<?php if (Validator::hasError('name')) echo ' PostForm--error' ?>">
 
-	<label class="form-label">Shortcode Name</label>
+	<label class="form-label">Keyword List Name</label>
 
 	<div class="input-prefix">
 

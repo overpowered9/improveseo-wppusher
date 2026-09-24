@@ -91,6 +91,8 @@ add_submenu_page('improveseo_dashboard', 'Posting', 'Create Posts', 'manage_opti
 
     add_submenu_page('improveseo_dashboard', 'Lists', 'Keyword Lists', 'manage_options', 'improveseo_lists', 'improveseo_lists');
 
+    // Registered like any other submenu page, but kept out of the sidebar — see
+    // improveseo_hide_keyword_generator_menu_item() below.
     add_submenu_page('improveseo_dashboard', 'Keyword Generator', 'Keywords Generator Tool', 'manage_options', 'improveseo_keyword_generator', 'improveseo_keyword_generator');
 
     add_submenu_page('improveseo_dashboard', 'Settings', 'Settings', 'manage_options', 'improveseo_settings', 'improveseo_settings');
@@ -139,6 +141,43 @@ add_submenu_page('improveseo_dashboard', 'Posting', 'Create Posts', 'manage_opti
 function improveseo_onboarding_page() {
     include WT_PATH . '/views/onboarding/index.php';
 }
+
+/**
+ * The Keyword Generator is reached from Keyword Lists ("Generate Keywords for Me"), not from the
+ * sidebar, so its menu entry is removed — but only here, on admin_head.
+ *
+ * Removing it on admin_menu (straight after registering it) breaks the page itself: admin.php
+ * works out which callback to run by finding the page's parent in the submenu, and with the
+ * entry gone it looks for the wrong hook and dies with "Cannot load improveseo_keyword_generator".
+ * admin_head runs after that lookup and before the sidebar is drawn, so the page keeps its URL,
+ * hook, title and access check (the dashboard and the Bulk wizard link here too) and simply has
+ * no menu item. A null parent would hide it as well, but changes the hook name and trips PHP 8.1
+ * deprecations in plugin_basename().
+ */
+function improveseo_hide_keyword_generator_menu_item() {
+    remove_submenu_page( 'improveseo_dashboard', 'improveseo_keyword_generator' );
+}
+add_action( 'admin_head', 'improveseo_hide_keyword_generator_menu_item' );
+
+/**
+ * With no sidebar entry of its own, WordPress would highlight nothing while the generator is
+ * open. It is part of the Keyword Lists flow, so light that up instead: Improve SEO → Keyword
+ * Lists.
+ */
+function improveseo_is_keyword_generator_screen() {
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only: picks a menu highlight.
+    return is_admin() && isset( $_GET['page'] ) && 'improveseo_keyword_generator' === sanitize_key( wp_unslash( $_GET['page'] ) );
+}
+
+function improveseo_keyword_generator_menu_parent( $parent_file ) {
+    return improveseo_is_keyword_generator_screen() ? 'improveseo_dashboard' : $parent_file;
+}
+add_filter( 'parent_file', 'improveseo_keyword_generator_menu_parent' );
+
+function improveseo_keyword_generator_menu_submenu( $submenu_file ) {
+    return improveseo_is_keyword_generator_screen() ? 'improveseo_lists' : $submenu_file;
+}
+add_filter( 'submenu_file', 'improveseo_keyword_generator_menu_submenu' );
 
 /**
  * The plugin editor edits a project, not a post. Once a project has built its

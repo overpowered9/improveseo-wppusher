@@ -34,37 +34,10 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
     color: #fff !important;
     background-color: #59c174 !important;
 }
-
-/* Style View Keyword Lists button to match Generate Keywords button */
-.view-keyword-lists-btn {
-    background: linear-gradient(181deg, #ff9c33 0%, #f07d00 48%, #e07d00 100%) !important;
-    color: #fff !important;
-    max-width: 263px;
-    width: 100%;
-    padding: 9px 26px;
-    border-radius: 50px;
-    cursor: pointer;
-    font-size: 20px;
-    outline: none;
-    border: 1px solid #e07d00 !important;
-    font-family: "Poppins", serif;
-    font-weight: 500;
-    transition: background 0.3s ease;
-}
-
-.view-keyword-lists-btn:hover,
-.view-keyword-lists-btn:focus {
-    background: linear-gradient(100deg, #ff9c33 0%, #e07d00 48%, #e07d00 100%) !important;
-}
 </style>
 
 <h2 class="hidden">Keyword Generator</h2>
 
-<div class="seo-breadcumb">
-        <div class="seo-text">
-           <p> The Improve SEO Keyword Generator takes a seed keyword and uses AI to generate a list of long tail keywords. You can put these long tail keywords into a Improve SEO List and make posts/pages for each keyword in the list!</p>
-        </div>
-    </div>
     <div class="global-wrap">
         <div class="head-bar">
             <img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
@@ -89,18 +62,17 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
                     <textarea type="text" id="output" rows="5" class="textarea-control sw-output-ta keyword_input" placeholder="" style="height: 140px;"></textarea>
                 </div>
                 <div class="seo-form-field">
-                    <div class="improve-submit-box"> 
-                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: nowrap;">
-                            <input id="startjob" onclick="generate();" type="button" value="Generate Keywords!">
-                            <input id="viewkeywordlists" type="button" onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists') ); ?>'" value="View Keyword lists" class="view-keyword-lists-btn">
-                        </div>
-                        <div class="improve-submit-box-btns">
-                            <input type="button" class="clear-search-results keyword_clear_btn" value="Clear Results"></input>
-                            <input type="button" class="sw-save-search-results keyword_save_result_btn" value="Save Results"></input>
-                        </div>
+                    <?php // One row, in the order the job is done: generate, keep, start over, leave.
+                          // IDs and classes are unchanged — wt-script.js binds Save/Clear by class and
+                          // generate() reads #startjob. Cancel is the old "View Keyword lists" button:
+                          // same destination, now worded and styled as the way out. ?>
+                    <div class="iseo-kwg-actions">
+                        <input id="startjob" onclick="generate();" type="button" value="Generate Keywords">
+                        <input type="button" class="sw-save-search-results keyword_save_result_btn" value="Save Results">
+                        <input type="button" class="clear-search-results keyword_clear_btn" value="Clear Results">
+                        <input id="viewkeywordlists" type="button" onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists') ); ?>'" value="Cancel" class="view-keyword-lists-btn iseo-kwg-cancel">
                     </div>
-                    
-                </div>          
+                </div>
             </form>     
         </div>  
     </div>

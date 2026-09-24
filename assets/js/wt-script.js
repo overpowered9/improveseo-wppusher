@@ -196,27 +196,25 @@ jQuery(function($){
 
         }
 
+        // Saves straight away. There used to be an "Are you sure? You Want to Save The Searched
+        // DATA!" confirm in front of this; saving is what the button says and is easy to undo
+        // (delete the list), so the extra click only got in the way. That confirm was also the
+        // only thing stopping a double-click from creating the list twice — the button is now
+        // disabled for the length of the request instead.
+        var $saveBtn = $(this);
+        if ($saveBtn.prop('disabled')) {
+            return;
+        }
+        var saveLabel = $saveBtn.val();
+        $saveBtn.prop('disabled', true).val('Saving…');
 
-
-        swal({
-
-          title: "Are you sure?",
-
-          text: "You Want to Save The Searched DATA!",
-
-          icon: "warning",
-
-          buttons: true,
-
-          dangerMode: true,
-
-        })
-
-        .then((willDelete) => {
-
-          if (willDelete) {
-
-
+        var saveFailed = function () {
+            $saveBtn.prop('disabled', false).val(saveLabel);
+            swal({
+                text: "The keyword list could not be saved. Please try again.",
+                icon: "error",
+            });
+        };
 
             $.post(ajax_vars.ajax_url, data, function(resp){
 
@@ -306,17 +304,12 @@ jQuery(function($){
                         }
                     };
 
+                } else {
+                    // Used to fail silently: no message, and the button looked like it did nothing.
+                    saveFailed();
                 }
 
-
-
-            });
-
-
-
-          }
-
-        });
+            }).fail(saveFailed);
 
 
 

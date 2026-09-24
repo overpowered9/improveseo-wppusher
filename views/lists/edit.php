@@ -43,6 +43,7 @@ use ImproveSEO\Validator;
 			</ul>
 		</div>
 		<div class="improve-seo-form-box">
+			<?php View::render( 'lists.best-practices-notice' ); ?>
 			<form class="improve-seo-form-global"
 				action="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=do_edit&id=' . $list->id . '&noheader=true') ); ?>"
 				method="post">
@@ -50,8 +51,8 @@ use ImproveSEO\Validator;
 				<div style="width:100%; margin-bottom:0px;"  class="BasicForm__row<?php if (Validator::hasError('name'))
 					echo ' PostForm--error' ?>">
 						<div class="seo-form-field" style="margin: 0px;">
-							<label> Shortcode Name </label>
-							<input style="width:100%;" type="text" name="name" placeholder="Ex. List 1"
+							<label for="iseo-kwl-name"> Keyword List Name </label>
+							<input style="width:100%;" type="text" id="iseo-kwl-name" name="name" placeholder="Ex. List 1"
 								value="<?php echo esc_attr( Validator::old('name', $list->name) ); ?>">
 					</div>
 					<?php if (Validator::hasError('name')): ?>
@@ -63,8 +64,8 @@ use ImproveSEO\Validator;
 				<div  style="width:100%;" class="BasicForm__row<?php if (Validator::hasError('list'))
 					echo ' PostForm--error' ?>">
 						<div class="seo-form-field">
-							<label> List of Keywords (one per line) </label>
-							<textarea  style="width:100%;"  name="list"
+							<label for="iseo-kwl-keywords"> List of Keywords (one per line) </label>
+							<textarea  style="width:100%;" id="iseo-kwl-keywords" name="list"
 								placeholder="Type Here..."><?php echo esc_html( Validator::old('list', $list->list) ); ?></textarea>
 						<?php if (Validator::hasError('list')): ?>
 
@@ -73,8 +74,9 @@ use ImproveSEO\Validator;
 						<?php endif; ?>
 					</div>
 				</div>
-				<div class="seo-form-field">
+				<div class="seo-form-field iseo-kwl-form-actions">
 					<input type="submit" class="styling_post_page_action_buttons2 styling_post_page_action_buttons" value="Save">
+					<a class="iseo-kwl-cancel" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_lists' ) ); ?>">Cancel</a>
 				</div>
 			</form>
 		</div>

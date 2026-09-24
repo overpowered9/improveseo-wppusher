@@ -93,9 +93,14 @@ function improveseo_lists() {
 
 		$sqlTotal = 'SELECT COUNT(id) AS total FROM '. $model->getTable();
 		if($s != ""){
-			$sql .= " WHERE name like '%%%s%%'";
-			$sqlTotal .= " WHERE name like '%%%s%%'";
-			$params[] = $s;
+			// Matches the list's name OR any keyword inside it — people remember a list by what
+			// is in it as often as by what they called it. esc_like() so a "%" or "_" typed into
+			// the search is looked for literally instead of acting as a wildcard.
+			$like = '%' . $wpdb->esc_like( $s ) . '%';
+			$sql .= " WHERE name LIKE %s OR list LIKE %s";
+			$sqlTotal .= " WHERE name LIKE %s OR list LIKE %s";
+			$params[] = $like;
+			$params[] = $like;
 		}
 		// Only prepare when there is something to bind. With no search term $sqlTotal
 		// carries no placeholders, and $wpdb->prepare() on a placeholder-free query is a
@@ -120,8 +125,9 @@ function improveseo_lists() {
 		$total = $total_row->total;
 		$pages = ceil($total / $limit);
 		$page = floor($offset / $limit) + 1;
-		$all = $model->count();
-		View::render('lists.index', compact('lists', 'total', 'all', 'order', 'orderBy', 'pages', 'page', 's'));
+		$all = (int) $model->count();
+		$usage = improveseo_keyword_lists_usage( (array) $lists );
+		View::render('lists.index', compact('lists', 'total', 'all', 'order', 'orderBy', 'pages', 'page', 's', 'usage'));
 
 	elseif ($action == 'create'):
 		View::render('lists.create');
@@ -164,28 +170,16 @@ function improveseo_lists() {
 
 
 
-		FlashMessage::success('
-
-
-			<p>
-
-
-				Congratulations! To use your newly created list, call <strong>@list:'. $model->setNameAttribute($_POST['name']) .'</strong>.
-
-
-			</p>
-
-
-			<p>
-
-
-				To activate your list, make sure to use it in the title of the post/page (you can use it everywhere else too, but it must be included in the title).
-
-
-			</p>
-
-
-		');
+		// The old message told people to "call @list:name" in a post title — instructions for the
+		// shortcode era, and at odds with a field now labelled "Keyword List Name". Lists are
+		// picked by name in the Bulk wizard now. The name shown is the one actually stored
+		// (setNameAttribute() lowercases and hyphenates it), so it matches the list screen.
+		FlashMessage::success(
+			sprintf(
+				'Keyword list "%s" has been created.',
+				esc_html( $model->setNameAttribute( sanitize_text_field( wp_unslash( $_POST['name'] ) ) ) )
+			)
+		);
 
 
 		wp_redirect(admin_url('admin.php?page=improveseo_lists'));
@@ -356,6 +350,138 @@ function improveseo_lists() {
 	endif;
 
 
+}
+
+/**
+ * How each keyword list on the current page has been used by Bulk projects.
+ *
+ * Built from data the plugin already records — no schema change:
+ *   - improveseo_bulktasks          one row per Bulk project (name, state, created_at)
+ *   - improveseo_bulktasksdetails   one row per keyword of a project; keyword_list_name holds the
+ *                                   ID of the list the wizard picked (older rows hold the list's
+ *                                   NAME instead — the same two shapes modules/bulkprojects.php
+ *                                   already resolves), status 'Stoped' marks a cancelled task,
+ *                                   post_id the WordPress post it produced
+ *   - wp_posts.post_status          whether that post is actually live. Read from the post rather
+ *                                   than the task's own state, because a draft can be published
+ *                                   by hand later and the task row would never know.
+ *
+ * When a list fed several projects, the MOST RECENT one decides the status, the link and the
+ * "last used" date; `more` counts the others.
+ *
+ * Status of that project, first match wins:
+ *   partial      the project was cancelled (state Stopped/Cancelled) or any of its tasks was
+ *   published    at least one of its posts is published or scheduled
+ *   unpublished  used, but nothing live yet — drafts, or content still being generated
+ *   unused       no project has used the list
+ *
+ * @param object[] $lists Rows of improveseo_lists (id, name, …) — normally one page of the screen.
+ * @return array<int, object> list id => { status, label, project_id, project_name, last_used, more }
+ */
+function improveseo_keyword_lists_usage( array $lists ) {
+	global $wpdb;
+
+	$labels = array(
+		'unused'      => 'Not used yet',
+		'published'   => 'Used & published',
+		'unpublished' => 'Used & not published',
+		'partial'     => 'Partially used',
+	);
+
+	$usage   = array();
+	$by_name = array();
+	$refs    = array();
+
+	foreach ( $lists as $list ) {
+		$id = (int) $list->id;
+		$usage[ $id ] = (object) array(
+			'status'       => 'unused',
+			'label'        => $labels['unused'],
+			'project_id'   => 0,
+			'project_name' => '',
+			'last_used'    => '',
+			'more'         => 0,
+		);
+		$refs[] = (string) $id;
+		if ( '' !== (string) $list->name && ! isset( $by_name[ $list->name ] ) ) {
+			$by_name[ $list->name ] = $id;
+			$refs[] = (string) $list->name;
+		}
+	}
+
+	if ( ! $refs ) {
+		return $usage;
+	}
+
+	$placeholders = implode( ', ', array_fill( 0, count( $refs ), '%s' ) );
+
+	// One grouped query for the whole page: per (list reference, project) — the project's state
+	// and date, how many of its tasks were cancelled, and how many of its posts are live.
+	$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin-owned tables, read once per screen load.
+		$wpdb->prepare(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from $wpdb; the IN list is a run of %s placeholders built above.
+			"SELECT d.keyword_list_name AS ref, d.bulktask_id AS project_id, b.name AS project_name,
+			        b.state AS project_state, b.created_at AS project_created,
+			        SUM( d.status = 'Stoped' ) AS cancelled_tasks,
+			        SUM( p.post_status IN ( 'publish', 'future' ) ) AS live_posts
+			   FROM {$wpdb->prefix}improveseo_bulktasksdetails d
+			   JOIN {$wpdb->prefix}improveseo_bulktasks b ON b.id = d.bulktask_id
+			   LEFT JOIN {$wpdb->posts} p ON p.ID = d.post_id
+			  WHERE d.keyword_list_name IN ( $placeholders )
+			  GROUP BY d.keyword_list_name, d.bulktask_id, b.name, b.state, b.created_at",
+			$refs
+		)
+	);
+
+	// Group the projects under the list each one used.
+	$projects = array();
+	foreach ( (array) $rows as $row ) {
+		$ref = (string) $row->ref;
+		if ( ctype_digit( $ref ) && isset( $usage[ (int) $ref ] ) ) {
+			$list_id = (int) $ref;
+		} elseif ( isset( $by_name[ $ref ] ) ) {
+			$list_id = $by_name[ $ref ];
+		} else {
+			continue;
+		}
+		// Keyed by project, so a project whose rows carry both shapes of reference counts once.
+		$pid = (int) $row->project_id;
+		if ( isset( $projects[ $list_id ][ $pid ] ) ) {
+			$projects[ $list_id ][ $pid ]->cancelled_tasks += (int) $row->cancelled_tasks;
+			$projects[ $list_id ][ $pid ]->live_posts      += (int) $row->live_posts;
+		} else {
+			$row->cancelled_tasks = (int) $row->cancelled_tasks;
+			$row->live_posts      = (int) $row->live_posts;
+			$projects[ $list_id ][ $pid ] = $row;
+		}
+	}
+
+	foreach ( $projects as $list_id => $list_projects ) {
+		usort( $list_projects, function ( $a, $b ) {
+			$by_date = strcmp( (string) $b->project_created, (string) $a->project_created );
+			return 0 !== $by_date ? $by_date : ( (int) $b->project_id - (int) $a->project_id );
+		} );
+		$latest = $list_projects[0];
+
+		if ( in_array( $latest->project_state, array( 'Stopped', 'Cancelled' ), true ) || $latest->cancelled_tasks > 0 ) {
+			$status = 'partial';
+		} elseif ( $latest->live_posts > 0 ) {
+			$status = 'published';
+		} else {
+			$status = 'unpublished';
+		}
+
+		$usage[ $list_id ] = (object) array(
+			'status'       => $status,
+			'label'        => $labels[ $status ],
+			'project_id'   => (int) $latest->project_id,
+			'project_name' => (string) $latest->project_name,
+			'last_used'    => (string) $latest->project_created,
+			'more'         => count( $list_projects ) - 1,
+		);
+	}
+
+	return $usage;
 }
 
 

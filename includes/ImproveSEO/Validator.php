@@ -27,7 +27,11 @@ class Validator
 		}
 	}
 
-	public function saveOld($field, $value)
+	// Static like the rest of this class: validate() calls it as self::saveOld(), and calling a
+	// non-static method statically is a fatal Error on PHP 8 — so every refused form (an empty
+	// keyword list, a duplicate list name, …) ended on WordPress's "critical error" page instead
+	// of coming back with the message and the values that were typed.
+	public static function saveOld($field, $value)
 	{
 		$_SESSION[self::$oldKey][$field] = $value;
 	}

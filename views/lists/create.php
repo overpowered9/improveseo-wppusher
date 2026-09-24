@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 use ImproveSEO\View;
+use ImproveSEO\Validator;
 
 ?>
 
@@ -40,20 +41,31 @@ use ImproveSEO\View;
             </ul>
         </div>
         <div class="improve-seo-form-box">
+            <?php View::render( 'lists.best-practices-notice' ); ?>
             <form class="improve-seo-form-global" action="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=do_create&noheader=true') ); ?>" method="post" >
-                <div class="seo-form-field">
-                    <label> Shortcode Name </label>
-                    <input type="text" name="name"  placeholder="Ex. List 1"> 
-                </div> 
-                <div class="seo-form-field">
-                    <label> List of Keywords (one per line) </label>
-                    <textarea  name="list" placeholder="Type Here..."></textarea> 
-                </div>      
-                <div class="seo-form-field">
+                <?php // A refused save (empty field, or a name already taken) redirects back here. The
+                      // edit screen already showed why and kept what was typed; this one used to come
+                      // back blank and silent. ?>
+                <div class="seo-form-field<?php if ( Validator::hasError( 'name' ) ) echo ' PostForm--error'; ?>">
+                    <label for="iseo-kwl-name"> Keyword List Name </label>
+                    <input type="text" id="iseo-kwl-name" name="name"  placeholder="Ex. List 1" value="<?php echo esc_attr( wp_unslash( (string) Validator::old( 'name', '' ) ) ); ?>">
+                    <?php if ( Validator::hasError( 'name' ) ) : ?>
+                        <span class="PostForm__error"><?php echo esc_html( Validator::get( 'name' ) ); ?></span>
+                    <?php endif; ?>
+                </div>
+                <div class="seo-form-field<?php if ( Validator::hasError( 'list' ) ) echo ' PostForm--error'; ?>">
+                    <label for="iseo-kwl-keywords"> List of Keywords (one per line) </label>
+                    <textarea id="iseo-kwl-keywords" name="list" placeholder="Type Here..."><?php echo esc_textarea( wp_unslash( (string) Validator::old( 'list', '' ) ) ); ?></textarea>
+                    <?php if ( Validator::hasError( 'list' ) ) : ?>
+                        <span class="PostForm__error"><?php echo esc_html( Validator::get( 'list' ) ); ?></span>
+                    <?php endif; ?>
+                </div>
+                <div class="seo-form-field iseo-kwl-form-actions">
                     <input type="submit" style="max-width:max-content;" class="styling_post_page_action_buttons2 styling_post_page_action_buttons" value="Create New List">
-                </div>          
-            </form>     
-        </div>  
+                    <a class="iseo-kwl-cancel" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_lists' ) ); ?>">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
 
 <?php View::endSection('content') ?>
