@@ -57,7 +57,9 @@ use ImproveSEO\View;
 		$iseo_qs_has_creds   = ($iseo_qs_creds['api_key'] !== '' && $iseo_qs_creds['site_code'] !== '');
 		$iseo_qs_state       = $iseo_qs_has_creds ? 'loading' : 'disconnected';
 		$iseo_qs_create_url  = admin_url('admin.php?page=improveseo_posting');
-		$iseo_qs_connect_url = admin_url('admin.php?page=improveseo_settings#iseo-connect-guide');
+		// No #iseo-connect-guide fragment: landing mid-page, scrolled past the page's own
+		// header, read as broken. Settings opens at the top like any other page.
+		$iseo_qs_connect_url = admin_url('admin.php?page=improveseo_settings');
 		$iseo_qs_plans_url   = 'https://account.improveseoplugin.com/credits?view=plans';
 
 		/**
@@ -205,22 +207,27 @@ use ImproveSEO\View;
 			// plugin's own existing canonical resolver, already used by Settings, so this
 			// card cannot name a plan differently from anywhere else in the plugin.
 			//
-			// Hidden until the same AJAX call Quick Start already makes resolves — no second
-			// network request, and (like Guided Start) it never renders server-side since
-			// plan/subscription data isn't known at render time.
+			// For a connected site it stays hidden until the same AJAX call Quick Start already
+			// makes resolves — no second network request. A disconnected site has no plan data
+			// to wait for, so it renders straight away in a "not connected" state pointing at
+			// the same connect guide Quick Start does, rather than leaving a hole in the row.
 			?>
-			<div class="module-box iseo-quickstart-card iseo-plan-card" id="iseo-plan-card" hidden>
+			<div class="module-box iseo-quickstart-card iseo-plan-card" id="iseo-plan-card" data-plan-state="<?php echo $iseo_qs_has_creds ? 'loading' : 'disconnected'; ?>" <?php echo $iseo_qs_has_creds ? 'hidden' : ''; ?>>
 				<div class="iseo-plan-head">
 					<div class="iseo-quickstart-icon iseo-plan-icon" aria-hidden="true">
 						<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"></path></svg>
 					</div>
-					<span class="iseo-plan-eyebrow" id="iseo-plan-status">ACTIVE PLAN</span>
+					<span class="iseo-plan-eyebrow" id="iseo-plan-status"><?php echo $iseo_qs_has_creds ? 'ACTIVE PLAN' : 'NOT CONNECTED'; ?></span>
 				</div>
-				<h3 class="iseo-quickstart-title" id="iseo-plan-name">&mdash;</h3>
-				<p class="iseo-quickstart-msg" id="iseo-plan-date"></p>
+				<h3 class="iseo-quickstart-title" id="iseo-plan-name"><?php echo $iseo_qs_has_creds ? '&mdash;' : 'No active plan'; ?></h3>
+				<p class="iseo-quickstart-msg" id="iseo-plan-date"><?php echo $iseo_qs_has_creds ? '' : 'Connect this site to see your plan and credits.'; ?></p>
 				<div class="iseo-plan-actions">
+					<?php if ( $iseo_qs_has_creds ) : ?>
 					<a href="<?php echo esc_url( $iseo_qs_plans_url ); ?>" class="iseo-plan-btn iseo-plan-btn-primary" id="iseo-plan-btn-primary" target="_blank" rel="noopener noreferrer">Manage Plan</a>
-					<a href="<?php echo esc_url( $iseo_qs_plans_url ); ?>" class="iseo-plan-btn iseo-plan-btn-quiet" id="iseo-plan-btn-secondary" target="_blank" rel="noopener noreferrer">Cancel Subscription</a>
+					<?php else : ?>
+					<a href="<?php echo esc_url( $iseo_qs_connect_url ); ?>" class="iseo-plan-btn iseo-plan-btn-primary" id="iseo-plan-btn-primary">Connect now</a>
+					<?php endif; ?>
+					<a href="<?php echo esc_url( $iseo_qs_plans_url ); ?>" class="iseo-plan-btn iseo-plan-btn-quiet" id="iseo-plan-btn-secondary" target="_blank" rel="noopener noreferrer"><?php echo $iseo_qs_has_creds ? 'Cancel Subscription' : 'View plans'; ?></a>
 				</div>
 			</div>
 
@@ -360,6 +367,32 @@ use ImproveSEO\View;
 				planCard.hidden = false;
 			}
 
+			// The check failed, so there is no plan to name — but the card is still shown, so
+			// the row doesn't lose a slot. Rejected credentials read as "not connected" (the
+			// same call Quick Start makes on 401/403); anything else just says the plan
+			// couldn't be loaded, never guessing one.
+			function iseoPlanCardUnavailable(disconnected) {
+				var planCard = document.getElementById('iseo-plan-card');
+				if (!planCard) { return; }
+
+				var primaryBtn = document.getElementById('iseo-plan-btn-primary');
+				planCard.setAttribute('data-plan-state', disconnected ? 'disconnected' : 'unavailable');
+				document.getElementById('iseo-plan-status').textContent = disconnected ? 'NOT CONNECTED' : 'PLAN';
+				document.getElementById('iseo-plan-name').textContent = disconnected ? 'No active plan' : 'Plan unavailable';
+				document.getElementById('iseo-plan-date').textContent = disconnected
+					? 'Connect this site to see your plan and credits.'
+					: 'We couldn’t load your plan right now. Try again shortly.';
+
+				if (disconnected) {
+					primaryBtn.textContent = 'Connect now';
+					primaryBtn.href = <?php echo wp_json_encode( $iseo_qs_connect_url ); ?>;
+					primaryBtn.removeAttribute('target');
+				}
+				document.getElementById('iseo-plan-btn-secondary').textContent = 'View plans';
+
+				planCard.hidden = false;
+			}
+
 			// Same fallback chain used everywhere else in this file and in includes/ajax.php's
 			// test_improveseo_connection() — one place this total is read from a response body.
 			function iseoReadCreditsTotal(d) {
@@ -432,7 +465,9 @@ use ImproveSEO\View;
 						// nothing about whether we're connected, so don't accuse the user of being
 						// disconnected over a network hiccup; default to letting them try to create.
 						var status = result && result.data && result.data.status;
-						iseoQsShow((status === 401 || status === 403) ? 'disconnected' : 'ready');
+						var rejected = (status === 401 || status === 403);
+						iseoPlanCardUnavailable(rejected);
+						iseoQsShow(rejected ? 'disconnected' : 'ready');
 						return;
 					}
 
@@ -453,7 +488,7 @@ use ImproveSEO\View;
 					// different things on the same site.
 					iseoQsShow((total != null && total < <?php echo (int) IMPROVESEO_LOW_CREDIT_THRESHOLD; ?>) ? 'low' : 'ready');
 				})
-				.catch(function () { iseoQsShow('ready'); });
+				.catch(function () { iseoPlanCardUnavailable(false); iseoQsShow('ready'); });
 		});
 		</script>
 		<?php endif; ?>

@@ -572,7 +572,7 @@ function improveseo_global_notices() {
 		printf(
 			'<div class="notice notice-error iseo-global-notice"><p>%s <a href="%s"><strong>%s</strong></a></p></div>',
 			esc_html__( 'ImproveSEO: this website is not connected to your ImproveSEO account.', 'improveseo' ),
-			esc_url( admin_url( 'admin.php?page=improveseo_settings#iseo-connect-guide' ) ),
+			esc_url( admin_url( 'admin.php?page=improveseo_settings' ) ),
 			esc_html__( 'Connect now', 'improveseo' )
 		);
 		return;

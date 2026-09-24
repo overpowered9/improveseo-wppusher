@@ -17,6 +17,14 @@
   --iseo-ink:     #0E0F14; /* body text */
   --iseo-muted:   #5C6B7A; /* secondary text — a Midnight Navy-tinted grey */
   --iseo-shadow:  0 1px 3px rgba(11, 19, 43, 0.08);
+  /* On-navy set: every dashboard status card is a Midnight Navy tile, so its
+     text, chips and dividers are named once here rather than repeated as
+     scattered rgba() literals. Alpha rather than flat hex, so each one stays
+     keyed to the card fill if that fill is ever retuned. */
+  --iseo-on-navy:       #FFFFFF;
+  --iseo-on-navy-muted: rgba(255, 255, 255, 0.68);
+  --iseo-on-navy-faint: rgba(255, 255, 255, 0.12);
+  --iseo-shadow-dark:   0 2px 10px rgba(11, 19, 43, 0.18);
   --iseo-font:    "Poppins", "Lato", sans-serif;
 }
 
@@ -247,14 +255,19 @@ ul.breadcrumb-seo li a:hover {
    in the plugin, so the flat status cards above (which borrow .module-box only for
    its width and padding) keep their own hairline/faint-shadow treatment instead of
    inheriting this heavier lift. The card itself is otherwise unchanged. */
+/* Two-layer shadow, navy-tinted: a tight one to define the edge and a soft,
+   wider one to lift the card off the white page. The old .module-box shadow
+   (one 25px blur at 10% black) spread so thin it barely registered. */
 .modules-row .module-box {
-  transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 2px 6px rgba(11, 19, 43, 0.08), 0 10px 24px rgba(11, 19, 43, 0.12);
+  transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
 .modules-row .module-box:hover {
   background-color: var(--iseo-primary);
   border-color: var(--iseo-primary);
-  box-shadow: 0 6px 16px rgba(28, 114, 147, 0.28);
+  box-shadow: 0 4px 10px rgba(28, 114, 147, 0.20), 0 16px 32px rgba(28, 114, 147, 0.32);
+  transform: translateY(-3px);
 }
 
 /* The heading and body copy are set on descendants of the card's <a>, whose own
@@ -305,20 +318,37 @@ ul.breadcrumb-seo li a:hover {
 
 /* ── Dashboard status cards (Quick Start / Credits / Active Plan / Guided Start /
       support pair / Content Metrics / Business Details) ──────────────────────
-   Flat editorial treatment from the ImproveSEO brand guideline: white surface,
-   one hairline Sky border, a single faint shadow — no tinted fills, no left
-   accent bars, no gradients. State is carried by the copy, not by the card's
-   colour. These cards still borrow .module-box for width and padding (so they
+   Flat editorial treatment from the ImproveSEO brand guideline, on its dark
+   tile: solid Midnight Navy fill, white text, white icons, one soft shadow —
+   no tinted fills, no accent bars, no gradients. State is carried by the copy,
+   not by the card colour. (The guideline reserves the dark fill for a single
+   card; this row runs it across all of them by request, which leaves Quick
+   Links below as the page's light surface and this stack as its counterweight.)
+   These cards still borrow .module-box for width and padding (so they
    line up with the Quick Links grid below), but override its 20px radius and
    heavy 25px-blur shadow — those stay on Quick Links, which is deliberately
    left as it was. Flex + wrap/gap mirrors .modules-row so Guided Start sits
    beside Quick Start at the same width, not stacked under it. */
+/* Grid, not the flex-wrap .modules-row uses: .module-box's percentage max-widths
+   plus a fixed 40px gap add up to more than 100% for four cards, so the fourth
+   always wrapped onto a row of its own and left a hole beside it. auto-fit
+   shares the row between however many cards are visible — four when
+   disconnected, up to six once the credit and Guided Start cards appear — and
+   wraps cleanly below ~240px per card. */
 .iseo-quickstart-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
   padding: 0 20px;
   margin-top: 20px;
+}
+
+/* (0,2,0) so it beats every plain .module-box max-width in the breakpoints further
+   down this file; the grid track now sets the width. */
+.iseo-quickstart-row > .module-box,
+.iseo-row-2 > .module-box {
+  max-width: none;
+  width: auto;
 }
 
 .iseo-quickstart-card {
@@ -332,10 +362,20 @@ ul.breadcrumb-seo li a:hover {
   align-items: flex-start;
   gap: 14px;
   font-family: var(--iseo-font);
-  background-color: var(--iseo-surface);
-  border: 1px solid var(--iseo-border);
+  /* Stated on the card, not only on each child: on a dark surface anything that
+     inherits instead of declaring would pick up body's #3c434a and disappear. */
+  color: var(--iseo-on-navy);
+  background-color: var(--iseo-navy);
+  border: 1px solid var(--iseo-navy);
   border-radius: 14px;
-  box-shadow: var(--iseo-shadow);
+  box-shadow: var(--iseo-shadow-dark);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.iseo-quickstart-card:hover,
+.module-box.iseo-metrics-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(11, 19, 43, 0.28);
 }
 
 /* display:flex above otherwise beats the browser's default [hidden]{display:none} —
@@ -346,8 +386,8 @@ ul.breadcrumb-seo li a:hover {
   display: none;
 }
 
-/* Flat single-tone tint chip: Sky square, primary-blue line icon. The SVGs inside
-   are stroke="currentColor", so colour alone repaints them. */
+/* Flat single-tone chip: a barely-lifted square on the navy, white line icon.
+   The SVGs inside are stroke="currentColor", so colour alone repaints them. */
 .iseo-quickstart-icon {
   flex: 0 0 auto;
   width: 38px;
@@ -356,12 +396,21 @@ ul.breadcrumb-seo li a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--iseo-sky);
-  color: var(--iseo-primary);
+  /* Solid Primary Blue, the same fill as the card buttons, so chip and button
+     read as one accent colour per card. */
+  background-color: var(--iseo-primary);
+  color: var(--iseo-on-navy);
 }
 
+/* Column that fills the card, so a card's button or closing link can sit at the
+   bottom (margin-top: auto below) and line up across cards of different copy
+   lengths, instead of floating wherever its text happens to end. */
 .iseo-quickstart-body {
   min-width: 0;
+  width: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
 }
 
 /* .module-box .iseo-quickstart-title, not the class alone: .module-box h3 above
@@ -371,30 +420,91 @@ ul.breadcrumb-seo li a:hover {
    .module-box, so this matches exactly the same elements as before. */
 .module-box .iseo-quickstart-title {
   font-family: var(--iseo-font);
-  font-size: 17px !important;
+  font-size: 18px !important;
   font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.01em;
-  margin: 0 0 6px !important;
-  color: var(--iseo-navy);
+  margin: 0 0 8px !important;
+  color: var(--iseo-on-navy);
 }
 
 .iseo-quickstart-msg {
   font-family: var(--iseo-font);
   font-size: 14px;
   line-height: 1.5;
-  color: var(--iseo-muted);
+  color: var(--iseo-on-navy-muted);
   margin: 0 !important;
 }
 
-.iseo-quickstart-link {
-  font-weight: 600;
-  color: var(--iseo-primary);
-  text-decoration: none;
+/* A light tint of Primary Blue rather than #1C7293 itself: the full-strength blue
+   on the #0B132B fill is two dark tones set against each other and stops reading
+   as clickable. Colour, weight, a standing underline and an arrow all mark it as
+   a link; the underline thickens on hover.
+   .module-box a.iseo-quickstart-link, not the class alone: .module-box a
+   (display:flex; flex-direction:column) would otherwise break every link onto a
+   line of its own in the middle of its sentence. */
+.module-box a.iseo-quickstart-link {
+  display: inline;
+  font-weight: 700;
+  color: #7FD1EE;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  text-decoration-color: rgba(127, 209, 238, 0.55);
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
 }
 
-.iseo-quickstart-link:hover {
-  text-decoration: underline;
+.module-box a.iseo-quickstart-link::after {
+  content: " \2192";
+  display: inline-block;
+  margin-left: 2px;
+  transition: transform 0.15s ease;
+}
+
+/* !important only to outrank .module-box a:hover's own `text-decoration: none
+   !important`, which would otherwise strip the underline exactly on hover. */
+.module-box a.iseo-quickstart-link:hover {
+  color: var(--iseo-on-navy);
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-decoration-color: var(--iseo-on-navy) !important;
+}
+
+.module-box a.iseo-quickstart-link:hover::after {
+  transform: translateX(3px);
+}
+
+/* A link that closes the card on its own line (e.g. "Complete details") sits at
+   the card's bottom edge, lined up with the neighbouring cards' buttons. */
+.iseo-quickstart-body > a.iseo-quickstart-link {
+  margin-top: auto;
+  padding-top: 14px;
+  align-self: flex-start;
+  font-size: 15px;
+}
+
+/* The page's buttons: Primary Blue (#1C7293) fill with white text; on hover they
+   flip to a white fill with black text. !important on color because the older
+   rules for these classes set theirs with !important. */
+.iseo-support-cta,
+.iseo-plan-btn-primary,
+.iseo-plan-btn-quiet {
+  background-color: var(--iseo-primary);
+  color: var(--iseo-on-navy) !important;
+  border: 1px solid var(--iseo-primary);
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.iseo-support-cta:hover,
+.iseo-support-cta:focus-visible,
+.iseo-plan-btn-primary:hover,
+.iseo-plan-btn-primary:focus-visible,
+.iseo-plan-btn-quiet:hover,
+.iseo-plan-btn-quiet:focus-visible {
+  background-color: #FFFFFF;
+  color: #000000 !important;
+  border-color: #FFFFFF;
+  box-shadow: none;
 }
 
 /* The page's single coral moment: Quick Start's "Create now", and nothing else.
@@ -406,28 +516,28 @@ ul.breadcrumb-seo li a:hover {
 /* Guided Start needs nothing of its own any more: it was only ever a second
    accent-bar/tint colour, and there are no tints left to differ in. It renders
    from .iseo-quickstart-card alone. The support pair keeps only its CTA. */
+/* Colours come from the shared button rule above. margin-top: auto pins it to the
+   card's bottom edge; the padding-top on the text before it keeps a minimum gap. */
 .iseo-support-cta {
   display: inline-block;
   align-self: flex-start;
-  margin-top: 14px;
-  padding: 8px 18px;
-  background-color: transparent;
-  color: var(--iseo-primary) !important;
-  border: 1px solid var(--iseo-primary);
+  margin-top: auto;
+  padding: 10px 20px;
   font-family: var(--iseo-font);
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
   text-decoration: none !important;
   border-radius: 8px;
 }
 
-.iseo-support-cta:hover {
-  background-color: var(--iseo-sky);
+.iseo-support-card .iseo-quickstart-msg {
+  padding-bottom: 16px;
 }
 
-/* ── Active Plan — the one dark card ──────────────────────────────────────
-   Solid Midnight Navy fill with white text, echoing the brand swatch's dark
-   tile. This is the exception on the page; every other card stays white. */
+/* ── Active Plan ──────────────────────────────────────────────────────────
+   Fill, text colour and icon chip all come from .iseo-quickstart-card now that
+   every card in this row is navy. What stays here is only the white badge, the
+   two buttons, and this card's own spacing. */
 .iseo-plan-card {
   /* Unlike every other card, this one has no .iseo-quickstart-body wrapper — its
      head, name, date and actions are all direct flex children, so the card's own
@@ -449,8 +559,6 @@ ul.breadcrumb-seo li a:hover {
   width: 32px;
   height: 32px;
   margin-bottom: 0;
-  background-color: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
 }
 
 /* White badge on the dark fill, not a coloured label. */
@@ -461,7 +569,7 @@ ul.breadcrumb-seo li a:hover {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--iseo-navy);
-  background-color: #ffffff;
+  background-color: var(--iseo-on-navy);
   border-radius: 9999px;
   padding: 4px 10px;
   line-height: 1;
@@ -470,74 +578,54 @@ ul.breadcrumb-seo li a:hover {
 .iseo-plan-card .iseo-quickstart-title {
   font-size: 22px !important;
   font-weight: 800;
-  color: #ffffff;
   margin: 0 !important;
 }
 
 #iseo-plan-date {
-  color: rgba(255, 255, 255, 0.66);
+  color: var(--iseo-on-navy-muted);
 }
 
+/* margin-top: auto pins the buttons to the card's bottom edge, level with the
+   support cards' buttons beside it. */
 .iseo-plan-actions {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: auto;
+  padding-top: 14px;
   width: 100%;
 }
 
+/* Colours for both variants come from the shared button rule above. The
+   `border` shorthand is deliberately not repeated here: this rule sits later in
+   the file and would reset the shared rule's blue border. */
 .iseo-plan-btn {
   display: block;
   text-align: center;
-  padding: 9px 16px;
+  padding: 10px 16px;
   border-radius: 8px;
   font-family: var(--iseo-font);
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
   text-decoration: none !important;
-  border: 1px solid transparent;
 }
 
-.iseo-plan-btn-primary {
-  background-color: var(--iseo-primary);
-  color: #ffffff !important;
-}
-
-.iseo-plan-btn-primary:hover {
-  box-shadow: 0 2px 8px rgba(28, 114, 147, 0.45);
-}
-
-/* Ghost/outline. Inside the dark plan card it outlines in white; the drafts modal
-   reuses this class on a white surface, where the rule below restores a neutral
-   outline rather than invisible white-on-white. */
-.iseo-plan-btn-quiet {
-  background-color: transparent;
-  color: #ffffff !important;
-  border-color: rgba(255, 255, 255, 0.34);
-}
-
-.iseo-plan-btn-quiet:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-}
-
-.iseo-drafts-modal .iseo-plan-btn-quiet {
-  color: var(--iseo-primary) !important;
-  border-color: var(--iseo-border);
-}
-
-.iseo-drafts-modal .iseo-plan-btn-quiet:hover {
-  background-color: var(--iseo-sky);
+/* The drafts modal reuses .iseo-plan-btn-quiet on a white surface, where the
+   hover's white fill would blend in — a dark edge keeps the button's outline. */
+.iseo-drafts-modal .iseo-plan-btn-quiet:hover,
+.iseo-drafts-modal .iseo-plan-btn-quiet:focus-visible {
+  border-color: #000000;
 }
 
 /* ── Credits Remaining / Credits Used ─────────────────────────────────────
-   Stat tiles: small uppercase eyebrow, big bold Midnight Navy number, muted
-   caption. The eyebrow is the card's existing <h3>, restyled — no markup churn. */
+   Stat tiles: small uppercase eyebrow, big bold white number, muted caption.
+   The eyebrow is the card's existing <h3>, restyled — no markup churn. */
 .iseo-credits-card .iseo-quickstart-title {
   font-size: 11px !important;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--iseo-muted);
+  color: var(--iseo-on-navy-muted);
   margin: 0 0 6px !important;
 }
 
@@ -550,23 +638,32 @@ ul.breadcrumb-seo li a:hover {
   font-size: 32px !important;
   line-height: 1.05;
   letter-spacing: -0.02em;
-  color: var(--iseo-navy);
+  color: var(--iseo-on-navy);
   margin: 0 0 6px !important;
 }
 
 #iseo-credits-remaining-expiry,
 #iseo-credits-used-note {
   font-size: 13px;
-  color: var(--iseo-muted);
+  color: var(--iseo-on-navy-muted);
 }
 
 /* ── Row 2: Content Metrics + Review Business Details ───────────────────── */
+/* Two equal columns; same 24px gap as the row above, so with four cards up there
+   the split here lines up with the boundary between its second and third cards. */
 .iseo-row-2 {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 40px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
   padding: 0 20px;
-  margin-top: 20px;
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 1100px) {
+  .iseo-row-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* "Size of two Quick Links cards": module-box's own 25% width, doubled.
@@ -577,15 +674,17 @@ ul.breadcrumb-seo li a:hover {
    higher specificity beats a plain .module-box rule regardless of which media
    query it sits in or how far below this one it is. */
 .module-box.iseo-metrics-card {
-  max-width: calc(50% - 20px);
+  /* Width now comes from .iseo-row-2's grid column. */
+  max-width: none;
   /* Surface set here rather than inherited from .iseo-quickstart-card: this card
      carries no such class, having no icon chip to lead with — just a heading and
      its stats. */
   font-family: var(--iseo-font);
-  background-color: var(--iseo-surface);
-  border: 1px solid var(--iseo-border);
+  color: var(--iseo-on-navy);
+  background-color: var(--iseo-navy);
+  border: 1px solid var(--iseo-navy);
   border-radius: 14px;
-  box-shadow: var(--iseo-shadow);
+  box-shadow: var(--iseo-shadow-dark);
 }
 
 .iseo-metrics-stats {
@@ -593,7 +692,7 @@ ul.breadcrumb-seo li a:hover {
   gap: 32px;
   margin: 18px 0;
   padding-bottom: 18px;
-  border-bottom: 1px solid var(--iseo-border);
+  border-bottom: 1px solid var(--iseo-on-navy-faint);
 }
 
 .iseo-metrics-stat {
@@ -611,8 +710,9 @@ ul.breadcrumb-seo li a:hover {
   cursor: pointer;
 }
 
+/* Mint, not Primary Blue: the blue all but vanishes into the navy fill. */
 .iseo-metrics-stat-clickable:hover .iseo-metrics-num {
-  color: var(--iseo-primary);
+  color: var(--iseo-mint);
 }
 
 .iseo-metrics-num {
@@ -621,7 +721,7 @@ ul.breadcrumb-seo li a:hover {
   font-size: 32px;
   line-height: 1.05;
   letter-spacing: -0.02em;
-  color: var(--iseo-navy);
+  color: var(--iseo-on-navy);
 }
 
 .iseo-metrics-label {
@@ -629,7 +729,7 @@ ul.breadcrumb-seo li a:hover {
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--iseo-muted);
+  color: var(--iseo-on-navy-muted);
 }
 
 .iseo-metrics-latest-heading {
@@ -637,7 +737,7 @@ ul.breadcrumb-seo li a:hover {
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--iseo-muted);
+  color: var(--iseo-on-navy-muted);
   margin: 0 0 8px !important;
 }
 
@@ -657,7 +757,7 @@ ul.breadcrumb-seo li a:hover {
   justify-content: space-between;
   gap: 12px;
   padding: 10px 0;
-  border-top: 1px solid var(--iseo-border);
+  border-top: 1px solid var(--iseo-on-navy-faint);
   text-decoration: none !important;
   color: inherit;
 }
@@ -668,7 +768,7 @@ ul.breadcrumb-seo li a:hover {
 
 .iseo-metrics-latest-title {
   font-size: 14px;
-  color: var(--iseo-ink);
+  color: var(--iseo-on-navy);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -685,11 +785,13 @@ ul.breadcrumb-seo li a:hover {
   border-radius: 9999px;
 }
 
-/* Mint for published (the guideline's positive state), Sky and a primary-blue
-   tint for the two neutral ones — flat fills, no borders. */
-.iseo-metrics-badge-publish { background-color: rgba(46, 196, 182, 0.14); color: #1B8C82; }
-.iseo-metrics-badge-draft   { background-color: var(--iseo-sky); color: var(--iseo-muted); }
-.iseo-metrics-badge-future  { background-color: rgba(28, 114, 147, 0.12); color: var(--iseo-primary); }
+/* Retuned for the navy fill: the old light tints carried dark text and would be
+   unreadable here. Mint for published (the guideline's positive state), a solid
+   Primary Blue chip for scheduled, and a plain white wash for draft — flat
+   fills, no borders. */
+.iseo-metrics-badge-publish { background-color: rgba(46, 196, 182, 0.18); color: var(--iseo-mint); }
+.iseo-metrics-badge-draft   { background-color: rgba(255, 255, 255, 0.10); color: var(--iseo-on-navy-muted); }
+.iseo-metrics-badge-future  { background-color: var(--iseo-primary); color: var(--iseo-on-navy); }
 
 /* ── Review Business Details ──────────────────────────────────────────────
    Surface and icon chip come from .iseo-quickstart-card; only the progress
@@ -699,7 +801,7 @@ ul.breadcrumb-seo li a:hover {
   width: 100%;
   height: 6px;
   border-radius: 9999px;
-  background-color: var(--iseo-sky);
+  background-color: var(--iseo-on-navy-faint);
   overflow: hidden;
   margin-top: 14px;
 }
@@ -716,13 +818,13 @@ ul.breadcrumb-seo li a:hover {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--iseo-muted);
+  color: var(--iseo-on-navy-muted);
   margin: 8px 0 0 !important;
 }
 
 .iseo-bizdetails-missing {
   font-size: 12px;
-  color: var(--iseo-muted);
+  color: var(--iseo-on-navy-muted);
   margin: 4px 0 10px !important;
 }
 
