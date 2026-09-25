@@ -857,10 +857,7 @@ document.addEventListener('DOMContentLoaded', function() {
      *   duplicating this function's request/response handling.
      * @param {string=} context - 'presubmit' swaps the network/5xx-failure copy from
      *   "your settings are saved" (true for the Confirm button, which runs after a save)
-     *   to "settings have not been saved" (true here, which runs before one). It also
-     *   makes this check a CLAIM: saving is the person connecting this website with this
-     *   pair, so a valid Site Code registered for another domain is moved here instead of
-     *   refused (see improveseo_verify_connection()). Every other check only looks.
+     *   to "settings have not been saved" (true here, which runs before one).
      */
     function improveseoRunConnectionCheck(auto, onDone, context) {
         const button    = document.getElementById('test_server_connection');
@@ -895,9 +892,6 @@ document.addEventListener('DOMContentLoaded', function() {
         data.append('action', 'test_improveseo_connection');
         data.append('api_key', apiKey);
         data.append('site_code', siteCode);
-        if (context === 'presubmit') {
-            data.append('claim', '1');
-        }
         data.append('nonce', '<?php echo esc_js( wp_create_nonce("test_connection_nonce") ); ?>');
 
         fetch('<?php echo esc_url( admin_url("admin-ajax.php") ); ?>', {
