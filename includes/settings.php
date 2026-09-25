@@ -130,11 +130,16 @@ function improveseo_sanitize_and_verify_credentials_field($option, $value) {
 	}
 
 	// Reuse a check already performed by the other option's callback in this same request.
+	//
+	// Claims (last argument): this IS the save, so a valid site code registered for another
+	// domain is moved to this website rather than refused — see improveseo_verify_connection().
+	// With JavaScript on, the Save Changes gate has already claimed before the form was sent
+	// and this is a no-op; without it, this is where the claim happens.
 	if (!is_array($checked) || $checked['api_key'] !== $new_api_key || $checked['site_code'] !== $new_site_code) {
 		$checked = array(
 			'api_key'   => $new_api_key,
 			'site_code' => $new_site_code,
-			'result'    => improveseo_verify_connection($new_api_key, $new_site_code, improveseo_settings_verify_timeout()),
+			'result'    => improveseo_verify_connection($new_api_key, $new_site_code, improveseo_settings_verify_timeout(), true),
 		);
 	}
 

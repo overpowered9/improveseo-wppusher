@@ -102,9 +102,18 @@ function improveseo_connection_domain_header() {
  * answer before they can proceed (refuse the save, or render the result panel),
  * where the ping is fire-and-forget bookkeeping nobody is waiting on.
  *
+ * @param bool $claim True ONLY when this check is part of saving Settings. It sends
+ *   x-site-claim, which tells the admin server that the person saving means to connect
+ *   THIS website with this pair: a valid site code registered for a different domain is
+ *   then moved to this one instead of refused ("last save wins" — see apiAuth.middleware.ts
+ *   on the server). The site that held the code before is refused from then on, and the
+ *   pair this save replaces is reported disconnected (improveseo_connection_report_change),
+ *   so this website shows Active and the previous one Inactive. The page-load check and the
+ *   "Confirm website connection" button must NOT claim: they only look.
+ *
  * @return array{connected: bool, status: int|null, error: string|null, data: array|null}
  */
-function improveseo_verify_connection($api_key, $site_code, $timeout = 20) {
+function improveseo_verify_connection($api_key, $site_code, $timeout = 20, $claim = false) {
 	$api_key   = trim((string) $api_key);
 	$site_code = trim((string) $site_code);
 
@@ -117,16 +126,21 @@ function improveseo_verify_connection($api_key, $site_code, $timeout = 20) {
 		);
 	}
 
+	$headers = array(
+		'x-api-key'     => $api_key,
+		'x-site-code'   => $site_code,
+		'x-site-domain' => improveseo_connection_domain_header(),
+		'Content-Type'  => 'application/json',
+	);
+	if ($claim) {
+		$headers['x-site-claim'] = '1';
+	}
+
 	$response = wp_remote_get(
 		IMPROVESEO_CONNECTION_SERVER . '/api/v1/users/status',
 		array(
 			'timeout' => $timeout,
-			'headers' => array(
-				'x-api-key'     => $api_key,
-				'x-site-code'   => $site_code,
-				'x-site-domain' => improveseo_connection_domain_header(),
-				'Content-Type'  => 'application/json',
-			),
+			'headers' => $headers,
 		)
 	);
 

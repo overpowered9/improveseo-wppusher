@@ -65,7 +65,13 @@ function test_improveseo_connection() {
     // "Confirm website connection" button, but the Save Changes gate now blocks on the same
     // call, so giving up early would refuse to save perfectly valid credentials whenever the
     // server happened to be asleep.
-    $check = improveseo_verify_connection($api_key, $site_code, IMPROVESEO_CONNECTION_TIMEOUT);
+    //
+    // `claim` is sent only by the Save Changes gate in views/settings/index.php: saving is
+    // the person connecting THIS website with this pair, so a valid site code registered for
+    // another domain is moved here instead of refused. The page-load check and the "Confirm
+    // website connection" button post no `claim` and only look. See improveseo_verify_connection().
+    $claim = ! empty( $_POST['claim'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['claim'] ) );
+    $check = improveseo_verify_connection($api_key, $site_code, IMPROVESEO_CONNECTION_TIMEOUT, $claim);
 
     if (!$check['connected']) {
         wp_send_json_error(array(
