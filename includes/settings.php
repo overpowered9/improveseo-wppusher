@@ -141,6 +141,9 @@ function improveseo_sanitize_and_verify_credentials_field($option, $value) {
 	$result = $checked['result'];
 
 	if ($result['connected']) {
+		// Feeds the site-wide low-credits/expiring-soon notice (includes/connection-status.php)
+		// with fresh data right away, rather than leaving it to wait for the next heartbeat.
+		improveseo_store_credit_snapshot($result['data']);
 		return $new_value;
 	}
 

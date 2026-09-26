@@ -51,7 +51,7 @@ function improveseo_add_menu_items()
     
 
 
-add_submenu_page('improveseo_dashboard', 'Posting', 'Create Posts', 'manage_options', 'improveseo_posting', 'improveseo_posting');
+add_submenu_page('improveseo_dashboard', 'Posting', 'Create', 'manage_options', 'improveseo_posting', 'improveseo_posting');
 // Hidden — redundant with improveseo_posting index cards; pages still accessible via direct URL
     add_submenu_page(
         null,
@@ -89,7 +89,7 @@ add_submenu_page('improveseo_dashboard', 'Posting', 'Create Posts', 'manage_opti
     //add_submenu_page('improveseo', 'Shortcodes', 'Shortcodes', 'manage_options', 'improveseo_shortcodes', 'improveseo_shortcodes');
 
 
-    add_submenu_page('improveseo_dashboard', 'Lists', 'Keyword Lists', 'manage_options', 'improveseo_lists', 'improveseo_lists');
+    add_submenu_page('improveseo_dashboard', 'Lists', 'Keyword Lists &amp; Tool', 'manage_options', 'improveseo_lists', 'improveseo_lists');
 
     // Registered like any other submenu page, but kept out of the sidebar — see
     // improveseo_hide_keyword_generator_menu_item() below.
@@ -97,8 +97,9 @@ add_submenu_page('improveseo_dashboard', 'Posting', 'Create Posts', 'manage_opti
 
     add_submenu_page('improveseo_dashboard', 'Settings', 'Settings', 'manage_options', 'improveseo_settings', 'improveseo_settings');
 
+    // Hidden — not part of the sidebar; still reachable at admin.php?page=improveseo_cron_status
     add_submenu_page(
-        'improveseo_dashboard',
+        null,
         'Cron Status',
         'Cron Status',
         'manage_options',
@@ -238,6 +239,24 @@ add_action('admin_menu', function () {
 
 
 
+
+    // Business Details is a section of the Settings screen, not a page of its own (its
+    // fields save through the same improveseo_settings form), so the entry links to that
+    // section and sits directly above Settings.
+    $business_details = array('Business Details', 'manage_options', admin_url('admin.php?page=improveseo_settings#iseo-business-details'));
+
+    $items    = isset($submenu['improveseo_dashboard']) ? $submenu['improveseo_dashboard'] : array();
+    $position = count($items);
+
+    foreach ($items as $index => $item) {
+        if (isset($item[2]) && $item[2] === 'improveseo_settings') {
+            $position = $index;
+            break;
+        }
+    }
+
+    array_splice($items, $position, 0, array($business_details));
+    $submenu['improveseo_dashboard'] = $items;
 
     $submenu['improveseo_dashboard'][] = array('Support', 'manage_options', 'https://account.improveseoplugin.com/support');
 
