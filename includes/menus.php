@@ -151,7 +151,7 @@ function improveseo_onboarding_page() {
  * works out which callback to run by finding the page's parent in the submenu, and with the
  * entry gone it looks for the wrong hook and dies with "Cannot load improveseo_keyword_generator".
  * admin_head runs after that lookup and before the sidebar is drawn, so the page keeps its URL,
- * hook, title and access check (the dashboard and the Bulk wizard link here too) and simply has
+ * hook, title and access check (the Bulk wizard links here too) and simply has
  * no menu item. A null parent would hide it as well, but changes the hook name and trips PHP 8.1
  * deprecations in plugin_basename().
  */
