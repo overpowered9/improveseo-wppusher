@@ -143,8 +143,11 @@ function improveseo_projects()
 
   if ($action == 'index'):
     // Filters
-    $allowed_order_by = array('created_at', 'name');
-    $orderBy = (isset($_GET['orderBy']) && in_array($_GET['orderBy'], $allowed_order_by)) ? $_GET['orderBy'] : 'created_at';
+    // updated_at: the list's only date column is now Last Updated (Created At was
+    // removed), so it is what "Date" sorts by and the default order. created_at stays
+    // allowed so older bookmarked ?orderBy=created_at links keep working.
+    $allowed_order_by = array('created_at', 'updated_at', 'name');
+    $orderBy = (isset($_GET['orderBy']) && in_array($_GET['orderBy'], $allowed_order_by)) ? $_GET['orderBy'] : 'updated_at';
     $order   = (isset($_GET['order']) && in_array(strtoupper($_GET['order']), array('ASC', 'DESC'))) ? strtoupper($_GET['order']) : 'DESC';
     $search  = isset($_GET['search']) ? sanitize_text_field($_GET['search']) : '';
 

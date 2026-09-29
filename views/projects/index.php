@@ -89,16 +89,17 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 		<?php
 		$_sbase = admin_url('admin.php?page=improveseo_projects&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
 		$_name_order  = ($orderBy === 'name' && $order === 'ASC') ? 'DESC' : 'ASC';
-		$_date_order  = ($orderBy === 'created_at' && $order === 'ASC') ? 'DESC' : 'ASC';
+		// "Date" sorts by Last Updated — the only date the list shows since Created At was removed.
+		$_date_order  = ($orderBy === 'updated_at' && $order === 'ASC') ? 'DESC' : 'ASC';
 		$_name_arrow  = $orderBy === 'name' ? ($order === 'ASC' ? ' ↑' : ' ↓') : '';
-		$_date_arrow  = $orderBy === 'created_at' ? ($order === 'ASC' ? ' ↑' : ' ↓') : '';
+		$_date_arrow  = $orderBy === 'updated_at' ? ($order === 'ASC' ? ' ↑' : ' ↓') : '';
 		?>
 		<div class="iseo-sort-controls">
 			<span class="iseo-sort-label">Sort by</span>
 			<a href="<?php echo  esc_url($_sbase . '&orderBy=name&order=' . $_name_order) ?>"
 				class="iseo-sort-pill<?php echo  $orderBy === 'name' ? ' iseo-sort-on' : '' ?>">Name<?php echo esc_html( $_name_arrow ); ?></a>
-			<a href="<?php echo  esc_url($_sbase . '&orderBy=created_at&order=' . $_date_order) ?>"
-				class="iseo-sort-pill<?php echo  $orderBy === 'created_at' ? ' iseo-sort-on' : '' ?>">Date<?php echo esc_html( $_date_arrow ); ?></a>
+			<a href="<?php echo  esc_url($_sbase . '&orderBy=updated_at&order=' . $_date_order) ?>"
+				class="iseo-sort-pill<?php echo  $orderBy === 'updated_at' ? ' iseo-sort-on' : '' ?>">Date<?php echo esc_html( $_date_arrow ); ?></a>
 		</div>
 		<div class="import-export-btn">
 			<button onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_posting&action=create_post_single') ); ?>';"
@@ -194,10 +195,8 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 									</label>
 									<h4><?php echo iseo_sort_link($sort_base, 'name', 'Name', $orderBy, $order); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns a complete <a> built from esc_url()/esc_html() parts ?></h4>
 								</th>
-								<th><?php echo iseo_sort_link($sort_base, 'created_at', 'Created At', $orderBy, $order); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns a complete <a> built from esc_url()/esc_html() parts ?></th>
-								<th>Last Update</th>
+								<th><?php echo iseo_sort_link($sort_base, 'updated_at', 'Last Updated', $orderBy, $order); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns a complete <a> built from esc_url()/esc_html() parts ?></th>
 								<th>Post Status</th>
-								<td></td>
 								<th>Action</th>
 							</tr>
 						</thead>
@@ -217,11 +216,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 												style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#aaa;font-size:14px;line-height:1;margin-left:6px;align-self:center;">&#9998;</button>
 										</div>
 									</td>
-									<td data-label="Created At"><?php
-									$date = new DateTime($project->created_at);
-									echo esc_html( $date->format('m/d/Y H:i:s') );
-									?></td>
-									<td data-label="Last Update"><?php
+									<td data-label="Last Updated"><?php
 									$date = new DateTime($project->updated_at);
 									echo esc_html( $date->format('m/d/Y H:i:s') );
 									?></td>
@@ -245,27 +240,16 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 										}
 										?>
 									</td>
-									<td>
-										<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations): ?>
-											<a href="javascript:build_project(<?php echo esc_attr( $project->id ); ?>)"
-												class="styling_post_page_action_buttons for_width_only_" target="_self">Publish
-												</a>
-										<?php endif; ?>
-										<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations): ?>
-											<a href="javascript:update_project(<?php echo esc_attr( $project->id ); ?>)"
-												style="width: 160px !important;" class="styling_post_page_action_buttons"
-												target="_self">Update posts</a>
-										<?php endif; ?>
+									<?php
+									// The unlabeled column that used to sit here (Publish / Update posts /
+									// Edit Draft buttons) is gone; those actions now live in this row's
+									// action menu below. build_project()/update_project() read the project's
+									// max iterations from this hidden input, so it moves here with them.
+									?>
+									<td style="width: 4%;" scope="col" data-label="Action" class="actions-btn">
 										<input type="hidden" name="max-iterations" id="max-iterations"
 											data-project="<?php echo esc_attr( $project->id ); ?>"
 											value="<?php echo esc_attr( $project->max_iterations ); ?>" />
-										<?php if ($project->state == 'Draft'): ?>
-											<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ); ?>"
-												style="width: 160px !important;"
-												class="styling_post_page_action_buttons">Edit Draft</a>
-										<?php endif; ?>
-									</td>
-									<td style="width: 4%;" scope="col" data-label="Action" class="actions-btn">
 										<a href="#" class="action-btn-pop">
 											<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/ri_more-2-fill.svg' ); ?>"
 												alt="ri_more-2-fill">
@@ -289,6 +273,18 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 														</span>
 													<?php endif; ?>
 												</li>
+												<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations): ?>
+												<li><a href="javascript:build_project(<?php echo esc_attr( $project->id ); ?>)"
+														style="max-width: max-content !important;" class="popup-link">Publish</a></li>
+												<?php endif; ?>
+												<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations): ?>
+												<li><a href="javascript:update_project(<?php echo esc_attr( $project->id ); ?>)"
+														style="max-width: max-content !important;" class="popup-link">Update posts</a></li>
+												<?php endif; ?>
+												<?php if ($project->state == 'Draft'): ?>
+												<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ); ?>"
+														style="max-width: max-content !important;" class="popup-link">Edit Draft Post</a></li>
+												<?php endif; ?>
 												<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects&action=view_details&id=' . $project->id) ); ?>" style="max-width: max-content !important;"
 														class="popup-link">View Details</a></li>
 												<?php $edit_link = $associated_post ? get_edit_post_link($associated_post->ID, 'raw') : ''; ?>

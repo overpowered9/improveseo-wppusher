@@ -2422,6 +2422,13 @@ p.post-fd {
   font-size: 18px;
 }
 
+/* Published / Paused / Canceled come wrapped in <p class="post-fd">, Draft and
+   Processing as bare text. The paragraph's default margins made those rows taller —
+   hidden until now by the Edit Draft button that used to pad out draft rows. */
+.project_table_listing td.status p.post-fd {
+  margin: 0;
+}
+
 #preview img {
   min-width: 90%;
   min-height: 700px;
