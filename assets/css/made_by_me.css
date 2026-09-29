@@ -1899,6 +1899,15 @@ form#popup_form .step-opton2-content-box select {
   }
 }
 
+/* Mouse-wheel scrolling inside the wizard stays inside the wizard. Without this,
+   reaching the bottom of a step carried on scrolling the WordPress page behind the
+   modal, leaving a second, hidden scroll position that the step change also had to
+   undo. */
+#exampleModal1,
+#exampleModal2 {
+  overscroll-behavior: contain;
+}
+
 @media only screen and (min-width: 783px) and (max-width: 960px) {
   .auto-fold #exampleModal1,
   .auto-fold #exampleModal2 {

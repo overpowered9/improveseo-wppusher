@@ -2848,9 +2848,20 @@ global $ai_modal_type;
         function initForm() {
             updateDataDisplay();
             updateSteps();
-            prevStepButton.disabled = true;
+            syncPrevButton();
             resetValidationUI(); // Start with no validation errors
             updateNextButtonState();
+        }
+
+        // Step 1 has nowhere to go back to, so Previous isn't shown there at all rather
+        // than sitting on screen greyed out. visibility, not display: .btn-dev spreads its
+        // two children to either edge (space-between), so the slot is kept and Next stays
+        // on the right exactly where it is on every other step. A visibility:hidden button
+        // also can't be clicked or tabbed to.
+        function syncPrevButton() {
+            var onFirst = (currentStep === 0);
+            prevStepButton.disabled = onFirst;
+            prevStepButton.style.visibility = onFirst ? 'hidden' : '';
         }
 
         function updateNextButtonState() {
@@ -3043,10 +3054,21 @@ global $ai_modal_type;
         // toggles which .data section is visible; it never resets that scrollTop, so a
         // step reached while the modal was scrolled down (e.g. after seeing a validation
         // error near the bottom of step 1) opens already scrolled past its heading.
+        //
+        // Reset twice: now, and again once the new step has actually been laid out. The
+        // step's sections swap in the same tick, and anything that shifts layout after
+        // that (images, the credit estimate, fonts) could otherwise leave the new step
+        // sitting partway down instead of at its heading.
         function iseoScrollWizardToTop() {
             var modalEl = document.getElementById('exampleModal1');
-            if (modalEl) { modalEl.scrollTop = 0; }
-            try { window.scrollTo(0, 0); } catch (e) {}
+            function reset() {
+                if (modalEl) { modalEl.scrollTop = 0; }
+                try { window.scrollTo(0, 0); } catch (e) {}
+            }
+            reset();
+            if (window.requestAnimationFrame) {
+                requestAnimationFrame(function () { requestAnimationFrame(reset); });
+            }
         }
 
         // Helper to advance single post wizard by one step
@@ -3060,7 +3082,7 @@ global $ai_modal_type;
                 stepInput.value = sv + 1;
                 updateButtonText();
             }
-            prevStepButton.disabled = false;
+            syncPrevButton();
             updateNextButtonState();
         }
 
@@ -3153,7 +3175,7 @@ global $ai_modal_type;
                 updateButtonText();
             }
 
-            prevStepButton.disabled = (currentStep === 0);
+            syncPrevButton();
             updateNextButtonState();
         });
 
