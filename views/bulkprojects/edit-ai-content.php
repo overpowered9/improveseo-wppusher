@@ -206,5 +206,70 @@ $keyword_name = trim((string) $task->keyword_name);
 	}
 </style>
 
+<script>
+/* Bulk project names must be unique across bulk projects. This field renames the parent
+   bulk project, so check the name before the form submits and show a refusal under it —
+   the page stays put and the post edits are kept. save_ai_content repeats the check. */
+(function ($) {
+	var $form = $('#main_form');
+	var $name = $form.find('input[name="name"]');
+	if (!$form.length || !$name.length) { return; }
+
+	var projectId = <?php echo (int) $task->bulktask_id; ?>;
+	var nonce     = <?php echo wp_json_encode( wp_create_nonce( 'rename_project_nonce' ) ); ?>;
+	var verified  = false;
+
+	function setError(msg) {
+		var $wrap = $name.closest('.PostForm__name-wrap');
+		$wrap.find('.PostForm__error').remove();
+		if (msg) {
+			$wrap.addClass('PostForm--error');
+			$('<span class="PostForm__error" role="alert"></span>').text(msg).insertAfter($name);
+			$name.trigger('focus');
+			if ($name[0].scrollIntoView) { $name[0].scrollIntoView({ block: 'center' }); }
+		} else {
+			$wrap.removeClass('PostForm--error');
+		}
+	}
+
+	$name.on('input', function () { verified = false; setError(''); });
+
+	$form.on('submit', function (e) {
+		if (verified) { return; }
+		e.preventDefault();
+		// save_ai_content branches on which button submitted (publish vs save).
+		var submitter = (e.originalEvent && e.originalEvent.submitter) || null;
+
+		$.post(ajaxurl, {
+			action: 'improveseo_check_project_name',
+			type:   'bulk',
+			id:     projectId,
+			name:   $.trim($name.val()),
+			nonce:  nonce
+		}).done(function (res) {
+			if (res && res.success && res.data && res.data.taken) {
+				setError(res.data.message);
+				return;
+			}
+			resubmit(submitter);
+		}).fail(function () {
+			resubmit(submitter);
+		});
+	});
+
+	function resubmit(submitter) {
+		verified = true;
+		if (submitter && typeof $form[0].requestSubmit === 'function') {
+			$form[0].requestSubmit(submitter);
+		} else {
+			if (submitter && submitter.name) {
+				$('<input type="hidden">').attr('name', submitter.name).val(submitter.value || '1').appendTo($form);
+			}
+			$form[0].submit();
+		}
+	}
+})(jQuery);
+</script>
+
 <?php View::endSection('content') ?>
 <?php View::make('layouts.main') ?>

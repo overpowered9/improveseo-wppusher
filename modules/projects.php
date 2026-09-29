@@ -49,17 +49,57 @@ function improveseo_project_seed_keyword($options_raw)
  */
 function improveseo_single_project_name_taken($name, $except_id = 0)
 {
+  return improveseo_project_name_taken($name, $except_id, 'single');
+}
+
+/**
+ * Same check for either project type: 'single' (improveseo_tasks) or 'bulk'
+ * (improveseo_bulktasks). Names only have to be unique within their own type.
+ */
+function improveseo_project_name_taken($name, $except_id = 0, $type = 'single')
+{
   global $wpdb;
   $name = trim((string) $name);
   if ($name === '') {
     return false;
   }
-  $found = $wpdb->get_var($wpdb->prepare(
-    "SELECT id FROM {$wpdb->prefix}improveseo_tasks WHERE LOWER(TRIM(name)) = %s AND id <> %d AND state <> 'Preview' LIMIT 1",
-    function_exists('mb_strtolower') ? mb_strtolower($name, 'UTF-8') : strtolower($name),
-    (int) $except_id
-  ));
+  $lower = function_exists('mb_strtolower') ? mb_strtolower($name, 'UTF-8') : strtolower($name);
+  if ($type === 'bulk') {
+    $found = $wpdb->get_var($wpdb->prepare(
+      "SELECT id FROM {$wpdb->prefix}improveseo_bulktasks WHERE LOWER(TRIM(name)) = %s AND id <> %d LIMIT 1",
+      $lower,
+      (int) $except_id
+    ));
+  } else {
+    $found = $wpdb->get_var($wpdb->prepare(
+      "SELECT id FROM {$wpdb->prefix}improveseo_tasks WHERE LOWER(TRIM(name)) = %s AND id <> %d AND state <> 'Preview' LIMIT 1",
+      $lower,
+      (int) $except_id
+    ));
+  }
   return !empty($found);
+}
+
+/**
+ * For a NEW single project whose name is already taken: the first free
+ * "Name (2)", "Name (3)", … Only the server-side fallback for the wizard's final
+ * submit — the wizard checks the name before submitting (improveseo_check_project_name),
+ * and refusing the submit here instead would throw away content that has already been
+ * generated and paid for.
+ */
+function improveseo_unique_single_project_name($name)
+{
+  $name = trim((string) $name);
+  if (!improveseo_single_project_name_taken($name)) {
+    return $name;
+  }
+  for ($n = 2; $n < 1000; $n++) {
+    $candidate = $name . ' (' . $n . ')';
+    if (!improveseo_single_project_name_taken($candidate)) {
+      return $candidate;
+    }
+  }
+  return $name . ' (' . time() . ')';
 }
 
 /**

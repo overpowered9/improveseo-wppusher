@@ -1189,7 +1189,7 @@ global $ai_modal_type;
                     // than the Step 1 fields above it.
                     ?>
                     <div class="seo-form-field">
-                        <label for="post_size">Article Size
+                        <label for="post_size">Post Size
                             <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How long should my post be?">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                 <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
@@ -1631,6 +1631,8 @@ global $ai_modal_type;
                         </label>
                         <input type="text" id="modal_project_name" name="modal_project_name" class="form-control" placeholder="Enter project name...">
                         <span>Auto-filled from your keyword — you can edit it.</span>
+                        <?php // Filled by the Submit click when another project already uses this name. ?>
+                        <p id="error_modal_project_name" class="text-danger" role="alert" style="display:none; margin:6px 0 0; font-size:14px;"></p>
                     </div>
 
                     <div class="category-selection-section" style="margin-top: 20px;">
@@ -3157,8 +3159,45 @@ global $ai_modal_type;
 
             if (currentStep >= data.length) return;
 
+            // Final step: the project name must not already belong to another project.
+            // Checked here, before anything is submitted, so the user can simply edit it
+            // in place. (If the check can't be reached the server still refuses to create
+            // a duplicate — it suffixes the name instead: improveseo_unique_single_project_name.)
+            if (currentStep === data.length - 1) {
+                var nameInput = document.getElementById('modal_project_name');
+                var nameError = document.getElementById('error_modal_project_name');
+                var savedHTML = nextStepButton.innerHTML;
+                nextStepButton.disabled = true;
+                nextStepButton.textContent = 'Checking name...';
+                jQuery.post(ajaxurl, {
+                    action: 'improveseo_check_project_name',
+                    id:     0,
+                    name:   nameInput ? nameInput.value.trim() : '',
+                    nonce:  <?php echo wp_json_encode( wp_create_nonce( 'rename_project_nonce' ) ); ?>
+                }).always(function (res) {
+                    nextStepButton.disabled = false;
+                    nextStepButton.innerHTML = savedHTML;
+                    if (res && res.success && res.data && res.data.taken) {
+                        if (nameError) { nameError.textContent = res.data.message; nameError.style.display = 'block'; }
+                        if (nameInput) { nameInput.focus(); nameInput.select(); }
+                        return;
+                    }
+                    if (nameError) { nameError.style.display = 'none'; }
+                    advanceSingleStep();
+                });
+                return;
+            }
+
             advanceSingleStep();
         });
+
+        (function () {
+            var nameInput = document.getElementById('modal_project_name');
+            var nameError = document.getElementById('error_modal_project_name');
+            if (nameInput && nameError) {
+                nameInput.addEventListener('input', function () { nameError.style.display = 'none'; });
+            }
+        })();
 
         prevStepButton.addEventListener("click", () => {
             if (currentStep <= 0) return;

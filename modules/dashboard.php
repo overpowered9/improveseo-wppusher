@@ -160,6 +160,14 @@ function improveseo_dashboard() {
 		// its id): its name must not collide with another project's.
 		if (isset($_GET['id']) && (!isset($_POST['ai_modal_type']) || $_POST['ai_modal_type'] !== 'bulk')) {
 			improveseo_refuse_duplicate_project_name(wp_unslash($name), (int) $_GET['id'], false);
+		} elseif (!isset($_GET['id']) && isset($_POST['ai_modal_type']) && $_POST['ai_modal_type'] === 'single') {
+			// New project from the single wizard. Its Project Name step checks the name
+			// before submitting; if a duplicate still arrives, keep the (already generated)
+			// project and give it the first free "Name (n)" instead of rejecting it.
+			$unique_name = improveseo_unique_single_project_name(wp_unslash($name));
+			if ($unique_name !== trim(wp_unslash($name))) {
+				$name = wp_slash($unique_name);
+			}
 		}
 
 

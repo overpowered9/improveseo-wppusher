@@ -16,6 +16,14 @@ class FlashMessage
 		self::message($message, 'success');
 	}
 
+	// Called from modules/projects.php and modules/bulkprojects.php but never defined,
+	// so each of those paths ended in a fatal "Call to undefined method" instead of the
+	// message. 'error' maps to WordPress core's red .notice-error.
+	public static function error($message)
+	{
+		self::message($message, 'error');
+	}
+
 	public static function message($message, $type = 'success')
 	{
 		$_SESSION['improveseo.flashmessage.message'] = $message;

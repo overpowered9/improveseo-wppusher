@@ -392,9 +392,15 @@ function improveseo_bulkprojects()
 		// The Project Name field on the edit screen is the parent project's name — it is
 		// shared by every keyword in the project, so this renames the project itself.
 		// Only written when it actually changed, and never blanked.
+		// A name another bulk project already uses is refused — the rest of the save still
+		// goes through, and the user is told the rename didn't. (The form checks this over
+		// AJAX before submitting, so normally it never gets this far.)
+		$rename_refused = '';
 		if (!empty($task->bulktask_id) && isset($_POST['name'])) {
 			$new_name = sanitize_text_field(wp_unslash($_POST['name']));
-			if ($new_name !== '') {
+			if ($new_name !== '' && improveseo_project_name_taken($new_name, intval($task->bulktask_id), 'bulk')) {
+				$rename_refused = improveseo_single_project_name_taken_message($new_name);
+			} elseif ($new_name !== '') {
 				$wpdb->update(
 					$model->getTable(),
 					array('name' => $new_name),
@@ -433,7 +439,11 @@ function improveseo_bulkprojects()
 			exit;
 		}
 
-		FlashMessage::success('Content saved. The task is still a draft — use Publish when you are ready.');
+		if ($rename_refused !== '') {
+			FlashMessage::error('Content saved, but the project was not renamed. ' . $rename_refused);
+		} else {
+			FlashMessage::success('Content saved. The task is still a draft — use Publish when you are ready.');
+		}
 		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id . '&highlight=' . $id));
 		exit;
 

@@ -181,8 +181,8 @@
             // panel for Keyword & Post Title, so the card that describes it has to follow
             // or the guide points at an element on a panel the user is not on.
             phase: 'modal', wizardStep: 0, target: '#post_size',
-            title: 'Article Length',
-            message: 'Longer articles often rank better for competitive keywords. <em>Medium (1,200–2,400 words)</em> is a great starting point for most niches. The line underneath shows what it costs in ISEO credits and what you will have left.',
+            title: 'Post Size',
+            message: 'Longer posts often rank better for competitive keywords. <em>Medium (1,200–2,400 words)</em> is a great starting point for most niches. The line underneath shows what it costs in ISEO credits and what you will have left.',
             position: 'right', advance: 'next-btn'
         },
         /* 3c */ {

@@ -795,6 +795,9 @@ function improveseo_rename_bulk_project() {
     if (!$id || $name === '') {
         wp_send_json_error('Invalid data');
     }
+    if (improveseo_project_name_taken($name, $id, 'bulk')) {
+        wp_send_json_error(improveseo_single_project_name_taken_message($name));
+    }
     global $wpdb;
     $updated = $wpdb->update(
         $wpdb->prefix . 'improveseo_bulktasks',
@@ -841,8 +844,10 @@ function improveseo_rename_project() {
     wp_send_json_success(array('name' => $name));
 }
 
-// Name check for the single-project edit form (views/posting/edit-post.php), run before
-// it submits so a duplicate is caught inline instead of bouncing the whole form.
+// Name check run before a form submits, so a duplicate is caught inline instead of
+// bouncing the whole form: the single edit form (views/posting/edit-post.php), the
+// single wizard's Project Name step (id 0 = new project), and the bulk task editor
+// (views/bulkprojects/edit-ai-content.php, type=bulk, id = the parent bulk project).
 add_action('wp_ajax_improveseo_check_project_name', 'improveseo_check_project_name');
 function improveseo_check_project_name() {
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'rename_project_nonce')) {
@@ -853,7 +858,8 @@ function improveseo_check_project_name() {
     }
     $name = sanitize_text_field(wp_unslash($_POST['name'] ?? ''));
     $id   = intval($_POST['id'] ?? 0);
-    if (improveseo_single_project_name_taken($name, $id)) {
+    $type = (isset($_POST['type']) && $_POST['type'] === 'bulk') ? 'bulk' : 'single';
+    if (improveseo_project_name_taken($name, $id, $type)) {
         wp_send_json_success(array('taken' => true, 'message' => improveseo_single_project_name_taken_message($name)));
     }
     wp_send_json_success(array('taken' => false));

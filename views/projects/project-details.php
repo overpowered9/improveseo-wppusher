@@ -417,7 +417,7 @@ function pd_seo_meta($post_id, $what) {
                     </div>
                 </div>
                 <div class="pd-row">
-                    <div class="pd-label">Article Size</div>
+                    <div class="pd-label">Post Size</div>
                     <div class="pd-value <?php echo  pd_val($options, 'ai_nos_of_words') === 'N/A' ? 'na' : '' ?>">
                         <?php echo pd_val($options, 'ai_nos_of_words'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- helper escapes internally; wrapping again would double-encode ?>
                     </div>
