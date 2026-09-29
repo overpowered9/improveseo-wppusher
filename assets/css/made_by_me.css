@@ -1867,16 +1867,52 @@ form#popup_form .step-opton2-content-box select {
 }
 
 @media only screen and (min-width: 1200px) {
-
-  .improveseo-bulk-ai_multi,
-  .improveseo-bulk-ai {
-    position: relative;
-    left: 100px;
-  }
-
   .for_width_only_ {
     width: 160px !important;
   }
+}
+
+/* Wizard modals (single #exampleModal1, bulk #exampleModal2): lay them out in the
+   area to the RIGHT of the WordPress admin sidebar, and centre the panel there.
+
+   This replaces a `left: 100px` nudge on the panel itself (>= 1200px). The panel is
+   92% of the modal's width, and the modal spans the whole viewport, so shifting it
+   100px pushed its right edge past the screen on any desktop narrower than ~1650px —
+   and Bootstrap's .modal clips overflow-x, so the right-hand side (close button
+   included) was simply cut off, with no way to scroll to it.
+
+   Offsetting the modal container by the sidebar's real width instead keeps the panel
+   inside the visible area at every width. The widths are WordPress core's own:
+   160px expanded; 36px when folded (.folded) or auto-folded (.auto-fold, 783–960px);
+   no sidebar column at all at <= 782px, where the modal keeps its full width. */
+@media only screen and (min-width: 783px) {
+  #exampleModal1,
+  #exampleModal2 {
+    left: 160px;
+    width: calc(100% - 160px);
+  }
+
+  .folded #exampleModal1,
+  .folded #exampleModal2 {
+    left: 36px;
+    width: calc(100% - 36px);
+  }
+}
+
+@media only screen and (min-width: 783px) and (max-width: 960px) {
+  .auto-fold #exampleModal1,
+  .auto-fold #exampleModal2 {
+    left: 36px;
+    width: calc(100% - 36px);
+  }
+}
+
+/* The create screen's right-hand column is capped at 28% (.create_page_cont_2), but
+   WordPress core gives every .postbox a 255px min-width. Below ~1100px wide 28% is
+   less than that, so the boxes stuck out past the column and made the whole page
+   scroll sideways. Let them shrink with their column instead. */
+.create_page_cont_2 .postbox {
+  min-width: 0;
 }
 
 

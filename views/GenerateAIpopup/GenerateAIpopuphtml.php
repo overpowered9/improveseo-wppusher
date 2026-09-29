@@ -5306,3 +5306,46 @@ window.iseoRegenerateDialog = (function () {
     return { open: open, close: close };
 })();
 </script>
+
+<script>
+/* Keep field tooltips inside the wizard panel.
+   A field bubble (.iseo-info-tip-bubble--field) opens rightward from its ⓘ icon at a
+   fixed 330px. Where an icon lands near the panel's right edge depends on the screen
+   width, so on a smaller desktop some bubbles ran past the panel and were clipped by
+   the modal (which hides horizontal overflow). Just before one opens, measure it and
+   anchor it to its right-hand side instead (the existing --end variant) when the
+   leftward-opening default wouldn't fit. Bubbles authored as --end are left alone. */
+(function () {
+    var MODALS = '#exampleModal1, #exampleModal2';
+
+    function fit(tip) {
+        var bubble = tip.querySelector('.iseo-info-tip-bubble--field');
+        if (!bubble || bubble.hasAttribute('data-iseo-authored-end')) { return; }
+        if (bubble.classList.contains('iseo-info-tip-bubble--end') && !bubble.hasAttribute('data-iseo-auto-end')) {
+            bubble.setAttribute('data-iseo-authored-end', '');
+            return;
+        }
+
+        var panel = tip.closest('.improveseo-bulk-ai, .improveseo-bulk-ai_multi') || tip.closest(MODALS);
+        if (!panel) { return; }
+
+        // Measure the default (rightward) placement, then decide.
+        bubble.classList.remove('iseo-info-tip-bubble--end');
+        var limit = panel.getBoundingClientRect().right - 8;
+        var overflows = bubble.getBoundingClientRect().right > limit;
+
+        bubble.classList.toggle('iseo-info-tip-bubble--end', overflows);
+        bubble.toggleAttribute('data-iseo-auto-end', overflows);
+    }
+
+    function onEnter(e) {
+        var tip = e.target && e.target.closest ? e.target.closest('.iseo-info-tip') : null;
+        if (tip && tip.closest(MODALS)) { fit(tip); }
+    }
+
+    // Capture phase: runs before :hover/:focus reveal the bubble, so it never flashes
+    // in the clipped position first.
+    document.addEventListener('mouseover', onEnter, true);
+    document.addEventListener('focusin', onEnter, true);
+})();
+</script>
