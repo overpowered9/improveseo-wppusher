@@ -10,6 +10,28 @@ use ImproveSEO\Validator;
 use ImproveSEO\Models\Task;
 use ImproveSEO\FlashMessage;
 
+/**
+ * The seed keyword a single-post project was created from, for the projects list.
+ *
+ * Stored in the task's `options` column as base64(json) — the Task model's 'array|b64'
+ * cast — under ai_seed_keyword, which the create/update controller saves from the
+ * wizard (modules/dashboard.php). Projects saved before that field existed have none.
+ *
+ * @param string|null $options_raw The raw `options` column value.
+ * @return string The keyword, or '' when there is none.
+ */
+function improveseo_project_seed_keyword($options_raw)
+{
+  if (empty($options_raw)) {
+    return '';
+  }
+  $options = json_decode(base64_decode($options_raw), true);
+  if (!is_array($options) || !isset($options['ai_seed_keyword'])) {
+    return '';
+  }
+  return trim((string) $options['ai_seed_keyword']);
+}
+
 function improveseo_projects()
 {
   global $wpdb;
@@ -146,7 +168,8 @@ function improveseo_projects()
     // updated_at: the list's only date column is now Last Updated (Created At was
     // removed), so it is what "Date" sorts by and the default order. created_at stays
     // allowed so older bookmarked ?orderBy=created_at links keep working.
-    $allowed_order_by = array('created_at', 'updated_at', 'name');
+    // 'keyword' is not a column — see the keyword branch below.
+    $allowed_order_by = array('created_at', 'updated_at', 'name', 'keyword');
     $orderBy = (isset($_GET['orderBy']) && in_array($_GET['orderBy'], $allowed_order_by)) ? $_GET['orderBy'] : 'updated_at';
     $order   = (isset($_GET['order']) && in_array(strtoupper($_GET['order']), array('ASC', 'DESC'))) ? strtoupper($_GET['order']) : 'DESC';
     $search  = isset($_GET['search']) ? sanitize_text_field($_GET['search']) : '';
@@ -179,16 +202,67 @@ function improveseo_projects()
       $sqlTotal = $wpdb->prepare($sqlTotal, $params); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(), which builds it from $wpdb->prefix and the class name; every user value is bound.
     }
 
-    $sql .= " ORDER BY $orderBy $order";
-    $sql .= " LIMIT %d, %d";
+    if ($orderBy === 'keyword') {
+      // The seed keyword lives inside the base64(json) `options` blob (ai_seed_keyword),
+      // so SQL can't order by it. Read just id + options for every matching project,
+      // order those in PHP, then load full rows for the current page only. Projects
+      // without a keyword (e.g. created before the wizard stored one) sort last in
+      // either direction; ties fall back to most recently updated first.
+      $idSql = 'SELECT id, options, updated_at FROM ' . $model->getTable();
+      if (sizeof($where)) {
+        $idSql .= ' WHERE ' . implode(' AND ', $where);
+      }
+      if ($params) {
+        $idSql = $wpdb->prepare($idSql, $params); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(); every user value is bound.
+      }
+      $keyed = $wpdb->get_results($idSql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- prepared above when it has parameters; otherwise fixed text.
 
-    $params[] = $offset;
-    $params[] = $limit;
+      foreach ($keyed as $k) {
+        $k->seed_keyword = improveseo_project_seed_keyword($k->options);
+      }
+      $dir = ($order === 'ASC') ? 1 : -1;
+      usort($keyed, function ($a, $b) use ($dir) {
+        $aEmpty = ('' === $a->seed_keyword);
+        $bEmpty = ('' === $b->seed_keyword);
+        if ($aEmpty !== $bEmpty) {
+          return $aEmpty ? 1 : -1;
+        }
+        $cmp = $aEmpty ? 0 : strnatcasecmp($a->seed_keyword, $b->seed_keyword) * $dir;
+        return (0 !== $cmp) ? $cmp : strcmp($b->updated_at, $a->updated_at);
+      });
 
-    $sql = $wpdb->prepare($sql, $params); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(), which builds it from $wpdb->prefix and the class name; every user value is bound.
+      $page_ids = array_map('intval', wp_list_pluck(array_slice($keyed, (int) $offset, (int) $limit), 'id'));
+      $projects = array();
+      if ($page_ids) {
+        $rows = $wpdb->get_results('SELECT * FROM ' . $model->getTable() . ' WHERE id IN (' . implode(',', $page_ids) . ')'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- ids are cast to int above.
+        $by_id = array();
+        foreach ($rows as $row) {
+          $by_id[(int) $row->id] = $row;
+        }
+        foreach ($page_ids as $pid) {
+          if (isset($by_id[$pid])) {
+            $projects[] = $by_id[$pid];
+          }
+        }
+      }
+    } else {
+      $sql .= " ORDER BY $orderBy $order";
+      $sql .= " LIMIT %d, %d";
 
-    // Data
-    $projects = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
+      $params[] = $offset;
+      $params[] = $limit;
+
+      $sql = $wpdb->prepare($sql, $params); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name comes from AbstractModel::getTable(), which builds it from $wpdb->prefix and the class name; every user value is bound.
+
+      // Data
+      $projects = $wpdb->get_results($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
+    }
+
+    // Keyword column (views/projects/index.php).
+    foreach ($projects as $project) {
+      $project->seed_keyword = improveseo_project_seed_keyword($project->options);
+    }
+
     $total_row = $wpdb->get_row($sqlTotal); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- the query in this variable is prepared where it is built, above
     $total = $total_row->total;
 

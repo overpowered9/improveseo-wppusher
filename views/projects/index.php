@@ -193,8 +193,9 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 										<input type="checkbox" id="cb-select-all">
 										<div class="checkbox__checkmark"></div>
 									</label>
-									<h4><?php echo iseo_sort_link($sort_base, 'name', 'Name', $orderBy, $order); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns a complete <a> built from esc_url()/esc_html() parts ?></h4>
+									<h4><?php echo iseo_sort_link($sort_base, 'name', 'Project Name', $orderBy, $order); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns a complete <a> built from esc_url()/esc_html() parts ?></h4>
 								</th>
+								<th><?php echo iseo_sort_link($sort_base, 'keyword', 'Keyword', $orderBy, $order); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns a complete <a> built from esc_url()/esc_html() parts ?></th>
 								<th><?php echo iseo_sort_link($sort_base, 'updated_at', 'Last Updated', $orderBy, $order); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns a complete <a> built from esc_url()/esc_html() parts ?></th>
 								<th>Post Status</th>
 								<th>Action</th>
@@ -216,6 +217,8 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 												style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#aaa;font-size:14px;line-height:1;margin-left:6px;align-self:center;">&#9998;</button>
 										</div>
 									</td>
+									<?php // seed_keyword is decoded from the project's options by the controller (modules/projects.php). ?>
+									<td data-label="Keyword"><?php echo ( '' !== $project->seed_keyword ) ? esc_html( $project->seed_keyword ) : '&mdash;'; ?></td>
 									<td data-label="Last Updated"><?php
 									$date = new DateTime($project->updated_at);
 									echo esc_html( $date->format('m/d/Y H:i:s') );
@@ -273,6 +276,16 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 														</span>
 													<?php endif; ?>
 												</li>
+												<?php
+												// Menu order: View Post, Edit Post, (state-specific actions), View Details, Delete Post.
+												$edit_link = $associated_post ? get_edit_post_link($associated_post->ID, 'raw') : '';
+												if ($edit_link): ?>
+												<li><a target="_blank"
+														href="<?php echo  esc_url($edit_link) ?>"
+														style="max-width: max-content !important;" class="popup-link">Edit
+														Post</a>
+												</li>
+												<?php endif; ?>
 												<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations): ?>
 												<li><a href="javascript:build_project(<?php echo esc_attr( $project->id ); ?>)"
 														style="max-width: max-content !important;" class="popup-link">Publish</a></li>
@@ -287,14 +300,6 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 												<?php endif; ?>
 												<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects&action=view_details&id=' . $project->id) ); ?>" style="max-width: max-content !important;"
 														class="popup-link">View Details</a></li>
-												<?php $edit_link = $associated_post ? get_edit_post_link($associated_post->ID, 'raw') : ''; ?>
-												<?php if ($edit_link): ?>
-												<li><a target="_blank"
-														href="<?php echo  esc_url($edit_link) ?>"
-														style="max-width: max-content !important;" class="popup-link">Edit
-														Post</a>
-												</li>
-												<?php endif; ?>
 												<li style="margin: 0px !important;"><a target="_blank"
 														href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ); ?>"
 														style="max-width: max-content !important;"
