@@ -15,7 +15,7 @@ use ImproveSEO\View;
 
 &raquo;
 
-<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>">Projects List</a>
+<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>">Single Projects</a>
 
 &raquo;
 
@@ -231,14 +231,14 @@ function pd_seo_meta($post_id, $what) {
         <div class="improveseo-header-title">
             <ul class="breadcrumb-seo">
                 <li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a></li>
-                <li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>">Projects List</a></li>
+                <li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>">Single Projects</a></li>
                 <?php // Ellipsised when long (see CSS); title="" keeps the full name readable on hover. ?>
                 <li class="improveseo-header-project-name" title="<?php echo  esc_attr($project->name) ?>"><?php echo  esc_html($project->name) ?></li>
             </ul>
         </div>
         <div class="improveseo-header-actions">
             <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>" style="text-decoration:none;">
-                <button class="improveseo-header-btn">← Back to Projects</button>
+                <button class="improveseo-header-btn">← Back to Single Projects</button>
             </a>
             <?php $edit_link = $associated_post ? get_edit_post_link($associated_post->ID, 'raw') : ''; ?>
             <?php if ($edit_link): ?>
@@ -247,7 +247,8 @@ function pd_seo_meta($post_id, $what) {
                 </a>
             <?php elseif ($project->state === 'Draft'): ?>
                 <a href="<?php echo esc_url( admin_url("admin.php?page=improveseo_dashboard&action=edit_post&id={$project->id}") ); ?>" style="text-decoration:none;">
-                    <button class="improveseo-header-btn active">Edit Draft</button>
+                    <?php // Same outline style as the Back and Preview Post buttons beside it (no .active fill). ?>
+                    <button class="improveseo-header-btn">Edit Draft</button>
                 </a>
             <?php endif; ?>
             <?php

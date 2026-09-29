@@ -156,6 +156,12 @@ function improveseo_dashboard() {
 
 		$name = $_POST['name'];
 
+		// Editing an existing single project (the "Edit Draft Post" form posts here with
+		// its id): its name must not collide with another project's.
+		if (isset($_GET['id']) && (!isset($_POST['ai_modal_type']) || $_POST['ai_modal_type'] !== 'bulk')) {
+			improveseo_refuse_duplicate_project_name(wp_unslash($name), (int) $_GET['id'], false);
+		}
+
 
 		$title = $_POST['title'];
 
@@ -820,6 +826,10 @@ function improveseo_dashboard() {
 
 			$name = $_POST['name'];
 
+			if (isset($_GET['id'])) {
+				improveseo_refuse_duplicate_project_name(wp_unslash($name), (int) $_GET['id'], true);
+			}
+
 
 			$title = $_POST['title'];
 
@@ -827,7 +837,7 @@ function improveseo_dashboard() {
 			$content = $_POST['content'];
 
 
-	
+
 
 
 			// $order   = array("\r\n", "\n");

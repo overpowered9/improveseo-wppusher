@@ -32,6 +32,69 @@ function improveseo_project_seed_keyword($options_raw)
   return trim((string) $options['ai_seed_keyword']);
 }
 
+/**
+ * Whether another single-post project already uses this name.
+ *
+ * Used wherever an existing project's name can change: the list's inline rename
+ * (improveseo_rename_project) and the edit form's save (do_update_post, and
+ * do_create_post when it carries an id — the "Edit Draft Post" path). Compared
+ * trimmed and lower-cased explicitly — not left to the column's collation, which is
+ * case-insensitive on MySQL but not on every database WordPress runs on — so
+ * "Plumber" and "plumber" count as the same name. Transient 'Preview' projects are
+ * ignored, as they are on the list itself.
+ *
+ * @param string $name       The proposed name.
+ * @param int    $except_id  The project being renamed, which may keep its own name.
+ * @return bool
+ */
+function improveseo_single_project_name_taken($name, $except_id = 0)
+{
+  global $wpdb;
+  $name = trim((string) $name);
+  if ($name === '') {
+    return false;
+  }
+  $found = $wpdb->get_var($wpdb->prepare(
+    "SELECT id FROM {$wpdb->prefix}improveseo_tasks WHERE LOWER(TRIM(name)) = %s AND id <> %d AND state <> 'Preview' LIMIT 1",
+    function_exists('mb_strtolower') ? mb_strtolower($name, 'UTF-8') : strtolower($name),
+    (int) $except_id
+  ));
+  return !empty($found);
+}
+
+/**
+ * The message shown when improveseo_single_project_name_taken() refuses a name.
+ */
+function improveseo_single_project_name_taken_message($name)
+{
+  /* translators: %s is the project name the user typed. */
+  return sprintf(__('A project named "%s" already exists. Please choose a different name.', 'improveseo'), trim((string) $name));
+}
+
+/**
+ * Server-side backstop for the edit form: if the submitted name belongs to another
+ * project, send the user back to the form with the error under Project Name and what
+ * they typed restored (Validator::old), instead of saving. The form checks this over
+ * AJAX before submitting (improveseo_check_project_name), so this only fires if that
+ * check was skipped. Returns only when the name is free.
+ *
+ * @param string $name       Submitted project name.
+ * @param int    $project_id The project being edited.
+ * @param bool   $is_update  True for do_update_post (the form's &update variant).
+ */
+function improveseo_refuse_duplicate_project_name($name, $project_id, $is_update)
+{
+  if (!improveseo_single_project_name_taken($name, $project_id)) {
+    return;
+  }
+  \ImproveSEO\Validator::error('name', improveseo_single_project_name_taken_message($name));
+  foreach ($_POST as $field => $value) {
+    \ImproveSEO\Validator::saveOld($field, is_string($value) ? wp_unslash($value) : $value);
+  }
+  wp_safe_redirect(admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . (int) $project_id . ($is_update ? '&update=1' : '')));
+  exit;
+}
+
 function improveseo_projects()
 {
   global $wpdb;

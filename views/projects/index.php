@@ -53,7 +53,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 
 &raquo;
 
-<span>Projects List</span>
+<span>Single Projects</span>
 
 <?php View::endSection('breadcrumbs') ?>
 
@@ -71,7 +71,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 	<div class="box-top">
 		<ul class="breadcrumb-seo">
 			<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a></li>
-			<li>Projects List</li>
+			<li>Single Projects</li>
 		</ul>
 	</div>
 	<div class="iseo-search-sort-row">
@@ -506,17 +506,32 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 			nameEl.after(input, save, cancel);
 			input.focus().select();
 
+			// Shown under the input when the server refuses the name (e.g. another project
+			// already has it); the editor stays open so the user can pick another.
+			var error = $('<div class="iseo-rename-error" role="alert"></div>')
+				.css({ flexBasis:'100%', color:'#d63638', fontSize:'12px', marginTop:'4px' }).hide();
+
 			function stopEdit() {
-				input.remove(); save.remove(); cancel.remove();
+				input.remove(); save.remove(); cancel.remove(); error.remove();
 				nameEl.show(); btn.show();
 				btn.data('editing', false);
 			}
 
+			function showError(msg) {
+				error.text(msg).show();
+				input.css('borderColor', '#d63638').focus().select();
+				save.prop('disabled', false).text('Save');
+			}
+
+			nameEl.parent().css('flexWrap', 'wrap');
+			cancel.after(error);
 			cancel.on('click', stopEdit);
+			input.on('input', function () { error.hide(); input.css('borderColor', '#1C7293'); });
 
 			save.on('click', function () {
 				var newName = input.val().trim();
 				if (!newName) { input.focus(); return; }
+				if (newName === current) { stopEdit(); return; }
 				save.prop('disabled', true).text('Saving…');
 				$.post(ajaxurl, {
 					action: 'rename_project',
@@ -524,11 +539,15 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 					name:   newName,
 					nonce:  '<?php echo esc_js(wp_create_nonce("rename_project_nonce")); ?>'
 				}, function (res) {
-					if (res.success) {
+					if (res && res.success) {
 						nameEl.text(res.data.name);
+						stopEdit();
+					} else {
+						showError((res && typeof res.data === 'string') ? res.data : 'The project could not be renamed. Please try again.');
 					}
-					stopEdit();
-				}).fail(stopEdit);
+				}).fail(function () {
+					showError('The project could not be renamed. Please try again.');
+				});
 			});
 
 			input.on('keydown', function (e) {

@@ -824,6 +824,9 @@ function improveseo_rename_project() {
     if (!$id || $name === '') {
         wp_send_json_error('Invalid data');
     }
+    if (improveseo_single_project_name_taken($name, $id)) {
+        wp_send_json_error(improveseo_single_project_name_taken_message($name));
+    }
     global $wpdb;
     $updated = $wpdb->update(
         $wpdb->prefix . 'improveseo_tasks',
@@ -836,6 +839,24 @@ function improveseo_rename_project() {
         wp_send_json_error('Database error');
     }
     wp_send_json_success(array('name' => $name));
+}
+
+// Name check for the single-project edit form (views/posting/edit-post.php), run before
+// it submits so a duplicate is caught inline instead of bouncing the whole form.
+add_action('wp_ajax_improveseo_check_project_name', 'improveseo_check_project_name');
+function improveseo_check_project_name() {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'rename_project_nonce')) {
+        wp_send_json_error('Security check failed');
+    }
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Permission denied');
+    }
+    $name = sanitize_text_field(wp_unslash($_POST['name'] ?? ''));
+    $id   = intval($_POST['id'] ?? 0);
+    if (improveseo_single_project_name_taken($name, $id)) {
+        wp_send_json_success(array('taken' => true, 'message' => improveseo_single_project_name_taken_message($name)));
+    }
+    wp_send_json_success(array('taken' => false));
 }
 
 // Note: wp_ajax_re_generate_post is handled by re_generate_post() in bulk_AI_post_function.php
