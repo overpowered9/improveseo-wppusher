@@ -555,6 +555,75 @@ jQuery(document).ready(function($) {
 </script>
 <?php endif; ?>
 
+<script>
+/* Project name check on this screen's own Project Name field (the post form shown after
+   the wizard — in the guided flow the user reviews and can edit it here before saving).
+   Same pre-submit check as the Edit Draft screen (views/posting/edit-post.php), for a NEW
+   project (id 0). Only while the form is actually on screen: in the normal flow the wizard
+   submits it hidden, having already checked the name on its last step, and a message
+   nobody can see would just leave the "Publishing…" overlay hanging — there the server's
+   fallback applies instead (improveseo_unique_single_project_name). */
+(function ($) {
+	$(function () {
+		var $form = $('#main_form');
+		var $name = $form.find('input[name="name"]');
+		if (!$form.length || !$name.length) { return; }
+
+		var nonce    = <?php echo wp_json_encode( wp_create_nonce( 'rename_project_nonce' ) ); ?>;
+		var verified = false;
+
+		function setError(msg) {
+			var $wrap = $name.closest('.PostForm__name-wrap');
+			$wrap.find('.PostForm__error').remove();
+			if (msg) {
+				$wrap.addClass('PostForm--error');
+				$('<span class="PostForm__error" role="alert"></span>').text(msg).insertAfter($name);
+				$name.trigger('focus');
+				if ($name[0].scrollIntoView) { $name[0].scrollIntoView({ block: 'center' }); }
+			} else {
+				$wrap.removeClass('PostForm--error');
+			}
+		}
+
+		$name.on('input', function () { verified = false; setError(''); });
+
+		$form.on('submit', function (e) {
+			if (verified || !$name.is(':visible')) { return; }
+			e.preventDefault();
+			var submitter = (e.originalEvent && e.originalEvent.submitter) || null;
+
+			$.post(ajaxurl, {
+				action: 'improveseo_check_project_name',
+				id:     0,
+				name:   $.trim($name.val()),
+				nonce:  nonce
+			}).done(function (res) {
+				if (res && res.success && res.data && res.data.taken) {
+					if (window.ImproveSEOLoading && ImproveSEOLoading.hide) { ImproveSEOLoading.hide(); }
+					setError(res.data.message);
+					return;
+				}
+				resubmit(submitter);
+			}).fail(function () {
+				resubmit(submitter);
+			});
+		});
+
+		function resubmit(submitter) {
+			verified = true;
+			if (submitter && typeof $form[0].requestSubmit === 'function') {
+				$form[0].requestSubmit(submitter);
+			} else {
+				if (submitter && submitter.name) {
+					$('<input type="hidden">').attr('name', submitter.name).val(submitter.value || '1').appendTo($form);
+				}
+				$form[0].submit();
+			}
+		}
+	});
+})(jQuery);
+</script>
+
 <!-- ── Leave-wizard confirmation ──────────────────────────────────────────────
      Nothing in the single-post wizard is saved until its final step submits #main_form,
      so a click on the WordPress admin sidebar mid-wizard silently threw the whole project
@@ -621,9 +690,12 @@ jQuery(document).ready(function($) {
 
 	// The wizard's final step submits #main_form to save the project. From then on
 	// leaving is exactly what should happen, so the prompt stands down.
+	// Bubble phase + defaultPrevented: a submit that another handler cancels (e.g. the
+	// project-name check above refusing a duplicate) leaves the user on the page, so the
+	// prompt must stay armed for it.
 	document.addEventListener('submit', function (e) {
-		if (e.target && e.target.id === 'main_form') { submitting = true; }
-	}, true);
+		if (e.target && e.target.id === 'main_form' && !e.defaultPrevented) { submitting = true; }
+	});
 
 	function open(url) {
 		pendingUrl = url;
