@@ -395,13 +395,22 @@ function improveseo_bulkprojects()
 		if (!empty($task->bulktask_id) && isset($_POST['name'])) {
 			$new_name = sanitize_text_field(wp_unslash($_POST['name']));
 			if ($new_name !== '') {
-				$wpdb->update(
-					$model->getTable(),
-					array('name' => $new_name),
-					array('id' => intval($task->bulktask_id)),
-					array('%s'),
-					array('%d')
-				);
+				$name_taken = $wpdb->get_var($wpdb->prepare(
+					"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasks WHERE name = %s AND id != %d",
+					$new_name,
+					intval($task->bulktask_id)
+				));
+				if ($name_taken) {
+					$name_error = $new_name;
+				} else {
+					$wpdb->update(
+						$model->getTable(),
+						array('name' => $new_name),
+						array('id' => intval($task->bulktask_id)),
+						array('%s'),
+						array('%d')
+					);
+				}
 			}
 		}
 
@@ -419,6 +428,11 @@ function improveseo_bulkprojects()
 			array('%d')
 		);
 
+		// Tell the user the name was not changed, also when they clicked Publish.
+		if (!empty($name_error)) {
+			FlashMessage::message('The project name was not changed — a project named "' . esc_html($name_error) . '" already exists.', 'error');
+		}
+
 		// The screen's Publish button submits this same form with publish=1 so the
 		// user's edits are never lost by publishing. Publishing itself is NOT
 		// reimplemented here — we hand off to the existing publish action, the
@@ -433,7 +447,10 @@ function improveseo_bulkprojects()
 			exit;
 		}
 
-		FlashMessage::success('Content saved. The task is still a draft — use Publish when you are ready.');
+		if (empty($name_error)) {
+			FlashMessage::success('Content saved. The task is still a draft — use Publish when you are ready.');
+		}
+
 		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id . '&highlight=' . $id));
 		exit;
 

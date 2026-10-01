@@ -155,6 +155,18 @@ function improveseo_dashboard() {
 
 
 		$name = $_POST['name'];
+		if (isset($_GET['id']) && (!isset($_POST['ai_modal_type']) || $_POST['ai_modal_type'] !== 'bulk')) {
+			$name_taken = $wpdb->get_var($wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_tasks WHERE name = %s AND id != %d",
+				$name,
+				intval($_GET['id'])
+			));
+			if ($name_taken) {
+				FlashMessage::message('A project with this name already exists. Please choose a different name.', 'error');
+				wp_redirect(admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . intval($_GET['id'])));
+				exit;
+			}
+		}
 
 
 		$title = $_POST['title'];
@@ -819,6 +831,18 @@ function improveseo_dashboard() {
 
 
 			$name = $_POST['name'];
+			if (isset($_GET['id'])) {
+				$name_taken = $wpdb->get_var($wpdb->prepare(
+					"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_tasks WHERE name = %s AND id != %d",
+					$name,
+					intval($_GET['id'])
+				));
+				if ($name_taken) {
+					FlashMessage::message('A project with this name already exists. Please choose a different name.', 'error');
+					wp_redirect(admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . intval($_GET['id']) . '&update=true'));
+					exit;
+				}
+			}
 
 
 			$title = $_POST['title'];

@@ -345,8 +345,12 @@ if (isset($_GET['post_preview'])) {
 				}, function (res) {
 					if (res.success) {
 						nameSpan.text(res.data.name);
+						stopEdit();
+					} else {
+						alert(res.data || 'Could not rename the project.');
+						save.prop('disabled', false).text('Save');
+						input.focus();
 					}
-					stopEdit();
 				}).fail(stopEdit);
 			});
 
