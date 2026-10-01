@@ -1331,6 +1331,15 @@ input:checked + .switch:before {
   background: white;
   gap: 10px 20px;
   margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.pagination .pagination-dots {
+  color: #1C7293;
+  font-size: 20px;
+  line-height: 43px;
+  cursor: default;
+  user-select: none;
 }
 
 .pagination button {

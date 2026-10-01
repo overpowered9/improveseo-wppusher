@@ -80,6 +80,7 @@ if (isset($_GET['post_preview'])) {
 		<div>
 			<button type="button" id="bulk-delete-btn" class="btn_delete" onclick="handleBulkDelete()" disabled style="opacity: 0.5;">Delete Selected Projects</button>
 		</div>
+		<?php $pages = 25; // TEMP: pagination preview with 25 pages - REMOVE before merge ?>
 		<div class="pagination">
 			<?php if ($page > 1): ?>
 				<button class="prev pagination-btn"
@@ -92,14 +93,32 @@ if (isset($_GET['post_preview'])) {
 				</button>
 			<?php endif; ?>
 
-			<?php for ($i = 1; $i <= $pages; $i++): ?>
-				<?php if ($i == $page): ?>
+			<?php
+			// Show first, last and the pages around the current one; collapse the rest into "..."
+			$_pg_items = array();
+			$_pg_last = 0;
+			for ($i = 1; $i <= $pages; $i++) {
+				if ($i == 1 || $i == $pages || abs($i - $page) <= 1) {
+					if ($_pg_last && $i - $_pg_last == 2) {
+						$_pg_items[] = $i - 1;
+					} elseif ($_pg_last && $i - $_pg_last > 2) {
+						$_pg_items[] = '...';
+					}
+					$_pg_items[] = $i;
+					$_pg_last = $i;
+				}
+			}
+			?>
+			<?php foreach ($_pg_items as $i): ?>
+				<?php if ($i === '...'): ?>
+					<span class="pagination-dots">&hellip;</span>
+				<?php elseif ($i == $page): ?>
 					<button class="active"><?php echo esc_html( $i ); ?></button>
 				<?php else: ?>
 					<button
 						onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects' . ($search ? '&search=' . urlencode($search) : '') . '&orderBy=' . urlencode($orderBy) . '&order=' . urlencode($order) . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ); ?>'"><?php echo esc_html( $i ); ?></button>
 				<?php endif; ?>
-			<?php endfor; ?>
+			<?php endforeach; ?>
 
 			<?php if ($page < $pages): ?>
 				<button class="next pagination-btn"
