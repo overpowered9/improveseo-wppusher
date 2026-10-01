@@ -191,22 +191,21 @@ $url .= $_SERVER['REQUEST_URI'];
 						Bulk Project: <strong><?php echo esc_html($project_name); ?></strong>
 					</h2>
 					<p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
-						Viewing all posts/pages for this bulk project
+						Viewing all posts within this bulk project
 					</p>
 				</div>
 				<div class="table-responsive">
 					<table class="table ">
 						<thead>
 							<tr>
-								<th>
+								<th style="width: 35%;">
 									<label class="checkbox style-c">
 										<input id="cb-select-all" type="checkbox">
 										<div class="checkbox__checkmark"></div>
 									</label>
-									<h4> Keyword Name </h4>
+									<h4> Keyword </h4>
 								</th>
 								<th>Language</th>
-								<th>Size</th>
 								<th>Processing</th>
 								<th>Publish Date</th>
 								<th>Post Status</th>
@@ -216,7 +215,7 @@ $url .= $_SERVER['REQUEST_URI'];
 						<tbody>
 							<?php foreach ($projects as $key => $project): ?>
 								<tr <?php echo  $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
-									<td data-label="Name" style="vertical-align: middle; padding: 15px 10px;">
+									<td data-label="Keyword" style="vertical-align: middle; padding: 15px 10px;">
 										<div style="display: flex; align-items: flex-start; gap: 0px;">
 											<label class="checkbox style-c" style="margin: 0;">
 												<input id="cb-select-<?php echo esc_attr( $project->id ); ?>" type="checkbox"
@@ -227,7 +226,6 @@ $url .= $_SERVER['REQUEST_URI'];
 										</div>
 									</td>
 									<td data-label="Language"><?php echo esc_html( $project->content_lang ); ?></td>
-									<td data-label="Size"><?php echo esc_html( $project->nos_of_words ); ?></td>
 									<td data-label="Processing" class="status finished"><?php
 									if ($project->status == 'Processing') {
 										echo 'Generating';
