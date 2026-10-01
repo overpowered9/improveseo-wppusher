@@ -38,6 +38,16 @@ use ImproveSEO\View;
 		?>
 	</form>
 </div>
+<style>
+/* Hide WordPress's "Edit" (pencil) on the toolbar that appears when an image in the post
+   content is clicked — the AI cover image, typically. It opens WordPress's media "Image
+   details" dialog, which has no part in this screen's flow. Matched on the pencil icon,
+   not the "Edit" label, so it holds in any admin language; align and Remove are kept. */
+.mce-inline-toolbar-grp .mce-btn:has(.dashicons-edit) {
+	display: none !important;
+}
+</style>
+
 <script>
 /* Project names must be unique across single projects. Check the name with the server
    before this form submits, and show a refusal under the Project Name field — the page

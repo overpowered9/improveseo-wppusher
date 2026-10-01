@@ -555,6 +555,14 @@ jQuery(document).ready(function($) {
 </script>
 <?php endif; ?>
 
+<style>
+/* Same as the Edit Draft screen (views/posting/edit-post.php): no "Edit" (pencil) on the
+   toolbar shown when an image in the post content is clicked; align and Remove stay. */
+.mce-inline-toolbar-grp .mce-btn:has(.dashicons-edit) {
+	display: none !important;
+}
+</style>
+
 <script>
 /* Project name check on this screen's own Project Name field (the post form shown after
    the wizard — in the guided flow the user reviews and can edit it here before saving).
