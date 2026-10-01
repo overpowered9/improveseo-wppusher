@@ -288,16 +288,7 @@ $url .= $_SERVER['REQUEST_URI'];
 											// the items are assembled into an array first and rendered in
 											// one place — previously the order was an accident of which
 											// if-block happened to come first in the markup.
-											//
-											//   Published / Scheduled : View Post, Edit Post, View Details,
-											//                           Re-Generate Content
-											//   Draft                 : Publish, Preview Post,
-											//                           Edit Post Content, View Details,
-											//                           Re-Generate Content
-											//   Still generating      : Cancel Process, View Details,
-											//                           Re-Generate Content
-											//   Canceled              : View Details
-											//
+									
 											// Nothing that used to be reachable was dropped: an item is
 											// still emitted whenever it applies to the row.
 											$acts     = array();
@@ -320,11 +311,11 @@ $url .= $_SERVER['REQUEST_URI'];
 												'target' => '_blank',
 											);
 											$act_edit_content = array(
-												'label' => 'Edit Post Content',
+												'label' => 'Edit Draft Post',
 												'href'  => admin_url('admin.php?page=improveseo_bulkprojects&action=edit_ai_content&id=' . $project->id),
 											);
 											$act_edit_content_pending = array(
-												'label'   => 'Edit Post Content',
+												'label'   => 'Edit Draft Post',
 												'href'    => '#',
 												'onclick' => "alert('Content is not generated yet. Please wait'); return false;",
 											);
@@ -332,12 +323,7 @@ $url .= $_SERVER['REQUEST_URI'];
 												'label' => 'View Details',
 												'href'  => admin_url('admin.php?page=improveseo_bulkprojects&action=view_task_details&id=' . $project->id . '&parent_id=' . $parent_id_for_row),
 											);
-											$act_regenerate = array(
-												'label'   => 'Re-Generate Content',
-												'href'    => 'javascript:re_generatepost(' . intval($project->id) . ')',
-												'target'  => '_self',
-												'onclick' => "return confirm('This will delete the existing content and regenerate from scratch. Continue?')",
-											);
+											
 											// Same publish action the redesigned draft-edit screen posts to,
 											// so there is exactly one publish path.
 											$act_publish = array(
@@ -366,27 +352,27 @@ $url .= $_SERVER['REQUEST_URI'];
 												// publish yet, but it can be cancelled.
 												$acts[] = $act_cancel;
 												$acts[] = $act_view_details;
-												$acts[] = $act_regenerate;
+
 											} elseif ($project->state == 'Published' || $project->state == 'Scheduled') {
 												if ($live_url)                 $acts[] = $act_view_post;
 												if (!empty($project->post_id)) $acts[] = $act_edit_post;
 												$acts[] = $act_view_details;
-												$acts[] = $act_regenerate;
+											
 											} elseif ($project->state == 'Draft') {
 												$acts[] = $act_publish;
 												if (!empty($project->ai_content)) $acts[] = $act_view_ai;
 												$acts[] = !empty($project->post_id)
-													? array_merge($act_edit_post, array('label' => 'Edit Post Content'))
+													? array_merge($act_edit_post, array('label' => 'Edit Draft Post'))
 													: (!empty($project->ai_content) ? $act_edit_content : $act_edit_content_pending);
 												$acts[] = $act_view_details;
-												$acts[] = $act_regenerate;
+												
 											} else {
 												// Generated but no state yet (legacy rows).
 												if ($live_url)                 $acts[] = $act_view_post;
 												if (!empty($project->post_id)) $acts[] = $act_edit_post;
 												elseif (!empty($project->ai_content)) $acts[] = $act_edit_content;
 												$acts[] = $act_view_details;
-												$acts[] = $act_regenerate;
+												
 											}
 
 											foreach ($acts as $act):
