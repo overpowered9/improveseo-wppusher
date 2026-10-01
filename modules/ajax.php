@@ -796,6 +796,14 @@ function improveseo_rename_bulk_project() {
         wp_send_json_error('Invalid data');
     }
     global $wpdb;
+    $exists = $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasks WHERE name = %s AND id != %d",
+        $name,
+        $id
+    ));
+    if ($exists) {
+        wp_send_json_error('A project with this name already exists.');
+    }
     $updated = $wpdb->update(
         $wpdb->prefix . 'improveseo_bulktasks',
         array('name' => $name),
@@ -825,6 +833,14 @@ function improveseo_rename_project() {
         wp_send_json_error('Invalid data');
     }
     global $wpdb;
+    $exists = $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_tasks WHERE name = %s AND id != %d",
+        $name,
+        $id
+    ));
+    if ($exists) {
+        wp_send_json_error('A project with this name already exists.');
+    }
     $updated = $wpdb->update(
         $wpdb->prefix . 'improveseo_tasks',
         array('name' => $name),
