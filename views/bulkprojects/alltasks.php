@@ -117,7 +117,6 @@ $url .= $_SERVER['REQUEST_URI'];
 				<input type="hidden" value="bulk-delete-tasks" name="action">
 				<button type="submit" id="doaction" class="btn_delete action" disabled style="opacity: 0.5;">Delete Selected Posts</button>
 			</div>
-			<?php $pages = 25; // TEMP: pagination preview with 25 pages - REMOVE before merge ?>
 			<div class="pagination">
 				<?php if ($page > 1): ?>
 					<button type="button" class="prev pagination-btn"

@@ -80,7 +80,6 @@ if (isset($_GET['post_preview'])) {
 		<div>
 			<button type="button" id="bulk-delete-btn" class="btn_delete" onclick="handleBulkDelete()" disabled style="opacity: 0.5;">Delete Selected Projects</button>
 		</div>
-		<?php $pages = 25; // TEMP: pagination preview with 25 pages - REMOVE before merge ?>
 		<div class="pagination">
 			<?php if ($page > 1): ?>
 				<button class="prev pagination-btn"
