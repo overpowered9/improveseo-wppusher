@@ -1720,9 +1720,6 @@ global $ai_modal_type;
         <div class="singlepost-title_multi">
             <h1><img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ); ?>"
                     alt="iconoir_sparks"> Bulk Create AI Posts</h1>
-            <div class="singlepost-close_multi"><img id="close_bulk_post"
-                    src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/akar-icons_cross.svg' ); ?>" alt="icons_cross">
-            </div>
         </div>
         <form id="pop_up_multi_form" action="multipost_form_submit" method="post" class="pop_up_multi_form">
             <div class="steps_multi">
@@ -1759,20 +1756,13 @@ global $ai_modal_type;
                     <div class="percent_multi">
                         <div class="step_multi">
                             <div class="circle_multi">5</div>
-                            <p>Meta Title & <br>Description</p>
+                            <p>Publish <br>Settings</p>
                         </div>
                     </div>
                     <!-- Step 6 -->
                     <div class="percent_multi">
                         <div class="step_multi">
                             <div class="circle_multi">6</div>
-                            <p>Publish <br>Settings</p>
-                        </div>
-                    </div>
-                    <!-- Step 7 -->
-                    <div class="percent_multi">
-                        <div class="step_multi">
-                            <div class="circle_multi">7</div>
                             <p>Finalize</p>
                         </div>
                     </div>
@@ -1785,33 +1775,15 @@ global $ai_modal_type;
                     <div class="bulk-widths1170_multi">
                         <div class="improve-seo-form-global_multi">
                             <div class="form-group">
-                                <label style="padding-left:20px;" for="keyword_list_name">Create New or Select an exisiting keyword list.
+                                <label style="padding-left:20px;" for="keyword_list_name">Keyword List
                                     <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a keyword list for?">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                         <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field is-interactive" role="tooltip">
-                                            A Bulk Post Project allows you to generate posts in bulk based on a keyword list, one post per keyword.
-                                            <span class="iseo-tip-para">Ideally, you have already prepared a keyword list and select it below.</span>
-                                            <span class="iseo-tip-para">If you haven&rsquo;t, create a new keyword list here: <a href="<?php echo admin_url( 'admin.php?page=improveseo_lists' ); ?>" target="_blank" rel="noopener noreferrer">Generate Keyword List</a>. Once you are done, start a new bulk project.</span>
+                                            Keyword list allows you to generate posts in bulk, one post per keyword.
+                                            <span class="iseo-tip-para">To create a new keyword list, click <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_keyword_generator') ); ?>" target="_blank" rel="noopener noreferrer">Generate Keywords</a>. Once you are done, <a href="javascript:void(0);" id="refresh_keyword_lists">click here to refresh</a>.</span>
                                         </span>
                                     </span>
                                 </label>
-                                <p style="font-size: 14px; color: #666; padding-left: 20px; margin-top: 5px;">
-                                    Keyword list allows you to generate posts in bulk, one post per keyword.
-                                </p>
-                                <p style="font-size: 14px; color: #0073aa; padding-left: 20px; margin-top: 8px; margin-bottom: 12px;">
-                                    To create a new keyword list, click 
-                                    <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_keyword_generator') ); ?>" 
-                                       target="_blank" 
-                                       style="color: #0073aa; text-decoration: underline; font-weight: 500;">
-                                        Generate Keywords
-                                    </a>. 
-                                    Once you are done, 
-                                    <a href="javascript:void(0);" 
-                                       id="refresh_keyword_lists" 
-                                       style="color: #0073aa; text-decoration: underline; font-weight: 500; cursor: pointer;">
-                                        click here to refresh
-                                    </a>.
-                                </p>
                                 <select id="keyword_list_name" name="keyword_list_name"
                                     class="form-control bulk_post_input_style"
                                     style="max-width: 100% !important; width: 100%; padding: 10px 20px !important;">
@@ -1822,7 +1794,7 @@ global $ai_modal_type;
                                 <span id="error_keyword_list_name" style="color: red;"></span>
                             </div>
                             <div class="form-group" id="keyword_list_container" style="display: none;">
-                                <label style="padding-left:20px;" for="keyword_list">Keywords (at least one)
+                                <label style="padding-left:20px;" for="keyword_list">Keywords
                                     <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What are these keywords?">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                         <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
@@ -1861,7 +1833,7 @@ global $ai_modal_type;
                             // variantFromWords(). Do not reword them.
                             ?>
                             <div id="bulk_article_size">
-                                <label style="padding-left:20px;" for="post_size_bulk">Article size
+                                <label style="padding-left:20px;" for="post_size_bulk">Post Size
                                     <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How long should these posts be?">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                         <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
@@ -2118,7 +2090,7 @@ global $ai_modal_type;
                 <div class="data_multi">
                     <div class="fourth_ttepss_multi">
                         <div class="category-selection-section">
-                            <h2 style="padding-left:20px; margin-bottom: 20px;">Assign Categories to Posts
+                            <h2 style="padding-left:20px; margin-bottom: 20px;">Assign Categories
                                 <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Why assign a category?">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                     <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
@@ -2230,13 +2202,6 @@ global $ai_modal_type;
                 </div>
 
                 <!-- Step 5 Content -->
-                <div class="data_multi meta-data_multi text-center_multi height-adjusts_multi">
-                    <h4>An SEO optimized meta title and meta description will be automatically “AI Generated”. A preview
-                        is
-                        not available.</h4>
-                </div>
-
-                <!-- Step 6 Content -->
                 <div class="data_multi">
                     <div class="seo-slide-steps-fours_multi seps-six_multi">
                         <h2 style="padding-left:20px;">Define Save &amp; Publish Preference
@@ -2253,23 +2218,19 @@ global $ai_modal_type;
                                     <div class="col_schedule">
                                         <label class="style_schedule_radio">
                                             <input type="radio" name="schedule_posts" value="schedule_all_posts"
-                                                id="AI_image">&nbsp;&nbsp;Publish all selected posts immediately
+                                                id="AI_image">&nbsp;&nbsp;Publish all posts immediately
                                         </label>
                                     </div>
                                     <div class="col_schedule">
                                         <label class="style_schedule_radio">
                                             <input type="radio" name="schedule_posts" value="draft_posts"
-                                                id="AI_image">&nbsp;&nbsp;Save all selected posts in draft mode, so you
-                                            can review them before
-                                            publishing
+                                                id="AI_image">&nbsp;&nbsp;Save all posts in draft mode, so you can review and edit them before publishing
                                         </label>
                                     </div>
                                     <div class="col_schedule">
                                         <label class="style_schedule_radio">
                                             <input type="radio" name="schedule_posts" value="schedule_posts_input_wise"
-                                                id="schedule_posts_input_wise">&nbsp;&nbsp;Create a publishing schedule
-                                            for the selected posts (if you don’t want to
-                                            publish them all at once)
+                                                id="schedule_posts_input_wise">&nbsp;&nbsp;Create a publishing schedule for all posts (if you don’t want to publish them all at once)
                                         </label>
                                     </div>
                                 </div>
@@ -2296,6 +2257,11 @@ global $ai_modal_type;
                             <?php echo $all_auths; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- assembled from fixed literals plus values escaped at insertion; escaping the whole string would print the tags. ?>
                         </div>
 
+                        <h2 style="padding-left:20px;">Meta Title &amp; Description</h2>
+                        <p style="padding: 0 20px 20px;">
+                            An SEO optimized meta title and meta description will be generated in the background. A preview is not available at this time, however, you can view it under 'View Details' in the Bulk Post Projects list (post level) once content generation is complete.
+                        </p>
+
                         <!-- <h2 style="padding-left:20px;">Choose or Create Category</h2>
                         <div class="category-box_multi">
                             <div class="cta-check_multi clearfix ">
@@ -2317,7 +2283,7 @@ global $ai_modal_type;
                     </div>
                 </div>
 
-                <!-- Step 7 Content -->
+                <!-- Step 6 Content -->
                 <div class="data_multi height-adjusts_multi">
                     <div class="bulk-widths1170_multi">
                         <div class="improve-seo-form-global_multi improve-seo-form-global_multi_step7">
@@ -2428,6 +2394,18 @@ global $ai_modal_type;
                 document.getElementById("exampleModal2").classList.add("hide_and_show_ai_popup");
             });
         }
+
+        // Warn before leaving the Bulk wizard via the WordPress menus — nothing is saved until the last step.
+        jQuery(document).on('click', '#adminmenu a, #wpadminbar a', function (e) {
+            var $wizard = jQuery('#exampleModal2');
+            if (!$wizard.is(':visible') || $wizard.hasClass('hide_and_show_ai_popup')) return;
+            if (confirm('Are you sure you want to leave? This project will only be saved at the end of this Wizard. You will need to start over again if you leave now.')) {
+                window.onbeforeunload = null; // already confirmed — skip the browser's own second warning
+            } else {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            }
+        });
 
         // Close Generate AI Popup Modal
         if (close_generate_ai_popup) {
@@ -3240,6 +3218,8 @@ global $ai_modal_type;
         }
 
         function updateButtonText() {
+            prevButton.style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+
             let buttonText = 'Next';
             const totalSteps = steps.length;
 
@@ -3295,7 +3275,7 @@ global $ai_modal_type;
 
             var chosen = jQuery('input[name="schedule_posts"]:checked').val();
             if (!chosen) {
-                $error.text('Please choose how these posts should be saved or published.');
+                $error.text('Please choose how your posts should be saved or published.');
                 jQuery('.schedule_posts_parent')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return false;
             }
@@ -3427,11 +3407,11 @@ global $ai_modal_type;
                 }
             }
 
-            // Step 6 (index 5) — Save & Publish Preference is a required choice.
+            // Step 5 (index 4) — Save & Publish Preference is a required choice.
             // None of the three radios is pre-selected, so without this the user
             // could walk past the step and the project was created with an empty
             // schedule_posts. Same inline-error pattern as the CTA URL above.
-            if (currentStep === 5) {
+            if (currentStep === 4) {
                 if (!validateSchedulePosts()) {
                     return;
                 }
