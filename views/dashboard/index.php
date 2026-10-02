@@ -792,27 +792,49 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 		<?php endif; ?>
 
 		<h2 class="iseo-section-title">Quick Links</h2>
-		<?php
-		// One loop instead of four hand-copied cards. Each card is a single link, so the
-		// chevron in its corner is decoration (a <span>), not a second link to the same page.
-		$iseo_quick_links = array(
-			array( 'improveseo_posting',      'window',    'Create Posts',          'Create keyword-rich posts or pages. Preview content, schedule, and more!' ),
-			array( 'improveseo_projects',     'document',  'Single Post Projects',  "View, edit, and manage every single AI-generated post or page you've created." ),
-			array( 'improveseo_bulkprojects', 'documents', 'Bulk Post Projects',    'Create projects. Option to duplicate project, update all published content, download content URLs to desktop, delete all posts/pages and project' ),
-			array( 'improveseo_lists',        'list',      'Keyword Lists & Tool',  'Add keywords you want to target and use Google autosuggest to build keyword lists you can bulk create posts from.' ),
-		);
-		?>
-		<div class="iseo-ql-row">
-			<?php foreach ( $iseo_quick_links as $iseo_ql ) : ?>
-			<a class="iseo-ql-card" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $iseo_ql[0] ) ); ?>">
-				<span class="iseo-card-top">
-					<span class="iseo-quickstart-icon"><?php echo iseo_dash_icon( $iseo_ql[1] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-					<span class="iseo-card-chevron"><?php echo iseo_dash_icon( 'chevron', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-				</span>
-				<span class="iseo-ql-title"><?php echo esc_html( $iseo_ql[2] ); ?></span>
-				<span class="iseo-ql-desc"><?php echo esc_html( $iseo_ql[3] ); ?></span>
+		<div class="modules-row text-left">
+			<div class="module-box">
+			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_posting') ); ?>">
+				<div class="module-icon justify-between m-0">
+					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon2.svg' ); ?>" alt="icon2">
+				</div>
+				<div class="line"></div>
+				<h3>Create Posts</h3>
+				<p>Create keyword-rich posts or pages. Preview content, schedule, and more!</p>
 			</a>
-			<?php endforeach; ?>
+			</div>
+			<div class="module-box">
+			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>">
+				<div class="module-icon justify-between m-0">
+					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon1.svg' ); ?>" alt="icon1">
+				</div>
+				<div class="line"></div>
+				<h3>Single Post Projects</h3>
+				<p>View, edit, and manage every single AI-generated post or page you've created.</p>
+				</a>
+			</div>
+			<div class="module-box">
+			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">
+				<div class="module-icon justify-between m-0">
+					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon5.svg' ); ?>" alt="icon5">
+				</div>
+				<div class="line"></div>
+				<h3>Bulk Post Projects</h3>
+				<p>Create projects. Option to duplicate project, update all published content, download content URLs to
+					desktop, delete all posts/pages and project</p>
+					</a>
+			</div>
+			<div class="module-box">
+			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists') ); ?>">
+				<div class="module-icon justify-between m-0">
+					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon6.svg' ); ?>" alt="icon6">
+				</div>
+				<div class="line"> </div>
+				<h3>Keyword Lists &amp; Tool</h3>
+				<p>Add keywords you want to target and use Google autosuggest to build keyword lists you can bulk
+					create posts from.</p>
+					</a>
+			</div>
 		</div>
 	</div>
 </div>

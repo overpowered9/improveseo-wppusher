@@ -318,7 +318,7 @@ ul.breadcrumb-seo li a:hover {
 
 /* ── Dashboard (views/dashboard/index.php) ────────────────────────────────
    Two surfaces: a row of white status cards on a pale page (Quick Start through
-   Need a hand?, plus Quick Links at the bottom), and the two Midnight Navy cards
+   Need a hand?), and the two Midnight Navy cards
    in between (Content Metrics, Review Business Details). Every card shares one
    header — icon tile on the left, round chevron on the right (.iseo-card-top).
    None of these cards carry .module-box any more: its !important margins, flex
@@ -371,8 +371,7 @@ ul.breadcrumb-seo li a:hover {
 }
 
 .iseo-dash a.iseo-card-chevron:hover,
-.iseo-dash a.iseo-card-chevron:focus-visible,
-.iseo-dash .iseo-ql-card:hover .iseo-card-chevron {
+.iseo-dash a.iseo-card-chevron:focus-visible {
   background-color: var(--iseo-navy);
   color: #FFFFFF;
 }
@@ -834,58 +833,12 @@ ul.breadcrumb-seo li a:hover {
   padding-top: 18px;
 }
 
-/* ── Quick Links ── */
-.iseo-ql-row {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  padding: 0 20px;
-  margin-top: 12px;
-}
-
-@media (max-width: 1100px) {
-  .iseo-ql-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 600px) {
-  .iseo-ql-row {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.iseo-dash a.iseo-ql-card {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  padding: 16px 18px 20px;
-  background-color: #FFFFFF;
-  border: 1px solid var(--iseo-dash-line);
-  border-radius: 14px;
-  box-shadow: var(--iseo-dash-shadow);
-  text-decoration: none;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-}
-
-.iseo-dash a.iseo-ql-card:hover,
-.iseo-dash a.iseo-ql-card:focus-visible {
-  transform: translateY(-2px);
-  border-color: #CBD5E1;
-  box-shadow: 0 2px 4px rgba(11, 19, 43, 0.05), 0 12px 26px rgba(11, 19, 43, 0.10);
-}
-
-.iseo-ql-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--iseo-navy);
-  margin-bottom: 6px;
-}
-
-.iseo-ql-desc {
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--iseo-muted);
+/* ── Quick Links ──
+   The original .module-box cards (.modules-row rules near the top of this file),
+   kept as they were. The wrapper font above is Poppins; these cards were drawn
+   in the body font, so hand it back. */
+.iseo-dash .modules-row {
+  font-family: "Lato", serif;
 }
 
 .iseo-dash .iseo-section-title {
