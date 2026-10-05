@@ -54,15 +54,15 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 				</div>
 
 
-				<div class="create-ai-col"<?php if ( $from_onboarding ) { echo ' style="opacity:0.4;pointer-events:none;"'; } ?>>
-					<a class="Posting__page-button" href="<?php echo esc_url( admin_url("admin.php?page=improveseo_posting&action=create_post_bulk") ); ?>">
+				<div class="create-ai-col">
+					<a class="Posting__page-button" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_posting&action=create_post_bulk' . ( $from_onboarding ? '&from=onboarding' : '' ) ) ); ?>">
 						<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/Multi-device.png' ); ?>"
 							alt="Multi-device">
 					</a>
 					<?php // The hint links to Keyword Lists, and a link cannot be nested inside the card's
 					      // own <a> — so the title carries the link and the hint sits outside it. ?>
 					<h3>
-						<a class="Posting__page-button" href="<?php echo esc_url( admin_url("admin.php?page=improveseo_posting&action=create_post_bulk") ); ?>" aria-describedby="iseo-tip-bulk-post">Create Bulk AI Posts Project</a>
+						<a class="Posting__page-button" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_posting&action=create_post_bulk' . ( $from_onboarding ? '&from=onboarding' : '' ) ) ); ?>" aria-describedby="iseo-tip-bulk-post">Create Bulk AI Posts Project</a>
 						<span class="create-ai-tip">
 							<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
 							<span class="create-ai-tip-bubble is-wide is-interactive" id="iseo-tip-bulk-post" role="tooltip">Create a project with multiple posts based on a keyword list. Don&rsquo;t have a keyword list? <a href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_lists' ) ); ?>">Create one</a> before you get started.</span>
@@ -79,7 +79,10 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 <script>
 jQuery(function ($) {
     'use strict';
-    var $card = $('.Posting__post-button');
+    // Both choices are guided (single: onboarding-guide.js, bulk: onboarding-guide-bulk.js),
+    // so the spotlight frames the pair rather than the single-post card alone.
+    var $card  = $('.create-ai-col').length > 1 ? $('.create-ai-col').parent() : $('.Posting__post-button');
+    var $links = $('.Posting__post-button, .Posting__page-button');
 
     // Clears the step key an earlier build of onboarding-guide.js used to persist, so a
     // browser that still has one is not carrying dead data. The guide no longer reads or
@@ -102,7 +105,7 @@ jQuery(function ($) {
         + '<span class="iseo-guide-step-counter">Getting started</span>'
         + '</div>'
         + '<div class="iseo-guide-title">Let\u2019s create your first article! &#x1F680;</div>'
-        + '<div class="iseo-guide-message">Click <strong>Create Single AI Post</strong> to begin. We\u2019ll guide you through each step of the process.</div>'
+        + '<div class="iseo-guide-message">Click <strong>Create Single AI Post</strong> for one article, or <strong>Create Bulk AI Posts Project</strong> to write one post for every keyword in a list. We\u2019ll guide you through each step either way.</div>'
         + '<div class="iseo-guide-actions"><button class="iseo-guide-btn-skip" type="button">Skip guide</button></div>'
         + '</div>'
     );
@@ -111,9 +114,10 @@ jQuery(function ($) {
         $spot.remove();
         $tip.remove();
         $('body').removeClass('iseo-guide-active');
-        // Navigate the card without onboarding flag
-        $card.attr('href', $card.attr('href').replace('&from=onboarding', ''));
-        $('.create-ai-col[style]').removeAttr('style');
+        // Navigate the cards without onboarding flag
+        $links.each(function () {
+            $(this).attr('href', $(this).attr('href').replace('&from=onboarding', ''));
+        });
     });
 
     function positionGuide() {

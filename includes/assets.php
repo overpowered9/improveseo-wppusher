@@ -387,11 +387,17 @@ function improveseo_enqueue_guide_assets() {
 		improveseo_asset_ver( 'assets/css/onboarding-guide.css' )
 	);
 
+	// The bulk wizard has its own guide (different fields and panels); the single-post
+	// guide covers the card-choice page and the single-post wizard.
+	$guide_js = ( isset( $_GET['action'] ) && $_GET['action'] === 'create_post_bulk' )
+		? 'assets/js/onboarding-guide-bulk.js'
+		: 'assets/js/onboarding-guide.js';
+
 	wp_enqueue_script(
 		'iseo-onboarding-guide',
-		IMPROVESEO_DIR . '/assets/js/onboarding-guide.js',
+		IMPROVESEO_DIR . '/' . $guide_js,
 		array( 'jquery' ),
-		improveseo_asset_ver( 'assets/js/onboarding-guide.js' ),
+		improveseo_asset_ver( $guide_js ),
 		true
 	);
 }
