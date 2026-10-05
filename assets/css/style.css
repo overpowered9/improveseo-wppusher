@@ -621,8 +621,22 @@ ul.breadcrumb-seo li a:hover {
   color: #FFFFFF;
   background-color: var(--iseo-navy);
   background-image: radial-gradient(120% 140% at 100% 0%, rgba(28, 114, 147, 0.18) 0%, rgba(11, 19, 43, 0) 60%);
+  border: 1px solid transparent;
   border-radius: 14px;
   box-shadow: var(--iseo-shadow-dark);
+}
+
+/* Same lift as the Quick Start row's cards. */
+.iseo-dark-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Children too, so text and borders fade between white and navy with the card. */
+.iseo-dark-card,
+.iseo-dark-card * {
+  transition-property: transform, box-shadow, background-color, border-color, color;
+  transition-duration: 0.18s;
+  transition-timing-function: ease;
 }
 
 .iseo-dash .iseo-dark-card .iseo-quickstart-icon {
@@ -831,6 +845,63 @@ ul.breadcrumb-seo li a:hover {
 .iseo-dash .iseo-bizdetails-card a.iseo-quickstart-link {
   margin-top: auto;
   padding-top: 18px;
+}
+
+/* ── Row 2 resting state: white, like the cards above ──
+   Everything above draws these two cards navy; that is now the hover (and
+   focus-within, so an open period dropdown doesn't flip it back mid-use) state.
+   At rest, the same elements are recoloured for a white card. */
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) {
+  color: var(--iseo-navy);
+  background-color: #FFFFFF;
+  background-image: none;
+  border-color: var(--iseo-dash-line);
+  box-shadow: var(--iseo-dash-shadow);
+}
+
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-quickstart-icon {
+  border-color: var(--iseo-dash-line);
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-quickstart-title,
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-metrics-num,
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-metrics-latest-title,
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-bizdetails-progress-label {
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-quickstart-msg,
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-metrics-label,
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-metrics-latest-heading,
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-bizdetails-missing,
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-range-icon,
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-range-caret {
+  color: var(--iseo-muted);
+}
+
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) a.iseo-quickstart-link {
+  color: var(--iseo-dash-link);
+}
+
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-range select#iseo-range-select {
+  color: var(--iseo-navy);
+  background-color: #FFFFFF;
+  border-color: var(--iseo-dash-line);
+}
+
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-metrics-stats,
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) a.iseo-metrics-latest-row {
+  border-color: var(--iseo-dash-line);
+}
+
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-metrics-badge-draft {
+  background-color: var(--iseo-dash-tile);
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-bizdetails-progress-track {
+  background-color: var(--iseo-dash-line);
 }
 
 /* ── Quick Links ──
