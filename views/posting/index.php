@@ -79,10 +79,28 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 <script>
 jQuery(function ($) {
     'use strict';
-    // Both choices are guided (single: onboarding-guide.js, bulk: onboarding-guide-bulk.js),
-    // so the spotlight frames the pair rather than the single-post card alone.
-    var $card  = $('.create-ai-col').length > 1 ? $('.create-ai-col').parent() : $('.Posting__post-button');
+    // Both choices are guided (single: onboarding-guide.js, bulk: onboarding-guide-bulk.js).
+    // They are introduced one at a time — each card gets its own spotlight and its own
+    // explanation — rather than framing both under one message: Next/Back on the card
+    // switches between them, and so does pointing at the other card. Clicking whichever
+    // card is lit starts that card's guide.
+    var $cols  = $('.create-ai-col');
     var $links = $('.Posting__post-button, .Posting__page-button');
+    var OPTIONS = [
+        {
+            $el:   $cols.eq(0),
+            title: 'Create a single article &#x1F680;',
+            message: 'Writes <strong>one post</strong> from one keyword. You pick the title, settings and cover image, review the article, and publish it. Best for your first try.'
+                   + '<br><br>Click <strong>Create Single AI Post</strong> to start — we’ll guide you through every step.'
+        },
+        {
+            $el:   $cols.eq(1),
+            title: 'Or create many posts at once &#x1F4DA;',
+            message: 'A <strong>Bulk AI Posts Project</strong> writes one post for every keyword in a keyword list, in the background. You’ll need a keyword list first.'
+                   + '<br><br>Click <strong>Create Bulk AI Posts Project</strong> to start — we’ll guide you through every step.'
+        }
+    ];
+    var current = 0;
 
     // Clears the step key an earlier build of onboarding-guide.js used to persist, so a
     // browser that still has one is not carrying dead data. The guide no longer reads or
@@ -97,32 +115,50 @@ jQuery(function ($) {
 
     // ── Tooltip (reuse existing CSS classes) ─────────────────────────
     var $tip = $('<div id="iseo-guide-tooltip"></div>').appendTo('body');
-    $tip.html(
-        '<div class="iseo-guide-tooltip-inner">'
-        + '<div class="iseo-guide-progress"><div class="iseo-guide-progress-bar" style="width:0%"></div></div>'
-        + '<div class="iseo-guide-header">'
-        + '<span class="iseo-guide-bot">&#x1F916;</span>'
-        + '<span class="iseo-guide-step-counter">Getting started</span>'
-        + '</div>'
-        + '<div class="iseo-guide-title">Let\u2019s create your first article! &#x1F680;</div>'
-        + '<div class="iseo-guide-message">Click <strong>Create Single AI Post</strong> for one article, or <strong>Create Bulk AI Posts Project</strong> to write one post for every keyword in a list. We\u2019ll guide you through each step either way.</div>'
-        + '<div class="iseo-guide-actions"><button class="iseo-guide-btn-skip" type="button">Skip guide</button></div>'
-        + '</div>'
-    );
 
-    $tip.find('.iseo-guide-btn-skip').on('click', function () {
+    function skipGuide() {
         $spot.remove();
         $tip.remove();
         $('body').removeClass('iseo-guide-active');
+        $cols.off('mouseenter.iseoguide');
+        $(window).off('.iseoguide');
         // Navigate the cards without onboarding flag
         $links.each(function () {
             $(this).attr('href', $(this).attr('href').replace('&from=onboarding', ''));
         });
-    });
+    }
 
+    function render() {
+        var opt   = OPTIONS[current];
+        var total = OPTIONS.length;
+        var html  = '<div class="iseo-guide-tooltip-inner">'
+            + '<div class="iseo-guide-progress"><div class="iseo-guide-progress-bar" style="width:' + Math.round(((current + 1) / total) * 100) + '%"></div></div>'
+            + '<div class="iseo-guide-header">'
+            + '<span class="iseo-guide-bot">&#x1F916;</span>'
+            + '<span class="iseo-guide-step-counter">Getting started \u00b7 ' + (current + 1) + ' of ' + total + '</span>'
+            + '</div>'
+            + '<div class="iseo-guide-title">' + opt.title + '</div>'
+            + '<div class="iseo-guide-message">' + opt.message + '</div>'
+            + '<div class="iseo-guide-actions">';
+        if (current > 0) {
+            html += '<button class="iseo-guide-btn-next iseo-guide-btn-back" type="button">\u2190 Back</button>';
+        }
+        if (current < total - 1) {
+            html += '<button class="iseo-guide-btn-next iseo-guide-btn-more" type="button">Other option \u2192</button>';
+        }
+        html += '<button class="iseo-guide-btn-skip" type="button">Skip guide</button></div></div>';
+
+        $tip.html(html);
+        $tip.find('.iseo-guide-btn-skip').on('click', skipGuide);
+        $tip.find('.iseo-guide-btn-more').on('click', function () { show(current + 1); });
+        $tip.find('.iseo-guide-btn-back').on('click', function () { show(current - 1); });
+    }
+
+    // Below the lit card if there is room, else above it, else clamped on screen.
     function positionGuide() {
-        if (!$card.length) return;
-        var r   = $card[0].getBoundingClientRect();
+        var $el = OPTIONS[current].$el;
+        if (!$el.length) return;
+        var r   = $el[0].getBoundingClientRect();
         var pad = 10;
         $spot.css({
             top:    (r.top    - pad) + 'px',
@@ -131,25 +167,43 @@ jQuery(function ($) {
             height: (r.height + pad * 2) + 'px'
         });
         var ttW = 300;
-        var ttH = $tip.outerHeight(true) || 200;
-        var top  = r.bottom + 14;
+        var ttH = $tip.outerHeight(true) || 220;
+        var vw  = window.innerWidth, vh = window.innerHeight;
+        var top = r.bottom + 14, side = 'bottom';
+        if (top + ttH > vh - 10 && r.top - ttH - 14 >= 10) {
+            top  = r.top - ttH - 14;
+            side = 'top';
+        }
         var left = r.left + r.width / 2 - ttW / 2;
-        var vw   = window.innerWidth, vh = window.innerHeight;
         top  = Math.max(10, Math.min(top,  vh - ttH - 10));
         left = Math.max(10, Math.min(left, vw - ttW - 10));
         $tip.css({ top: top + 'px', left: left + 'px', width: ttW + 'px' });
-        $tip.attr('data-pos', 'bottom');
+        $tip.attr('data-pos', side);
+    }
+
+    function show(i) {
+        if (i < 0 || i >= OPTIONS.length || !OPTIONS[i].$el.length) return;
+        current = i;
+        render();
+        positionGuide();
     }
 
     $('body').addClass('iseo-guide-active');
     $spot.show();
 
     setTimeout(function () {
-        positionGuide();
+        show(0);
         $tip.show();
     }, 200);
 
-    $(window).on('resize scroll', function () { positionGuide(); });
+    // Pointing at the other card introduces that one instead.
+    $cols.each(function (i) {
+        $(this).on('mouseenter.iseoguide', function () {
+            if (i !== current) show(i);
+        });
+    });
+
+    $(window).on('resize.iseoguide scroll.iseoguide', function () { positionGuide(); });
 });
 </script>
 <?php endif; ?>
