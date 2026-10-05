@@ -69,7 +69,10 @@
  *   26  review-project    (page)  .PostForm__name-wrap           next-btn      ← review project name
  *   27  review-title      (page)  .PostForm__title-wrap          next-btn      ← review post title
  *   28  review-content    (page)  .PostForm__body-wrap           next-btn      ← review article content
- *   29  review-publish    (page)  button[name="create"]          final         ← Done → submits form
+ *   29  review-categories (page)  #side-sortables > .postbox:first             next-btn
+ *   30  review-seo        (page)  #side-sortables > .postbox:has(#google-preview) next-btn
+ *   31  review-preview    (page)  #preview_on                    next-btn      ← optional preview
+ *   32  review-publish    (page)  button[name="create"]          final         ← Done → submits form
  */
 (function ($) {
     'use strict';
@@ -350,6 +353,24 @@
             title: 'Review your content',
             message: 'Read through your article. Edit anything you\u2019d like directly here, then click <strong>Next \u2192</strong>.',
             position: 'left', advance: 'next-btn'
+        },
+        {
+            key: 'review-categories', phase: 'page', target: '#side-sortables > .postbox:first',
+            title: 'Check the categories',
+            message: 'The categories you picked in the wizard are ticked here. Tick or untick any you like, or type a new one and press <strong>Add</strong>. Then click <strong>Next \u2192</strong>.',
+            position: 'left', advance: 'next-btn'
+        },
+        {
+            key: 'review-seo', phase: 'page', target: '#side-sortables > .postbox:has(#google-preview)',
+            title: 'Google preview & meta details',
+            message: 'This is how your post will look in Google search results. The meta title and description you approved in the wizard are below the preview \u2014 edit them here if you want. Then click <strong>Next \u2192</strong>.',
+            position: 'left', advance: 'next-btn'
+        },
+        {
+            key: 'review-preview', phase: 'page', target: '#preview_on',
+            title: 'Preview your post (optional)',
+            message: 'Want to see the finished page before it goes live? Click <strong>Preview Post</strong> \u2014 it can take up to 30 seconds. Or skip it and click <strong>Next \u2192</strong>.',
+            position: 'top', advance: 'next-btn'
         },
         /* 25 */ {
             key: 'review-publish', phase: 'page', target: 'button[name="create"]',
@@ -1197,6 +1218,41 @@
     }
 
     /* ─────────────────────────────────────────────────────────
+       MODAL → CREATE-POST PAGE
+       Submit: the wizard's own handler calls saveFinalData(), which uses jQuery.hide()
+       (NOT Bootstrap .modal('hide')) — so hidden.bs.modal never fires. Reached from the
+       Submit click, and from bindEvents()' watcher as a floor should that click ever
+       go unheard. Runs once.
+    ───────────────────────────────────────────────────────── */
+    var _pageReviewStarted = false;
+    function startPageReview() {
+        if (_pageReviewStarted) return;
+        _pageReviewStarted = true;
+
+        $tooltip.hide();
+        $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
+
+        // Stop the panel watcher — it reads #step_value which only exists
+        // inside the wizard modal; continuing would misfire on the form page.
+        clearInterval(_syncTmr);
+        _syncTmr = null;
+
+        // Give saveFinalData() time to populate the form fields, insert
+        // content into TinyMCE, and hide the modal — then reveal the form
+        // and start the page-review steps.
+        setTimeout(function () {
+            // Remove the Bootstrap modal backdrop that may linger after .hide()
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+            // Reveal the underlying form
+            $('.style_create_page_form').removeAttr('style').css({ opacity: 1, visibility: 'visible' });
+            // Remove the dock body class — page steps are not docked.
+            $('body').removeClass('iseo-guide-dock');
+            showStep(STEP_REVIEW_START);
+        }, 800);
+    }
+
+    /* ─────────────────────────────────────────────────────────
        WAITING TOOLTIP (shown during AI generation)
     ───────────────────────────────────────────────────────── */
     function showWaitingTooltip(title, message, pct, counterLabel) {
@@ -1430,7 +1486,14 @@
         // For wizard-next steps the user must click the real Next button;
         // guide advances when we detect that click.
         // Steps with pollTarget are handled by the poll started in showStep — skip them here.
-        $(document).on('click.iseoguide', '#nextStepButton', function () {
+        //
+        // Bound DIRECTLY to the button, not delegated from document — same reason as the
+        // media start controls below. On Submit the wizard's own click handler runs
+        // saveFinalData() and sets nextStepButton.disabled = true synchronously, and
+        // jQuery's delegated dispatch skips a disabled click target. A delegated handler
+        // therefore never heard Submit: the modal closed, the form appeared, and the card
+        // sat on "Publish your Article!" in the corner instead of starting the page review.
+        $('#nextStepButton').on('click.iseoguide', function () {
             if (currentStep < 0 || currentStep >= STEPS.length) return;
             var step = STEPS[currentStep];
             if (step.advance !== 'wizard-next') return;
@@ -1448,30 +1511,7 @@
                 }, 0);
                 startArticleWait();
             } else if (currentStep === STEP_SUBMIT_IDX) {
-                // Submit: the wizard's own handler calls saveFinalData(), which uses
-                // jQuery.hide() (NOT Bootstrap .modal('hide')) — so hidden.bs.modal
-                // never fires. Do the modal→form transition right here instead.
-                $tooltip.hide();
-                $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
-
-                // Stop the panel watcher — it reads #step_value which only exists
-                // inside the wizard modal; continuing would misfire on the form page.
-                clearInterval(_syncTmr);
-                _syncTmr = null;
-
-                // Give saveFinalData() time to populate the form fields, insert
-                // content into TinyMCE, and hide the modal — then reveal the form
-                // and start the page-review steps.
-                setTimeout(function () {
-                    // Remove the Bootstrap modal backdrop that may linger after .hide()
-                    $('.modal-backdrop').remove();
-                    $('body').removeClass('modal-open');
-                    // Reveal the underlying form
-                    $('.style_create_page_form').removeAttr('style').css({ opacity: 1, visibility: 'visible' });
-                    // Remove the dock body class — page steps are not docked.
-                    $('body').removeClass('iseo-guide-dock');
-                    showStep(STEP_REVIEW_START);
-                }, 800);
+                startPageReview();
             } else {
                 // The panel watcher polls #step_value on its own fixed interval,
                 // independent of this click, and the wizard updates #step_value
@@ -1577,6 +1617,16 @@
                 }
             }
             _mediaWasLoading = loading;
+
+            // Floor under the Submit click: on the submit step, once the wizard has
+            // closed itself (#exampleModal1 hidden by saveFinalData()), move on to the
+            // page review whether or not the click was heard.
+            // #step_value 7 is the wizard's own "submitted" panel (updateButtonText() runs
+            // saveFinalData() there), so closing the modal with its X does not count.
+            if (currentStep === STEP_SUBMIT_IDX && !$('#exampleModal1').is(':visible') &&
+                parseInt($('#step_value').val(), 10) >= 7) {
+                startPageReview();
+            }
         }, 200);
 
         /* ── Reposition on resize / scroll ──────────────────── */
@@ -1613,6 +1663,7 @@
         $(window).off('.iseoguide');
         $(document).off('.iseoguide');
         $('#exampleModal1').off('.iseoguide');
+        $('#nextStepButton').off('.iseoguide');
         clearTimeout(_reposTmr);
         clearInterval(_syncTmr);
         clearInterval(_mediaLoadTmr);
