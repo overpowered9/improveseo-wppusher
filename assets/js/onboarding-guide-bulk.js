@@ -30,13 +30,20 @@
     var MODAL = '#exampleModal2';
     var NEXT  = '#nextStepButton_multi';
 
+    // Two places this guide runs: the wizard (create_post_bulk) and, after Submit, the
+    // Bulk Projects list the wizard redirects to (page=improveseo_bulkprojects — the
+    // redirect carries from=onboarding while this guide is active, see
+    // custom-plugin-script.js). init() picks one; SCOPE is where step targets are looked up.
+    var PAGE_MODE = !$(MODAL).length && $('.project_table_listing').length > 0;
+    var SCOPE     = PAGE_MODE ? 'body' : MODAL;
+
     /* ── Steps ───────────────────────────────────────────────────
        panel   0-based wizard panel the step belongs to
        kind    'field'  — the card has its own Next button
                'next'   — the user presses the wizard's Next; the panel watcher moves on
                'submit' — the wizard's Submit, last step
        needs   (optional) step only counts when this element exists on the page */
-    var STEPS = [
+    var WIZARD_STEPS = [
         /* Panel 0 — Keyword & Post Title */
         {
             panel: 0, kind: 'field', target: '#keyword_list_name', position: 'bottom',
@@ -167,16 +174,60 @@
         }
     ];
 
+    /* ── After Submit: the Bulk Projects list ────────────────────
+       The newest project is the highlighted row when the list marks one, otherwise the
+       first row (the list opens newest-first). 'done' is the last card: Done closes it. */
+    var NEW_ROW = '@new-row'; // resolved by targetOf()
+    var PAGE_STEPS = [
+        {
+            kind: 'field', target: NEW_ROW, position: 'bottom',
+            title: 'Your bulk project is created! 🎉',
+            message: 'This is your new project. <strong>Post Count</strong> is how many posts it will write — one per keyword. The posts are written in the background, so you can leave this page.'
+        },
+        {
+            kind: 'field', target: NEW_ROW, cell: 'td[data-label="Project Status"]', position: 'left',
+            title: 'Project status',
+            message: '<strong>Processing</strong> while the posts are being written, <strong>Completed</strong> once they all are. Refresh this page to check — we’ll also email you when it’s done.'
+        },
+        {
+            kind: 'field', target: NEW_ROW, cell: 'td[data-label="Publish Mode"]', position: 'left',
+            title: 'Publish mode',
+            message: 'What happens to each post when it’s ready — published straight away, saved as a draft, or published on your schedule. This is the choice you made in the wizard.'
+        },
+        {
+            kind: 'done', target: NEW_ROW, cell: '.action-btn-pop', position: 'left',
+            title: 'Manage your project',
+            message: 'Open this <strong>⋯</strong> menu to <strong>View All Posts Within Project</strong> (review or edit each one), cancel while it’s processing, export the post URLs, or delete the project.'
+        }
+    ];
+
+    var STEPS = PAGE_MODE ? PAGE_STEPS : WIZARD_STEPS;
+
     /* ── State ─────────────────────────────────────────────────── */
     var current   = -1;
     var $tooltip  = null;
+    var $spotlight = null; // list page only — see positionSpotlight()
     var _watchTmr = null;
     var _posTmr   = null;
     var _done     = false;
     var counted   = [];   // indices of the steps that count toward "Step X of N"
 
     function $in(selector) {
-        return $(MODAL).find(selector);
+        return $(SCOPE).find(selector);
+    }
+
+    // What a step points at. List-page steps can narrow to one cell (cell) of the new
+    // project's row: the row the list highlights, else its first row (newest first).
+    function targetOf(step) {
+        var $t;
+        if (step.target === NEW_ROW) {
+            $t = $('.project_table_listing tbody tr.WHProject--highlight').filter(':visible').first();
+            if (!$t.length) $t = $('.project_table_listing tbody tr').filter(':visible').first();
+        } else {
+            $t = $in(step.target).filter(':visible').first();
+        }
+        if (step.cell && $t.length) $t = $t.find(step.cell).filter(':visible').first();
+        return $t;
     }
 
     function stepCounts(i) {
@@ -236,7 +287,7 @@
              +  '<span class="iseo-guide-step-counter">Step ' + pos + ' of ' + counted.length + '</span></div>';
         html += '<div class="iseo-guide-title">' + step.title + '</div>';
         html += '<div class="iseo-guide-message">' + step.message;
-        if (step.kind !== 'field') {
+        if (step.kind === 'next' || step.kind === 'submit') {
             html += '<br><small>↓ Click the <strong>' + (step.kind === 'submit' ? 'Submit' : 'Next') + '</strong> button below to continue</small>';
         }
         html += '<span class="iseo-bulk-guide-wait" style="display:none;"><br><small>' + (step.waitMessage || '') + '</small></span>';
@@ -244,13 +295,15 @@
         html += '<div class="iseo-guide-actions">';
         if (step.kind === 'field') {
             html += '<button class="iseo-guide-btn-next" type="button">Next →</button>';
+        } else if (step.kind === 'done') {
+            html += '<button class="iseo-guide-btn-next iseo-guide-btn-final iseo-bulk-guide-done" type="button">Done ✓</button>';
         }
         html += '<button class="iseo-guide-btn-skip" type="button">Skip guide</button>';
         html += '</div></div>';
 
         $tooltip.html(html).show();
-        $tooltip.find('.iseo-guide-btn-skip').on('click', destroy);
-        $tooltip.find('.iseo-guide-btn-next').on('click', function () {
+        $tooltip.find('.iseo-guide-btn-skip, .iseo-bulk-guide-done').on('click', destroy);
+        $tooltip.find('.iseo-guide-btn-next').not('.iseo-bulk-guide-done').on('click', function () {
             if (!stepHasValue(STEPS[current])) {
                 $tooltip.find('.iseo-bulk-guide-wait').show();
                 return;
@@ -276,10 +329,11 @@
     // the viewport; if none does, the closest one clamped on screen.
     function place() {
         if (current < 0 || !$tooltip.is(':visible')) return;
-        var $t = $in(STEPS[current].target).filter(':visible').first();
+        var $t = targetOf(STEPS[current]);
         if (!$t.length) return;
 
         var r   = $t[0].getBoundingClientRect();
+        positionSpotlight(r);
         var ttW = Math.min(300, window.innerWidth - 20);
         $tooltip.css({ width: ttW + 'px' });
         var ttH = $tooltip.outerHeight(true) || 200;
@@ -322,6 +376,18 @@
         }).attr('data-pos', side);
     }
 
+    // List page only: the dimmed-page spotlight around the step's target.
+    function positionSpotlight(r) {
+        if (!$spotlight) return;
+        var pad = 8;
+        $spotlight.css({
+            top:    (r.top    - pad) + 'px',
+            left:   (r.left   - pad) + 'px',
+            width:  (r.width  + pad * 2) + 'px',
+            height: (r.height + pad * 2) + 'px'
+        }).show();
+    }
+
     function schedulePlace(delay) {
         clearTimeout(_posTmr);
         _posTmr = setTimeout(place, delay || 60);
@@ -334,7 +400,7 @@
 
         // A field that isn't on screen (e.g. the keywords box before a list is chosen)
         // has nothing to point at — move on to the next step of the same panel.
-        if (step.kind === 'field' && !$in(step.target).filter(':visible').length) {
+        if (step.kind === 'field' && !targetOf(step).length) {
             var n = nextCountedStep(i);
             if (n >= 0 && STEPS[n].panel === step.panel) { showStep(n); return; }
         }
@@ -343,9 +409,11 @@
         $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
         render(i);
 
-        var $t = $in(step.target).filter(':visible').first();
+        var $t = targetOf(step);
         if ($t.length) {
-            $t.addClass('iseo-guide-highlight');
+            // Inside the modal the field glows; on the list page the spotlight frames it
+            // instead (an outline on a table row doesn't reliably render).
+            if (!PAGE_MODE) $t.addClass('iseo-guide-highlight');
             // The modal is its own scroll container; this scrolls it, not the page.
             $t[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
@@ -382,6 +450,8 @@
         clearTimeout(_posTmr);
         $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
         if ($tooltip) $tooltip.remove();
+        if ($spotlight) $spotlight.remove();
+        window.iseoBulkGuideActive = false;
         $('body').removeClass('iseo-guide-active');
         $(window).off('.iseobulkguide');
         $(NEXT).off('.iseobulkguide');
@@ -392,7 +462,7 @@
 
     /* ── Start ─────────────────────────────────────────────────── */
     function init() {
-        if (!$(MODAL).length) return;
+        if (!$(MODAL).length && !PAGE_MODE) return;
 
         for (var i = 0; i < STEPS.length; i++) {
             if (stepCounts(i)) counted.push(i);
@@ -400,6 +470,21 @@
 
         $tooltip = $('<div id="iseo-guide-tooltip"></div>').appendTo('body');
         $('body').addClass('iseo-guide-active');
+
+        if (PAGE_MODE) {
+            // No project rows (e.g. the create failed and the list is empty): nothing to show.
+            if (!targetOf(PAGE_STEPS[0]).length) { destroy(); return; }
+            $spotlight = $('<div id="iseo-guide-spotlight"></div>').appendTo('body');
+            $(window).on('resize.iseobulkguide', function () { schedulePlace(80); });
+            document.addEventListener('scroll', onScroll, true);
+            setTimeout(function () { showStep(0); }, 300);
+            return;
+        }
+
+        // Read by the wizard's submit handler (custom-plugin-script.js): while this is set,
+        // the redirect to the Bulk Projects list carries from=onboarding, so the guide
+        // continues there.
+        window.iseoBulkGuideActive = true;
 
         // Submit. Bound directly, not delegated from document: a delegated jQuery click
         // is skipped when the target is disabled, and the wizard's own handler disables

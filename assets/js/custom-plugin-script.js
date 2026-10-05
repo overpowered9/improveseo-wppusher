@@ -1740,8 +1740,14 @@ jQuery(document).ready(function ($) {
           }
           
           // Redirect after brief delay
+          // While the bulk onboarding guide is running it continues on the projects
+          // list (see assets/js/onboarding-guide-bulk.js) — carry its flag across.
+          var redirectTo = response.data.linkredirect;
+          if (window.iseoBulkGuideActive) {
+            redirectTo += (redirectTo.indexOf('?') === -1 ? '?' : '&') + 'from=onboarding';
+          }
           setTimeout(function() {
-            window.location.replace(response.data.linkredirect);
+            window.location.replace(redirectTo);
           }, 1500);
         } else {
           // Show error notification

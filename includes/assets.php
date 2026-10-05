@@ -373,7 +373,11 @@ function improveseo_enqueue_onboarding_assets() {
 add_action( 'admin_enqueue_scripts', 'improveseo_enqueue_guide_assets' );
 
 function improveseo_enqueue_guide_assets() {
-	if ( ! isset( $_GET['page'] ) || $_GET['page'] !== 'improveseo_posting' ) {
+	// improveseo_bulkprojects: the list the bulk wizard redirects to after Submit; the
+	// bulk guide finishes its tour there (only the list itself, not its sub-actions).
+	$guide_page = isset( $_GET['page'] ) ? $_GET['page'] : '';
+	$is_bulk_list = ( $guide_page === 'improveseo_bulkprojects' && empty( $_GET['action'] ) );
+	if ( $guide_page !== 'improveseo_posting' && ! $is_bulk_list ) {
 		return;
 	}
 	if ( ! isset( $_GET['from'] ) || $_GET['from'] !== 'onboarding' ) {
@@ -389,7 +393,7 @@ function improveseo_enqueue_guide_assets() {
 
 	// The bulk wizard has its own guide (different fields and panels); the single-post
 	// guide covers the card-choice page and the single-post wizard.
-	$guide_js = ( isset( $_GET['action'] ) && $_GET['action'] === 'create_post_bulk' )
+	$guide_js = ( $is_bulk_list || ( isset( $_GET['action'] ) && $_GET['action'] === 'create_post_bulk' ) )
 		? 'assets/js/onboarding-guide-bulk.js'
 		: 'assets/js/onboarding-guide.js';
 
