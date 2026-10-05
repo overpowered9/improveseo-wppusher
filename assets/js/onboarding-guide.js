@@ -105,6 +105,7 @@
             // custom-plugin-script.js refreshAIImage() → fills on success
             done: '#AI-Image-uploaded-path',
             startOn: { target: '#AIrefreshOption button', event: 'click' },
+            pointAt: '#AIrefreshOption button',
             selectTitle:   'AI Image From Title',
             selectMessage: 'We’ll write a prompt from your title and create a cover. Press <strong>Generate AI image</strong>. Uses {imageCost}.',
             busyTitle:     'Creating your cover image &#x23F3;',
@@ -116,6 +117,7 @@
             // custom-plugin-script.js #generate_i_image handler → fills on success
             done: '#AI-Prompt-Image-uploaded-path',
             startOn: { target: '#generate_i_image', event: 'click' },
+            pointAt: '#generate_i_image',
             selectTitle:   'AI Image - Custom Prompt',
             selectMessage: 'Describe the cover image you want, then press <strong>Generate AI Image</strong>. Uses {imageCost}.',
             busyTitle:     'Creating your cover image &#x23F3;',
@@ -412,6 +414,7 @@
     var _syncTmr     = null;  // panel watcher (see syncGuideToWizardPanel)
     var _mediaWaitTimer = null; // the ACTIVE per-method poll — see startMediaWait()
     var _mediaLoadTmr   = null; // loading-screen watcher for regenerating — see bindEvents
+    var _mediaPointAt   = null; // Generate button the media card points at — see applyMediaMethodState()
 
     /* ─────────────────────────────────────────────────────────
        INIT
@@ -705,6 +708,7 @@
 
         _waiting    = false;
         _waitingFor = -1;
+        _mediaPointAt = null;
         currentStep = index;
         var step    = STEPS[index];
         var $target = $(step.target);
@@ -807,6 +811,13 @@
        dockAboveMediaRow() for where "docked" actually puts it on this step.
     ───────────────────────────────────────────────────────── */
     function placeTooltip(step, $target) {
+        // Add Media, method picked, waiting for the user to press Generate: point at
+        // that button instead of docking — see applyMediaMethodState().
+        var $point = _mediaPointAt ? $(_mediaPointAt).filter(':visible').first() : $();
+        if (step === STEPS[STEP_MEDIA_IDX] && $point.length) {
+            positionTooltip($point, 'right');
+            return;
+        }
         if (step && step.dock) {
             dockTooltip();
         } else {
@@ -1052,7 +1063,20 @@
             stepPercent(STEP_MEDIA_IDX),
             stepCounterLabel(STEP_MEDIA_IDX)
         );
+        // The next thing to do is press this method's Generate button, so the card sits
+        // beside it and it gets the guide glow too. The upload path has no such button
+        // (its control is the file picker), so it keeps the docked card.
+        _mediaPointAt = def.pointAt || null;
         redockMediaCard();
+        if (_mediaPointAt) {
+            // The method's panel is revealed by the plugin's own change handler, which
+            // may run after this one — measure once it is actually on screen.
+            setTimeout(function () {
+                if (currentStep !== STEP_MEDIA_IDX || !_mediaPointAt) return;
+                $(_mediaPointAt).filter(':visible').addClass('iseo-guide-highlight');
+                redockMediaCard();
+            }, 60);
+        }
         startMediaWait(def);
     }
 
@@ -1092,6 +1116,7 @@
     // needs to be told what is happening and that it is normal to wait.
     function showMediaBusyCard(def) {
         if (!def) return;
+        _mediaPointAt = null; // back to the docked card while it works
         $('.iseo-guide-highlight').removeClass('iseo-guide-highlight');
         showWaitingTooltip(def.busyTitle, def.busyMessage, stepPercent(STEP_MEDIA_IDX));
         redockMediaCard();
