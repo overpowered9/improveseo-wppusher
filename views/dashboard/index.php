@@ -171,7 +171,6 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 
 					<p class="iseo-quickstart-msg" data-qs-msg="ready" <?php echo ( 'ready' === $iseo_qs_state ) ? '' : 'hidden'; ?>>
 						Create local SEO content now!
-						<a href="<?php echo esc_url( $iseo_qs_create_url ); ?>" class="iseo-quickstart-link">Create now</a>
 					</p>
 
 					<p class="iseo-quickstart-msg" data-qs-msg="low" <?php echo ( 'low' === $iseo_qs_state ) ? '' : 'hidden'; ?>>
@@ -185,6 +184,9 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 						<a href="<?php echo esc_url( $iseo_qs_connect_url ); ?>" class="iseo-quickstart-link">Connect now</a>
 						to create content!
 					</p>
+
+					<?php // Same button as the support cards'; carries data-qs-msg so iseoQsShow() shows it only in the 'ready' state. ?>
+					<a href="<?php echo esc_url( $iseo_qs_create_url ); ?>" class="iseo-btn iseo-btn-solid iseo-support-cta" data-qs-msg="ready" <?php echo ( 'ready' === $iseo_qs_state ) ? '' : 'hidden'; ?>>Create now</a>
 
 					<?php if ( $iseo_qs_has_creds ) : ?>
 					<!-- No-JS fallback: with JS disabled the credit check never runs, so show the
@@ -337,7 +339,7 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 					<p class="iseo-quickstart-msg" data-qs-msg="ready">
 						Still learning how to get started? Create content with our step-by-step Wizard Guide.
 					</p>
-					<a href="<?php echo esc_url( $iseo_gs_guide_url ); ?>" class="iseo-quickstart-link">Start the guide</a>
+					<a href="<?php echo esc_url( $iseo_gs_guide_url ); ?>" class="iseo-btn iseo-btn-solid iseo-support-cta">Start the guide</a>
 				</div>
 			</div>
 

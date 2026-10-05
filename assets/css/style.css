@@ -543,9 +543,26 @@ ul.breadcrumb-seo li a:hover {
   align-self: stretch;
 }
 
-.iseo-support-card .iseo-quickstart-msg {
+.iseo-support-card .iseo-quickstart-msg,
+#iseo-quickstart-card .iseo-quickstart-msg,
+.iseo-guidedstart-card .iseo-quickstart-msg {
   padding-bottom: 14px;
 }
+
+/* .iseo-btn's display:inline-block beats [hidden]; Quick Start's "Create now" button
+   is toggled by iseoQsShow() through that attribute. */
+.iseo-dash .iseo-btn[hidden] {
+  display: none;
+}
+
+/* Row order: Quick Start, Guided Start, New here, Need a hand, Plan, then the two
+   credit tiles on the far right. */
+#iseo-quickstart-card        { order: 1; }
+#iseo-guidedstart-card       { order: 2; }
+.iseo-support-card           { order: 3; }
+#iseo-plan-card              { order: 4; }
+#iseo-credits-remaining-card { order: 5; }
+#iseo-credits-used-card      { order: 6; }
 
 /* ── Credits Remaining / Credits Used: eyebrow, big figure, caption ── */
 .iseo-dash .iseo-stat-card .iseo-quickstart-title {
