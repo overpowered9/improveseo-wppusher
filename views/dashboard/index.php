@@ -89,6 +89,15 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 		$iseo_qs_creds       = improveseo_connection_credentials();
 		$iseo_qs_has_creds   = ($iseo_qs_creds['api_key'] !== '' && $iseo_qs_creds['site_code'] !== '');
 		$iseo_qs_state       = $iseo_qs_has_creds ? 'loading' : 'disconnected';
+		// Last known balance (includes/connection-status.php, improveseo_store_credit_snapshot()),
+		// so a connected site opens on its real state instead of "Checking your account…" and
+		// every card in the row is drawn up front — the live check below only refreshes values
+		// in place, it no longer pops cards in a few seconds after the page loads.
+		$iseo_qs_snapshot    = $iseo_qs_has_creds ? get_option('improveseo_credit_snapshot') : null;
+		$iseo_qs_snap_total  = ( is_array( $iseo_qs_snapshot ) && isset( $iseo_qs_snapshot['total'] ) ) ? (int) $iseo_qs_snapshot['total'] : null;
+		if ( $iseo_qs_snap_total !== null ) {
+			$iseo_qs_state = ( $iseo_qs_snap_total < IMPROVESEO_LOW_CREDIT_THRESHOLD ) ? 'low' : 'ready';
+		}
 		$iseo_qs_create_url  = admin_url('admin.php?page=improveseo_posting');
 		// No #iseo-connect-guide fragment: landing mid-page, scrolled past the page's own
 		// header, read as broken. Settings opens at the top like any other page.
@@ -201,23 +210,33 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 			//
 			// Same data the site-wide notice's snapshot is built from (credit_details.content,
 			// balance.next_expiry_at/amount) — read here straight from the SAME AJAX response
-			// Quick Start's own check already fetches, not a second network call. Hidden until
-			// that resolves, like Active Plan.
+			// Quick Start's own check already fetches, not a second network call. Drawn up front
+			// from the cached snapshot (or "—") so the row never reflows, then refreshed in place.
 			//
 			// "iseo-stat-card", not the older "iseo-credits-card": settings-redesign.css is
 			// enqueued on every plugin screen and styles .iseo-credits-card (the Settings
 			// connection panel) with a top border and spacing that leaked onto these tiles.
 			$iseo_credits_url = 'https://account.improveseoplugin.com/credits';
 			?>
-			<div class="iseo-quickstart-card iseo-stat-card" id="iseo-credits-remaining-card" hidden>
+			<?php
+			$iseo_cr_figure = ( $iseo_qs_snap_total !== null ) ? number_format_i18n( $iseo_qs_snap_total ) . ' credits' : '';
+			$iseo_cr_expiry = '';
+			if ( $iseo_qs_snap_total !== null ) {
+				$iseo_cr_expiry_ts = ! empty( $iseo_qs_snapshot['next_expiry_at'] ) ? strtotime( $iseo_qs_snapshot['next_expiry_at'] . ' 00:00:00 UTC' ) : false;
+				$iseo_cr_expiry    = ( $iseo_cr_expiry_ts && isset( $iseo_qs_snapshot['next_expiry_amount'] ) )
+					? number_format_i18n( (int) $iseo_qs_snapshot['next_expiry_amount'] ) . ' credits expire on ' . gmdate( 'j M Y', $iseo_cr_expiry_ts )
+					: 'No credits expiring soon';
+			}
+			?>
+			<div class="iseo-quickstart-card iseo-stat-card" id="iseo-credits-remaining-card" <?php echo $iseo_qs_has_creds ? '' : 'hidden'; ?>>
 				<div class="iseo-card-top">
 					<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'database' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 					<a class="iseo-card-chevron" href="<?php echo esc_url( $iseo_credits_url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="Credits"><?php echo iseo_dash_icon( 'chevron', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
 				</div>
 				<div class="iseo-quickstart-body">
 					<h3 class="iseo-quickstart-title">Credits Remaining</h3>
-					<p class="iseo-quickstart-msg iseo-credits-figure" id="iseo-credits-remaining-figure">&mdash;</p>
-					<p class="iseo-quickstart-msg" id="iseo-credits-remaining-expiry"></p>
+					<p class="iseo-quickstart-msg iseo-credits-figure" id="iseo-credits-remaining-figure"><?php echo $iseo_cr_figure !== '' ? esc_html( $iseo_cr_figure ) : '&mdash;'; ?></p>
+					<p class="iseo-quickstart-msg" id="iseo-credits-remaining-expiry"><?php echo esc_html( $iseo_cr_expiry ); ?></p>
 				</div>
 			</div>
 
@@ -237,7 +256,7 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 			// plan_remaining is genuinely "spent from this cycle's allowance", just not broken
 			// down by what it was spent on.
 			?>
-			<div class="iseo-quickstart-card iseo-stat-card" id="iseo-credits-used-card" hidden>
+			<div class="iseo-quickstart-card iseo-stat-card" id="iseo-credits-used-card" <?php echo $iseo_qs_has_creds ? '' : 'hidden'; ?>>
 				<div class="iseo-card-top">
 					<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'pie' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 					<a class="iseo-card-chevron" href="<?php echo esc_url( $iseo_credits_url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="Credit usage"><?php echo iseo_dash_icon( 'chevron', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
@@ -264,12 +283,12 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 			// plugin's own existing canonical resolver, already used by Settings, so this
 			// card cannot name a plan differently from anywhere else in the plugin.
 			//
-			// For a connected site it stays hidden until the same AJAX call Quick Start already
-			// makes resolves — no second network request. A disconnected site has no plan data
+			// For a connected site it is drawn up front with placeholders and filled in when the
+			// same AJAX call Quick Start already makes resolves — no second network request. A disconnected site has no plan data
 			// to wait for, so it renders straight away in a "not connected" state pointing at
 			// the same connect guide Quick Start does, rather than leaving a hole in the row.
 			?>
-			<div class="iseo-quickstart-card iseo-plan-card" id="iseo-plan-card" data-plan-state="<?php echo $iseo_qs_has_creds ? 'loading' : 'disconnected'; ?>" <?php echo $iseo_qs_has_creds ? 'hidden' : ''; ?>>
+			<div class="iseo-quickstart-card iseo-plan-card" id="iseo-plan-card" data-plan-state="<?php echo $iseo_qs_has_creds ? 'loading' : 'disconnected'; ?>">
 				<div class="iseo-card-top">
 					<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'crown' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 					<a class="iseo-card-chevron" id="iseo-plan-chevron" href="<?php echo esc_url( $iseo_qs_has_creds ? $iseo_qs_plans_url : $iseo_qs_connect_url ); ?>" <?php echo $iseo_qs_has_creds ? 'target="_blank" rel="noopener noreferrer"' : ''; ?> aria-label="Plan"><?php echo iseo_dash_icon( 'chevron', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
@@ -307,7 +326,8 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 			// one to keep in sync.
 			$iseo_gs_guide_url = admin_url('admin.php?page=improveseo_posting&from=onboarding');
 			?>
-			<div class="iseo-quickstart-card iseo-guidedstart-card" id="iseo-guidedstart-card" hidden>
+			<?php // Drawn up front for a connected site unless the snapshot already says "low"; the live check hides it if the account turns out not to be ready. ?>
+			<div class="iseo-quickstart-card iseo-guidedstart-card" id="iseo-guidedstart-card" <?php echo ( $iseo_qs_has_creds && 'low' !== $iseo_qs_state ) ? '' : 'hidden'; ?>>
 				<div class="iseo-card-top">
 					<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'send' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 					<a class="iseo-card-chevron" href="<?php echo esc_url( $iseo_gs_guide_url ); ?>" aria-label="Guided Start"><?php echo iseo_dash_icon( 'chevron', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
@@ -359,7 +379,7 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 		document.addEventListener('DOMContentLoaded', function () {
 			var card       = document.getElementById('iseo-quickstart-card');
 			var guideCard  = document.getElementById('iseo-guidedstart-card');
-			if (!card || card.getAttribute('data-state') !== 'loading') { return; }
+			if (!card) { return; }
 
 			function iseoQsShow(state) {
 				card.setAttribute('data-state', state);
