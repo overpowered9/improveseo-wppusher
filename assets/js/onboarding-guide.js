@@ -411,6 +411,7 @@
     var _reposTmr    = null;
     var _syncTmr     = null;  // panel watcher (see syncGuideToWizardPanel)
     var _mediaWaitTimer = null; // the ACTIVE per-method poll — see startMediaWait()
+    var _mediaLoadTmr   = null; // loading-screen watcher for regenerating — see bindEvents
 
     /* ─────────────────────────────────────────────────────────
        INIT
@@ -1107,6 +1108,11 @@
     // Image Ready" while Upload — the method actually on screen — had done nothing at
     // all. Cancelling the previous timer before starting a new one means only the
     // CURRENTLY selected method's own field can ever trigger the advance.
+    //
+    // A filled field alone is not "done": on a REGENERATE the field still holds the
+    // previous image's path while the new one is being made, so the guide said "Cover
+    // Image Ready" over the plugin's own "we're getting your AI image ready" screen.
+    // Done therefore also requires that loading screen to be gone.
     function startMediaWait(def) {
         if (_mediaWaitTimer) {
             clearInterval(_mediaWaitTimer);
@@ -1114,23 +1120,53 @@
         }
         _waiting    = true;
         _waitingFor = STEP_MEDIA_IDX;
-        _mediaWaitTimer = waitForValue(def.done, function () {
-            _mediaWaitTimer = null;
-            if (_waiting && currentStep === STEP_MEDIA_IDX) {
-                _waiting = false;
-                showStep(STEP_MEDIA_IDX + 1); // → media-next (wizard-next)
+
+        var tries      = 0;
+        var max        = 90 * 5;
+        var sawLoading = false;
+
+        function restoreInstructions() {
+            if (currentStep !== STEP_MEDIA_IDX) return;
+            var def2 = currentMediaMethod();
+            if (def2) applyMediaMethodState(def2);
+            else showStep(STEP_MEDIA_IDX);
+        }
+
+        _mediaWaitTimer = setInterval(function () {
+            var loading = mediaImageLoading();
+            var val     = $(def.done).val();
+            var filled  = !!(val && val.trim().length > 0);
+            if (loading) sawLoading = true;
+
+            if (filled && !loading) {
+                clearInterval(_mediaWaitTimer);
+                _mediaWaitTimer = null;
+                if (_waiting && currentStep === STEP_MEDIA_IDX) {
+                    _waiting = false;
+                    showStep(STEP_MEDIA_IDX + 1); // → media-next (wizard-next)
+                }
+            } else if (sawLoading && !loading && !filled) {
+                // Generation ran and ended with no image (an error) — put this method's
+                // own instructions back now instead of "please wait" for the full 90s.
+                clearInterval(_mediaWaitTimer);
+                _mediaWaitTimer = null;
+                restoreInstructions();
+            } else if (++tries >= max) {
+                // Nothing after 90s — it failed, or the user walked away from it. Put this
+                // method's own instructions back rather than leaving a stale "please wait";
+                // re-renders the SAME step, it does not advance.
+                clearInterval(_mediaWaitTimer);
+                _mediaWaitTimer = null;
+                restoreInstructions();
             }
-        }, 90, function () {
-            _mediaWaitTimer = null;
-            // Nothing after 90s — it failed, or the user walked away from it. Put this
-            // method's own instructions back rather than leaving a stale "please wait";
-            // re-renders the SAME step, it does not advance.
-            if (currentStep === STEP_MEDIA_IDX) {
-                var def2 = currentMediaMethod();
-                if (def2) applyMediaMethodState(def2);
-                else showStep(STEP_MEDIA_IDX);
-            }
-        });
+        }, 200);
+    }
+
+    // The plugin's full-panel "we're getting your AI image ready" overlay, shown by both
+    // AI methods while a cover is being generated (custom-plugin-script.js). The popup
+    // markup prints #loadingAIImage twice, so check every copy, not just the first.
+    function mediaImageLoading() {
+        return $('[id="loadingAIImage"]').filter(':visible').length > 0;
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -1495,6 +1531,27 @@
             });
         });
 
+        /* ── Regenerating from "Cover Image Ready" ──────────── */
+        // The start-control bindings above only act on the media step itself. Once the
+        // guide has moved on to media-next ("Cover Image Ready"), pressing Regenerate image
+        // (or Generate AI Image again on the custom-prompt path) put the loading screen
+        // back up while the card kept saying the image was ready. Watch the loading
+        // screen itself: the moment it appears on that step, step back to the media step
+        // in its busy state; startMediaWait() brings the guide forward again once the new
+        // image is in and the loading screen is gone.
+        var _mediaWasLoading = false;
+        _mediaLoadTmr = setInterval(function () {
+            var loading = mediaImageLoading();
+            if (loading && !_mediaWasLoading && currentStep === STEP_MEDIA_IDX + 1) {
+                var def = currentMediaMethod();
+                if (def && def !== MEDIA_METHODS.Manually_image) {
+                    showStep(STEP_MEDIA_IDX);  // starts this method's wait (see applyMediaMethodState)
+                    showMediaBusyCard(def);
+                }
+            }
+            _mediaWasLoading = loading;
+        }, 200);
+
         /* ── Reposition on resize / scroll ──────────────────── */
         function reposition() {
             clearTimeout(_reposTmr);
@@ -1531,6 +1588,8 @@
         $('#exampleModal1').off('.iseoguide');
         clearTimeout(_reposTmr);
         clearInterval(_syncTmr);
+        clearInterval(_mediaLoadTmr);
+        clearInterval(_mediaWaitTimer);
     }
 
     /* ─────────────────────────────────────────────────────────
