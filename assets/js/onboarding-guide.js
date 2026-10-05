@@ -275,7 +275,9 @@
             // this step renders; this generic wording is what would show if the method
             // could somehow not be determined.
             message: 'Your cover image is saved. Click <strong>{button}</strong> below \u2014 the AI will write your article automatically.',
-            position: 'left', advance: 'wizard-next', dock: true
+            // Anchored to the button it asks the user to press, not docked: the image is
+            // done, so there is nothing left in the method row for it to keep clear of.
+            position: 'top', advance: 'wizard-next'
             // No custom wizardHint: it used to hardcode "Generate AI Post" here too,
             // which showed on the upload path's card as well (nothing was generated).
             // Falls through to buildTooltip()'s own {button}-tokenized default hint,
