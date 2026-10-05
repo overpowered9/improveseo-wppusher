@@ -532,6 +532,17 @@ function improveseo_store_credit_snapshot($data) {
 			'next_expiry_at'     => $next_expiry_at,
 			'next_expiry_amount' => $next_expiry_amount,
 			'checked_at'         => time(),
+			// The dashboard's plan / credits-used cards (views/dashboard/index.php) paint from
+			// this on page load instead of waiting on a live call; same fields the AJAX check
+			// returns, so the same JS fills them either way.
+			'status'             => array(
+				'plan'           => isset($data['plan']) ? $data['plan'] : null,
+				'subscription'   => isset($data['subscription']) ? $data['subscription'] : null,
+				'trial'          => isset($data['trial']) ? $data['trial'] : null,
+				'credit_details' => isset($data['credit_details']) ? $data['credit_details'] : null,
+				'credits'        => isset($data['credits']) ? $data['credits'] : null,
+				'balance'        => isset($data['balance']) ? $data['balance'] : null,
+			),
 		),
 		false
 	);

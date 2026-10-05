@@ -186,7 +186,7 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 					</p>
 
 					<?php // Same button as the support cards'; carries data-qs-msg so iseoQsShow() shows it only in the 'ready' state. ?>
-					<a href="<?php echo esc_url( $iseo_qs_create_url ); ?>" class="iseo-btn iseo-btn-solid iseo-support-cta" data-qs-msg="ready" <?php echo ( 'ready' === $iseo_qs_state ) ? '' : 'hidden'; ?>>Create now</a>
+					<a href="<?php echo esc_url( $iseo_qs_create_url ); ?>" class="iseo-btn iseo-btn-solid iseo-support-cta iseo-btn-arrow" data-qs-msg="ready" <?php echo ( 'ready' === $iseo_qs_state ) ? '' : 'hidden'; ?>>Create now</a>
 
 					<?php if ( $iseo_qs_has_creds ) : ?>
 					<!-- No-JS fallback: with JS disabled the credit check never runs, so show the
@@ -339,7 +339,7 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 					<p class="iseo-quickstart-msg" data-qs-msg="ready">
 						Still learning how to get started? Create content with our step-by-step Wizard Guide.
 					</p>
-					<a href="<?php echo esc_url( $iseo_gs_guide_url ); ?>" class="iseo-btn iseo-btn-solid iseo-support-cta">Start the guide</a>
+					<a href="<?php echo esc_url( $iseo_gs_guide_url ); ?>" class="iseo-btn iseo-btn-solid iseo-support-cta iseo-btn-arrow">Start the guide</a>
 				</div>
 			</div>
 
@@ -542,6 +542,15 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 				}
 
 				el.hidden = false;
+			}
+
+			// Paint the plan and credit cards straight away from the last known account state
+			// (improveseo_store_credit_snapshot()); the live check below then refreshes them.
+			var cached = <?php echo wp_json_encode( ( is_array( $iseo_qs_snapshot ) && ! empty( $iseo_qs_snapshot['status'] ) ) ? $iseo_qs_snapshot['status'] : null ); ?>;
+			if (cached) {
+				iseoPopulatePlanCard(cached);
+				iseoPopulateCreditsRemaining(cached);
+				iseoPopulateCreditsUsed(cached);
 			}
 
 			var data = new FormData();
@@ -767,7 +776,7 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 						<p class="iseo-bizdetails-missing">Missing: <?php echo esc_html( implode( ', ', $iseo_bd_missing ) ); ?></p>
 					<?php endif; ?>
 
-					<a href="<?php echo esc_url( $iseo_bd_settings_url ); ?>" class="iseo-quickstart-link"><?php echo empty( $iseo_bd_missing ) ? 'Review details' : 'Complete details'; ?></a>
+					<div class="iseo-bizdetails-actions"><a href="<?php echo esc_url( $iseo_bd_settings_url ); ?>" class="iseo-btn iseo-btn-solid iseo-btn-arrow"><?php echo empty( $iseo_bd_missing ) ? 'Review details' : 'Complete details'; ?></a></div>
 				</div>
 			</div>
 		</div>

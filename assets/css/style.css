@@ -549,6 +549,18 @@ ul.breadcrumb-seo li a:hover {
   padding-bottom: 14px;
 }
 
+/* Same trailing arrow, and the same nudge on hover, as the text links (.iseo-quickstart-link). */
+.iseo-dash .iseo-btn-arrow::after {
+  content: " \2192";
+  display: inline-block;
+  margin-left: 2px;
+  transition: transform 0.15s ease;
+}
+
+.iseo-dash .iseo-btn-arrow:hover::after {
+  transform: translateX(3px);
+}
+
 /* .iseo-btn's display:inline-block beats [hidden]; Quick Start's "Create now" button
    is toggled by iseoQsShow() through that attribute. */
 .iseo-dash .iseo-btn[hidden] {
@@ -859,9 +871,24 @@ ul.breadcrumb-seo li a:hover {
   margin: 4px 0 0;
 }
 
-.iseo-dash .iseo-bizdetails-card a.iseo-quickstart-link {
+/* Closes the card like the support cards' buttons, but sized to its label: at this
+   card's width a full-width button would read as a banner. */
+.iseo-bizdetails-actions {
   margin-top: auto;
   padding-top: 18px;
+}
+
+/* While the card is navy (hover / focus-within), a navy button would vanish into it. */
+.iseo-dash .iseo-dark-card:is(:hover, :focus-within) .iseo-btn-solid {
+  background-color: #FFFFFF;
+  border-color: #FFFFFF;
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-dark-card:is(:hover, :focus-within) .iseo-btn-solid:hover {
+  background-color: var(--iseo-primary);
+  border-color: var(--iseo-primary);
+  color: #FFFFFF;
 }
 
 /* ── Row 2 resting state: white, like the cards above ──
