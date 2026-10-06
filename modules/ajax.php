@@ -795,10 +795,19 @@ function improveseo_rename_bulk_project() {
     if (!$id || $name === '') {
         wp_send_json_error('Invalid data');
     }
+    global $wpdb;
+    $exists = $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasks WHERE name = %s AND id != %d",
+        $name,
+        $id
+    ));
+    if ($exists) {
+        wp_send_json_error('A project with this name already exists.');
+    }
+    // Also refuse the same name typed in another case or with extra spaces.
     if (improveseo_project_name_taken($name, $id, 'bulk')) {
         wp_send_json_error(improveseo_single_project_name_taken_message($name));
     }
-    global $wpdb;
     $updated = $wpdb->update(
         $wpdb->prefix . 'improveseo_bulktasks',
         array('name' => $name),
@@ -827,10 +836,20 @@ function improveseo_rename_project() {
     if (!$id || $name === '') {
         wp_send_json_error('Invalid data');
     }
+    global $wpdb;
+    // Hidden, temporary Preview rows don't count as a clash.
+    $exists = $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_tasks WHERE name = %s AND id != %d AND state <> 'Preview'",
+        $name,
+        $id
+    ));
+    if ($exists) {
+        wp_send_json_error('A project with this name already exists.');
+    }
+    // Also refuse the same name typed in another case or with extra spaces.
     if (improveseo_single_project_name_taken($name, $id)) {
         wp_send_json_error(improveseo_single_project_name_taken_message($name));
     }
-    global $wpdb;
     $updated = $wpdb->update(
         $wpdb->prefix . 'improveseo_tasks',
         array('name' => $name),

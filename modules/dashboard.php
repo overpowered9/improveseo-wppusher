@@ -155,6 +155,20 @@ function improveseo_dashboard() {
 
 
 		$name = $_POST['name'];
+		// Preview rows are hidden, temporary copies (named like the project being previewed)
+		// and must not count as a clash, or Save is refused after using Preview Post.
+		if (isset($_GET['id']) && (!isset($_POST['ai_modal_type']) || $_POST['ai_modal_type'] !== 'bulk')) {
+			$name_taken = $wpdb->get_var($wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_tasks WHERE name = %s AND id != %d AND state <> 'Preview'",
+				$name,
+				intval($_GET['id'])
+			));
+			if ($name_taken) {
+				FlashMessage::message('A project with this name already exists. Please choose a different name.', 'error');
+				wp_redirect(admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . intval($_GET['id'])));
+				exit;
+			}
+		}
 
 		// Editing an existing single project (the "Edit Draft Post" form posts here with
 		// its id): its name must not collide with another project's.
@@ -833,6 +847,18 @@ function improveseo_dashboard() {
 
 
 			$name = $_POST['name'];
+			if (isset($_GET['id'])) {
+				$name_taken = $wpdb->get_var($wpdb->prepare(
+					"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_tasks WHERE name = %s AND id != %d AND state <> 'Preview'",
+					$name,
+					intval($_GET['id'])
+				));
+				if ($name_taken) {
+					FlashMessage::message('A project with this name already exists. Please choose a different name.', 'error');
+					wp_redirect(admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . intval($_GET['id']) . '&update=true'));
+					exit;
+				}
+			}
 
 			if (isset($_GET['id'])) {
 				improveseo_refuse_duplicate_project_name(wp_unslash($name), (int) $_GET['id'], true);

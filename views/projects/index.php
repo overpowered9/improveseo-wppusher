@@ -543,6 +543,9 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 						nameEl.text(res.data.name);
 						stopEdit();
 					} else {
+						alert((res && res.data) || 'Could not rename the project.');
+						save.prop('disabled', false).text('Save');
+						input.focus();
 						showError((res && typeof res.data === 'string') ? res.data : 'The project could not be renamed. Please try again.');
 					}
 				}).fail(function () {

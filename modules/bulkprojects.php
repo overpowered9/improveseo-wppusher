@@ -396,18 +396,29 @@ function improveseo_bulkprojects()
 		// goes through, and the user is told the rename didn't. (The form checks this over
 		// AJAX before submitting, so normally it never gets this far.)
 		$rename_refused = '';
+		$name_error     = '';
 		if (!empty($task->bulktask_id) && isset($_POST['name'])) {
 			$new_name = sanitize_text_field(wp_unslash($_POST['name']));
-			if ($new_name !== '' && improveseo_project_name_taken($new_name, intval($task->bulktask_id), 'bulk')) {
-				$rename_refused = improveseo_single_project_name_taken_message($new_name);
-			} elseif ($new_name !== '') {
-				$wpdb->update(
-					$model->getTable(),
-					array('name' => $new_name),
-					array('id' => intval($task->bulktask_id)),
-					array('%s'),
-					array('%d')
-				);
+			if ($new_name !== '') {
+				$name_taken = $wpdb->get_var($wpdb->prepare(
+					"SELECT COUNT(*) FROM {$wpdb->prefix}improveseo_bulktasks WHERE name = %s AND id != %d",
+					$new_name,
+					intval($task->bulktask_id)
+				));
+				if ($name_taken) {
+					$name_error = $new_name;
+				} elseif (improveseo_project_name_taken($new_name, intval($task->bulktask_id), 'bulk')) {
+					// Same name in another case or with extra spaces.
+					$rename_refused = improveseo_single_project_name_taken_message($new_name);
+				} else {
+					$wpdb->update(
+						$model->getTable(),
+						array('name' => $new_name),
+						array('id' => intval($task->bulktask_id)),
+						array('%s'),
+						array('%d')
+					);
+				}
 			}
 		}
 
@@ -425,6 +436,11 @@ function improveseo_bulkprojects()
 			array('%d')
 		);
 
+		// Tell the user the name was not changed, also when they clicked Publish.
+		if (!empty($name_error)) {
+			FlashMessage::message('The project name was not changed — a project named "' . esc_html($name_error) . '" already exists.', 'error');
+		}
+
 		// The screen's Publish button submits this same form with publish=1 so the
 		// user's edits are never lost by publishing. Publishing itself is NOT
 		// reimplemented here — we hand off to the existing publish action, the
@@ -441,9 +457,10 @@ function improveseo_bulkprojects()
 
 		if ($rename_refused !== '') {
 			FlashMessage::error('Content saved, but the project was not renamed. ' . $rename_refused);
-		} else {
+		} elseif (empty($name_error)) {
 			FlashMessage::success('Content saved. The task is still a draft — use Publish when you are ready.');
 		}
+
 		wp_redirect(admin_url('admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $task->bulktask_id . '&highlight=' . $id));
 		exit;
 
