@@ -2313,7 +2313,7 @@ function multiPostData()
 
 		if ($schedule_posts == '') {
 
-			wp_send_json_success(array('status' => 'false', "message" => "Publish - Schedule Posts required. Please check step 7."));
+			wp_send_json_success(array('status' => 'false', "message" => "Publish - Schedule Posts required. Please check step 5 (Publish Settings)."));
 
 		}
 

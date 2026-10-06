@@ -318,6 +318,16 @@ function btd_datetime($val) {
                     <button>← Back to Bulk Projects</button>
                 </a>
             <?php endif; ?>
+            <?php if (!empty($task->post_id)): ?>
+                <a href="<?php echo esc_url( admin_url('post.php?action=edit&post=' . $task->post_id) ); ?>" target="_blank" style="text-decoration:none;">
+                    <button>Edit Post</button>
+                </a>
+            <?php elseif (!empty($task->ai_content)): ?>
+                <?php // Drafts never get a WordPress post, so edit the generated content in place. ?>
+                <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=edit_ai_content&id=' . $task->id) ); ?>" style="text-decoration:none;">
+                    <button>Edit Draft</button>
+                </a>
+            <?php endif; ?>
             <?php if ($associated_post && $post_url): ?>
                 <a href="<?php echo  esc_url($post_url) ?>" target="_blank" style="text-decoration:none;">
                     <button class="active">View Post</button>
@@ -329,16 +339,6 @@ function btd_datetime($val) {
                 // keyed by this task's own id — see the modal + script at the bottom of
                 // this file, copied from views/bulkprojects/alltasks.php). ?>
                 <button type="button" onclick="iseoPreviewBulkTask(<?php echo  (int) $task->id ?>)">Preview Post</button>
-            <?php endif; ?>
-            <?php if (!empty($task->post_id)): ?>
-                <a href="<?php echo esc_url( admin_url('post.php?action=edit&post=' . $task->post_id) ); ?>" target="_blank" style="text-decoration:none;">
-                    <button>Edit Post</button>
-                </a>
-            <?php elseif (!empty($task->ai_content)): ?>
-                <?php // Drafts never get a WordPress post, so edit the generated content in place. ?>
-                <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=edit_ai_content&id=' . $task->id) ); ?>" style="text-decoration:none;">
-                    <button>Edit Post Content</button>
-                </a>
             <?php endif; ?>
         </div>
     </div>

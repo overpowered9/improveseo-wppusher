@@ -128,14 +128,32 @@ $url .= $_SERVER['REQUEST_URI'];
 						&lt; Prev
 					</button>
 				<?php endif; ?>
-				<?php for ($i = 1; $i <= $pages; $i++): ?>
-					<?php if ($i == $page): ?>
+				<?php
+				// Show first, last and the pages around the current one; collapse the rest into "..."
+				$_pg_items = array();
+				$_pg_last = 0;
+				for ($i = 1; $i <= $pages; $i++) {
+					if ($i == 1 || $i == $pages || abs($i - $page) <= 1) {
+						if ($_pg_last && $i - $_pg_last == 2) {
+							$_pg_items[] = $i - 1;
+						} elseif ($_pg_last && $i - $_pg_last > 2) {
+							$_pg_items[] = '...';
+						}
+						$_pg_items[] = $i;
+						$_pg_last = $i;
+					}
+				}
+				?>
+				<?php foreach ($_pg_items as $i): ?>
+					<?php if ($i === '...'): ?>
+						<span class="pagination-dots">&hellip;</span>
+					<?php elseif ($i == $page): ?>
 						<button type="button" class="active"><?php echo esc_html( $i ); ?></button>
 					<?php else: ?>
 						<button type="button"
 							onclick="window.location.href='<?php echo  esc_js($_atbase . '&paged=' . $i . ($highlight ? '&highlight=' . $highlight : '')) ?>'"><?php echo esc_html( $i ); ?></button>
 					<?php endif; ?>
-				<?php endfor; ?>
+				<?php endforeach; ?>
 				<?php if ($page < $pages): ?>
 					<button type="button" class="next pagination-btn"
 						onclick="window.location.href='<?php echo  esc_js($_atbase . '&paged=' . ($page + 1) . ($highlight ? '&highlight=' . $highlight : '')) ?>'">
@@ -173,22 +191,21 @@ $url .= $_SERVER['REQUEST_URI'];
 						Bulk Project: <strong><?php echo esc_html($project_name); ?></strong>
 					</h2>
 					<p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
-						Viewing all posts/pages for this bulk project
+						Viewing all posts within this bulk project
 					</p>
 				</div>
 				<div class="table-responsive">
 					<table class="table ">
 						<thead>
 							<tr>
-								<th>
+								<th style="width: 35%;">
 									<label class="checkbox style-c">
 										<input id="cb-select-all" type="checkbox">
 										<div class="checkbox__checkmark"></div>
 									</label>
-									<h4> Keyword Name </h4>
+									<h4> Keyword </h4>
 								</th>
 								<th>Language</th>
-								<th>Size</th>
 								<th>Processing</th>
 								<th>Publish Date</th>
 								<th>Post Status</th>
@@ -198,7 +215,7 @@ $url .= $_SERVER['REQUEST_URI'];
 						<tbody>
 							<?php foreach ($projects as $key => $project): ?>
 								<tr <?php echo  $highlight == $project->id ? ' class="WHProject--highlight"' : '' ?>>
-									<td data-label="Name" style="vertical-align: middle; padding: 15px 10px;">
+									<td data-label="Keyword" style="vertical-align: middle; padding: 15px 10px;">
 										<div style="display: flex; align-items: flex-start; gap: 0px;">
 											<label class="checkbox style-c" style="margin: 0;">
 												<input id="cb-select-<?php echo esc_attr( $project->id ); ?>" type="checkbox"
@@ -209,7 +226,6 @@ $url .= $_SERVER['REQUEST_URI'];
 										</div>
 									</td>
 									<td data-label="Language"><?php echo esc_html( $project->content_lang ); ?></td>
-									<td data-label="Size"><?php echo esc_html( $project->nos_of_words ); ?></td>
 									<td data-label="Processing" class="status finished"><?php
 									if ($project->status == 'Processing') {
 										echo 'Generating';
@@ -270,16 +286,7 @@ $url .= $_SERVER['REQUEST_URI'];
 											// the items are assembled into an array first and rendered in
 											// one place — previously the order was an accident of which
 											// if-block happened to come first in the markup.
-											//
-											//   Published / Scheduled : View Post, Edit Post, View Details,
-											//                           Re-Generate Content
-											//   Draft                 : Publish, Preview Post,
-											//                           Edit Post Content, View Details,
-											//                           Re-Generate Content
-											//   Still generating      : Cancel Process, View Details,
-											//                           Re-Generate Content
-											//   Canceled              : View Details
-											//
+									
 											// Nothing that used to be reachable was dropped: an item is
 											// still emitted whenever it applies to the row.
 											$acts     = array();
@@ -302,11 +309,11 @@ $url .= $_SERVER['REQUEST_URI'];
 												'target' => '_blank',
 											);
 											$act_edit_content = array(
-												'label' => 'Edit Post Content',
+												'label' => 'Edit Draft Post',
 												'href'  => admin_url('admin.php?page=improveseo_bulkprojects&action=edit_ai_content&id=' . $project->id),
 											);
 											$act_edit_content_pending = array(
-												'label'   => 'Edit Post Content',
+												'label'   => 'Edit Draft Post',
 												'href'    => '#',
 												'onclick' => "alert('Content is not generated yet. Please wait'); return false;",
 											);
@@ -314,12 +321,7 @@ $url .= $_SERVER['REQUEST_URI'];
 												'label' => 'View Details',
 												'href'  => admin_url('admin.php?page=improveseo_bulkprojects&action=view_task_details&id=' . $project->id . '&parent_id=' . $parent_id_for_row),
 											);
-											$act_regenerate = array(
-												'label'   => 'Re-Generate Content',
-												'href'    => 'javascript:re_generatepost(' . intval($project->id) . ')',
-												'target'  => '_self',
-												'onclick' => "return confirm('This will delete the existing content and regenerate from scratch. Continue?')",
-											);
+											
 											// Same publish action the redesigned draft-edit screen posts to,
 											// so there is exactly one publish path.
 											$act_publish = array(
@@ -348,27 +350,27 @@ $url .= $_SERVER['REQUEST_URI'];
 												// publish yet, but it can be cancelled.
 												$acts[] = $act_cancel;
 												$acts[] = $act_view_details;
-												$acts[] = $act_regenerate;
+
 											} elseif ($project->state == 'Published' || $project->state == 'Scheduled') {
 												if ($live_url)                 $acts[] = $act_view_post;
 												if (!empty($project->post_id)) $acts[] = $act_edit_post;
 												$acts[] = $act_view_details;
-												$acts[] = $act_regenerate;
+											
 											} elseif ($project->state == 'Draft') {
 												$acts[] = $act_publish;
 												if (!empty($project->ai_content)) $acts[] = $act_view_ai;
 												$acts[] = !empty($project->post_id)
-													? array_merge($act_edit_post, array('label' => 'Edit Post Content'))
+													? array_merge($act_edit_post, array('label' => 'Edit Draft Post'))
 													: (!empty($project->ai_content) ? $act_edit_content : $act_edit_content_pending);
 												$acts[] = $act_view_details;
-												$acts[] = $act_regenerate;
+												
 											} else {
 												// Generated but no state yet (legacy rows).
 												if ($live_url)                 $acts[] = $act_view_post;
 												if (!empty($project->post_id)) $acts[] = $act_edit_post;
 												elseif (!empty($project->ai_content)) $acts[] = $act_edit_content;
 												$acts[] = $act_view_details;
-												$acts[] = $act_regenerate;
+												
 											}
 
 											foreach ($acts as $act):

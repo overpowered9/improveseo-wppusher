@@ -11,7 +11,7 @@
  * It is deliberately its own file rather than more branches in onboarding-guide.js:
  * that guide is built around the single-post wizard's own ids (#nextStepButton,
  * #step_value, the cover-image generation waits), none of which exist here, and the
- * bulk wizard has a different panel list (7 panels, no generation inside the modal).
+ * bulk wizard has a different panel list (6 panels, no generation inside the modal).
  *
  * How it follows the wizard: the bulk wizard keeps its panel in a closure-local
  * variable, so the guide reads which panel is on screen from the DOM instead —
@@ -48,7 +48,7 @@
         {
             panel: 0, kind: 'field', target: '#keyword_list_name', position: 'bottom',
             title: 'Choose a keyword list',
-            message: 'A bulk project writes <strong>one post per keyword</strong>. Pick the keyword list to use. No list yet? Use the <strong>Generate Keywords</strong> link above, then <strong>click here to refresh</strong>.',
+            message: 'A bulk project writes <strong>one post per keyword</strong>. Pick the keyword list to use. No list yet? Hover the <strong>ⓘ</strong> next to <strong>Keyword List</strong> for the <strong>Generate Keywords</strong> link, then <strong>click here to refresh</strong>.',
             requireValue: '#keyword_list_name',
             waitMessage: 'Select a keyword list to continue.'
         },
@@ -59,7 +59,7 @@
         },
         {
             panel: 0, kind: 'field', target: '#bulk_article_size', position: 'top',
-            title: 'Article size',
+            title: 'Post size',
             message: 'Choose how long every post in this project should be. The estimate underneath shows what the whole project will cost in credits.'
         },
         {
@@ -134,41 +134,34 @@
             message: 'Click <strong>Next</strong> below.'
         },
 
-        /* Panel 4 — Meta Title & Description (nothing to fill in) */
+        /* Panel 4 — Publish Settings (also notes the automatic meta title & description) */
         {
-            panel: 4, kind: 'next', target: NEXT, position: 'top',
-            title: 'Meta title & description',
-            message: 'Nothing to do here — an SEO meta title and description are written automatically for every post. Click <strong>Next</strong> below.'
-        },
-
-        /* Panel 5 — Publish Settings */
-        {
-            panel: 5, kind: 'field', target: '.schedule_posts_parent', position: 'bottom',
+            panel: 4, kind: 'field', target: '.schedule_posts_parent', position: 'bottom',
             title: 'Publish or save as drafts?',
             message: 'Choose what happens when the posts are ready: publish them all straight away, save them as <strong>drafts</strong> to review first, or set a <strong>schedule</strong> (so many per day or week).',
             requireValue: 'input[name="schedule_posts"]:checked',
             waitMessage: 'Choose one of the options to continue.'
         },
         {
-            panel: 5, kind: 'field', target: 'select[name="author_name"]', position: 'top',
+            panel: 4, kind: 'field', target: 'select[name="author_name"]', position: 'top',
             needs: 'select[name="author_name"]',
             title: 'Assign an author',
             message: 'The WordPress user these posts will be published under.'
         },
         {
-            panel: 5, kind: 'next', target: NEXT, position: 'top',
+            panel: 4, kind: 'next', target: NEXT, position: 'top',
             title: 'Publish settings done!',
-            message: 'Click <strong>Next</strong> below for the last step.'
+            message: 'An SEO meta title and description are written automatically for every post — nothing to fill in. Click <strong>Next</strong> below for the last step.'
         },
 
-        /* Panel 6 — Finalize */
+        /* Panel 5 — Finalize */
         {
-            panel: 6, kind: 'field', target: '#project_name', position: 'bottom',
+            panel: 5, kind: 'field', target: '#project_name', position: 'bottom',
             title: 'Name your project',
             message: 'We’ve filled in a name from your keyword list — it’s only for you, to find this project later. Edit it if you like.'
         },
         {
-            panel: 6, kind: 'submit', target: NEXT, position: 'top',
+            panel: 5, kind: 'submit', target: NEXT, position: 'top',
             title: 'Create your bulk project! 🎉',
             message: 'Click <strong>Submit</strong> below. All posts are written in the background — you can leave this page, and we’ll email you when they’re done.'
         }
