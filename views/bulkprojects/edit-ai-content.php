@@ -224,11 +224,13 @@ $keyword_name = trim((string) $task->keyword_name);
 		$wrap.find('.PostForm__error').remove();
 		if (msg) {
 			$wrap.addClass('PostForm--error');
-			$('<span class="PostForm__error" role="alert"></span>').text(msg).insertAfter($name);
+			$('<span class="PostForm__error" id="iseo-project-name-error" role="alert"></span>').text(msg).insertAfter($name);
+			$name.attr({ 'aria-invalid': 'true', 'aria-describedby': 'iseo-project-name-error' });
 			$name.trigger('focus');
 			if ($name[0].scrollIntoView) { $name[0].scrollIntoView({ block: 'center' }); }
 		} else {
 			$wrap.removeClass('PostForm--error');
+			$name.removeAttr('aria-invalid aria-describedby');
 		}
 	}
 

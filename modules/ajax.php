@@ -644,6 +644,24 @@ function improveseo_instant_preview() {
 		$title = '(Untitled)';
 	}
 
+	wp_send_json_success( array(
+		'title' => $title,
+		'html'  => improveseo_render_preview_html( $content ),
+	) );
+}
+
+/**
+ * Turn a single post's stored/edited content into the HTML the instant preview shows.
+ * Shared by improveseo_instant_preview (the editor's live content) and
+ * improveseo_project_preview_by_id (a saved project), so both previews render the
+ * same content identically.
+ *
+ * @param string $content Raw post content.
+ * @return string Sanitised, shortcode-rendered HTML.
+ */
+function improveseo_render_preview_html( $content ) {
+	$content = (string) $content;
+
 	// Older drafts can still carry a <style>/<script> block the generator used to
 	// append directly to content (see improveseo_strip_style_script_tags()). This
 	// MUST run before wp_kses_post() below: kses strips the <style>/<script> TAGS
@@ -681,11 +699,65 @@ function improveseo_instant_preview() {
 	// same call the bulk "View AI Content" preview renders through
 	// (improveseo_bulk_build_post_content), so both previews treat shortcodes
 	// identically.
-	$rendered = do_shortcode( $content );
+	return do_shortcode( $content );
+}
+
+// ── Single Projects: instant preview of a saved project ──────────────────────
+// The Single Projects list's row-level "Preview Post" (Draft rows) and the Project
+// Details "Preview Post" button. A draft has no WordPress post yet, so the preview is
+// rendered from the project's stored title/content — falling back to its linked post's
+// when the project carries none — through the same renderer as the editor's preview.
+add_action('wp_ajax_improveseo_project_preview_by_id', 'improveseo_project_preview_by_id');
+
+function improveseo_project_preview_by_id() {
+	global $wpdb;
+
+	if ( ! current_user_can('manage_options') ) {
+		wp_send_json_error( array( 'message' => 'Permission denied' ) );
+	}
+
+	if ( ! isset($_POST['nonce']) || ! wp_verify_nonce($_POST['nonce'], 'improveseo_project_preview') ) {
+		wp_send_json_error( array( 'message' => 'Security check failed. Please reload the page and try again.' ) );
+	}
+
+	$id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+	if ( ! $id ) {
+		wp_send_json_error( array( 'message' => 'Missing project id.' ) );
+	}
+
+	$model   = new \ImproveSEO\Models\Task();
+	$project = $model->find( $id );
+	if ( ! $project ) {
+		wp_send_json_error( array( 'message' => 'This project no longer exists. Please reload the page.' ) );
+	}
+
+	// content is decoded by the Task model (array|b64 cast).
+	$stored = is_array( $project->content ) ? $project->content : array();
+
+	$post    = null;
+	$post_id = $wpdb->get_var( $wpdb->prepare(
+		"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'improveseo_project_id' AND meta_value = %s LIMIT 1",
+		$id
+	) );
+	if ( $post_id ) {
+		$post = get_post( $post_id );
+		if ( $post && $post->post_status === 'trash' ) {
+			$post = null;
+		}
+	}
+
+	$title   = ( isset( $stored['title'] ) && $stored['title'] !== '' ) ? $stored['title'] : ( $post ? $post->post_title : '' );
+	$content = ( isset( $stored['content'] ) && $stored['content'] !== '' ) ? $stored['content'] : ( $post ? $post->post_content : '' );
+
+	if ( trim( (string) $title ) === '' && trim( (string) $content ) === '' ) {
+		wp_send_json_error( array( 'message' => 'This draft has no content to preview yet.' ) );
+	}
+
+	$title = sanitize_text_field( $title );
 
 	wp_send_json_success( array(
-		'title' => $title,
-		'html'  => $rendered,
+		'title' => $title !== '' ? $title : '(Untitled)',
+		'html'  => improveseo_render_preview_html( $content ),
 	) );
 }
 

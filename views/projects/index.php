@@ -262,11 +262,23 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 											<ul class="popup-menu">
 												<li>
 													<?php
+													// Top item. A post that is live (or private/scheduled, which an admin
+													// can open) gets View Post. A draft has no public page to open: a Draft
+													// project has no post at all until it is published, and a post still in
+													// draft/pending 404s for visitors. Those get Preview Post instead, the
+													// same in-modal preview as the Project Details page
+													// (views/projects/preview-modal.php).
 													$associated_post = get_post_by_project_id($project->id);
-													if ($associated_post): ?>
-														<a href="<?php echo esc_url( get_permalink($associated_post->ID) ) ?>" target="_blank"
+													$post_is_draft   = $associated_post && in_array($associated_post->post_status, array('draft', 'pending', 'auto-draft'), true);
+													if ($associated_post && !$post_is_draft): ?>
+														<a href="<?php echo esc_url( get_permalink($associated_post->ID) ) ?>" target="_blank" rel="noopener"
 															style="max-width: max-content !important;" class="popup-link">
 															View Post
+														</a>
+													<?php elseif ($project->state == 'Draft' || $post_is_draft): ?>
+														<a href="#" onclick="iseoPreviewProject(<?php echo (int) $project->id; ?>); return false;"
+															style="max-width: max-content !important;" class="popup-link">
+															Preview Post
 														</a>
 													<?php else: ?>
 														<span
@@ -277,14 +289,20 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 													<?php endif; ?>
 												</li>
 												<?php
-												// Menu order: View Post, Edit Post, (state-specific actions), View Details, Delete Post.
+												// Menu order: View/Preview Post, Edit Post, (state-specific actions), View Details, Delete Post.
+												// Once a post exists it is edited in WordPress — the plugin's draft editor would
+												// only redirect there (improveseo_redirect_edit_post_to_wp) — so a row gets one
+												// edit entry, never both.
 												$edit_link = $associated_post ? get_edit_post_link($associated_post->ID, 'raw') : '';
 												if ($edit_link): ?>
-												<li><a target="_blank"
+												<li><a target="_blank" rel="noopener"
 														href="<?php echo  esc_url($edit_link) ?>"
 														style="max-width: max-content !important;" class="popup-link">Edit
 														Post</a>
 												</li>
+												<?php elseif ($project->state == 'Draft'): ?>
+												<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ); ?>"
+														style="max-width: max-content !important;" class="popup-link">Edit Draft Post</a></li>
 												<?php endif; ?>
 												<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations): ?>
 												<li><a href="javascript:build_project(<?php echo esc_attr( $project->id ); ?>)"
@@ -294,14 +312,26 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 												<li><a href="javascript:update_project(<?php echo esc_attr( $project->id ); ?>)"
 														style="max-width: max-content !important;" class="popup-link">Update posts</a></li>
 												<?php endif; ?>
-												<?php if ($project->state == 'Draft'): ?>
-												<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard&action=edit_post&id=' . $project->id) ); ?>"
-														style="max-width: max-content !important;" class="popup-link">Edit Draft Post</a></li>
-												<?php endif; ?>
 												<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects&action=view_details&id=' . $project->id) ); ?>" style="max-width: max-content !important;"
 														class="popup-link">View Details</a></li>
-												<li style="margin: 0px !important;"><a target="_blank"
-														href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects&action=delete&id=' . $project->id . '&noheader=true') ); ?>"
+												<?php
+												// Same tab, behind a confirmation, and nonce'd — the delete action checks it
+												// (modules/projects.php). "Delete Selected Projects" already asks first, and
+												// deleting one project is just as permanent.
+												$delete_url = wp_nonce_url(
+													admin_url('admin.php?page=improveseo_projects&action=delete&id=' . (int) $project->id . '&noheader=true'),
+													'improveseo_delete_project_' . (int) $project->id
+												);
+												$delete_confirm = sprintf(
+													$associated_post
+														? 'Are you sure you want to delete "%s"? Its WordPress post/page will be deleted too. This action cannot be undone.'
+														: 'Are you sure you want to delete "%s"? This action cannot be undone.',
+													$project->name
+												);
+												?>
+												<li style="margin: 0px !important;"><a
+														href="<?php echo esc_url( $delete_url ); ?>"
+														onclick="return confirm(<?php echo esc_attr( wp_json_encode( $delete_confirm ) ); ?>);"
 														style="max-width: max-content !important;"
 														class="popup-link delete-link">Delete Post</a></li>
 											</ul>
@@ -509,7 +539,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 			// Shown under the input when the server refuses the name (e.g. another project
 			// already has it); the editor stays open so the user can pick another.
 			var error = $('<div class="iseo-rename-error" role="alert"></div>')
-				.css({ flexBasis:'100%', color:'#d63638', fontSize:'12px', marginTop:'4px' }).hide();
+				.css({ flexBasis:'100%', boxSizing:'border-box', color:'#d63638', fontSize:'13px', lineHeight:'1.4', marginTop:'6px' }).hide();
 
 			function stopEdit() {
 				input.remove(); save.remove(); cancel.remove(); error.remove();
@@ -519,6 +549,13 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 
 			function showError(msg) {
 				error.text(msg).show();
+				// The message wraps onto its own line, which starts under the row's checkbox;
+				// indent it so it starts where the text inside the input does, in the input's size.
+				error.css('paddingLeft', 0);
+				var textLeft = input[0].getBoundingClientRect().left
+					+ (parseFloat(input.css('borderLeftWidth')) || 0)
+					+ (parseFloat(input.css('paddingLeft')) || 0);
+				error.css('paddingLeft', Math.max(0, Math.round(textLeft - error[0].getBoundingClientRect().left)) + 'px');
 				input.css('borderColor', '#d63638').focus().select();
 				save.prop('disabled', false).text('Save');
 			}
@@ -564,6 +601,9 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 		});
 	});
 </script>
+
+<?php // Row-level "Preview Post" (Draft rows): the in-modal preview, shared with Project Details. ?>
+<?php View::render('projects.preview-modal'); ?>
 
 <!-- Building Post Preview -->
 <?php

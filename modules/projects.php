@@ -375,7 +375,22 @@ function improveseo_projects()
     View::render('projects.index', compact('projects', 'page', 'pages', 'order', 'orderBy', 'search', 'highlight', 'total', 'limit'));
 
   elseif ($action == 'delete'):
-    $id = $_GET['id'];
+    $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+    // Same guards as "Delete Selected Projects" above: the list's Delete Post link
+    // (views/projects/index.php) carries a per-project nonce, so a forged or stale
+    // link can't delete anything.
+    if (!$id || !isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'improveseo_delete_project_' . $id)) {
+      FlashMessage::error('That delete link has expired. Please try again from the Single Projects list.');
+      wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+      exit;
+    }
+
+    if (!current_user_can('delete_posts')) {
+      FlashMessage::error('You do not have permission to delete projects.');
+      wp_redirect(admin_url('admin.php?page=improveseo_projects'));
+      exit;
+    }
 
     // Delete all posts from this project
     $wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));

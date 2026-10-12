@@ -328,7 +328,7 @@ if (isset($_GET['post_preview'])) {
 			// Shown under the input when the server refuses the name (another bulk project
 			// already has it); the editor stays open so the user can pick another.
 			var error = jQuery('<div class="bkiseo-rename-error" role="alert"></div>')
-				.css({ flexBasis:'100%', color:'#d63638', fontSize:'12px', marginTop:'4px' }).hide();
+				.css({ flexBasis:'100%', boxSizing:'border-box', color:'#d63638', fontSize:'13px', lineHeight:'1.4', marginTop:'6px' }).hide();
 
 			function stopEdit() {
 				input.remove(); save.remove(); cancel.remove(); error.remove();
@@ -338,6 +338,13 @@ if (isset($_GET['post_preview'])) {
 
 			function showError(msg) {
 				error.text(msg).show();
+				// The message wraps onto its own line, which starts under the row's checkbox;
+				// indent it so it starts where the text inside the input does, in the input's size.
+				error.css('paddingLeft', 0);
+				var textLeft = input[0].getBoundingClientRect().left
+					+ (parseFloat(input.css('borderLeftWidth')) || 0)
+					+ (parseFloat(input.css('paddingLeft')) || 0);
+				error.css('paddingLeft', Math.max(0, Math.round(textLeft - error[0].getBoundingClientRect().left)) + 'px');
 				input.css('borderColor', '#d63638').focus().select();
 				save.prop('disabled', false).text('Save');
 			}

@@ -1641,6 +1641,41 @@ div#post-body-content {
   gap: 9px;
 }
 
+/* ── Project Name: "already exists" message ───────────────────────────────────
+   Shown under the Project Name field by the pre-submit name check on the Create a
+   Post screen (views/posting/create-post-single.php), the Edit Draft screen
+   (views/posting/edit-post.php) and the bulk task editor
+   (views/bulkprojects/edit-ai-content.php), and by the server-side fallback in
+   views/posting/form.php. It used to have no style at all, so it rendered in the
+   admin's grey body text, flush with the pill's outer edge.
+
+   The text lines up with the text inside the field and uses the field's type:
+   `.form-wrap .form-control` is 14px/21px with 22px side padding and a 1px border,
+   so the message is indented 22 + 1 = 23px. WordPress core gives text inputs a 1px
+   side margin that Bootstrap's input-group resets on some screens and not others;
+   zeroing it here keeps that 23px exact everywhere. */
+.form-wrap .PostForm__name-wrap > .PostForm__name {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.form-wrap .PostForm__name-wrap > .PostForm__error {
+  display: block;
+  flex: 0 0 100%;              /* own line when the wrapper is a flex input-group */
+  box-sizing: border-box;
+  margin-top: 8px;
+  padding-left: 23px;
+  color: #d63638;
+  font-size: 14px;
+  line-height: 21px;
+  font-weight: 400;
+}
+
+.form-wrap .PostForm__name-wrap.PostForm--error > .PostForm__name,
+.form-wrap .PostForm__name-wrap.PostForm--error > .PostForm__name:focus {
+  border-color: #d63638;
+}
+
 .styling_post_page_action_buttons {
   color: #1C7293 !important;
   border: 1px solid #1C7293 !important;
@@ -3270,9 +3305,12 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   text-decoration: none;
 }
 
+/* :focus-visible, not :focus: Chrome focuses a button on mouse click, so with
+   :focus a button that had just been clicked could stay filled while the outline
+   buttons beside it did not. Keyboard focus still gets the fill. */
 .improveseo-project-details .improveseo-header-btn.active,
 .improveseo-project-details .improveseo-header-btn:hover,
-.improveseo-project-details .improveseo-header-btn:focus {
+.improveseo-project-details .improveseo-header-btn:focus-visible {
   color: #fff;
   background: #1C7293;
   outline: none;
