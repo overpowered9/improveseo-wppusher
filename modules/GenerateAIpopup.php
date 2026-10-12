@@ -604,7 +604,9 @@ function generateAIpopup()
         function generate() {
             console.log("🟢 GENERATEAIPOPUP.PHP: generate() called from modules/GenerateAIpopup.php");
 
-            // Connection guard — show modal if site is not connected to ImproveSEO.
+            // Connection guard — show modal if site is not connected to ImproveSEO. Keyword lists
+            // are free, but they are generated on the ImproveSEO server, which needs the site's
+            // API Key and Site Code.
             if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) {
                 return;
             }
@@ -652,7 +654,7 @@ function generateAIpopup()
                 success: function (response) {
                     var keywords = (response.data && response.data.keywords) || [];
                     jQuery('#output').val(keywords.join('\n'));
-                    console.log('✅ ' + keywords.length + ' keywords generated (1 credit deducted server-side)');
+                    console.log('✅ ' + keywords.length + ' keywords generated (keyword lists are free — no credits used)');
                 },
                 error: function (xhr, status, error) {
                     console.error('❌ Keyword generation failed:', status, error, xhr.responseText);
@@ -662,10 +664,10 @@ function generateAIpopup()
                         && window.iseoHandleKeywordGeneratorError(xhr, { newTab: true, returnFocus: btn[0] })) {
                         return;
                     }
+                    // No 402 branch: keyword lists cost no credits, so the server never refuses one
+                    // for the balance. The daily allowance above is the only limit.
                     var serverError = (xhr.responseJSON && xhr.responseJSON.error) || '';
-                    if (xhr.status === 402) {
-                        alert(serverError || 'Insufficient keyword credits. Please upgrade your plan or buy credits.');
-                    } else if (xhr.status === 401 || xhr.status === 403) {
+                    if (xhr.status === 401 || xhr.status === 403) {
                         // The server rejected the API Key or Site Code (wrong pairing, or a site
                         // code that belongs to a different one of the account's websites) — same
                         // guard modal shown everywhere else this can happen, not a raw alert.

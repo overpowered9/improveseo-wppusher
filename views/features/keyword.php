@@ -96,9 +96,9 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
             return;
         }
 
-        // Keyword generation spends credits, so an unconnected site gets the same modal every
-        // other generation surface shows. This used to be a bare alert() that named a screen
-        // ("settings") instead of offering the connect flow.
+        // Keyword lists are free, but they are generated on the ImproveSEO server, which needs
+        // this site's API Key and Site Code — so an unconnected site gets the same connect modal
+        // every other generation surface shows, not a bare alert() naming a screen.
         if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) {
             return;
         }
@@ -141,7 +141,7 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
             success: function(response) {
                 var keywords = (response.data && response.data.keywords) || [];
                 jQuery('#output').val(keywords.join('\n'));
-                console.log('✅ ' + keywords.length + ' keywords generated (1 credit deducted server-side)');
+                console.log('✅ ' + keywords.length + ' keywords generated (keyword lists are free — no credits used)');
             },
             error: function(xhr, status, error) {
                 console.error('❌ Keyword generation failed:', status, error, xhr.responseText);
@@ -151,10 +151,10 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
                     && window.iseoHandleKeywordGeneratorError(xhr, { returnFocus: btn[0] })) {
                     return;
                 }
+                // No 402 branch: keyword lists cost no credits, so the server never refuses one for
+                // the balance. The daily allowance above is the only limit.
                 var serverError = (xhr.responseJSON && xhr.responseJSON.error) || '';
-                if (xhr.status === 402) {
-                    alert(serverError || 'Insufficient keyword credits. Please upgrade your plan or buy credits.');
-                } else if (xhr.status === 401 || xhr.status === 403) {
+                if (xhr.status === 401 || xhr.status === 403) {
                     // Wrong API Key / Site Code, or a site code that belongs to a different one
                     // of the account's websites — same guard modal every other generation surface
                     // shows, not a raw alert.
