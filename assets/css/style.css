@@ -1284,6 +1284,45 @@ input:checked + .switch:before {
   margin: 0 auto 15px;
 }
 
+/* Small "Click on … to continue" link under each card title. Scoped through
+   .create-ai-col with !important to beat the card-wide rule that strips underlines. */
+.create-ai-col a.create-ai-continue {
+  display: inline-block;
+  font-size: 14px;
+  color: #1c7293;
+  text-decoration: underline !important;
+}
+
+.create-ai-col a.create-ai-continue:hover,
+.create-ai-col a.create-ai-continue:focus {
+  color: #155a74;
+}
+
+/* Intro copy between the page heading and the creation cards. */
+.create-ai-intro {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 30px 20px 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #1d2327;
+}
+
+.create-ai-intro p {
+  font-size: 16px;
+  margin: 0 0 12px;
+}
+
+.create-ai-intro ul {
+  list-style: disc;
+  margin: 0 0 12px 22px;
+}
+
+.create-ai-intro a {
+  color: #1c7293;
+  text-decoration: underline;
+}
+
 .category-box {
   max-width: 1040px;
   margin: 0 auto;

@@ -31,6 +31,16 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 		<h1 style="font-size: 36px; font-weight: 500;"> What would you like to create? </h1>
 	</div>
 	<div class="container">
+		<div class="create-ai-intro">
+			<p>Time to create content that helps customers find you &mdash; in Google and in AI assistants like ChatGPT.</p>
+			<p>Choose how you want to start:</p>
+			<ul>
+				<li><strong>Single Post</strong> &mdash; one post built from one keyword.</li>
+				<li><strong>Bulk Post Project</strong> &mdash; multiple posts built from a keyword list.</li>
+			</ul>
+			<p>Either way, a short wizard walks you through every step. Look for the [i] icon &mdash; it explains what each step does and why it matters.</p>
+			<p>Bulk Post Projects need a keyword list. Don&rsquo;t have one? <a href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_lists' ) ); ?>">Create one here</a></p>
+		</div>
 		<div class="create-ai-post">
 			<div class="create-ai">
 				<div class="create-ai-col">
@@ -44,6 +54,7 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 							</span>
 						</h3>
 					</a>
+					<a class="Posting__post-button create-ai-continue" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_posting&action=create_post_single' . ( $from_onboarding ? '&from=onboarding' : '' ) ) ); ?>">Click on &lsquo;Create Single Post&rsquo; to continue</a>
 				</div>
 
 
@@ -61,6 +72,7 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 							<span class="create-ai-tip-bubble is-wide is-interactive" id="iseo-tip-bulk-post" role="tooltip">Create a project with multiple posts based on a keyword list. Don&rsquo;t have a keyword list? <a href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_lists' ) ); ?>">Create one</a> before you get started.</span>
 						</span>
 					</h3>
+					<a class="Posting__page-button create-ai-continue" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_posting&action=create_post_bulk' . ( $from_onboarding ? '&from=onboarding' : '' ) ) ); ?>">Click on &lsquo;Create Bulk Post Project&rsquo; to continue</a>
 				</div>
 			</div>
 		</div>
