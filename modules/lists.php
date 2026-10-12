@@ -366,8 +366,8 @@ function improveseo_lists() {
  *                                   than the task's own state, because a draft can be published
  *                                   by hand later and the task row would never know.
  *
- * When a list fed several projects, the MOST RECENT one decides the status, the link and the
- * "last used" date; `more` counts the others.
+ * When a list fed several projects, the MOST RECENT one decides the status and the "last used"
+ * date; `projects` lists every one of them, newest first, so the screen can link each.
  *
  * Status of that project, first match wins:
  *   partial      the project was cancelled (state Stopped/Cancelled) or any of its tasks was
@@ -376,7 +376,7 @@ function improveseo_lists() {
  *   unused       no project has used the list
  *
  * @param object[] $lists Rows of improveseo_lists (id, name, …) — normally one page of the screen.
- * @return array<int, object> list id => { status, label, project_id, project_name, last_used, more }
+ * @return array<int, object> list id => { status, label, last_used, projects: { id, name, created }[] }
  */
 function improveseo_keyword_lists_usage( array $lists ) {
 	global $wpdb;
@@ -395,12 +395,10 @@ function improveseo_keyword_lists_usage( array $lists ) {
 	foreach ( $lists as $list ) {
 		$id = (int) $list->id;
 		$usage[ $id ] = (object) array(
-			'status'       => 'unused',
-			'label'        => $labels['unused'],
-			'project_id'   => 0,
-			'project_name' => '',
-			'last_used'    => '',
-			'more'         => 0,
+			'status'    => 'unused',
+			'label'     => $labels['unused'],
+			'last_used' => '',
+			'projects'  => array(),
 		);
 		$refs[] = (string) $id;
 		if ( '' !== (string) $list->name && ! isset( $by_name[ $list->name ] ) ) {
@@ -472,12 +470,20 @@ function improveseo_keyword_lists_usage( array $lists ) {
 		}
 
 		$usage[ $list_id ] = (object) array(
-			'status'       => $status,
-			'label'        => $labels[ $status ],
-			'project_id'   => (int) $latest->project_id,
-			'project_name' => (string) $latest->project_name,
-			'last_used'    => (string) $latest->project_created,
-			'more'         => count( $list_projects ) - 1,
+			'status'    => $status,
+			'label'     => $labels[ $status ],
+			'last_used' => (string) $latest->project_created,
+			'projects'  => array_map(
+				function ( $project ) {
+					$name = trim( (string) $project->project_name );
+					return (object) array(
+						'id'      => (int) $project->project_id,
+						'name'    => '' !== $name ? $name : 'Bulk Project #' . (int) $project->project_id,
+						'created' => (string) $project->project_created,
+					);
+				},
+				$list_projects
+			),
 		);
 	}
 

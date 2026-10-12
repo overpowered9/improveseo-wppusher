@@ -17,15 +17,22 @@ $iseo_has_lists = ( (int) $all ) > 0;
 $iseo_lists_url = admin_url( 'admin.php?page=improveseo_lists' );
 
 /**
- * A stored timestamp as a date in the site's own format ("12 Sep 2026", "September 12, 2026", …).
+ * A stored timestamp as a short date: "Sep 12, 2026". Always the three-letter month (translated by
+ * mysql2date), not the site's date_format, which can spell it out in full and push "Created …" and
+ * "Last used …" onto two lines.
  * Empty for a missing or zero date, so the caller can print its own placeholder.
  */
 $iseo_kwl_date = function ( $mysql_date ) {
 	if ( empty( $mysql_date ) || 0 === strpos( (string) $mysql_date, '0000-00-00' ) ) {
 		return '';
 	}
-	$formatted = mysql2date( get_option( 'date_format' ), $mysql_date );
+	$formatted = mysql2date( 'M j, Y', $mysql_date );
 	return $formatted ? $formatted : '';
+};
+
+/** A Bulk project's task list — where a "Project" link in the Usage column goes. */
+$iseo_project_url = function ( $project_id ) {
+	return admin_url( 'admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . absint( $project_id ) );
 };
 
 ?>
@@ -66,26 +73,33 @@ $iseo_kwl_date = function ( $mysql_date ) {
 
 	<div class="iseo-kwl-head">
 		<h2 class="iseo-kwl-head-title">My Keyword Lists</h2>
-		<?php // A real link to the manual create screen, so it still goes somewhere useful when the
-		      // dialog cannot open (no JS, or a browser without <dialog>); the script at the bottom
-		      // upgrades the click to the dialog. ?>
-		<a id="iseo-kwl-new-list" class="iseo-kwl-new-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_lists&action=create' ) ); ?>" aria-haspopup="dialog">
-			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" focusable="false"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-			New List
-		</a>
 	</div>
 
-	<div class="actions search-form-box">
-		<form class="improve-seo-form-global" method="GET">
-			<input type="text" id="post-search-input" name="s" value="<?php echo esc_attr( $s ); ?>"
-				placeholder="Search lists or keywords" aria-label="Search keyword lists by name or keyword">
-			<input type="hidden" name="page" value="improveseo_lists" />
-			<input type="hidden" name="action" value="index" />
-			<button type="submit" class="search-btn">
-				<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ); ?>"
-					alt="Search">
+	<?php // Same search row and "+ New …" button as the Single Projects screen (views/projects/index.php):
+	      // the same classes, so the button's size, shape, colour and the space beneath it come from
+	      // one set of rules instead of a look-alike copy. The onclick is the way in when the dialog
+	      // cannot open (a browser without <dialog>); the script at the bottom swaps it for the dialog. ?>
+	<div class="iseo-search-sort-row">
+		<form method="GET" action="" class="iseo-search-form">
+			<input type="hidden" name="page" value="improveseo_lists">
+			<input type="hidden" name="action" value="index">
+			<input type="text" name="s" value="<?php echo esc_attr( $s ); ?>"
+				class="iseo-search-input" placeholder="Search lists or keywords"
+				aria-label="Search keyword lists by name or keyword">
+			<button type="submit" class="iseo-search-btn">
+				<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/clarity_search-line.svg' ); ?>" alt="Search">
 			</button>
 		</form>
+		<?php if ( '' !== $s ) : ?>
+			<a href="<?php echo esc_url( $iseo_lists_url ); ?>" class="iseo-clear-btn">&#x2715; Clear</a>
+		<?php endif; ?>
+		<div class="import-export-btn">
+			<button type="button" id="iseo-kwl-new-list" class="active" aria-haspopup="dialog"
+				onclick="window.location.href='<?php echo esc_url( admin_url( 'admin.php?page=improveseo_lists&action=create' ) ); ?>';">+ New List</button>
+		</div>
+	</div>
+
+	<div class="actions">
 		<div class="pagination">
 			<?php if ($page > 1): ?>
 				<button class="prev pagination-btn"
@@ -161,8 +175,13 @@ $iseo_kwl_date = function ( $mysql_date ) {
 										style="cursor: pointer;">
 										<div class="iseo-kwl-cell">
 											<a class="iseo-kwl-name" href="<?php echo esc_url( $iseo_edit_url ); ?>"><?php echo esc_html( $item->name ); ?></a>
-											<span class="iseo-kwl-meta">Created <?php echo esc_html( $iseo_created ? $iseo_created : '—' ); ?></span>
-											<span class="iseo-kwl-meta">Last used <?php echo esc_html( $iseo_used_on ? $iseo_used_on : '—' ); ?></span>
+											<?php // Both dates on one line; each part is nowrap, so a narrow cell breaks
+											      // between them rather than inside a date. ?>
+											<span class="iseo-kwl-meta iseo-kwl-dates">
+												<span>Created <?php echo esc_html( $iseo_created ? $iseo_created : '—' ); ?></span>
+												<span class="iseo-kwl-dates-sep" aria-hidden="true">&middot;</span>
+												<span>Last used <?php echo esc_html( $iseo_used_on ? $iseo_used_on : '—' ); ?></span>
+											</span>
 										</div>
 									</td>
 									<td data-label="Keyword List Preview" class="iseo-kwl-col-preview">
@@ -173,15 +192,30 @@ $iseo_kwl_date = function ( $mysql_date ) {
 									</td>
 									<td data-label="Usage" class="iseo-kwl-col-usage">
 										<div class="iseo-kwl-cell">
-											<span class="iseo-kwl-status iseo-kwl-status--<?php echo esc_attr( $iseo_status ); ?>"><?php echo esc_html( $iseo_use ? $iseo_use->label : 'Not used yet' ); ?></span>
-											<?php if ( $iseo_use && $iseo_use->project_id ) : ?>
+											<?php $iseo_projects = $iseo_use ? $iseo_use->projects : array(); ?>
+											<span class="iseo-kwl-status iseo-kwl-status--<?php echo esc_attr( $iseo_status ); ?>"
+												<?php if ( count( $iseo_projects ) > 1 ) : ?>title="Status of the latest project"<?php endif; ?>><?php echo esc_html( $iseo_use ? $iseo_use->label : 'Not used yet' ); ?></span>
+											<?php if ( 1 === count( $iseo_projects ) ) : ?>
 												<span class="iseo-kwl-meta">
 													Project:
-													<a class="iseo-kwl-project" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . $iseo_use->project_id ) ); ?>"><?php echo esc_html( '' !== trim( $iseo_use->project_name ) ? $iseo_use->project_name : 'Bulk Project #' . $iseo_use->project_id ); ?></a>
+													<a class="iseo-kwl-project" href="<?php echo esc_url( $iseo_project_url( $iseo_projects[0]->id ) ); ?>"><?php echo esc_html( $iseo_projects[0]->name ); ?></a>
 												</span>
-												<?php if ( $iseo_use->more > 0 ) : ?>
-													<a class="iseo-kwl-meta iseo-kwl-more" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_bulkprojects' ) ); ?>"><?php echo esc_html( sprintf( 1 === $iseo_use->more ? '+%d more project' : '+%d more projects', $iseo_use->more ) ); ?></a>
-												<?php endif; ?>
+											<?php elseif ( count( $iseo_projects ) > 1 ) : ?>
+												<?php // Every project that used the list, newest first, behind a native
+												      // disclosure: no script, keyboard and screen-reader support built in.
+												      // The status pill above describes the first (latest) one. ?>
+												<details class="iseo-kwl-projects">
+													<summary class="iseo-kwl-meta"><?php echo esc_html( sprintf( 'Used in %d projects', count( $iseo_projects ) ) ); ?></summary>
+													<ul>
+														<?php foreach ( $iseo_projects as $iseo_i => $iseo_project ) :
+															$iseo_project_date = $iseo_kwl_date( $iseo_project->created ); ?>
+															<li>
+																<a class="iseo-kwl-project" href="<?php echo esc_url( $iseo_project_url( $iseo_project->id ) ); ?>"><?php echo esc_html( $iseo_project->name ); ?></a>
+																<span class="iseo-kwl-meta"><?php echo esc_html( implode( ' · ', array_filter( array( 0 === $iseo_i ? 'Latest' : '', $iseo_project_date ) ) ) ); ?></span>
+															</li>
+														<?php endforeach; ?>
+													</ul>
+												</details>
 											<?php endif; ?>
 										</div>
 									</td>
@@ -249,11 +283,11 @@ $iseo_kwl_date = function ( $mysql_date ) {
 	(function () {
 		var dialog = document.getElementById('iseo-kwl-new-dialog');
 		var opener = document.getElementById('iseo-kwl-new-list');
-		// Without showModal() the button stays the plain link to the create screen it already is.
+		// Without showModal() the button keeps its onclick: straight to the create screen.
 		if (!dialog || !opener || typeof dialog.showModal !== 'function') { return; }
 
-		opener.addEventListener('click', function (e) {
-			e.preventDefault();
+		opener.onclick = null;
+		opener.addEventListener('click', function () {
 			dialog.showModal();
 		});
 		dialog.querySelector('.iseo-kwl-dialog-close').addEventListener('click', function () {

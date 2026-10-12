@@ -3632,14 +3632,10 @@ form#popup_form .iseo-credit-estimate {
   transform: translateY(0);
 }
 
-/* ── "My Keyword Lists" header: title left, "+ New List" right ── */
+/* ── "My Keyword Lists" title. "+ New List" sits in the search row below it, styled by the same
+   .import-export-btn rules as "+ New Single Post" on the Single Projects screen. ── */
 .iseo-kwl-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding: 10px 20px 6px;
+  padding: 10px 20px 12px;
 }
 
 .iseo-kwl-head .iseo-kwl-head-title {
@@ -3648,43 +3644,6 @@ form#popup_form .iseo-credit-estimate {
   font-size: 22px;
   font-weight: 600;
   line-height: 1.3;
-}
-
-.iseo-kwl-new-btn,
-.iseo-kwl-new-btn:visited {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 22px;
-  border: 1px solid #1C7293;
-  border-radius: 50px;
-  background: #1C7293;
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.2;
-  text-decoration: none;
-  transition: background 0.15s ease, box-shadow 0.15s ease;
-}
-
-.iseo-kwl-new-btn:hover,
-.iseo-kwl-new-btn:focus {
-  background: #16607b;
-  border-color: #16607b;
-  color: #ffffff;
-  box-shadow: 0 6px 16px rgba(28, 114, 147, 0.25);
-}
-
-.iseo-kwl-new-btn:focus {
-  outline: none;
-}
-.iseo-kwl-new-btn:focus-visible {
-  outline: 2px solid #1C7293;
-  outline-offset: 2px;
-}
-
-.iseo-kwl-new-btn svg {
-  display: block;
 }
 
 /* ── Rows: several facts per column, stacked ─────────────────────────────────
@@ -3701,16 +3660,13 @@ form#popup_form .iseo-credit-estimate {
 .iseo-kwl-table thead th:nth-child(4) { width: 170px; }
 
 /* style.css gives the first and last cells no vertical padding (their content used to be one
-   line, padded inline). Stacked content needs it on every cell. */
+   line, padded inline). Stacked content needs it on every cell. Centred vertically, so a cell with
+   one or two lines sits level with a taller neighbour instead of hanging from the top. */
 .project-lists .iseo-kwl-table tbody td {
   padding-top: 16px;
   padding-bottom: 16px;
-  vertical-align: top;
-  font-size: 15px;
-}
-
-.project-lists .iseo-kwl-table tbody td[data-label="Action"] {
   vertical-align: middle;
+  font-size: 15px;
 }
 
 .iseo-kwl-cell {
@@ -3759,6 +3715,17 @@ form#popup_form .iseo-credit-estimate {
   line-height: 1.4;
 }
 
+/* "Created Sep 12, 2026 · Last used Oct 3, 2026" — one line; if the cell is too narrow it breaks
+   between the two dates, never inside one. */
+.iseo-kwl-dates {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 6px;
+}
+.iseo-kwl-dates > span {
+  white-space: nowrap;
+}
+
 .iseo-kwl-preview {
   display: block;
   width: 100%;
@@ -3798,9 +3765,7 @@ form#popup_form .iseo-credit-estimate {
 .iseo-kwl-status--partial     { background: #FDECE6; color: #B23C17; }
 
 .iseo-kwl-project,
-.iseo-kwl-project:visited,
-a.iseo-kwl-more,
-a.iseo-kwl-more:visited {
+.iseo-kwl-project:visited {
   color: #1C7293;
   text-decoration: none;
 }
@@ -3810,11 +3775,70 @@ a.iseo-kwl-more:visited {
 }
 
 .iseo-kwl-project:hover,
-.iseo-kwl-project:focus,
-a.iseo-kwl-more:hover,
-a.iseo-kwl-more:focus {
+.iseo-kwl-project:focus {
   color: #16607b;
   text-decoration: underline;
+}
+
+/* A list used by several projects: "Used in 3 projects" opens the full list, newest first. */
+.iseo-kwl-projects {
+  max-width: 100%;
+}
+.iseo-kwl-projects > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #1C7293;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+.iseo-kwl-projects > summary::-webkit-details-marker {
+  display: none;
+}
+.iseo-kwl-projects > summary::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 2px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+}
+.iseo-kwl-projects[open] > summary::after {
+  margin-top: 3px;
+  transform: rotate(-135deg);
+}
+.iseo-kwl-projects > summary:hover {
+  color: #16607b;
+  text-decoration: underline;
+}
+.iseo-kwl-projects > summary:focus {
+  outline: none;
+}
+.iseo-kwl-projects > summary:focus-visible {
+  outline: 2px solid #1C7293;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.iseo-kwl-projects ul {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.iseo-kwl-projects li {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 4px 0 4px 10px;
+  border-left: 2px solid #CFE3EB;
+}
+.iseo-kwl-projects li .iseo-kwl-project {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
 }
 
 .project-lists .iseo-kwl-table tbody td.iseo-kwl-empty {
@@ -3829,20 +3853,33 @@ a.iseo-kwl-more:focus {
 }
 
 /* Phones: style.css turns each row into a card of label/value pairs (the label is the cell's
-   data-label). Let the stacked values sit on the right and wrap instead of clipping. */
+   data-label). Let the stacked values sit on the right and wrap instead of clipping.
+
+   The table and its body become blocks: left as a table, it sized itself to its widest content —
+   the one-line keyword preview — and every card ran ~2000px wide on a 390px screen with the
+   values off the right edge. As blocks they take the screen's width, and min-width:0 lets each
+   value shrink so the preview gets its ellipsis back. */
 @media (max-width: 767px) {
-  .project-lists .iseo-kwl-table {
-    table-layout: auto;
+  .project-lists .iseo-kwl-table,
+  .project-lists .iseo-kwl-table tbody {
+    display: block;
+    width: 100%;
   }
   .project-lists .iseo-kwl-table tbody td {
     padding-top: 12px;
     padding-bottom: 12px;
     gap: 12px;
   }
+  .project-lists .iseo-kwl-table tbody td::before {
+    flex: 0 0 auto;
+  }
   .iseo-kwl-cell {
     align-items: flex-end;
     text-align: right;
     flex: 1 1 auto;
+  }
+  .iseo-kwl-dates {
+    justify-content: flex-end;
   }
 }
 
@@ -3916,7 +3953,7 @@ a.iseo-kwl-more:focus {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  margin: 8px 0 4px;
+  margin: 0 0 24px;
   padding: 14px 18px;
   background: #EEF6F9;
   border: 1px solid #CFE3EB;
@@ -3926,8 +3963,14 @@ a.iseo-kwl-more:focus {
 
 .iseo-kwl-notice-icon {
   flex: 0 0 auto;
-  margin-top: 1px;
+  margin-top: 2px;
   color: #1C7293;
+}
+
+/* The first field's 30px top margin (.improve-seo-form-global .seo-form-field) would stack on the
+   notice's own bottom margin; the notice sets that gap. */
+.iseo-kwl-notice + form .seo-form-field:first-child {
+  margin-top: 0;
 }
 
 .iseo-kwl-notice .iseo-kwl-notice-text {
