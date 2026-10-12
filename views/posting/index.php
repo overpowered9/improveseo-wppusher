@@ -28,7 +28,7 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 <div class="global-wrap">
 	<div class="head-bar">
 		<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
-		<h1 style="font-size: 36px; font-weight: 500;"> Welcome To Improve SEO! </h1>
+		<h1 style="font-size: 36px; font-weight: 500;"> What would you like to create? </h1>
 	</div>
 	<div class="container">
 		<div class="breadcrumb text-center">
@@ -39,7 +39,6 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 		</div>
 		<div class="create-ai-post">
 			<div class="create-ai">
-				<h2 class="title">What would you like to create?</h2>
 				<div class="create-ai-col">
 					<a class="Posting__post-button" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_posting&action=create_post_single' . ( $from_onboarding ? '&from=onboarding' : '' ) ) ); ?>" aria-describedby="iseo-tip-single-post">
 						<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/Mobile-UX-rafiki.png' ); ?>"
