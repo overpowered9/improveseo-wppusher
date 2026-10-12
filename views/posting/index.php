@@ -31,19 +31,13 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 		<h1 style="font-size: 36px; font-weight: 500;"> What would you like to create? </h1>
 	</div>
 	<div class="container">
-		<div class="breadcrumb text-center">
-			<span class="active">Creation</span> &gt;
-			<span>Category</span> &gt;
-			<span>Content</span> &gt;
-			<span>Publish</span>
-		</div>
 		<div class="create-ai-post">
 			<div class="create-ai">
 				<div class="create-ai-col">
 					<a class="Posting__post-button" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_posting&action=create_post_single' . ( $from_onboarding ? '&from=onboarding' : '' ) ) ); ?>" aria-describedby="iseo-tip-single-post">
 						<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/Mobile-UX-rafiki.png' ); ?>"
-							alt="Create Single AI Post">
-						<h3>Create Single AI Post
+							alt="Create Single Post">
+						<h3>Create Single Post
 							<span class="create-ai-tip">
 								<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
 								<span class="create-ai-tip-bubble" id="iseo-tip-single-post" role="tooltip">Create a single post based on a chosen seed keyword</span>
@@ -61,7 +55,7 @@ $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 					<?php // The hint links to Keyword Lists, and a link cannot be nested inside the card's
 					      // own <a> — so the title carries the link and the hint sits outside it. ?>
 					<h3>
-						<a class="Posting__page-button" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_posting&action=create_post_bulk' . ( $from_onboarding ? '&from=onboarding' : '' ) ) ); ?>" aria-describedby="iseo-tip-bulk-post">Create Bulk AI Posts Project</a>
+						<a class="Posting__page-button" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_posting&action=create_post_bulk' . ( $from_onboarding ? '&from=onboarding' : '' ) ) ); ?>" aria-describedby="iseo-tip-bulk-post">Create Bulk Post Project</a>
 						<span class="create-ai-tip">
 							<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
 							<span class="create-ai-tip-bubble is-wide is-interactive" id="iseo-tip-bulk-post" role="tooltip">Create a project with multiple posts based on a keyword list. Don&rsquo;t have a keyword list? <a href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_lists' ) ); ?>">Create one</a> before you get started.</span>
@@ -90,13 +84,13 @@ jQuery(function ($) {
             $el:   $cols.eq(0),
             title: 'Create a single article &#x1F680;',
             message: 'Writes <strong>one post</strong> from one keyword. You pick the title, settings and cover image, review the article, and publish it. Best for your first try.'
-                   + '<br><br>Click <strong>Create Single AI Post</strong> to start — we’ll guide you through every step.'
+                   + '<br><br>Click <strong>Create Single Post</strong> to start — we’ll guide you through every step.'
         },
         {
             $el:   $cols.eq(1),
             title: 'Or create many posts at once &#x1F4DA;',
-            message: 'A <strong>Bulk AI Posts Project</strong> writes one post for every keyword in a keyword list, in the background. You’ll need a keyword list first.'
-                   + '<br><br>Click <strong>Create Bulk AI Posts Project</strong> to start — we’ll guide you through every step.'
+            message: 'A <strong>Bulk Post Project</strong> writes one post for every keyword in a keyword list, in the background. You’ll need a keyword list first.'
+                   + '<br><br>Click <strong>Create Bulk Post Project</strong> to start — we’ll guide you through every step.'
         }
     ];
     var current = 0;
