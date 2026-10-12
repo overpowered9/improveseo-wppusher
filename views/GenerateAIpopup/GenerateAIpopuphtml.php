@@ -1794,6 +1794,7 @@ global $ai_modal_type;
                                     <?php echo $html_key_to_send; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- assembled from fixed literals plus values escaped at insertion; escaping the whole string would print the tags. ?>
                                 </select>
                                 <span id="error_keyword_list_name" style="color: red;"></span>
+                                <span id="keyword_lists_refresh_status" aria-live="polite" style="display:block; padding-left:20px; font-size:13px; color:#666;"></span>
                             </div>
                             <div class="form-group" id="keyword_list_container" style="display: none;">
                                 <label style="padding-left:20px;" for="keyword_list">Keywords
@@ -2255,12 +2256,13 @@ global $ai_modal_type;
                         </div>
 
                         <h2 style="padding-left:20px;">Assign Author</h2>
-                        <div style="padding: 0 20px 20px;">
+                        <div class="iseo-bw-author">
                             <?php echo $all_auths; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- assembled from fixed literals plus values escaped at insertion; escaping the whole string would print the tags. ?>
                         </div>
 
-                        <h2 style="padding-left:20px;">Meta Title &amp; Description</h2>
-                        <p style="padding: 0 20px 20px;">
+                        <?php // Spacing and type for this section: see .iseo-bw-meta-* in assets/css/made_by_me.css. ?>
+                        <h2 class="iseo-bw-meta-heading" style="padding-left:20px;">Meta Title &amp; Description</h2>
+                        <p class="iseo-bw-meta-note">
                             An SEO optimized meta title and meta description will be generated in the background. A preview is not available at this time, however, you can view it under 'View Details' in the Bulk Post Projects list (post level) once content generation is complete.
                         </p>
 
@@ -2366,8 +2368,14 @@ global $ai_modal_type;
     </div>
 </div>
 
-
-
+<?php
+// Ask before the admin sidebar or toolbar throws an unsaved Bulk project away — it is only
+// saved by the wizard's final Submit. The Single wizard's page renders its own copy, which
+// guards the whole page, so it is skipped there (one overlay per page).
+if ( 'single' !== $ai_modal_type ) {
+    \ImproveSEO\View::render( 'posting.leave-wizard-modal', array( 'while_open' => '#exampleModal2' ) );
+}
+?>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -2396,18 +2404,6 @@ global $ai_modal_type;
                 document.getElementById("exampleModal2").classList.add("hide_and_show_ai_popup");
             });
         }
-
-        // Warn before leaving the Bulk wizard via the WordPress menus — nothing is saved until the last step.
-        jQuery(document).on('click', '#adminmenu a, #wpadminbar a', function (e) {
-            var $wizard = jQuery('#exampleModal2');
-            if (!$wizard.is(':visible') || $wizard.hasClass('hide_and_show_ai_popup')) return;
-            if (confirm('Are you sure you want to leave? This project will only be saved at the end of this Wizard. You will need to start over again if you leave now.')) {
-                window.onbeforeunload = null; // already confirmed — skip the browser's own second warning
-            } else {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-            }
-        });
 
         // Close Generate AI Popup Modal
         if (close_generate_ai_popup) {
@@ -4795,11 +4791,79 @@ global $ai_modal_type;
 </script>
 <script>
 
-    // Refresh keyword lists dropdown - simplified to just reload page
+    // "Click here to refresh" (Keyword List hint): reload just the dropdown's lists, so a list
+    // made in the Keyword Generator tab shows up without a page reload — which would wipe
+    // what the user has entered and set off posting.js' "changes will be lost" prompt.
     jQuery(document).ready(function() {
+        var busy = false;
+        var statusTimer = null;
+
+        function showRefreshStatus(text) {
+            clearTimeout(statusTimer);
+            jQuery('#keyword_lists_refresh_status').text(text);
+            statusTimer = setTimeout(function () {
+                jQuery('#keyword_lists_refresh_status').text('');
+            }, 6000);
+        }
+
         jQuery('#refresh_keyword_lists').on('click', function(e) {
             e.preventDefault();
-            location.reload();
+            if (busy) { return; }
+            busy = true;
+
+            var $select  = jQuery('#keyword_list_name');
+            var selected = $select.val();
+            var known    = {};
+            $select.find('option').each(function () { known[this.value] = true; });
+
+            showRefreshStatus('Refreshing keyword lists…');
+
+            jQuery.post(ajaxurl, {
+                action: 'refresh_keyword_lists',
+                nonce: '<?php echo esc_js( wp_create_nonce( 'improveseo_ajax' ) ); ?>'
+            }).always(function () {
+                // First, so the link can't stay locked if a handler below throws.
+                busy = false;
+            }).done(function (response) {
+                if (!response || !response.success || !response.data || !jQuery.isArray(response.data.lists)) {
+                    showRefreshStatus('');
+                    showImproveSEONotification('error', 'Refresh Failed', 'Could not refresh your keyword lists. Please try again.', null);
+                    return;
+                }
+
+                // Keep the "Select a Keyword List" placeholder; replace the lists after it.
+                $select.find('option').filter(function () { return this.value !== ''; }).remove();
+                var added = [];
+                jQuery.each(response.data.lists, function (i, list) {
+                    var id = String(list.id);
+                    $select.append(jQuery('<option>').val(id).text(list.name));
+                    if (!known[id]) { added.push(list); }
+                });
+
+                if (selected && $select.find('option').filter(function () { return this.value === selected; }).length) {
+                    // Still there: keep it, along with any edits made to its keywords below.
+                    $select.val(selected);
+                } else if (!selected && added.length === 1) {
+                    // Nothing chosen yet and one new list — the one just made. Pick it.
+                    $select.val(String(added[0].id)).trigger('change');
+                } else if (selected) {
+                    // The chosen list was deleted meanwhile; back to the placeholder.
+                    $select.val('').trigger('change');
+                } else {
+                    $select.val('');
+                }
+
+                if (!added.length) {
+                    showRefreshStatus('Keyword lists are up to date.');
+                } else if (added.length === 1) {
+                    showRefreshStatus('New keyword list added: ' + added[0].name);
+                } else {
+                    showRefreshStatus(added.length + ' new keyword lists added.');
+                }
+            }).fail(function () {
+                showRefreshStatus('');
+                showImproveSEONotification('error', 'Refresh Failed', 'Could not refresh your keyword lists. Please check your connection and try again.', null);
+            });
         });
     });
 
@@ -4807,6 +4871,15 @@ global $ai_modal_type;
         jQuery('#keyword_list_name').on('change', function () {
             var selectedOption = jQuery(this).val();
             
+            // Back on the "Select a Keyword List" placeholder: there is no list to load, and
+            // asking the server for list_id '' only produced a "Load Failed" error.
+            if (!selectedOption) {
+                jQuery('#keyword_list_container').hide();
+                jQuery('#keyword_list').val('').trigger('input');
+                jQuery('#keywordcounts').text('0');
+                return;
+            }
+
             if (selectedOption == 'create_new_project' || selectedOption == 'none') {
                 jQuery('#keyword_list_container').hide();
                 jQuery('#create_keyword_container').toggle(selectedOption == 'create_new_project');

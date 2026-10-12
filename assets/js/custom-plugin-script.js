@@ -1724,6 +1724,12 @@ jQuery(document).ready(function ($) {
         console.log(response);
 
         if (response && response.data && response.data.status == "success") {
+          // The project is saved, so the leave-wizard prompt (views/posting/leave-wizard-modal.php)
+          // must not warn about losing it during the redirect delay below.
+          if (window.iseoLeaveWizard) {
+            window.iseoLeaveWizard.disarm();
+          }
+
           // Show success notification
           if (typeof showImproveSEONotification !== 'undefined') {
             showImproveSEONotification(

@@ -544,59 +544,12 @@ function generateAIpopup()
 
 
 
-    <script>
-
-
-
-
-
-
-
-        jQuery(document).ready(function () {
-
-            jQuery('#keyword_list_name').on('change', function () {
-
-                var selectedOption = jQuery(this).val();
-
-                if (selectedOption == 'create_new_project' || selectedOption == 'none') {
-
-                    jQuery('#keyword_list_container').hide();
-
-                } else {
-
-                    jQuery('#keyword_list_container').show();
-
-                    var allKeywords = <?php echo json_encode($all_keywords); ?>;
-
-                    var keywordCount = allKeywords[selectedOption].split('\n').filter(function (k) { return k.trim() !== ''; }).length;
-
-                    jQuery('#keywordcounts').text(keywordCount);
-
-                    jQuery('#keywordtime').text(window.formatEstimatedTime(keywordCount));
-
-                    jQuery('#keyword_list').val(allKeywords[selectedOption]);
-
-                }
-
-                if (selectedOption == 'create_new_project') {
-
-                    jQuery('#create_keyword_container').show();
-
-                }
-
-                else {
-
-                    jQuery('#create_keyword_container').hide();
-
-                }
-
-            });
-
-        });
-
-
-
-    </script>
+    <?php
+    // The Keyword List picker's change handler lives with the picker, in
+    // views/GenerateAIpopup/GenerateAIpopuphtml.php. A second copy here read only the
+    // page-load keyword cache and threw on any list missing from it (a list added via
+    // "click here to refresh") or on the placeholder, which stopped the real handler running.
+    ?>
 
     <script>
         var maxKeywords = 30; // Limit keywords to 30

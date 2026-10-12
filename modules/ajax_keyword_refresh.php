@@ -18,11 +18,16 @@ function improveseo_refresh_keyword_lists() {
     // Fetch all keyword lists from database
     $lists = $wpdb->get_results("SELECT id, name FROM {$wpdb->prefix}improveseo_lists ORDER BY name ASC"); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
     
+    // A list of {id, name} rather than an id => name map: JavaScript orders an object's
+    // integer-like keys numerically, which would undo the ORDER BY name above.
     $keyword_lists = array();
     
     if ($lists) {
         foreach ($lists as $list) {
-            $keyword_lists[$list->id] = $list->name;
+            $keyword_lists[] = array(
+                'id'   => (int) $list->id,
+                'name' => $list->name,
+            );
         }
     }
     
@@ -49,14 +54,18 @@ function improveseo_get_keyword_list_data() {
         return;
     }
     
+    // The keywords live in the `list` column; this asked for a `keywords` column that does
+    // not exist, so every list not already cached in the page (i.e. one just made in the
+    // Keyword Generator) failed to load.
     $list = $wpdb->get_row($wpdb->prepare(
-        "SELECT keywords FROM {$wpdb->prefix}improveseo_lists WHERE id = %d",
+        "SELECT list FROM {$wpdb->prefix}improveseo_lists WHERE id = %d",
         $list_id
     ));
     
     if ($list) {
-        $keywords = $list->keywords;
-        $keyword_array = array_filter(explode("\n", $keywords));
+        $keywords = $list->list;
+        // Same count as the wizard's own: non-blank lines.
+        $keyword_array = array_filter(array_map('trim', explode("\n", $keywords)), 'strlen');
         $keyword_count = count($keyword_array);
         $keyword_min = $keyword_count * 3;
         $keyword_time = number_format($keyword_min / 60, 2);
