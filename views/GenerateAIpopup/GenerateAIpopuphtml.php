@@ -1287,6 +1287,7 @@ global $ai_modal_type;
                                         <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
                                             <strong>Point of View</strong>
                                             Choose from which perspective the post shall be written:
+                                            <span class="iseo-tip-item"><b>Auto (AI Decides)</b>: the AI picks the perspective that best suits the keyword.</span>
                                             <span class="iseo-tip-item"><b>Speaking to the Reader</b> (you, your): you are addressing the reader directly. This option is recommended for engaging, direct copy.</span>
                                             <span class="iseo-tip-item"><b>Business Voice</b> (we, our): you are talking from the perspective of your company and your team. This option is recommended if you write an informational piece about your business.</span>
                                             <span class="iseo-tip-item"><b>Personal Voice</b> (I, mine): you are talking from your own perspective as the business owner. This option is recommended for sharing your personal experience (trust building).</span>
@@ -1317,7 +1318,7 @@ global $ai_modal_type;
 
                     </div>
                     <div class="seo-form-field iseo-details-block">
-                        <label class="iseo-details-head">Details for this article <small style="color:#888;font-weight:normal;margin-left:6px;">(optional &mdash; tailored to your niche)</small>
+                        <label class="iseo-details-head">Details for this post <small style="color:#888;font-weight:normal;margin-left:6px;">(optional &mdash; tailored to your niche)</small>
                             <span class="iseo-info-tip" tabindex="0" role="button" aria-label="Why should I add details?">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                 <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
@@ -1554,7 +1555,7 @@ global $ai_modal_type;
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                             <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
                                                 <strong>Regenerate Content</strong>
-                                                Something not right with your post? Click on &lsquo;Review Input&rsquo; to go back to the beginning of this wizard and review and change any inputs you have made so far. Once you made all necessary changes click on &lsquo;Regenerate Content&rsquo; to generate the post based on your revised inputs. Regenerating content will use an additional content credit.
+                                                Not happy with the result? Click &lsquo;Regenerate Content&rsquo; to rewrite this post using your current inputs. You can add extra instructions for the new version before it runs. Regenerating content will use an additional content credit.
                                                 <span class="iseo-tip-para">Note: you will be able to make manual edits in a later step before you finalize and publish your post.</span>
                                             </span>
                                         </span>
@@ -1565,8 +1566,8 @@ global $ai_modal_type;
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                             <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
                                                 <strong>Review your Inputs</strong>
-                                                Something not right with your post? Click on &lsquo;Review Input&rsquo; to go back to the beginning of this wizard and review and change any inputs you have made so far. Once you made all necessary changes click on &lsquo;Regenerate Content&rsquo; to generate the post based on your revised inputs. Regenerating content will use an additional content credit.
-                                                <span class="iseo-tip-para">Note: you will be able to make manual edits in a next step before you finalize and publish your post.</span>
+                                                Something not right with your post? Click &lsquo;Review Input&rsquo; to go back to the beginning of this wizard and review or change any inputs you have made so far. Once you&rsquo;ve made all necessary changes, click &lsquo;Regenerate Content&rsquo; to generate the post based on your revised inputs. Regenerating content will use an additional content credit.
+                                                <span class="iseo-tip-para">Note: you will be able to make manual edits in a later step before you finalize and publish your post.</span>
                                             </span>
                                         </span>
                                     </span>
@@ -1781,8 +1782,11 @@ global $ai_modal_type;
                                     <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a keyword list for?">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                         <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field is-interactive" role="tooltip">
-                                            Keyword list allows you to generate posts in bulk, one post per keyword.
-                                            <span class="iseo-tip-para">To create a new keyword list, click <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_keyword_generator') ); ?>" target="_blank" rel="noopener noreferrer">Generate Keywords</a>. Once you are done, <a href="javascript:void(0);" id="refresh_keyword_lists">click here to refresh</a>.</span>
+                                            A Bulk Post Project allows you to generate posts in bulk based on a keyword list, one post per keyword.
+                                            <span class="iseo-tip-para">Ideally, you have already prepared a keyword list. Select it below.</span>
+                                            <?php // "Refresh" rather than the spec's "start a new bulk project": the new list
+                                                  // is pulled into this dropdown without closing the wizard and losing its inputs. ?>
+                                            <span class="iseo-tip-para">If you haven&rsquo;t, create a new keyword list here: <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists') ); ?>" target="_blank" rel="noopener noreferrer">Generate Keyword List</a>. Once you are done, <a href="javascript:void(0);" id="refresh_keyword_lists">click here to refresh</a> the lists.</span>
                                         </span>
                                     </span>
                                 </label>
@@ -1801,7 +1805,7 @@ global $ai_modal_type;
                                     <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What are these keywords?">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                         <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
-                                            Below all keywords from you selected keyword list are shown, you can edit this list for this bulk project. The minimum number of keyword required is one.
+                                            Below are all keywords from your selected keyword list. You can edit this list for this bulk project. At least one keyword is required.
                                         </span>
                                     </span>
                                 </label>
@@ -1962,6 +1966,7 @@ global $ai_modal_type;
                                             <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
                                                 <strong>Point of View</strong>
                                                 Choose from which perspective the posts within this bulk project shall be written:
+                                                <span class="iseo-tip-item"><b>Auto (AI Decides)</b>: the AI picks the perspective that best suits the keyword.</span>
                                                 <span class="iseo-tip-item"><b>Speaking to the Reader</b> (you, your): you are addressing the reader directly. This option is recommended for engaging, direct copy.</span>
                                                 <span class="iseo-tip-item"><b>Business Voice</b> (we, our): you are talking from the perspective of your company and your team. This option is recommended if you write an informational piece about your business.</span>
                                                 <span class="iseo-tip-item"><b>Personal Voice</b> (I, mine): you are talking from your own perspective as the business owner. This option is recommended for sharing your personal experience (trust building).</span>
@@ -2039,7 +2044,18 @@ global $ai_modal_type;
                     <div class="seo-slide-steps-fours_multi bulk-boxx_multi">
                         <!-- New per-keyword image selection container -->
                         <div id="keyword-image-selection-container" style="display:none; padding: 20px;">
-                            <h3 style="margin-bottom: 20px; font-size: 18px; font-weight: 500; color: rgba(80, 87, 94, 0.8);">Select Image Method for Each Keyword</h3>
+                            <h3 style="margin-bottom: 20px; font-size: 18px; font-weight: 500; color: rgba(80, 87, 94, 0.8);">Select Image Method for Each Keyword
+                                <span class="iseo-info-tip" tabindex="0" role="button" aria-label="How do I choose an image for each post?">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                        <strong>Choose a Cover Image for Each Post</strong>
+                                        Each keyword below becomes one post. Pick how its cover image is created:
+                                        <span class="iseo-tip-item"><b>Generate Image Using AI</b> (selected by default): we create a cover image from the post title. Uses image credits.</span>
+                                        <span class="iseo-tip-item"><b>Upload Image</b>: use your own image instead (JPG, PNG, etc., max 5&nbsp;MB).</span>
+                                        <span class="iseo-tip-para">Note: a preview of the AI images is not available at this step.</span>
+                                    </span>
+                                </span>
+                            </h3>
                             <div id="keyword-image-list">
                                 <!-- Will be populated dynamically when Step 3 loads -->
                             </div>
@@ -3549,13 +3565,15 @@ if ( 'single' !== $ai_modal_type ) {
         container.empty();
         
         keywords.forEach((keyword, index) => {
-            const trimmedKeyword = keyword.trim();
-            
+            // Escaped: keywords can come from Google Suggest or a pasted list, and this
+            // template is inserted as HTML.
+            const keywordHtml = jQuery('<div>').text(keyword.trim()).html();
+
             const html = `
                 <div class="keyword-image-row" style="padding: 15px; border: 1px solid #ddd; margin-bottom: 15px; border-radius: 12px; background: #f9f9f9;">
                     <div style="margin-bottom: 10px;">
                         <strong style="font-size: 16px; color: rgba(80, 87, 94, 0.8);">Keyword:</strong>
-                        <span style="font-size: 16px; color: rgba(80, 87, 94, 0.8);">${trimmedKeyword}</span>
+                        <span style="font-size: 16px; color: rgba(80, 87, 94, 0.8);">${keywordHtml}</span>
                     </div>
                     <div class="image-method-radio" style="margin-bottom: 10px;">
                         <label style="margin-right: 20px; cursor: pointer; display: inline-flex; align-items: center; font-size: 16px; color: rgba(80, 87, 94, 0.8);">

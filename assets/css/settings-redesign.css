@@ -876,11 +876,21 @@
     border: 6px solid transparent;
     border-bottom-color: #1F2937;
 }
+/* .is-open: pinned by a click or tap (assets/js/main.js). :focus-within keeps a bubble
+   that holds a link open while the keyboard moves from the marker into the link. */
 .iseo-info-tip:hover .iseo-info-tip-bubble,
-.iseo-info-tip:focus .iseo-info-tip-bubble {
+.iseo-info-tip:focus .iseo-info-tip-bubble,
+.iseo-info-tip:focus-within .iseo-info-tip-bubble,
+.iseo-info-tip.is-open .iseo-info-tip-bubble {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+}
+/* Closed by a second click or Escape while the pointer or focus is still on the marker,
+   which on their own would keep it showing. main.js clears this when they leave. */
+.iseo-info-tip.is-dismissed .iseo-info-tip-bubble {
+    opacity: 0;
+    visibility: hidden;
 }
 
 /* Variant for the large post-wizard form labels. The marker there sits near the left

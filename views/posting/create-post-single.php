@@ -257,7 +257,7 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 						<span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is the Google preview?" onclick="event.stopPropagation();">
 							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
 							<span class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--end is-interactive" role="tooltip">
-								Below you can preview how your post will show inside Google on their search results page. The below meta title and meta description were approved by you inside the Wizard. You can make now further edits as needed.
+								Below you can preview how your post will show up on Google&rsquo;s search results page. The meta title and meta description below were approved by you inside the Wizard. You can now make further edits as needed.
 								<span class="iseo-tip-para">Note: If you have another SEO plugin installed on this website, the meta title and meta description for this post might be generated according to those SEO plugins, and may differ and override the meta title and description below. <a href="https://account.improveseoplugin.com/tutorial" target="_blank" rel="noopener noreferrer">Learn More</a></span>
 							</span>
 						</span>

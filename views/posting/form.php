@@ -55,7 +55,7 @@ $_isSingleCreate = isset($ai_modal_type) && $ai_modal_type === 'single';
 						<span class="iseo-info-tip" tabindex="0" role="button" aria-label="Where does this post title come from?">
 							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
 							<span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
-								This is the post title that you approved inside the Wizard, you can edit it.
+								This is the post title you approved inside the Wizard. You can edit it here.
 							</span>
 						</span>
 					<?php endif; ?></label>
@@ -182,7 +182,7 @@ $_isSingleCreate = isset($ai_modal_type) && $ai_modal_type === 'single';
 					<span class="iseo-info-tip" tabindex="0" role="button" aria-label="What does saving as a draft do?">
 						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
 						<span class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--end" role="tooltip">
-							Not ready to publish yet? Click &lsquo;Save As Draft&rsquo; to save this post as draft. You can come back later and make further manual edits as needed before publishing it.
+							Not ready to publish yet? Click &lsquo;Save As Draft&rsquo; to save this post as a draft. You can come back later and make further manual edits as needed before publishing it.
 						</span>
 					</span>
 					<?php endif; ?>
@@ -198,7 +198,7 @@ $_isSingleCreate = isset($ai_modal_type) && $ai_modal_type === 'single';
 					<span class="iseo-info-tip" tabindex="0" role="button" aria-label="What does the preview show?">
 						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
 						<span class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--end" role="tooltip">
-							Would like to preview how your post will look like when published? Click &lsquo;Preview Post&rsquo;. Note: it might take up to 30 seconds to generate the preview.
+							Would you like to see how your post will look when published? Click &lsquo;Preview Post&rsquo;. Note: it might take up to 30 seconds to generate the preview.
 						</span>
 					</span>
 					<?php endif; ?>
