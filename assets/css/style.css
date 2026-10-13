@@ -1287,10 +1287,17 @@ input:checked + .switch:before {
 /* ── Create Post choice screen (views/posting/index.php) ─────────────────────
    Scoped through .iseo-create / .iseo-create-head: the Single and Bulk pages reuse
    .head-bar and the .create-ai-* card classes and must keep their current look.
-   Header, intro and cards all use the same 32px side inset, so their edges line up. */
+   Header, intro and cards sit in one centered column (.iseo-create-wrap) with no side
+   padding of their own, so their edges line up at every width. */
+.iseo-create-wrap {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
 .iseo-create-head.head-bar {
   gap: 12px;
-  padding: 0 32px 18px;
+  padding: 0 0 18px;
 }
 
 /* Two classes so it beats the older `.head-bar span` pill (teal fill, white text). */
@@ -1319,7 +1326,7 @@ input:checked + .switch:before {
 
 .iseo-create.container {
   max-width: none;
-  padding: 0 32px;
+  padding: 0;
 }
 
 .iseo-create-intro {
@@ -1460,8 +1467,14 @@ input:checked + .switch:before {
   font-family: var(--iseo-font);
 }
 
+/* Fixed-height panel with the drawing capped and centered, so the drawing (and its
+   text) stays well below the card title in size however wide the card gets. */
 .iseo-create-art {
-  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 230px;
+  padding: 24px;
   background: #F4F6F8;
   border-radius: 10px;
 }
@@ -1469,7 +1482,9 @@ input:checked + .switch:before {
 .iseo-create-art svg {
   display: block;
   width: 100%;
+  max-width: 300px;
   height: auto;
+  max-height: 100%;
   font-family: var(--iseo-font);
 }
 
@@ -1548,8 +1563,12 @@ input:checked + .switch:before {
 }
 
 @media (max-width: 639px) {
+  .iseo-create-wrap {
+    padding: 0 16px;
+  }
+
   .iseo-create-head.head-bar {
-    padding: 0 16px 14px;
+    padding: 0 0 14px;
   }
 
   .iseo-create-head.head-bar h1 {
@@ -1557,8 +1576,9 @@ input:checked + .switch:before {
     line-height: 26px;
   }
 
-  .iseo-create.container {
-    padding: 0 16px;
+  .iseo-create-art {
+    height: 190px;
+    padding: 18px;
   }
 }
 
