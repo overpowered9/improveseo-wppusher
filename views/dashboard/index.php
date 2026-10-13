@@ -43,9 +43,7 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 			'send'      => '<line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>',
 			'book'      => '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>',
 			'lifebuoy'  => '<circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"></line><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"></line><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"></line><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"></line>',
-			'help'      => '<circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line>',
 			'external'  => '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>',
-			'clock'     => '<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>',
 			'check'     => '<polyline points="20 6 9 17 4 12"></polyline>',
 			'copy'      => '<rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>',
 			'chart'     => '<line x1="3" y1="21" x2="21" y2="21"></line><rect x="5" y="12" width="3" height="6"></rect><rect x="10.5" y="7" width="3" height="11"></rect><rect x="16" y="3" width="3" height="15"></rect>',
@@ -800,165 +798,96 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 		<?php endif; ?>
 
 		<?php
-		// ── Help & Support: "New here?" above "Need a hand?", both full width ─────────────
+		// ── Help & Support: "New here?" (1 part) + "Need a hand?" (2 parts) ─────────────────
 		//
 		// These two used to close the status row at the top, two of seven ~200px slots, so
 		// "Need a hand?" could only say "Typical reply within one business day". Their own
-		// section gives the account cards up there the width back, and the ticket card room
-		// to explain what submitting one involves.
+		// compact row gives the account cards up there the width back, and the ticket card room
+		// to say what happens after you submit one. Same palette as the rest of the dashboard:
+		// navy, greys, and the icon tiles, lines and buttons the cards above already use — no
+		// tints, chips or badges.
 		//
 		// "New here?" links only to things that exist today: the public Quick Start Guide
 		// (/tutorials sits outside the CMS's login guard), its "How credits are used" section
 		// (the #how-credits-are-used anchor scrolls there on the live page) and the Support
-		// center. It doesn't list the Support page's Knowledge Base entries (unlinked labels
-		// there today) or the "4-minute setup walkthrough" the CMS card mentions — no such
-		// video exists yet.
+		// center. It doesn't repeat the CMS card's "4-minute setup walkthrough": no such video
+		// exists yet.
 		//
 		// "Submit a ticket" opens the CMS's "Create Support Ticket" dialog (?newTicket=1,
-		// SupportTickets.jsx). Every line about the ticket flow describes what the CMS and admin
-		// server do today: a confirmation email with the ticket ID, an email + account
-		// notification for each reply, the CMS's own status names and attachment limits. See
-		// docs/DASHBOARD_HELP_SUPPORT.md for where each comes from — change them together.
-		$iseo_help_resources = array(
-			array(
-				'url'   => 'https://account.improveseoplugin.com/tutorials',
-				'icon'  => 'document',
-				'title' => 'Quick Start Guide',
-				'tag'   => 'No sign-in',
-				'desc'  => 'Connect this site and publish your first post, step by step.',
-			),
-			array(
-				'url'   => 'https://account.improveseoplugin.com/tutorials#how-credits-are-used',
-				'icon'  => 'database',
-				'title' => 'How credits work',
-				'tag'   => 'No sign-in',
-				'desc'  => 'What posts and images cost, and when credits expire.',
-			),
-			array(
-				'url'   => 'https://account.improveseoplugin.com/support',
-				'icon'  => 'help',
-				'title' => 'Support center',
-				'tag'   => '',
-				'desc'  => 'Knowledge Base, live service status and your tickets.',
-			),
+		// SupportTickets.jsx). The steps describe what the CMS and admin server do today: a
+		// confirmation email with the ticket ID, an email + account notification for each reply,
+		// the CMS's own status names. See docs/DASHBOARD_HELP_SUPPORT.md for where each comes
+		// from — change them together.
+		// Label, one-line description, destination.
+		$iseo_help_links = array(
+			array( 'Quick Start Guide', 'Connect this site and publish your first post', 'https://account.improveseoplugin.com/tutorials' ),
+			array( 'How credits work', 'Post and image costs, and when credits expire', 'https://account.improveseoplugin.com/tutorials#how-credits-are-used' ),
+			array( 'Support center', 'Knowledge Base, service status and your tickets', 'https://account.improveseoplugin.com/support' ),
 		);
 		$iseo_ticket_url   = 'https://account.improveseoplugin.com/support?newTicket=1';
+		// Title, then the line under it. <strong> marks the CMS's own status names.
 		$iseo_ticket_steps = array(
-			array( 'Submit your ticket', 'Sign in, choose a category and priority, and describe the issue.' ),
-			array( 'Get your ticket ID', 'A confirmation email arrives, and the ticket shows under Your Tickets.' ),
-			array( 'We work on it', 'Replies arrive by email and in your account; respond from your account.' ),
-			array( 'Resolved', 'We mark it resolved. Still stuck? Open a new ticket quoting its ID.' ),
+			array( 'Submit a ticket', 'Sign in, choose a category and priority, and describe the issue.' ),
+			array( 'Get your ticket ID', 'A confirmation email arrives and the ticket shows as <strong>Open</strong>.' ),
+			array( 'We reply', 'By email and in your account. <strong>Awaiting Reply</strong> means we need your input.' ),
+			array( 'Resolved', 'Still stuck? Open a new ticket and quote your ticket ID.' ),
 		);
-		// The CMS's own status names; the key picks the matching chip colour.
-		$iseo_ticket_statuses = array(
-			'open'     => array( 'Open', 'Received' ),
-			'progress' => array( 'In Progress', "We're on it" ),
-			'waiting'  => array( 'Awaiting Reply', 'We need your input' ),
-			'resolved' => array( 'Resolved', 'Fixed' ),
-		);
-		// What support otherwise has to ask for in its first reply: shown as a list, copied as
-		// one line. Admin-only page (manage_options), so the versions are fine to show.
-		$iseo_sysinfo      = array(
-			'Site'      => untrailingslashit( preg_replace( '#^https?://#', '', home_url() ) ),
-			'Plugin'    => 'ImproveSEO ' . IMPROVESEO_VERSION,
-			'WordPress' => get_bloginfo( 'version' ),
-			'PHP'       => PHP_VERSION,
-		);
-		$iseo_sysinfo_copy = sprintf( 'Site: %s | ImproveSEO %s | WordPress %s | PHP %s', home_url(), IMPROVESEO_VERSION, get_bloginfo( 'version' ), PHP_VERSION );
+		// What support otherwise asks for in its first reply, copied as one line. Admin-only
+		// page (manage_options), so the versions are fine to expose.
+		$iseo_sysinfo = sprintf( 'Site: %s | ImproveSEO %s | WordPress %s | PHP %s', home_url(), IMPROVESEO_VERSION, get_bloginfo( 'version' ), PHP_VERSION );
 		?>
 		<h2 class="iseo-section-title">Help &amp; Support</h2>
 		<div class="iseo-help-wrap">
 			<div class="iseo-help-row">
-				<div class="iseo-quickstart-card iseo-help-card iseo-learn-card">
+				<div class="iseo-quickstart-card iseo-help-card">
 					<div class="iseo-help-head">
 						<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'book' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 						<div class="iseo-help-head-text">
 							<h3 class="iseo-quickstart-title">New here?</h3>
-							<p class="iseo-quickstart-msg">Everything you need to connect this site and publish your first post.</p>
+							<p class="iseo-quickstart-msg">Short guides for getting started with ImproveSEO.</p>
 						</div>
 					</div>
-					<ul class="iseo-resource-list">
-						<?php foreach ( $iseo_help_resources as $iseo_res ) : ?>
+					<ul class="iseo-help-links">
+						<?php foreach ( $iseo_help_links as $iseo_link ) : ?>
 						<li>
-							<a class="iseo-resource" href="<?php echo esc_url( $iseo_res['url'] ); ?>" target="_blank" rel="noopener noreferrer">
-								<span class="iseo-resource-icon"><?php echo iseo_dash_icon( $iseo_res['icon'], 18 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-								<span class="iseo-resource-text">
-									<span class="iseo-resource-title"><?php echo esc_html( $iseo_res['title'] ); ?><?php if ( '' !== $iseo_res['tag'] ) : ?> <span class="iseo-resource-tag"><?php echo esc_html( $iseo_res['tag'] ); ?></span><?php endif; ?></span>
-									<span class="iseo-resource-desc"><?php echo esc_html( $iseo_res['desc'] ); ?></span>
+							<a href="<?php echo esc_url( $iseo_link[2] ); ?>" target="_blank" rel="noopener noreferrer">
+								<span class="iseo-help-link-text">
+									<span class="iseo-help-link-label"><?php echo esc_html( $iseo_link[0] ); ?></span>
+									<span class="iseo-help-link-desc"><?php echo esc_html( $iseo_link[1] ); ?></span>
 								</span>
-								<span class="iseo-resource-go"><?php echo iseo_dash_icon( 'external', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-								<span class="screen-reader-text">(opens in a new tab)</span>
+								<?php echo iseo_dash_icon( 'external', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><span class="screen-reader-text"> (opens in a new tab)</span>
 							</a>
 						</li>
 						<?php endforeach; ?>
 					</ul>
 				</div>
 
-				<div class="iseo-quickstart-card iseo-help-card iseo-ticket-card">
+				<div class="iseo-quickstart-card iseo-help-card">
 					<div class="iseo-help-head">
 						<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'lifebuoy' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 						<div class="iseo-help-head-text">
-							<div class="iseo-help-title-row">
-								<h3 class="iseo-quickstart-title">Need a hand?</h3>
-								<span class="iseo-reply-time"><?php echo iseo_dash_icon( 'clock', 13 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>Typical reply: 1 business day</span>
-							</div>
-							<p class="iseo-quickstart-msg">Stuck on setup, have a credits or billing question, or a post that didn't generate? Our support team will help.</p>
+							<h3 class="iseo-quickstart-title">Need a hand?</h3>
+							<p class="iseo-quickstart-msg">Typical reply within 1 business day, for setup, credits, billing or content issues.</p>
 						</div>
-						<a class="iseo-btn iseo-btn-solid iseo-help-action" href="<?php echo esc_url( $iseo_ticket_url ); ?>" target="_blank" rel="noopener noreferrer">Submit a ticket<?php echo iseo_dash_icon( 'external', 15 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><span class="screen-reader-text"> (opens in a new tab)</span></a>
+						<a class="iseo-btn iseo-btn-solid iseo-help-action" href="<?php echo esc_url( $iseo_ticket_url ); ?>" target="_blank" rel="noopener noreferrer">Submit a ticket<?php echo iseo_dash_icon( 'external', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><span class="screen-reader-text"> (opens in a new tab)</span></a>
 					</div>
-
-					<div class="iseo-ticket-body">
-						<p class="iseo-help-eyebrow" id="iseo-steps-heading">How it works</p>
-						<ol class="iseo-steps" aria-labelledby="iseo-steps-heading">
-							<?php foreach ( $iseo_ticket_steps as $iseo_step_i => $iseo_step ) : ?>
-							<li class="iseo-step">
-								<span class="iseo-step-num" aria-hidden="true"><?php echo (int) $iseo_step_i + 1; ?></span>
-								<span class="iseo-step-body">
-									<span class="iseo-step-title"><?php echo esc_html( $iseo_step[0] ); ?></span>
-									<span class="iseo-step-text"><?php echo esc_html( $iseo_step[1] ); ?></span>
-								</span>
-							</li>
-							<?php endforeach; ?>
-						</ol>
-
-						<div class="iseo-status-legend">
-							<span class="iseo-help-eyebrow" id="iseo-status-heading">Statuses you'll see</span>
-							<ul aria-labelledby="iseo-status-heading">
-								<?php foreach ( $iseo_ticket_statuses as $iseo_status_key => $iseo_status ) : ?>
-								<li><span class="iseo-ticket-status iseo-ticket-status-<?php echo esc_attr( $iseo_status_key ); ?>"><?php echo esc_html( $iseo_status[0] ); ?></span><?php echo esc_html( $iseo_status[1] ); ?></li>
-								<?php endforeach; ?>
-							</ul>
-						</div>
-
-						<div class="iseo-prep">
-							<div class="iseo-prep-col">
-								<div class="iseo-prep-head">
-									<p class="iseo-help-eyebrow">Include in your ticket</p>
-								</div>
-								<ul class="iseo-checklist">
-									<li><?php echo iseo_dash_icon( 'check', 15 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><span>The exact error message, or a screenshot (up to 3 files, 10 MB each)</span></li>
-									<li><?php echo iseo_dash_icon( 'check', 15 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><span>The page you were on and what you clicked just before it happened</span></li>
-									<li><?php echo iseo_dash_icon( 'check', 15 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><span>Your site details, copied in one click</span></li>
-								</ul>
-							</div>
-							<div class="iseo-prep-col">
-								<div class="iseo-prep-head">
-									<p class="iseo-help-eyebrow" id="iseo-sysinfo-heading">Your site details</p>
-									<button type="button" class="iseo-btn iseo-btn-outline iseo-copy-btn" id="iseo-ticket-copy" data-copy="<?php echo esc_attr( $iseo_sysinfo_copy ); ?>">
-										<span class="iseo-copy-icon"><?php echo iseo_dash_icon( 'copy', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span><span class="iseo-copy-done-icon"><?php echo iseo_dash_icon( 'check', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span><span class="iseo-copy-label">Copy details</span>
-									</button>
-								</div>
-								<dl class="iseo-sysinfo" id="iseo-ticket-sysinfo" aria-labelledby="iseo-sysinfo-heading">
-									<?php foreach ( $iseo_sysinfo as $iseo_sysinfo_label => $iseo_sysinfo_value ) : ?>
-									<div>
-										<dt><?php echo esc_html( $iseo_sysinfo_label ); ?></dt>
-										<dd><?php echo esc_html( $iseo_sysinfo_value ); ?></dd>
-									</div>
-									<?php endforeach; ?>
-								</dl>
-								<span class="screen-reader-text" id="iseo-ticket-copy-status" aria-live="polite"></span>
-							</div>
-						</div>
+					<ol class="iseo-steps" aria-label="How a support ticket works">
+						<?php foreach ( $iseo_ticket_steps as $iseo_step_i => $iseo_step ) : ?>
+						<li class="iseo-step">
+							<span class="iseo-step-num" aria-hidden="true"><?php echo (int) $iseo_step_i + 1; ?></span>
+							<span class="iseo-step-body">
+								<span class="iseo-step-title"><?php echo esc_html( $iseo_step[0] ); ?></span>
+								<span class="iseo-step-text"><?php echo wp_kses( $iseo_step[1], array( 'strong' => array() ) ); ?></span>
+							</span>
+						</li>
+						<?php endforeach; ?>
+					</ol>
+					<div class="iseo-help-foot">
+						<p class="iseo-help-tip">Include the exact error or a screenshot, what you clicked, and your site details.</p>
+						<button type="button" class="iseo-btn iseo-btn-outline iseo-copy-btn" id="iseo-ticket-copy" data-copy="<?php echo esc_attr( $iseo_sysinfo ); ?>" title="<?php echo esc_attr( $iseo_sysinfo ); ?>">
+							<span class="iseo-copy-icon"><?php echo iseo_dash_icon( 'copy', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span><span class="iseo-copy-done-icon"><?php echo iseo_dash_icon( 'check', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span><span class="iseo-copy-label">Copy site details</span>
+						</button>
+						<span class="screen-reader-text" id="iseo-ticket-copy-status" aria-live="polite"></span>
 					</div>
 				</div>
 			</div>
@@ -966,7 +895,6 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 		<script>
 		document.addEventListener('DOMContentLoaded', function () {
 			var btn    = document.getElementById('iseo-ticket-copy');
-			var list   = document.getElementById('iseo-ticket-sysinfo');
 			var status = document.getElementById('iseo-ticket-copy-status');
 			var label  = btn && btn.querySelector('.iseo-copy-label');
 			if (!btn || !label) { return; }
@@ -989,32 +917,23 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 			}
 
 			var resetTimer;
-			function show(text, copied) {
-				label.textContent = text;
-				btn.classList.toggle('is-copied', copied);
-				if (status) { status.textContent = copied ? 'Site details copied to clipboard' : text; }
-				clearTimeout(resetTimer);
-				resetTimer = setTimeout(function () {
-					label.textContent = idleLabel;
-					btn.classList.remove('is-copied');
-				}, 2000);
-			}
-
 			btn.addEventListener('click', function () {
 				var text = btn.getAttribute('data-copy');
 				var copy = (navigator.clipboard && window.isSecureContext)
 					? navigator.clipboard.writeText(text).catch(function () { return legacyCopy(text); })
 					: legacyCopy(text);
-				copy.then(function () { show('Copied', true); }, function () {
-					// Nothing reached the clipboard — select the details so the shortcut still works.
-					if (list) {
-						var range = document.createRange();
-						range.selectNodeContents(list);
-						var sel = window.getSelection();
-						sel.removeAllRanges();
-						sel.addRange(range);
-					}
-					show(/Mac|iPhone|iPad/.test(navigator.platform) ? 'Press ⌘C' : 'Press Ctrl+C', false);
+				copy.then(function () {
+					label.textContent = 'Copied';
+					btn.classList.add('is-copied');
+					if (status) { status.textContent = 'Site details copied to clipboard'; }
+					clearTimeout(resetTimer);
+					resetTimer = setTimeout(function () {
+						label.textContent = idleLabel;
+						btn.classList.remove('is-copied');
+					}, 2000);
+				}, function () {
+					// Nothing reached the clipboard: hand the text over in a prompt, pre-selected.
+					window.prompt('Copy your site details:', text);
 				});
 			});
 		});

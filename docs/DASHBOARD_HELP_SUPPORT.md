@@ -1,7 +1,7 @@
 # Plugin dashboard: Help & Support section and how support tickets work
 
 **Scope:** ImproveSEO WordPress plugin, `Improve SEO → Dashboard` (`admin.php?page=improveseo_dashboard`)
-**Plugin version:** 2.0.13 · **Branch:** `Oct-06-merge` (first pass `87d5db5`, then a design pass on the Help & Support cards)
+**Plugin version:** 2.0.13 · **Branch:** `Oct-06-merge` (first pass `87d5db5`, design pass `ea51185`, then a compact pass in the dashboard's own palette)
 **Date:** 13 Oct 2026
 
 ---
@@ -46,15 +46,16 @@ AFTER
 [Quick Start][Guided Start][Plan][Credits Remaining][Credits Used]
 [ Content Metrics                 ][ Review Business Details           ]
 Help & Support
-[ New here?     [Quick Start Guide]  [How credits work]  [Support center] ]
-[ Need a hand?  · Typical reply: 1 business day        [Submit a ticket ↗] ]
-[   How it works  ①────②────③────④                                        ]
-[   Statuses you'll see  Open · In Progress · Awaiting Reply · Resolved     ]
-[   ┌ Include in your ticket ✓✓✓ │ Your site details  Site·Plugin·WP·PHP [Copy] ┐ ]
+[ New here?           ][ Need a hand?                          [Submit a ticket ↗] ]
+[  Quick Start Guide ↗ ][  1 Submit a ticket  2 Get your ticket ID  3 We reply  4 Resolved ]
+[  How credits work  ↗ ][  Include the exact error or a screenshot…  [Copy site details] ]
+[  Support center    ↗ ][                                                           ]
 Quick Links …
 ```
 
-Both help cards are full width and stacked. An earlier version put them side by side (1 : 2). Next to the taller ticket card, "New here?" had to stretch its three links into tall, mostly empty boxes, so the stacked layout replaced it.
+The section is about **260px tall** at 1920px, with the two cards side by side (1 : 2) and of equal height. Below 1000px of section width the cards stack.
+
+An intermediate version was much taller (~680px). It had a connected timeline, a status legend, a before-you-submit panel and a site-details grid, and it leaned on pastel chips, tinted icons and green accents that didn't match the rest of the dashboard. It was cut back to this compact version, which uses only the dashboard's own palette.
 
 **Card widths in the top row (measured in headless Chrome):**
 
@@ -81,31 +82,34 @@ Both help cards are full width and stacked. An earlier version put them side by 
 
 ### 3.3 New "Help & Support" section
 
-Both cards share one header pattern (icon tile, title, one-line summary) and the dashboard's existing colour tokens. Neither has the decorative wave, the hover lift or the corner chevron of the small status tiles above: these are content cards, styled like Content Metrics and Business Details.
+**Design rules:** compact, and only the dashboard's own palette and parts:
+- navy titles and buttons, grey body text
+- the same neutral icon tiles, hairline dividers and outline buttons as the cards above
+- no tinted backgrounds, pastel chips, badges, green accents or decorative wave
 
-**New here?** (full width)
-- Summary: "Everything you need to connect this site and publish your first post."
-- Three link tiles, side by side on wide screens and stacked on narrow ones. Each opens in a new tab:
-  - **Quick Start Guide** → `account.improveseoplugin.com/tutorials`. It's public, so it's tagged *No sign-in*. It covers automatic setup, manual setup and credits.
-  - **How credits work** → the same page's `#how-credits-are-used` section: what posts and images cost, and when credits expire. *No sign-in*. The anchor was confirmed to scroll to the section on the live page.
-  - **Support center** → `/support`: Knowledge Base, live service status and the user's tickets.
+Both cards are content cards, styled like Content Metrics and Business Details.
+
+**New here?** (narrow card)
+- Title, plus the one-liner "Short guides for getting started with ImproveSEO."
+- Three links in divided rows, the same pattern as Content Metrics' "Latest projects". Each has a one-line description and opens in a new tab:
+  - **Quick Start Guide** → `account.improveseoplugin.com/tutorials`: connect this site and publish your first post. Public, no sign-in needed.
+  - **How credits work** → the same page's `#how-credits-are-used` section: post and image costs, and when credits expire. The anchor was confirmed to scroll to the section on the live page.
+  - **Support center** → `/support`: Knowledge Base, service status and your tickets.
+- When the card is full width (stacked layout), the three links sit side by side.
 - The card no longer has an "Open tutorials" button (it went to `/support`, which has no tutorials) or the "Watch the 4-minute setup walkthrough" line (no such video exists). See §6.
 
-**Need a hand?** (full width)
-- **Header:** the title, a "Typical reply: 1 business day" pill (the existing promise), a one-line summary of what support helps with, and the primary **Submit a ticket ↗** button on the right, where it's seen first. On phones the button goes full width under the summary.
-- **How it works:** a four-step timeline. It runs across the card when the card is ≥720px wide and becomes a vertical timeline below that:
-  1. **Submit your ticket:** sign in, choose a category and priority, and describe the issue.
-  2. **Get your ticket ID:** a confirmation email arrives, and the ticket shows under *Your Tickets*.
-  3. **We work on it:** replies arrive by email and in your account; respond from your account.
-  4. **Resolved:** we mark it resolved. Still stuck? Open a new ticket quoting its ID.
-- **Statuses you'll see:** one line using the CMS's own status colours, so users recognise them on the ticket: `Open` received · `In Progress` we're on it · `Awaiting Reply` we need your input · `Resolved` fixed.
-- **Before-you-submit panel** (two columns on wide cards):
-  - **Include in your ticket:** the exact error message or a screenshot (up to 3 files, 10 MB each); the page you were on and what you clicked; your site details.
-  - **Your site details:** Site, Plugin, WordPress and PHP shown as a labelled grid, read live from WordPress. A **Copy details** button copies them as one line, e.g. `Site: https://example.com | ImproveSEO 2.0.13 | WordPress 6.x | PHP 8.x`.
+**Need a hand?** (wide card)
+- **Header:** title; "Typical reply within 1 business day, for setup, credits, billing or content issues." (the existing promise); and the primary **Submit a ticket ↗** button on the right. On phones the button goes full width under the text.
+- **Four numbered steps** in one row on wide cards, 2 × 2 on mid-width cards and one column on phones. The CMS's status names are in bold:
+  1. **Submit a ticket:** sign in, choose a category and priority, and describe the issue.
+  2. **Get your ticket ID:** a confirmation email arrives and the ticket shows as **Open**.
+  3. **We reply:** by email and in your account. **Awaiting Reply** means we need your input.
+  4. **Resolved:** still stuck? Open a new ticket and quote your ticket ID.
+- **Closing line:** "Include the exact error or a screenshot, what you clicked, and your site details." with a **Copy site details** button. The button copies one line read live from WordPress, e.g. `Site: https://example.com | ImproveSEO 2.0.13 | WordPress 6.x | PHP 8.x`. Hovering it shows the same text.
 
-The Copy button uses the Clipboard API on HTTPS. On plain-HTTP admins, where that API is unavailable, it falls back to `execCommand('copy')`. On success it turns green with a check mark for 2 seconds and announces the copy to screen readers. If both copy methods fail, it selects the details and says "Press Ctrl+C" (⌘C on a Mac). The dashboard is admin-only (`manage_options`), so showing version numbers there is fine.
+The Copy button uses the Clipboard API on HTTPS. On plain-HTTP admins, where that API is unavailable, it falls back to `execCommand('copy')`. On success it shows "Copied" with a check mark for 2 seconds (in navy, like everything else) and announces the copy to screen readers. If both copy methods fail, it shows the text in a prompt so it can be copied by hand. The dashboard is admin-only (`manage_options`), so exposing version numbers there is fine.
 
-Layout breakpoints inside the cards are **container queries**, so each part adapts to the width it actually has, whether the WordPress sidebar is open, folded or hidden. All help content (links, steps, statuses, site details) is defined once in PHP arrays and rendered by loops.
+All breakpoints are **container queries**, so each part adapts to the width it actually has, whether the WordPress sidebar is open, folded or hidden. The links and steps are defined once in PHP arrays and rendered by loops.
 
 ---
 
@@ -130,8 +134,8 @@ This is the information requested about tickets. Each point is taken from code, 
 
 | File | Change |
 |---|---|
-| `views/dashboard/index.php` | Support cards removed from the top row; disconnected-row modifier class; new Help & Support section (content in PHP arrays: links, steps, statuses, site details from `home_url()`, `IMPROVESEO_VERSION`, `get_bloginfo('version')`, `PHP_VERSION`); Copy-button script; seven new line icons (book, lifebuoy, help, external, clock, check, copy) replacing the unused play/chat ones. |
-| `assets/css/style.css` | Top-row grid (`minmax(190px, 1fr)`, 16px gap), larger type, disconnected 2:1 layout, row-order cleanup; Help & Support styles (link tiles, timeline, status legend, before-you-submit panel), with container queries for the step layout, the link tiles, the panel and the credit totals. |
+| `views/dashboard/index.php` | Support cards removed from the top row; disconnected-row modifier class; new Help & Support section (links and steps in PHP arrays; site details from `home_url()`, `IMPROVESEO_VERSION`, `get_bloginfo('version')`, `PHP_VERSION`); Copy-button script; five new line icons (book, lifebuoy, external, check, copy) replacing the unused play/chat ones. |
+| `assets/css/style.css` | Top-row grid (`minmax(190px, 1fr)`, 16px gap), larger type, disconnected 2:1 layout, row-order cleanup; compact Help & Support styles (link rows, numbered steps, closing line), with container queries for the 1 : 2 row, the steps, the links and the credit totals. |
 | `docs/DASHBOARD_HELP_SUPPORT.md` | This document. |
 
 There are no changes to the CMS, the admin server, AJAX calls, or the Quick Start, plan or credit logic.
@@ -159,15 +163,15 @@ These are inconsistencies in the ticket system and help content, found while che
 - **Visual checks:** headless Chrome against the local site at 1920 / 1440 / 1366 / 1280 / 1024 / 600 / 390px:
   - no horizontal scroll at any width
   - "Cancel Subscription" and "5,610 credits" stay on one line down to the 195px minimum card width
-  - the four steps sit in one row on wide cards and become a vertical timeline on narrow ones
-  - the three "New here?" links go side by side once the card is wide enough
-  - the before-you-submit panel splits into two columns when there's room
-  - on phones the header icon stays beside the title and "Submit a ticket" goes full width
+  - Help & Support height: 262px at 1920 (both cards equal), 281px at 1440, 331px at 1366
+  - steps: one row of four at 1920 and 1440, 2 × 2 at 1366, one column on phones
+  - "New here?" links go three across once the card is full width (stacked at 1024)
+  - on phones the icon stays beside each title and "Submit a ticket" goes full width
 - **Connected state:** the local site isn't connected to an account, and saving fake credentials would make the plugin ping the live admin server. The five-card row was therefore reproduced in the browser by un-hiding the cards and filling in the same values as the production screenshot (Optimize Plan, 5,610 / 477 credits). No requests were sent to the admin server.
 - **Public guide:** the live `account.improveseoplugin.com/tutorials` page was loaded once (read-only) to confirm it opens without sign-in, contains "How credits are used", and that `#how-credits-are-used` scrolls to it.
 - **Copy button:** tested on both the Clipboard-API path and the plain-HTTP fallback.
   - The fallback put the exact one-line site-details string on the clipboard and cleaned up after itself.
-  - The Clipboard-API path shows "Copied" in green with a check icon, announces to screen readers, and resets after 2 seconds.
+  - The Clipboard-API path shows "Copied" with a check icon (navy), announces to screen readers, and resets after 2 seconds.
 - **Links:** all four Help & Support links point to the intended account URLs and open in a new tab, with "(opens in a new tab)" for screen readers.
 - **Console:** only the pre-existing `jQuery(...).smartWizard is not a function` error, which is present on every branch.
 
