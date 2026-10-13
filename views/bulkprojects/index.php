@@ -140,7 +140,7 @@ if (isset($_GET['post_preview'])) {
 		<div class="improve-seo-container">
 			<div class="project-lists">
 				<div class="table-responsive">
-					<table class="table project_table_listing">
+					<table class="table project_table_listing iseo-bulk-projects-table">
 						<?php
 					$sort_base = admin_url('admin.php?page=improveseo_bulkprojects&paged=1' . ($search ? '&search=' . urlencode($search) : ''));
 					function bkiseo_sort_link($base, $col, $label, $currentCol, $currentOrder) {

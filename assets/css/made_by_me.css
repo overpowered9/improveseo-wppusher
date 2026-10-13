@@ -2806,6 +2806,52 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   .iseo-sort-controls { flex-wrap: wrap; }
 }
 
+/* ── Bulk Post Projects list: the table fits the content area on every desktop ──
+   Its seven columns could not shrink below the sum of their minimum widths: no-wrap
+   16–18px headers ("Post Count", "Publish Mode", "Project Status" took 110–130px
+   each), a 170px Action column for a single icon, and long unbroken project names.
+   Below ~1100px that sum was wider than the page, so .table-responsive scrolled the
+   table sideways and the Action column was cut off. Above the <=767px card layout:
+   headers wrap onto two lines, names break anywhere, the Action column is only as
+   wide as its icon/label, and cells get less side padding on narrower screens. The
+   first/last cells keep their own padding (checkbox inset, rounded row ends). */
+@media (min-width: 768px) {
+  .project-lists table.iseo-bulk-projects-table thead th {
+    white-space: normal;
+  }
+  .iseo-bulk-projects-table .bkiseo-project-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  /* "Completed" is a <p class="post-fd"> fixed at 18px; "Processing" is bare text at
+     the table's size. Same size for both, and the Status column no longer has to be
+     wide enough for the larger one. */
+  .iseo-bulk-projects-table td.status p.post-fd {
+    font-size: inherit;
+  }
+  .project-lists table.iseo-bulk-projects-table th:last-child,
+  .project-lists table.iseo-bulk-projects-table td:last-child {
+    width: 1%;
+    white-space: nowrap;
+  }
+}
+@media (min-width: 768px) and (max-width: 1199px) {
+  .project-lists .iseo-bulk-projects-table thead th,
+  .project-lists .iseo-bulk-projects-table tbody td {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+/* Narrowest desktops: WordPress folds its menu to icons at 783–960px (content area
+   ~665px), and from 992px the full menu returns while the text grows to 16px. */
+@media (min-width: 768px) and (max-width: 1100px) {
+  .project-lists .iseo-bulk-projects-table thead th,
+  .project-lists .iseo-bulk-projects-table tbody td {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+}
+
 /* ── Featured Image option block (step 3 of both wizards) ── */
 .iseo-featured-img-option {
   margin-top: 20px;

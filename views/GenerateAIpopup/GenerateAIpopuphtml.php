@@ -4119,22 +4119,28 @@ if ( 'single' !== $ai_modal_type ) {
                         // Display only — the server prices and charges; see iseoRegenCostNote().
                         if (data.pricing) { window.iseoCreditPricing = data.pricing; }
 
+                        // "5622" -> "5,622", same formatter as the dashboard's credit figures.
+                        const fmt = (n) => Number(n).toLocaleString();
+                        const plural = (n, word) => fmt(n) + ' ' + word + (Number(n) === 1 ? '' : 's');
+
                         // Check 2: Content credits insufficient
                         if (data.content_check && !data.content_check.sufficient) {
-                            const shortBy = creditsNeeded - data.content_check.available;
-                            // How many posts the balance DOES cover, at the selected size. The old
-                            // copy told the user to cut the list to `available` posts, which was the
-                            // credit balance mislabelled as a post count.
+                            const available = data.content_check.available;
+                            const shortBy = creditsNeeded - available;
+                            // How many keywords (one post each) the balance DOES cover, at the
+                            // selected size. The old copy told the user to cut the list to
+                            // `available` posts, which was the credit balance mislabelled as a
+                            // post count. When it covers none, cutting the list can't help, so
+                            // only purchasing is offered.
                             const affordable = unitPrice
-                                ? Math.floor(data.content_check.available / unitPrice)
-                                : null;
+                                ? Math.floor(available / unitPrice)
+                                : 0;
                             const msg =
-                                'ISEO credits required: ' + creditsNeeded +
-                                (unitPrice ? ' (' + keywordCount + ' post(s) × ' + unitPrice + ')' : '') + '\n' +
-                                'Credits available now: ' + data.content_check.available + '\n' +
-                                'Short by: ' + shortBy + '\n\n' +
-                                (affordable !== null
-                                    ? 'Reduce your keyword list to ' + affordable + ' post(s), or purchase more credits to continue.'
+                                'This project requires ' + plural(creditsNeeded, 'credit') +
+                                ' based on your selections, but you only have ' + plural(available, 'credit') +
+                                ' available. You are ' + plural(shortBy, 'credit') + ' short.\n\n' +
+                                (affordable > 0
+                                    ? 'Reduce your keyword list to ' + plural(affordable, 'keyword') + ' or purchase more credits to continue.'
                                     : 'Purchase more credits to continue.');
 
                             showImproveSEONotification(
@@ -4154,10 +4160,9 @@ if ( 'single' !== $ai_modal_type ) {
                             type: 'success',
                             title: 'Confirm Content Generation',
                             message:
-                                'ISEO credits required: ' + creditsNeeded +
-                                (unitPrice ? ' (' + keywordCount + ' post(s) × ' + unitPrice + ')' : '') + '\n' +
-                                'Credits available now: ' + data.content_check.available + '\n' +
-                                'Remaining after generation: ' + (data.content_check.available - creditsNeeded) + '\n\n' +
+                                'This project requires ' + plural(creditsNeeded, 'credit') + ' based on your selections.\n\n' +
+                                'You will have ' + plural(data.content_check.available - creditsNeeded, 'remaining credit') +
+                                ' after content generation.\n\n' +
                                 'Click OK to confirm and continue.',
                             buttonText: 'OK',
                             onClose: function () { resolve(data); }
@@ -4237,7 +4242,15 @@ if ( 'single' !== $ai_modal_type ) {
                     aiImageCount++;
                 }
             });
-            
+
+            // Nothing to price: every keyword uses "Upload Image". Content credits were
+            // already checked at step 1, so there is no reason to call the server or to
+            // flash a "Checking Image Credits... 0 AI images" loader.
+            if (aiImageCount === 0) {
+                resolve({ skipped: true });
+                return;
+            }
+
             // Show loading
             if (typeof ImproveSEOLoading !== 'undefined' && ImproveSEOLoading.show) {
                 ImproveSEOLoading.show({
