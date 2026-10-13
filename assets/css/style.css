@@ -318,8 +318,8 @@ ul.breadcrumb-seo li a:hover {
 
 /* ── Dashboard (views/dashboard/index.php) ────────────────────────────────
    Two surfaces: a row of white status cards on a pale page (Quick Start through
-   Need a hand?), and the two Midnight Navy cards
-   in between (Content Metrics, Review Business Details). Every card shares one
+   Credits Used), the two Midnight Navy cards beneath it (Content Metrics, Review
+   Business Details), then the white Help & Support pair. Every card shares one
    header — icon tile on the left, round chevron on the right (.iseo-card-top).
    None of these cards carry .module-box any more: its !important margins, flex
    column links and breakpoint max-widths were being fought rule by rule, so the
@@ -377,13 +377,13 @@ ul.breadcrumb-seo li a:hover {
 }
 
 /* ── Top row: white status cards ── */
-/* auto-fit shares one row between however many cards are visible (four when the
-   site is disconnected, seven once credits, plan and Guided Start resolve) and
-   wraps cleanly once a card would drop below ~160px. */
+/* auto-fit shares one row between however many cards are visible (two when the
+   site is disconnected, four when credits are low, five once Guided Start shows)
+   and wraps cleanly once a card would drop below ~190px. */
 .iseo-quickstart-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
   padding: 0 20px;
   margin-top: 20px;
 }
@@ -395,7 +395,7 @@ ul.breadcrumb-seo li a:hover {
   flex-direction: column;
   align-items: flex-start;
   min-width: 0;
-  padding: 16px 16px 22px;
+  padding: 20px 20px 26px;
   color: var(--iseo-navy);
   background-color: #FFFFFF;
   border: 1px solid var(--iseo-dash-line);
@@ -446,7 +446,7 @@ ul.breadcrumb-seo li a:hover {
 /* .iseo-dash h3 margins: the generic h1–h6 rule at the top of this file adds 15px. */
 .iseo-dash .iseo-quickstart-title {
   font-family: var(--iseo-font);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.01em;
@@ -456,7 +456,7 @@ ul.breadcrumb-seo li a:hover {
 
 .iseo-dash .iseo-quickstart-msg {
   font-family: var(--iseo-font);
-  font-size: 12.5px;
+  font-size: 13px;
   line-height: 1.5;
   color: var(--iseo-muted);
   margin: 0;
@@ -537,13 +537,12 @@ ul.breadcrumb-seo li a:hover {
   color: var(--iseo-navy);
 }
 
-/* Support pair: the button closes the card, pinned to its bottom edge. */
+/* Quick Start / Guided Start: the button closes the card, pinned to its bottom edge. */
 .iseo-dash .iseo-support-cta {
   margin-top: auto;
   align-self: stretch;
 }
 
-.iseo-support-card .iseo-quickstart-msg,
 #iseo-quickstart-card .iseo-quickstart-msg,
 .iseo-guidedstart-card .iseo-quickstart-msg {
   padding-bottom: 14px;
@@ -567,18 +566,26 @@ ul.breadcrumb-seo li a:hover {
   display: none;
 }
 
-/* Row order: Quick Start, Guided Start, New here, Need a hand, Plan, then the two
-   credit tiles on the far right. */
+/* Row order: Quick Start, Guided Start, Plan, then the two credit tiles on the
+   far right. */
 #iseo-quickstart-card        { order: 1; }
 #iseo-guidedstart-card       { order: 2; }
-.iseo-support-card           { order: 3; }
-#iseo-plan-card              { order: 4; }
-#iseo-credits-remaining-card { order: 5; }
-#iseo-credits-used-card      { order: 6; }
+#iseo-plan-card              { order: 3; }
+#iseo-credits-remaining-card { order: 4; }
+#iseo-credits-used-card      { order: 5; }
+
+/* Disconnected: only Quick Start and the plan card are drawn. Two auto-fit tracks
+   would split the row 50/50; Quick Start's "connect this site" is the point of the
+   page in that state, so it takes the larger share. */
+@media (min-width: 901px) {
+  .iseo-quickstart-row.iseo-quickstart-row-disconnected {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}
 
 /* ── Credits Remaining / Credits Used: eyebrow, big figure, caption ── */
 .iseo-dash .iseo-stat-card .iseo-quickstart-title {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -586,9 +593,17 @@ ul.breadcrumb-seo li a:hover {
   margin: 0 0 4px;
 }
 
+/* Sized to the card (container units), so "5,610 credits" stays on one line at
+   the row's ~190px minimum and tops out at 26px once the cards have room. The
+   plain 26px is for browsers without container queries. */
+.iseo-dash .iseo-stat-card {
+  container-type: inline-size;
+}
+
 .iseo-dash .iseo-credits-figure {
   font-weight: 700;
-  font-size: 21px;
+  font-size: 26px;
+  font-size: clamp(20px, 13cqi, 26px);
   line-height: 1.15;
   letter-spacing: -0.02em;
   color: var(--iseo-navy);
@@ -597,17 +612,17 @@ ul.breadcrumb-seo li a:hover {
 
 .iseo-dash #iseo-credits-remaining-expiry,
 .iseo-dash #iseo-credits-used-note {
-  font-size: 11.5px;
+  font-size: 12px;
 }
 
 /* ── Plan card ── */
 .iseo-dash .iseo-plan-card .iseo-quickstart-title {
-  font-size: 16px;
+  font-size: 18px;
   margin: 0 0 4px;
 }
 
 .iseo-dash #iseo-plan-date {
-  font-size: 11.5px;
+  font-size: 12px;
 }
 
 .iseo-plan-actions {
@@ -615,16 +630,17 @@ ul.breadcrumb-seo li a:hover {
   flex-direction: column;
   gap: 7px;
   width: 100%;
+  max-width: 300px; /* the wider disconnected card would otherwise stretch these into banners */
   margin-top: auto;
   padding-top: 12px;
 }
 
-/* Smaller than the other buttons: at ~160px card width, Poppins would wrap
-   "Cancel Subscription" onto a second line at 12.5px. */
+/* Tighter side padding than the other buttons so "Cancel Subscription" still fits
+   on one line at the row's ~190px minimum card width. */
 .iseo-plan-actions .iseo-btn {
   display: block;
-  padding: 8px 6px;
-  font-size: 11.5px;
+  padding: 9px 6px;
+  font-size: 12.5px;
 }
 
 /* ── Row 2: Content Metrics + Review Business Details (navy) ── */
@@ -946,6 +962,308 @@ ul.breadcrumb-seo li a:hover {
 
 .iseo-dash .iseo-dark-card:not(:hover):not(:focus-within) .iseo-bizdetails-progress-track {
   background-color: var(--iseo-dash-line);
+}
+
+/* ── Help & Support: New here? (1 part) + Need a hand? (2 parts) ──
+   Same white card, header and wave as the status row (.iseo-quickstart-card). The
+   ticket card is wider because it carries the four-step explainer. */
+.iseo-help-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 16px;
+  padding: 0 20px;
+  margin-top: 15px;
+}
+
+@media (max-width: 1100px) {
+  .iseo-help-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* These cards are wide enough to read as sections, so they don't lift on hover. */
+.iseo-help-card:hover {
+  transform: none;
+  box-shadow: var(--iseo-dash-shadow);
+}
+
+/* Each card's button closes it at its natural width, and the two sit on the same
+   baseline because both are pushed to the bottom of equal-height grid cells. */
+.iseo-help-cta {
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.iseo-dash ul.iseo-help-links {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+}
+
+.iseo-dash .iseo-help-links li {
+  margin: 0;
+  border-top: 1px solid var(--iseo-dash-line);
+}
+
+.iseo-dash .iseo-help-links li:last-child {
+  border-bottom: 1px solid var(--iseo-dash-line);
+}
+
+.iseo-dash .iseo-help-links a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 4px;
+  text-decoration: none;
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-help-links a:hover .iseo-help-links-title,
+.iseo-dash .iseo-help-links a:focus-visible .iseo-help-links-title {
+  text-decoration: underline;
+}
+
+.iseo-help-links-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: var(--iseo-dash-tile);
+  border: 1px solid var(--iseo-dash-line);
+  color: var(--iseo-navy);
+}
+
+.iseo-help-links-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.iseo-help-links-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.iseo-help-links-desc {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--iseo-muted);
+}
+
+.iseo-help-links-chevron {
+  flex: 0 0 auto;
+  display: inline-flex;
+  color: var(--iseo-muted);
+  transition: transform 0.15s ease;
+}
+
+.iseo-dash .iseo-help-links a:hover .iseo-help-links-chevron {
+  transform: translateX(3px);
+}
+
+/* Need a hand? — title with its reply-time pill alongside. */
+.iseo-ticket-card {
+  container-type: inline-size;
+}
+
+.iseo-ticket-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin-bottom: 6px;
+}
+
+.iseo-dash .iseo-ticket-head .iseo-quickstart-title {
+  margin: 0;
+}
+
+.iseo-ticket-pill {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 5px 10px;
+  border-radius: 9999px;
+  color: #2E7D32;
+  background-color: #E8F5E9;
+}
+
+.iseo-dash .iseo-ticket-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--iseo-navy);
+  margin: 0 0 12px;
+}
+
+/* The process on the left, what to send + the button on the right; stacked once
+   the card itself is narrower than 680px (a container query, so it follows the
+   card rather than the window — browsers without support simply stack). */
+.iseo-ticket-layout {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.iseo-ticket-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@container (min-width: 680px) {
+  .iseo-ticket-layout {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 28px;
+  }
+}
+
+/* Vertical timeline: number badge on the left, joined to the next by a rule. */
+.iseo-dash ol.iseo-ticket-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.iseo-dash .iseo-ticket-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  column-gap: 12px;
+  margin: 0;
+  padding: 0 0 14px;
+}
+
+.iseo-dash .iseo-ticket-step:last-child {
+  padding-bottom: 0;
+}
+
+.iseo-dash .iseo-ticket-step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: 28px;
+  bottom: 4px;
+  width: 2px;
+  border-radius: 1px;
+  background-color: var(--iseo-dash-line);
+}
+
+.iseo-ticket-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  color: #FFFFFF;
+  background-color: var(--iseo-navy);
+}
+
+/* Bold lead-in on the same line as its sentence; the 2px top pad centres the
+   first line (13px × 1.55) on the 24px badge. */
+.iseo-ticket-step-text {
+  padding-top: 2px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--iseo-muted);
+}
+
+.iseo-ticket-step-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--iseo-navy);
+}
+
+/* Status names in the account CMS's own colours (SupportTickets.jsx STATUS_COLORS),
+   so they look the same here as on the ticket. */
+.iseo-ticket-status {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 0 7px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.iseo-ticket-status-open     { background-color: #E3F2FD; color: #1565C0; }
+.iseo-ticket-status-progress { background-color: #E8F5E9; color: #2E7D32; }
+.iseo-ticket-status-waiting  { background-color: #FFF3E0; color: #E65100; }
+.iseo-ticket-status-resolved { background-color: #F0F0F0; color: var(--iseo-muted); }
+
+/* "Help us fix it faster" — a tinted tile, so it reads as advice, not a step. */
+.iseo-ticket-tips {
+  padding: 2px 16px 14px;
+  border: 1px solid var(--iseo-dash-line);
+  border-radius: 10px;
+  background-color: var(--iseo-dash-tile);
+}
+
+.iseo-dash .iseo-ticket-tips .iseo-ticket-eyebrow {
+  margin-top: 12px;
+  margin-bottom: 6px;
+}
+
+.iseo-dash ul.iseo-ticket-tips-list {
+  list-style: disc;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.iseo-dash .iseo-ticket-tips-list li {
+  margin: 0 0 3px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--iseo-muted);
+}
+
+.iseo-ticket-sysinfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.iseo-dash .iseo-ticket-sysinfo code {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 7px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--iseo-navy);
+  background-color: #FFFFFF;
+  border: 1px solid var(--iseo-dash-line);
+  border-radius: 7px;
+}
+
+.iseo-dash .iseo-ticket-copy {
+  flex: 0 0 auto;
+  min-width: 82px;
+  padding: 7px 12px;
+}
+
+.iseo-ticket-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.iseo-ticket-footnote {
+  font-size: 12px;
+  color: var(--iseo-muted);
 }
 
 /* ── Quick Links ──
