@@ -1287,12 +1287,10 @@ input:checked + .switch:before {
 /* ── Create Post choice screen (views/posting/index.php) ─────────────────────
    Scoped through .iseo-create / .iseo-create-head: the Single and Bulk pages reuse
    .head-bar and the .create-ai-* card classes and must keep their current look.
-   Header, intro and cards sit in one centered column (.iseo-create-wrap) with no side
-   padding of their own, so their edges line up at every width. */
+   Header, intro and cards sit in one full-width wrapper (.iseo-create-wrap) with no
+   side padding of their own, so their edges line up at every width. */
 .iseo-create-wrap {
-  max-width: 1160px;
-  margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 44px;
 }
 
 .iseo-create-head.head-bar {
@@ -1467,22 +1465,22 @@ input:checked + .switch:before {
   font-family: var(--iseo-font);
 }
 
-/* Fixed-height panel with the drawing capped and centered, so the drawing (and its
-   text) stays well below the card title in size however wide the card gets. */
+/* Fixed-height panel; the drawing takes ~70–75% of its width, centered. On very wide
+   cards the panel height caps it first (max-height), which keeps its text below
+   the card title in size. */
 .iseo-create-art {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 230px;
-  padding: 24px;
+  padding: 20px;
   background: #F4F6F8;
   border-radius: 10px;
 }
 
 .iseo-create-art svg {
   display: block;
-  width: 100%;
-  max-width: 300px;
+  width: 77%;
   height: auto;
   max-height: 100%;
   font-family: var(--iseo-font);

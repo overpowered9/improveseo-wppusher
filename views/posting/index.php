@@ -31,7 +31,7 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 <h1 class="hidden"> Posting </h1>
 
 <div class="global-wrap">
-	<?php // One centered, max-width column for the header, intro and cards, so they share edges on wide screens. ?>
+	<?php // One wrapper for the header, intro and cards, so they all share the same left and right edges. ?>
 	<div class="iseo-create-wrap">
 		<div class="head-bar iseo-create-head">
 			<span class="iseo-create-head-icon" aria-hidden="true">
