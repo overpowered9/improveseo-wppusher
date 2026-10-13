@@ -1284,6 +1284,284 @@ input:checked + .switch:before {
   margin: 0 auto 15px;
 }
 
+/* ── Create Post choice screen (views/posting/index.php) ─────────────────────
+   Scoped through .iseo-create / .iseo-create-head: the Single and Bulk pages reuse
+   .head-bar and the .create-ai-* card classes and must keep their current look.
+   Header, intro and cards all use the same 32px side inset, so their edges line up. */
+.iseo-create-head.head-bar {
+  gap: 12px;
+  padding: 0 32px 18px;
+}
+
+/* Two classes so it beats the older `.head-bar span` pill (teal fill, white text). */
+.iseo-create-head .iseo-create-head-icon {
+  display: inline-flex;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  background: #FEF1EC;
+  border: 1px solid #FCDCCF;
+  border-radius: 10px;
+  color: var(--iseo-coral);
+}
+
+.iseo-create-head.head-bar h1 {
+  margin: 0;
+  font-family: var(--iseo-font);
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: 600;
+  color: var(--iseo-navy);
+}
+
+.iseo-create.container {
+  max-width: none;
+  padding: 0 32px;
+}
+
+.iseo-create-intro {
+  padding-top: 26px;
+  font-family: var(--iseo-font);
+  text-align: left;
+}
+
+.iseo-create .iseo-create-lead {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--iseo-ink);
+}
+
+.iseo-create .iseo-create-choose {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--iseo-navy);
+}
+
+.iseo-create-options {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.iseo-create-options li {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0;
+  padding: 9px 14px;
+  background: var(--iseo-surface);
+  border: 1px solid var(--iseo-border);
+  border-radius: 10px;
+  font-size: 13.5px;
+  line-height: 20px;
+  color: var(--iseo-ink);
+}
+
+.iseo-create-chip {
+  padding: 2px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.iseo-create-chip--single {
+  background: #E8F2F6;
+  border: 1px solid #D3E6ED;
+  color: var(--iseo-primary);
+}
+
+/* Darker than --iseo-coral so the label stays readable on its pale tint. */
+.iseo-create-chip--bulk {
+  background: #FEF0EB;
+  border: 1px solid #FBD9CD;
+  color: #C4512F;
+}
+
+.iseo-create-dash {
+  color: #9AA5B1;
+}
+
+.iseo-create .iseo-create-help {
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  line-height: 22px;
+  color: var(--iseo-muted);
+}
+
+.iseo-create-i {
+  display: inline-block;
+  vertical-align: -3px;
+}
+
+.iseo-create-callout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  background: #EEF6F9;
+  border: 1px solid #CFE4EC;
+  border-radius: 10px;
+}
+
+.iseo-create-callout-icon {
+  flex: 0 0 auto;
+}
+
+.iseo-create .iseo-create-callout p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 20px;
+  color: var(--iseo-ink);
+}
+
+.iseo-create .iseo-create-callout a {
+  font-weight: 600;
+  color: var(--iseo-navy);
+  text-decoration: underline;
+}
+
+.iseo-create .iseo-create-callout a:hover,
+.iseo-create .iseo-create-callout a:focus {
+  color: var(--iseo-primary);
+}
+
+/* Cards: same two-column / stacked behaviour as before, now edge-aligned with the
+   intro (space-between instead of space-around, no extra side padding). */
+.iseo-create .create-ai-post {
+  margin: 0;
+  padding: 22px 0 8px;
+}
+
+.iseo-create .create-ai {
+  padding: 0;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.iseo-create .create-ai-col {
+  width: calc(50% - 10px);
+  padding: 14px 14px 22px;
+  background: var(--iseo-surface);
+  border: 1px solid #E3E8EE;
+  border-radius: 14px;
+  box-shadow: none;
+  font-family: var(--iseo-font);
+}
+
+.iseo-create-art {
+  padding: 16px 18px;
+  background: #F4F6F8;
+  border-radius: 10px;
+}
+
+.iseo-create-art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--iseo-font);
+}
+
+.iseo-create .create-ai-col h3.iseo-create-title {
+  margin: 22px 0 6px;
+  font-family: var(--iseo-font);
+  font-size: 19px;
+  line-height: 28px;
+  font-weight: 600;
+  color: var(--iseo-navy);
+}
+
+/* The title link covers the whole card, so a click anywhere on it opens the card. */
+.iseo-create .iseo-create-card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 14px;
+}
+
+.iseo-create .iseo-create-card-link:focus {
+  outline: none;
+}
+
+.iseo-create .iseo-create-card-link:focus-visible::after {
+  box-shadow: 0 0 0 2px var(--iseo-primary);
+}
+
+/* Above the card overlay: the (i) marker only toggles its tooltip, and the
+   "continue" link gets its own hover state. */
+.iseo-create .iseo-info-tip,
+.iseo-create .create-ai-col a.iseo-create-continue {
+  position: relative;
+  z-index: 2;
+}
+
+.iseo-create .iseo-info-tip {
+  margin-left: 6px;
+}
+
+.iseo-create .iseo-info-tip:hover,
+.iseo-create .iseo-info-tip:focus {
+  color: var(--iseo-primary);
+}
+
+/* The bulk hint's "Create one" link, readable on the dark bubble. */
+.iseo-create .iseo-info-tip-bubble a {
+  color: #8EC5DF;
+  text-decoration: underline !important;
+}
+
+.iseo-create .iseo-info-tip-bubble a:hover,
+.iseo-create .iseo-info-tip-bubble a:focus {
+  color: #FFFFFF;
+}
+
+.iseo-create .create-ai-col a.iseo-create-continue {
+  display: inline-block;
+  font-size: 13.5px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--iseo-primary);
+}
+
+.iseo-create .create-ai-col a.iseo-create-continue:hover,
+.iseo-create .create-ai-col a.iseo-create-continue:focus {
+  color: var(--iseo-navy);
+  text-decoration: underline !important;
+}
+
+@media (max-width: 991px) {
+  .iseo-create .create-ai-col {
+    width: 100%;
+  }
+}
+
+@media (max-width: 639px) {
+  .iseo-create-head.head-bar {
+    padding: 0 16px 14px;
+  }
+
+  .iseo-create-head.head-bar h1 {
+    font-size: 18px;
+    line-height: 26px;
+  }
+
+  .iseo-create.container {
+    padding: 0 16px;
+  }
+}
+
 .category-box {
   max-width: 1040px;
   margin: 0 auto;
