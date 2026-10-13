@@ -964,236 +964,374 @@ ul.breadcrumb-seo li a:hover {
   background-color: var(--iseo-dash-line);
 }
 
-/* ── Help & Support: New here? (1 part) + Need a hand? (2 parts) ──
-   Same white card, header and wave as the status row (.iseo-quickstart-card). The
-   ticket card is wider because it carries the four-step explainer. */
-.iseo-help-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-  gap: 16px;
+/* ── Help & Support: New here? above Need a hand?, both full width ──
+   Stacked rather than side by side: next to the taller ticket card, New here?'s
+   three links had to stretch into tall, mostly empty boxes. Inside each card the
+   breakpoints are container queries, so every part lays itself out by the width
+   it actually has — the WP sidebar can be wide, folded or gone. */
+.iseo-help-wrap {
   padding: 0 20px;
   margin-top: 15px;
 }
 
-@media (max-width: 1100px) {
-  .iseo-help-row {
-    grid-template-columns: minmax(0, 1fr);
-  }
+.iseo-help-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
 }
 
-/* These cards are wide enough to read as sections, so they don't lift on hover. */
+/* Content cards rather than status tiles: no wave and no hover lift, the same
+   resting look as Content Metrics and Business Details above. */
+.iseo-quickstart-card.iseo-help-card {
+  align-items: stretch;
+  padding: 22px 24px 24px;
+  container-type: inline-size;
+}
+
+.iseo-help-card::after {
+  content: none;
+}
+
 .iseo-help-card:hover {
   transform: none;
   box-shadow: var(--iseo-dash-shadow);
 }
 
-/* Each card's button closes it at its natural width, and the two sit on the same
-   baseline because both are pushed to the bottom of equal-height grid cells. */
-.iseo-help-cta {
-  margin-top: auto;
-  padding-top: 18px;
-}
-
-.iseo-dash ul.iseo-help-links {
-  list-style: none;
-  margin: 16px 0 0;
-  padding: 0;
-}
-
-.iseo-dash .iseo-help-links li {
-  margin: 0;
-  border-top: 1px solid var(--iseo-dash-line);
-}
-
-.iseo-dash .iseo-help-links li:last-child {
-  border-bottom: 1px solid var(--iseo-dash-line);
-}
-
-.iseo-dash .iseo-help-links a {
+/* Shared header: icon tile, title + one-line summary, and (Need a hand?) the
+   primary action on the right, where it's seen first. */
+.iseo-help-head {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 4px;
-  text-decoration: none;
-  color: var(--iseo-navy);
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 14px 16px;
 }
 
-.iseo-dash .iseo-help-links a:hover .iseo-help-links-title,
-.iseo-dash .iseo-help-links a:focus-visible .iseo-help-links-title {
-  text-decoration: underline;
-}
-
-.iseo-help-links-icon {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background-color: var(--iseo-dash-tile);
-  border: 1px solid var(--iseo-dash-line);
-  color: var(--iseo-navy);
-}
-
-.iseo-help-links-text {
-  flex: 1 1 auto;
+.iseo-help-head-text {
+  flex: 1 1 200px; /* small enough that the icon stays beside the title on a phone */
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
 }
 
-.iseo-help-links-title {
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.iseo-help-links-desc {
-  font-size: 12px;
-  line-height: 1.45;
-  color: var(--iseo-muted);
-}
-
-.iseo-help-links-chevron {
-  flex: 0 0 auto;
-  display: inline-flex;
-  color: var(--iseo-muted);
-  transition: transform 0.15s ease;
-}
-
-.iseo-dash .iseo-help-links a:hover .iseo-help-links-chevron {
-  transform: translateX(3px);
-}
-
-/* Need a hand? — title with its reply-time pill alongside. */
-.iseo-ticket-card {
-  container-type: inline-size;
-}
-
-.iseo-ticket-head {
+.iseo-help-title-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px 10px;
-  margin-bottom: 6px;
 }
 
-.iseo-dash .iseo-ticket-head .iseo-quickstart-title {
+.iseo-dash .iseo-help-head .iseo-quickstart-title {
   margin: 0;
 }
 
-.iseo-ticket-pill {
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1;
-  padding: 5px 10px;
+.iseo-dash .iseo-help-head .iseo-quickstart-msg {
+  margin-top: 4px;
+  text-wrap: pretty;
+}
+
+.iseo-reply-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
   border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
   color: #2E7D32;
   background-color: #E8F5E9;
 }
 
-.iseo-dash .iseo-ticket-eyebrow {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--iseo-navy);
-  margin: 0 0 12px;
+.iseo-dash .iseo-help-action {
+  flex: 0 0 auto;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 18px;
+  font-size: 13px;
 }
 
-/* The process on the left, what to send + the button on the right; stacked once
-   the card itself is narrower than 680px (a container query, so it follows the
-   card rather than the window — browsers without support simply stack). */
-.iseo-ticket-layout {
-  flex: 1 1 auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 18px;
-  margin-top: 18px;
-}
-
-.iseo-ticket-col {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-@container (min-width: 680px) {
-  .iseo-ticket-layout {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    gap: 28px;
+/* On a narrow card the action wraps under the summary; full width reads as a
+   deliberate button there rather than one left stranded at the edge. */
+@container (max-width: 559px) {
+  .iseo-dash .iseo-help-action {
+    flex: 1 1 100%;
   }
 }
 
-/* Vertical timeline: number badge on the left, joined to the next by a rule. */
-.iseo-dash ol.iseo-ticket-steps {
+.iseo-dash .iseo-help-eyebrow {
+  margin: 0 0 14px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--iseo-muted);
+}
+
+/* ── New here?: three resource links, side by side once the card is 760px wide. */
+.iseo-dash ul.iseo-resource-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 0;
   list-style: none;
+}
+
+.iseo-dash .iseo-resource-list li {
+  flex: 1 1 auto;
+  display: flex;
+  margin: 0;
+}
+
+@container (min-width: 760px) {
+  .iseo-dash ul.iseo-resource-list {
+    flex-direction: row;
+  }
+
+  .iseo-dash .iseo-resource-list li {
+    flex: 1 1 0;
+  }
+}
+
+.iseo-dash a.iseo-resource {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  color: var(--iseo-navy);
+  text-decoration: none;
+  background-color: #FFFFFF;
+  border: 1px solid var(--iseo-dash-line);
+  border-radius: 12px;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.iseo-dash a.iseo-resource:hover {
+  background-color: var(--iseo-dash-bg);
+  border-color: rgba(28, 114, 147, 0.45);
+}
+
+/* wp-admin draws a box-shadow ring on every focused link, mouse clicks included;
+   keep a ring for keyboard focus only. */
+.iseo-dash a.iseo-resource:focus {
+  box-shadow: none;
+}
+
+.iseo-dash a.iseo-resource:focus-visible {
+  outline: 2px solid var(--iseo-primary);
+  outline-offset: 2px;
+}
+
+.iseo-resource-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  color: var(--iseo-primary);
+  background-color: rgba(28, 114, 147, 0.08);
+}
+
+.iseo-resource-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.iseo-resource-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--iseo-navy);
+}
+
+.iseo-resource-tag {
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--iseo-muted);
+  background-color: var(--iseo-dash-tile);
+}
+
+.iseo-resource-desc {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--iseo-muted);
+  text-wrap: pretty;
+}
+
+.iseo-resource-go {
+  flex: 0 0 auto;
+  display: inline-flex;
+  color: var(--iseo-muted);
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.iseo-dash a.iseo-resource:hover .iseo-resource-go {
+  color: var(--iseo-primary);
+  transform: translate(2px, -2px);
+}
+
+/* ── Need a hand? body ── */
+.iseo-ticket-body {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--iseo-dash-line);
+}
+
+/* How it works: a vertical timeline on a narrow card, four steps across once
+   the card has room. Each step's ::before is the connector to the next one. */
+.iseo-dash ol.iseo-steps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   margin: 0;
   padding: 0;
+  list-style: none;
 }
 
-.iseo-dash .iseo-ticket-step {
+.iseo-dash .iseo-step {
   position: relative;
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-content: start; /* steps share a row height; a shorter one must not spread its badge and text apart */
   column-gap: 12px;
   margin: 0;
-  padding: 0 0 14px;
+  padding: 0 0 18px;
 }
 
-.iseo-dash .iseo-ticket-step:last-child {
+.iseo-dash .iseo-step:last-child {
   padding-bottom: 0;
 }
 
-.iseo-dash .iseo-ticket-step:not(:last-child)::before {
+.iseo-dash .iseo-step:not(:last-child)::before {
   content: "";
   position: absolute;
-  left: 11px;
-  top: 28px;
-  bottom: 4px;
+  left: 13px;
+  top: 34px;
+  bottom: 6px;
   width: 2px;
   border-radius: 1px;
   background-color: var(--iseo-dash-line);
 }
 
-.iseo-ticket-step-num {
+.iseo-step-num {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
-  color: #FFFFFF;
-  background-color: var(--iseo-navy);
+  color: var(--iseo-primary);
+  background-color: rgba(28, 114, 147, 0.08);
+  box-shadow: inset 0 0 0 1.5px rgba(28, 114, 147, 0.3);
 }
 
-/* Bold lead-in on the same line as its sentence; the 2px top pad centres the
-   first line (13px × 1.55) on the 24px badge. */
-.iseo-ticket-step-text {
-  padding-top: 2px;
+.iseo-step-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 4px;
+}
+
+.iseo-step-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--iseo-navy);
+}
+
+/* text-wrap: pretty avoids a lone word on the last line where supported. */
+.iseo-step-text {
   font-size: 12.5px;
   line-height: 1.55;
   color: var(--iseo-muted);
+  text-wrap: pretty;
 }
 
-.iseo-ticket-step-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--iseo-navy);
+@container (min-width: 720px) {
+  .iseo-dash ol.iseo-steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: 24px;
+  }
+
+  .iseo-dash .iseo-step {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 12px;
+    padding-bottom: 0;
+  }
+
+  /* From 12px past this badge to 12px short of the next (the column gap is 24px). */
+  .iseo-dash .iseo-step:not(:last-child)::before {
+    left: 40px;
+    right: -12px;
+    top: 13px;
+    bottom: auto;
+    width: auto;
+    height: 2px;
+  }
+
+  .iseo-step-body {
+    padding-top: 0;
+  }
+}
+
+/* Statuses you'll see: one quiet line under the steps. */
+.iseo-status-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 20px;
+  margin-top: 22px;
+}
+
+.iseo-dash .iseo-status-legend .iseo-help-eyebrow {
+  margin: 0;
+}
+
+.iseo-dash .iseo-status-legend ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.iseo-dash .iseo-status-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--iseo-muted);
 }
 
 /* Status names in the account CMS's own colours (SupportTickets.jsx STATUS_COLORS),
    so they look the same here as on the ticket. */
 .iseo-ticket-status {
   display: inline-block;
+  padding: 3px 9px;
+  border-radius: 9999px;
   font-size: 11px;
   font-weight: 600;
-  line-height: 1.4;
-  padding: 0 7px;
-  border-radius: 9999px;
+  line-height: 1.3;
   white-space: nowrap;
 }
 
@@ -1202,68 +1340,125 @@ ul.breadcrumb-seo li a:hover {
 .iseo-ticket-status-waiting  { background-color: #FFF3E0; color: #E65100; }
 .iseo-ticket-status-resolved { background-color: #F0F0F0; color: var(--iseo-muted); }
 
-/* "Help us fix it faster" — a tinted tile, so it reads as advice, not a step. */
-.iseo-ticket-tips {
-  padding: 2px 16px 14px;
+/* Before you submit: what to include, and this site's details with a copy button.
+   Two columns split by a rule once there's room, stacked below that. */
+.iseo-prep {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 20px;
+  padding: 18px 20px;
+  background-color: var(--iseo-dash-bg);
   border: 1px solid var(--iseo-dash-line);
-  border-radius: 10px;
-  background-color: var(--iseo-dash-tile);
+  border-radius: 12px;
 }
 
-.iseo-dash .iseo-ticket-tips .iseo-ticket-eyebrow {
-  margin-top: 12px;
-  margin-bottom: 6px;
+@container (min-width: 600px) {
+  .iseo-prep {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .iseo-prep-col:first-child {
+    padding-right: 24px;
+  }
+
+  .iseo-prep-col + .iseo-prep-col {
+    padding-left: 24px;
+    border-left: 1px solid var(--iseo-dash-line);
+  }
 }
 
-.iseo-dash ul.iseo-ticket-tips-list {
-  list-style: disc;
+.iseo-prep-col {
+  min-width: 0;
+}
+
+.iseo-dash ul.iseo-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
   margin: 0;
-  padding-left: 18px;
+  padding: 0;
+  list-style: none;
 }
 
-.iseo-dash .iseo-ticket-tips-list li {
-  margin: 0 0 3px;
+.iseo-dash .iseo-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 0;
   font-size: 12.5px;
   line-height: 1.5;
+  color: var(--iseo-navy);
+}
+
+.iseo-checklist svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #2E7D32;
+}
+
+/* Same height in both columns (the Copy button sets it), so the two headings line up. */
+.iseo-prep-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 30px;
+  margin-bottom: 12px;
+}
+
+.iseo-dash .iseo-prep-head .iseo-help-eyebrow {
+  margin: 0;
+}
+
+.iseo-dash .iseo-copy-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  font-size: 12px;
+}
+
+.iseo-copy-icon,
+.iseo-copy-btn.is-copied .iseo-copy-done-icon {
+  display: inline-flex;
+}
+
+.iseo-copy-done-icon,
+.iseo-copy-btn.is-copied .iseo-copy-icon {
+  display: none;
+}
+
+.iseo-dash .iseo-copy-btn.is-copied,
+.iseo-dash .iseo-copy-btn.is-copied:hover {
+  color: #2E7D32;
+  border-color: #2E7D32;
+  background-color: #FFFFFF;
+}
+
+.iseo-dash dl.iseo-sysinfo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px 18px;
+  margin: 0;
+}
+
+.iseo-dash .iseo-sysinfo dt {
+  margin: 0;
+  font-size: 11.5px;
   color: var(--iseo-muted);
 }
 
-.iseo-ticket-sysinfo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.iseo-dash .iseo-ticket-sysinfo code {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow-wrap: anywhere;
-  padding: 7px 10px;
-  font-size: 12px;
+.iseo-dash .iseo-sysinfo dd {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 500;
   line-height: 1.4;
   color: var(--iseo-navy);
-  background-color: #FFFFFF;
-  border: 1px solid var(--iseo-dash-line);
-  border-radius: 7px;
-}
-
-.iseo-dash .iseo-ticket-copy {
-  flex: 0 0 auto;
-  min-width: 82px;
-  padding: 7px 12px;
-}
-
-.iseo-ticket-footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 14px;
-}
-
-.iseo-ticket-footnote {
-  font-size: 12px;
-  color: var(--iseo-muted);
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Quick Links ──
