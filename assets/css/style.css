@@ -1298,21 +1298,6 @@ input:checked + .switch:before {
   padding: 0 0 18px;
 }
 
-/* Two classes so it beats the older `.head-bar span` pill (teal fill, white text). */
-.iseo-create-head .iseo-create-head-icon {
-  display: inline-flex;
-  padding: 0;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 38px;
-  height: 38px;
-  background: #FEF1EC;
-  border: 1px solid #FCDCCF;
-  border-radius: 10px;
-  color: var(--iseo-coral);
-}
-
 .iseo-create-head.head-bar h1 {
   margin: 0;
   font-family: var(--iseo-font);
@@ -1522,6 +1507,7 @@ input:checked + .switch:before {
 
 .iseo-create .iseo-info-tip {
   margin-left: 6px;
+  cursor: pointer;
 }
 
 .iseo-create .iseo-info-tip:hover,
