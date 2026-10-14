@@ -506,7 +506,8 @@ ul.breadcrumb-seo li a:hover {
 }
 
 /* ── Buttons: solid navy, or white with a navy outline ── */
-.iseo-dash .iseo-btn {
+.iseo-dash .iseo-btn,
+.iseo-create .iseo-btn {
   display: inline-block;
   text-align: center;
   padding: 9px 14px;
@@ -521,13 +522,16 @@ ul.breadcrumb-seo li a:hover {
   transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
-.iseo-dash .iseo-btn-solid {
+.iseo-dash .iseo-btn-solid,
+.iseo-create .iseo-btn-solid {
   background-color: var(--iseo-navy);
   color: #FFFFFF;
 }
 
 .iseo-dash .iseo-btn-solid:hover,
-.iseo-dash .iseo-btn-solid:focus-visible {
+.iseo-create .iseo-btn-solid:hover,
+.iseo-dash .iseo-btn-solid:focus-visible,
+.iseo-create .iseo-btn-solid:focus-visible {
   background-color: var(--iseo-primary);
   border-color: var(--iseo-primary);
   color: #FFFFFF;
@@ -557,14 +561,16 @@ ul.breadcrumb-seo li a:hover {
 }
 
 /* Same trailing arrow, and the same nudge on hover, as the text links (.iseo-quickstart-link). */
-.iseo-dash .iseo-btn-arrow::after {
+.iseo-dash .iseo-btn-arrow::after,
+.iseo-create .iseo-btn-arrow::after {
   content: " \2192";
   display: inline-block;
   margin-left: 2px;
   transition: transform 0.15s ease;
 }
 
-.iseo-dash .iseo-btn-arrow:hover::after {
+.iseo-dash .iseo-btn-arrow:hover::after,
+.iseo-create .iseo-btn-arrow:hover::after {
   transform: translateX(3px);
 }
 
@@ -1502,12 +1508,21 @@ input:checked + .switch:before {
   box-shadow: 0 0 0 2px var(--iseo-primary);
 }
 
-/* Above the card overlay: the (i) marker only toggles its tooltip, and the
-   "continue" link gets its own hover state. */
-.iseo-create .iseo-info-tip,
-.iseo-create .create-ai-col a.iseo-create-continue {
+/* Above the card overlay: the (i) marker only toggles its tooltip, and the Start
+   button gets its own hover state. The marker sits one layer higher, so its
+   bubble is never painted under the button. The button is the Dashboard's
+   .iseo-btn-solid, centered by the card's text-align, sized to its label with a
+   floor so both buttons match. */
+.iseo-create .iseo-create-cta {
   position: relative;
   z-index: 2;
+  min-width: 220px;
+  margin-top: 8px;
+}
+
+.iseo-create .iseo-info-tip {
+  position: relative;
+  z-index: 3;
 }
 
 .iseo-create .iseo-info-tip {
@@ -1530,20 +1545,6 @@ input:checked + .switch:before {
 .iseo-create .iseo-info-tip-bubble a:hover,
 .iseo-create .iseo-info-tip-bubble a:focus {
   color: #FFFFFF;
-}
-
-.iseo-create .create-ai-col a.iseo-create-continue {
-  display: inline-block;
-  font-size: 13.5px;
-  line-height: 20px;
-  font-weight: 500;
-  color: var(--iseo-primary);
-}
-
-.iseo-create .create-ai-col a.iseo-create-continue:hover,
-.iseo-create .create-ai-col a.iseo-create-continue:focus {
-  color: var(--iseo-navy);
-  text-decoration: underline !important;
 }
 
 @media (max-width: 991px) {

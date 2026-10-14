@@ -9,7 +9,7 @@ use ImproveSEO\View;
 
 $from_onboarding = isset( $_GET['from'] ) && $_GET['from'] === 'onboarding';
 
-// Each card is reachable from its title (stretched over the whole card) and its "continue" line.
+// Each card is reachable from its title (stretched over the whole card) and its Start button.
 $single_url = admin_url( 'admin.php?page=improveseo_posting&action=create_post_single' . ( $from_onboarding ? '&from=onboarding' : '' ) );
 $bulk_url   = admin_url( 'admin.php?page=improveseo_posting&action=create_post_bulk' . ( $from_onboarding ? '&from=onboarding' : '' ) );
 $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
@@ -69,8 +69,9 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 			</div>
 
 			<?php // The card title link is stretched over the whole card (::after), so clicking anywhere on
-			      // the card opens it. The (i) marker and the "continue" link sit above that overlay and
-			      // outside every link, so clicking (i) only toggles its tooltip. ?>
+			      // the card opens it. The (i) marker and the Start button sit above that overlay and
+			      // outside every link, so clicking (i) only toggles its tooltip. The arrow on the button
+			      // comes from .iseo-btn-arrow, as on the Dashboard. ?>
 			<div class="create-ai-post">
 				<div class="create-ai">
 					<div class="create-ai-col">
@@ -110,7 +111,7 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 								<span class="iseo-info-tip-bubble iseo-info-tip-bubble--above" role="tooltip"><?php esc_html_e( 'Create a single post based on a chosen seed keyword', 'improveseo' ); ?></span>
 							</span>
 						</h3>
-						<a class="Posting__post-button iseo-create-continue" href="<?php echo esc_url( $single_url ); ?>"><?php esc_html_e( 'Click on ‘Create Single Post’ to continue', 'improveseo' ); ?></a>
+						<a class="Posting__post-button iseo-btn iseo-btn-solid iseo-btn-arrow iseo-create-cta" href="<?php echo esc_url( $single_url ); ?>"><?php esc_html_e( 'Start single post', 'improveseo' ); ?></a>
 					</div>
 
 					<div class="create-ai-col">
@@ -174,7 +175,7 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 								?></span>
 							</span>
 						</h3>
-						<a class="Posting__page-button iseo-create-continue" href="<?php echo esc_url( $bulk_url ); ?>"><?php esc_html_e( 'Click on ‘Create Bulk Post Project’ to continue', 'improveseo' ); ?></a>
+						<a class="Posting__page-button iseo-btn iseo-btn-solid iseo-btn-arrow iseo-create-cta" href="<?php echo esc_url( $bulk_url ); ?>"><?php esc_html_e( 'Start bulk project', 'improveseo' ); ?></a>
 					</div>
 				</div>
 			</div>
