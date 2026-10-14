@@ -48,7 +48,7 @@
         {
             panel: 0, kind: 'field', target: '#keyword_list_name', position: 'bottom',
             title: 'Choose a keyword list',
-            message: 'A bulk project writes <strong>one post per keyword</strong>. Pick the keyword list to use. No list yet? Hover the <strong>ⓘ</strong> next to <strong>Keyword List</strong> for the <strong>Generate Keywords</strong> link, then <strong>click here to refresh</strong>.',
+            message: 'A bulk project writes <strong>one post per keyword</strong>. Pick the keyword list to use. No list yet? The <strong>ⓘ</strong> next to <strong>Keyword List</strong> links to <strong>Generate Keyword List</strong>; once your list is ready, start a new bulk project.',
             requireValue: '#keyword_list_name',
             waitMessage: 'Select a keyword list to continue.'
         },
