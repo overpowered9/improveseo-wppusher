@@ -1452,7 +1452,7 @@ input:checked + .switch:before {
   width: calc(50% - 10px);
   padding: 14px 14px 22px;
   /* Same surface as the dashboard cards (.iseo-quickstart-card), without its wave;
-     the hover (teal fill, lift) is shared with the Quick Links rule above. */
+     the hover lift is shared with the Quick Links rule above (navy fill below). */
   background: #FFFFFF;
   border: 1px solid var(--iseo-dash-line);
   border-radius: 14px;
@@ -1547,10 +1547,16 @@ input:checked + .switch:before {
   color: #FFFFFF;
 }
 
-/* Teal hover (shared with Quick Links above): title and (i) turn white, and the
-   navy button flips to white like it does on the Dashboard's dark cards, and to
-   Pacific Teal under the pointer — the white border keeps it visible on the teal
-   card. The illustration panel keeps its light fill. */
+/* Hover: the Quick Links lift (shared rule above), filled Midnight Navy instead of
+   teal, with a navy-tinted shadow to match. Title and (i) turn white, and the navy
+   button flips to white like it does on the Dashboard's dark cards, and to Pacific
+   Teal under the pointer. The illustration panel keeps its light fill. */
+.iseo-create .create-ai-col:hover {
+  background-color: var(--iseo-navy);
+  border-color: var(--iseo-navy);
+  box-shadow: 0 4px 10px rgba(11, 19, 43, 0.20), 0 16px 32px rgba(11, 19, 43, 0.32);
+}
+
 .iseo-create .create-ai-col:hover h3.iseo-create-title,
 .iseo-create .create-ai-col:hover .iseo-info-tip {
   color: #FFFFFF;
@@ -1565,7 +1571,7 @@ input:checked + .switch:before {
 .iseo-create .create-ai-col:hover .iseo-btn-solid:hover,
 .iseo-create .create-ai-col:hover .iseo-btn-solid:focus-visible {
   background-color: var(--iseo-primary);
-  border-color: #FFFFFF;
+  border-color: var(--iseo-primary);
   color: #FFFFFF;
 }
 
