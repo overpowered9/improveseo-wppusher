@@ -77,7 +77,7 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 						<div class="iseo-create-art">
 							<svg viewBox="0 0 360 172" role="img" aria-label="<?php esc_attr_e( 'One keyword, Cricket Bat, becomes one published post', 'improveseo' ); ?>">
 								<rect x="10" y="58" width="150" height="56" rx="28" fill="#fff" stroke="#1C7293" stroke-width="2"></rect>
-								<circle cx="40" cy="86" r="18" fill="#E3F1F5"></circle>
+								<circle cx="40" cy="86" r="18" fill="#1C7293" fill-opacity="0.12"></circle>
 								<path d="M47 80H37l-6 6 6 6h10z" fill="#1C7293"></path>
 								<circle cx="38" cy="86" r="1.8" fill="#fff"></circle>
 								<text x="66" y="84" font-size="13" font-weight="600" fill="#0B132B"><?php esc_html_e( 'Cricket Bat', 'improveseo' ); ?></text>
@@ -87,12 +87,12 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 								<circle cx="190" cy="86" r="4" fill="#1C7293"></circle>
 								<path d="M214 80l8 6-8 6z" fill="#1C7293"></path>
 								<rect x="230" y="16" width="120" height="140" rx="9" fill="#fff" stroke="#D5DEE6"></rect>
-								<path d="M230 25a9 9 0 0 1 9-9h102a9 9 0 0 1 9 9v25H230z" fill="#E3F1F5"></path>
-								<rect x="240" y="24" width="26" height="18" rx="2" fill="#fff" stroke="#9FC6D4"></rect>
+								<path d="M230 25a9 9 0 0 1 9-9h102a9 9 0 0 1 9 9v25H230z" fill="#1C7293" fill-opacity="0.12"></path>
+								<rect x="240" y="24" width="26" height="18" rx="2" fill="#fff" stroke="#1C7293" stroke-opacity="0.45"></rect>
 								<path d="M243 39l6-6 4 4 4-3 6 5z" fill="#1C7293" opacity="0.7"></path>
 								<circle cx="260" cy="28.5" r="1.8" fill="#1C7293" opacity="0.7"></circle>
 								<rect x="274" y="28" width="64" height="4" rx="2" fill="#1C7293" opacity="0.55"></rect>
-								<rect x="274" y="37" width="44" height="4" rx="2" fill="#B9CDD6"></rect>
+								<rect x="274" y="37" width="44" height="4" rx="2" fill="#1C7293" opacity="0.3"></rect>
 								<rect x="242" y="64" width="96" height="6" rx="3" fill="#0B132B"></rect>
 								<rect x="242" y="78" width="96" height="4" rx="2" fill="#D5DEE6"></rect>
 								<rect x="242" y="88" width="80" height="4" rx="2" fill="#D5DEE6"></rect>
@@ -118,7 +118,7 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 							<svg viewBox="0 0 360 172" role="img" aria-label="<?php esc_attr_e( 'A keyword list of four keywords becomes four ready posts', 'improveseo' ); ?>">
 								<rect x="6" y="8" width="128" height="156" rx="8" fill="#fff" stroke="#CDD6DF"></rect>
 								<text x="16" y="27" font-size="8.5" font-weight="600" fill="#5C6B7A" letter-spacing="0.4"><?php esc_html_e( 'KEYWORD LIST (4)', 'improveseo' ); ?></text>
-								<rect x="14" y="36" width="112" height="24" rx="5" fill="#E3F1F5" stroke="#9FC6D4"></rect>
+								<rect x="14" y="36" width="112" height="24" rx="5" fill="#1C7293" fill-opacity="0.12" stroke="#1C7293" stroke-opacity="0.45"></rect>
 								<circle cx="25" cy="48" r="3" fill="#1C7293"></circle>
 								<text x="34" y="51.5" font-size="9" font-weight="600" fill="#0B132B"><?php esc_html_e( 'Cricket Bat', 'improveseo' ); ?></text>
 								<rect x="14" y="66" width="112" height="24" rx="5" fill="#F5F7F9" stroke="#E9EDF2"></rect>

@@ -1513,11 +1513,12 @@ input:checked + .switch:before {
 .iseo-create .iseo-info-tip {
   margin-left: 6px;
   cursor: pointer;
+  color: var(--iseo-primary);
 }
 
 .iseo-create .iseo-info-tip:hover,
 .iseo-create .iseo-info-tip:focus {
-  color: var(--iseo-primary);
+  color: var(--iseo-navy);
 }
 
 /* The bulk hint's "Create one" link, readable on the dark bubble. */
