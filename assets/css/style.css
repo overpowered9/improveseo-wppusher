@@ -1407,7 +1407,7 @@ input:checked + .switch:before {
   align-items: center;
   gap: 12px;
   padding: 13px 16px;
-  background: rgba(28, 114, 147, 0.08);
+  background: #FEF7E7;
   border-left: 4px solid var(--iseo-primary);
   border-radius: 0 10px 10px 0;
 }
