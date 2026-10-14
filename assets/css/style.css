@@ -1548,8 +1548,9 @@ input:checked + .switch:before {
 }
 
 /* Teal hover (shared with Quick Links above): title and (i) turn white, and the
-   navy button flips to white like it does on the Dashboard's dark cards, going
-   back to navy under the pointer. The illustration panel keeps its light fill. */
+   navy button flips to white like it does on the Dashboard's dark cards, and to
+   Pacific Teal under the pointer — the white border keeps it visible on the teal
+   card. The illustration panel keeps its light fill. */
 .iseo-create .create-ai-col:hover h3.iseo-create-title,
 .iseo-create .create-ai-col:hover .iseo-info-tip {
   color: #FFFFFF;
@@ -1563,8 +1564,8 @@ input:checked + .switch:before {
 
 .iseo-create .create-ai-col:hover .iseo-btn-solid:hover,
 .iseo-create .create-ai-col:hover .iseo-btn-solid:focus-visible {
-  background-color: var(--iseo-navy);
-  border-color: var(--iseo-navy);
+  background-color: var(--iseo-primary);
+  border-color: #FFFFFF;
   color: #FFFFFF;
 }
 
