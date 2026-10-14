@@ -263,7 +263,8 @@ ul.breadcrumb-seo li a:hover {
   transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
-.modules-row .module-box:hover {
+.modules-row .module-box:hover,
+.iseo-create .create-ai-col:hover {
   background-color: var(--iseo-primary);
   border-color: var(--iseo-primary);
   box-shadow: 0 4px 10px rgba(28, 114, 147, 0.20), 0 16px 32px rgba(28, 114, 147, 0.32);
@@ -428,8 +429,7 @@ ul.breadcrumb-seo li a:hover {
   z-index: 1;
 }
 
-.iseo-quickstart-card:hover,
-.iseo-create .create-ai-col:hover {
+.iseo-quickstart-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 2px 4px rgba(11, 19, 43, 0.05), 0 12px 26px rgba(11, 19, 43, 0.10);
 }
@@ -1452,12 +1452,12 @@ input:checked + .switch:before {
   width: calc(50% - 10px);
   padding: 14px 14px 22px;
   /* Same surface as the dashboard cards (.iseo-quickstart-card), without its wave;
-     the hover lift is shared with that rule above. */
+     the hover (teal fill, lift) is shared with the Quick Links rule above. */
   background: #FFFFFF;
   border: 1px solid var(--iseo-dash-line);
   border-radius: 14px;
   box-shadow: var(--iseo-dash-shadow);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
   font-family: var(--iseo-font);
 }
 
@@ -1544,6 +1544,27 @@ input:checked + .switch:before {
 
 .iseo-create .iseo-info-tip-bubble a:hover,
 .iseo-create .iseo-info-tip-bubble a:focus {
+  color: #FFFFFF;
+}
+
+/* Teal hover (shared with Quick Links above): title and (i) turn white, and the
+   navy button flips to white like it does on the Dashboard's dark cards, going
+   back to navy under the pointer. The illustration panel keeps its light fill. */
+.iseo-create .create-ai-col:hover h3.iseo-create-title,
+.iseo-create .create-ai-col:hover .iseo-info-tip {
+  color: #FFFFFF;
+}
+
+.iseo-create .create-ai-col:hover .iseo-btn-solid {
+  background-color: #FFFFFF;
+  border-color: #FFFFFF;
+  color: var(--iseo-navy);
+}
+
+.iseo-create .create-ai-col:hover .iseo-btn-solid:hover,
+.iseo-create .create-ai-col:hover .iseo-btn-solid:focus-visible {
+  background-color: var(--iseo-navy);
+  border-color: var(--iseo-navy);
   color: #FFFFFF;
 }
 
