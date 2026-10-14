@@ -4068,7 +4068,7 @@ form#popup_form .iseo-credit-estimate {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  margin: 0 0 24px;
+  margin: 0 0 30px;
   padding: 14px 18px;
   background: #EEF6F9;
   border: 1px solid #CFE3EB;
@@ -4083,7 +4083,8 @@ form#popup_form .iseo-credit-estimate {
 }
 
 /* The first field's 30px top margin (.improve-seo-form-global .seo-form-field) would stack on the
-   notice's own bottom margin; the notice sets that gap. */
+   notice's own bottom margin; the notice sets that gap, 30px, so the first label sits as far below
+   it as each label sits below the field above. */
 .iseo-kwl-notice + form .seo-form-field:first-child {
   margin-top: 0;
 }
