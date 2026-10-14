@@ -324,11 +324,17 @@ ul.breadcrumb-seo li a:hover {
    None of these cards carry .module-box any more: its !important margins, flex
    column links and breakpoint max-widths were being fought rule by rule, so the
    dashboard now owns its own card styles outright. */
-.global-wrap.iseo-dash {
-  --iseo-dash-bg:     #F4F7FB;
+/* Card tokens, shared with the Create Post screen (.iseo-create-wrap) so its cards
+   and buttons match the dashboard's. */
+.global-wrap.iseo-dash,
+.iseo-create-wrap {
   --iseo-dash-line:   #E6EBF2;
   --iseo-dash-tile:   #F1F4F8;
   --iseo-dash-shadow: 0 1px 2px rgba(11, 19, 43, 0.04), 0 6px 18px rgba(11, 19, 43, 0.06);
+}
+
+.global-wrap.iseo-dash {
+  --iseo-dash-bg:     #F4F7FB;
   --iseo-dash-link:   #1C6FD1;
   background-color: var(--iseo-dash-bg);
   font-family: var(--iseo-font);
@@ -422,7 +428,8 @@ ul.breadcrumb-seo li a:hover {
   z-index: 1;
 }
 
-.iseo-quickstart-card:hover {
+.iseo-quickstart-card:hover,
+.iseo-create .create-ai-col:hover {
   transform: translateY(-2px);
   box-shadow: 0 2px 4px rgba(11, 19, 43, 0.05), 0 12px 26px rgba(11, 19, 43, 0.10);
 }
@@ -1365,17 +1372,12 @@ input:checked + .switch:before {
   white-space: nowrap;
 }
 
-.iseo-create-chip--single {
-  background: #E8F2F6;
-  border: 1px solid #D3E6ED;
-  color: var(--iseo-primary);
-}
-
-/* Darker than --iseo-coral so the label stays readable on its pale tint. */
+/* Both options share one solid Pacific Teal tag; the border keeps the old size. */
+.iseo-create-chip--single,
 .iseo-create-chip--bulk {
-  background: #FEF0EB;
-  border: 1px solid #FBD9CD;
-  color: #C4512F;
+  background: var(--iseo-primary);
+  border: 1px solid var(--iseo-primary);
+  color: #FFFFFF;
 }
 
 .iseo-create-dash {
@@ -1399,9 +1401,9 @@ input:checked + .switch:before {
   align-items: center;
   gap: 12px;
   padding: 13px 16px;
-  background: #EEF6F9;
-  border: 1px solid #CFE4EC;
-  border-radius: 10px;
+  background: rgba(28, 114, 147, 0.08);
+  border-left: 4px solid var(--iseo-primary);
+  border-radius: 0 10px 10px 0;
 }
 
 .iseo-create-callout-icon {
@@ -1417,13 +1419,13 @@ input:checked + .switch:before {
 
 .iseo-create .iseo-create-callout a {
   font-weight: 600;
-  color: var(--iseo-navy);
+  color: var(--iseo-primary);
   text-decoration: underline;
 }
 
 .iseo-create .iseo-create-callout a:hover,
 .iseo-create .iseo-create-callout a:focus {
-  color: var(--iseo-primary);
+  color: var(--iseo-navy);
 }
 
 /* Cards: same two-column / stacked behaviour as before, now edge-aligned with the
@@ -1443,10 +1445,13 @@ input:checked + .switch:before {
 .iseo-create .create-ai-col {
   width: calc(50% - 10px);
   padding: 14px 14px 22px;
-  background: var(--iseo-surface);
-  border: 1px solid #E3E8EE;
+  /* Same surface as the dashboard cards (.iseo-quickstart-card), without its wave;
+     the hover lift is shared with that rule above. */
+  background: #FFFFFF;
+  border: 1px solid var(--iseo-dash-line);
   border-radius: 14px;
-  box-shadow: none;
+  box-shadow: var(--iseo-dash-shadow);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
   font-family: var(--iseo-font);
 }
 
