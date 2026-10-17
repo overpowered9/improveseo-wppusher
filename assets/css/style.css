@@ -263,7 +263,8 @@ ul.breadcrumb-seo li a:hover {
   transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
-.modules-row .module-box:hover {
+.modules-row .module-box:hover,
+.iseo-create .create-ai-col:hover {
   background-color: var(--iseo-primary);
   border-color: var(--iseo-primary);
   box-shadow: 0 4px 10px rgba(28, 114, 147, 0.20), 0 16px 32px rgba(28, 114, 147, 0.32);
@@ -324,11 +325,17 @@ ul.breadcrumb-seo li a:hover {
    None of these cards carry .module-box any more: its !important margins, flex
    column links and breakpoint max-widths were being fought rule by rule, so the
    dashboard now owns its own card styles outright. */
-.global-wrap.iseo-dash {
-  --iseo-dash-bg:     #F4F7FB;
+/* Card tokens, shared with the Create Post screen (.iseo-create-wrap) so its cards
+   and buttons match the dashboard's. */
+.global-wrap.iseo-dash,
+.iseo-create-wrap {
   --iseo-dash-line:   #E6EBF2;
   --iseo-dash-tile:   #F1F4F8;
   --iseo-dash-shadow: 0 1px 2px rgba(11, 19, 43, 0.04), 0 6px 18px rgba(11, 19, 43, 0.06);
+}
+
+.global-wrap.iseo-dash {
+  --iseo-dash-bg:     #F4F7FB;
   --iseo-dash-link:   #1C6FD1;
   background-color: var(--iseo-dash-bg);
   font-family: var(--iseo-font);
@@ -499,7 +506,8 @@ ul.breadcrumb-seo li a:hover {
 }
 
 /* ── Buttons: solid navy, or white with a navy outline ── */
-.iseo-dash .iseo-btn {
+.iseo-dash .iseo-btn,
+.iseo-create .iseo-btn {
   display: inline-block;
   text-align: center;
   padding: 9px 14px;
@@ -514,13 +522,16 @@ ul.breadcrumb-seo li a:hover {
   transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
-.iseo-dash .iseo-btn-solid {
+.iseo-dash .iseo-btn-solid,
+.iseo-create .iseo-btn-solid {
   background-color: var(--iseo-navy);
   color: #FFFFFF;
 }
 
 .iseo-dash .iseo-btn-solid:hover,
-.iseo-dash .iseo-btn-solid:focus-visible {
+.iseo-create .iseo-btn-solid:hover,
+.iseo-dash .iseo-btn-solid:focus-visible,
+.iseo-create .iseo-btn-solid:focus-visible {
   background-color: var(--iseo-primary);
   border-color: var(--iseo-primary);
   color: #FFFFFF;
@@ -549,14 +560,16 @@ ul.breadcrumb-seo li a:hover {
 }
 
 /* Same trailing arrow, and the same nudge on hover, as the text links (.iseo-quickstart-link). */
-.iseo-dash .iseo-btn-arrow::after {
+.iseo-dash .iseo-btn-arrow::after,
+.iseo-create .iseo-btn-arrow::after {
   content: " \2192";
   display: inline-block;
   margin-left: 2px;
   transition: transform 0.15s ease;
 }
 
-.iseo-dash .iseo-btn-arrow:hover::after {
+.iseo-dash .iseo-btn-arrow:hover::after,
+.iseo-create .iseo-btn-arrow:hover::after {
   transform: translateX(3px);
 }
 
@@ -1571,6 +1584,310 @@ input:checked + .switch:before {
 .create-ai-col img {
   display: block;
   margin: 0 auto 15px;
+}
+
+/* ── Create Post choice screen (views/posting/index.php) ─────────────────────
+   Scoped through .iseo-create / .iseo-create-head: the Single and Bulk pages reuse
+   .head-bar and the .create-ai-* card classes and must keep their current look.
+   Header, intro and cards sit in one full-width wrapper (.iseo-create-wrap) with no
+   side padding of their own, so their edges line up at every width. */
+.iseo-create-wrap {
+  padding: 0 44px;
+}
+
+.iseo-create-head.head-bar {
+  gap: 12px;
+  padding: 0 0 18px;
+}
+
+.iseo-create-head.head-bar h1 {
+  margin: 0;
+  font-family: var(--iseo-font);
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: 600;
+  color: var(--iseo-navy);
+}
+
+.iseo-create.container {
+  max-width: none;
+  padding: 0;
+}
+
+.iseo-create-intro {
+  padding-top: 26px;
+  font-family: var(--iseo-font);
+  text-align: left;
+}
+
+.iseo-create .iseo-create-lead {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--iseo-ink);
+}
+
+.iseo-create .iseo-create-choose {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--iseo-navy);
+}
+
+.iseo-create-options {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.iseo-create-options li {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0;
+  padding: 9px 14px;
+  background: var(--iseo-surface);
+  border: 1px solid var(--iseo-border);
+  border-radius: 10px;
+  font-size: 13.5px;
+  line-height: 20px;
+  color: var(--iseo-ink);
+}
+
+.iseo-create-chip {
+  padding: 2px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Both options share one solid Pacific Teal tag; the border keeps the old size. */
+.iseo-create-chip--single,
+.iseo-create-chip--bulk {
+  background: var(--iseo-primary);
+  border: 1px solid var(--iseo-primary);
+  color: #FFFFFF;
+}
+
+.iseo-create-dash {
+  color: #9AA5B1;
+}
+
+.iseo-create .iseo-create-help {
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  line-height: 22px;
+  color: var(--iseo-muted);
+}
+
+.iseo-create-i {
+  display: inline-block;
+  vertical-align: -3px;
+}
+
+.iseo-create-callout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  background: #FEF7E7;
+  border-left: 4px solid var(--iseo-primary);
+  border-radius: 0 10px 10px 0;
+}
+
+.iseo-create-callout-icon {
+  flex: 0 0 auto;
+}
+
+.iseo-create .iseo-create-callout p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 20px;
+  color: var(--iseo-ink);
+}
+
+.iseo-create .iseo-create-callout a {
+  font-weight: 600;
+  color: var(--iseo-primary);
+  text-decoration: underline;
+}
+
+.iseo-create .iseo-create-callout a:hover,
+.iseo-create .iseo-create-callout a:focus {
+  color: var(--iseo-navy);
+}
+
+/* Cards: same two-column / stacked behaviour as before, now edge-aligned with the
+   intro (space-between instead of space-around, no extra side padding). */
+.iseo-create .create-ai-post {
+  margin: 0;
+  padding: 22px 0 8px;
+}
+
+.iseo-create .create-ai {
+  padding: 0;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+.iseo-create .create-ai-col {
+  width: calc(50% - 10px);
+  padding: 14px 14px 22px;
+  /* Same surface as the dashboard cards (.iseo-quickstart-card), without its wave;
+     the hover lift is shared with the Quick Links rule above (navy fill below). */
+  background: #FFFFFF;
+  border: 1px solid var(--iseo-dash-line);
+  border-radius: 14px;
+  box-shadow: var(--iseo-dash-shadow);
+  transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+  font-family: var(--iseo-font);
+}
+
+/* Fixed-height panel; the drawing takes ~70–75% of its width, centered. On very wide
+   cards the panel height caps it first (max-height), which keeps its text below
+   the card title in size. */
+.iseo-create-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 230px;
+  padding: 20px;
+  background: #F4F6F8;
+  border-radius: 10px;
+}
+
+.iseo-create-art svg {
+  display: block;
+  width: 77%;
+  height: auto;
+  max-height: 100%;
+  font-family: var(--iseo-font);
+}
+
+.iseo-create .create-ai-col h3.iseo-create-title {
+  margin: 22px 0 6px;
+  font-family: var(--iseo-font);
+  font-size: 19px;
+  line-height: 28px;
+  font-weight: 600;
+  color: var(--iseo-navy);
+}
+
+/* The title link covers the whole card, so a click anywhere on it opens the card. */
+.iseo-create .iseo-create-card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 14px;
+}
+
+.iseo-create .iseo-create-card-link:focus {
+  outline: none;
+}
+
+.iseo-create .iseo-create-card-link:focus-visible::after {
+  box-shadow: 0 0 0 2px var(--iseo-primary);
+}
+
+/* Above the card overlay: the (i) marker only toggles its tooltip, and the Start
+   button gets its own hover state. The marker sits one layer higher, so its
+   bubble is never painted under the button. The button is the Dashboard's
+   .iseo-btn-solid, centered by the card's text-align, sized to its label with a
+   floor so both buttons match. */
+.iseo-create .iseo-create-cta {
+  position: relative;
+  z-index: 2;
+  min-width: 220px;
+  margin-top: 8px;
+}
+
+.iseo-create .iseo-info-tip {
+  position: relative;
+  z-index: 3;
+}
+
+.iseo-create .iseo-info-tip {
+  margin-left: 6px;
+  cursor: pointer;
+  color: var(--iseo-primary);
+}
+
+.iseo-create .iseo-info-tip:hover,
+.iseo-create .iseo-info-tip:focus {
+  color: var(--iseo-navy);
+}
+
+/* The bulk hint's "Create one" link, readable on the dark bubble. */
+.iseo-create .iseo-info-tip-bubble a {
+  color: #8EC5DF;
+  text-decoration: underline !important;
+}
+
+.iseo-create .iseo-info-tip-bubble a:hover,
+.iseo-create .iseo-info-tip-bubble a:focus {
+  color: #FFFFFF;
+}
+
+/* Hover: the Quick Links lift (shared rule above), filled Midnight Navy instead of
+   teal, with a navy-tinted shadow to match. Title and (i) turn white, and the navy
+   button flips to white like it does on the Dashboard's dark cards, and to Pacific
+   Teal under the pointer. The illustration panel keeps its light fill. */
+.iseo-create .create-ai-col:hover {
+  background-color: var(--iseo-navy);
+  border-color: var(--iseo-navy);
+  box-shadow: 0 4px 10px rgba(11, 19, 43, 0.20), 0 16px 32px rgba(11, 19, 43, 0.32);
+}
+
+.iseo-create .create-ai-col:hover h3.iseo-create-title,
+.iseo-create .create-ai-col:hover .iseo-info-tip {
+  color: #FFFFFF;
+}
+
+.iseo-create .create-ai-col:hover .iseo-btn-solid {
+  background-color: #FFFFFF;
+  border-color: #FFFFFF;
+  color: var(--iseo-navy);
+}
+
+.iseo-create .create-ai-col:hover .iseo-btn-solid:hover,
+.iseo-create .create-ai-col:hover .iseo-btn-solid:focus-visible {
+  background-color: var(--iseo-primary);
+  border-color: var(--iseo-primary);
+  color: #FFFFFF;
+}
+
+@media (max-width: 991px) {
+  .iseo-create .create-ai-col {
+    width: 100%;
+  }
+}
+
+@media (max-width: 639px) {
+  .iseo-create-wrap {
+    padding: 0 16px;
+  }
+
+  .iseo-create-head.head-bar {
+    padding: 0 0 14px;
+  }
+
+  .iseo-create-head.head-bar h1 {
+    font-size: 18px;
+    line-height: 26px;
+  }
+
+  .iseo-create-art {
+    height: 190px;
+    padding: 18px;
+  }
 }
 
 .category-box {

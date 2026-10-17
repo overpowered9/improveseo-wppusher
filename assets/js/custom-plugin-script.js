@@ -2099,6 +2099,33 @@ function SaveResultsButton() {
 
   var keyword_list = jQuery("#keyword_list").val();
 
+  // Same checks, and the same warnings, as the wizard's Next button on step 1
+  // (GenerateAIpopuphtml.php). Without them an empty request reaches the server and its
+  // "No keywords provided" comes back through iseoShowGenerationFailure, which adds
+  // Settings / Confirm connection advice that has nothing to do with a missing list.
+  var $listName = jQuery("#keyword_list_name");
+  if ($listName.length && typeof showImproveSEONotification === "function") {
+    var listName = $listName.val();
+    if (!listName || listName === "none") {
+      showImproveSEONotification(
+        "warning",
+        "Keyword List Required",
+        "Please select a keyword list or create a new one before proceeding.",
+        null
+      );
+      return;
+    }
+    if (!keyword_list || !keyword_list.trim()) {
+      showImproveSEONotification(
+        "warning",
+        "Empty Keyword List",
+        "The selected keyword list is empty. Please add at least one keyword before proceeding.",
+        null
+      );
+      return;
+    }
+  }
+
   var content_type = jQuery('#pop_up_multi_form [name="content_type"]').val() || '';
 
   // Remember what was in the field so a failure can put it back. Every failure path used to
