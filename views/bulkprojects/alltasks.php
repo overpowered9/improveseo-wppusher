@@ -340,7 +340,8 @@ $url .= $_SERVER['REQUEST_URI'];
 											$act_cancel = array(
 												'label'   => 'Cancel Process',
 												'href'    => admin_url('admin.php?page=improveseo_bulkprojects&action=stop&mainid=' . $parent_id_for_row . '&id=' . $project->id),
-												'onclick' => "return confirm('Are you sure you want to cancel this task? Content generation will be halted.')",
+												// Shared confirm popup; only its "Cancel task" button follows the link.
+												'onclick' => "var a = this; iseoModal.destructive({ title: " . wp_json_encode( __( 'Cancel task', 'improveseo' ) ) . ", message: 'Are you sure you want to cancel this task? Content generation will be halted.', primary: { label: " . wp_json_encode( __( 'Cancel task', 'improveseo' ) ) . " } }).then(function (ok) { if (ok) { window.location.href = a.href; } }); return false;",
 											);
 
 											if ($is_stoped) {
@@ -713,7 +714,23 @@ $url .= $_SERVER['REQUEST_URI'];
 				return false;
 			}
 
-			return confirm('Are you sure you want to delete ' + checkedItems + ' selected post(s) and their associated data? This action cannot be undone.');
+			// Shared confirm popup. The submit is held and replayed from this same button only
+			// when "Delete" is clicked; Cancel, ×, Esc or a click outside leave the page as it is.
+			e.preventDefault();
+			var btn = this;
+			iseoModal.destructive({
+				title: '<?php echo esc_js( __( 'Delete posts', 'improveseo' ) ); ?>',
+				message: 'Are you sure you want to delete ' + checkedItems + ' selected post(s) and their associated data? This action cannot be undone.',
+				primary: { label: '<?php echo esc_js( __( 'Delete', 'improveseo' ) ); ?>' }
+			}).then(function (ok) {
+				if (!ok) { return; }
+				if (typeof btn.form.requestSubmit === 'function') {
+					btn.form.requestSubmit(btn);
+				} else {
+					btn.form.submit();
+				}
+			});
+			return false;
 		});
 	});
 </script>

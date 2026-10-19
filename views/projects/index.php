@@ -331,7 +331,10 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 												?>
 												<li style="margin: 0px !important;"><a
 														href="<?php echo esc_url( $delete_url ); ?>"
-														onclick="return confirm(<?php echo esc_attr( wp_json_encode( $delete_confirm ) ); ?>);"
+														data-iseo-confirm="<?php echo esc_attr( $delete_confirm ); ?>"
+														data-iseo-confirm-title="<?php echo esc_attr__( 'Delete project', 'improveseo' ); ?>"
+														data-iseo-confirm-label="<?php echo esc_attr__( 'Delete', 'improveseo' ); ?>"
+														data-iseo-confirm-variant="destructive"
 														style="max-width: max-content !important;"
 														class="popup-link delete-link">Delete Post</a></li>
 											</ul>
@@ -504,9 +507,14 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 			confirmMessage += projectNames.join('\n');
 			confirmMessage += '\n\nThis action cannot be undone.';
 
-			if (confirm(confirmMessage)) {
+			iseoModal.destructive({
+				title: '<?php echo esc_js( __( 'Delete projects', 'improveseo' ) ); ?>',
+				message: confirmMessage,
+				primary: { label: '<?php echo esc_js( __( 'Delete', 'improveseo' ) ); ?>' }
+			}).then(function (ok) {
+				if (!ok) { return; }
 				$('#bulk-delete-form').submit();
-			}
+			});
 		});
 
 		updateDeleteButtonState();

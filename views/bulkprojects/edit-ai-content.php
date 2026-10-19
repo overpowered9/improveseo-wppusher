@@ -115,7 +115,9 @@ $keyword_name = trim((string) $task->keyword_name);
 						// state/post_id/published_on are written in exactly one place. ?>
 						<button name="publish" value="1" type="submit" formtarget="_self"
 							class="btn styling_post_page_action_buttons btn-outline-primary"
-							onclick="return confirm('Publish this post now? Your edits will be saved first.')">
+							data-iseo-confirm="Publish this post now? Your edits will be saved first."
+							data-iseo-confirm-title="<?php echo esc_attr__( 'Publish post', 'improveseo' ); ?>"
+							data-iseo-confirm-label="<?php echo esc_attr__( 'Publish', 'improveseo' ); ?>">
 							Publish Post
 						</button>
 						<button name="save" value="1" type="submit" formtarget="_self"

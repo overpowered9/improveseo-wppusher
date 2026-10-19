@@ -51,7 +51,7 @@ use ImproveSEO\View;
 					</strong>
 					<div class="row-actions">
 						<span class="trash">
-							<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_noindex&action=remove&id='. $tag->term_id .'&noheader=true') ); ?>" onclick="return confirm('Are you sure to delete noindex meta tag from <?php echo esc_html( $tag->name ); ?>?')">Delete noindex key</a>
+							<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_noindex&action=remove&id='. $tag->term_id .'&noheader=true') ); ?>" data-iseo-confirm="Are you sure to delete noindex meta tag from <?php echo esc_attr( $tag->name ); ?>?" data-iseo-confirm-title="<?php echo esc_attr__( 'Remove noindex tag', 'improveseo' ); ?>" data-iseo-confirm-label="<?php echo esc_attr__( 'Delete', 'improveseo' ); ?>" data-iseo-confirm-variant="destructive">Delete noindex key</a>
 						</span>
 					</div>
 				</td>
