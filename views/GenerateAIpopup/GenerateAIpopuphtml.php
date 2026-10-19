@@ -3891,18 +3891,27 @@ if ( 'single' !== $ai_modal_type ) {
                         }
 
                         // Content credits are sufficient — confirm before advancing.
-                        // resolve() runs on OK/close so the wizard only moves forward
-                        // once the user acknowledges the credit usage.
-                        ImproveSEONotification.show({
-                            type: 'success',
-                            title: 'Confirm Content Generation',
-                            message:
-                                'This project requires ' + plural(creditsNeeded, 'credit') + ' based on your selections.\n\n' +
-                                'You will have ' + plural(data.content_check.available - creditsNeeded, 'remaining credit') +
-                                ' after content generation.\n\n' +
-                                'Click OK to confirm and continue.',
-                            buttonText: 'OK',
-                            onClose: function () { resolve(data); }
+                        // Only Continue moves the wizard on. Cancel, ×, Esc and a click outside
+                        // all reject, so the user stays on this step (BulkSubmitButton.setError()
+                        // restores the button). This used to be a one-button notice whose every
+                        // way of closing — outside click included — counted as a confirmation.
+                        iseoModal.confirm({
+                            icon: 'file-text',
+                            title: '<?php echo esc_js( __( 'Confirm content generation', 'improveseo' ) ); ?>',
+                            message: '<?php echo esc_js( __( 'This project will use the credits below, based on your selections.', 'improveseo' ) ); ?>',
+                            details: [
+                                { label: '<?php echo esc_js( __( 'Posts', 'improveseo' ) ); ?>', value: fmt(keywordCount) },
+                                { label: '<?php echo esc_js( __( 'Credits required', 'improveseo' ) ); ?>', value: fmt(creditsNeeded) },
+                                { label: '<?php echo esc_js( __( 'Credits available', 'improveseo' ) ); ?>', value: fmt(data.content_check.available) },
+                                { label: '<?php echo esc_js( __( 'Remaining after generation', 'improveseo' ) ); ?>', value: fmt(data.content_check.available - creditsNeeded), tone: 'primary' }
+                            ],
+                            primary: { label: '<?php echo esc_js( __( 'Continue', 'improveseo' ) ); ?>' }
+                        }).then(function (confirmed) {
+                            if (confirmed) {
+                                resolve(data);
+                            } else {
+                                reject('cancelled');
+                            }
                         });
                         
                     } else {
@@ -4052,24 +4061,32 @@ if ( 'single' !== $ai_modal_type ) {
                         // Image credits are sufficient.
                         console.log('✅ Image credit check passed:', data);
                         if (aiImageCount > 0) {
-                            // Confirm before advancing — OK gates the step change.
-                            ImproveSEONotification.show({
-                                type: 'success',
-                                title: 'Confirm AI Image Generation',
-                                // aiImageCount is a COUNT of images. It used to be reported as the
-                                // credit cost and subtracted from the credit balance, so at
-                                // ISEO_COST_IMAGE=5 a one-image run said "required: 1" and
-                                // overstated what was left by 4. image_check.needed is the priced
-                                // figure the gate itself used.
-                                message:
-                                    aiImageCount + ' image' + (aiImageCount === 1 ? '' : 's') +
-                                        ' × ' + (data.image_unit || 1) + ' = ' +
-                                        data.image_check.needed + ' ISEO credits\n' +
-                                    'Credits available now: ' + data.image_check.available + '\n' +
-                                    'Remaining after generation: ' + (data.image_check.available - data.image_check.needed) + '\n\n' +
-                                    'Click OK to confirm and continue.',
-                                buttonText: 'OK',
-                                onClose: function () { resolve(data); }
+                            // Confirm before advancing — only Continue gates the step change.
+                            // Cancel, ×, Esc and an outside click reject and keep the user here;
+                            // the old one-button notice resolved on any close.
+                            //
+                            // aiImageCount is a COUNT of images. It used to be reported as the
+                            // credit cost and subtracted from the credit balance, so at
+                            // ISEO_COST_IMAGE=5 a one-image run said "required: 1" and
+                            // overstated what was left by 4. image_check.needed is the priced
+                            // figure the gate itself used.
+                            iseoModal.confirm({
+                                icon: 'image',
+                                title: '<?php echo esc_js( __( 'Confirm AI image generation', 'improveseo' ) ); ?>',
+                                details: [
+                                    { label: '<?php echo esc_js( __( 'Images', 'improveseo' ) ); ?>', value: aiImageCount },
+                                    { label: '<?php echo esc_js( __( 'Credits per image', 'improveseo' ) ); ?>', value: data.image_unit || 1 },
+                                    { label: '<?php echo esc_js( __( 'Credits required', 'improveseo' ) ); ?>', value: data.image_check.needed },
+                                    { label: '<?php echo esc_js( __( 'Credits available', 'improveseo' ) ); ?>', value: data.image_check.available },
+                                    { label: '<?php echo esc_js( __( 'Remaining after generation', 'improveseo' ) ); ?>', value: data.image_check.available - data.image_check.needed, tone: 'primary' }
+                                ],
+                                primary: { label: '<?php echo esc_js( __( 'Continue', 'improveseo' ) ); ?>' }
+                            }).then(function (confirmed) {
+                                if (confirmed) {
+                                    resolve(data);
+                                } else {
+                                    reject('cancelled');
+                                }
                             });
                         } else {
                             resolve(data);

@@ -113,8 +113,6 @@ function buildEditableImagePrompt(subject) {
 }
 
 function getShortCodeDetails(value) {
-  alert(value);
-
   var formData = new FormData();
 
   formData.append("action", "improveseo_get_shortcodes");
@@ -2062,30 +2060,39 @@ function iseoDecodeEntities(str) {
  * `reason` is the server's own explanation when it sent one; `fallback` covers the case where
  * it did not (a transport failure, where there is no server sentence to quote).
  *
- * The single button is the action: it opens Settings in a NEW tab, because these fire
- * mid-wizard and navigating away in place would discard everything already filled in. Falls
- * back to a plain OK if the URL was not localised, so the button is never a dead end.
+ * "Go to Settings" opens Settings in a NEW tab, because these fire mid-wizard and navigating
+ * away in place would discard everything already filled in. Only that button does it: Close,
+ * ×, Esc and an outside click just close the popup. (It used to open Settings from onClose,
+ * so every way of dismissing the popup — even clicking outside it — spawned a tab.) Falls back
+ * to a single OK if the URL was not localised, so there is never a dead-end button.
  */
 function iseoShowGenerationFailure(dialogTitle, reason, fallback) {
   var settingsUrl = (typeof main_ajax_vars !== "undefined" && main_ajax_vars.iseo_settings_url)
     ? main_ajax_vars.iseo_settings_url
     : "";
 
-  var message = (reason ? reason : fallback)
-    + " On the Settings page, save your changes and click Confirm website connection — then close this popup and try again.";
+  var message = (reason ? reason : fallback) + " " + wp.i18n.__(
+    "On the Settings page, save your changes and click Confirm website connection, then close this popup and try again.",
+    "improveseo"
+  );
 
-  if (typeof ImproveSEONotification === "undefined") {
+  if (typeof iseoModal === "undefined") {
     alert(message);
     return;
   }
 
-  ImproveSEONotification.show({
-    type: "error",
+  if (!settingsUrl) {
+    iseoModal.error({ title: dialogTitle, message: message });
+    return;
+  }
+
+  iseoModal.error({
     title: dialogTitle,
     message: message,
-    buttonText: settingsUrl ? "Go to Settings" : "OK",
-    onClose: function () {
-      if (settingsUrl) { window.open(settingsUrl, "_blank"); }
+    secondary: { label: wp.i18n.__("Close", "improveseo") },
+    primary: {
+      label: wp.i18n.__("Go to Settings", "improveseo"),
+      onClick: function () { window.open(settingsUrl, "_blank", "noopener"); }
     }
   });
 }
