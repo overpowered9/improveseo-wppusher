@@ -566,7 +566,7 @@ function generateAIpopup()
 
             var seed = (jQuery('#input').val() || '').trim();
             if (!seed) {
-                alert('Please enter a seed keyword first.');
+                iseoModal.warning({ title: '<?php echo esc_js( __( 'Seed keyword required', 'improveseo' ) ); ?>', message: 'Please enter a seed keyword first.' });
                 return;
             }
 
@@ -575,7 +575,7 @@ function generateAIpopup()
             if (!apiKey || !siteCode) {
                 // Fallback: if iseoRequireConnection wasn't available, show the modal or alert.
                 if (typeof iseoRequireConnection === 'function') { iseoRequireConnection(); return; }
-                alert('Missing API credentials. Please configure API Key and Site Code in settings.');
+                iseoModal.error({ title: '<?php echo esc_js( __( 'API credentials missing', 'improveseo' ) ); ?>', message: 'Missing API credentials. Please configure API Key and Site Code in settings.' });
                 return;
             }
 
@@ -627,10 +627,10 @@ function generateAIpopup()
                         if (typeof window.iseoShowConnectionGuard === 'function') {
                             window.iseoShowConnectionGuard();
                         } else {
-                            alert('Authentication failed. Please check your API credentials in settings.');
+                            iseoModal.error({ title: '<?php echo esc_js( __( 'Authentication failed', 'improveseo' ) ); ?>', message: 'Authentication failed. Please check your API credentials in settings.' });
                         }
                     } else {
-                        alert(serverError || 'Keyword generation failed. Please try again.');
+                        iseoModal.error({ title: '<?php echo esc_js( __( 'Keyword generation failed', 'improveseo' ) ); ?>', message: serverError || 'Keyword generation failed. Please try again.' });
                     }
                 },
                 complete: function () {

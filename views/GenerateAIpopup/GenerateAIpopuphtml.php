@@ -3368,14 +3368,14 @@ if ( 'single' !== $ai_modal_type ) {
         
         // Validate file type
         if (!file.type.match('image.*')) {
-            alert('Please select a valid image file.');
+            iseoModal.warning({ title: '<?php echo esc_js( __( 'Invalid image file', 'improveseo' ) ); ?>', message: 'Please select a valid image file.' });
             jQuery(this).val('');
             return;
         }
         
         // Validate file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
-            alert('Image size should not exceed 5MB.');
+            iseoModal.warning({ title: '<?php echo esc_js( __( 'Image too large', 'improveseo' ) ); ?>', message: 'Image size should not exceed 5MB.' });
             jQuery(this).val('');
             return;
         }

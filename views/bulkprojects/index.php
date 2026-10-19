@@ -393,7 +393,7 @@ if (isset($_GET['post_preview'])) {
 			const checkedBoxes = jQuery("input[name='project_ids[]']:checked");
 
 			if (checkedBoxes.length === 0) {
-				alert('Please select at least one project to delete.');
+				iseoModal.warning({ title: '<?php echo esc_js( __( 'No projects selected', 'improveseo' ) ); ?>', message: 'Please select at least one project to delete.' });
 				return false;
 			}
 

@@ -59,7 +59,7 @@ var WordAI = {
 		}, 'json')
 		.done(function(response) {
 			if (response.status == 'Failure') {
-				alert(response.error);
+				iseoModal.error({ title: "Spin failed", message: response.error });
 			} else {
 				jQuery('#word-ai-result-wrap').show();
 				jQuery('#word-ai-result').val(response.text);

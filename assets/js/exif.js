@@ -66,7 +66,7 @@ var ImageEXIF = {
 				ImageEXIF.map.setCenter(location);
 				ImageEXIF.select(query, location);
 			} else {
-				alert("Geocode was not successful for the following reason: " + status);
+				iseoModal.error({ title: "Location lookup failed", message: "Geocode was not successful for the following reason: " + status });
 			}
 		});
 	},

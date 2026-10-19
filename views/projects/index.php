@@ -486,7 +486,7 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 		$('#bulk-delete-btn').click(function () {
 			var checkedBoxes = $('.project-checkbox:checked');
 			if (checkedBoxes.length === 0) {
-				alert('Please select at least one project to delete.');
+				iseoModal.warning({ title: '<?php echo esc_js( __( 'No projects selected', 'improveseo' ) ); ?>', message: 'Please select at least one project to delete.' });
 				return;
 			}
 

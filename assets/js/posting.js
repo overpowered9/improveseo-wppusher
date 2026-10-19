@@ -331,7 +331,7 @@ function getUniqueLocations() {
 				}, 'json')
 				.done(function(response) {
 					if (response.status == 'Failure') {
-						alert(response.error);
+						iseoModal.error({ title: "Spin failed", message: response.error });
 					} else {
 						tinymce.get('content') ? tinymce.get('content').setContent(response.text) : $('#content').val(response.text);
 					}

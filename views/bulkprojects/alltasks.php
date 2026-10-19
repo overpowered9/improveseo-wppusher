@@ -315,7 +315,7 @@ $url .= $_SERVER['REQUEST_URI'];
 											$act_edit_content_pending = array(
 												'label'   => 'Edit Draft Post',
 												'href'    => '#',
-												'onclick' => "alert('Content is not generated yet. Please wait'); return false;",
+												'onclick' => "iseoModal.info({ title: '" . esc_js( __( 'Content not ready', 'improveseo' ) ) . "', message: 'Content is not generated yet. Please wait' }); return false;",
 											);
 											$act_view_details = array(
 												'label' => 'View Details',
@@ -515,7 +515,7 @@ $url .= $_SERVER['REQUEST_URI'];
 						window.iseoShowConnectionGuard();
 						return;
 					}
-					alert((response && response.data && (response.data.error || response.data.message)) || 'Unable to verify your account. Please try again.');
+					iseoModal.error({ title: '<?php echo esc_js( __( 'Account check failed', 'improveseo' ) ); ?>', message: (response && response.data && (response.data.error || response.data.message)) || 'Unable to verify your account. Please try again.' });
 					return;
 				}
 
@@ -526,19 +526,19 @@ $url .= $_SERVER['REQUEST_URI'];
 					// count, so the figure above is priced as a medium article (see the note on
 					// article_size in the request). Saying so keeps the number honest rather than
 					// presenting an approximation as the exact charge.
-					alert('Not enough credits to regenerate this post.\n\n' +
+					iseoModal.warning({ title: '<?php echo esc_js( __( 'Not enough credits', 'improveseo' ) ); ?>', message: 'Not enough credits to regenerate this post.\n\n' +
 						  'ISEO credits required: ' + needed + ' (estimated)' +
 						  '\nCredits available now: ' + d.content_check.available +
 						  '\n\nThis estimate assumes a medium-size article — a larger post can cost more. ' +
 						  'The exact amount is taken when the post is generated.' +
-						  '\n\nPlease purchase more credits to continue.');
+						  '\n\nPlease purchase more credits to continue.' });
 					return;
 				}
 
 				onOk();
 			},
 			error: function () {
-				alert('Could not reach the ImproveSEO server to verify your account. Please try again.');
+				iseoModal.error({ title: '<?php echo esc_js( __( 'Account check failed', 'improveseo' ) ); ?>', message: 'Could not reach the ImproveSEO server to verify your account. Please try again.' });
 			}
 		});
 	}
@@ -555,12 +555,13 @@ $url .= $_SERVER['REQUEST_URI'];
 				success: function (data) {
 					console.log(data);
 					jQuery('.show_loading').css("display", "none");
-					alert("Content has been Re-Generated successfully.");
-					location.reload(true);
+					iseoModal.success({ title: '<?php echo esc_js( __( 'Content regenerated', 'improveseo' ) ); ?>', message: "Content has been Re-Generated successfully." }).then(function () {
+						location.reload(true);
+					});
 				},
 				error: function(xhr, status, error) {
 					jQuery('.show_loading').css("display", "none");
-					alert("Failed to regenerate content. Please try again.");
+					iseoModal.error({ title: '<?php echo esc_js( __( 'Regeneration failed', 'improveseo' ) ); ?>', message: "Failed to regenerate content. Please try again." });
 					console.error(error);
 				}
 			});
@@ -708,7 +709,7 @@ $url .= $_SERVER['REQUEST_URI'];
 			var checkedItems = $('input[name="project_ids[]"]:checked').length;
 			if (checkedItems === 0) {
 				e.preventDefault();
-				alert('Please select at least one task to delete.');
+				iseoModal.warning({ title: '<?php echo esc_js( __( 'No tasks selected', 'improveseo' ) ); ?>', message: 'Please select at least one task to delete.' });
 				return false;
 			}
 

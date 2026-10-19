@@ -148,7 +148,7 @@ function getShortCodeDetails(value) {
     },
 
     error: function () {
-      alert("Error uploading image.");
+      iseoModal.error({ title: wp.i18n.__("Image upload failed", "improveseo"), message: "Error uploading image." });
 
       jQuery("#loadingImage").hide();
     },
@@ -238,7 +238,7 @@ function GenerateCustomImage() {
     },
 
     error: function () {
-      alert("Error uploading image.");
+      iseoModal.error({ title: wp.i18n.__("Image upload failed", "improveseo"), message: "Error uploading image." });
 
       jQuery("#loadingImage").hide();
     },
@@ -335,7 +335,7 @@ jQuery("#generate_i_image").on("click", function () {
     },
 
     error: function () {
-      alert("Error uploading image.");
+      iseoModal.error({ title: wp.i18n.__("Image upload failed", "improveseo"), message: "Error uploading image." });
 
       jQuery("#loadingAIImage").hide();
     },
@@ -869,7 +869,7 @@ function iseoOpenFullPreview() {
 
   var win = window.open("", "_blank");
   if (!win) {
-    alert("Please allow pop-ups for this site to open the full preview in a new tab.");
+    iseoModal.warning({ title: wp.i18n.__("Pop-ups blocked", "improveseo"), message: "Please allow pop-ups for this site to open the full preview in a new tab." });
     return;
   }
 
@@ -1675,7 +1675,7 @@ jQuery(document).ready(function (jQuery) {
       },
 
       error: function () {
-        alert("Error uploading image.");
+        iseoModal.error({ title: wp.i18n.__("Image upload failed", "improveseo"), message: "Error uploading image." });
 
         jQuery("#loadingImage").hide();
       },
@@ -2271,12 +2271,12 @@ function saveProject() {
 
         // alert('Data saved successfully!');
       } else {
-        alert("An error occurred: " + response.data.status);
+        iseoModal.error({ title: wp.i18n.__("Something went wrong", "improveseo"), message: "An error occurred: " + response.data.status });
       }
     },
 
     error: function (xhr, status, error) {
-      alert("AJAX error: " + error);
+      iseoModal.error({ title: wp.i18n.__("Connection error", "improveseo"), message: "AJAX error: " + error });
     },
   });
 }
@@ -2928,14 +2928,14 @@ function addcategory() {
       console.log(response);
 
       if (response.success) {
-        alert(response.message);
+        iseoToast.success(wp.i18n.__("Category added", "improveseo"), response.message);
 
         jQuery(".cta-check").append(response.result);
         jQuery(".cta-check_multi").append(response.result);
 
         jQuery("#add_category_1").val("");
       } else {
-        alert("Error: " + response.message);
+        iseoModal.error({ title: wp.i18n.__("Couldn't add category", "improveseo"), message: "Error: " + response.message });
       }
     },
 
