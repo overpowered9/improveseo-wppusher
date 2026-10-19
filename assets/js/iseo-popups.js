@@ -87,6 +87,16 @@
 		});
 	}
 
+	// jQuery can build its focusin from a CAPTURING 'focus' listener on document, which runs
+	// before the bubble-phase stop above, so a Bootstrap wizard modal underneath could still
+	// pull focus back out of a popup. Window capture runs before anything on document.
+	['focus', 'focusin'].forEach(function (type) {
+		window.addEventListener(type, function (e) {
+			var t = e.target;
+			if (t && t.nodeType === 1 && t.closest && t.closest('.iseo-ui-overlay')) { e.stopPropagation(); }
+		}, true);
+	});
+
 	// ── Modal ───────────────────────────────────────────────────────────────────────────────
 	var current = null; // { overlay, card, finish }
 	var uid = 0;
@@ -183,12 +193,8 @@
 					downOnOverlay = false;
 				});
 
+				// Esc is handled by the window-level listener below this function.
 				overlay.addEventListener('keydown', function (e) {
-					if (e.key === 'Escape' || e.keyCode === 27) {
-						e.preventDefault();
-						if (dismissible) { finish('dismiss'); }
-						return;
-					}
 					if (e.key === 'Tab' || e.keyCode === 9) {
 						var items = Array.prototype.filter.call(card.querySelectorAll(FOCUSABLE), function (n) {
 							return n.offsetParent !== null;
@@ -236,10 +242,20 @@
 					if (typeof opts.onClose === 'function') { opts.onClose(result); }
 				}
 
-				current = { overlay: overlay, card: card, finish: finish, returnFocus: returnFocus };
+				current = { overlay: overlay, card: card, finish: finish, returnFocus: returnFocus, dismissible: dismissible };
 			});
 		});
 	}
+
+	// Esc closes the open popup and nothing else. Window capture runs before any document
+	// listener, so a wizard modal underneath (Bootstrap or the plugin's own) never sees the key
+	// and is not closed along with the popup.
+	window.addEventListener('keydown', function (e) {
+		if (!current || !(e.key === 'Escape' || e.keyCode === 27)) { return; }
+		e.preventDefault();
+		e.stopPropagation();
+		if (current.dismissible) { current.finish('dismiss'); }
+	}, true);
 
 	function confirmModal(type, opts) {
 		opts = opts || {};
