@@ -306,6 +306,9 @@ if (isset($_GET['post_preview']) && $_GET['post_preview'] == 'true' && isset($_G
 												<?php endif; ?>
 												<?php if ($project->state == 'Published' && $project->iteration < $project->max_iterations): ?>
 												<li><a href="javascript:build_project(<?php echo esc_attr( $project->id ); ?>)"
+														data-iseo-confirm="<?php echo esc_attr__( 'Publish this post now?', 'improveseo' ); ?>"
+														data-iseo-confirm-title="<?php echo esc_attr__( 'Publish post', 'improveseo' ); ?>"
+														data-iseo-confirm-label="<?php echo esc_attr__( 'Publish', 'improveseo' ); ?>"
 														style="max-width: max-content !important;" class="popup-link">Publish</a></li>
 												<?php endif; ?>
 												<?php if ($project->state == 'Updated' && $project->iteration < $project->max_iterations): ?>

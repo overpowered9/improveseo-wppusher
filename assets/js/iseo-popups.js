@@ -454,6 +454,9 @@
 		var node = e.target && e.target.closest ? e.target.closest('[data-iseo-confirm]') : null;
 		if (!node || node.tagName === 'FORM') { return; }
 		if (node.__iseoConfirmBypass) { node.__iseoConfirmBypass = false; return; }
+		// Only a real click asks. A click made by code (the wizard and onboarding guide submit
+		// the post form for the user, with the "Publishing…" spinner already up) goes through.
+		if (!e.isTrusted) { return; }
 		e.preventDefault();
 		e.stopImmediatePropagation();
 		confirmFromAttrs(node).then(function (ok) {

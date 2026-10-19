@@ -327,6 +327,8 @@ $url .= $_SERVER['REQUEST_URI'];
 											$act_publish = array(
 												'label' => 'Publish',
 												'href'  => admin_url('admin.php?page=improveseo_bulkprojects&action=publish&mainid=' . $parent_id_for_row . '&id=' . $project->id),
+												// Same "Publish post" popup as the editors; only its Publish button follows the link.
+												'onclick' => "var a = this; iseoModal.confirm({ title: " . wp_json_encode( __( 'Publish post', 'improveseo' ) ) . ", message: " . wp_json_encode( __( 'Publish this post now?', 'improveseo' ) ) . ", primary: { label: " . wp_json_encode( __( 'Publish', 'improveseo' ) ) . " } }).then(function (ok) { if (ok) { window.location.href = a.href; } }); return false;",
 											);
 											// Opens the same in-modal instant preview every other "Preview
 											// Post" button uses (views/posting/form.php,
