@@ -38,6 +38,14 @@ function improveseo_enqueue_admin(){
 	wp_enqueue_style('improveseocss12121', IMPROVESEO_DIR . '/assets/css/made_by_me.css', array(), filemtime(IMPROVESEO_ROOT . '/assets/css/made_by_me.css'));
 	wp_enqueue_style('improveseo-settings-redesign', IMPROVESEO_DIR . '/assets/css/settings-redesign.css', array(), improveseo_asset_ver('assets/css/settings-redesign.css'));
 
+	// The one popup system (modals, toasts, loading, inline field errors) every screen uses.
+	// Every selector is .iseo-ui- prefixed, so loading it on all admin screens is safe. The
+	// script loads in the HEAD, not the footer: inline <script> blocks in the views call
+	// iseoModal / ImproveSEONotification while the page is still being parsed.
+	wp_enqueue_style('improveseo-popups', IMPROVESEO_DIR . '/assets/css/iseo-popups.css', array(), improveseo_asset_ver('assets/css/iseo-popups.css'));
+	wp_enqueue_script('improveseo-popups', IMPROVESEO_DIR . '/assets/js/iseo-popups.js', array('wp-i18n'), improveseo_asset_ver('assets/js/iseo-popups.js'), false);
+	wp_set_script_translations('improveseo-popups', 'improveseo', IMPROVESEO_ROOT . '/languages');
+
 	// Bundled locally: wp.org does not permit loading assets from a remote host, and a CDN
 	// outage would otherwise take the plugin's icons with it. Same file, same version.
 	wp_enqueue_style('improveseo-fa', IMPROVESEO_DIR . '/assets/vendor/css/font-awesome-4.5.0.min.css', array(), improveseo_asset_ver('assets/vendor/css/font-awesome-4.5.0.min.css'));
