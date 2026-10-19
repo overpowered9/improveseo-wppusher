@@ -512,8 +512,8 @@
 
 	/**
 	 * showImproveSEONotification(type, title, message, actionUrl)
-	 * With an actionUrl the primary button follows it (mailto in place, anything else in a new
-	 * tab) and a Close button sits beside it. Closing never follows the link.
+	 * With an actionUrl the single button follows it (mailto in place, anything else in a new
+	 * tab). Closing with ×, Esc or a click outside never follows the link.
 	 */
 	window.showImproveSEONotification = function (type, title, message, actionUrl) {
 		var t = TYPES[type] ? type : 'info';
@@ -527,7 +527,6 @@
 			} else {
 				label = __('Learn more', 'improveseo');
 			}
-			opts.secondary = { label: __('Close', 'improveseo') };
 			opts.primary = {
 				label: label,
 				onClick: function () {

@@ -2061,8 +2061,8 @@ function iseoDecodeEntities(str) {
  * it did not (a transport failure, where there is no server sentence to quote).
  *
  * "Go to Settings" opens Settings in a NEW tab, because these fire mid-wizard and navigating
- * away in place would discard everything already filled in. Only that button does it: Close,
- * ×, Esc and an outside click just close the popup. (It used to open Settings from onClose,
+ * away in place would discard everything already filled in. Only that button does it: ×, Esc
+ * and an outside click just close the popup. (It used to open Settings from onClose,
  * so every way of dismissing the popup — even clicking outside it — spawned a tab.) Falls back
  * to a single OK if the URL was not localised, so there is never a dead-end button.
  */
@@ -2089,7 +2089,6 @@ function iseoShowGenerationFailure(dialogTitle, reason, fallback) {
   iseoModal.error({
     title: dialogTitle,
     message: message,
-    secondary: { label: wp.i18n.__("Close", "improveseo") },
     primary: {
       label: wp.i18n.__("Go to Settings", "improveseo"),
       onClick: function () { window.open(settingsUrl, "_blank", "noopener"); }
@@ -2928,7 +2927,7 @@ function addcategory() {
       console.log(response);
 
       if (response.success) {
-        iseoToast.success(wp.i18n.__("Category added", "improveseo"), response.message);
+        iseoModal.success({ title: wp.i18n.__("Category added", "improveseo"), message: response.message });
 
         jQuery(".cta-check").append(response.result);
         jQuery(".cta-check_multi").append(response.result);

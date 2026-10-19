@@ -306,20 +306,18 @@
     });
   }
 
-  // ── Notification helper (uses ImproveSEO overlay if available) ───────────────
+  // ── Notification helper: inline WP admin notice ──────────────────────────────
+  // The onboarding page never had the popup markup, so this always rendered as the
+  // inline notice below. showImproveSEONotification is now defined on every admin
+  // screen, so the notice is used unconditionally to keep that original behaviour.
 
   function showErrorNotification(message) {
-    if (typeof showImproveSEONotification === 'function') {
-      showImproveSEONotification('error', 'Connection Failed', message);
-    } else {
-      // Fallback: WP admin notice
-      var $notice = $(
-        '<div class="notice notice-error is-dismissible" style="margin:16px 0;">' +
-        '<p><strong>Connection Failed:</strong> ' + $('<span>').text(message).html() + '</p>' +
-        '</div>'
-      );
-      $('#improveseo-onboarding-wrap').prepend($notice);
-    }
+    var $notice = $(
+      '<div class="notice notice-error is-dismissible" style="margin:16px 0;">' +
+      '<p><strong>Connection Failed:</strong> ' + $('<span>').text(message).html() + '</p>' +
+      '</div>'
+    );
+    $('#improveseo-onboarding-wrap').prepend($notice);
   }
 
   // ── Skip-all: mark complete and go to dashboard ───────────────────────────────
