@@ -259,6 +259,8 @@
   width: 100%;
 }
 
+/* Focus keeps the button's normal colour (popups open with focus on a button, which
+   must not look hovered); keyboard focus shows the ring below. */
 .iseo-ui-btn:focus {
   outline: none;
 }
@@ -273,8 +275,7 @@
   color: #FFFFFF;
 }
 
-.iseo-ui-btn--primary:hover,
-.iseo-ui-btn--primary:focus {
+.iseo-ui-btn--primary:hover {
   background: var(--iseo-ui-navy);
   border-color: var(--iseo-ui-navy);
   color: #FFFFFF;
@@ -286,8 +287,7 @@
   color: var(--iseo-ui-navy);
 }
 
-.iseo-ui-btn--secondary:hover,
-.iseo-ui-btn--secondary:focus {
+.iseo-ui-btn--secondary:hover {
   background: var(--iseo-ui-tile);
   border-color: var(--iseo-ui-navy);
   color: var(--iseo-ui-navy);
@@ -299,8 +299,7 @@
   color: #FFFFFF;
 }
 
-.iseo-ui-btn--destructive:hover,
-.iseo-ui-btn--destructive:focus {
+.iseo-ui-btn--destructive:hover {
   background: var(--iseo-ui-red-hover);
   border-color: var(--iseo-ui-red-hover);
   color: #FFFFFF;
