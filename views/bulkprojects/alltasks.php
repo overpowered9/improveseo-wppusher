@@ -341,7 +341,7 @@ $url .= $_SERVER['REQUEST_URI'];
 												'label'   => 'Cancel Process',
 												'href'    => admin_url('admin.php?page=improveseo_bulkprojects&action=stop&mainid=' . $parent_id_for_row . '&id=' . $project->id),
 												// Shared confirm popup; only its "Cancel task" button follows the link.
-												'onclick' => "var a = this; iseoModal.destructive({ title: " . wp_json_encode( __( 'Cancel task', 'improveseo' ) ) . ", message: 'Are you sure you want to cancel this task? Content generation will be halted.', primary: { label: " . wp_json_encode( __( 'Cancel task', 'improveseo' ) ) . " } }).then(function (ok) { if (ok) { window.location.href = a.href; } }); return false;",
+												'onclick' => "var a = this; iseoModal.destructive({ icon: 'x-circle', title: " . wp_json_encode( __( 'Cancel task', 'improveseo' ) ) . ", message: 'Are you sure you want to cancel this task? Content generation will be halted.', primary: { label: " . wp_json_encode( __( 'Cancel task', 'improveseo' ) ) . " } }).then(function (ok) { if (ok) { window.location.href = a.href; } }); return false;",
 											);
 
 											if ($is_stoped) {

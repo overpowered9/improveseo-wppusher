@@ -243,7 +243,8 @@ if (isset($_GET['post_preview'])) {
 															data-iseo-confirm="Are you sure you want to cancel this project? All ongoing tasks will be halted immediately."
 															data-iseo-confirm-title="<?php echo esc_attr__( 'Cancel project', 'improveseo' ); ?>"
 															data-iseo-confirm-label="<?php echo esc_attr__( 'Cancel project', 'improveseo' ); ?>"
-															data-iseo-confirm-variant="destructive">
+															data-iseo-confirm-variant="destructive"
+															data-iseo-confirm-icon="x-circle">
 															Cancel Process
 														</a>
 													</span>
