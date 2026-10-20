@@ -1,0 +1,749 @@
+/* ============================================================
+   ImproveSEO Dashboard — redesign (Style A: current layout, refined)
+   Loaded on the dashboard only (includes/assets.php), after style.css.
+   Every rule is scoped to .iseo-dash, so no other screen is affected.
+
+   One type scale:  section headings 16px/600 · card titles 15px/600 ·
+                    body 13px · labels 11px uppercase.
+   One card:        white, 14px radius, 1px #E6EBF2, soft navy shadow.
+   One hover:       2px lift + stronger shadow + #1C7293 border; the
+                    background never changes.
+   One solid button: Pacific Teal. Secondary: white with a navy border.
+   ============================================================ */
+
+.global-wrap.iseo-dash {
+  --iseo-dash-bg: #FAFAFB;
+  --iseo-dash-tint: #E8F2F6;
+  --iseo-dash-shadow: 0 1px 2px rgba(11, 19, 43, 0.04), 0 6px 18px rgba(11, 19, 43, 0.06);
+  --iseo-dash-shadow-hover: 0 2px 4px rgba(11, 19, 43, 0.06), 0 14px 30px rgba(11, 19, 43, 0.12);
+  background-color: var(--iseo-dash-bg);
+  font-family: var(--iseo-font);
+  color: var(--iseo-navy);
+}
+
+/* ── Header: logo, "ImproveSEO | 2.0.13", breadcrumb ── */
+.iseo-dash .head-bar {
+  gap: 10px;
+  padding: 4px 20px 6px;
+  border-bottom: none;
+}
+
+.iseo-dash .head-bar img {
+  max-height: 32px;
+  width: auto;
+}
+
+.iseo-dash .head-bar h1 {
+  font-family: var(--iseo-font);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--iseo-navy);
+}
+
+/* The version, set apart from the name. Overrides .head-bar span (a teal pill). */
+.iseo-dash .head-bar h1 .iseo-dash-version {
+  margin-left: 4px;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--iseo-muted);
+}
+
+.iseo-dash ul.breadcrumb-seo {
+  padding-left: 20px;
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+
+.iseo-dash ul.breadcrumb-seo li a {
+  color: var(--iseo-primary);
+}
+
+/* ── Section headings ── */
+.iseo-dash .iseo-section-title {
+  font-family: var(--iseo-font);
+  font-size: 16px !important;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--iseo-navy);
+  margin: 32px 0 0 !important;
+}
+
+/* ── Cards: one look, one hover ── */
+.iseo-dash .iseo-quickstart-card,
+.iseo-dash .iseo-panel-card,
+.iseo-dash .iseo-qlink {
+  background-color: #FFFFFF;
+  border: 1px solid var(--iseo-dash-line);
+  border-radius: 14px;
+  box-shadow: var(--iseo-dash-shadow);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.iseo-dash .iseo-quickstart-card:hover,
+.iseo-dash .iseo-panel-card:hover,
+.iseo-dash .iseo-qlink:hover,
+.iseo-dash .iseo-qlink:focus-within {
+  transform: translateY(-2px);
+  box-shadow: var(--iseo-dash-shadow-hover);
+  border-color: var(--iseo-primary);
+}
+
+/* No wave graphic along the bottom edge. */
+.iseo-dash .iseo-quickstart-card::after {
+  content: none;
+}
+
+/* ── Type scale ── */
+.iseo-dash .iseo-quickstart-title {
+  font-family: var(--iseo-font);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0;
+  color: var(--iseo-navy);
+  margin: 0 0 6px;
+}
+
+.iseo-dash .iseo-quickstart-msg {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--iseo-muted);
+}
+
+/* ── Icons: teal on a light-teal circle ── */
+.iseo-dash .iseo-quickstart-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--iseo-dash-tint);
+  color: var(--iseo-primary);
+}
+
+.iseo-dash .iseo-quickstart-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.iseo-dash .iseo-card-chevron {
+  width: 24px;
+  height: 24px;
+  background-color: transparent;
+  color: var(--iseo-muted);
+}
+
+.iseo-dash a.iseo-card-chevron:hover,
+.iseo-dash a.iseo-card-chevron:focus-visible {
+  background-color: var(--iseo-dash-tint);
+  color: var(--iseo-primary);
+}
+
+/* ── Buttons ── */
+.iseo-dash .iseo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-family: var(--iseo-font);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: none;
+}
+
+.iseo-dash .iseo-btn-solid {
+  background-color: var(--iseo-primary);
+  border-color: var(--iseo-primary);
+  color: #FFFFFF;
+}
+
+.iseo-dash .iseo-btn-solid:hover,
+.iseo-dash .iseo-btn-solid:focus-visible {
+  background-color: var(--iseo-navy);
+  border-color: var(--iseo-navy);
+  color: #FFFFFF;
+}
+
+.iseo-dash .iseo-btn-outline {
+  background-color: #FFFFFF;
+  border-color: var(--iseo-navy);
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-btn-outline:hover,
+.iseo-dash .iseo-btn-outline:focus-visible {
+  background-color: var(--iseo-dash-tile);
+  border-color: var(--iseo-navy);
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-btn:focus-visible {
+  outline: 2px solid var(--iseo-primary);
+  outline-offset: 2px;
+}
+
+.iseo-dash .iseo-btn[hidden] {
+  display: none;
+}
+
+/* ── Top row: five equal-height cards, actions on the bottom edge ── */
+.iseo-dash .iseo-quickstart-row {
+  align-items: stretch;
+  gap: 16px;
+}
+
+.iseo-dash .iseo-quickstart-row .iseo-quickstart-card {
+  height: 100%;
+  padding: 20px;
+}
+
+.iseo-dash .iseo-card-top {
+  margin-bottom: 14px;
+}
+
+#iseo-quickstart-card .iseo-quickstart-msg,
+.iseo-dash .iseo-guidedstart-card .iseo-quickstart-msg {
+  padding-bottom: 16px;
+}
+
+/* Quick Start / Guided Start: full-width button pinned to the bottom. */
+.iseo-dash .iseo-support-cta {
+  margin-top: auto;
+  align-self: stretch;
+}
+
+/* Plan card: teal Manage Plan, then Cancel Subscription as a quiet text link. */
+.iseo-dash .iseo-plan-card .iseo-quickstart-title {
+  font-size: 15px;
+  margin: 0 0 6px;
+}
+
+.iseo-dash #iseo-plan-date {
+  font-size: 13px;
+}
+
+.iseo-dash .iseo-plan-actions {
+  max-width: none;
+  gap: 10px;
+  padding-top: 16px;
+}
+
+.iseo-dash .iseo-plan-actions .iseo-btn {
+  display: flex;
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 13px;
+}
+
+.iseo-dash .iseo-plan-actions a.iseo-plan-textlink {
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--iseo-muted);
+  text-decoration: none;
+}
+
+.iseo-dash .iseo-plan-actions a.iseo-plan-textlink:hover,
+.iseo-dash .iseo-plan-actions a.iseo-plan-textlink:focus-visible {
+  color: var(--iseo-navy);
+  text-decoration: underline;
+}
+
+/* Credit cards: label, big number + small "credits", caption on the bottom edge. */
+.iseo-dash .iseo-stat-card .iseo-quickstart-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--iseo-navy);
+  margin: 0 0 8px;
+}
+
+.iseo-dash .iseo-credits-figure {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--iseo-navy);
+  margin: 0;
+}
+
+.iseo-dash .iseo-credits-figure .iseo-credits-unit {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--iseo-muted);
+}
+
+.iseo-dash #iseo-credits-remaining-expiry,
+.iseo-dash #iseo-credits-used-note {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--iseo-dash-line);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.iseo-dash .iseo-stat-card .iseo-quickstart-body {
+  gap: 0;
+}
+
+.iseo-dash .iseo-stat-card .iseo-credits-figure {
+  margin-bottom: 18px;
+}
+
+/* ── Row 2: Content Metrics + Review Business Details ── */
+.iseo-dash .iseo-row-2 {
+  gap: 16px;
+  margin-top: 16px;
+}
+
+@media (min-width: 1101px) {
+  .iseo-dash .iseo-row-2 {
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  }
+}
+
+.iseo-dash .iseo-panel-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 20px 22px;
+  color: var(--iseo-navy);
+}
+
+/* Header: small teal icon, title, (Metrics) the period picker on the right. */
+.iseo-dash .iseo-panel-card .iseo-quickstart-icon {
+  width: auto;
+  height: auto;
+  background: none;
+  border-radius: 0;
+}
+
+.iseo-dash .iseo-panel-card .iseo-quickstart-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.iseo-dash .iseo-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--iseo-dash-line);
+}
+
+.iseo-dash .iseo-panel-head .iseo-quickstart-title,
+.iseo-dash .iseo-metrics-head .iseo-quickstart-title {
+  margin: 0;
+}
+
+.iseo-dash .iseo-metrics-head {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--iseo-dash-line);
+}
+
+.iseo-dash .iseo-range-icon,
+.iseo-dash .iseo-range-caret {
+  color: var(--iseo-muted);
+}
+
+.iseo-dash .iseo-range select#iseo-range-select {
+  height: 34px;
+  font-size: 12.5px;
+  color: var(--iseo-navy);
+  background: #FFFFFF none;
+  border: 1px solid var(--iseo-dash-line);
+  border-radius: 8px;
+}
+
+.iseo-dash .iseo-range select#iseo-range-select:focus {
+  border-color: var(--iseo-primary);
+  box-shadow: 0 0 0 1px var(--iseo-primary);
+}
+
+/* Stats: number + label on one line, Published in mint. */
+.iseo-dash .iseo-metrics-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--iseo-dash-line);
+}
+
+.iseo-dash .iseo-metrics-stat {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.iseo-dash .iseo-metrics-num {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-metrics-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-metrics-stat:first-child .iseo-metrics-num,
+.iseo-dash .iseo-metrics-stat:first-child .iseo-metrics-label {
+  color: var(--iseo-mint);
+}
+
+.iseo-dash .iseo-metrics-stat-clickable:hover .iseo-metrics-num {
+  color: var(--iseo-primary);
+}
+
+.iseo-dash .iseo-metrics-latest {
+  padding-top: 16px;
+}
+
+.iseo-dash .iseo-metrics-latest-heading {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--iseo-muted);
+  margin: 0 0 6px;
+}
+
+.iseo-dash a.iseo-metrics-latest-row {
+  padding: 11px 0;
+  border-top: 1px solid var(--iseo-dash-line);
+}
+
+.iseo-dash .iseo-metrics-latest-title {
+  font-size: 13px;
+  color: var(--iseo-navy);
+}
+
+.iseo-dash a.iseo-metrics-latest-row:hover .iseo-metrics-latest-title {
+  color: var(--iseo-primary);
+}
+
+.iseo-dash .iseo-metrics-latest-badge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+}
+
+.iseo-dash .iseo-metrics-badge-publish { background-color: #E6F8F6; color: #12968A; }
+.iseo-dash .iseo-metrics-badge-draft   { background-color: var(--iseo-dash-tile); color: var(--iseo-navy); }
+.iseo-dash .iseo-metrics-badge-future  { background-color: var(--iseo-dash-tint); color: var(--iseo-primary); }
+
+/* Review Business Details */
+.iseo-dash .iseo-bizdetails-card .iseo-quickstart-body {
+  padding-top: 16px;
+}
+
+.iseo-dash .iseo-bizdetails-card .iseo-quickstart-body > .iseo-quickstart-msg {
+  font-size: 13px;
+}
+
+.iseo-dash .iseo-bizdetails-progress-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--iseo-navy);
+  margin: 18px 0 8px;
+}
+
+.iseo-dash .iseo-bizdetails-progress-track {
+  height: 6px;
+  margin-top: 0;
+  background-color: #E9EDF2;
+}
+
+.iseo-dash .iseo-bizdetails-progress-fill {
+  background-color: var(--iseo-primary);
+}
+
+/* "Missing: …" with an amber warning mark. */
+.iseo-dash .iseo-bizdetails-missing {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--iseo-muted);
+  margin: 14px 0 0;
+}
+
+.iseo-dash .iseo-bizdetails-missing::before {
+  content: "";
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23E8930C'%3E%3Cpath d='M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/%3E%3Crect x='11' y='9' width='2' height='5' rx='1' fill='%23fff'/%3E%3Crect x='11' y='16' width='2' height='2' rx='1' fill='%23fff'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+
+/* The button closes the card, under a hairline, level with the bottom edge. */
+.iseo-dash .iseo-bizdetails-card .iseo-quickstart-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.iseo-dash .iseo-bizdetails-actions {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--iseo-dash-line);
+}
+
+.iseo-dash .iseo-bizdetails-missing {
+  margin-bottom: 18px;
+}
+
+/* ── Help & Support ── */
+.iseo-dash .iseo-help-wrap {
+  margin-top: 14px;
+}
+
+.iseo-dash .iseo-quickstart-card.iseo-help-card {
+  padding: 20px 22px;
+}
+
+.iseo-dash .iseo-help-head .iseo-quickstart-title {
+  margin: 0 0 2px;
+}
+
+.iseo-dash .iseo-help-action {
+  align-self: center;
+}
+
+/* New here?: the three guides fill the card as taller rows. */
+.iseo-dash .iseo-help-card:first-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.iseo-dash .iseo-help-card:first-child ul.iseo-help-links {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  margin: 16px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--iseo-dash-line);
+}
+
+.iseo-dash .iseo-help-card:first-child .iseo-help-links li {
+  flex: 1 1 0;
+  display: flex;
+  border-top: none;
+  border-bottom: 1px solid var(--iseo-dash-line);
+}
+
+.iseo-dash .iseo-help-card:first-child .iseo-help-links li:last-child {
+  border-bottom: none;
+}
+
+.iseo-dash .iseo-help-card:first-child .iseo-help-links a {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 12px;
+  border-radius: 8px;
+}
+
+.iseo-dash .iseo-help-card:first-child .iseo-help-links a:hover {
+  background-color: var(--iseo-dash-bg);
+}
+
+.iseo-dash .iseo-help-links .iseo-help-link-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-help-links .iseo-help-link-desc {
+  font-size: 12.5px;
+  margin-top: 2px;
+}
+
+.iseo-dash .iseo-help-links a:hover .iseo-help-link-label {
+  text-decoration: none;
+  color: var(--iseo-primary);
+}
+
+.iseo-dash .iseo-help-links a:hover svg {
+  color: var(--iseo-primary);
+}
+
+/* Need a hand?: four boxed steps with filled number badges. */
+.iseo-dash ol.iseo-steps {
+  gap: 12px;
+  margin: 18px 0 0;
+  padding: 0;
+  border-top: none;
+}
+
+/* Number beside the title, description underneath across the full width. The body
+   wrapper is flattened so its title and text become grid items of the step. */
+.iseo-dash .iseo-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px 10px;
+  padding: 14px;
+  background-color: var(--iseo-dash-bg);
+  border: 1px solid var(--iseo-dash-line);
+  border-radius: 10px;
+}
+
+.iseo-dash .iseo-step-num {
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+  color: #FFFFFF;
+  background-color: var(--iseo-primary);
+  border: none;
+}
+
+.iseo-dash .iseo-step-body {
+  display: contents;
+}
+
+.iseo-dash .iseo-step-title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.iseo-dash .iseo-step-text {
+  grid-column: 1 / -1;
+  font-size: 12px;
+}
+
+.iseo-dash .iseo-help-foot {
+  margin-top: 18px;
+  padding-top: 16px;
+}
+
+.iseo-dash .iseo-help-tip {
+  font-size: 13px;
+}
+
+.iseo-dash .iseo-copy-btn {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+/* ── Quick Links ── */
+.iseo-dash .iseo-qlinks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  padding: 0 20px;
+  margin: 14px 0 0;
+}
+
+@media (max-width: 1200px) {
+  .iseo-dash .iseo-qlinks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .iseo-dash .iseo-qlinks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.iseo-dash .iseo-qlink {
+  min-width: 0;
+}
+
+.iseo-dash a.iseo-qlink-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 140px;
+  padding: 18px 20px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+.iseo-dash a.iseo-qlink-link:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.iseo-dash a.iseo-qlink-link:focus-visible {
+  outline: 2px solid var(--iseo-primary);
+  outline-offset: 2px;
+}
+
+.iseo-dash .iseo-qlink-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: var(--iseo-dash-tint);
+  color: var(--iseo-primary);
+}
+
+.iseo-dash .iseo-qlink-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.iseo-dash .iseo-qlink-title {
+  font-family: var(--iseo-font);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--iseo-navy);
+  margin: 14px 0 6px;
+}
+
+.iseo-dash .iseo-qlink-desc {
+  font-family: var(--iseo-font);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--iseo-muted);
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iseo-dash .iseo-quickstart-card,
+  .iseo-dash .iseo-panel-card,
+  .iseo-dash .iseo-qlink {
+    transition: none;
+  }
+
+  .iseo-dash .iseo-quickstart-card:hover,
+  .iseo-dash .iseo-panel-card:hover,
+  .iseo-dash .iseo-qlink:hover,
+  .iseo-dash .iseo-qlink:focus-within {
+    transform: none;
+  }
+}

@@ -68,7 +68,7 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 	<div class="improve-seo-container">
 		<div class="head-bar">
 			<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
-			<h1>ImproveSEO | <?php echo esc_html( IMPROVESEO_VERSION ); ?></h1>
+			<h1>ImproveSEO <span class="iseo-dash-version">| <?php echo esc_html( IMPROVESEO_VERSION ); ?></span></h1>
 		</div>
 		<div class="box-top">
 			<ul class="breadcrumb-seo">
@@ -228,7 +228,6 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 			$iseo_credits_url = 'https://account.improveseoplugin.com/credits';
 			?>
 			<?php
-			$iseo_cr_figure = ( $iseo_qs_snap_total !== null ) ? number_format_i18n( $iseo_qs_snap_total ) . ' credits' : '';
 			$iseo_cr_expiry = '';
 			if ( $iseo_qs_snap_total !== null ) {
 				$iseo_cr_expiry_ts = ! empty( $iseo_qs_snapshot['next_expiry_at'] ) ? strtotime( $iseo_qs_snapshot['next_expiry_at'] . ' 00:00:00 UTC' ) : false;
@@ -244,7 +243,14 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 				</div>
 				<div class="iseo-quickstart-body">
 					<h3 class="iseo-quickstart-title">Credits Remaining</h3>
-					<p class="iseo-quickstart-msg iseo-credits-figure" id="iseo-credits-remaining-figure"><?php echo $iseo_cr_figure !== '' ? esc_html( $iseo_cr_figure ) : '&mdash;'; ?></p>
+					<?php // Number and "credits" in separate spans so the number can be set large; same text. ?>
+					<p class="iseo-quickstart-msg iseo-credits-figure" id="iseo-credits-remaining-figure"><?php
+						if ( $iseo_qs_snap_total !== null ) {
+							echo '<span class="iseo-credits-num">' . esc_html( number_format_i18n( $iseo_qs_snap_total ) ) . '</span> <span class="iseo-credits-unit">credits</span>';
+						} else {
+							echo '&mdash;';
+						}
+					?></p>
 					<p class="iseo-quickstart-msg" id="iseo-credits-remaining-expiry"><?php echo esc_html( $iseo_cr_expiry ); ?></p>
 				</div>
 			</div>
@@ -313,7 +319,7 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 					<?php else : ?>
 					<a href="<?php echo esc_url( $iseo_qs_connect_url ); ?>" class="iseo-btn iseo-btn-solid" id="iseo-plan-btn-primary">Connect now</a>
 					<?php endif; ?>
-					<a href="<?php echo esc_url( $iseo_qs_plans_url ); ?>" class="iseo-btn iseo-btn-outline" id="iseo-plan-btn-secondary" target="_blank" rel="noopener noreferrer"><?php echo $iseo_qs_has_creds ? 'Cancel Subscription' : 'View plans'; ?></a>
+					<a href="<?php echo esc_url( $iseo_qs_plans_url ); ?>" class="iseo-plan-textlink" id="iseo-plan-btn-secondary" target="_blank" rel="noopener noreferrer"><?php echo $iseo_qs_has_creds ? 'Cancel Subscription' : 'View plans'; ?></a>
 				</div>
 			</div>
 
@@ -472,13 +478,28 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 				return null;
 			}
 
+			// "5,466 credits": the number and the word in separate spans, so the number can be
+			// set large and "credits" small. Same text as before.
+			function iseoSetCreditsFigure(figureEl, n) {
+				figureEl.textContent = '';
+				if (n == null) { figureEl.textContent = '—'; return; }
+				var num = document.createElement('span');
+				num.className = 'iseo-credits-num';
+				num.textContent = n.toLocaleString();
+				var unit = document.createElement('span');
+				unit.className = 'iseo-credits-unit';
+				unit.textContent = 'credits';
+				figureEl.appendChild(num);
+				figureEl.appendChild(document.createTextNode(' '));
+				figureEl.appendChild(unit);
+			}
+
 			function iseoPopulateCreditsRemaining(d) {
 				var el = document.getElementById('iseo-credits-remaining-card');
 				if (!el) { return; }
 
 				var total = iseoReadCreditsTotal(d);
-				document.getElementById('iseo-credits-remaining-figure').textContent =
-					(total != null) ? total.toLocaleString() + ' credits' : '—';
+				iseoSetCreditsFigure(document.getElementById('iseo-credits-remaining-figure'), total);
 
 				// Same fields, same wording as the site-wide notice (includes/connection-status.php,
 				// improveseo_global_notices()) — one description of "credits are expiring soon".
@@ -507,7 +528,7 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 
 				if (allotment != null && allotment > 0 && planLeft != null) {
 					var used = Math.max(0, allotment - planLeft);
-					figureEl.textContent = used.toLocaleString() + ' credits';
+					iseoSetCreditsFigure(figureEl, used);
 					noteEl.textContent = 'of ' + allotment.toLocaleString() + ' this cycle';
 				} else {
 					// No monthly allotment to measure against — a Basic/pack-only account, or an
@@ -665,7 +686,7 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 		$iseo_bd_settings_url = admin_url( 'admin.php?page=improveseo_settings#iseo-business-details' );
 		?>
 		<div class="iseo-row-2">
-			<div class="iseo-dark-card iseo-metrics-card">
+			<div class="iseo-panel-card iseo-metrics-card">
 				<div class="iseo-metrics-head">
 					<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'chart' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 					<h3 class="iseo-quickstart-title">Content Metrics</h3>
@@ -736,16 +757,18 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 			// see modules/single_AI_post_function.php's brand_profile, built from these same
 			// three options.
 			?>
-			<div class="iseo-dark-card iseo-bizdetails-card">
-				<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'building' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-				<div class="iseo-quickstart-body">
+			<div class="iseo-panel-card iseo-bizdetails-card">
+				<div class="iseo-panel-head">
+					<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'building' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 					<h3 class="iseo-quickstart-title">Review Business Details</h3>
+				</div>
+				<div class="iseo-quickstart-body">
 					<p class="iseo-quickstart-msg">Make sure it's complete and always up to date, to produce the best possible content for your business.</p>
 
+					<p class="iseo-bizdetails-progress-label"><?php echo esc_html( $iseo_bd_percent ); ?>% complete</p>
 					<div class="iseo-bizdetails-progress-track" role="progressbar" aria-valuenow="<?php echo esc_attr( $iseo_bd_percent ); ?>" aria-valuemin="0" aria-valuemax="100" aria-label="Business details completeness">
 						<div class="iseo-bizdetails-progress-fill" style="width: <?php echo esc_attr( $iseo_bd_percent ); ?>%;"></div>
 					</div>
-					<p class="iseo-bizdetails-progress-label"><?php echo esc_html( $iseo_bd_percent ); ?>% complete</p>
 
 					<?php if ( ! empty( $iseo_bd_missing ) ) : ?>
 						<p class="iseo-bizdetails-missing">Missing: <?php echo esc_html( implode( ', ', $iseo_bd_missing ) ); ?></p>
@@ -940,48 +963,37 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 		</script>
 
 		<h2 class="iseo-section-title">Quick Links</h2>
-		<div class="modules-row text-left">
-			<div class="module-box">
-			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_posting') ); ?>">
-				<div class="module-icon justify-between m-0">
-					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon2.svg' ); ?>" alt="icon2">
-				</div>
-				<div class="line"></div>
-				<h3>Create Posts</h3>
-				<p>Create keyword-rich posts or pages. Preview content, schedule, and more!</p>
-			</a>
-			</div>
-			<div class="module-box">
-			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>">
-				<div class="module-icon justify-between m-0">
-					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon1.svg' ); ?>" alt="icon1">
-				</div>
-				<div class="line"></div>
-				<h3>Single Post Projects</h3>
-				<p>View, edit, and manage every single AI-generated post or page you've created.</p>
+		<?php // Quick Links: same four cards, titles and descriptions; teal line icons in a light-teal tile. ?>
+		<div class="iseo-qlinks">
+			<div class="iseo-qlink">
+				<a class="iseo-qlink-link" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_posting') ); ?>">
+					<span class="iseo-qlink-icon"><?php echo iseo_dash_icon( 'window' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup. ?></span>
+					<h3 class="iseo-qlink-title">Create Posts</h3>
+					<p class="iseo-qlink-desc">Create keyword-rich posts or pages. Preview content, schedule, and more!</p>
 				</a>
 			</div>
-			<div class="module-box">
-			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">
-				<div class="module-icon justify-between m-0">
-					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon5.svg' ); ?>" alt="icon5">
-				</div>
-				<div class="line"></div>
-				<h3>Bulk Post Projects</h3>
-				<p>Create projects. Option to duplicate project, update all published content, download content URLs to
-					desktop, delete all posts/pages and project</p>
-					</a>
+			<div class="iseo-qlink">
+				<a class="iseo-qlink-link" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>">
+					<span class="iseo-qlink-icon"><?php echo iseo_dash_icon( 'document' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup. ?></span>
+					<h3 class="iseo-qlink-title">Single Post Projects</h3>
+					<p class="iseo-qlink-desc">View, edit, and manage every single AI-generated post or page you've created.</p>
+				</a>
 			</div>
-			<div class="module-box">
-			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists') ); ?>">
-				<div class="module-icon justify-between m-0">
-					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon6.svg' ); ?>" alt="icon6">
-				</div>
-				<div class="line"> </div>
-				<h3>Keyword Lists &amp; Tool</h3>
-				<p>Add keywords you want to target and use Google autosuggest to build keyword lists you can bulk
+			<div class="iseo-qlink">
+				<a class="iseo-qlink-link" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">
+					<span class="iseo-qlink-icon"><?php echo iseo_dash_icon( 'documents' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup. ?></span>
+					<h3 class="iseo-qlink-title">Bulk Post Projects</h3>
+					<p class="iseo-qlink-desc">Create projects. Option to duplicate project, update all published content, download content URLs to
+					desktop, delete all posts/pages and project</p>
+				</a>
+			</div>
+			<div class="iseo-qlink">
+				<a class="iseo-qlink-link" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists') ); ?>">
+					<span class="iseo-qlink-icon"><?php echo iseo_dash_icon( 'list' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup. ?></span>
+					<h3 class="iseo-qlink-title">Keyword Lists &amp; Tool</h3>
+					<p class="iseo-qlink-desc">Add keywords you want to target and use Google autosuggest to build keyword lists you can bulk
 					create posts from.</p>
-					</a>
+				</a>
 			</div>
 		</div>
 	</div>
