@@ -1732,7 +1732,7 @@ jQuery(document).ready(function ($) {
           if (typeof showImproveSEONotification !== 'undefined') {
             showImproveSEONotification(
               'success',
-              '✓ Bulk Project Created',
+              'Bulk Project Created',
               'Your bulk content generation project has been created successfully. You will receive an email notification when processing is complete.',
               null
             );
