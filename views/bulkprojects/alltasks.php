@@ -315,7 +315,7 @@ $url .= $_SERVER['REQUEST_URI'];
 											$act_edit_content_pending = array(
 												'label'   => 'Edit Draft Post',
 												'href'    => '#',
-												'onclick' => "alert('Content is not generated yet. Please wait'); return false;",
+												'onclick' => "iseoModal.info({ title: '" . esc_js( __( 'Content not ready', 'improveseo' ) ) . "', message: 'Content is not generated yet. Please wait' }); return false;",
 											);
 											$act_view_details = array(
 												'label' => 'View Details',
@@ -327,6 +327,8 @@ $url .= $_SERVER['REQUEST_URI'];
 											$act_publish = array(
 												'label' => 'Publish',
 												'href'  => admin_url('admin.php?page=improveseo_bulkprojects&action=publish&mainid=' . $parent_id_for_row . '&id=' . $project->id),
+												// Same "Publish post" popup as the editors; only its Publish button follows the link.
+												'onclick' => "var a = this; iseoModal.confirm({ title: " . wp_json_encode( __( 'Publish post', 'improveseo' ) ) . ", message: " . wp_json_encode( __( 'Publish this post now?', 'improveseo' ) ) . ", primary: { label: " . wp_json_encode( __( 'Publish', 'improveseo' ) ) . " } }).then(function (ok) { if (ok) { window.location.href = a.href; } }); return false;",
 											);
 											// Opens the same in-modal instant preview every other "Preview
 											// Post" button uses (views/posting/form.php,
@@ -340,7 +342,8 @@ $url .= $_SERVER['REQUEST_URI'];
 											$act_cancel = array(
 												'label'   => 'Cancel Process',
 												'href'    => admin_url('admin.php?page=improveseo_bulkprojects&action=stop&mainid=' . $parent_id_for_row . '&id=' . $project->id),
-												'onclick' => "return confirm('Are you sure you want to cancel this task? Content generation will be halted.')",
+												// Shared confirm popup; only its "Cancel task" button follows the link.
+												'onclick' => "var a = this; iseoModal.destructive({ icon: 'x-circle', title: " . wp_json_encode( __( 'Cancel task', 'improveseo' ) ) . ", message: 'Are you sure you want to cancel this task? Content generation will be halted.', primary: { label: " . wp_json_encode( __( 'Cancel task', 'improveseo' ) ) . " } }).then(function (ok) { if (ok) { window.location.href = a.href; } }); return false;",
 											);
 
 											if ($is_stoped) {
@@ -515,7 +518,7 @@ $url .= $_SERVER['REQUEST_URI'];
 						window.iseoShowConnectionGuard();
 						return;
 					}
-					alert((response && response.data && (response.data.error || response.data.message)) || 'Unable to verify your account. Please try again.');
+					iseoModal.error({ title: '<?php echo esc_js( __( 'Account check failed', 'improveseo' ) ); ?>', message: (response && response.data && (response.data.error || response.data.message)) || 'Unable to verify your account. Please try again.' });
 					return;
 				}
 
@@ -526,19 +529,19 @@ $url .= $_SERVER['REQUEST_URI'];
 					// count, so the figure above is priced as a medium article (see the note on
 					// article_size in the request). Saying so keeps the number honest rather than
 					// presenting an approximation as the exact charge.
-					alert('Not enough credits to regenerate this post.\n\n' +
+					iseoModal.warning({ title: '<?php echo esc_js( __( 'Not enough credits', 'improveseo' ) ); ?>', message: 'Not enough credits to regenerate this post.\n\n' +
 						  'ISEO credits required: ' + needed + ' (estimated)' +
 						  '\nCredits available now: ' + d.content_check.available +
 						  '\n\nThis estimate assumes a medium-size article — a larger post can cost more. ' +
 						  'The exact amount is taken when the post is generated.' +
-						  '\n\nPlease purchase more credits to continue.');
+						  '\n\nPlease purchase more credits to continue.' });
 					return;
 				}
 
 				onOk();
 			},
 			error: function () {
-				alert('Could not reach the ImproveSEO server to verify your account. Please try again.');
+				iseoModal.error({ title: '<?php echo esc_js( __( 'Account check failed', 'improveseo' ) ); ?>', message: 'Could not reach the ImproveSEO server to verify your account. Please try again.' });
 			}
 		});
 	}
@@ -555,12 +558,13 @@ $url .= $_SERVER['REQUEST_URI'];
 				success: function (data) {
 					console.log(data);
 					jQuery('.show_loading').css("display", "none");
-					alert("Content has been Re-Generated successfully.");
-					location.reload(true);
+					iseoModal.success({ title: '<?php echo esc_js( __( 'Content regenerated', 'improveseo' ) ); ?>', message: "Content has been Re-Generated successfully." }).then(function () {
+						location.reload(true);
+					});
 				},
 				error: function(xhr, status, error) {
 					jQuery('.show_loading').css("display", "none");
-					alert("Failed to regenerate content. Please try again.");
+					iseoModal.error({ title: '<?php echo esc_js( __( 'Regeneration failed', 'improveseo' ) ); ?>', message: "Failed to regenerate content. Please try again." });
 					console.error(error);
 				}
 			});
@@ -708,11 +712,27 @@ $url .= $_SERVER['REQUEST_URI'];
 			var checkedItems = $('input[name="project_ids[]"]:checked').length;
 			if (checkedItems === 0) {
 				e.preventDefault();
-				alert('Please select at least one task to delete.');
+				iseoModal.warning({ title: '<?php echo esc_js( __( 'No tasks selected', 'improveseo' ) ); ?>', message: 'Please select at least one task to delete.' });
 				return false;
 			}
 
-			return confirm('Are you sure you want to delete ' + checkedItems + ' selected post(s) and their associated data? This action cannot be undone.');
+			// Shared confirm popup. The submit is held and replayed from this same button only
+			// when "Delete" is clicked; Cancel, ×, Esc or a click outside leave the page as it is.
+			e.preventDefault();
+			var btn = this;
+			iseoModal.destructive({
+				title: '<?php echo esc_js( __( 'Delete posts', 'improveseo' ) ); ?>',
+				message: 'Are you sure you want to delete ' + checkedItems + ' selected post(s) and their associated data? This action cannot be undone.',
+				primary: { label: '<?php echo esc_js( __( 'Delete', 'improveseo' ) ); ?>' }
+			}).then(function (ok) {
+				if (!ok) { return; }
+				if (typeof btn.form.requestSubmit === 'function') {
+					btn.form.requestSubmit(btn);
+				} else {
+					btn.form.submit();
+				}
+			});
+			return false;
 		});
 	});
 </script>

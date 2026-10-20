@@ -564,252 +564,22 @@ global $ai_modal_type;
         margin-top: 15px !important;
     }
 
-    /* ImproveSEO Notification Popup Styles */
-    .improveseo-notification-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: 99999;
-        justify-content: center;
-        align-items: center;
-        animation: fadeIn 0.3s ease-in-out;
-    }
-
-    .improveseo-notification-overlay.active {
-        display: flex;
-    }
-
-    .improveseo-notification-box {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        max-width: 450px;
-        width: 90%;
-        overflow: hidden;
-        animation: slideUp 0.3s ease-out;
-        position: relative;
-    }
-
-    .improveseo-notification-header {
-        padding: 24px 24px 16px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-    .improveseo-notification-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 28px;
-        font-weight: 700;
-        flex-shrink: 0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        position: relative;
-    }
-    
-    .improveseo-notification-icon::before {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background: inherit;
-        opacity: 0.2;
-        animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% {
-            transform: scale(1);
-            opacity: 0.2;
-        }
-        50% {
-            transform: scale(1.1);
-            opacity: 0;
-        }
-    }
-
-    .improveseo-notification-icon.warning {
-        background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
-        color: white;
-    }
-    
-    .improveseo-notification-icon.warning::after {
-        content: '⚠';
-        position: absolute;
-        font-size: 32px;
-        font-weight: 300;
-        line-height: 1;
-    }
-
-    .improveseo-notification-icon.error {
-        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-        color: white;
-    }
-    
-    .improveseo-notification-icon.error::after {
-        content: '✕';
-        position: absolute;
-        font-size: 32px;
-        font-weight: 300;
-        line-height: 1;
-    }
-
-    .improveseo-notification-icon.success {
-        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-        color: white;
-    }
-
-    .improveseo-notification-icon.info {
-        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-        color: white;
-    }
-
-    .improveseo-notification-title {
-        flex: 1;
-    }
-
-    .improveseo-notification-title h3 {
-        margin: 0;
-        font-size: 20px;
-        font-weight: 600;
-        color: #23282d;
-        line-height: 1.3;
-    }
-
-    .improveseo-notification-body {
-        padding: 20px 24px;
-    }
-
-    .improveseo-notification-body p {
-        margin: 0;
-        font-size: 15px;
-        color: #50575e;
-        line-height: 1.6;
-        /* Render \n in notification messages as line breaks (credit breakdowns). */
-        white-space: pre-line;
-    }
-
-    .improveseo-notification-footer {
-        padding: 16px 24px 24px;
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-    }
-
-    .improveseo-notification-btn {
-        padding: 10px 24px;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        border: none;
-        outline: none;
-        transition: all 0.2s ease;
-        font-family: inherit;
-    }
-
-    .improveseo-notification-btn-primary {
-        background: linear-gradient(135deg, #0073aa 0%, #005a87 100%);
-        color: white;
-    }
-
-    .improveseo-notification-btn-primary:hover {
-        background: linear-gradient(135deg, #005a87 0%, #00405f 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 115, 170, 0.3);
-    }
-
-    .improveseo-notification-btn-secondary {
-        background: #f0f0f0;
-        color: #50575e;
-    }
-
-    .improveseo-notification-btn-secondary:hover {
-        background: #e0e0e0;
-    }
-
+    /* The notification and loading popups that lived here now come from the shared popup
+       system (assets/js/iseo-popups.js + assets/css/iseo-popups.css). These keyframe names
+       are generic and global, so they stay in case anything else on the page uses them. */
     @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
     @keyframes slideUp {
-        from {
-            transform: translateY(50px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
     }
 
-    /* Loading Notification Styles */
-    .improveseo-loading-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: 99999;
-        justify-content: center;
-        align-items: center;
-        animation: fadeIn 0.3s ease-in-out;
-    }
-
-    .improveseo-loading-overlay.active {
-        display: flex;
-    }
-
-    .improveseo-loading-box {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        max-width: 400px;
-        width: 90%;
-        padding: 32px 24px;
-        text-align: center;
-        animation: slideUp 0.3s ease-out;
-    }
-
-    .improveseo-loading-spinner {
-        width: 60px;
-        height: 60px;
-        margin: 0 auto 20px;
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #0073aa;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    .improveseo-loading-title {
-        font-size: 20px;
-        font-weight: 600;
-        color: #23282d;
-        margin: 0 0 12px 0;
-    }
-
-    .improveseo-loading-message {
-        font-size: 15px;
-        color: #50575e;
-        margin: 0;
-        line-height: 1.6;
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.2; }
+        50% { transform: scale(1.1); opacity: 0; }
     }
 
     @keyframes spin {
@@ -821,34 +591,6 @@ global $ai_modal_type;
 
 
 
-<!-- ImproveSEO Notification Popup -->
-<div class="improveseo-notification-overlay" id="improveseoNotification">
-    <div class="improveseo-notification-box">
-        <div class="improveseo-notification-header">
-            <div class="improveseo-notification-icon" id="improveseoNotificationIcon"></div>
-            <div class="improveseo-notification-title">
-                <h3 id="improveseoNotificationTitle">Notification</h3>
-            </div>
-        </div>
-        <div class="improveseo-notification-body">
-            <p id="improveseoNotificationMessage">This is a notification message.</p>
-        </div>
-        <div class="improveseo-notification-footer">
-            <button class="improveseo-notification-btn improveseo-notification-btn-primary" id="improveseoNotificationOk">
-                OK
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- ImproveSEO Loading Popup -->
-<div class="improveseo-loading-overlay" id="improveseoLoading">
-    <div class="improveseo-loading-box">
-        <div class="improveseo-loading-spinner"></div>
-        <h3 class="improveseo-loading-title" id="improveseoLoadingTitle">Generating Title...</h3>
-        <p class="improveseo-loading-message" id="improveseoLoadingMessage">Please wait while AI generates your title.</p>
-    </div>
-</div>
 
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="false" aria-modal="false">
@@ -3626,14 +3368,14 @@ if ( 'single' !== $ai_modal_type ) {
         
         // Validate file type
         if (!file.type.match('image.*')) {
-            alert('Please select a valid image file.');
+            iseoModal.warning({ title: '<?php echo esc_js( __( 'Invalid image file', 'improveseo' ) ); ?>', message: 'Please select a valid image file.' });
             jQuery(this).val('');
             return;
         }
         
         // Validate file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
-            alert('Image size should not exceed 5MB.');
+            iseoModal.warning({ title: '<?php echo esc_js( __( 'Image too large', 'improveseo' ) ); ?>', message: 'Image size should not exceed 5MB.' });
             jQuery(this).val('');
             return;
         }
@@ -4149,18 +3891,27 @@ if ( 'single' !== $ai_modal_type ) {
                         }
 
                         // Content credits are sufficient — confirm before advancing.
-                        // resolve() runs on OK/close so the wizard only moves forward
-                        // once the user acknowledges the credit usage.
-                        ImproveSEONotification.show({
-                            type: 'success',
-                            title: 'Confirm Content Generation',
-                            message:
-                                'This project requires ' + plural(creditsNeeded, 'credit') + ' based on your selections.\n\n' +
-                                'You will have ' + plural(data.content_check.available - creditsNeeded, 'remaining credit') +
-                                ' after content generation.\n\n' +
-                                'Click OK to confirm and continue.',
-                            buttonText: 'OK',
-                            onClose: function () { resolve(data); }
+                        // Only Continue moves the wizard on. Cancel, ×, Esc and a click outside
+                        // all reject, so the user stays on this step (BulkSubmitButton.setError()
+                        // restores the button). This used to be a one-button notice whose every
+                        // way of closing — outside click included — counted as a confirmation.
+                        iseoModal.confirm({
+                            icon: 'file-text',
+                            title: '<?php echo esc_js( __( 'Confirm content generation', 'improveseo' ) ); ?>',
+                            message: '<?php echo esc_js( __( 'This project will use the credits below, based on your selections.', 'improveseo' ) ); ?>',
+                            details: [
+                                { label: '<?php echo esc_js( __( 'Posts', 'improveseo' ) ); ?>', value: fmt(keywordCount) },
+                                { label: '<?php echo esc_js( __( 'Credits required', 'improveseo' ) ); ?>', value: fmt(creditsNeeded) },
+                                { label: '<?php echo esc_js( __( 'Credits available', 'improveseo' ) ); ?>', value: fmt(data.content_check.available) },
+                                { label: '<?php echo esc_js( __( 'Remaining after generation', 'improveseo' ) ); ?>', value: fmt(data.content_check.available - creditsNeeded), tone: 'primary' }
+                            ],
+                            primary: { label: '<?php echo esc_js( __( 'Continue', 'improveseo' ) ); ?>' }
+                        }).then(function (confirmed) {
+                            if (confirmed) {
+                                resolve(data);
+                            } else {
+                                reject('cancelled');
+                            }
                         });
                         
                     } else {
@@ -4310,24 +4061,32 @@ if ( 'single' !== $ai_modal_type ) {
                         // Image credits are sufficient.
                         console.log('✅ Image credit check passed:', data);
                         if (aiImageCount > 0) {
-                            // Confirm before advancing — OK gates the step change.
-                            ImproveSEONotification.show({
-                                type: 'success',
-                                title: 'Confirm AI Image Generation',
-                                // aiImageCount is a COUNT of images. It used to be reported as the
-                                // credit cost and subtracted from the credit balance, so at
-                                // ISEO_COST_IMAGE=5 a one-image run said "required: 1" and
-                                // overstated what was left by 4. image_check.needed is the priced
-                                // figure the gate itself used.
-                                message:
-                                    aiImageCount + ' image' + (aiImageCount === 1 ? '' : 's') +
-                                        ' × ' + (data.image_unit || 1) + ' = ' +
-                                        data.image_check.needed + ' ISEO credits\n' +
-                                    'Credits available now: ' + data.image_check.available + '\n' +
-                                    'Remaining after generation: ' + (data.image_check.available - data.image_check.needed) + '\n\n' +
-                                    'Click OK to confirm and continue.',
-                                buttonText: 'OK',
-                                onClose: function () { resolve(data); }
+                            // Confirm before advancing — only Continue gates the step change.
+                            // Cancel, ×, Esc and an outside click reject and keep the user here;
+                            // the old one-button notice resolved on any close.
+                            //
+                            // aiImageCount is a COUNT of images. It used to be reported as the
+                            // credit cost and subtracted from the credit balance, so at
+                            // ISEO_COST_IMAGE=5 a one-image run said "required: 1" and
+                            // overstated what was left by 4. image_check.needed is the priced
+                            // figure the gate itself used.
+                            iseoModal.confirm({
+                                icon: 'image',
+                                title: '<?php echo esc_js( __( 'Confirm AI image generation', 'improveseo' ) ); ?>',
+                                details: [
+                                    { label: '<?php echo esc_js( __( 'Images', 'improveseo' ) ); ?>', value: aiImageCount },
+                                    { label: '<?php echo esc_js( __( 'Credits per image', 'improveseo' ) ); ?>', value: data.image_unit || 1 },
+                                    { label: '<?php echo esc_js( __( 'Credits required', 'improveseo' ) ); ?>', value: data.image_check.needed },
+                                    { label: '<?php echo esc_js( __( 'Credits available', 'improveseo' ) ); ?>', value: data.image_check.available },
+                                    { label: '<?php echo esc_js( __( 'Remaining after generation', 'improveseo' ) ); ?>', value: data.image_check.available - data.image_check.needed, tone: 'primary' }
+                                ],
+                                primary: { label: '<?php echo esc_js( __( 'Continue', 'improveseo' ) ); ?>' }
+                            }).then(function (confirmed) {
+                                if (confirmed) {
+                                    resolve(data);
+                                } else {
+                                    reject('cancelled');
+                                }
                             });
                         } else {
                             resolve(data);
@@ -4903,184 +4662,8 @@ if ( 'single' !== $ai_modal_type ) {
     });
 
 </script>
-<script>
-  // ImproveSEO Notification System
-  const ImproveSEONotification = {
-    show: function(options) {
-      const {
-        title = 'Notification',
-        message = '',
-        type = 'warning', // warning, error, success, info
-        buttonText = 'OK',
-        onClose = null
-      } = options;
-
-      const overlay = document.getElementById('improveseoNotification');
-      const iconEl = document.getElementById('improveseoNotificationIcon');
-      const titleEl = document.getElementById('improveseoNotificationTitle');
-      const messageEl = document.getElementById('improveseoNotificationMessage');
-      const okBtn = document.getElementById('improveseoNotificationOk');
-
-      // warning/error: CSS ::after renders the symbol — textContent must be empty to avoid double icon
-      // success/info: no ::after defined, so textContent carries the symbol
-      const icons = {
-        warning: '',
-        error: '',
-        success: '✓',
-        info: 'ℹ'
-      };
-
-      // Remove all type classes
-      iconEl.classList.remove('warning', 'error', 'success', 'info');
-      // Add current type class
-      iconEl.classList.add(type);
-      iconEl.textContent = icons[type];
-
-      // Set content
-      titleEl.textContent = title;
-      messageEl.textContent = message;
-      okBtn.textContent = buttonText;
-
-      // Clear any onclick handler left by showImproveSEONotification() (a separate
-      // system that assigns okBtn.onclick). Without this, a prior modal's handler
-      // would still fire alongside ours on the same OK button.
-      okBtn.onclick = null;
-
-      // Show overlay
-      overlay.classList.add('active');
-
-      // Handle close
-      const closeHandler = function() {
-        overlay.classList.remove('active');
-        okBtn.removeEventListener('click', closeHandler);
-        overlay.removeEventListener('click', overlayClickHandler);
-        if (onClose && typeof onClose === 'function') {
-          onClose();
-        }
-      };
-
-      const overlayClickHandler = function(e) {
-        if (e.target === overlay) {
-          closeHandler();
-        }
-      };
-
-      okBtn.addEventListener('click', closeHandler);
-      overlay.addEventListener('click', overlayClickHandler);
-
-      // Return API for external control
-      return {
-        close: closeHandler
-      };
-    },
-
-    warning: function(message, title = 'Warning') {
-      return this.show({ title, message, type: 'warning' });
-    },
-
-    error: function(message, title = 'Error') {
-      return this.show({ title, message, type: 'error' });
-    },
-
-    success: function(message, title = 'Success') {
-      return this.show({ title, message, type: 'success' });
-    },
-
-    info: function(message, title = 'Information') {
-      return this.show({ title, message, type: 'info' });
-    }
-  };
-
-  // Make it globally available
-  window.ImproveSEONotification = ImproveSEONotification;
-
-  /**
-   * Show credit exhaustion notification with link to buy more credits
-   */
-  function showImproveSEONotification(type, title, message, actionUrl) {
-    const overlay = document.getElementById('improveseoNotification');
-    const iconEl = document.getElementById('improveseoNotificationIcon');
-    const titleEl = document.getElementById('improveseoNotificationTitle');
-    const messageEl = document.getElementById('improveseoNotificationMessage');
-    const okBtn = document.getElementById('improveseoNotificationOk');
-    
-    // Set icon based on type - use Unicode symbols for better display
-    const icons = {
-      warning: '', // CSS ::after handles the symbol
-      error: '',   // CSS ::after handles the symbol
-      success: '✓',
-      info: 'ℹ'
-    };
-    
-    iconEl.classList.remove('warning', 'error', 'success', 'info');
-    iconEl.classList.add(type);
-    iconEl.textContent = icons[type] || '';
-    
-    titleEl.textContent = title;
-    messageEl.textContent = message;
-    
-    if (actionUrl) {
-      // Determine button text based on URL type
-      if (actionUrl.startsWith('mailto:')) {
-        okBtn.textContent = 'Contact Support';
-      } else if (actionUrl.includes('dashboard.improveseoplugin.com')) {
-        okBtn.textContent = 'Buy Credits';
-      } else {
-        okBtn.textContent = 'Learn More';
-      }
-      
-      okBtn.onclick = function() {
-        if (actionUrl.startsWith('mailto:')) {
-          window.location.href = actionUrl;
-        } else {
-          window.open(actionUrl, '_blank');
-        }
-        overlay.classList.remove('active');
-      };
-    } else {
-      okBtn.textContent = 'OK';
-      okBtn.onclick = function() {
-        overlay.classList.remove('active');
-      };
-    }
-    
-    overlay.classList.add('active');
-    overlay.onclick = function(e) {
-      if (e.target === overlay) {
-        overlay.classList.remove('active');
-      }
-    };
-  }
-  
-  // Make globally available
-  window.showImproveSEONotification = showImproveSEONotification;
-
-  // ImproveSEO Loading System
-  const ImproveSEOLoading = {
-    show: function(options) {
-      const {
-        title = 'Loading...',
-        message = 'Please wait...'
-      } = options || {};
-
-      const overlay = document.getElementById('improveseoLoading');
-      const titleEl = document.getElementById('improveseoLoadingTitle');
-      const messageEl = document.getElementById('improveseoLoadingMessage');
-
-      titleEl.textContent = title;
-      messageEl.textContent = message;
-      overlay.classList.add('active');
-    },
-
-    hide: function() {
-      const overlay = document.getElementById('improveseoLoading');
-      overlay.classList.remove('active');
-    }
-  };
-
-  // Make it globally available
-  window.ImproveSEOLoading = ImproveSEOLoading;
-</script>
+<?php // ImproveSEONotification, showImproveSEONotification and ImproveSEOLoading are defined by
+      // assets/js/iseo-popups.js (enqueued on every admin screen) as wrappers over iseoModal. ?>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const seedInput = document.getElementById("seed_keyword");

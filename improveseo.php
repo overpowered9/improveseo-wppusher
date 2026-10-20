@@ -40,7 +40,7 @@ wp_enqueue_script(
 
 	plugin_dir_url(__FILE__) . 'assets/js/custom-plugin-script.js',
 
-	array('jquery'),
+	array('jquery', 'wp-i18n'),
 
 	filemtime(plugin_dir_path(__FILE__) . 'assets/js/custom-plugin-script.js'),
 
@@ -59,6 +59,9 @@ $standred_variable = array(
 
 
 wp_localize_script('custom-plugin-script', 'standred_var', $standred_variable);
+
+// Popup strings in this script use wp.i18n.__( ..., 'improveseo' ) (hence the wp-i18n dependency).
+wp_set_script_translations('custom-plugin-script', 'improveseo', plugin_dir_path(__FILE__) . 'languages');
 
 
 

@@ -28,59 +28,18 @@ $saves_on_submit = isset( $saves_on_submit ) ? (string) $saves_on_submit : '';
      to posting.js' window.onbeforeunload, since browsers show only their own stock text
      for those and a page can't substitute this message there.
 
-     z-index above the wizard's Bootstrap modal (1050) AND the admin sidebar itself (9990),
-     which sits over that modal's backdrop — that is why the sidebar was clickable at all. -->
-<div id="iseo-leave-wizard-overlay" hidden data-while-open="<?php echo esc_attr( $while_open ); ?>" data-saves-on-submit="<?php echo esc_attr( $saves_on_submit ); ?>" style="position:fixed; inset:0; z-index:1000000; background:rgba(0,0,0,0.55); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center;">
-	<div role="alertdialog" aria-modal="true" aria-labelledby="iseo-leave-wizard-title" aria-describedby="iseo-leave-wizard-text" style="background:#fff; border-radius:14px; padding:32px 28px 24px; max-width:440px; width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.25); font-family:'Poppins','Lato',sans-serif;">
-		<div style="margin-bottom:14px;">
-			<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;">
-				<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-				<line x1="12" y1="9" x2="12" y2="13"></line>
-				<line x1="12" y1="17" x2="12.01" y2="17"></line>
-			</svg>
-		</div>
-		<h3 id="iseo-leave-wizard-title" style="margin:0 0 8px; font-size:18px; font-weight:700; color:#111827; line-height:1.3;">
-			Are you sure you want to leave?
-		</h3>
-		<p id="iseo-leave-wizard-text" style="margin:0 0 24px; font-size:14px; color:#4b5563; line-height:1.55;">
-			This project will only be saved at the end of this Wizard. You will need to start over again if you leave now.
-		</p>
-		<div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-			<button type="button" id="iseo-leave-wizard-stay" class="iseo-leave-wizard-btn iseo-leave-wizard-btn-primary">Stay on this page</button>
-			<button type="button" id="iseo-leave-wizard-go" class="iseo-leave-wizard-btn iseo-leave-wizard-btn-quiet">Leave anyway</button>
-		</div>
-	</div>
-</div>
-
-<style>
-#iseo-leave-wizard-overlay[hidden] { display: none !important; }
-.iseo-leave-wizard-btn {
-	padding: 10px 20px;
-	border-radius: 8px;
-	font-size: 14px;
-	font-weight: 600;
-	cursor: pointer;
-	font-family: inherit;
-	transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-.iseo-leave-wizard-btn-primary { background: #1C7293; color: #fff; border: 1px solid #1C7293; }
-.iseo-leave-wizard-btn-primary:hover,
-.iseo-leave-wizard-btn-primary:focus-visible { background: #fff; color: #000; border-color: #000; }
-.iseo-leave-wizard-btn-quiet { background: #fff; color: #374151; border: 1px solid #d1d5db; }
-.iseo-leave-wizard-btn-quiet:hover,
-.iseo-leave-wizard-btn-quiet:focus-visible { background: #f3f4f6; color: #111827; }
-</style>
+     Shown in the shared popup (assets/js/iseo-popups.js), so it looks like every other popup.
+     Its title, message and two buttons are unchanged. -->
+<div id="iseo-leave-wizard-config" hidden data-while-open="<?php echo esc_attr( $while_open ); ?>" data-saves-on-submit="<?php echo esc_attr( $saves_on_submit ); ?>"></div>
 
 <script>
 (function () {
-	var overlay = document.getElementById('iseo-leave-wizard-overlay');
-	if (!overlay) { return; }
+	var config = document.getElementById('iseo-leave-wizard-config');
+	if (!config || typeof iseoModal === 'undefined') { return; }
 
-	var stayBtn       = document.getElementById('iseo-leave-wizard-stay');
-	var leaveBtn      = document.getElementById('iseo-leave-wizard-go');
-	var whileOpen     = overlay.getAttribute('data-while-open');
-	var savesOnSubmit = overlay.getAttribute('data-saves-on-submit');
-	var pendingUrl    = null;
+	var whileOpen     = config.getAttribute('data-while-open');
+	var savesOnSubmit = config.getAttribute('data-saves-on-submit');
+	var asking        = false;
 	var saved         = false;
 
 	// Once the project is saved, leaving is exactly what should happen, so the prompt
@@ -109,15 +68,25 @@ $saves_on_submit = isset( $saves_on_submit ) ? (string) $saves_on_submit : '';
 			&& getComputedStyle(wizard).visibility !== 'hidden';
 	}
 
+	// Same title, message and buttons as before, in the shared popup. "Stay on this page" is
+	// the primary (teal) button and has focus; "Leave anyway" is the secondary button and is
+	// the only way to leave. ×, Esc and a click outside also stay.
 	function open(url) {
-		pendingUrl = url;
-		overlay.hidden = false;
-		if (stayBtn) { stayBtn.focus(); }
-	}
-
-	function close() {
-		overlay.hidden = true;
-		pendingUrl = null;
+		if (asking) { return; }
+		asking = true;
+		iseoModal.warning({
+			title: <?php echo wp_json_encode( __( 'Are you sure you want to leave?', 'improveseo' ) ); ?>,
+			message: <?php echo wp_json_encode( __( 'This project will only be saved at the end of this Wizard. You will need to start over again if you leave now.', 'improveseo' ) ); ?>,
+			primary: { label: <?php echo wp_json_encode( __( 'Stay on this page', 'improveseo' ) ); ?> },
+			secondary: { label: <?php echo wp_json_encode( __( 'Leave anyway', 'improveseo' ) ); ?> }
+		}).then(function (result) {
+			asking = false;
+			if (result !== 'secondary') { return; }
+			// Already confirmed here — don't let posting.js' generic beforeunload
+			// prompt ask a second time.
+			window.onbeforeunload = null;
+			window.location.href = url;
+		});
 	}
 
 	// Capture phase, so this runs before WordPress' own menu handlers and before the
@@ -144,48 +113,5 @@ $saves_on_submit = isset( $saves_on_submit ) ? (string) $saves_on_submit : '';
 		var area = document.getElementById(id);
 		if (area) { area.addEventListener('click', guardLinks, true); }
 	});
-
-	if (stayBtn) { stayBtn.addEventListener('click', close); }
-
-	if (leaveBtn) {
-		leaveBtn.addEventListener('click', function () {
-			var url = pendingUrl;
-			close();
-			if (!url) { return; }
-			// Already confirmed here — don't let posting.js' generic beforeunload
-			// prompt ask a second time.
-			window.onbeforeunload = null;
-			window.location.href = url;
-		});
-	}
-
-	overlay.addEventListener('click', function (e) {
-		if (e.target === overlay) { close(); }
-	});
-
-	// The wizard underneath is a Bootstrap modal, whose focus trap (jQuery's focusin on
-	// document, which jQuery may build from a capturing 'focus' listener) pulls focus back
-	// into the wizard — away from these buttons, leaving keyboard users tabbing through the
-	// form behind the overlay. Window capture runs before anything on document, so focus
-	// landing in this prompt is stopped there.
-	['focus', 'focusin'].forEach(function (type) {
-		window.addEventListener(type, function (e) {
-			if (e.target && e.target.nodeType === 1 && overlay.contains(e.target)) { e.stopPropagation(); }
-		}, true);
-	});
-
-	document.addEventListener('keydown', function (e) {
-		if (overlay.hidden) { return; }
-		if (e.key === 'Escape') {
-			// Close only this prompt, not the wizard modal underneath it.
-			e.stopPropagation();
-			close();
-		} else if (e.key === 'Tab' && stayBtn && leaveBtn) {
-			// Two buttons, so Tab and Shift+Tab simply alternate between them.
-			e.preventDefault();
-			e.stopPropagation();
-			(document.activeElement === stayBtn ? leaveBtn : stayBtn).focus();
-		}
-	}, true);
 })();
 </script>

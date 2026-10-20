@@ -1,0 +1,538 @@
+/* ============================================================
+   ImproveSEO popup system — modals, toasts, loading, inline field errors.
+   One stylesheet for every popup in the plugin; the markup is built by
+   assets/js/iseo-popups.js. Every selector is prefixed .iseo-ui- so nothing
+   here reaches WP core admin screens or other plugins, and every property the
+   admin/plugin globals touch (margins, fonts, button chrome) is set explicitly
+   because style.css resets `*` and styles bare `button`/`p`/`h*` elements.
+   ============================================================ */
+
+.iseo-ui-overlay,
+.iseo-ui-toasts {
+  --iseo-ui-navy: #0B132B;
+  --iseo-ui-teal: #1C7293;
+  --iseo-ui-mint: #2EC4B6;
+  --iseo-ui-amber: #E8930C;
+  --iseo-ui-red: #D92D20;
+  --iseo-ui-red-hover: #B42318;
+  --iseo-ui-muted: #5C6B7A;
+  --iseo-ui-line: #E6EBF2;
+  --iseo-ui-tile: #F1F4F8;
+  --iseo-ui-tint-error: #FDECEA;
+  --iseo-ui-tint-warning: #FEF5E6;
+  --iseo-ui-tint-success: #E6F8F6;
+  --iseo-ui-tint-info: #E8F2F6;
+  --iseo-ui-font: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--iseo-ui-font);
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+}
+
+.iseo-ui-overlay *,
+.iseo-ui-overlay *::before,
+.iseo-ui-overlay *::after,
+.iseo-ui-toasts *,
+.iseo-ui-toasts *::before,
+.iseo-ui-toasts *::after {
+  box-sizing: border-box;
+}
+
+/* ── Overlay ─────────────────────────────────────────────── */
+/* Above the WP admin bar (99999), the Bootstrap wizard modals and the
+   connection guard (999999), so a popup raised from inside any of them is
+   never hidden behind it. */
+.iseo-ui-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: rgba(11, 19, 43, 0.5);
+  animation: iseo-ui-fade 150ms ease-out;
+}
+
+.iseo-ui-overlay[hidden] {
+  display: none;
+}
+
+/* The loader sits just under a modal, so an error raised while it is still
+   fading out is always on top. */
+.iseo-ui-overlay--loading {
+  z-index: 999998;
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+.iseo-ui-modal {
+  position: relative;
+  width: 420px;
+  max-width: 92vw;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  margin: 0;
+  padding: 32px 28px 24px;
+  background: #FFFFFF;
+  border: 1px solid var(--iseo-ui-line);
+  border-radius: 14px;
+  box-shadow: 0 24px 48px rgba(11, 19, 43, 0.18);
+  color: var(--iseo-ui-navy);
+  text-align: center;
+  animation: iseo-ui-rise 150ms ease-out;
+}
+
+.iseo-ui-modal:focus {
+  outline: none;
+}
+
+/* ── Close × ─────────────────────────────────────────────── */
+.iseo-ui-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #9AA5AD;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.iseo-ui-close:hover {
+  background: var(--iseo-ui-tile);
+  color: var(--iseo-ui-navy);
+}
+
+.iseo-ui-close:focus {
+  outline: none;
+}
+
+.iseo-ui-close:focus-visible {
+  box-shadow: 0 0 0 2px var(--iseo-ui-teal);
+}
+
+.iseo-ui-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Icon tile ───────────────────────────────────────────── */
+.iseo-ui-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto;
+  border-radius: 14px;
+}
+
+.iseo-ui-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.iseo-ui-icon--error   { background: var(--iseo-ui-tint-error);   color: var(--iseo-ui-red); }
+.iseo-ui-icon--warning { background: var(--iseo-ui-tint-warning); color: var(--iseo-ui-amber); }
+.iseo-ui-icon--success { background: var(--iseo-ui-tint-success); color: var(--iseo-ui-mint); }
+.iseo-ui-icon--info    { background: var(--iseo-ui-tint-info);    color: var(--iseo-ui-teal); }
+
+/* ── Text ────────────────────────────────────────────────── */
+.iseo-ui-modal .iseo-ui-title {
+  margin: 16px 0 0;
+  padding: 0;
+  font-family: var(--iseo-ui-font);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 26px;
+  color: var(--iseo-ui-navy);
+  text-align: center;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.iseo-ui-modal .iseo-ui-message {
+  margin: 8px 0 0;
+  padding: 0;
+  font-family: var(--iseo-ui-font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  color: var(--iseo-ui-muted);
+  text-align: center;
+  /* Messages written with \n (credit breakdowns, multi-part errors) keep their breaks. */
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* ── Details tile (credit breakdowns) ────────────────────── */
+.iseo-ui-details {
+  margin: 16px 0 0;
+  padding: 4px 16px;
+  background: #F4F7FB;
+  border: 1px solid var(--iseo-ui-line);
+  border-radius: 10px;
+  text-align: left;
+}
+
+.iseo-ui-details-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  padding: 10px 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.iseo-ui-details-row + .iseo-ui-details-row {
+  border-top: 1px solid var(--iseo-ui-line);
+}
+
+.iseo-ui-details-label {
+  color: var(--iseo-ui-muted);
+}
+
+.iseo-ui-details-value {
+  font-weight: 600;
+  color: var(--iseo-ui-navy);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.iseo-ui-details-value--primary {
+  color: var(--iseo-ui-teal);
+}
+
+/* ── Actions ─────────────────────────────────────────────── */
+.iseo-ui-actions {
+  display: flex;
+  gap: 8px;
+  margin: 24px 0 0;
+}
+
+/* Labels never wrap. When any label cannot fit side by side, JS adds
+   --stacked and the buttons go full width, primary on top. */
+.iseo-ui-actions--stacked {
+  flex-direction: column-reverse;
+}
+
+.iseo-ui-btn,
+.iseo-ui-btn:visited {
+  display: inline-flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 40px;
+  min-height: 40px;
+  margin: 0;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: var(--iseo-ui-font);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-align: center;
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.iseo-ui-actions--stacked .iseo-ui-btn {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+/* Focus keeps the button's normal colour (popups open with focus on a button, which
+   must not look hovered); keyboard focus shows the ring below. */
+.iseo-ui-btn:focus {
+  outline: none;
+}
+
+.iseo-ui-btn:focus-visible {
+  box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px var(--iseo-ui-teal);
+}
+
+.iseo-ui-btn--primary {
+  background: var(--iseo-ui-teal);
+  border-color: var(--iseo-ui-teal);
+  color: #FFFFFF;
+}
+
+.iseo-ui-btn--primary:hover {
+  background: var(--iseo-ui-navy);
+  border-color: var(--iseo-ui-navy);
+  color: #FFFFFF;
+}
+
+.iseo-ui-btn--secondary {
+  background: #FFFFFF;
+  border-color: var(--iseo-ui-navy);
+  color: var(--iseo-ui-navy);
+}
+
+.iseo-ui-btn--secondary:hover {
+  background: var(--iseo-ui-tile);
+  border-color: var(--iseo-ui-navy);
+  color: var(--iseo-ui-navy);
+}
+
+.iseo-ui-btn--destructive {
+  background: var(--iseo-ui-red);
+  border-color: var(--iseo-ui-red);
+  color: #FFFFFF;
+}
+
+.iseo-ui-btn--destructive:hover {
+  background: var(--iseo-ui-red-hover);
+  border-color: var(--iseo-ui-red-hover);
+  color: #FFFFFF;
+}
+
+.iseo-ui-btn--destructive:focus-visible {
+  box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px var(--iseo-ui-red);
+}
+
+/* ── Loading ─────────────────────────────────────────────── */
+.iseo-ui-spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  border: 3px solid #E9EDF2;
+  border-top-color: var(--iseo-ui-teal);
+  border-radius: 50%;
+  animation: iseo-ui-spin 0.8s linear infinite;
+}
+
+/* ── Toasts ──────────────────────────────────────────────── */
+/* 16px under the 32px admin bar (46px below 783px, where WP makes it taller). */
+.iseo-ui-toasts {
+  position: fixed;
+  top: 48px;
+  right: 24px;
+  z-index: 1000010;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  pointer-events: none;
+}
+
+@media screen and (max-width: 782px) {
+  .iseo-ui-toasts {
+    top: 62px;
+    right: 16px;
+  }
+}
+
+.iseo-ui-toast {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+  padding: 14px 16px;
+  overflow: hidden;
+  background: #FFFFFF;
+  border: 1px solid var(--iseo-ui-line);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(11, 19, 43, 0.04), 0 8px 24px rgba(11, 19, 43, 0.12);
+  color: var(--iseo-ui-navy);
+  text-align: left;
+  pointer-events: auto;
+  animation: iseo-ui-slide 180ms ease-out;
+}
+
+.iseo-ui-toast-icon {
+  flex: 0 0 auto;
+  display: flex;
+  margin-top: 1px;
+}
+
+.iseo-ui-toast-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.iseo-ui-toast--error   .iseo-ui-toast-icon { color: var(--iseo-ui-red); }
+.iseo-ui-toast--warning .iseo-ui-toast-icon { color: var(--iseo-ui-amber); }
+.iseo-ui-toast--success .iseo-ui-toast-icon { color: var(--iseo-ui-mint); }
+.iseo-ui-toast--info    .iseo-ui-toast-icon { color: var(--iseo-ui-teal); }
+
+.iseo-ui-toast-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-right: 20px;
+}
+
+.iseo-ui-toast .iseo-ui-toast-title {
+  margin: 0;
+  padding: 0;
+  font-family: var(--iseo-ui-font);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--iseo-ui-navy);
+}
+
+.iseo-ui-toast .iseo-ui-toast-message {
+  margin: 2px 0 0;
+  padding: 0;
+  font-family: var(--iseo-ui-font);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--iseo-ui-muted);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.iseo-ui-toast .iseo-ui-toast-action {
+  display: inline-block;
+  margin: 6px 0 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--iseo-ui-font);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--iseo-ui-teal);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: none;
+  min-height: 0;
+}
+
+.iseo-ui-toast .iseo-ui-toast-action:hover {
+  color: var(--iseo-ui-navy);
+  text-decoration: underline;
+}
+
+.iseo-ui-toast .iseo-ui-toast-action:focus {
+  outline: none;
+}
+
+.iseo-ui-toast .iseo-ui-toast-action:focus-visible {
+  box-shadow: 0 0 0 2px var(--iseo-ui-teal);
+  border-radius: 4px;
+}
+
+.iseo-ui-toast .iseo-ui-close {
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+}
+
+/* Auto-dismiss timer. The bar's animation IS the timer: JS dismisses the toast
+   on animationend, so pausing the animation (hover/focus) pauses the countdown. */
+.iseo-ui-toast-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  transform-origin: left center;
+  animation-name: iseo-ui-countdown;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.iseo-ui-toast:hover .iseo-ui-toast-progress,
+.iseo-ui-toast:focus-within .iseo-ui-toast-progress {
+  animation-play-state: paused;
+}
+
+.iseo-ui-toast--error   .iseo-ui-toast-progress { background: var(--iseo-ui-red); }
+.iseo-ui-toast--warning .iseo-ui-toast-progress { background: var(--iseo-ui-amber); }
+.iseo-ui-toast--success .iseo-ui-toast-progress { background: var(--iseo-ui-mint); }
+.iseo-ui-toast--info    .iseo-ui-toast-progress { background: var(--iseo-ui-teal); }
+
+/* ── Inline field errors ─────────────────────────────────── */
+.iseo-ui-field-invalid,
+input.iseo-ui-field-invalid,
+select.iseo-ui-field-invalid,
+textarea.iseo-ui-field-invalid {
+  border-color: #D92D20 !important;
+  box-shadow: 0 0 0 1px #D92D20 !important;
+}
+
+.iseo-ui-field-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 6px 0 0;
+  padding: 0;
+  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #D92D20;
+  text-align: left;
+}
+
+.iseo-ui-field-error[hidden] {
+  display: none;
+}
+
+.iseo-ui-field-error svg {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+}
+
+/* ── Motion ──────────────────────────────────────────────── */
+@keyframes iseo-ui-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes iseo-ui-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes iseo-ui-slide {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes iseo-ui-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes iseo-ui-countdown {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iseo-ui-overlay,
+  .iseo-ui-modal,
+  .iseo-ui-toast {
+    animation: none;
+  }
+
+  .iseo-ui-spinner {
+    animation-duration: 2s;
+  }
+}

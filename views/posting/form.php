@@ -160,7 +160,10 @@ $_isSingleCreate = isset($ai_modal_type) && $ai_modal_type === 'single';
 			<div id="post_form_buttons" class="PostForm__buttons">
 				<span class="PostForm__btn-group">
 				<button name="create" type="submit" formtarget="_self"
-					class="btn styling_post_page_action_buttons btn-outline-primary">
+					class="btn styling_post_page_action_buttons btn-outline-primary"
+					data-iseo-confirm="<?php echo esc_attr__( 'Publish this post now? Your edits will be saved first.', 'improveseo' ); ?>"
+					data-iseo-confirm-title="<?php echo esc_attr__( 'Publish post', 'improveseo' ); ?>"
+					data-iseo-confirm-label="<?php echo esc_attr__( 'Publish', 'improveseo' ); ?>">
 					<?php echo $_isEditMode ? 'Publish Post' : 'Create &amp; Publish Post'; ?>
 				</button>
 					<?php if ($_isSingleCreate) : ?>

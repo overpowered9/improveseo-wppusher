@@ -238,7 +238,10 @@ $iseo_project_url = function ( $project_id ) {
 											</a>
 											<a class="iseo-kwl-action submitdelete"
 												href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=delete&id=' . $item->id . '&noheader=true') ); ?>"
-												onclick="return confirm('Are you sure you want to delete the list?')"
+												data-iseo-confirm="Are you sure you want to delete the list?"
+												data-iseo-confirm-title="<?php echo esc_attr__( 'Delete keyword list', 'improveseo' ); ?>"
+												data-iseo-confirm-label="<?php echo esc_attr__( 'Delete', 'improveseo' ); ?>"
+												data-iseo-confirm-variant="destructive"
 												aria-label="Delete Keyword List">
 												<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/delete.svg' ); ?>" alt="">
 												<span class="iseo-kwl-action-tip" aria-hidden="true">Delete Keyword List</span>

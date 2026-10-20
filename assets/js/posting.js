@@ -331,7 +331,7 @@ function getUniqueLocations() {
 				}, 'json')
 				.done(function(response) {
 					if (response.status == 'Failure') {
-						alert(response.error);
+						iseoModal.error({ title: "Spin failed", message: response.error });
 					} else {
 						tinymce.get('content') ? tinymce.get('content').setContent(response.text) : $('#content').val(response.text);
 					}
@@ -357,11 +357,8 @@ function getUniqueLocations() {
 				var locations = $form.find('#jstree').jstree(true).get_checked();
 				var local_country = $form.find('#local-country').val();
 
-				if (parseInt($form.find('#max-posts').val()) > 0) {
-					if (!confirm('There maybe more combinations in the local SEO area than you typed in max posts. Continue?')) {
-						e.preventDefault();
-					}
-				}
+				// The max-posts confirmation now runs before this handler — see the capture-phase
+				// listener below the handler.
 			}
 
 			$form.find('[local-seo-error]').remove();
@@ -390,11 +387,7 @@ function getUniqueLocations() {
 				$form.prepend('<input type="hidden" id="local-geo-locations" name="local_geo_locations" value=\''+ JSON.stringify(getUniqueLocations()) +'\'>');
 			}
 
-			if (max_posts > 5000) {
-				if (!confirm('Your project contains more than 5,000 pages. While ImproveSEO can create hundreds of thousands of posts per project, it is recommended to split your project into multiple smaller projects if you are using shared hosting for maximum efficiency. VPS and dedicated server users can avoid this message.\n\nPress OK to continue or cancel to resume editing.')) {
-					e.preventDefault();
-				}
-			}
+			// The more-than-5,000-pages confirmation also runs in the capture-phase listener below.
 
 			$form.find('#exif-locations').remove();
 
@@ -411,6 +404,76 @@ function getUniqueLocations() {
 				$form.prepend('<input type="hidden" id="exif-locations" name="exif_locations" value=\''+ JSON.stringify(exifLocations) + '\'>');
 			}
 		});
+
+		// Submit confirmations (max posts / more than 5,000 pages), shown in the shared popup.
+		//
+		// A capture listener on the form runs before every jQuery submit handler on it, including
+		// the project-name check on the single/edit screens. Until the user confirms, the submit
+		// is cancelled and stopped there, so nothing else runs; on confirm the submit is replayed
+		// from the same button (the controller branches on create vs draft) and passes through
+		// once. Cancel, ×, Esc or a click outside leaves the user on the page, as the old
+		// confirm() did. Editing the form clears the confirmation.
+		if ($form.length) {
+			var submitConfirmed = false;
+			var submitConfirmPending = false;
+
+			$form.on('input change', function() { submitConfirmed = false; });
+
+			var runSubmitConfirms = function(list) {
+				if (!list.length) { return Promise.resolve(true); }
+				return iseoModal.confirm({
+					title: list[0].title,
+					message: list[0].message,
+					primary: { label: list[0].label }
+				}).then(function(ok) {
+					return ok ? runSubmitConfirms(list.slice(1)) : false;
+				});
+			};
+
+			$form[0].addEventListener('submit', function(e) {
+				// Already confirmed and not edited since: let it through. This is also what lets
+				// the project-name check's own resubmit pass without asking a second time.
+				if (submitConfirmed) { return; }
+
+				var confirms = [];
+				if ($form.find('#local-seo-enabler').is(':checked') && parseInt($form.find('#max-posts').val()) > 0) {
+					confirms.push({
+						title: 'Check max posts',
+						message: 'There maybe more combinations in the local SEO area than you typed in max posts. Continue?',
+						label: 'Continue'
+					});
+				}
+				if (max_posts > 5000) {
+					confirms.push({
+						title: 'Large project',
+						message: 'Your project contains more than 5,000 pages. While ImproveSEO can create hundreds of thousands of posts per project, it is recommended to split your project into multiple smaller projects if you are using shared hosting for maximum efficiency. VPS and dedicated server users can avoid this message.\n\nPress OK to continue or cancel to resume editing.',
+						label: 'OK'
+					});
+				}
+				if (!confirms.length) { return; }
+
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				if (submitConfirmPending) { return; }
+				submitConfirmPending = true;
+
+				var form = this;
+				var submitter = e.submitter || null;
+				runSubmitConfirms(confirms).then(function(ok) {
+					submitConfirmPending = false;
+					if (!ok) { return; }
+					submitConfirmed = true;
+					if (typeof form.requestSubmit === 'function') {
+						form.requestSubmit(submitter && submitter.form === form ? submitter : undefined);
+					} else {
+						if (submitter && submitter.name) {
+							$('<input type="hidden">').attr('name', submitter.name).val(submitter.value || '1').appendTo($form);
+						}
+						form.submit();
+					}
+				});
+			}, true);
+		}
 
 		if (location.search.match(/create_post/) || location.search.match(/edit_post/)) {
 			// Detect changes

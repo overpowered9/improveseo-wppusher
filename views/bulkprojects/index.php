@@ -240,7 +240,11 @@ if (isset($_GET['post_preview'])) {
 													<span class="edit">
 														<a class="popup-link"
 															href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=stop_bulk_task&id=' . $project->id) ); ?>"
-															onclick="if(confirm('Are you sure you want to cancel this project? All ongoing tasks will be halted immediately.')) { window.location.href=this.href; } return false;">
+															data-iseo-confirm="Are you sure you want to cancel this project? All ongoing tasks will be halted immediately."
+															data-iseo-confirm-title="<?php echo esc_attr__( 'Cancel project', 'improveseo' ); ?>"
+															data-iseo-confirm-label="<?php echo esc_attr__( 'Cancel project', 'improveseo' ); ?>"
+															data-iseo-confirm-variant="destructive"
+															data-iseo-confirm-icon="x-circle">
 															Cancel Process
 														</a>
 													</span>
@@ -254,7 +258,10 @@ if (isset($_GET['post_preview'])) {
 													<span class="trash">
 														<a class="popup-link delete-link submitdelete"
 															href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=delete&id=' . $project->id) ); ?>"
-															onclick="if(confirm('This action will delete the project and all generated posts/pages')) { window.location.href=this.href; } return false;">Delete Project</a>
+															data-iseo-confirm="This action will delete the project and all generated posts/pages"
+															data-iseo-confirm-title="<?php echo esc_attr__( 'Delete project', 'improveseo' ); ?>"
+															data-iseo-confirm-label="<?php echo esc_attr__( 'Delete', 'improveseo' ); ?>"
+															data-iseo-confirm-variant="destructive">Delete Project</a>
 													</span>
 												</div>
 											</ul>
@@ -393,17 +400,22 @@ if (isset($_GET['post_preview'])) {
 			const checkedBoxes = jQuery("input[name='project_ids[]']:checked");
 
 			if (checkedBoxes.length === 0) {
-				alert('Please select at least one project to delete.');
+				iseoModal.warning({ title: '<?php echo esc_js( __( 'No projects selected', 'improveseo' ) ); ?>', message: 'Please select at least one project to delete.' });
 				return false;
 			}
 
 			const projectCount = checkedBoxes.length;
 			const confirmMessage = `Are you sure you want to delete ${projectCount} project(s) and all their associated posts/pages? This action cannot be undone.`;
 
-			if (confirm(confirmMessage)) {
+			iseoModal.destructive({
+				title: '<?php echo esc_js( __( 'Delete projects', 'improveseo' ) ); ?>',
+				message: confirmMessage,
+				primary: { label: '<?php echo esc_js( __( 'Delete', 'improveseo' ) ); ?>' }
+			}).then(function (ok) {
+				if (!ok) { return; }
 				document.getElementById('bulk-action-input').value = 'bulk-delete-projects';
 				document.getElementById('bulk-actions-form').submit();
-			}
+			});
 		}
 	</script>
 </div>

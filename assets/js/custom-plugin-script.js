@@ -113,8 +113,6 @@ function buildEditableImagePrompt(subject) {
 }
 
 function getShortCodeDetails(value) {
-  alert(value);
-
   var formData = new FormData();
 
   formData.append("action", "improveseo_get_shortcodes");
@@ -150,7 +148,7 @@ function getShortCodeDetails(value) {
     },
 
     error: function () {
-      alert("Error uploading image.");
+      iseoModal.error({ title: wp.i18n.__("Image upload failed", "improveseo"), message: "Error uploading image." });
 
       jQuery("#loadingImage").hide();
     },
@@ -240,7 +238,7 @@ function GenerateCustomImage() {
     },
 
     error: function () {
-      alert("Error uploading image.");
+      iseoModal.error({ title: wp.i18n.__("Image upload failed", "improveseo"), message: "Error uploading image." });
 
       jQuery("#loadingImage").hide();
     },
@@ -337,7 +335,7 @@ jQuery("#generate_i_image").on("click", function () {
     },
 
     error: function () {
-      alert("Error uploading image.");
+      iseoModal.error({ title: wp.i18n.__("Image upload failed", "improveseo"), message: "Error uploading image." });
 
       jQuery("#loadingAIImage").hide();
     },
@@ -871,7 +869,7 @@ function iseoOpenFullPreview() {
 
   var win = window.open("", "_blank");
   if (!win) {
-    alert("Please allow pop-ups for this site to open the full preview in a new tab.");
+    iseoModal.warning({ title: wp.i18n.__("Pop-ups blocked", "improveseo"), message: "Please allow pop-ups for this site to open the full preview in a new tab." });
     return;
   }
 
@@ -1677,7 +1675,7 @@ jQuery(document).ready(function (jQuery) {
       },
 
       error: function () {
-        alert("Error uploading image.");
+        iseoModal.error({ title: wp.i18n.__("Image upload failed", "improveseo"), message: "Error uploading image." });
 
         jQuery("#loadingImage").hide();
       },
@@ -1734,7 +1732,7 @@ jQuery(document).ready(function ($) {
           if (typeof showImproveSEONotification !== 'undefined') {
             showImproveSEONotification(
               'success',
-              '✓ Bulk Project Created',
+              'Bulk Project Created',
               'Your bulk content generation project has been created successfully. You will receive an email notification when processing is complete.',
               null
             );
@@ -2062,30 +2060,38 @@ function iseoDecodeEntities(str) {
  * `reason` is the server's own explanation when it sent one; `fallback` covers the case where
  * it did not (a transport failure, where there is no server sentence to quote).
  *
- * The single button is the action: it opens Settings in a NEW tab, because these fire
- * mid-wizard and navigating away in place would discard everything already filled in. Falls
- * back to a plain OK if the URL was not localised, so the button is never a dead end.
+ * "Go to Settings" opens Settings in a NEW tab, because these fire mid-wizard and navigating
+ * away in place would discard everything already filled in. Only that button does it: ×, Esc
+ * and an outside click just close the popup. (It used to open Settings from onClose,
+ * so every way of dismissing the popup — even clicking outside it — spawned a tab.) Falls back
+ * to a single OK if the URL was not localised, so there is never a dead-end button.
  */
 function iseoShowGenerationFailure(dialogTitle, reason, fallback) {
   var settingsUrl = (typeof main_ajax_vars !== "undefined" && main_ajax_vars.iseo_settings_url)
     ? main_ajax_vars.iseo_settings_url
     : "";
 
-  var message = (reason ? reason : fallback)
-    + " On the Settings page, save your changes and click Confirm website connection — then close this popup and try again.";
+  var message = (reason ? reason : fallback) + " " + wp.i18n.__(
+    "On the Settings page, save your changes and click Confirm website connection, then close this popup and try again.",
+    "improveseo"
+  );
 
-  if (typeof ImproveSEONotification === "undefined") {
+  if (typeof iseoModal === "undefined") {
     alert(message);
     return;
   }
 
-  ImproveSEONotification.show({
-    type: "error",
+  if (!settingsUrl) {
+    iseoModal.error({ title: dialogTitle, message: message });
+    return;
+  }
+
+  iseoModal.error({
     title: dialogTitle,
     message: message,
-    buttonText: settingsUrl ? "Go to Settings" : "OK",
-    onClose: function () {
-      if (settingsUrl) { window.open(settingsUrl, "_blank"); }
+    primary: {
+      label: wp.i18n.__("Go to Settings", "improveseo"),
+      onClick: function () { window.open(settingsUrl, "_blank", "noopener"); }
     }
   });
 }
@@ -2264,12 +2270,12 @@ function saveProject() {
 
         // alert('Data saved successfully!');
       } else {
-        alert("An error occurred: " + response.data.status);
+        iseoModal.error({ title: wp.i18n.__("Something went wrong", "improveseo"), message: "An error occurred: " + response.data.status });
       }
     },
 
     error: function (xhr, status, error) {
-      alert("AJAX error: " + error);
+      iseoModal.error({ title: wp.i18n.__("Connection error", "improveseo"), message: "AJAX error: " + error });
     },
   });
 }
@@ -2921,14 +2927,14 @@ function addcategory() {
       console.log(response);
 
       if (response.success) {
-        alert(response.message);
+        iseoModal.success({ title: wp.i18n.__("Category added", "improveseo"), message: response.message });
 
         jQuery(".cta-check").append(response.result);
         jQuery(".cta-check_multi").append(response.result);
 
         jQuery("#add_category_1").val("");
       } else {
-        alert("Error: " + response.message);
+        iseoModal.error({ title: wp.i18n.__("Couldn't add category", "improveseo"), message: "Error: " + response.message });
       }
     },
 

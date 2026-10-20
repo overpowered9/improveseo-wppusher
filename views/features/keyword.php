@@ -92,7 +92,7 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
 
         var seed = (jQuery('#input').val() || '').trim();
         if (!seed) {
-            alert('Please enter a seed keyword first.');
+            iseoModal.warning({ title: '<?php echo esc_js( __( 'Seed keyword required', 'improveseo' ) ); ?>', message: 'Please enter a seed keyword first.' });
             return;
         }
 
@@ -107,7 +107,7 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
         var siteCode = '<?php echo esc_js(get_option("improveseo_site_code")); ?>';
         if (!apiKey || !siteCode) {
             // Reached only if the guard helper is unavailable on this screen.
-            alert('Missing API credentials. Please configure API Key and Site Code in settings.');
+            iseoModal.error({ title: '<?php echo esc_js( __( 'API credentials missing', 'improveseo' ) ); ?>', message: 'Missing API credentials. Please configure API Key and Site Code in settings.' });
             return;
         }
 
@@ -161,10 +161,10 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
                     if (typeof window.iseoShowConnectionGuard === 'function') {
                         window.iseoShowConnectionGuard();
                     } else {
-                        alert('Authentication failed. Please check your API credentials in settings.');
+                        iseoModal.error({ title: '<?php echo esc_js( __( 'Authentication failed', 'improveseo' ) ); ?>', message: 'Authentication failed. Please check your API credentials in settings.' });
                     }
                 } else {
-                    alert(serverError || 'Keyword generation failed. Please try again.');
+                    iseoModal.error({ title: '<?php echo esc_js( __( 'Keyword generation failed', 'improveseo' ) ); ?>', message: serverError || 'Keyword generation failed. Please try again.' });
                 }
             },
             complete: function() {
