@@ -164,12 +164,12 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 		// ── Row 2: Content Metrics (left, two-card width) + Review Business Details
 		// (right, one-card width) ───────────────────────────────────────────────────
 		//
-		// Content Metrics counts real WordPress posts, not rows in this plugin's own
-		// project tables — a project only becomes a post once it's actually built. Single
-		// and Bulk link their posts in different places, preview drafts are left out, and a
-		// scheduled Bulk post waits as a WP draft: see improveseo_dashboard_content_metrics()
-		// in modules/dashboard.php. Entirely local WordPress data — no network call, no
-		// waiting on the admin server, unlike everything else on this page so far.
+		// Content Metrics counts every piece of content this plugin made: the posts it built,
+		// plus drafts and schedules that are not WordPress posts yet (Single "Save As Draft"
+		// projects, Bulk draft and scheduled tasks). Preview drafts are left out. See
+		// improveseo_dashboard_content_metrics() in modules/dashboard.php. Entirely local
+		// WordPress data — no network call, no waiting on the admin server, unlike
+		// everything else on this page so far.
 		//
 		// Period picker ("Last 30 Days" etc.) — a plain GET parameter, so the choice
 		// survives a reload and is shareable as a URL. The helper's total is taken before
@@ -783,9 +783,9 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 							<p class="iseo-quickstart-msg">No posts in this period.</p>
 						<?php endif; ?>
 						<?php foreach ( $iseo_cm_latest3 as $iseo_cm_p ) : ?>
-							<a class="iseo-metrics-latest-row" href="<?php echo esc_url( get_edit_post_link( $iseo_cm_p->ID ) ); ?>">
+							<a class="iseo-metrics-latest-row" href="<?php echo esc_url( $iseo_cm_p->url ); ?>">
 								<span class="iseo-metrics-latest-icon"><?php echo iseo_dash_icon( 'document', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-								<span class="iseo-metrics-latest-title"><?php echo esc_html( get_the_title( $iseo_cm_p->ID ) ? get_the_title( $iseo_cm_p->ID ) : '(no title)' ); ?></span>
+								<span class="iseo-metrics-latest-title"><?php echo esc_html( $iseo_cm_p->title ); ?></span>
 								<span class="iseo-metrics-latest-badge iseo-metrics-badge-<?php echo esc_attr( $iseo_cm_p->status ); ?>"><?php echo esc_html( $iseo_cm_status_labels[ $iseo_cm_p->status ] ); ?></span>
 							</a>
 						<?php endforeach; ?>
@@ -806,10 +806,11 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 		</div>
 
 		<?php if ( ! empty( $iseo_cm_draft_posts ) ) : ?>
-		<!-- Drafts modal — every draft this plugin built (not just the latest 3), each
-		     linking straight to its own post editor so it can be edited, published, or
-		     deleted from there. Pure local DOM toggle: the list is rendered once, server-
-		     side, from the same query above — no AJAX round trip to open it. -->
+		<!-- Drafts modal — every draft this plugin made (not just the latest 3), each
+		     linking to where it is edited: the post editor for a draft post, the Single
+		     draft editor for a "Save As Draft" project, or the Bulk project's task list.
+		     Pure local DOM toggle: the list is rendered once, server-side, from the same
+		     data as the card — no AJAX round trip to open it. -->
 		<div id="iseo-drafts-modal-overlay" class="iseo-drafts-modal-overlay" hidden>
 			<div class="iseo-drafts-modal" role="dialog" aria-modal="true" aria-labelledby="iseo-drafts-modal-title">
 				<button type="button" id="iseo-drafts-modal-close" class="iseo-drafts-modal-close" aria-label="Close">&times;</button>
@@ -817,8 +818,8 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 				<div class="iseo-drafts-modal-list">
 					<?php foreach ( $iseo_cm_draft_posts as $iseo_cm_draft_post ) : ?>
 						<div class="iseo-drafts-modal-row">
-							<span class="iseo-drafts-modal-row-title"><?php echo esc_html( get_the_title( $iseo_cm_draft_post->ID ) ? get_the_title( $iseo_cm_draft_post->ID ) : '(no title)' ); ?></span>
-							<a href="<?php echo esc_url( get_edit_post_link( $iseo_cm_draft_post->ID ) ); ?>" class="iseo-btn iseo-btn-outline">Edit</a>
+							<span class="iseo-drafts-modal-row-title"><?php echo esc_html( $iseo_cm_draft_post->title ); ?></span>
+							<a href="<?php echo esc_url( $iseo_cm_draft_post->url ); ?>" class="iseo-btn iseo-btn-outline">Edit</a>
 						</div>
 					<?php endforeach; ?>
 				</div>

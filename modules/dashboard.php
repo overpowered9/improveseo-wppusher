@@ -39,32 +39,45 @@ use ImproveSEO\FlashMessage;
 
 
 /**
- * Dashboard "Content Metrics": every live post this plugin built, sorted into Published /
- * In Draft / Scheduled, plus the newest few and the full draft list.
+ * Dashboard "Content Metrics": every piece of content this plugin made, sorted into
+ * Published / In Draft / Scheduled, plus the newest few and the full draft list.
  *
- * The two wizards link a post to its project in different places, so both are read:
- * - Single (modules/builder.php) and the posting cron tag the post with the
- *   improveseo_project_id meta. Preview Post builds a real draft too (flagged
- *   _improveseo_preview, kept 30+ minutes and sometimes orphaned); it is not output.
- * - Bulk (saveContentInTaskList() and the manual publish in modules/bulkprojects.php) sets
- *   no meta; the post is only referenced by improveseo_bulktasksdetails.post_id.
+ * Most drafts and schedules here are not WordPress posts yet, so three sources are read,
+ * one item per post or per not-yet-posted project/task:
  *
- * WordPress' own status decides the bucket, so a post published or edited by hand counts as
- * what it is now. The one exception is a scheduled Bulk post: it waits as a WP draft until
- * the plugin's cron publishes it (bulk_AI_post_function.php, same conditions as below), so it
- * counts as Scheduled, not In Draft. Single scheduling uses WP's own 'future' status.
+ * 1. WP posts the plugin built. Single (modules/builder.php) and the posting cron tag the
+ *    post with the improveseo_project_id meta; Bulk (saveContentInTaskList() and the manual
+ *    publish in modules/bulkprojects.php) sets no meta, the post is only referenced by
+ *    improveseo_bulktasksdetails.post_id. Preview Post builds a real draft too (flagged
+ *    _improveseo_preview, kept 30+ minutes and sometimes orphaned); it is not output.
+ *    WordPress' own status decides the bucket, so a post published or edited by hand counts
+ *    as what it is now. The exception is a scheduled Bulk post: it waits as a WP draft until
+ *    the plugin's cron publishes it (bulk_AI_post_function.php, same conditions as below),
+ *    so it counts as Scheduled. Single scheduling uses WP's own 'future' status.
+ * 2. Single projects saved with "Save As Draft" (modules/posting.php): state 'Draft' and no
+ *    post is built. The Single Projects list shows them as Draft ("Edit Draft Post").
+ * 3. Bulk tasks with generated content but no post. "Save as Drafts" tasks (state 'Draft')
+ *    never get a post until they are published from the project, and an input-wise schedule
+ *    (state 'Scheduled') gets its draft post only after generation. Same gate as the task
+ *    screen's Post Status (views/bulkprojects/bulktask-details.php): content generated
+ *    (status 'Done'), not cancelled. A "publish now" task waiting for the cron is in flight,
+ *    not scheduled, so it is not counted until its post exists.
  *
- * @param int $days Only posts dated within the last $days days; 0 for all time. Scheduled
- *                  posts always count: they are dated in the future.
+ * @param int $days Only items dated within the last $days days; 0 for all time. Scheduled
+ *                  items always count: they are due in the future.
  * @return array{total:int, published:int, draft:int, scheduled:int, latest:object[], drafts:object[]}
  *               total is before the period filter, so the card can tell "nothing built yet"
- *               from "nothing in this period". Each row has ID, post_date and status
- *               ('publish', 'draft' or 'future').
+ *               from "nothing in this period". Each item has title, status ('publish',
+ *               'draft' or 'future'), date and url (where to open it).
  */
 function improveseo_dashboard_content_metrics( $days ) {
 	global $wpdb;
 
-	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from $wpdb; no user input in the query.
+	$items = array();
+
+	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from $wpdb; no user input in these queries.
+
+	// 1. WP posts the plugin built.
 	$rows = (array) $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- plugin-owned tables, read once per Dashboard load.
 		"SELECT p.ID, p.post_status, p.post_date, MAX( src.bulk_scheduled ) AS bulk_scheduled
 		   FROM (
@@ -85,13 +98,76 @@ function improveseo_dashboard_content_metrics( $days ) {
 		  WHERE p.post_status IN ( 'publish', 'draft', 'future' )
 		    AND NOT EXISTS ( SELECT 1 FROM {$wpdb->postmeta} pv
 		                      WHERE pv.post_id = p.ID AND pv.meta_key = '_improveseo_preview' )
-		  GROUP BY p.ID, p.post_status, p.post_date
-		  ORDER BY p.post_date DESC"
+		  GROUP BY p.ID, p.post_status, p.post_date"
 	);
+	foreach ( $rows as $row ) {
+		$title   = get_the_title( $row->ID );
+		$items[] = (object) array(
+			'title'  => '' !== $title ? $title : '(no title)',
+			'status' => ( 'draft' === $row->post_status && (int) $row->bulk_scheduled ) ? 'future' : $row->post_status,
+			'date'   => $row->post_date,
+			'url'    => (string) get_edit_post_link( $row->ID ),
+		);
+	}
+
+	// 2. Single "Save As Draft" projects that have no real post.
+	$rows = (array) $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- plugin-owned tables, read once per Dashboard load.
+		"SELECT t.id, t.name, COALESCE( t.updated_at, t.created_at ) AS item_date
+		   FROM {$wpdb->prefix}improveseo_tasks t
+		  WHERE t.state = 'Draft'
+		    AND NOT EXISTS ( SELECT 1
+		                       FROM {$wpdb->postmeta} pm
+		                       JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+		                      WHERE pm.meta_key = 'improveseo_project_id' AND pm.meta_value = t.id
+		                        AND p.post_status IN ( 'publish', 'draft', 'future' )
+		                        AND NOT EXISTS ( SELECT 1 FROM {$wpdb->postmeta} pv
+		                                          WHERE pv.post_id = p.ID AND pv.meta_key = '_improveseo_preview' ) )"
+	);
+	foreach ( $rows as $row ) {
+		$items[] = (object) array(
+			'title'  => '' !== (string) $row->name ? $row->name : '(no title)',
+			'status' => 'draft',
+			'date'   => (string) $row->item_date,
+			'url'    => admin_url( 'admin.php?page=improveseo_dashboard&action=edit_post&id=' . (int) $row->id ),
+		);
+	}
+
+	// 3. Bulk tasks with generated content and no post yet: drafts, and input-wise schedules.
+	$rows = (array) $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- plugin-owned tables, read once per Dashboard load.
+		"SELECT d.bulktask_id, d.keyword_name, d.ai_title, d.state, d.published_on,
+		        COALESCE( d.updated_at, d.created_at ) AS item_date
+		   FROM {$wpdb->prefix}improveseo_bulktasksdetails d
+		   JOIN {$wpdb->prefix}improveseo_bulktasks b ON b.id = d.bulktask_id
+		  WHERE ( d.post_id IS NULL OR d.post_id = 0 )
+		    AND d.status = 'Done'
+		    AND b.state NOT IN ( 'Stopped', 'Cancelled' )
+		    AND ( d.state = 'Draft'
+		          OR ( d.state = 'Scheduled'
+		               AND COALESCE( NULLIF( d.schedule_posts, '' ), b.schedule_posts ) = 'schedule_posts_input_wise' ) )"
+	);
+	foreach ( $rows as $row ) {
+		$title = trim( str_replace( '"', '', (string) $row->ai_title ) );
+		if ( function_exists( 'improveseo_normalize_generated_title' ) ) {
+			$title = improveseo_normalize_generated_title( $title );
+		}
+		$scheduled = 'Scheduled' === $row->state;
+		$items[]   = (object) array(
+			'title'  => '' !== $title ? $title : (string) $row->keyword_name,
+			'status' => $scheduled ? 'future' : 'draft',
+			// A schedule sorts by when it goes out; a draft by when its content was made.
+			'date'   => ( $scheduled && ! empty( $row->published_on ) ) ? (string) $row->published_on : (string) $row->item_date,
+			'url'    => admin_url( 'admin.php?page=improveseo_bulkprojects&action=viewAllTasks&id=' . (int) $row->bulktask_id ),
+		);
+	}
+
 	// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
+	usort( $items, function ( $a, $b ) {
+		return strcmp( $b->date, $a->date );
+	} );
+
 	$metrics = array(
-		'total'     => count( $rows ),
+		'total'     => count( $items ),
 		'published' => 0,
 		'draft'     => 0,
 		'scheduled' => 0,
@@ -99,33 +175,26 @@ function improveseo_dashboard_content_metrics( $days ) {
 		'drafts'    => array(),
 	);
 
-	// post_date is site-local time, and wp_date() formats in the site's timezone too.
+	// Dates are site-local time (post_date, current_time()), and wp_date() formats in the
+	// site's timezone too.
 	$cutoff = $days > 0 ? wp_date( 'Y-m-d H:i:s', time() - (int) $days * DAY_IN_SECONDS ) : '';
 
-	foreach ( $rows as $row ) {
-		$status = ( 'draft' === $row->post_status && (int) $row->bulk_scheduled ) ? 'future' : $row->post_status;
-
-		if ( '' !== $cutoff && 'future' !== $status && $row->post_date < $cutoff ) {
+	foreach ( $items as $item ) {
+		if ( '' !== $cutoff && 'future' !== $item->status && $item->date < $cutoff ) {
 			continue;
 		}
 
-		$post = (object) array(
-			'ID'        => (int) $row->ID,
-			'post_date' => $row->post_date,
-			'status'    => $status,
-		);
-
-		if ( 'publish' === $status ) {
+		if ( 'publish' === $item->status ) {
 			$metrics['published']++;
-		} elseif ( 'future' === $status ) {
+		} elseif ( 'future' === $item->status ) {
 			$metrics['scheduled']++;
 		} else {
 			$metrics['draft']++;
-			$metrics['drafts'][] = $post;
+			$metrics['drafts'][] = $item;
 		}
 
 		if ( count( $metrics['latest'] ) < 3 ) {
-			$metrics['latest'][] = $post;
+			$metrics['latest'][] = $item;
 		}
 	}
 
