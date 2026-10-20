@@ -38,6 +38,13 @@ function improveseo_enqueue_admin(){
 	wp_enqueue_style('improveseocss12121', IMPROVESEO_DIR . '/assets/css/made_by_me.css', array(), filemtime(IMPROVESEO_ROOT . '/assets/css/made_by_me.css'));
 	wp_enqueue_style('improveseo-settings-redesign', IMPROVESEO_DIR . '/assets/css/settings-redesign.css', array(), improveseo_asset_ver('assets/css/settings-redesign.css'));
 
+	// Dashboard redesign: loads after style.css / made_by_me.css on the dashboard only.
+	// Every rule is scoped to .iseo-dash (views/dashboard/index.php).
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading the current admin screen, not acting on input.
+	if ( isset( $_GET['page'] ) && 'improveseo_dashboard' === sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
+		wp_enqueue_style('improveseo-dashboard-redesign', IMPROVESEO_DIR . '/assets/css/dashboard-redesign.css', array('improveseo-latest-css1', 'improveseocss12121'), improveseo_asset_ver('assets/css/dashboard-redesign.css'));
+	}
+
 	// Bundled locally: wp.org does not permit loading assets from a remote host, and a CDN
 	// outage would otherwise take the plugin's icons with it. Same file, same version.
 	wp_enqueue_style('improveseo-fa', IMPROVESEO_DIR . '/assets/vendor/css/font-awesome-4.5.0.min.css', array(), improveseo_asset_ver('assets/vendor/css/font-awesome-4.5.0.min.css'));

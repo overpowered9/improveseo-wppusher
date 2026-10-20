@@ -263,8 +263,7 @@ ul.breadcrumb-seo li a:hover {
   transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
-.modules-row .module-box:hover,
-.iseo-create .create-ai-col:hover {
+.modules-row .module-box:hover {
   background-color: var(--iseo-primary);
   border-color: var(--iseo-primary);
   box-shadow: 0 4px 10px rgba(28, 114, 147, 0.20), 0 16px 32px rgba(28, 114, 147, 0.32);
@@ -1836,32 +1835,33 @@ input:checked + .switch:before {
   color: #FFFFFF;
 }
 
-/* Hover: the Quick Links lift (shared rule above), filled Midnight Navy instead of
-   teal, with a navy-tinted shadow to match. Title and (i) turn white, and the navy
-   button flips to white like it does on the Dashboard's dark cards, and to Pacific
-   Teal under the pointer. The illustration panel keeps its light fill. */
+/* Hover: the Dashboard's card hover (assets/css/dashboard-redesign.css) — a 2px lift,
+   a stronger navy-tinted shadow and a Pacific Teal border. The card stays white; the
+   title, (i) marker and illustration panel keep their colours. */
 .iseo-create .create-ai-col:hover {
-  background-color: var(--iseo-navy);
-  border-color: var(--iseo-navy);
-  box-shadow: 0 4px 10px rgba(11, 19, 43, 0.20), 0 16px 32px rgba(11, 19, 43, 0.32);
+  transform: translateY(-2px);
+  border-color: var(--iseo-primary);
+  box-shadow: 0 2px 4px rgba(11, 19, 43, 0.06), 0 14px 30px rgba(11, 19, 43, 0.12);
 }
 
-.iseo-create .create-ai-col:hover h3.iseo-create-title,
-.iseo-create .create-ai-col:hover .iseo-info-tip {
-  color: #FFFFFF;
-}
-
-.iseo-create .create-ai-col:hover .iseo-btn-solid {
-  background-color: #FFFFFF;
-  border-color: #FFFFFF;
-  color: var(--iseo-navy);
-}
-
-.iseo-create .create-ai-col:hover .iseo-btn-solid:hover,
-.iseo-create .create-ai-col:hover .iseo-btn-solid:focus-visible {
+/* Same solid button as the Dashboard: Pacific Teal, Midnight Navy under the pointer. */
+.iseo-create .iseo-btn-solid {
   background-color: var(--iseo-primary);
   border-color: var(--iseo-primary);
   color: #FFFFFF;
+}
+
+.iseo-create .iseo-btn-solid:hover,
+.iseo-create .iseo-btn-solid:focus-visible {
+  background-color: var(--iseo-navy);
+  border-color: var(--iseo-navy);
+  color: #FFFFFF;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iseo-create .create-ai-col:hover {
+    transform: none;
+  }
 }
 
 @media (max-width: 991px) {

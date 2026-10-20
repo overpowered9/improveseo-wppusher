@@ -55,6 +55,12 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 			'chevron'   => '<polyline points="9 6 15 12 9 18"></polyline>',
 			'chevron-down' => '<polyline points="6 9 12 15 18 9"></polyline>',
 			'calendar'  => '<rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>',
+			'bolt'      => '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>',
+			'shield'    => '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline>',
+			'alert'     => '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>',
+			'plus-square' => '<rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line>',
+			'search'    => '<circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>',
+			'chat'      => '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>',
 		);
 		if ( ! isset( $paths[ $name ] ) ) {
 			return '';
@@ -66,15 +72,26 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 
 <div class="global-wrap iseo-dash">
 	<div class="improve-seo-container">
-		<div class="head-bar">
-			<img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo">
-			<h1>ImproveSEO | <?php echo esc_html( IMPROVESEO_VERSION ); ?></h1>
-		</div>
-		<div class="box-top">
-			<ul class="breadcrumb-seo">
-				<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a></li>
-				<li>Modules</li>
-			</ul>
+		<?php // Design 2 header: logo tile, name + version over the breadcrumb, connection pill on the right. ?>
+		<div class="iseo-dash-header">
+			<span class="iseo-dash-logo"><img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo"></span>
+			<div class="iseo-dash-header-text">
+				<h1 class="iseo-dash-title">ImproveSEO <span class="iseo-dash-version">| <?php echo esc_html( IMPROVESEO_VERSION ); ?></span></h1>
+				<ul class="breadcrumb-seo">
+					<li><a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a></li>
+					<li>Modules</li>
+				</ul>
+			</div>
+			<?php
+			// Live connection status. Saved credentials alone prove nothing (a rotated key is still
+			// "saved"), so the pill starts as "Checking…" and the account check below
+			// (test_improveseo_connection, the same call that fills the plan and credit cards)
+			// sets it: active, rejected (401/403) or unavailable (network/server error).
+			// Same credentials test as $iseo_qs_has_creds below, which decides whether that check runs.
+			$iseo_conn_creds = improveseo_connection_credentials();
+			$iseo_conn_saved = ( $iseo_conn_creds['api_key'] !== '' && $iseo_conn_creds['site_code'] !== '' );
+			?>
+			<span class="iseo-dash-status" id="iseo-dash-status" role="status" data-state="<?php echo $iseo_conn_saved ? 'checking' : 'off'; ?>"><span class="iseo-dash-status-dot" aria-hidden="true"></span><span id="iseo-dash-status-text"><?php echo $iseo_conn_saved ? 'Checking connection&hellip;' : 'Not connected'; ?></span></span>
 		</div>
 		<?php
 		// Quick Start card — one glance at "can I create content right now?", which the module
@@ -144,10 +161,243 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 		}
 		?>
 		<?php
-		// A disconnected site shows only Quick Start and the plan card in this row; the
-		// modifier gives Quick Start the wider share instead of two half-width cards.
+		// ── Row 2: Content Metrics (left, two-card width) + Review Business Details
+		// (right, one-card width) ───────────────────────────────────────────────────
+		//
+		// Content Metrics counts real WordPress posts, not rows in this plugin's own
+		// project tables — a project only becomes a post once it's actually built, and
+		// single-post and bulk projects both tag the post they build with the SAME
+		// postmeta key (improveseo_project_id; see modules/projects.php and
+		// modules/bulkprojects.php), so one query covers both without caring which
+		// created it. This is entirely local WordPress data — no network call, no
+		// waiting on the admin server, unlike everything else on this page so far.
+		global $wpdb;
+
+		// DISTINCT rather than GROUP BY: guards the (currently never-happening, but
+		// unenforced) case of a post carrying the meta key twice, without pulling in
+		// MySQL's stricter GROUP BY column rules for no benefit.
+		$iseo_cm_posts = $wpdb->get_results(
+			"SELECT DISTINCT p.ID, p.post_status, p.post_date
+			 FROM {$wpdb->posts} p
+			 INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = 'improveseo_project_id'
+			 WHERE p.post_status IN ('publish','draft','future')
+			 ORDER BY p.post_date DESC"
+		); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text, no user input.
+
+		// Period picker ("Last 30 Days" etc.) — a plain GET parameter, so the choice
+		// survives a reload and is shareable as a URL. Filtered here in PHP rather than in
+		// the query, so $iseo_cm_total below can still tell "nothing in this period" apart
+		// from "nothing built yet" (which shows the Quick Start messages instead).
+		// Scheduled posts are always counted: their post_date is in the future, so a
+		// "last N days" window would otherwise hide every one of them.
+		$iseo_cm_ranges = array(
+			'7'   => 'Last 7 Days',
+			'30'  => 'Last 30 Days',
+			'90'  => 'Last 90 Days',
+			'365' => 'Last 12 Months',
+			'all' => 'All Time',
+		);
+		$iseo_cm_range = isset( $_GET['iseo_range'] ) ? sanitize_key( wp_unslash( $_GET['iseo_range'] ) ) : '30'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only display filter.
+		if ( ! isset( $iseo_cm_ranges[ $iseo_cm_range ] ) ) {
+			$iseo_cm_range = '30';
+		}
+		$iseo_cm_total = count( $iseo_cm_posts );
+		if ( 'all' !== $iseo_cm_range ) {
+			// post_date is site-local time, and wp_date() formats in the site's timezone too.
+			$iseo_cm_cutoff = wp_date( 'Y-m-d H:i:s', time() - (int) $iseo_cm_range * DAY_IN_SECONDS );
+			$iseo_cm_posts  = array_values( array_filter( $iseo_cm_posts, function ( $p ) use ( $iseo_cm_cutoff ) {
+				return 'future' === $p->post_status || $p->post_date >= $iseo_cm_cutoff;
+			} ) );
+		}
+
+		$iseo_cm_published = 0;
+		$iseo_cm_draft      = 0;
+		$iseo_cm_scheduled  = 0;
+		$iseo_cm_draft_posts = array();
+
+		foreach ( $iseo_cm_posts as $iseo_cm_post ) {
+			if ( 'publish' === $iseo_cm_post->post_status ) {
+				$iseo_cm_published++;
+			} elseif ( 'draft' === $iseo_cm_post->post_status ) {
+				$iseo_cm_draft++;
+				$iseo_cm_draft_posts[] = $iseo_cm_post;
+			} elseif ( 'future' === $iseo_cm_post->post_status ) {
+				$iseo_cm_scheduled++;
+			}
+		}
+
+		$iseo_cm_latest3 = array_slice( $iseo_cm_posts, 0, 3 );
+
+		$iseo_cm_status_labels = array(
+			'publish' => 'Published',
+			'draft'   => 'Draft',
+			'future'  => 'Scheduled',
+		);
+
+		// Business Details completeness — the three fields Settings' "Business Details"
+		// section collects (views/settings/index.php, includes/settings.php). Only three
+		// exist today, so "percent complete" is just filled-count / 3; if more fields are
+		// added later this list is the one place to extend, not a separately maintained count.
+		$iseo_bd_fields = array(
+			'improveseo_business_type'    => 'Business Type',
+			'improveseo_business_city'    => 'City / Location',
+			'improveseo_business_service' => 'Main Service',
+		);
+		$iseo_bd_missing = array();
+		foreach ( $iseo_bd_fields as $iseo_bd_option => $iseo_bd_label ) {
+			if ( '' === trim( (string) get_option( $iseo_bd_option, '' ) ) ) {
+				$iseo_bd_missing[] = $iseo_bd_label;
+			}
+		}
+		$iseo_bd_filled_count = count( $iseo_bd_fields ) - count( $iseo_bd_missing );
+		$iseo_bd_percent      = (int) round( ( $iseo_bd_filled_count / count( $iseo_bd_fields ) ) * 100 );
+		$iseo_bd_settings_url = admin_url( 'admin.php?page=improveseo_settings#iseo-business-details' );
 		?>
-		<div class="iseo-quickstart-row<?php echo $iseo_qs_has_creds ? '' : ' iseo-quickstart-row-disconnected'; ?>">
+
+		<?php // Design 2 — row 1: plan, credits remaining, credits used, business details. ?>
+		<div class="iseo-quickstart-row iseo-status-row">
+			<?php
+			// Active Plan card — upper row, right of Quick Start. Mirrors the account CMS's
+			// own "Active Plan Card" (user-cms/src/components/CreditManagement.jsx): plan
+			// name, next billing (or trial end) date, and the same two-button pattern
+			// (derivePlanActions in utils/subscriptionState.js always returns exactly two —
+			// "Manage Plan" + "Cancel Subscription" for a running paid plan, "Choose a Plan"
+			// + "Get more credits" otherwise). Both buttons point at the CMS's plans page —
+			// that is genuinely where "Cancel Subscription" lives (the CMS's own Cancel
+			// button opens its confirm dialog from that same screen), not a plugin-side
+			// workaround for lacking a real cancel action.
+			//
+			// Plan name goes through window.iseoPlanLabel() (views/layouts/main.php) — the
+			// plugin's own existing canonical resolver, already used by Settings, so this
+			// card cannot name a plan differently from anywhere else in the plugin.
+			//
+			// For a connected site it is drawn up front with placeholders and filled in when the
+			// same AJAX call Quick Start already makes resolves — no second network request. A disconnected site has no plan data
+			// to wait for, so it renders straight away in a "not connected" state pointing at
+			// the same connect guide Quick Start does, rather than leaving a hole in the row.
+			?>
+			<div class="iseo-quickstart-card iseo-plan-card" id="iseo-plan-card" data-plan-state="<?php echo $iseo_qs_has_creds ? 'loading' : 'disconnected'; ?>">
+				<?php // Design 2: "Subscription" label + plan name on the left, shield icon on the right. ?>
+				<div class="iseo-stat-head">
+					<div class="iseo-stat-head-text">
+						<p class="iseo-stat-label">Subscription</p>
+						<?php // Still filled in by JS (ACTIVE PLAN / CANCELLING / …) but no longer drawn as a badge: the
+						// date line beneath the plan name already says the same thing ("Renews on" / "Access ends"). ?>
+						<span class="screen-reader-text" id="iseo-plan-status"><?php echo $iseo_qs_has_creds ? 'ACTIVE PLAN' : 'NOT CONNECTED'; ?></span>
+						<h3 class="iseo-quickstart-title" id="iseo-plan-name"><?php echo $iseo_qs_has_creds ? '&mdash;' : 'No active plan'; ?></h3>
+					</div>
+					<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'shield' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+				</div>
+				<p class="iseo-quickstart-msg" id="iseo-plan-date"><?php echo $iseo_qs_has_creds ? '' : 'Connect this site to see your plan and credits.'; ?></p>
+				<div class="iseo-plan-actions">
+					<?php if ( $iseo_qs_has_creds ) : ?>
+					<a href="<?php echo esc_url( $iseo_qs_plans_url ); ?>" class="iseo-btn iseo-btn-solid" id="iseo-plan-btn-primary" target="_blank" rel="noopener noreferrer">Manage Plan</a>
+					<?php else : ?>
+					<a href="<?php echo esc_url( $iseo_qs_connect_url ); ?>" class="iseo-btn iseo-btn-solid" id="iseo-plan-btn-primary">Connect now</a>
+					<?php endif; ?>
+					<a href="<?php echo esc_url( $iseo_qs_plans_url ); ?>" class="iseo-plan-textlink" id="iseo-plan-btn-secondary" target="_blank" rel="noopener noreferrer"><?php echo $iseo_qs_has_creds ? 'Cancel Subscription' : 'View plans'; ?></a>
+				</div>
+			</div>
+
+			<?php
+			// Credits Remaining card — upper row, left of Active Plan. Mirrors the CMS's own
+			// "Total Credits Remaining" panel (user-cms/src/components/CreditManagement.jsx):
+			// the balance, and when the soonest batch expires. The expiry line reuses the exact
+			// wording the site-wide notice already uses (includes/connection-status.php,
+			// improveseo_global_notices()) — one sentence for "credits are expiring", not two
+			// that could disagree.
+			//
+			// Same data the site-wide notice's snapshot is built from (credit_details.content,
+			// balance.next_expiry_at/amount) — read here straight from the SAME AJAX response
+			// Quick Start's own check already fetches, not a second network call. Drawn up front
+			// from the cached snapshot (or "—") so the row never reflows, then refreshed in place.
+			//
+			// "iseo-stat-card", not the older "iseo-credits-card": settings-redesign.css is
+			// enqueued on every plugin screen and styles .iseo-credits-card (the Settings
+			// connection panel) with a top border and spacing that leaked onto these tiles.
+			$iseo_credits_url = 'https://account.improveseoplugin.com/credits';
+			?>
+			<?php
+			$iseo_cr_expiry = '';
+			if ( $iseo_qs_snap_total !== null ) {
+				$iseo_cr_expiry_ts = ! empty( $iseo_qs_snapshot['next_expiry_at'] ) ? strtotime( $iseo_qs_snapshot['next_expiry_at'] . ' 00:00:00 UTC' ) : false;
+				$iseo_cr_expiry    = ( $iseo_cr_expiry_ts && isset( $iseo_qs_snapshot['next_expiry_amount'] ) )
+					? number_format_i18n( (int) $iseo_qs_snapshot['next_expiry_amount'] ) . ' credits expire on ' . gmdate( 'j M Y', $iseo_cr_expiry_ts )
+					: 'No credits expiring soon';
+			}
+			?>
+			<div class="iseo-quickstart-card iseo-stat-card" id="iseo-credits-remaining-card" <?php echo $iseo_qs_has_creds ? '' : 'hidden'; ?>>
+				<div class="iseo-stat-head">
+					<h3 class="iseo-quickstart-title">Credits Remaining</h3>
+					<span class="iseo-stat-dot" aria-hidden="true"></span>
+				</div>
+				<div class="iseo-quickstart-body">
+					<?php // Number and "credits" in separate spans so the number can be set large; same text. ?>
+					<p class="iseo-quickstart-msg iseo-credits-figure" id="iseo-credits-remaining-figure"><?php
+						if ( $iseo_qs_snap_total !== null ) {
+							echo '<span class="iseo-credits-num">' . esc_html( number_format_i18n( $iseo_qs_snap_total ) ) . '</span> <span class="iseo-credits-unit">credits</span>';
+						} else {
+							echo '&mdash;';
+						}
+					?></p>
+					<p class="iseo-quickstart-msg" id="iseo-credits-remaining-expiry"><?php echo esc_html( $iseo_cr_expiry ); ?></p>
+				</div>
+			</div>
+
+			<?php
+			// Credits Used card — right of Credits Remaining, still left of Active Plan.
+			// Mirrors the CMS's "Credits Used This Cycle" card (CreditUsageCard.jsx), but only
+			// the pooled total: the CMS's per-action split (content/images/keywords, with its
+			// own segmented bar) is computed from GET /credit-usage/:user_id, an endpoint the
+			// plugin has no access to — it authenticates with the api_key/site_code pair that
+			// only /users/status accepts (see validateApiAccess in the admin server's routes),
+			// not the Supabase session the CMS calls that endpoint with. Building that split
+			// blind, against an endpoint never exercised from the plugin side, risks shipping
+			// something wrong with no way to verify it here.
+			//
+			// What IS available on /users/status: credit_details.content.allotment (the plan's
+			// per-cycle grant) and .plan_remaining (what's left of it) — allotment minus
+			// plan_remaining is genuinely "spent from this cycle's allowance", just not broken
+			// down by what it was spent on.
+			?>
+			<div class="iseo-quickstart-card iseo-stat-card" id="iseo-credits-used-card" <?php echo $iseo_qs_has_creds ? '' : 'hidden'; ?>>
+				<div class="iseo-stat-head">
+					<h3 class="iseo-quickstart-title">Credits Used</h3>
+					<?php // Share of this cycle's allotment used; filled in by iseoPopulateCreditsUsed(). ?>
+					<span class="iseo-stat-pill" id="iseo-credits-used-pct" hidden></span>
+				</div>
+				<div class="iseo-quickstart-body">
+					<p class="iseo-quickstart-msg iseo-credits-figure" id="iseo-credits-used-figure">&mdash;</p>
+					<p class="iseo-quickstart-msg" id="iseo-credits-used-note">this cycle</p>
+					<div class="iseo-usage-track" id="iseo-credits-used-track" hidden><div class="iseo-usage-fill" id="iseo-credits-used-fill"></div></div>
+				</div>
+			</div>
+
+			<?php // Design 2: amber accent and warning icon while details are missing. ?>
+			<div class="iseo-quickstart-card iseo-bizdetails-card<?php echo empty( $iseo_bd_missing ) ? '' : ' is-incomplete'; ?>">
+				<div class="iseo-stat-head">
+					<div class="iseo-bizdetails-icon"><?php echo iseo_dash_icon( empty( $iseo_bd_missing ) ? 'building' : 'alert', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+					<h3 class="iseo-quickstart-title">Review Business Details</h3>
+					<p class="iseo-bizdetails-progress-label"><?php echo esc_html( $iseo_bd_percent ); ?>% complete</p>
+				</div>
+				<div class="iseo-quickstart-body">
+					<p class="iseo-quickstart-msg iseo-bizdetails-text">Make sure it's complete and always up to date, to produce the best possible content for your business.</p>
+
+					<?php if ( ! empty( $iseo_bd_missing ) ) : ?>
+						<p class="iseo-bizdetails-missing"><strong>Missing:</strong> <?php echo esc_html( implode( ', ', $iseo_bd_missing ) ); ?></p>
+					<?php endif; ?>
+
+					<div class="iseo-bizdetails-progress-track" role="progressbar" aria-valuenow="<?php echo esc_attr( $iseo_bd_percent ); ?>" aria-valuemin="0" aria-valuemax="100" aria-label="Business details completeness">
+						<div class="iseo-bizdetails-progress-fill" style="width: <?php echo esc_attr( $iseo_bd_percent ); ?>%;"></div>
+					</div>
+
+					<div class="iseo-bizdetails-actions"><a href="<?php echo esc_url( $iseo_bd_settings_url ); ?>" class="iseo-btn iseo-btn-solid iseo-btn-arrow"><?php echo empty( $iseo_bd_missing ) ? 'Review details' : 'Complete details'; ?></a></div>
+				</div>
+			</div>
+		</div>
+
+		<?php // Row 2: Quick Start and Guided Start. ?>
+		<div class="iseo-quickstart-row iseo-start-row">
 			<?php
 			// Every card in this row carries a chevron in its top-right corner pointing at the
 			// same place as the card's own call to action. Quick Start's destination depends on
@@ -162,7 +412,7 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 			?>
 			<div class="iseo-quickstart-card" id="iseo-quickstart-card" data-state="<?php echo esc_attr( $iseo_qs_state ); ?>">
 				<div class="iseo-card-top">
-					<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'rocket' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup. ?></div>
+					<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'bolt' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup. ?></div>
 					<a class="iseo-card-chevron" id="iseo-quickstart-chevron" href="<?php echo esc_url( $iseo_qs_chevron_urls[ $iseo_qs_state ] ); ?>"
 						data-href-ready="<?php echo esc_url( $iseo_qs_chevron_urls['ready'] ); ?>"
 						data-href-low="<?php echo esc_url( $iseo_qs_chevron_urls['low'] ); ?>"
@@ -210,114 +460,6 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 			</div>
 
 			<?php
-			// Credits Remaining card — upper row, left of Active Plan. Mirrors the CMS's own
-			// "Total Credits Remaining" panel (user-cms/src/components/CreditManagement.jsx):
-			// the balance, and when the soonest batch expires. The expiry line reuses the exact
-			// wording the site-wide notice already uses (includes/connection-status.php,
-			// improveseo_global_notices()) — one sentence for "credits are expiring", not two
-			// that could disagree.
-			//
-			// Same data the site-wide notice's snapshot is built from (credit_details.content,
-			// balance.next_expiry_at/amount) — read here straight from the SAME AJAX response
-			// Quick Start's own check already fetches, not a second network call. Drawn up front
-			// from the cached snapshot (or "—") so the row never reflows, then refreshed in place.
-			//
-			// "iseo-stat-card", not the older "iseo-credits-card": settings-redesign.css is
-			// enqueued on every plugin screen and styles .iseo-credits-card (the Settings
-			// connection panel) with a top border and spacing that leaked onto these tiles.
-			$iseo_credits_url = 'https://account.improveseoplugin.com/credits';
-			?>
-			<?php
-			$iseo_cr_figure = ( $iseo_qs_snap_total !== null ) ? number_format_i18n( $iseo_qs_snap_total ) . ' credits' : '';
-			$iseo_cr_expiry = '';
-			if ( $iseo_qs_snap_total !== null ) {
-				$iseo_cr_expiry_ts = ! empty( $iseo_qs_snapshot['next_expiry_at'] ) ? strtotime( $iseo_qs_snapshot['next_expiry_at'] . ' 00:00:00 UTC' ) : false;
-				$iseo_cr_expiry    = ( $iseo_cr_expiry_ts && isset( $iseo_qs_snapshot['next_expiry_amount'] ) )
-					? number_format_i18n( (int) $iseo_qs_snapshot['next_expiry_amount'] ) . ' credits expire on ' . gmdate( 'j M Y', $iseo_cr_expiry_ts )
-					: 'No credits expiring soon';
-			}
-			?>
-			<div class="iseo-quickstart-card iseo-stat-card" id="iseo-credits-remaining-card" <?php echo $iseo_qs_has_creds ? '' : 'hidden'; ?>>
-				<div class="iseo-card-top">
-					<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'database' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-					<a class="iseo-card-chevron" href="<?php echo esc_url( $iseo_credits_url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="Credits"><?php echo iseo_dash_icon( 'chevron', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
-				</div>
-				<div class="iseo-quickstart-body">
-					<h3 class="iseo-quickstart-title">Credits Remaining</h3>
-					<p class="iseo-quickstart-msg iseo-credits-figure" id="iseo-credits-remaining-figure"><?php echo $iseo_cr_figure !== '' ? esc_html( $iseo_cr_figure ) : '&mdash;'; ?></p>
-					<p class="iseo-quickstart-msg" id="iseo-credits-remaining-expiry"><?php echo esc_html( $iseo_cr_expiry ); ?></p>
-				</div>
-			</div>
-
-			<?php
-			// Credits Used card — right of Credits Remaining, still left of Active Plan.
-			// Mirrors the CMS's "Credits Used This Cycle" card (CreditUsageCard.jsx), but only
-			// the pooled total: the CMS's per-action split (content/images/keywords, with its
-			// own segmented bar) is computed from GET /credit-usage/:user_id, an endpoint the
-			// plugin has no access to — it authenticates with the api_key/site_code pair that
-			// only /users/status accepts (see validateApiAccess in the admin server's routes),
-			// not the Supabase session the CMS calls that endpoint with. Building that split
-			// blind, against an endpoint never exercised from the plugin side, risks shipping
-			// something wrong with no way to verify it here.
-			//
-			// What IS available on /users/status: credit_details.content.allotment (the plan's
-			// per-cycle grant) and .plan_remaining (what's left of it) — allotment minus
-			// plan_remaining is genuinely "spent from this cycle's allowance", just not broken
-			// down by what it was spent on.
-			?>
-			<div class="iseo-quickstart-card iseo-stat-card" id="iseo-credits-used-card" <?php echo $iseo_qs_has_creds ? '' : 'hidden'; ?>>
-				<div class="iseo-card-top">
-					<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'pie' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-					<a class="iseo-card-chevron" href="<?php echo esc_url( $iseo_credits_url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="Credit usage"><?php echo iseo_dash_icon( 'chevron', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
-				</div>
-				<div class="iseo-quickstart-body">
-					<h3 class="iseo-quickstart-title">Credits Used</h3>
-					<p class="iseo-quickstart-msg iseo-credits-figure" id="iseo-credits-used-figure">&mdash;</p>
-					<p class="iseo-quickstart-msg" id="iseo-credits-used-note">this cycle</p>
-				</div>
-			</div>
-
-			<?php
-			// Active Plan card — upper row, right of Quick Start. Mirrors the account CMS's
-			// own "Active Plan Card" (user-cms/src/components/CreditManagement.jsx): plan
-			// name, next billing (or trial end) date, and the same two-button pattern
-			// (derivePlanActions in utils/subscriptionState.js always returns exactly two —
-			// "Manage Plan" + "Cancel Subscription" for a running paid plan, "Choose a Plan"
-			// + "Get more credits" otherwise). Both buttons point at the CMS's plans page —
-			// that is genuinely where "Cancel Subscription" lives (the CMS's own Cancel
-			// button opens its confirm dialog from that same screen), not a plugin-side
-			// workaround for lacking a real cancel action.
-			//
-			// Plan name goes through window.iseoPlanLabel() (views/layouts/main.php) — the
-			// plugin's own existing canonical resolver, already used by Settings, so this
-			// card cannot name a plan differently from anywhere else in the plugin.
-			//
-			// For a connected site it is drawn up front with placeholders and filled in when the
-			// same AJAX call Quick Start already makes resolves — no second network request. A disconnected site has no plan data
-			// to wait for, so it renders straight away in a "not connected" state pointing at
-			// the same connect guide Quick Start does, rather than leaving a hole in the row.
-			?>
-			<div class="iseo-quickstart-card iseo-plan-card" id="iseo-plan-card" data-plan-state="<?php echo $iseo_qs_has_creds ? 'loading' : 'disconnected'; ?>">
-				<div class="iseo-card-top">
-					<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'crown' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-					<a class="iseo-card-chevron" id="iseo-plan-chevron" href="<?php echo esc_url( $iseo_qs_has_creds ? $iseo_qs_plans_url : $iseo_qs_connect_url ); ?>" <?php echo $iseo_qs_has_creds ? 'target="_blank" rel="noopener noreferrer"' : ''; ?> aria-label="Plan"><?php echo iseo_dash_icon( 'chevron', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></a>
-				</div>
-				<?php // Still filled in by JS (ACTIVE PLAN / CANCELLING / …) but no longer drawn as a badge: the
-				// date line beneath the plan name already says the same thing ("Renews on" / "Access ends"). ?>
-				<span class="screen-reader-text" id="iseo-plan-status"><?php echo $iseo_qs_has_creds ? 'ACTIVE PLAN' : 'NOT CONNECTED'; ?></span>
-				<h3 class="iseo-quickstart-title" id="iseo-plan-name"><?php echo $iseo_qs_has_creds ? '&mdash;' : 'No active plan'; ?></h3>
-				<p class="iseo-quickstart-msg" id="iseo-plan-date"><?php echo $iseo_qs_has_creds ? '' : 'Connect this site to see your plan and credits.'; ?></p>
-				<div class="iseo-plan-actions">
-					<?php if ( $iseo_qs_has_creds ) : ?>
-					<a href="<?php echo esc_url( $iseo_qs_plans_url ); ?>" class="iseo-btn iseo-btn-solid" id="iseo-plan-btn-primary" target="_blank" rel="noopener noreferrer">Manage Plan</a>
-					<?php else : ?>
-					<a href="<?php echo esc_url( $iseo_qs_connect_url ); ?>" class="iseo-btn iseo-btn-solid" id="iseo-plan-btn-primary">Connect now</a>
-					<?php endif; ?>
-					<a href="<?php echo esc_url( $iseo_qs_plans_url ); ?>" class="iseo-btn iseo-btn-outline" id="iseo-plan-btn-secondary" target="_blank" rel="noopener noreferrer"><?php echo $iseo_qs_has_creds ? 'Cancel Subscription' : 'View plans'; ?></a>
-				</div>
-			</div>
-
-			<?php
 			// Guided Start — a second, optional card next to Quick Start: "I don't just want to
 			// create content, I want a guided tour of how." Only makes sense once Quick Start's
 			// own check has settled on 'ready' (connected AND enough credits), so it starts
@@ -349,7 +491,6 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 					<a href="<?php echo esc_url( $iseo_gs_guide_url ); ?>" class="iseo-btn iseo-btn-solid iseo-support-cta iseo-btn-arrow">Start the guide</a>
 				</div>
 			</div>
-			<?php // "New here?" and "Need a hand?" used to close this row; they now have their own Help & Support section below Row 2. ?>
 		</div>
 		<?php if ( $iseo_qs_has_creds ) : ?>
 		<script>
@@ -472,13 +613,28 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 				return null;
 			}
 
+			// "5,466 credits": the number and the word in separate spans, so the number can be
+			// set large and "credits" small. Same text as before.
+			function iseoSetCreditsFigure(figureEl, n) {
+				figureEl.textContent = '';
+				if (n == null) { figureEl.textContent = '—'; return; }
+				var num = document.createElement('span');
+				num.className = 'iseo-credits-num';
+				num.textContent = n.toLocaleString();
+				var unit = document.createElement('span');
+				unit.className = 'iseo-credits-unit';
+				unit.textContent = 'credits';
+				figureEl.appendChild(num);
+				figureEl.appendChild(document.createTextNode(' '));
+				figureEl.appendChild(unit);
+			}
+
 			function iseoPopulateCreditsRemaining(d) {
 				var el = document.getElementById('iseo-credits-remaining-card');
 				if (!el) { return; }
 
 				var total = iseoReadCreditsTotal(d);
-				document.getElementById('iseo-credits-remaining-figure').textContent =
-					(total != null) ? total.toLocaleString() + ' credits' : '—';
+				iseoSetCreditsFigure(document.getElementById('iseo-credits-remaining-figure'), total);
 
 				// Same fields, same wording as the site-wide notice (includes/connection-status.php,
 				// improveseo_global_notices()) — one description of "credits are expiring soon".
@@ -505,11 +661,22 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 				var figureEl = document.getElementById('iseo-credits-used-figure');
 				var noteEl   = document.getElementById('iseo-credits-used-note');
 
+				var pctEl   = document.getElementById('iseo-credits-used-pct');
+				var trackEl = document.getElementById('iseo-credits-used-track');
+				var fillEl  = document.getElementById('iseo-credits-used-fill');
+
 				if (allotment != null && allotment > 0 && planLeft != null) {
 					var used = Math.max(0, allotment - planLeft);
-					figureEl.textContent = used.toLocaleString() + ' credits';
+					iseoSetCreditsFigure(figureEl, used);
 					noteEl.textContent = 'of ' + allotment.toLocaleString() + ' this cycle';
+					// Share of this cycle's allotment used: the pill and the bar under the figure.
+					var pct = Math.min(100, Math.round((used / allotment) * 100));
+					if (pctEl)   { pctEl.textContent = pct + '%'; pctEl.hidden = false; }
+					if (fillEl)  { fillEl.style.width = pct + '%'; }
+					if (trackEl) { trackEl.hidden = false; }
 				} else {
+					if (pctEl)   { pctEl.hidden = true; }
+					if (trackEl) { trackEl.hidden = true; }
 					// No monthly allotment to measure against — a Basic/pack-only account, or an
 					// older server response missing these fields. Nothing false to report.
 					figureEl.textContent = '—';
@@ -534,6 +701,20 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 			data.append('site_code', <?php echo wp_json_encode( $iseo_qs_creds['site_code'] ); ?>);
 			data.append('nonce', <?php echo wp_json_encode( wp_create_nonce('test_connection_nonce') ); ?>);
 
+			// Header pill: the result of this live check, never just "credentials are saved".
+			function iseoSetConnStatus(state) {
+				var pill = document.getElementById('iseo-dash-status');
+				var text = document.getElementById('iseo-dash-status-text');
+				if (!pill || !text) { return; }
+				var labels = {
+					active:      'API Connected & Active',
+					rejected:    'API connection rejected',
+					unavailable: 'Connection status unavailable'
+				};
+				pill.setAttribute('data-state', state);
+				text.textContent = labels[state];
+			}
+
 			fetch(<?php echo wp_json_encode( admin_url('admin-ajax.php') ); ?>, { method: 'POST', body: data })
 				.then(function (r) { return r.json(); })
 				.then(function (result) {
@@ -544,10 +725,12 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 						// disconnected over a network hiccup; default to letting them try to create.
 						var status = result && result.data && result.data.status;
 						var rejected = (status === 401 || status === 403);
+						iseoSetConnStatus(rejected ? 'rejected' : 'unavailable');
 						iseoPlanCardUnavailable(rejected);
 						iseoQsShow(rejected ? 'disconnected' : 'ready');
 						return;
 					}
+					iseoSetConnStatus('active');
 
 					// Same fields the settings panel reads (views/settings/index.php,
 					// renderConnectionPanel) — one place this total is parsed.
@@ -566,109 +749,20 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 					// different things on the same site.
 					iseoQsShow((total != null && total < <?php echo (int) IMPROVESEO_LOW_CREDIT_THRESHOLD; ?>) ? 'low' : 'ready');
 				})
-				.catch(function () { iseoPlanCardUnavailable(false); iseoQsShow('ready'); });
+				.catch(function () { iseoSetConnStatus('unavailable'); iseoPlanCardUnavailable(false); iseoQsShow('ready'); });
 		});
 		</script>
 		<?php endif; ?>
 
-		<?php
-		// ── Row 2: Content Metrics (left, two-card width) + Review Business Details
-		// (right, one-card width) ───────────────────────────────────────────────────
-		//
-		// Content Metrics counts real WordPress posts, not rows in this plugin's own
-		// project tables — a project only becomes a post once it's actually built, and
-		// single-post and bulk projects both tag the post they build with the SAME
-		// postmeta key (improveseo_project_id; see modules/projects.php and
-		// modules/bulkprojects.php), so one query covers both without caring which
-		// created it. This is entirely local WordPress data — no network call, no
-		// waiting on the admin server, unlike everything else on this page so far.
-		global $wpdb;
-
-		// DISTINCT rather than GROUP BY: guards the (currently never-happening, but
-		// unenforced) case of a post carrying the meta key twice, without pulling in
-		// MySQL's stricter GROUP BY column rules for no benefit.
-		$iseo_cm_posts = $wpdb->get_results(
-			"SELECT DISTINCT p.ID, p.post_status, p.post_date
-			 FROM {$wpdb->posts} p
-			 INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = 'improveseo_project_id'
-			 WHERE p.post_status IN ('publish','draft','future')
-			 ORDER BY p.post_date DESC"
-		); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text, no user input.
-
-		// Period picker ("Last 30 Days" etc.) — a plain GET parameter, so the choice
-		// survives a reload and is shareable as a URL. Filtered here in PHP rather than in
-		// the query, so $iseo_cm_total below can still tell "nothing in this period" apart
-		// from "nothing built yet" (which shows the Quick Start messages instead).
-		// Scheduled posts are always counted: their post_date is in the future, so a
-		// "last N days" window would otherwise hide every one of them.
-		$iseo_cm_ranges = array(
-			'7'   => 'Last 7 Days',
-			'30'  => 'Last 30 Days',
-			'90'  => 'Last 90 Days',
-			'365' => 'Last 12 Months',
-			'all' => 'All Time',
-		);
-		$iseo_cm_range = isset( $_GET['iseo_range'] ) ? sanitize_key( wp_unslash( $_GET['iseo_range'] ) ) : '30'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only display filter.
-		if ( ! isset( $iseo_cm_ranges[ $iseo_cm_range ] ) ) {
-			$iseo_cm_range = '30';
-		}
-		$iseo_cm_total = count( $iseo_cm_posts );
-		if ( 'all' !== $iseo_cm_range ) {
-			// post_date is site-local time, and wp_date() formats in the site's timezone too.
-			$iseo_cm_cutoff = wp_date( 'Y-m-d H:i:s', time() - (int) $iseo_cm_range * DAY_IN_SECONDS );
-			$iseo_cm_posts  = array_values( array_filter( $iseo_cm_posts, function ( $p ) use ( $iseo_cm_cutoff ) {
-				return 'future' === $p->post_status || $p->post_date >= $iseo_cm_cutoff;
-			} ) );
-		}
-
-		$iseo_cm_published = 0;
-		$iseo_cm_draft      = 0;
-		$iseo_cm_scheduled  = 0;
-		$iseo_cm_draft_posts = array();
-
-		foreach ( $iseo_cm_posts as $iseo_cm_post ) {
-			if ( 'publish' === $iseo_cm_post->post_status ) {
-				$iseo_cm_published++;
-			} elseif ( 'draft' === $iseo_cm_post->post_status ) {
-				$iseo_cm_draft++;
-				$iseo_cm_draft_posts[] = $iseo_cm_post;
-			} elseif ( 'future' === $iseo_cm_post->post_status ) {
-				$iseo_cm_scheduled++;
-			}
-		}
-
-		$iseo_cm_latest3 = array_slice( $iseo_cm_posts, 0, 3 );
-
-		$iseo_cm_status_labels = array(
-			'publish' => 'Published',
-			'draft'   => 'Draft',
-			'future'  => 'Scheduled',
-		);
-
-		// Business Details completeness — the three fields Settings' "Business Details"
-		// section collects (views/settings/index.php, includes/settings.php). Only three
-		// exist today, so "percent complete" is just filled-count / 3; if more fields are
-		// added later this list is the one place to extend, not a separately maintained count.
-		$iseo_bd_fields = array(
-			'improveseo_business_type'    => 'Business Type',
-			'improveseo_business_city'    => 'City / Location',
-			'improveseo_business_service' => 'Main Service',
-		);
-		$iseo_bd_missing = array();
-		foreach ( $iseo_bd_fields as $iseo_bd_option => $iseo_bd_label ) {
-			if ( '' === trim( (string) get_option( $iseo_bd_option, '' ) ) ) {
-				$iseo_bd_missing[] = $iseo_bd_label;
-			}
-		}
-		$iseo_bd_filled_count = count( $iseo_bd_fields ) - count( $iseo_bd_missing );
-		$iseo_bd_percent      = (int) round( ( $iseo_bd_filled_count / count( $iseo_bd_fields ) ) * 100 );
-		$iseo_bd_settings_url = admin_url( 'admin.php?page=improveseo_settings#iseo-business-details' );
-		?>
+		<?php // Row 3: Content Metrics, full width. ?>
 		<div class="iseo-row-2">
-			<div class="iseo-dark-card iseo-metrics-card">
+			<div class="iseo-panel-card iseo-metrics-card">
 				<div class="iseo-metrics-head">
 					<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'chart' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-					<h3 class="iseo-quickstart-title">Content Metrics</h3>
+					<div class="iseo-metrics-head-text">
+						<h3 class="iseo-quickstart-title">Content Metrics</h3>
+						<p class="iseo-metrics-subtitle">Summary of output</p>
+					</div>
 
 					<?php if ( $iseo_cm_total > 0 ) : ?>
 					<form class="iseo-range" method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>">
@@ -712,12 +806,16 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 					</div>
 
 					<div class="iseo-metrics-latest">
-						<p class="iseo-metrics-latest-heading">Latest projects</p>
+						<div class="iseo-metrics-latest-top">
+							<p class="iseo-metrics-latest-heading">Latest projects</p>
+							<a class="iseo-metrics-viewall" href="<?php echo esc_url( admin_url( 'edit.php' ) ); ?>">View all posts</a>
+						</div>
 						<?php if ( empty( $iseo_cm_latest3 ) ) : ?>
 							<p class="iseo-quickstart-msg">No posts in this period.</p>
 						<?php endif; ?>
 						<?php foreach ( $iseo_cm_latest3 as $iseo_cm_p ) : ?>
 							<a class="iseo-metrics-latest-row" href="<?php echo esc_url( get_edit_post_link( $iseo_cm_p->ID ) ); ?>">
+								<span class="iseo-metrics-latest-icon"><?php echo iseo_dash_icon( 'document', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 								<span class="iseo-metrics-latest-title"><?php echo esc_html( get_the_title( $iseo_cm_p->ID ) ? get_the_title( $iseo_cm_p->ID ) : '(no title)' ); ?></span>
 								<span class="iseo-metrics-latest-badge iseo-metrics-badge-<?php echo esc_attr( $iseo_cm_p->post_status ); ?>"><?php echo esc_html( $iseo_cm_status_labels[ $iseo_cm_p->post_status ] ); ?></span>
 							</a>
@@ -736,24 +834,6 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 			// see modules/single_AI_post_function.php's brand_profile, built from these same
 			// three options.
 			?>
-			<div class="iseo-dark-card iseo-bizdetails-card">
-				<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'building' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-				<div class="iseo-quickstart-body">
-					<h3 class="iseo-quickstart-title">Review Business Details</h3>
-					<p class="iseo-quickstart-msg">Make sure it's complete and always up to date, to produce the best possible content for your business.</p>
-
-					<div class="iseo-bizdetails-progress-track" role="progressbar" aria-valuenow="<?php echo esc_attr( $iseo_bd_percent ); ?>" aria-valuemin="0" aria-valuemax="100" aria-label="Business details completeness">
-						<div class="iseo-bizdetails-progress-fill" style="width: <?php echo esc_attr( $iseo_bd_percent ); ?>%;"></div>
-					</div>
-					<p class="iseo-bizdetails-progress-label"><?php echo esc_html( $iseo_bd_percent ); ?>% complete</p>
-
-					<?php if ( ! empty( $iseo_bd_missing ) ) : ?>
-						<p class="iseo-bizdetails-missing">Missing: <?php echo esc_html( implode( ', ', $iseo_bd_missing ) ); ?></p>
-					<?php endif; ?>
-
-					<div class="iseo-bizdetails-actions"><a href="<?php echo esc_url( $iseo_bd_settings_url ); ?>" class="iseo-btn iseo-btn-solid iseo-btn-arrow"><?php echo empty( $iseo_bd_missing ) ? 'Review details' : 'Complete details'; ?></a></div>
-				</div>
-			</div>
 		</div>
 
 		<?php if ( ! empty( $iseo_cm_draft_posts ) ) : ?>
@@ -796,6 +876,44 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 		});
 		</script>
 		<?php endif; ?>
+
+		<div class="iseo-section-head">
+			<h2 class="iseo-section-title">Quick Links</h2>
+			<span class="iseo-section-tag">Tools &amp; builders</span>
+		</div>
+		<?php // Quick Links: same four cards, titles and descriptions; teal icons in a light-teal tile. ?>
+		<div class="iseo-qlinks">
+			<div class="iseo-qlink">
+				<a class="iseo-qlink-link" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_posting') ); ?>">
+					<span class="iseo-qlink-icon"><?php echo iseo_dash_icon( 'plus-square' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup. ?></span>
+					<h3 class="iseo-qlink-title">Create Posts</h3>
+					<p class="iseo-qlink-desc">Create keyword-rich posts or pages. Preview content, schedule, and more!</p>
+				</a>
+			</div>
+			<div class="iseo-qlink">
+				<a class="iseo-qlink-link" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>">
+					<span class="iseo-qlink-icon"><?php echo iseo_dash_icon( 'document' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup. ?></span>
+					<h3 class="iseo-qlink-title">Single Post Projects</h3>
+					<p class="iseo-qlink-desc">View, edit, and manage every single AI-generated post or page you've created.</p>
+				</a>
+			</div>
+			<div class="iseo-qlink">
+				<a class="iseo-qlink-link" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">
+					<span class="iseo-qlink-icon"><?php echo iseo_dash_icon( 'documents' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup. ?></span>
+					<h3 class="iseo-qlink-title">Bulk Post Projects</h3>
+					<p class="iseo-qlink-desc">Create projects. Option to duplicate project, update all published content, download content URLs to
+					desktop, delete all posts/pages and project</p>
+				</a>
+			</div>
+			<div class="iseo-qlink">
+				<a class="iseo-qlink-link" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists') ); ?>">
+					<span class="iseo-qlink-icon"><?php echo iseo_dash_icon( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup. ?></span>
+					<h3 class="iseo-qlink-title">Keyword Lists &amp; Tool</h3>
+					<p class="iseo-qlink-desc">Add keywords you want to target and use Google autosuggest to build keyword lists you can bulk
+					create posts from.</p>
+				</a>
+			</div>
+		</div>
 
 		<?php
 		// ── Help & Support: "New here?" (1 part) + "Need a hand?" (2 parts) ─────────────────
@@ -842,11 +960,10 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 				<div class="iseo-quickstart-card iseo-help-card">
 					<div class="iseo-help-head">
 						<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'book' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-						<div class="iseo-help-head-text">
-							<h3 class="iseo-quickstart-title">New here?</h3>
-							<p class="iseo-quickstart-msg">Short guides for getting started with ImproveSEO.</p>
-						</div>
+						<h3 class="iseo-quickstart-title">New here?</h3>
+						<span class="iseo-card-tag">Docs</span>
 					</div>
+					<p class="iseo-quickstart-msg iseo-help-intro">Short guides for getting started with ImproveSEO.</p>
 					<ul class="iseo-help-links">
 						<?php foreach ( $iseo_help_links as $iseo_link ) : ?>
 						<li>
@@ -865,12 +982,11 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 				<div class="iseo-quickstart-card iseo-help-card">
 					<div class="iseo-help-head">
 						<div class="iseo-quickstart-icon"><?php echo iseo_dash_icon( 'lifebuoy' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-						<div class="iseo-help-head-text">
-							<h3 class="iseo-quickstart-title">Need a hand?</h3>
-							<p class="iseo-quickstart-msg">Typical reply within 1 business day, for setup, credits, billing or content issues.</p>
-						</div>
-						<a class="iseo-btn iseo-btn-solid iseo-help-action" href="<?php echo esc_url( $iseo_ticket_url ); ?>" target="_blank" rel="noopener noreferrer">Submit a ticket<?php echo iseo_dash_icon( 'external', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><span class="screen-reader-text"> (opens in a new tab)</span></a>
+						<h3 class="iseo-quickstart-title">Need a hand?</h3>
+						<span class="iseo-card-tag iseo-card-tag--mint">Priority</span>
 					</div>
+					<p class="iseo-quickstart-msg iseo-help-intro">Typical reply within 1 business day, for setup, credits, billing or content issues.</p>
+					<a class="iseo-btn iseo-btn-solid iseo-help-action" href="<?php echo esc_url( $iseo_ticket_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo iseo_dash_icon( 'chat', 15 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>Submit a ticket<span class="screen-reader-text"> (opens in a new tab)</span></a>
 					<ol class="iseo-steps" aria-label="How a support ticket works">
 						<?php foreach ( $iseo_ticket_steps as $iseo_step_i => $iseo_step ) : ?>
 						<li class="iseo-step">
@@ -939,51 +1055,6 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 		});
 		</script>
 
-		<h2 class="iseo-section-title">Quick Links</h2>
-		<div class="modules-row text-left">
-			<div class="module-box">
-			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_posting') ); ?>">
-				<div class="module-icon justify-between m-0">
-					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon2.svg' ); ?>" alt="icon2">
-				</div>
-				<div class="line"></div>
-				<h3>Create Posts</h3>
-				<p>Create keyword-rich posts or pages. Preview content, schedule, and more!</p>
-			</a>
-			</div>
-			<div class="module-box">
-			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>">
-				<div class="module-icon justify-between m-0">
-					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon1.svg' ); ?>" alt="icon1">
-				</div>
-				<div class="line"></div>
-				<h3>Single Post Projects</h3>
-				<p>View, edit, and manage every single AI-generated post or page you've created.</p>
-				</a>
-			</div>
-			<div class="module-box">
-			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">
-				<div class="module-icon justify-between m-0">
-					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon5.svg' ); ?>" alt="icon5">
-				</div>
-				<div class="line"></div>
-				<h3>Bulk Post Projects</h3>
-				<p>Create projects. Option to duplicate project, update all published content, download content URLs to
-					desktop, delete all posts/pages and project</p>
-					</a>
-			</div>
-			<div class="module-box">
-			<a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists') ); ?>">
-				<div class="module-icon justify-between m-0">
-					<img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/icon6.svg' ); ?>" alt="icon6">
-				</div>
-				<div class="line"> </div>
-				<h3>Keyword Lists &amp; Tool</h3>
-				<p>Add keywords you want to target and use Google autosuggest to build keyword lists you can bulk
-					create posts from.</p>
-					</a>
-			</div>
-		</div>
 	</div>
 </div>
 
