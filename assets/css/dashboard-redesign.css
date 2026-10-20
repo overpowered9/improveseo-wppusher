@@ -122,6 +122,31 @@
   background-color: var(--iseo-mint);
 }
 
+/* The pill follows the live account check; only "active" is green. */
+.iseo-dash .iseo-dash-status[data-state="checking"],
+.iseo-dash .iseo-dash-status[data-state="unavailable"],
+.iseo-dash .iseo-dash-status[data-state="off"] {
+  background-color: var(--iseo-dash-tile);
+  border-color: var(--iseo-dash-line);
+  color: var(--iseo-muted);
+}
+
+.iseo-dash .iseo-dash-status[data-state="checking"] .iseo-dash-status-dot,
+.iseo-dash .iseo-dash-status[data-state="unavailable"] .iseo-dash-status-dot,
+.iseo-dash .iseo-dash-status[data-state="off"] .iseo-dash-status-dot {
+  background-color: #9AA5AD;
+}
+
+.iseo-dash .iseo-dash-status[data-state="rejected"] {
+  background-color: #FDECEA;
+  border-color: #F5C2BC;
+  color: #B42318;
+}
+
+.iseo-dash .iseo-dash-status[data-state="rejected"] .iseo-dash-status-dot {
+  background-color: #D92D20;
+}
+
 /* ── Section headings ── */
 .iseo-dash .iseo-section-title {
   font-family: var(--iseo-font);

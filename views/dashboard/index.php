@@ -82,9 +82,16 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 					<li>Modules</li>
 				</ul>
 			</div>
-			<?php if ( ! empty( get_option( 'improveseo_api_key', '' ) ) && ! empty( get_option( 'improveseo_site_code', '' ) ) ) : ?>
-			<span class="iseo-dash-status"><span class="iseo-dash-status-dot" aria-hidden="true"></span>API Connected &amp; Active</span>
-			<?php endif; ?>
+			<?php
+			// Live connection status. Saved credentials alone prove nothing (a rotated key is still
+			// "saved"), so the pill starts as "Checking…" and the account check below
+			// (test_improveseo_connection, the same call that fills the plan and credit cards)
+			// sets it: active, rejected (401/403) or unavailable (network/server error).
+			// Same credentials test as $iseo_qs_has_creds below, which decides whether that check runs.
+			$iseo_conn_creds = improveseo_connection_credentials();
+			$iseo_conn_saved = ( $iseo_conn_creds['api_key'] !== '' && $iseo_conn_creds['site_code'] !== '' );
+			?>
+			<span class="iseo-dash-status" id="iseo-dash-status" role="status" data-state="<?php echo $iseo_conn_saved ? 'checking' : 'off'; ?>"><span class="iseo-dash-status-dot" aria-hidden="true"></span><span id="iseo-dash-status-text"><?php echo $iseo_conn_saved ? 'Checking connection&hellip;' : 'Not connected'; ?></span></span>
 		</div>
 		<?php
 		// Quick Start card — one glance at "can I create content right now?", which the module
@@ -694,6 +701,20 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 			data.append('site_code', <?php echo wp_json_encode( $iseo_qs_creds['site_code'] ); ?>);
 			data.append('nonce', <?php echo wp_json_encode( wp_create_nonce('test_connection_nonce') ); ?>);
 
+			// Header pill: the result of this live check, never just "credentials are saved".
+			function iseoSetConnStatus(state) {
+				var pill = document.getElementById('iseo-dash-status');
+				var text = document.getElementById('iseo-dash-status-text');
+				if (!pill || !text) { return; }
+				var labels = {
+					active:      'API Connected & Active',
+					rejected:    'API connection rejected',
+					unavailable: 'Connection status unavailable'
+				};
+				pill.setAttribute('data-state', state);
+				text.textContent = labels[state];
+			}
+
 			fetch(<?php echo wp_json_encode( admin_url('admin-ajax.php') ); ?>, { method: 'POST', body: data })
 				.then(function (r) { return r.json(); })
 				.then(function (result) {
@@ -704,10 +725,12 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 						// disconnected over a network hiccup; default to letting them try to create.
 						var status = result && result.data && result.data.status;
 						var rejected = (status === 401 || status === 403);
+						iseoSetConnStatus(rejected ? 'rejected' : 'unavailable');
 						iseoPlanCardUnavailable(rejected);
 						iseoQsShow(rejected ? 'disconnected' : 'ready');
 						return;
 					}
+					iseoSetConnStatus('active');
 
 					// Same fields the settings panel reads (views/settings/index.php,
 					// renderConnectionPanel) — one place this total is parsed.
@@ -726,7 +749,7 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 					// different things on the same site.
 					iseoQsShow((total != null && total < <?php echo (int) IMPROVESEO_LOW_CREDIT_THRESHOLD; ?>) ? 'low' : 'ready');
 				})
-				.catch(function () { iseoPlanCardUnavailable(false); iseoQsShow('ready'); });
+				.catch(function () { iseoSetConnStatus('unavailable'); iseoPlanCardUnavailable(false); iseoQsShow('ready'); });
 		});
 		</script>
 		<?php endif; ?>
