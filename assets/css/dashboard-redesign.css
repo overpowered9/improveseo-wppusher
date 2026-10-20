@@ -1,19 +1,26 @@
 /* ============================================================
-   ImproveSEO Dashboard — redesign (Style A: current layout, refined)
+   ImproveSEO Dashboard — Design 2
    Loaded on the dashboard only (includes/assets.php), after style.css.
    Every rule is scoped to .iseo-dash, so no other screen is affected.
 
-   One type scale:  section headings 16px/600 · card titles 15px/600 ·
-                    body 13px · labels 11px uppercase.
-   One card:        white, 14px radius, 1px #E6EBF2, soft navy shadow.
-   One hover:       2px lift + stronger shadow + #1C7293 border; the
-                    background never changes.
-   One solid button: Pacific Teal. Secondary: white with a navy border.
+   Layout:  header · row 1: Subscription, Credits Remaining, Credits Used,
+            Review Business Details · row 2: Quick Start, Guided Start ·
+            Content Metrics (full width) · Quick Links · Help & Support.
+   Type:    section headings 16px/600 · card titles 15px/600 ·
+            body 13px · labels 11px uppercase.
+   Cards:   white, 14px radius, 1px #E6EBF2, soft navy shadow; one hover
+            (2px lift, stronger shadow, teal border, background unchanged).
+   Buttons: one solid teal style; secondary white with a navy border.
    ============================================================ */
 
 .global-wrap.iseo-dash {
   --iseo-dash-bg: #FAFAFB;
   --iseo-dash-tint: #E8F2F6;
+  --iseo-dash-soft: #F8FAFC;
+  --iseo-dash-amber: #E8930C;
+  --iseo-dash-amber-tint: #FEF5E6;
+  --iseo-dash-mint-text: #12968A;
+  --iseo-dash-mint-tint: #E6F8F6;
   --iseo-dash-shadow: 0 1px 2px rgba(11, 19, 43, 0.04), 0 6px 18px rgba(11, 19, 43, 0.06);
   --iseo-dash-shadow-hover: 0 2px 4px rgba(11, 19, 43, 0.06), 0 14px 30px rgba(11, 19, 43, 0.12);
   background-color: var(--iseo-dash-bg);
@@ -21,45 +28,98 @@
   color: var(--iseo-navy);
 }
 
-/* ── Header: logo, "ImproveSEO | 2.0.13", breadcrumb ── */
-.iseo-dash .head-bar {
-  gap: 10px;
-  padding: 4px 20px 6px;
-  border-bottom: none;
+/* ── Header ── */
+.iseo-dash .iseo-dash-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 20px 0;
+  margin-bottom: 22px;
 }
 
-.iseo-dash .head-bar img {
-  max-height: 32px;
-  width: auto;
+.iseo-dash .iseo-dash-logo {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--iseo-dash-line);
+  box-shadow: var(--iseo-dash-shadow);
 }
 
-.iseo-dash .head-bar h1 {
+.iseo-dash .iseo-dash-logo img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.iseo-dash .iseo-dash-header-text {
+  min-width: 0;
+}
+
+.iseo-dash h1.iseo-dash-title {
+  margin: 0;
+  padding: 0;
   font-family: var(--iseo-font);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
+  line-height: 1.3;
   letter-spacing: -0.01em;
   color: var(--iseo-navy);
 }
 
-/* The version, set apart from the name. Overrides .head-bar span (a teal pill). */
-.iseo-dash .head-bar h1 .iseo-dash-version {
+.iseo-dash h1.iseo-dash-title .iseo-dash-version {
   margin-left: 4px;
   padding: 0;
   background: none;
   border-radius: 0;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--iseo-muted);
 }
 
-.iseo-dash ul.breadcrumb-seo {
-  padding-left: 20px;
-  margin: 0 0 4px;
-  font-size: 13px;
+.iseo-dash .iseo-dash-header ul.breadcrumb-seo {
+  margin: 2px 0 0;
+  padding: 0;
+  font-size: 12px;
 }
 
-.iseo-dash ul.breadcrumb-seo li a {
-  color: var(--iseo-primary);
+.iseo-dash .iseo-dash-header ul.breadcrumb-seo li {
+  font-size: 12px;
+}
+
+.iseo-dash .iseo-dash-header ul.breadcrumb-seo li:last-child {
+  font-weight: 600;
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-dash-header ul.breadcrumb-seo li a {
+  color: var(--iseo-muted);
+}
+
+.iseo-dash .iseo-dash-status {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background-color: var(--iseo-dash-mint-tint);
+  border: 1px solid #BDEDE7;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--iseo-dash-mint-text);
+  white-space: nowrap;
+}
+
+.iseo-dash .iseo-dash-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--iseo-mint);
 }
 
 /* ── Section headings ── */
@@ -70,6 +130,41 @@
   letter-spacing: 0;
   color: var(--iseo-navy);
   margin: 32px 0 0 !important;
+}
+
+.iseo-dash .iseo-section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px;
+  margin-top: 32px;
+}
+
+.iseo-dash .iseo-section-head .iseo-section-title {
+  margin: 0 !important;
+  padding: 0;
+}
+
+.iseo-dash .iseo-section-tag,
+.iseo-dash .iseo-card-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--iseo-dash-line);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--iseo-muted);
+  white-space: nowrap;
+}
+
+.iseo-dash .iseo-card-tag--mint {
+  background-color: var(--iseo-dash-mint-tint);
+  border-color: #BDEDE7;
+  color: var(--iseo-dash-mint-text);
 }
 
 /* ── Cards: one look, one hover ── */
@@ -92,12 +187,11 @@
   border-color: var(--iseo-primary);
 }
 
-/* No wave graphic along the bottom edge. */
 .iseo-dash .iseo-quickstart-card::after {
   content: none;
 }
 
-/* ── Type scale ── */
+/* ── Type ── */
 .iseo-dash .iseo-quickstart-title {
   font-family: var(--iseo-font);
   font-size: 15px;
@@ -114,11 +208,12 @@
   color: var(--iseo-muted);
 }
 
-/* ── Icons: teal on a light-teal circle ── */
+/* ── Icon tiles: teal on light teal ── */
 .iseo-dash .iseo-quickstart-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   border: none;
   background-color: var(--iseo-dash-tint);
   color: var(--iseo-primary);
@@ -147,7 +242,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   min-height: 38px;
   padding: 9px 16px;
   border-radius: 8px;
@@ -194,15 +289,354 @@
   display: none;
 }
 
-/* ── Top row: five equal-height cards, actions on the bottom edge ── */
+/* ── Rows ── */
+/* Source order is the visual order; the old per-card order: values no longer apply. */
+.iseo-dash #iseo-quickstart-card,
+.iseo-dash #iseo-guidedstart-card,
+.iseo-dash #iseo-plan-card,
+.iseo-dash #iseo-credits-remaining-card,
+.iseo-dash #iseo-credits-used-card {
+  order: 0;
+}
+
 .iseo-dash .iseo-quickstart-row {
   align-items: stretch;
   gap: 16px;
+  margin-top: 0;
+}
+
+/* Row 1: four status cards, sharing the row with however many are shown. */
+.iseo-dash .iseo-status-row {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+/* Row 2: Quick Start and Guided Start side by side (Quick Start alone fills the row). */
+.iseo-dash .iseo-start-row {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  margin-top: 16px;
 }
 
 .iseo-dash .iseo-quickstart-row .iseo-quickstart-card {
   height: 100%;
-  padding: 20px;
+  padding: 18px 20px;
+}
+
+/* Shared head for the status cards: label/title on the left, a marker on the right. */
+.iseo-dash .iseo-stat-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.iseo-dash .iseo-stat-head-text {
+  min-width: 0;
+}
+
+.iseo-dash .iseo-stat-label {
+  margin: 0 0 2px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--iseo-primary);
+}
+
+.iseo-dash .iseo-stat-head .iseo-quickstart-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.iseo-dash .iseo-stat-head .iseo-quickstart-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Subscription card */
+.iseo-dash .iseo-plan-card .iseo-quickstart-title {
+  font-size: 15px;
+  margin: 0;
+}
+
+.iseo-dash #iseo-plan-date {
+  font-size: 12.5px;
+}
+
+.iseo-dash .iseo-plan-actions {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  max-width: none;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.iseo-dash .iseo-plan-actions .iseo-btn {
+  display: inline-flex;
+  width: auto;
+  min-height: 32px;
+  padding: 7px 12px;
+  font-size: 12px;
+}
+
+.iseo-dash .iseo-plan-actions a.iseo-plan-textlink {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--iseo-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.iseo-dash .iseo-plan-actions a.iseo-plan-textlink:hover,
+.iseo-dash .iseo-plan-actions a.iseo-plan-textlink:focus-visible {
+  color: var(--iseo-navy);
+}
+
+/* Credit cards */
+.iseo-dash .iseo-stat-card .iseo-stat-head .iseo-quickstart-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-stat-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background-color: var(--iseo-mint);
+}
+
+.iseo-dash .iseo-stat-pill {
+  flex: 0 0 auto;
+  padding: 2px 9px;
+  border-radius: 9999px;
+  background-color: var(--iseo-dash-tint);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--iseo-primary);
+}
+
+.iseo-dash .iseo-stat-pill[hidden] {
+  display: none;
+}
+
+.iseo-dash .iseo-credits-figure {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  margin: 0 0 4px;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-credits-figure .iseo-credits-unit {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--iseo-muted);
+}
+
+.iseo-dash #iseo-credits-used-note {
+  font-size: 12px;
+}
+
+/* Expiry line on the bottom edge, under a hairline, with a dot. */
+.iseo-dash #iseo-credits-remaining-expiry {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--iseo-dash-line);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.iseo-dash #iseo-credits-remaining-expiry:not(:empty)::before {
+  content: "";
+  flex: 0 0 5px;
+  width: 5px;
+  height: 5px;
+  margin-top: 7px;
+  border-radius: 50%;
+  background-color: var(--iseo-muted);
+}
+
+.iseo-dash .iseo-stat-card .iseo-credits-figure {
+  margin-bottom: 4px;
+}
+
+.iseo-dash #iseo-credits-remaining-card .iseo-credits-figure {
+  margin-bottom: 18px;
+}
+
+/* Credits Used bar on the bottom edge. */
+.iseo-dash .iseo-usage-track {
+  width: 100%;
+  height: 6px;
+  margin-top: auto;
+  border-radius: 9999px;
+  background-color: #E9EDF2;
+  overflow: hidden;
+}
+
+.iseo-dash .iseo-usage-track[hidden] {
+  display: none;
+}
+
+.iseo-dash .iseo-usage-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 9999px;
+  background-color: var(--iseo-primary);
+}
+
+.iseo-dash #iseo-credits-used-card #iseo-credits-used-note {
+  margin-bottom: 18px;
+}
+
+/* Review Business Details (status card) */
+.iseo-dash .iseo-bizdetails-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.iseo-dash .iseo-bizdetails-card.is-incomplete {
+  border-left: 3px solid var(--iseo-dash-amber);
+}
+
+.iseo-dash .iseo-bizdetails-card .iseo-stat-head {
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.iseo-dash .iseo-bizdetails-icon {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background-color: var(--iseo-dash-tint);
+  color: var(--iseo-primary);
+}
+
+.iseo-dash .iseo-bizdetails-card.is-incomplete .iseo-bizdetails-icon {
+  background-color: var(--iseo-dash-amber-tint);
+  color: var(--iseo-dash-amber);
+}
+
+.iseo-dash .iseo-bizdetails-card .iseo-stat-head .iseo-quickstart-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 3px 0 0;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.iseo-dash .iseo-bizdetails-progress-label {
+  flex: 0 0 auto;
+  max-width: 64px;
+  margin: 3px 0 0;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-align: right;
+  text-transform: uppercase;
+  color: var(--iseo-primary);
+}
+
+.iseo-dash .iseo-bizdetails-card.is-incomplete .iseo-bizdetails-progress-label {
+  color: var(--iseo-dash-amber);
+}
+
+.iseo-dash .iseo-bizdetails-card .iseo-quickstart-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The description is kept to two lines in this narrow card. */
+.iseo-dash .iseo-bizdetails-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.iseo-dash .iseo-bizdetails-missing {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background-color: var(--iseo-dash-soft);
+  border: 1px solid var(--iseo-dash-line);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--iseo-muted);
+}
+
+.iseo-dash .iseo-bizdetails-missing strong {
+  font-weight: 600;
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-bizdetails-progress-track {
+  width: 100%;
+  height: 4px;
+  margin-top: auto;
+  border-radius: 9999px;
+  background-color: #E9EDF2;
+  overflow: hidden;
+}
+
+.iseo-dash .iseo-bizdetails-missing + .iseo-bizdetails-progress-track {
+  margin-top: 12px;
+}
+
+.iseo-dash .iseo-bizdetails-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background-color: var(--iseo-primary);
+}
+
+.iseo-dash .iseo-bizdetails-card.is-incomplete .iseo-bizdetails-progress-fill {
+  background-color: var(--iseo-dash-amber);
+}
+
+.iseo-dash .iseo-bizdetails-actions {
+  margin-top: 12px;
+  padding-top: 0;
+  border-top: none;
+}
+
+.iseo-dash .iseo-bizdetails-actions .iseo-btn {
+  display: flex;
+  width: 100%;
+  min-height: 34px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+}
+
+/* Quick Start / Guided Start */
+.iseo-dash .iseo-start-row .iseo-quickstart-card {
+  padding: 22px;
 }
 
 .iseo-dash .iseo-card-top {
@@ -211,110 +645,18 @@
 
 #iseo-quickstart-card .iseo-quickstart-msg,
 .iseo-dash .iseo-guidedstart-card .iseo-quickstart-msg {
-  padding-bottom: 16px;
+  padding-bottom: 18px;
 }
 
-/* Quick Start / Guided Start: full-width button pinned to the bottom. */
 .iseo-dash .iseo-support-cta {
   margin-top: auto;
   align-self: stretch;
 }
 
-/* Plan card: teal Manage Plan, then Cancel Subscription as a quiet text link. */
-.iseo-dash .iseo-plan-card .iseo-quickstart-title {
-  font-size: 15px;
-  margin: 0 0 6px;
-}
-
-.iseo-dash #iseo-plan-date {
-  font-size: 13px;
-}
-
-.iseo-dash .iseo-plan-actions {
-  max-width: none;
-  gap: 10px;
-  padding-top: 16px;
-}
-
-.iseo-dash .iseo-plan-actions .iseo-btn {
-  display: flex;
-  width: 100%;
-  padding: 9px 12px;
-  font-size: 13px;
-}
-
-.iseo-dash .iseo-plan-actions a.iseo-plan-textlink {
-  display: block;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--iseo-muted);
-  text-decoration: none;
-}
-
-.iseo-dash .iseo-plan-actions a.iseo-plan-textlink:hover,
-.iseo-dash .iseo-plan-actions a.iseo-plan-textlink:focus-visible {
-  color: var(--iseo-navy);
-  text-decoration: underline;
-}
-
-/* Credit cards: label, big number + small "credits", caption on the bottom edge. */
-.iseo-dash .iseo-stat-card .iseo-quickstart-title {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--iseo-navy);
-  margin: 0 0 8px;
-}
-
-.iseo-dash .iseo-credits-figure {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0 6px;
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  color: var(--iseo-navy);
-  margin: 0;
-}
-
-.iseo-dash .iseo-credits-figure .iseo-credits-unit {
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: 0;
-  color: var(--iseo-muted);
-}
-
-.iseo-dash #iseo-credits-remaining-expiry,
-.iseo-dash #iseo-credits-used-note {
-  margin-top: auto;
-  padding-top: 12px;
-  border-top: 1px solid var(--iseo-dash-line);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.iseo-dash .iseo-stat-card .iseo-quickstart-body {
-  gap: 0;
-}
-
-.iseo-dash .iseo-stat-card .iseo-credits-figure {
-  margin-bottom: 18px;
-}
-
-/* ── Row 2: Content Metrics + Review Business Details ── */
+/* ── Content Metrics (full width) ── */
 .iseo-dash .iseo-row-2 {
-  gap: 16px;
+  display: block;
   margin-top: 16px;
-}
-
-@media (min-width: 1101px) {
-  .iseo-dash .iseo-row-2 {
-    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
-  }
 }
 
 .iseo-dash .iseo-panel-card {
@@ -325,35 +667,28 @@
   color: var(--iseo-navy);
 }
 
-/* Header: small teal icon, title, (Metrics) the period picker on the right. */
-.iseo-dash .iseo-panel-card .iseo-quickstart-icon {
-  width: auto;
-  height: auto;
-  background: none;
-  border-radius: 0;
-}
-
-.iseo-dash .iseo-panel-card .iseo-quickstart-icon svg {
-  width: 19px;
-  height: 19px;
-}
-
-.iseo-dash .iseo-panel-head {
+.iseo-dash .iseo-metrics-head {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--iseo-dash-line);
+  gap: 12px;
+  padding-bottom: 18px;
 }
 
-.iseo-dash .iseo-panel-head .iseo-quickstart-title,
+.iseo-dash .iseo-metrics-head-text {
+  min-width: 0;
+}
+
 .iseo-dash .iseo-metrics-head .iseo-quickstart-title {
   margin: 0;
 }
 
-.iseo-dash .iseo-metrics-head {
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--iseo-dash-line);
+.iseo-dash .iseo-metrics-subtitle {
+  margin: 2px 0 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--iseo-muted);
 }
 
 .iseo-dash .iseo-range-icon,
@@ -362,7 +697,7 @@
 }
 
 .iseo-dash .iseo-range select#iseo-range-select {
-  height: 34px;
+  height: 36px;
   font-size: 12.5px;
   color: var(--iseo-navy);
   background: #FFFFFF none;
@@ -375,25 +710,31 @@
   box-shadow: 0 0 0 1px var(--iseo-primary);
 }
 
-/* Stats: number + label on one line, Published in mint. */
+/* Three stat tiles. */
 .iseo-dash .iseo-metrics-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 14px;
   margin: 0;
-  padding: 18px 0;
-  border-bottom: 1px solid var(--iseo-dash-line);
+  padding: 0;
+  border: none;
 }
 
 .iseo-dash .iseo-metrics-stat {
-  flex-direction: row;
-  align-items: baseline;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 10px;
+  background-color: var(--iseo-dash-soft);
+  border: 1px solid var(--iseo-dash-line);
+  font-family: var(--iseo-font);
 }
 
 .iseo-dash .iseo-metrics-num {
   font-size: 24px;
   font-weight: 700;
+  line-height: 1.1;
   color: var(--iseo-navy);
 }
 
@@ -402,12 +743,11 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--iseo-navy);
+  color: var(--iseo-muted);
 }
 
-.iseo-dash .iseo-metrics-stat:first-child .iseo-metrics-num,
-.iseo-dash .iseo-metrics-stat:first-child .iseo-metrics-label {
-  color: var(--iseo-mint);
+.iseo-dash .iseo-metrics-stat-clickable:hover {
+  border-color: var(--iseo-primary);
 }
 
 .iseo-dash .iseo-metrics-stat-clickable:hover .iseo-metrics-num {
@@ -415,29 +755,80 @@
 }
 
 .iseo-dash .iseo-metrics-latest {
-  padding-top: 16px;
+  padding-top: 22px;
+}
+
+.iseo-dash .iseo-metrics-latest-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .iseo-dash .iseo-metrics-latest-heading {
+  margin: 0;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--iseo-muted);
-  margin: 0 0 6px;
 }
 
+.iseo-dash a.iseo-metrics-viewall {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--iseo-primary);
+  text-decoration: none;
+}
+
+.iseo-dash a.iseo-metrics-viewall:hover,
+.iseo-dash a.iseo-metrics-viewall:focus-visible {
+  color: var(--iseo-navy);
+  text-decoration: underline;
+}
+
+/* Each latest project as its own tile. */
 .iseo-dash a.iseo-metrics-latest-row {
-  padding: 11px 0;
-  border-top: 1px solid var(--iseo-dash-line);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--iseo-dash-line);
+  border-radius: 10px;
+  background-color: var(--iseo-dash-soft);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease;
+}
+
+.iseo-dash a.iseo-metrics-latest-row:hover {
+  border-color: var(--iseo-primary);
+}
+
+.iseo-dash .iseo-metrics-latest-icon {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--iseo-dash-line);
+  color: var(--iseo-muted);
 }
 
 .iseo-dash .iseo-metrics-latest-title {
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: 13px;
   color: var(--iseo-navy);
 }
 
 .iseo-dash a.iseo-metrics-latest-row:hover .iseo-metrics-latest-title {
+  text-decoration: none;
   color: var(--iseo-primary);
 }
 
@@ -446,212 +837,12 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   padding: 3px 10px;
+  border: 1px solid transparent;
 }
 
-.iseo-dash .iseo-metrics-badge-publish { background-color: #E6F8F6; color: #12968A; }
+.iseo-dash .iseo-metrics-badge-publish { background-color: var(--iseo-dash-mint-tint); border-color: #BDEDE7; color: var(--iseo-dash-mint-text); }
 .iseo-dash .iseo-metrics-badge-draft   { background-color: var(--iseo-dash-tile); color: var(--iseo-navy); }
 .iseo-dash .iseo-metrics-badge-future  { background-color: var(--iseo-dash-tint); color: var(--iseo-primary); }
-
-/* Review Business Details */
-.iseo-dash .iseo-bizdetails-card .iseo-quickstart-body {
-  padding-top: 16px;
-}
-
-.iseo-dash .iseo-bizdetails-card .iseo-quickstart-body > .iseo-quickstart-msg {
-  font-size: 13px;
-}
-
-.iseo-dash .iseo-bizdetails-progress-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--iseo-navy);
-  margin: 18px 0 8px;
-}
-
-.iseo-dash .iseo-bizdetails-progress-track {
-  height: 6px;
-  margin-top: 0;
-  background-color: #E9EDF2;
-}
-
-.iseo-dash .iseo-bizdetails-progress-fill {
-  background-color: var(--iseo-primary);
-}
-
-/* "Missing: …" with an amber warning mark. */
-.iseo-dash .iseo-bizdetails-missing {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--iseo-muted);
-  margin: 14px 0 0;
-}
-
-.iseo-dash .iseo-bizdetails-missing::before {
-  content: "";
-  flex: 0 0 14px;
-  width: 14px;
-  height: 14px;
-  margin-top: 2px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23E8930C'%3E%3Cpath d='M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/%3E%3Crect x='11' y='9' width='2' height='5' rx='1' fill='%23fff'/%3E%3Crect x='11' y='16' width='2' height='2' rx='1' fill='%23fff'/%3E%3C/svg%3E") no-repeat center / contain;
-}
-
-/* The button closes the card, under a hairline, level with the bottom edge. */
-.iseo-dash .iseo-bizdetails-card .iseo-quickstart-body {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.iseo-dash .iseo-bizdetails-actions {
-  margin-top: auto;
-  padding-top: 16px;
-  border-top: 1px solid var(--iseo-dash-line);
-}
-
-.iseo-dash .iseo-bizdetails-missing {
-  margin-bottom: 18px;
-}
-
-/* ── Help & Support ── */
-.iseo-dash .iseo-help-wrap {
-  margin-top: 14px;
-}
-
-.iseo-dash .iseo-quickstart-card.iseo-help-card {
-  padding: 20px 22px;
-}
-
-.iseo-dash .iseo-help-head .iseo-quickstart-title {
-  margin: 0 0 2px;
-}
-
-.iseo-dash .iseo-help-action {
-  align-self: center;
-}
-
-/* New here?: the three guides fill the card as taller rows. */
-.iseo-dash .iseo-help-card:first-child {
-  display: flex;
-  flex-direction: column;
-}
-
-.iseo-dash .iseo-help-card:first-child ul.iseo-help-links {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  margin: 16px 0 0;
-  padding: 0;
-  border-top: 1px solid var(--iseo-dash-line);
-}
-
-.iseo-dash .iseo-help-card:first-child .iseo-help-links li {
-  flex: 1 1 0;
-  display: flex;
-  border-top: none;
-  border-bottom: 1px solid var(--iseo-dash-line);
-}
-
-.iseo-dash .iseo-help-card:first-child .iseo-help-links li:last-child {
-  border-bottom: none;
-}
-
-.iseo-dash .iseo-help-card:first-child .iseo-help-links a {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px 12px;
-  border-radius: 8px;
-}
-
-.iseo-dash .iseo-help-card:first-child .iseo-help-links a:hover {
-  background-color: var(--iseo-dash-bg);
-}
-
-.iseo-dash .iseo-help-links .iseo-help-link-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--iseo-navy);
-}
-
-.iseo-dash .iseo-help-links .iseo-help-link-desc {
-  font-size: 12.5px;
-  margin-top: 2px;
-}
-
-.iseo-dash .iseo-help-links a:hover .iseo-help-link-label {
-  text-decoration: none;
-  color: var(--iseo-primary);
-}
-
-.iseo-dash .iseo-help-links a:hover svg {
-  color: var(--iseo-primary);
-}
-
-/* Need a hand?: four boxed steps with filled number badges. */
-.iseo-dash ol.iseo-steps {
-  gap: 12px;
-  margin: 18px 0 0;
-  padding: 0;
-  border-top: none;
-}
-
-/* Number beside the title, description underneath across the full width. The body
-   wrapper is flattened so its title and text become grid items of the step. */
-.iseo-dash .iseo-step {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 8px 10px;
-  padding: 14px;
-  background-color: var(--iseo-dash-bg);
-  border: 1px solid var(--iseo-dash-line);
-  border-radius: 10px;
-}
-
-.iseo-dash .iseo-step-num {
-  width: 22px;
-  height: 22px;
-  font-size: 11px;
-  color: #FFFFFF;
-  background-color: var(--iseo-primary);
-  border: none;
-}
-
-.iseo-dash .iseo-step-body {
-  display: contents;
-}
-
-.iseo-dash .iseo-step-title {
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-.iseo-dash .iseo-step-text {
-  grid-column: 1 / -1;
-  font-size: 12px;
-}
-
-.iseo-dash .iseo-help-foot {
-  margin-top: 18px;
-  padding-top: 16px;
-}
-
-.iseo-dash .iseo-help-tip {
-  font-size: 13px;
-}
-
-.iseo-dash .iseo-copy-btn {
-  padding: 8px 14px;
-  font-size: 13px;
-}
 
 /* ── Quick Links ── */
 .iseo-dash .iseo-qlinks {
@@ -682,7 +873,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 140px;
+  min-height: 150px;
   padding: 18px 20px;
   color: inherit;
   text-decoration: none;
@@ -704,16 +895,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
   background-color: var(--iseo-dash-tint);
   color: var(--iseo-primary);
 }
 
 .iseo-dash .iseo-qlink-icon svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
 .iseo-dash .iseo-qlink-title {
@@ -725,12 +916,217 @@
   margin: 14px 0 6px;
 }
 
+.iseo-dash .iseo-qlink:hover .iseo-qlink-title {
+  color: var(--iseo-primary);
+}
+
 .iseo-dash .iseo-qlink-desc {
   font-family: var(--iseo-font);
   font-size: 13px;
   line-height: 1.55;
   color: var(--iseo-muted);
   margin: 0;
+}
+
+/* ── Help & Support ── */
+.iseo-dash .iseo-help-wrap {
+  margin-top: 14px;
+}
+
+@container (min-width: 1000px) {
+  .iseo-dash .iseo-help-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.iseo-dash .iseo-quickstart-card.iseo-help-card {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 22px;
+}
+
+/* Head: icon, title, tag on the right, hairline under it. */
+.iseo-dash .iseo-help-head {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--iseo-dash-line);
+}
+
+.iseo-dash .iseo-help-head .iseo-quickstart-title {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+.iseo-dash .iseo-help-head .iseo-quickstart-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.iseo-dash .iseo-help-head .iseo-quickstart-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.iseo-dash .iseo-help-intro {
+  margin: 14px 0 0;
+  font-size: 13px;
+}
+
+/* New here?: guide links as bordered tiles. */
+.iseo-dash ul.iseo-help-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 0;
+  border: none;
+}
+
+.iseo-dash .iseo-help-links li {
+  margin: 0;
+  border: none;
+}
+
+.iseo-dash .iseo-help-links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--iseo-dash-line);
+  border-radius: 10px;
+  background-color: var(--iseo-dash-soft);
+  transition: border-color 0.15s ease;
+}
+
+.iseo-dash .iseo-help-links a:hover {
+  border-color: var(--iseo-primary);
+}
+
+.iseo-dash .iseo-help-links .iseo-help-link-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--iseo-navy);
+}
+
+.iseo-dash .iseo-help-links .iseo-help-link-desc {
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.iseo-dash .iseo-help-links a:hover .iseo-help-link-label {
+  text-decoration: none;
+  color: var(--iseo-primary);
+}
+
+.iseo-dash .iseo-help-links svg {
+  color: var(--iseo-muted);
+}
+
+.iseo-dash .iseo-help-links a:hover svg {
+  color: var(--iseo-primary);
+}
+
+@container (min-width: 640px) {
+  .iseo-dash ul.iseo-help-links {
+    display: flex;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .iseo-dash .iseo-help-links a {
+    align-items: center;
+    padding: 14px 16px;
+  }
+}
+
+/* Need a hand?: full-width ticket button, 2 × 2 steps. */
+.iseo-dash .iseo-help-card .iseo-help-action {
+  display: flex;
+  width: 100%;
+  margin-top: 14px;
+}
+
+.iseo-dash .iseo-help-action svg {
+  flex: 0 0 auto;
+}
+
+.iseo-dash ol.iseo-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 0;
+  border-top: none;
+}
+
+@container (max-width: 380px) {
+  .iseo-dash ol.iseo-steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container (min-width: 720px) {
+  .iseo-dash ol.iseo-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.iseo-dash .iseo-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background-color: var(--iseo-dash-soft);
+  border: 1px solid var(--iseo-dash-line);
+  border-radius: 10px;
+}
+
+.iseo-dash .iseo-step-num {
+  width: 20px;
+  height: 20px;
+  font-size: 10.5px;
+  color: var(--iseo-navy);
+  background-color: #FFFFFF;
+  border: 1px solid var(--iseo-dash-line);
+}
+
+.iseo-dash .iseo-step-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.iseo-dash .iseo-step-text {
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.iseo-dash .iseo-help-foot {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: none;
+}
+
+.iseo-dash .iseo-step + .iseo-step {
+  margin: 0;
+}
+
+.iseo-dash ol.iseo-steps + .iseo-help-foot {
+  margin-top: 16px;
+}
+
+.iseo-dash .iseo-help-tip {
+  font-size: 12px;
+}
+
+.iseo-dash .iseo-copy-btn {
+  min-height: 34px;
+  padding: 7px 14px;
+  font-size: 12.5px;
 }
 
 @media (prefers-reduced-motion: reduce) {
