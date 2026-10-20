@@ -165,28 +165,15 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 		// (right, one-card width) ───────────────────────────────────────────────────
 		//
 		// Content Metrics counts real WordPress posts, not rows in this plugin's own
-		// project tables — a project only becomes a post once it's actually built, and
-		// single-post and bulk projects both tag the post they build with the SAME
-		// postmeta key (improveseo_project_id; see modules/projects.php and
-		// modules/bulkprojects.php), so one query covers both without caring which
-		// created it. This is entirely local WordPress data — no network call, no
+		// project tables — a project only becomes a post once it's actually built. Single
+		// and Bulk link their posts in different places, preview drafts are left out, and a
+		// scheduled Bulk post waits as a WP draft: see improveseo_dashboard_content_metrics()
+		// in modules/dashboard.php. Entirely local WordPress data — no network call, no
 		// waiting on the admin server, unlike everything else on this page so far.
-		global $wpdb;
-
-		// DISTINCT rather than GROUP BY: guards the (currently never-happening, but
-		// unenforced) case of a post carrying the meta key twice, without pulling in
-		// MySQL's stricter GROUP BY column rules for no benefit.
-		$iseo_cm_posts = $wpdb->get_results(
-			"SELECT DISTINCT p.ID, p.post_status, p.post_date
-			 FROM {$wpdb->posts} p
-			 INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = 'improveseo_project_id'
-			 WHERE p.post_status IN ('publish','draft','future')
-			 ORDER BY p.post_date DESC"
-		); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text, no user input.
-
+		//
 		// Period picker ("Last 30 Days" etc.) — a plain GET parameter, so the choice
-		// survives a reload and is shareable as a URL. Filtered here in PHP rather than in
-		// the query, so $iseo_cm_total below can still tell "nothing in this period" apart
+		// survives a reload and is shareable as a URL. The helper's total is taken before
+		// the period filter, so the card can still tell "nothing in this period" apart
 		// from "nothing built yet" (which shows the Quick Start messages instead).
 		// Scheduled posts are always counted: their post_date is in the future, so a
 		// "last N days" window would otherwise hide every one of them.
@@ -201,32 +188,14 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 		if ( ! isset( $iseo_cm_ranges[ $iseo_cm_range ] ) ) {
 			$iseo_cm_range = '30';
 		}
-		$iseo_cm_total = count( $iseo_cm_posts );
-		if ( 'all' !== $iseo_cm_range ) {
-			// post_date is site-local time, and wp_date() formats in the site's timezone too.
-			$iseo_cm_cutoff = wp_date( 'Y-m-d H:i:s', time() - (int) $iseo_cm_range * DAY_IN_SECONDS );
-			$iseo_cm_posts  = array_values( array_filter( $iseo_cm_posts, function ( $p ) use ( $iseo_cm_cutoff ) {
-				return 'future' === $p->post_status || $p->post_date >= $iseo_cm_cutoff;
-			} ) );
-		}
+		$iseo_cm = improveseo_dashboard_content_metrics( 'all' === $iseo_cm_range ? 0 : (int) $iseo_cm_range );
 
-		$iseo_cm_published = 0;
-		$iseo_cm_draft      = 0;
-		$iseo_cm_scheduled  = 0;
-		$iseo_cm_draft_posts = array();
-
-		foreach ( $iseo_cm_posts as $iseo_cm_post ) {
-			if ( 'publish' === $iseo_cm_post->post_status ) {
-				$iseo_cm_published++;
-			} elseif ( 'draft' === $iseo_cm_post->post_status ) {
-				$iseo_cm_draft++;
-				$iseo_cm_draft_posts[] = $iseo_cm_post;
-			} elseif ( 'future' === $iseo_cm_post->post_status ) {
-				$iseo_cm_scheduled++;
-			}
-		}
-
-		$iseo_cm_latest3 = array_slice( $iseo_cm_posts, 0, 3 );
+		$iseo_cm_total       = $iseo_cm['total'];
+		$iseo_cm_published   = $iseo_cm['published'];
+		$iseo_cm_draft       = $iseo_cm['draft'];
+		$iseo_cm_scheduled   = $iseo_cm['scheduled'];
+		$iseo_cm_draft_posts = $iseo_cm['drafts'];
+		$iseo_cm_latest3     = $iseo_cm['latest'];
 
 		$iseo_cm_status_labels = array(
 			'publish' => 'Published',
@@ -817,7 +786,7 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 							<a class="iseo-metrics-latest-row" href="<?php echo esc_url( get_edit_post_link( $iseo_cm_p->ID ) ); ?>">
 								<span class="iseo-metrics-latest-icon"><?php echo iseo_dash_icon( 'document', 14 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 								<span class="iseo-metrics-latest-title"><?php echo esc_html( get_the_title( $iseo_cm_p->ID ) ? get_the_title( $iseo_cm_p->ID ) : '(no title)' ); ?></span>
-								<span class="iseo-metrics-latest-badge iseo-metrics-badge-<?php echo esc_attr( $iseo_cm_p->post_status ); ?>"><?php echo esc_html( $iseo_cm_status_labels[ $iseo_cm_p->post_status ] ); ?></span>
+								<span class="iseo-metrics-latest-badge iseo-metrics-badge-<?php echo esc_attr( $iseo_cm_p->status ); ?>"><?php echo esc_html( $iseo_cm_status_labels[ $iseo_cm_p->status ] ); ?></span>
 							</a>
 						<?php endforeach; ?>
 					</div>

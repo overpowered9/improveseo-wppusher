@@ -38,6 +38,100 @@ use ImproveSEO\FlashMessage;
 
 
 
+/**
+ * Dashboard "Content Metrics": every live post this plugin built, sorted into Published /
+ * In Draft / Scheduled, plus the newest few and the full draft list.
+ *
+ * The two wizards link a post to its project in different places, so both are read:
+ * - Single (modules/builder.php) and the posting cron tag the post with the
+ *   improveseo_project_id meta. Preview Post builds a real draft too (flagged
+ *   _improveseo_preview, kept 30+ minutes and sometimes orphaned); it is not output.
+ * - Bulk (saveContentInTaskList() and the manual publish in modules/bulkprojects.php) sets
+ *   no meta; the post is only referenced by improveseo_bulktasksdetails.post_id.
+ *
+ * WordPress' own status decides the bucket, so a post published or edited by hand counts as
+ * what it is now. The one exception is a scheduled Bulk post: it waits as a WP draft until
+ * the plugin's cron publishes it (bulk_AI_post_function.php, same conditions as below), so it
+ * counts as Scheduled, not In Draft. Single scheduling uses WP's own 'future' status.
+ *
+ * @param int $days Only posts dated within the last $days days; 0 for all time. Scheduled
+ *                  posts always count: they are dated in the future.
+ * @return array{total:int, published:int, draft:int, scheduled:int, latest:object[], drafts:object[]}
+ *               total is before the period filter, so the card can tell "nothing built yet"
+ *               from "nothing in this period". Each row has ID, post_date and status
+ *               ('publish', 'draft' or 'future').
+ */
+function improveseo_dashboard_content_metrics( $days ) {
+	global $wpdb;
+
+	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from $wpdb; no user input in the query.
+	$rows = (array) $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- plugin-owned tables, read once per Dashboard load.
+		"SELECT p.ID, p.post_status, p.post_date, MAX( src.bulk_scheduled ) AS bulk_scheduled
+		   FROM (
+		         SELECT pm.post_id, 0 AS bulk_scheduled
+		           FROM {$wpdb->postmeta} pm
+		           LEFT JOIN {$wpdb->prefix}improveseo_tasks t ON t.id = pm.meta_value
+		          WHERE pm.meta_key = 'improveseo_project_id'
+		            AND ( t.state IS NULL OR t.state <> 'Preview' )
+		         UNION ALL
+		         SELECT d.post_id,
+		                ( d.state = 'Scheduled' AND d.status = 'Done'
+		                  AND b.state IN ( 'Processing', 'Finished', 'Unpublished' ) )
+		           FROM {$wpdb->prefix}improveseo_bulktasksdetails d
+		           JOIN {$wpdb->prefix}improveseo_bulktasks b ON b.id = d.bulktask_id
+		          WHERE d.post_id > 0
+		        ) src
+		   JOIN {$wpdb->posts} p ON p.ID = src.post_id
+		  WHERE p.post_status IN ( 'publish', 'draft', 'future' )
+		    AND NOT EXISTS ( SELECT 1 FROM {$wpdb->postmeta} pv
+		                      WHERE pv.post_id = p.ID AND pv.meta_key = '_improveseo_preview' )
+		  GROUP BY p.ID, p.post_status, p.post_date
+		  ORDER BY p.post_date DESC"
+	);
+	// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+	$metrics = array(
+		'total'     => count( $rows ),
+		'published' => 0,
+		'draft'     => 0,
+		'scheduled' => 0,
+		'latest'    => array(),
+		'drafts'    => array(),
+	);
+
+	// post_date is site-local time, and wp_date() formats in the site's timezone too.
+	$cutoff = $days > 0 ? wp_date( 'Y-m-d H:i:s', time() - (int) $days * DAY_IN_SECONDS ) : '';
+
+	foreach ( $rows as $row ) {
+		$status = ( 'draft' === $row->post_status && (int) $row->bulk_scheduled ) ? 'future' : $row->post_status;
+
+		if ( '' !== $cutoff && 'future' !== $status && $row->post_date < $cutoff ) {
+			continue;
+		}
+
+		$post = (object) array(
+			'ID'        => (int) $row->ID,
+			'post_date' => $row->post_date,
+			'status'    => $status,
+		);
+
+		if ( 'publish' === $status ) {
+			$metrics['published']++;
+		} elseif ( 'future' === $status ) {
+			$metrics['scheduled']++;
+		} else {
+			$metrics['draft']++;
+			$metrics['drafts'][] = $post;
+		}
+
+		if ( count( $metrics['latest'] ) < 3 ) {
+			$metrics['latest'][] = $post;
+		}
+	}
+
+	return $metrics;
+}
+
 function improveseo_dashboard() {
 
 
