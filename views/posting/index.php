@@ -76,12 +76,12 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 				<div class="create-ai">
 					<div class="create-ai-col">
 						<div class="iseo-create-art">
-							<svg viewBox="0 0 360 172" role="img" aria-label="<?php esc_attr_e( 'One keyword, Cricket Bat, becomes one published post', 'improveseo' ); ?>">
+							<svg viewBox="0 0 360 172" role="img" aria-label="<?php esc_attr_e( 'One keyword, Lawn Mowing, becomes one published post', 'improveseo' ); ?>">
 								<rect x="10" y="58" width="150" height="56" rx="28" fill="#fff" stroke="#1C7293" stroke-width="2"></rect>
 								<circle cx="40" cy="86" r="18" fill="#1C7293" fill-opacity="0.12"></circle>
 								<path d="M47 80H37l-6 6 6 6h10z" fill="#1C7293"></path>
 								<circle cx="38" cy="86" r="1.8" fill="#fff"></circle>
-								<text x="66" y="84" font-size="13" font-weight="600" fill="#0B132B"><?php esc_html_e( 'Cricket Bat', 'improveseo' ); ?></text>
+								<text x="66" y="84" font-size="13" font-weight="600" fill="#0B132B"><?php esc_html_e( 'Lawn Mowing', 'improveseo' ); ?></text>
 								<text x="66" y="101" font-size="10" fill="#5C6B7A"><?php esc_html_e( '1 Keyword', 'improveseo' ); ?></text>
 								<line x1="166" y1="86" x2="214" y2="86" stroke="#1C7293" stroke-width="2" stroke-dasharray="5 4"></line>
 								<circle cx="190" cy="86" r="7" fill="#1C7293" opacity="0.18"></circle>
@@ -121,16 +121,16 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 								<text x="16" y="27" font-size="8.5" font-weight="600" fill="#5C6B7A" letter-spacing="0.4"><?php esc_html_e( 'KEYWORD LIST (4)', 'improveseo' ); ?></text>
 								<rect x="14" y="36" width="112" height="24" rx="5" fill="#1C7293" fill-opacity="0.12" stroke="#1C7293" stroke-opacity="0.45"></rect>
 								<circle cx="25" cy="48" r="3" fill="#1C7293"></circle>
-								<text x="34" y="51.5" font-size="9" font-weight="600" fill="#0B132B"><?php esc_html_e( 'Cricket Bat', 'improveseo' ); ?></text>
+								<text x="34" y="51.5" font-size="9" font-weight="600" fill="#0B132B"><?php esc_html_e( 'Lawn Mowing', 'improveseo' ); ?></text>
 								<rect x="14" y="66" width="112" height="24" rx="5" fill="#F5F7F9" stroke="#E9EDF2"></rect>
 								<circle cx="25" cy="78" r="3" fill="#B9C3CC"></circle>
-								<text x="34" y="81.5" font-size="9" fill="#5C6B7A"><?php esc_html_e( 'Cricket Ball', 'improveseo' ); ?></text>
+								<text x="34" y="81.5" font-size="9" fill="#5C6B7A"><?php esc_html_e( 'Weed Control', 'improveseo' ); ?></text>
 								<rect x="14" y="96" width="112" height="24" rx="5" fill="#F5F7F9" stroke="#E9EDF2"></rect>
 								<circle cx="25" cy="108" r="3" fill="#B9C3CC"></circle>
-								<text x="34" y="111.5" font-size="9" fill="#5C6B7A"><?php esc_html_e( 'Batting Gloves', 'improveseo' ); ?></text>
+								<text x="34" y="111.5" font-size="9" fill="#5C6B7A"><?php esc_html_e( 'Lawn Aeration', 'improveseo' ); ?></text>
 								<rect x="14" y="126" width="112" height="24" rx="5" fill="#F5F7F9" stroke="#E9EDF2"></rect>
 								<circle cx="25" cy="138" r="3" fill="#B9C3CC"></circle>
-								<text x="34" y="141.5" font-size="9" fill="#5C6B7A"><?php esc_html_e( 'Cricket Helmet', 'improveseo' ); ?></text>
+								<text x="34" y="141.5" font-size="9" fill="#5C6B7A"><?php esc_html_e( 'Grass Seeding', 'improveseo' ); ?></text>
 								<path d="M136 60L158 86L136 112" fill="none" stroke="#1C7293" stroke-width="1.8" stroke-linejoin="round"></path>
 								<g stroke="#1C7293" stroke-width="4" stroke-linecap="round">
 									<line x1="187" y1="86" x2="193" y2="86"></line>
