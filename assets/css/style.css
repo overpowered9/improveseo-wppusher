@@ -1634,52 +1634,11 @@ input:checked + .switch:before {
   color: var(--iseo-navy);
 }
 
-.iseo-create-options {
-  display: grid;
-  gap: 8px;
-  margin: 0 0 14px;
-  padding: 0;
-  list-style: none;
-}
-
-.iseo-create-options li {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: 0;
-  padding: 9px 14px;
-  background: var(--iseo-surface);
-  border: 1px solid var(--iseo-border);
-  border-radius: 10px;
-  font-size: 13.5px;
-  line-height: 20px;
-  color: var(--iseo-ink);
-}
-
-.iseo-create-chip {
-  padding: 2px 10px;
-  border-radius: 5px;
-  font-size: 12px;
-  line-height: 18px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-/* Both options share one solid Pacific Teal tag; the border keeps the old size. */
-.iseo-create-chip--single,
-.iseo-create-chip--bulk {
-  background: var(--iseo-primary);
-  border: 1px solid var(--iseo-primary);
-  color: #FFFFFF;
-}
-
-.iseo-create-dash {
-  color: #9AA5B1;
-}
-
+/* Under the cards: the one line about the wizards' (i) help. Outside .iseo-create-intro
+   now, so it sets the font that wrapper used to give it. */
 .iseo-create .iseo-create-help {
-  margin: 0 0 16px;
+  margin: 14px 0 0;
+  font-family: var(--iseo-font);
   font-size: 13.5px;
   line-height: 22px;
   color: var(--iseo-muted);
@@ -1690,36 +1649,28 @@ input:checked + .switch:before {
   vertical-align: -3px;
 }
 
-.iseo-create-callout {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 16px;
-  background: #FEF7E7;
-  border-left: 4px solid var(--iseo-primary);
-  border-radius: 0 10px 10px 0;
-}
-
-.iseo-create-callout-icon {
-  flex: 0 0 auto;
-}
-
-.iseo-create .iseo-create-callout p {
-  margin: 0;
+/* "Need a keyword list? Create one here" under the Bulk card's Start button. Above the
+   card's click-anywhere overlay (z-index 1), so the link opens Keyword Lists, not the wizard. */
+.iseo-create .iseo-create-needlist {
+  position: relative;
+  z-index: 2;
+  margin: 12px 0 0;
+  font-family: var(--iseo-font);
   font-size: 13.5px;
   line-height: 20px;
   color: var(--iseo-ink);
 }
 
-.iseo-create .iseo-create-callout a {
+.iseo-create .iseo-create-needlist a {
   font-weight: 600;
   color: var(--iseo-primary);
-  text-decoration: underline;
+  text-decoration: none;
 }
 
-.iseo-create .iseo-create-callout a:hover,
-.iseo-create .iseo-create-callout a:focus {
+.iseo-create .iseo-create-needlist a:hover,
+.iseo-create .iseo-create-needlist a:focus {
   color: var(--iseo-navy);
+  text-decoration: underline;
 }
 
 /* Cards: same two-column / stacked behaviour as before, now edge-aligned with the

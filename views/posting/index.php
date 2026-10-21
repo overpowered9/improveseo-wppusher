@@ -42,30 +42,6 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 			<div class="iseo-create-intro">
 				<p class="iseo-create-lead"><?php esc_html_e( 'Time to create content that helps customers find you — in Google and in AI assistants like ChatGPT.', 'improveseo' ); ?></p>
 				<p class="iseo-create-choose"><?php esc_html_e( 'Choose how you want to start:', 'improveseo' ); ?></p>
-				<ul class="iseo-create-options">
-					<li>
-						<span class="iseo-create-chip iseo-create-chip--single"><?php esc_html_e( 'Single Post', 'improveseo' ); ?></span>
-						<span class="iseo-create-dash" aria-hidden="true">&mdash;</span>
-						<span><?php esc_html_e( 'One post built from one keyword.', 'improveseo' ); ?></span>
-					</li>
-					<li>
-						<span class="iseo-create-chip iseo-create-chip--bulk"><?php esc_html_e( 'Bulk Post Project', 'improveseo' ); ?></span>
-						<span class="iseo-create-dash" aria-hidden="true">&mdash;</span>
-						<span><?php esc_html_e( 'Multiple posts built from a keyword list.', 'improveseo' ); ?></span>
-					</li>
-				</ul>
-				<p class="iseo-create-help"><?php
-					$iseo_i_icon = '<svg class="iseo-create-i" width="15" height="15" viewBox="0 0 16 16" role="img" aria-label="' . esc_attr__( 'information', 'improveseo' ) . '"><circle cx="8" cy="8" r="8" fill="#E9EDF2"></circle><line x1="8" y1="7.2" x2="8" y2="11.4" stroke="#5C6B7A" stroke-width="1.5" stroke-linecap="round"></line><circle cx="8" cy="4.7" r="0.95" fill="#5C6B7A"></circle></svg>';
-					/* translators: %s: the (i) information icon */
-					echo sprintf( esc_html__( 'Either way, a short wizard walks you through every step. Look for the %s icon — it explains what each step does and why it matters.', 'improveseo' ), $iseo_i_icon ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG; the text is escaped.
-				?></p>
-				<div class="iseo-create-callout">
-					<svg class="iseo-create-callout-icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#1C7293"></circle><circle cx="12" cy="12" r="7.5" fill="none" stroke="#fff" stroke-width="1.6"></circle><line x1="12" y1="11" x2="12" y2="15.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"></line><circle cx="12" cy="8.3" r="1.1" fill="#fff"></circle></svg>
-					<p><?php
-						/* translators: %s: "Create one here" link to the Keyword Lists screen */
-						echo sprintf( esc_html__( 'Bulk Post Projects need a keyword list. Don’t have one? %s', 'improveseo' ), '<a href="' . esc_url( $lists_url ) . '">' . esc_html__( 'Create one here', 'improveseo' ) . '</a>' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every part is escaped above.
-					?></p>
-				</div>
 			</div>
 
 			<?php // The card title link is stretched over the whole card (::after), so clicking anywhere on
@@ -176,9 +152,21 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 							</span>
 						</h3>
 						<a class="Posting__page-button iseo-btn iseo-btn-solid iseo-btn-arrow iseo-create-cta" href="<?php echo esc_url( $bulk_url ); ?>"><?php esc_html_e( 'Start bulk project', 'improveseo' ); ?></a>
+						<?php // A Bulk Post Project needs a keyword list, so the way to make one sits right under its button. ?>
+						<p class="iseo-create-needlist"><?php
+							/* translators: %s: "Create one here" link to the Keyword Lists screen */
+							echo sprintf( esc_html__( 'Need a keyword list? %s', 'improveseo' ), '<a href="' . esc_url( $lists_url ) . '">' . esc_html__( 'Create one here', 'improveseo' ) . '</a>' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every part is escaped above.
+						?></p>
 					</div>
 				</div>
 			</div>
+
+			<?php // Below the cards: how the wizards help, whichever card was chosen. ?>
+			<p class="iseo-create-help"><?php
+				$iseo_i_icon = '<svg class="iseo-create-i" width="15" height="15" viewBox="0 0 16 16" role="img" aria-label="' . esc_attr__( 'information', 'improveseo' ) . '"><circle cx="8" cy="8" r="8" fill="#E9EDF2"></circle><line x1="8" y1="7.2" x2="8" y2="11.4" stroke="#5C6B7A" stroke-width="1.5" stroke-linecap="round"></line><circle cx="8" cy="4.7" r="0.95" fill="#5C6B7A"></circle></svg>';
+				/* translators: %s: the (i) information icon */
+				echo sprintf( esc_html__( 'Either way, a short wizard walks you through every step. Look for the %s icon — it explains what each step does and why it matters.', 'improveseo' ), $iseo_i_icon ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG; the text is escaped.
+			?></p>
 
 		</div>
 	</div>
