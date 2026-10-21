@@ -97,6 +97,7 @@ function improveseo_enqueue_admin(){
 		// esc_url(): it is assigned to an href from JS, where an entity-encoded & would break it.
 		'manualListUrl' => esc_url_raw( admin_url( 'admin.php?page=improveseo_lists&action=create' ) ),
 		'i18n'          => array(
+			'title'        => __( 'Daily limit reached', 'improveseo' ),
 			'exhausted'    => __( 'Your daily Keyword Generator tool allowance is exhausted. You will be able to use the Keyword Generator tool again tomorrow.', 'improveseo' ),
 			'manualBefore' => __( 'Meanwhile you have the option to manually create', 'improveseo' ),
 			'manualLink'   => __( 'keyword lists', 'improveseo' ),

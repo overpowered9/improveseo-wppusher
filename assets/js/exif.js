@@ -8,6 +8,15 @@ var ImageEXIF = {
 		Dialog.init('ImageEXIF');
 	},
 
+	// In the shared popup (assets/js/iseo-popups.js) so it looks like every other one.
+	notice: function(title, message) {
+		if (window.iseoModal) {
+			iseoModal.info({ title: title, message: message });
+		} else {
+			window.alert(message);
+		}
+	},
+
 	initMap: function() {
 		ImageEXIF.geocoder = new google.maps.Geocoder();
 
@@ -22,10 +31,10 @@ var ImageEXIF = {
 					if (results[1]) {
 						ImageEXIF.select(results[1].formatted_address, event.latLng);
 					} else {
-						window.alert('No results found');
+						ImageEXIF.notice('No results found', 'No address was found for that spot on the map.');
 					}
 				} else {
-					window.alert('Geocoder failed due to: ' + status);
+					ImageEXIF.notice('Location lookup failed', 'Google Maps could not look up this location (' + status + ').');
 				}
 			});
 		});

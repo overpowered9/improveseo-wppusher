@@ -339,54 +339,22 @@ use ImproveSEO\View;
      button is at the top. Pressing Save and seeing the page sit still is indistinguishable from
      pressing Save and having it work, which is exactly the complaint.
 
-     Deliberately its own element rather than the shared connection guard in views/layouts/main.php:
+     Deliberately its own message rather than the shared connection guard in views/layouts/main.php:
      that modal's whole job is to send someone TO this page, and its copy ("This site isn't
      connected", button "Connect Website" → Settings) is nonsense once you are standing on Settings.
-     What it borrows is the look — card, type scale, greys, amber icon, teal button — via the same
-     stylesheet the Keyword Generator's allowance notice uses, so every blocking notice in the
-     plugin reads as one family. -->
-<div id="iseo-save-issue-overlay" class="iseo-save-issue-overlay" hidden>
-	<div class="iseo-save-issue-dialog" role="alertdialog" aria-modal="true" aria-labelledby="iseo-save-issue-title" aria-describedby="iseo-save-issue-text">
-
-		<button type="button" id="iseo-save-issue-close" class="iseo-save-issue-close" aria-label="<?php esc_attr_e( 'Close', 'improveseo' ); ?>">&times;</button>
-
-		<div class="iseo-save-issue-icon">
-			<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-				<circle cx="12" cy="12" r="10"></circle>
-				<line x1="12" y1="8" x2="12" y2="12"></line>
-				<line x1="12" y1="16" x2="12.01" y2="16"></line>
-			</svg>
-		</div>
-
-		<h3 id="iseo-save-issue-title" class="iseo-save-issue-title"></h3>
-
-		<div class="iseo-save-issue-body">
-			<p id="iseo-save-issue-text" class="iseo-save-issue-text"></p>
-			<!-- The server's or the network's own words, when there are any. Quieter than the
-			     sentence above: it explains nothing to most people, but it is the one thing that
-			     helps when someone sends the screenshot to support. -->
-			<p id="iseo-save-issue-detail" class="iseo-save-issue-detail" hidden></p>
-			<!-- Where to find the right values, one line per refusal — at most one is shown, chosen
-			     by the issue's `hint` key. Static markup rather than a string written into the page,
-			     so the dashboard link stays real HTML without an innerHTML write. Neither is shown
-			     when the server simply could not be reached: there, pointing at the credentials would
-			     send someone off to fix something that is not broken. -->
-			<p class="iseo-save-issue-hint" data-iseo-hint="rejected" hidden>
-				You will find the correct API Key and Site Code combination for this website on your <a class="iseo-save-issue-link" href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer">ImproveSEO Dashboard</a> &rarr; Websites tab
-			</p>
-			<p class="iseo-save-issue-hint" data-iseo-hint="incomplete" hidden>
-				You will find the API Key and Site Code for this website on your <a class="iseo-save-issue-link" href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer">ImproveSEO Dashboard</a> &rarr; Websites tab
-			</p>
-			<!-- A closing line some refusals add after the hint (the incomplete pair's "how to
-			     disconnect instead"). Plain text, so it is written with textContent. -->
-			<p id="iseo-save-issue-note" class="iseo-save-issue-hint" hidden></p>
-		</div>
-
-		<!-- Dismiss, and nothing else. The fields that need correcting are on the page behind this
-		     card, so the button closes and puts the cursor in the first of them. -->
-		<button type="button" id="iseo-save-issue-ok" class="iseo-save-issue-ok">Got it</button>
-	</div>
-</div>
+     Shown in the shared popup (assets/js/iseo-popups.js) so it looks like every other popup —
+     see iseoShowSaveIssue() below. Only the two "where to find the right values" lines live
+     here, as static markup in a <template>, so their dashboard link stays real HTML without an
+     innerHTML write. At most one is shown, chosen by the issue's `hint` key; neither when the
+     server simply could not be reached. -->
+<template id="iseo-save-issue-hints">
+	<p data-iseo-hint="rejected">
+		You will find the correct API Key and Site Code combination for this website on your <a href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer">ImproveSEO Dashboard</a> &rarr; Websites tab
+	</p>
+	<p data-iseo-hint="incomplete">
+		You will find the API Key and Site Code for this website on your <a href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer">ImproveSEO Dashboard</a> &rarr; Websites tab
+	</p>
+</template>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -748,8 +716,8 @@ document.addEventListener('DOMContentLoaded', function() {
        The panel is still written (it is the connection card's own state, and it survives the
        modal being dismissed); the modal is what makes the refusal impossible to walk past.
 
-       Markup and styling: see #iseo-save-issue-overlay above. */
-    const iseoSaveIssueOverlay = document.getElementById('iseo-save-issue-overlay');
+       Shown in the shared popup (iseoModal); the hint lines come from #iseo-save-issue-hints. */
+    const iseoSaveIssueHints = document.getElementById('iseo-save-issue-hints');
 
     // Where the cursor goes when the modal closes: the field most likely to be wrong, and the
     // reason the modal has no link of its own — everything it asks for is on the page behind it.
@@ -758,10 +726,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (apiInput) { apiInput.focus(); }
     }
 
-    function iseoHideSaveIssue(refocus) {
-        if (!iseoSaveIssueOverlay) { return; }
-        iseoSaveIssueOverlay.hidden = true;
-        if (refocus) { iseoFocusCredentialField(); }
+    function iseoSaveIssueLine(text, className) {
+        const p = document.createElement('p');
+        if (className) { p.className = className; }
+        p.textContent = text;
+        return p;
     }
 
     /**
@@ -773,29 +742,34 @@ document.addEventListener('DOMContentLoaded', function() {
      *   that helps when someone pastes a screenshot into support.
      */
     function iseoShowSaveIssue(issue, detail) {
-        if (!iseoSaveIssueOverlay) { return; }
+        if (!issue) { return; }
+        if (typeof iseoModal === 'undefined') {
+            window.alert(issue.title + '\n\n' + issue.text);
+            iseoFocusCredentialField();
+            return;
+        }
 
-        document.getElementById('iseo-save-issue-title').textContent = issue.title;
-        document.getElementById('iseo-save-issue-text').textContent  = issue.text;
+        const content = [];
+        // The server's or the network's own words, when there are any. Quieter: it explains
+        // nothing to most people, but it helps when someone sends the screenshot to support.
+        // textContent, not innerHTML: these strings never originated on this page.
+        if (detail) { content.push(iseoSaveIssueLine(detail, 'iseo-ui-note')); }
+        if (issue.hint && iseoSaveIssueHints && iseoSaveIssueHints.content) {
+            const hint = iseoSaveIssueHints.content.querySelector('[data-iseo-hint="' + issue.hint + '"]');
+            if (hint) { content.push(hint.cloneNode(true)); }
+        }
+        // A closing line some refusals add (the incomplete pair's "how to disconnect instead").
+        if (issue.note) { content.push(iseoSaveIssueLine(issue.note)); }
 
-        // textContent, not innerHTML: `detail` carries server and network strings that never
-        // originated on this page.
-        const detailEl = document.getElementById('iseo-save-issue-detail');
-        detailEl.textContent = detail || '';
-        detailEl.hidden      = !detail;
-
-        iseoSaveIssueOverlay.querySelectorAll('[data-iseo-hint]').forEach(function (hintEl) {
-            hintEl.hidden = hintEl.getAttribute('data-iseo-hint') !== issue.hint;
+        // Dismiss, and nothing else: the fields to correct are on the page behind it, so every
+        // way of closing puts the cursor in the first of them.
+        iseoModal.warning({
+            title: issue.title,
+            message: issue.text,
+            content: content,
+            primary: { label: 'Got it' },
+            onClose: iseoFocusCredentialField
         });
-
-        const noteEl = document.getElementById('iseo-save-issue-note');
-        noteEl.textContent = issue.note || '';
-        noteEl.hidden      = !issue.note;
-
-        iseoSaveIssueOverlay.hidden = false;
-
-        const ok = document.getElementById('iseo-save-issue-ok');
-        if (ok) { ok.focus(); }
     }
 
     // The three refusals this screen can produce, and the ONE place their copy lives: the submit
@@ -829,25 +803,6 @@ document.addEventListener('DOMContentLoaded', function() {
             hint: null
         }
     };
-
-    (function () {
-        if (!iseoSaveIssueOverlay) { return; }
-
-        const closeBtn = document.getElementById('iseo-save-issue-close');
-        const okBtn    = document.getElementById('iseo-save-issue-ok');
-
-        if (closeBtn) { closeBtn.addEventListener('click', function () { iseoHideSaveIssue(true); }); }
-        if (okBtn)    { okBtn.addEventListener('click',    function () { iseoHideSaveIssue(true); }); }
-
-        // Click outside the card, and Escape — same two dismissals as the connection guard, so
-        // the two modals do not behave differently for looking the same.
-        iseoSaveIssueOverlay.addEventListener('click', function (e) {
-            if (e.target === iseoSaveIssueOverlay) { iseoHideSaveIssue(true); }
-        });
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && !iseoSaveIssueOverlay.hidden) { iseoHideSaveIssue(true); }
-        });
-    })();
 
     /**
      * @param {boolean} auto - true for the silent on-load/on-focus check; false for the

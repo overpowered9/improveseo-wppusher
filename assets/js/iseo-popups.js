@@ -11,7 +11,7 @@
  *   data-iseo-confirm="…" on a link, button or form — an async replacement for
  *       onclick="return confirm(…)"; the original click/submit runs once, after confirming.
  *
- * modal opts: { title, message, details: [{ label, value, tone }], icon,
+ * modal opts: { title, message, content: Node|Node[], details: [{ label, value, tone }], icon,
  *               primary: { label, onClick }, secondary: { label, onClick },
  *               dismissible (default true), onClose }
  *
@@ -150,6 +150,21 @@
 					message.id = id + '-message';
 					card.setAttribute('aria-describedby', message.id);
 					card.appendChild(message);
+				}
+
+				// Pre-built nodes for a message that is more than one plain string — a sentence
+				// with a link in it, or a quieter second line (.iseo-ui-note). Callers build them
+				// with DOM APIs / textContent, so nothing is parsed as HTML here either.
+				if (opts.content) {
+					var content = el('div', 'iseo-ui-content');
+					(Array.isArray(opts.content) ? opts.content : [opts.content]).forEach(function (node) {
+						if (node) { content.appendChild(node); }
+					});
+					if (!opts.message) {
+						content.id = id + '-message';
+						card.setAttribute('aria-describedby', content.id);
+					}
+					card.appendChild(content);
 				}
 
 				if (opts.details && opts.details.length) {
@@ -566,6 +581,38 @@
 	window.ImproveSEOLoading = {
 		show: function (options) { loading.show(options); },
 		hide: function () { loading.hide(); }
+	};
+
+	/**
+	 * swal(text, opts) / swal(opts) — SweetAlert 2.x's call shapes, rendered in this popup.
+	 * The keyword and shortcode screens (assets/js/wt-script.js) were written against
+	 * SweetAlert, which drew its own differently styled box; the library is no longer loaded
+	 * in wp-admin (improveseo.php, load_admin_files) and its calls land here instead.
+	 * Resolves like SweetAlert: true when confirmed, null when dismissed.
+	 *   { title, text, icon: 'success'|'error'|'warning'|'info', buttons: true, dangerMode }
+	 */
+	window.swal = function (a, b) {
+		var o = {};
+		var src = typeof a === 'string' ? (b || {}) : (a || {});
+		for (var k in src) { if (Object.prototype.hasOwnProperty.call(src, k)) { o[k] = src[k]; } }
+		if (typeof a === 'string') { o.text = a; }
+
+		var type = TYPES[o.icon] && o.icon !== 'confirm' && o.icon !== 'destructive' ? o.icon : 'info';
+		// A lone sentence ("Data Have Been Saved Successfully!") reads best as the title.
+		var title = o.title || o.text || '';
+		var message = o.title ? (o.text || '') : '';
+
+		if (o.buttons || o.dangerMode) {
+			return confirmModal(o.dangerMode ? 'destructive' : 'confirm', {
+				title: title,
+				message: message,
+				icon: TYPES[type].icon,
+				primary: { label: __('Yes, continue', 'improveseo') },
+				secondary: { label: __('Cancel', 'improveseo') }
+			}).then(function (ok) { return ok ? true : null; });
+		}
+		return openModal(type, { title: title, message: message, primary: { label: __('OK', 'improveseo') } })
+			.then(function (result) { return result === 'primary' ? true : null; });
 	};
 
 	// ── Bulk Post plan gate ─────────────────────────────────────────────────────────────────

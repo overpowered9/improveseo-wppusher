@@ -174,6 +174,62 @@
   overflow-wrap: anywhere;
 }
 
+/* Extra message lines passed as nodes (opts.content): the same type as the
+   message, a quieter .iseo-ui-note, and links in the brand teal. */
+.iseo-ui-modal .iseo-ui-content p {
+  margin: 8px 0 0;
+  padding: 0;
+  font-family: var(--iseo-ui-font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  color: var(--iseo-ui-muted);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.iseo-ui-modal .iseo-ui-content p.iseo-ui-note {
+  font-size: 12.5px;
+  line-height: 19px;
+  color: #8A96A3;
+}
+
+.iseo-ui-modal .iseo-ui-content a,
+.iseo-ui-modal .iseo-ui-content a:visited {
+  color: var(--iseo-ui-teal);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.iseo-ui-modal .iseo-ui-content a:hover,
+.iseo-ui-modal .iseo-ui-content a:focus-visible {
+  color: var(--iseo-ui-navy);
+}
+
+/* Read-only text handed over for manual copying (when the clipboard is blocked). */
+.iseo-ui-modal .iseo-ui-content .iseo-ui-copybox {
+  display: block;
+  width: 100%;
+  margin: 16px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--iseo-ui-line);
+  border-radius: 8px;
+  background: #F4F7FB;
+  font-family: var(--iseo-ui-font);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--iseo-ui-navy);
+  text-align: left;
+  resize: none;
+}
+
+.iseo-ui-modal .iseo-ui-content .iseo-ui-copybox:focus {
+  outline: none;
+  border-color: var(--iseo-ui-teal);
+  box-shadow: 0 0 0 1px var(--iseo-ui-teal);
+}
+
 /* ── Details tile (credit breakdowns) ────────────────────── */
 .iseo-ui-details {
   margin: 16px 0 0;

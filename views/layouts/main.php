@@ -60,70 +60,12 @@
      verified. Not the onboarding wizard: that is a free-trial sign-up flow, wrong for
      someone who already has an account or whose saved key is simply incorrect.
      The guard function iseoRequireConnection() returns true when connected (caller
-     should proceed) or false when not (modal is shown, caller should return). -->
-<div id="iseo-connection-guard-overlay" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.55); backdrop-filter:blur(2px); align-items:center; justify-content:center;">
-	<div style="background:#fff; border-radius:14px; padding:36px 32px 28px; max-width:420px; width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.25); position:relative; animation:iseoGuardFadeIn 0.25s ease-out;">
+     should proceed) or false when not (modal is shown, caller should return).
 
-		<!-- Close button -->
-		<button id="iseo-guard-close" type="button" style="position:absolute; top:12px; right:14px; background:none; border:none; font-size:20px; color:#9ca3af; cursor:pointer; line-height:1; padding:4px;" aria-label="Close">&times;</button>
-
-		<!-- Icon -->
-		<div style="margin-bottom:16px;">
-			<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;">
-				<circle cx="12" cy="12" r="10"></circle>
-				<line x1="12" y1="8" x2="12" y2="12"></line>
-				<line x1="12" y1="16" x2="12.01" y2="16"></line>
-			</svg>
-		</div>
-
-		<!-- Title -->
-		<h3 style="margin:0 0 8px; font-size:18px; font-weight:700; color:#111827; line-height:1.3;">
-			This site isn't connected to an ImproveSEO account
-		</h3>
-
-		<!-- Subtitle -->
-		<p style="margin:0 0 24px; font-size:14px; color:#6b7280; line-height:1.5;">
-			Connect to start generating SEO content.
-		</p>
-
-		<!-- CTA Button.
-		     The destination is rendered here by PHP rather than assigned by the script below.
-		     It used to be href="#" with the real URL read from main_ajax_vars, but that object
-		     is localized onto a FOOTER script while this markup is inline in the body, so the
-		     read ran before the variable existed and the href stayed "#" — the button did
-		     nothing at all. Rendering it server-side removes the ordering question entirely.
-
-		     Goes to SETTINGS, not the onboarding wizard. Onboarding opens the CMS free-trial
-		     sign-up flow, which assumes the visitor has no account — so a user already signed
-		     in to a CMS account, or one whose credentials are merely wrong (right site code,
-		     wrong API key), was pushed into a "start your free trial" modal that had nothing
-		     to do with their problem. Settings is where both cases are actually resolved: paste
-		     the key, Save Changes, Test Server Connection. The subtitle above describes exactly
-		     that route, so the button has to land on the page it names.
-
-		     Opens in a NEW TAB, and that is what makes the subtitle's instruction true. It tells
-		     the user to come back and "close this popup by clicking ×" — which is only possible
-		     if the popup still exists. Navigating in place would unload this page: returning by
-		     Back gives a fresh load with the modal gone, the wizard reset, and any keyword or
-		     title already entered lost. In a new tab the work sits untouched next door. -->
-		<a id="iseo-guard-connect-btn" href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_settings' ) ); ?>" target="_blank" rel="noopener noreferrer" style="display:inline-block; padding:12px 28px; background:#0f7b6c; color:#fff; font-size:14px; font-weight:600; border-radius:8px; text-decoration:none; transition:background 0.2s; letter-spacing:0.01em;">
-			Connect Website
-		</a>
-	</div>
-</div>
-
-<style>
-@keyframes iseoGuardFadeIn {
-	from { opacity: 0; transform: translateY(12px) scale(0.97); }
-	to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-#iseo-connection-guard-overlay a:hover {
-	background: #0e6b5e !important;
-}
-#iseo-guard-close:hover {
-	color: #374151 !important;
-}
-</style>
+     Shown in the shared popup (assets/js/iseo-popups.js), so it looks like every other one.
+     "Connect Website" opens Settings in a NEW TAB so the work on this page (a wizard half
+     filled in) survives; the flag is re-read when the user comes back to this tab and when
+     the popup is dismissed — see iseoRefreshConnectionState(). -->
 
 <script>
 /**
@@ -134,49 +76,36 @@
  * Returns false → site is NOT connected, modal is shown, caller must abort.
  */
 (function() {
-	var overlay  = document.getElementById('iseo-connection-guard-overlay');
-	var closeBtn = document.getElementById('iseo-guard-close');
-	var connectBtn = document.getElementById('iseo-guard-connect-btn');
-	if (!overlay) return;
-
-	// Settings, matching the button's href above — see the comment there for why this is not
-	// the onboarding wizard. Rendered by PHP so it is correct at parse time; main_ajax_vars is
-	// not consulted for it any more.
-	var settingsUrl = '<?php echo esc_js( admin_url( 'admin.php?page=improveseo_settings' ) ); ?>';
-
-	// Belt and braces: if anything ever strips or blanks the href, a click still navigates
-	// rather than silently scrolling to the top of the page.
-	if (connectBtn) {
-		connectBtn.addEventListener('click', function(e) {
-			var href = connectBtn.getAttribute('href');
-			if (!href || href === '#') {
-				e.preventDefault();
-				// New tab, same as the href's target — see the comment on the button. Losing
-				// this page would strand the user with an instruction to close a popup that
-				// no longer exists.
-				window.open(settingsUrl, '_blank', 'noopener');
-			}
-		});
-	}
+	// Settings — see the comment above for why this is not the onboarding wizard. Rendered by
+	// PHP so it is correct at parse time; main_ajax_vars is localized onto a footer script.
+	var settingsUrl = <?php echo wp_json_encode( admin_url( 'admin.php?page=improveseo_settings' ) ); ?>;
+	var guardOpen = false;
 
 	function showModal() {
-		overlay.style.display = 'flex';
+		if (guardOpen) { return; }
+		if (typeof iseoModal === 'undefined') {
+			if (window.confirm("This site isn't connected to an ImproveSEO account. Open Settings to connect it?")) {
+				window.open(settingsUrl, '_blank', 'noopener');
+			}
+			return;
+		}
+		guardOpen = true;
+		iseoModal.warning({
+			title: <?php echo wp_json_encode( __( "This site isn't connected to an ImproveSEO account", 'improveseo' ) ); ?>,
+			message: <?php echo wp_json_encode( __( 'Connect to start generating SEO content.', 'improveseo' ) ); ?>,
+			primary: {
+				label: <?php echo wp_json_encode( __( 'Connect Website', 'improveseo' ) ); ?>,
+				// New tab, so the work on this page survives; see the comment above.
+				onClick: function() { window.open(settingsUrl, '_blank', 'noopener'); }
+			},
+			// However it closes (button, ×, Esc, outside), re-read the flag: the user may have
+			// just saved valid credentials in the other tab.
+			onClose: function() { guardOpen = false; iseoRefreshConnectionState(); }
+		});
 	}
 	function hideModal() {
-		overlay.style.display = 'none';
+		if (guardOpen && typeof iseoModal !== 'undefined') { iseoModal.close(); }
 	}
-
-	if (closeBtn) {
-		closeBtn.addEventListener('click', function() { hideModal(); iseoRefreshConnectionState(); });
-	}
-	// Close on overlay click (outside the card)
-	overlay.addEventListener('click', function(e) {
-		if (e.target === overlay) { hideModal(); iseoRefreshConnectionState(); }
-	});
-	// Close on Escape key
-	document.addEventListener('keydown', function(e) {
-		if (e.key === 'Escape' && overlay.style.display === 'flex') { hideModal(); iseoRefreshConnectionState(); }
-	});
 
 	/* ── Keeping the connection flag fresh ──────────────────────────────────────
 	   Everything below exists because the flag is a PAGE-LOAD SNAPSHOT, and the

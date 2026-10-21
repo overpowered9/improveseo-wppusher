@@ -141,7 +141,8 @@ var ImageScraper = {
 			jQuery('div.Pixabay__shortcode-wrap').show();
 			jQuery('#shortcode-name').focus();
 		} else {
-			jQuery(e.target).notify('Select at least one image', 'error');
+			// Shared toast (assets/js/iseo-popups.js), so it matches every other notice.
+			if (window.iseoToast) { iseoToast.error('Images', 'Select at least one image'); } else { jQuery(e.target).notify('Select at least one image', 'error'); }
 		}
 	},
 
@@ -178,10 +179,10 @@ var ImageScraper = {
 				ImproveSEOPopup.open('info');
 				ImproveSEOPopup.body('info', 'Congrats! Your shortcode has been created. To call it, please do <strong>['+ name +']</strong> anywhere in the body (post content) of your project!');
 			} else {
-				jQuery('#shortcode-btn').notify('Error', 'error');
+				if (window.iseoToast) { iseoToast.error('Images', 'The shortcode could not be created. Please try again.'); } else { jQuery('#shortcode-btn').notify('Error', 'error'); }
 			}
 		}).fail(function(xhr) {
-			jQuery('#shortcode-btn').notify(xhr.responseText, 'error');
+			if (window.iseoToast) { iseoToast.error('Images', 'The shortcode could not be created. Please try again.'); } else { jQuery('#shortcode-btn').notify(xhr.responseText, 'error'); }
 		}).always(function() {
 			ImageScraper.shortcodeCreateProgress(false);
 			jQuery('#shortcode-btn').attr('disabled', false);

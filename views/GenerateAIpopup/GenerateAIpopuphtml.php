@@ -4781,36 +4781,48 @@ if ( 'single' !== $ai_modal_type ) {
 </div>
 
 <style>
-/* Scoped to .improveseo-regen-* so nothing here can reach WP core admin, Astra or Elementor. */
+/* Scoped to .improveseo-regen-* so nothing here can reach WP core admin, Astra or Elementor.
+   It has a textarea, so it cannot be one of the shared iseoModal popups — but it uses the same
+   look as them (assets/css/iseo-popups.css): navy overlay, white 14px card, Poppins, navy title,
+   muted body text, and 40px / 8px-radius buttons — teal primary turning navy on hover, white
+   secondary with a navy border. */
 .improveseo-regen-modal { position: fixed; inset: 0; z-index: 160000; display: flex;
-    align-items: center; justify-content: center; }
-.improveseo-regen-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, .55); }
-.improveseo-regen-panel { position: relative; width: min(560px, calc(100vw - 40px));
-    max-height: calc(100vh - 80px); overflow-y: auto; background: #fff; border-radius: 12px;
-    box-shadow: 0 18px 48px rgba(0, 0, 0, .28); padding: 26px 28px 22px; box-sizing: border-box; }
-.improveseo-regen-title { margin: 0 0 8px; font-size: 20px; font-weight: 600; color: #1d2327;
-    line-height: 1.3; }
-.improveseo-regen-lead { margin: 0 0 18px; font-size: 14px; line-height: 1.6; color: #50575e; }
-.improveseo-regen-label { display: block; font-size: 13px; font-weight: 600; color: #1d2327;
-    margin-bottom: 6px; }
-.improveseo-regen-optional { font-weight: 400; color: #787c82; }
-.improveseo-regen-textarea { width: 100%; box-sizing: border-box; border: 1px solid #c3c4c7;
+    align-items: center; justify-content: center; padding: 24px 16px;
+    font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+.improveseo-regen-backdrop { position: absolute; inset: 0; background: rgba(11, 19, 43, .5); }
+.improveseo-regen-panel { position: relative; width: min(560px, calc(100vw - 32px));
+    max-height: calc(100vh - 48px); overflow-y: auto; background: #fff; border: 1px solid #E6EBF2;
+    border-radius: 14px; box-shadow: 0 24px 48px rgba(11, 19, 43, .18); padding: 32px 28px 24px;
+    box-sizing: border-box; color: #0B132B; }
+.improveseo-regen-title { margin: 0 0 8px; padding: 0; font-family: inherit; font-size: 18px;
+    font-weight: 600; line-height: 26px; color: #0B132B; text-transform: none; }
+.improveseo-regen-lead { margin: 0 0 18px; font-family: inherit; font-size: 14px; line-height: 22px;
+    color: #5C6B7A; }
+.improveseo-regen-label { display: block; font-family: inherit; font-size: 13px; font-weight: 600;
+    color: #0B132B; margin-bottom: 6px; }
+.improveseo-regen-optional { font-weight: 400; color: #8A96A3; }
+.improveseo-regen-textarea { width: 100%; box-sizing: border-box; border: 1px solid #E6EBF2;
     border-radius: 8px; padding: 10px 12px; font-size: 14px; line-height: 1.6; resize: vertical;
-    font-family: inherit; }
+    font-family: inherit; color: #0B132B; }
 .improveseo-regen-textarea:focus { outline: none; border-color: #1C7293;
     box-shadow: 0 0 0 1px #1C7293; }
-.improveseo-regen-count { text-align: right; font-size: 12px; color: #787c82; margin-top: 6px; }
-.improveseo-regen-note { margin: 10px 0 0; font-size: 13px; color: #50575e; min-height: 18px; }
-.improveseo-regen-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;
-    margin-top: 20px; }
-.improveseo-regen-btn { flex-shrink: 0; white-space: nowrap; min-height: 40px; padding: 9px 18px;
-    line-height: 1.2; box-sizing: border-box; border-radius: 6px; font-size: 14px; cursor: pointer;
-    border: 1px solid #1C7293; background: transparent; color: #1C7293; }
-.improveseo-regen-btn--primary { background: #1C7293; color: #fff; }
-.improveseo-regen-btn--ghost { border-color: #c3c4c7; color: #50575e; }
-.improveseo-regen-btn:hover { opacity: .9; }
+.improveseo-regen-count { text-align: right; font-size: 12px; color: #8A96A3; margin-top: 6px; }
+.improveseo-regen-note { margin: 10px 0 0; font-size: 13px; color: #5C6B7A; min-height: 18px; }
+.improveseo-regen-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap;
+    margin-top: 24px; }
+.improveseo-regen-btn { display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0; white-space: nowrap; height: 40px; min-height: 40px;
+    margin: 0; padding: 0 20px; line-height: 1; box-sizing: border-box; border-radius: 8px;
+    font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: none;
+    border: 1px solid #0B132B; background: #fff; color: #0B132B;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease; }
+.improveseo-regen-btn--ghost:hover { background: #F1F4F8; border-color: #0B132B; color: #0B132B; }
+.improveseo-regen-btn--primary { background: #1C7293; border-color: #1C7293; color: #fff; }
+.improveseo-regen-btn--primary:hover { background: #0B132B; border-color: #0B132B; color: #fff; }
+.improveseo-regen-btn:focus { outline: none; }
+.improveseo-regen-btn:focus-visible { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1C7293; }
 @media (max-width: 600px) {
-    .improveseo-regen-panel { padding: 20px 18px 18px; }
+    .improveseo-regen-panel { padding: 24px 18px 18px; }
     .improveseo-regen-actions .improveseo-regen-btn { flex: 1 1 auto; }
 }
 </style>
