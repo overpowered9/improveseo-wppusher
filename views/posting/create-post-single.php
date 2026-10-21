@@ -637,4 +637,59 @@ jQuery(document).ready(function($) {
 <?php // Ask before the admin sidebar or toolbar throws the unsaved project away; see the partial. ?>
 <?php View::render('posting.leave-wizard-modal', array('saves_on_submit' => 'main_form')); ?>
 
+<script>
+/*
+ * The wizard's close (X): ask "Are you sure?", then go back to the page the wizard was
+ * started from. It is started from several places — the Create page, the Single Post
+ * screen, the Projects list, onboarding — all of them links here, so the page that
+ * linked here (the referrer) is where to return.
+ *
+ * The referrer is remembered for this tab because a failed save posts the form and
+ * redirects back here, and the referrer is then this page itself. Only same-site
+ * wp-admin addresses are used. With nothing usable, the Create page.
+ */
+(function ($) {
+	var KEY      = 'iseoSingleWizardReturn';
+	var fallback = <?php echo wp_json_encode( admin_url( 'admin.php?page=improveseo_posting' ) ); ?>;
+
+	function adminUrl(raw) {
+		try {
+			var u = new URL(raw, window.location.href);
+			if (u.origin !== window.location.origin || u.pathname.indexOf('/wp-admin/') === -1) { return null; }
+			return u;
+		} catch (e) { return null; }
+	}
+	function isThisWizard(u) {
+		return u.searchParams.get('page') === 'improveseo_posting'
+			&& u.searchParams.get('action') === 'create_post_single';
+	}
+	function remember(href) { try { sessionStorage.setItem(KEY, href); } catch (e) {} }
+	function remembered() {
+		try { var u = adminUrl(sessionStorage.getItem(KEY) || ''); return u ? u.href : null; } catch (e) { return null; }
+	}
+
+	var ref = document.referrer ? adminUrl(document.referrer) : null;
+	var returnUrl;
+	if (ref && !isThisWizard(ref)) {
+		returnUrl = ref.href;
+		remember(returnUrl);
+	} else if (ref) {
+		// Back here from our own form (a save that failed validation).
+		returnUrl = remembered() || fallback;
+	} else {
+		returnUrl = fallback;
+	}
+
+	$(document).on('click', '#iseo_close_single_wizard', function (e) {
+		e.preventDefault();
+		if (window.iseoLeaveWizard && typeof window.iseoLeaveWizard.confirm === 'function') {
+			window.iseoLeaveWizard.confirm(returnUrl);
+		} else {
+			window.onbeforeunload = null;
+			window.location.href = returnUrl;
+		}
+	});
+})(jQuery);
+</script>
+
 <?php View::make('layouts.main'); ?>

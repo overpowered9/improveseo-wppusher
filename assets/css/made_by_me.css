@@ -1617,11 +1617,39 @@ div#post-body-content {
   border: none !important;
 }
 
-/* Single-post wizard: no close (X). X'ing out left the user stranded on the bare edit-post
-   screen; the wizard is finished via its Next/Submit flow instead. Hidden here (not only in
-   the view markup) so it applies reliably regardless of the PHP view's deploy state. */
+/* The old close (X), which only hid the wizard. Kept hidden in case a cached view still
+   renders it; the wizard's close is .iseo-wizard-close below. */
 .singlepost-close {
   display: none !important;
+}
+
+/* Single-post wizard close (X), top right of the header: asks "Are you sure?" and returns
+   to where the wizard was started. A plain icon button with a light hover tile. */
+.improveseo-bulk-ai .singlepost-title .iseo-wizard-close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.improveseo-bulk-ai .singlepost-title .iseo-wizard-close img {
+  width: 20px;
+  height: 20px;
+}
+
+.improveseo-bulk-ai .singlepost-title .iseo-wizard-close:hover,
+.improveseo-bulk-ai .singlepost-title .iseo-wizard-close:focus-visible {
+  background-color: #F1F4F8;
+  outline: none;
 }
 
 /* New-category input + Add button: keep them on one row that never overflows the (narrow)

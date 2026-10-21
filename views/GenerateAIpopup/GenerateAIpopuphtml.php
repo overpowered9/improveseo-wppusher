@@ -909,9 +909,14 @@ global $ai_modal_type;
     <div class="improveseo-bulk-ai">
         <div class="singlepost-title">
             <h1> <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ); ?>"
-                    alt="iconoir_sparks"> Generate Single Al Post</h1>
-            <!-- Close (X) removed: X'ing out dropped the user onto the bare edit-post screen with
-                 no way forward. The wizard is completed via its Next/Submit flow instead. -->
+                    alt="iconoir_sparks"> <?php esc_html_e( 'Single Post Wizard - Create posts based on one keyword', 'improveseo' ); ?></h1>
+            <!-- Close (X). It used to only hide the wizard, leaving the user on the bare edit-post
+                 form behind it. Now it asks "Are you sure?" (posting.leave-wizard-modal) and then
+                 returns to the page the wizard was started from — see create-post-single.php. -->
+            <button type="button" class="iseo-wizard-close" id="iseo_close_single_wizard"
+                aria-label="<?php esc_attr_e( 'Close the wizard', 'improveseo' ); ?>">
+                <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/akar-icons_cross.svg' ); ?>" alt="">
+            </button>
         </div>
 
         <div class="steps">

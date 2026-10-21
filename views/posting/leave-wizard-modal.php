@@ -14,6 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *   ));
  *
  * A wizard that saves over AJAX calls window.iseoLeaveWizard.disarm() once it has saved.
+ * A wizard's own close (X) calls window.iseoLeaveWizard.confirm(url) to ask the same question
+ * and go to url on "Leave anyway".
  */
 $while_open      = isset( $while_open ) ? (string) $while_open : '';
 $saves_on_submit = isset( $saves_on_submit ) ? (string) $saves_on_submit : '';
@@ -85,7 +87,11 @@ $saves_on_submit = isset( $saves_on_submit ) ? (string) $saves_on_submit : '';
 
 	// Once the project is saved, leaving is exactly what should happen, so the prompt
 	// stands down. AJAX-saving wizards (Bulk) call this from their success handler.
-	window.iseoLeaveWizard = { disarm: function () { saved = true; } };
+	// confirm(url): the same prompt, for the wizard's own close (X) rather than a link.
+	window.iseoLeaveWizard = {
+		disarm: function () { saved = true; },
+		confirm: function (url) { open(url); }
+	};
 
 	// A form-saving wizard (Single) saves by submitting its form natively.
 	// Bubble phase + defaultPrevented: a submit that another handler cancels (e.g. the
