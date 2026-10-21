@@ -678,6 +678,10 @@ function check_bulk_credits_callback() {
 		));
 	}
 	
+	// A live, verified body: refresh the cache the bulk entry-link gate paints from, so a plan
+	// change shows up on the next page load instead of waiting for the hourly heartbeat.
+	improveseo_store_credit_snapshot($data);
+
 	// Extract data from response
 	$credits = $data['credits'] ?? array('images' => 0, 'content' => 0, 'keywords' => 0);
 	$subscription = $data['subscription'] ?? null;
@@ -697,12 +701,14 @@ function check_bulk_credits_callback() {
 	// Perform checks
 	$checks = array();
 	
-	// Check 1: Plan restriction (Basic/Grow plan cannot use bulk)
-	// Plan IDs: 1 = Grow/Basic, 2 = Scale, 3 = Enterprise
+	// Check 1: Plan restriction — Bulk Post is Optimize / Scale only. tier ('free' | 'grow')
+	// picks the Subscribe or Upgrade wording of iseoBulkUpgradeModal() on the client.
+	$bulk_access = improveseo_bulk_access($data);
 	$checks['plan_check'] = array(
-		'allowed' => $plan_id !== 1 && !in_array($plan_slug, array('basic', 'grow')),
-		'plan_slug' => $plan_slug,
-		'plan_id' => $plan_id,
+		'allowed' => $bulk_access['allowed'],
+		'tier' => $bulk_access['tier'],
+		'plan_slug' => $bulk_access['plan_slug'] !== '' ? $bulk_access['plan_slug'] : $plan_slug,
+		'plan_id' => $bulk_access['plan_id'],
 		'plan_name' => $plan_name
 	);
 	

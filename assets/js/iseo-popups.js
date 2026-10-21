@@ -567,4 +567,45 @@
 		show: function (options) { loading.show(options); },
 		hide: function () { loading.hide(); }
 	};
+
+	// ── Bulk Post plan gate ─────────────────────────────────────────────────────────────────
+	// Bulk Post is Optimize / Scale only. window.iseoBulkAccess is the cached verdict printed by
+	// includes/assets.php (improveseo_bulk_access_cached()); null when there is no snapshot yet,
+	// in which case the wizard's Step 1 live check (check_bulk_credits) is the gate.
+	var ISEO_PLANS_URL = 'https://account.improveseoplugin.com/credits?view=plans';
+
+	/**
+	 * iseoBulkUpgradeModal(tier) → Promise<'primary'|'secondary'|'dismiss'>
+	 * tier 'grow' asks to upgrade; anything else (free, trial) asks to subscribe.
+	 */
+	window.iseoBulkUpgradeModal = function (tier) {
+		var grow = tier === 'grow';
+		return openModal('warning', {
+			title: grow ? __('Upgrade required', 'improveseo') : __('Subscription required', 'improveseo'),
+			message: grow
+				? __('Upgrade to the Optimize or Scale plan to access the Bulk Post feature.', 'improveseo')
+				: __('Subscribe to the Optimize or Scale plan to access the Bulk Post feature.', 'improveseo'),
+			primary: {
+				label: grow ? __('Upgrade', 'improveseo') : __('Subscribe', 'improveseo'),
+				onClick: function () { window.open(ISEO_PLANS_URL, '_blank', 'noopener'); }
+			},
+			secondary: { label: __('Not now', 'improveseo') }
+		});
+	};
+
+	window.iseoBulkBlocked = function () {
+		var access = window.iseoBulkAccess;
+		return !!(access && access.allowed === false);
+	};
+
+	// Every way into the bulk wizard is a link to action=create_post_bulk, so one delegated
+	// capture-phase listener covers them all, including links added to the page later.
+	document.addEventListener('click', function (e) {
+		if (!window.iseoBulkBlocked()) { return; }
+		var link = e.target && e.target.closest ? e.target.closest('a[href*="action=create_post_bulk"]') : null;
+		if (!link) { return; }
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		window.iseoBulkUpgradeModal(window.iseoBulkAccess.tier);
+	}, true);
 })(window, document);
