@@ -51,6 +51,14 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 			<div class="create-ai-post">
 				<div class="create-ai">
 					<div class="create-ai-col">
+						<h3 class="iseo-create-title">
+							<a class="Posting__post-button iseo-create-card-link" href="<?php echo esc_url( $single_url ); ?>"><?php esc_html_e( 'Create Single Post', 'improveseo' ); ?></a>
+							<span class="iseo-info-tip" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'What is a Single Post?', 'improveseo' ); ?>">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+								<span class="iseo-info-tip-bubble iseo-info-tip-bubble--above" role="tooltip"><?php esc_html_e( 'Create a single post based on a chosen seed keyword', 'improveseo' ); ?></span>
+							</span>
+						</h3>
+						<p class="iseo-create-desc"><?php esc_html_e( 'One post built from one keyword.', 'improveseo' ); ?></p>
 						<div class="iseo-create-art">
 							<svg viewBox="0 0 360 172" role="img" aria-label="<?php esc_attr_e( 'One keyword, Cricket Bat, becomes one published post', 'improveseo' ); ?>">
 								<rect x="10" y="58" width="150" height="56" rx="28" fill="#fff" stroke="#1C7293" stroke-width="2"></rect>
@@ -80,17 +88,21 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 								<text x="262" y="131.5" font-size="9.5" font-weight="600" fill="#138A7E"><?php esc_html_e( 'Published', 'improveseo' ); ?></text>
 							</svg>
 						</div>
-						<h3 class="iseo-create-title">
-							<a class="Posting__post-button iseo-create-card-link" href="<?php echo esc_url( $single_url ); ?>"><?php esc_html_e( 'Create Single Post', 'improveseo' ); ?></a>
-							<span class="iseo-info-tip" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'What is a Single Post?', 'improveseo' ); ?>">
-								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-								<span class="iseo-info-tip-bubble iseo-info-tip-bubble--above" role="tooltip"><?php esc_html_e( 'Create a single post based on a chosen seed keyword', 'improveseo' ); ?></span>
-							</span>
-						</h3>
 						<a class="Posting__post-button iseo-btn iseo-btn-solid iseo-btn-arrow iseo-create-cta" href="<?php echo esc_url( $single_url ); ?>"><?php esc_html_e( 'Start single post', 'improveseo' ); ?></a>
 					</div>
 
 					<div class="create-ai-col">
+						<h3 class="iseo-create-title">
+							<a class="Posting__page-button iseo-create-card-link" href="<?php echo esc_url( $bulk_url ); ?>"><?php esc_html_e( 'Create Bulk Post Project', 'improveseo' ); ?></a>
+							<span class="iseo-info-tip" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'What is a Bulk Post Project?', 'improveseo' ); ?>">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+								<span class="iseo-info-tip-bubble iseo-info-tip-bubble--above" role="tooltip"><?php
+									/* translators: %s: "Create one" link to the Keyword Lists screen */
+									echo sprintf( esc_html__( 'Create a project with multiple posts based on a keyword list. Don’t have a keyword list? %s before you get started.', 'improveseo' ), '<a href="' . esc_url( $lists_url ) . '">' . esc_html__( 'Create one', 'improveseo' ) . '</a>' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every part is escaped above.
+								?></span>
+							</span>
+						</h3>
+						<p class="iseo-create-desc"><?php esc_html_e( 'Multiple posts built from a keyword list.', 'improveseo' ); ?></p>
 						<div class="iseo-create-art">
 							<svg viewBox="0 0 360 172" role="img" aria-label="<?php esc_attr_e( 'A keyword list of four keywords becomes four ready posts', 'improveseo' ); ?>">
 								<rect x="6" y="8" width="128" height="156" rx="8" fill="#fff" stroke="#CDD6DF"></rect>
@@ -141,16 +153,6 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 								<?php endforeach; ?>
 							</svg>
 						</div>
-						<h3 class="iseo-create-title">
-							<a class="Posting__page-button iseo-create-card-link" href="<?php echo esc_url( $bulk_url ); ?>"><?php esc_html_e( 'Create Bulk Post Project', 'improveseo' ); ?></a>
-							<span class="iseo-info-tip" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'What is a Bulk Post Project?', 'improveseo' ); ?>">
-								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-								<span class="iseo-info-tip-bubble iseo-info-tip-bubble--above" role="tooltip"><?php
-									/* translators: %s: "Create one" link to the Keyword Lists screen */
-									echo sprintf( esc_html__( 'Create a project with multiple posts based on a keyword list. Don’t have a keyword list? %s before you get started.', 'improveseo' ), '<a href="' . esc_url( $lists_url ) . '">' . esc_html__( 'Create one', 'improveseo' ) . '</a>' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every part is escaped above.
-								?></span>
-							</span>
-						</h3>
 						<a class="Posting__page-button iseo-btn iseo-btn-solid iseo-btn-arrow iseo-create-cta" href="<?php echo esc_url( $bulk_url ); ?>"><?php esc_html_e( 'Start bulk project', 'improveseo' ); ?></a>
 						<?php // A Bulk Post Project needs a keyword list, so the way to make one sits right under its button. ?>
 						<p class="iseo-create-needlist"><?php

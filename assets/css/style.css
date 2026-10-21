@@ -1707,8 +1707,10 @@ input:checked + .switch:before {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 230px;
-  padding: 20px;
+  /* About 60% of the earlier 230px, per the client's layout: title and description come
+     first now, so the drawing illustrates them rather than leading the card. */
+  height: 140px;
+  padding: 14px;
   background: #F4F6F8;
   border-radius: 10px;
 }
@@ -1722,12 +1724,21 @@ input:checked + .switch:before {
 }
 
 .iseo-create .create-ai-col h3.iseo-create-title {
-  margin: 22px 0 6px;
+  margin: 6px 0 4px;
   font-family: var(--iseo-font);
   font-size: 19px;
   line-height: 28px;
   font-weight: 600;
   color: var(--iseo-navy);
+}
+
+/* One line under the title saying what the card makes. */
+.iseo-create .create-ai-col .iseo-create-desc {
+  margin: 0 0 16px;
+  font-family: var(--iseo-font);
+  font-size: 13.5px;
+  line-height: 20px;
+  color: var(--iseo-muted);
 }
 
 /* The title link covers the whole card, so a click anywhere on it opens the card. */
@@ -1760,7 +1771,7 @@ input:checked + .switch:before {
   position: relative;
   z-index: 2;
   min-width: 220px;
-  margin-top: 8px;
+  margin-top: 18px;
 }
 
 .iseo-create .iseo-info-tip {
@@ -1840,8 +1851,8 @@ input:checked + .switch:before {
   }
 
   .iseo-create-art {
-    height: 190px;
-    padding: 18px;
+    height: 120px;
+    padding: 12px;
   }
 }
 
