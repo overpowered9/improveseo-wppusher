@@ -77,13 +77,13 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 					<div class="create-ai-col">
 						<div class="iseo-create-art">
 							<svg viewBox="0 0 360 172" role="img" aria-label="<?php esc_attr_e( 'One keyword, Lawn Mowing, becomes one published post', 'improveseo' ); ?>">
-								<rect x="10" y="58" width="150" height="56" rx="28" fill="#fff" stroke="#1C7293" stroke-width="2"></rect>
-								<circle cx="40" cy="86" r="18" fill="#1C7293" fill-opacity="0.12"></circle>
-								<path d="M47 80H37l-6 6 6 6h10z" fill="#1C7293"></path>
-								<circle cx="38" cy="86" r="1.8" fill="#fff"></circle>
-								<text x="66" y="84" font-size="13" font-weight="600" fill="#0B132B"><?php esc_html_e( 'Lawn Mowing', 'improveseo' ); ?></text>
-								<text x="66" y="101" font-size="10" fill="#5C6B7A"><?php esc_html_e( '1 Keyword', 'improveseo' ); ?></text>
-								<line x1="166" y1="86" x2="214" y2="86" stroke="#1C7293" stroke-width="2" stroke-dasharray="5 4"></line>
+								<rect x="2" y="58" width="160" height="56" rx="28" fill="#fff" stroke="#1C7293" stroke-width="2"></rect>
+								<circle cx="32" cy="86" r="18" fill="#1C7293" fill-opacity="0.12"></circle>
+								<path d="M39 80H29l-6 6 6 6h10z" fill="#1C7293"></path>
+								<circle cx="30" cy="86" r="1.8" fill="#fff"></circle>
+								<text x="58" y="84" font-size="13" font-weight="600" fill="#0B132B"><?php esc_html_e( 'Lawn Mowing', 'improveseo' ); ?></text>
+								<text x="58" y="101" font-size="10" fill="#5C6B7A"><?php esc_html_e( '1 Keyword', 'improveseo' ); ?></text>
+								<line x1="168" y1="86" x2="214" y2="86" stroke="#1C7293" stroke-width="2" stroke-dasharray="5 4"></line>
 								<circle cx="190" cy="86" r="7" fill="#1C7293" opacity="0.18"></circle>
 								<circle cx="190" cy="86" r="4" fill="#1C7293"></circle>
 								<path d="M214 80l8 6-8 6z" fill="#1C7293"></path>
