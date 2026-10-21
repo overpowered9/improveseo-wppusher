@@ -1623,9 +1623,9 @@ div#post-body-content {
   display: none !important;
 }
 
-/* Single-post wizard close (X), top right of the header: asks "Are you sure?" and returns
-   to where the wizard was started. A plain icon button with a light hover tile. */
-.improveseo-bulk-ai .singlepost-title .iseo-wizard-close {
+/* Wizard close (X), top right of the Single and Bulk headers: asks "Are you sure?" and
+   returns to where the wizard was started. A plain icon button with a light hover tile. */
+.iseo-wizard-close {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -1641,13 +1641,13 @@ div#post-body-content {
   transition: background-color 0.15s ease;
 }
 
-.improveseo-bulk-ai .singlepost-title .iseo-wizard-close img {
+.iseo-wizard-close img {
   width: 20px;
   height: 20px;
 }
 
-.improveseo-bulk-ai .singlepost-title .iseo-wizard-close:hover,
-.improveseo-bulk-ai .singlepost-title .iseo-wizard-close:focus-visible {
+.iseo-wizard-close:hover,
+.iseo-wizard-close:focus-visible {
   background-color: #F1F4F8;
   outline: none;
 }
