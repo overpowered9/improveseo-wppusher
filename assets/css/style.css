@@ -1739,8 +1739,12 @@ input:checked + .switch:before {
   border-radius: 14px;
 }
 
+/* No ring around the title itself: WordPress admin draws one on every focused link
+   (a:focus box-shadow), and a click left it on the title. Keyboard focus is still shown,
+   around the whole card, by the :focus-visible rule below. */
 .iseo-create .iseo-create-card-link:focus {
   outline: none;
+  box-shadow: none;
 }
 
 .iseo-create .iseo-create-card-link:focus-visible::after {
