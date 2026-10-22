@@ -549,6 +549,82 @@ function improveseo_store_credit_snapshot($data) {
 }
 
 /**
+ * Whether this account may use Bulk Post: Optimize and Scale (and Enterprise) only.
+ *
+ * One rule for every place that gates bulk — the wizard entry links and the direct wizard URL
+ * (from the cached snapshot, see improveseo_bulk_access_cached()), the Step 1 live check in
+ * check_bulk_credits_callback(), and the bulk regenerate handler.
+ *
+ * Reads the /users/status body as the server actually sends it: plan { slug, is_paid } at the
+ * top level, and the subscription row FLAT (plan_slug, plan_id). The old inline check read
+ * subscription.plan.slug, which the server never sends, so every account fell through to
+ * 'unknown' and was allowed. subscription.plan.* is still read as a fallback for older bodies.
+ *
+ * Slugs follow iseoPlanLabel() in views/layouts/main.php: legacy 'starter' is Optimize, 'pro'
+ * is Scale, 'basic' is Grow. Anything unrecognised fails closed.
+ *
+ * A subscription that has ended counts as no subscription. The server returns the latest row
+ * whatever its status and reports is_paid for any row, so a cancelled Scale account (now on
+ * Basic) still arrives as a paid 'pro'. Live statuses are the server's own set
+ * (LIVE_SUBSCRIPTION_STATUSES in services/billing/subscription-state.ts).
+ *
+ * @param array|null $status A /users/status body, or improveseo_credit_snapshot['status'].
+ * @return array { allowed: bool, tier: 'free'|'grow'|'paid', plan_slug: string, plan_id: int }
+ */
+function improveseo_bulk_access($status) {
+	$status       = is_array($status) ? $status : array();
+	$plan         = isset($status['plan']) && is_array($status['plan']) ? $status['plan'] : array();
+	$subscription = isset($status['subscription']) && is_array($status['subscription']) ? $status['subscription'] : array();
+	$sub_plan     = isset($subscription['plan']) && is_array($subscription['plan']) ? $subscription['plan'] : array();
+
+	$slug = '';
+	foreach (array($subscription['plan_slug'] ?? null, $sub_plan['slug'] ?? null, $plan['slug'] ?? null) as $candidate) {
+		if (is_string($candidate) && $candidate !== '') {
+			$slug = strtolower(trim($candidate));
+			break;
+		}
+	}
+	$plan_id = (int) ($subscription['plan_id'] ?? ($sub_plan['id'] ?? 0));
+	$is_paid = isset($plan['is_paid']) ? ($plan['is_paid'] === true) : !empty($subscription);
+	if ($is_paid && isset($subscription['status']) && is_string($subscription['status'])
+		&& !in_array(strtolower(trim($subscription['status'])), array('active', 'trialing', 'past_due', 'pending_downgrade'), true)) {
+		$is_paid = false;
+	}
+
+	$result = array('allowed' => false, 'tier' => 'free', 'plan_slug' => $slug, 'plan_id' => $plan_id);
+
+	// Free, trial (active or ended), ended-subscription and never-subscribed accounts: "Subscribe".
+	if (!$is_paid || in_array($slug, array('free', 'free-trial', 'trial', 'unknown'), true)) {
+		return $result;
+	}
+
+	// Paid with no slug at all: the old id map (1 Grow, 2 Scale, 3 Enterprise) is all there is.
+	if (in_array($slug, array('starter', 'optimize', 'pro', 'scale', 'enterprise'), true)
+		|| ($slug === '' && in_array($plan_id, array(2, 3), true))) {
+		$result['allowed'] = true;
+		$result['tier']    = 'paid';
+		return $result;
+	}
+
+	// Grow, and any paid plan we do not recognise: "Upgrade".
+	$result['tier'] = 'grow';
+	return $result;
+}
+
+/**
+ * improveseo_bulk_access() from the cached snapshot, without a live call — for page renders.
+ * Null when there is no snapshot yet (never connected): callers then let the user through and
+ * the wizard's Step 1 live check (check_bulk_credits) decides.
+ */
+function improveseo_bulk_access_cached() {
+	$snapshot = get_option('improveseo_credit_snapshot');
+	if (!is_array($snapshot) || empty($snapshot['status']) || !is_array($snapshot['status'])) {
+		return null;
+	}
+	return improveseo_bulk_access($snapshot['status']);
+}
+
+/**
  * The site-wide banner: every wp-admin screen, not just this plugin's own. Three
  * independent checks, each printing its own <div class="notice">:
  *

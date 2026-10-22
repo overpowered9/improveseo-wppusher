@@ -114,7 +114,8 @@ var VideoScraper = {
 			jQuery('div.Pixabay__shortcode-wrap').show();
 			jQuery('#video-shortcode-name').focus();
 		} else {
-			jQuery(e.target).notify('Select at least one video', 'error');
+			// Shared toast (assets/js/iseo-popups.js), so it matches every other notice.
+			if (window.iseoToast) { iseoToast.error('Videos', 'Select at least one video'); } else { jQuery(e.target).notify('Select at least one video', 'error'); }
 		}
 	},
 
@@ -147,10 +148,10 @@ var VideoScraper = {
 				ImproveSEOPopup.open('info');
 				ImproveSEOPopup.body('info', 'Congrats! Your shortcode has been created. To call it, please do <strong>['+ name +']</strong> anywhere in the body (post content) of your project!');
 			} else {
-				jQuery('#video-shortcode-btn').notify('Error', 'error');
+				if (window.iseoToast) { iseoToast.error('Videos', 'The shortcode could not be created. Please try again.'); } else { jQuery('#video-shortcode-btn').notify('Error', 'error'); }
 			}
 		}).fail(function(xhr) {
-			jQuery('#video-shortcode-btn').notify(xhr.responseText, 'error');
+			if (window.iseoToast) { iseoToast.error('Videos', 'The shortcode could not be created. Please try again.'); } else { jQuery('#video-shortcode-btn').notify(xhr.responseText, 'error'); }
 		}).always(function() {
 			jQuery('#video-shortcode-btn').attr('disabled', false);
 		});

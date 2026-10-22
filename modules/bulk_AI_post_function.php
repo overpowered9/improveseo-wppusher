@@ -2910,9 +2910,21 @@ function re_generate_post()
 		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
 	}
 
+	// Bulk Post is Optimize / Scale only. Old bulk projects stay viewable on other plans, but
+	// regenerating their content is part of the bulk feature, so it is closed here too.
+	$bulk_access = improveseo_bulk_access_cached();
+	if ($bulk_access !== null && !$bulk_access['allowed']) {
+		wp_send_json_error(array(
+			'status'  => 'false',
+			'code'    => 'plan_restriction',
+			'tier'    => $bulk_access['tier'],
+			'message' => 'Bulk Post is available on the Optimize and Scale plans.',
+		), 403);
+	}
+
 	global $wpdb;
 	$id = intval($_REQUEST['id']);
-	
+
 	my_plugin_log('re_generate_post: Starting regeneration | Task ID: ' . $id);
 	
 	// Clear old content and post_id so saveContentInTaskList picks it up after cron regenerates.

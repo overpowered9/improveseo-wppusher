@@ -11,7 +11,7 @@
  *   data-iseo-confirm="…" on a link, button or form — an async replacement for
  *       onclick="return confirm(…)"; the original click/submit runs once, after confirming.
  *
- * modal opts: { title, message, details: [{ label, value, tone }], icon,
+ * modal opts: { title, message, content: Node|Node[], details: [{ label, value, tone }], icon,
  *               primary: { label, onClick }, secondary: { label, onClick },
  *               dismissible (default true), onClose }
  *
@@ -150,6 +150,21 @@
 					message.id = id + '-message';
 					card.setAttribute('aria-describedby', message.id);
 					card.appendChild(message);
+				}
+
+				// Pre-built nodes for a message that is more than one plain string — a sentence
+				// with a link in it, or a quieter second line (.iseo-ui-note). Callers build them
+				// with DOM APIs / textContent, so nothing is parsed as HTML here either.
+				if (opts.content) {
+					var content = el('div', 'iseo-ui-content');
+					(Array.isArray(opts.content) ? opts.content : [opts.content]).forEach(function (node) {
+						if (node) { content.appendChild(node); }
+					});
+					if (!opts.message) {
+						content.id = id + '-message';
+						card.setAttribute('aria-describedby', content.id);
+					}
+					card.appendChild(content);
 				}
 
 				if (opts.details && opts.details.length) {
@@ -567,4 +582,79 @@
 		show: function (options) { loading.show(options); },
 		hide: function () { loading.hide(); }
 	};
+
+	/**
+	 * swal(text, opts) / swal(opts) — SweetAlert 2.x's call shapes, rendered in this popup.
+	 * The keyword and shortcode screens (assets/js/wt-script.js) were written against
+	 * SweetAlert, which drew its own differently styled box; the library is no longer loaded
+	 * in wp-admin (improveseo.php, load_admin_files) and its calls land here instead.
+	 * Resolves like SweetAlert: true when confirmed, null when dismissed.
+	 *   { title, text, icon: 'success'|'error'|'warning'|'info', buttons: true, dangerMode }
+	 */
+	window.swal = function (a, b) {
+		var o = {};
+		var src = typeof a === 'string' ? (b || {}) : (a || {});
+		for (var k in src) { if (Object.prototype.hasOwnProperty.call(src, k)) { o[k] = src[k]; } }
+		if (typeof a === 'string') { o.text = a; }
+
+		var type = TYPES[o.icon] && o.icon !== 'confirm' && o.icon !== 'destructive' ? o.icon : 'info';
+		// A lone sentence ("Data Have Been Saved Successfully!") reads best as the title.
+		var title = o.title || o.text || '';
+		var message = o.title ? (o.text || '') : '';
+
+		if (o.buttons || o.dangerMode) {
+			return confirmModal(o.dangerMode ? 'destructive' : 'confirm', {
+				title: title,
+				message: message,
+				icon: TYPES[type].icon,
+				primary: { label: __('Yes, continue', 'improveseo') },
+				secondary: { label: __('Cancel', 'improveseo') }
+			}).then(function (ok) { return ok ? true : null; });
+		}
+		return openModal(type, { title: title, message: message, primary: { label: __('OK', 'improveseo') } })
+			.then(function (result) { return result === 'primary' ? true : null; });
+	};
+
+	// ── Bulk Post plan gate ─────────────────────────────────────────────────────────────────
+	// Bulk Post is Optimize / Scale only. window.iseoBulkAccess is the cached verdict printed by
+	// includes/assets.php (improveseo_bulk_access_cached()); null when there is no snapshot yet,
+	// in which case the wizard's Step 1 live check (check_bulk_credits) is the gate.
+	var ISEO_PLANS_URL = 'https://account.improveseoplugin.com/credits?view=plans';
+
+	/**
+	 * iseoBulkUpgradeModal(tier) → Promise<'primary'|'secondary'|'dismiss'>
+	 * tier 'grow' asks to upgrade; anything else (free, trial) asks to subscribe.
+	 */
+	window.iseoBulkUpgradeModal = function (tier) {
+		var grow = tier === 'grow';
+		return openModal('warning', {
+			title: grow ? __('Upgrade required', 'improveseo') : __('Subscription required', 'improveseo'),
+			message: grow
+				? __('Upgrade to the Optimize or Scale plan to access the Bulk Post feature.', 'improveseo')
+				: __('Subscribe to the Optimize or Scale plan to access the Bulk Post feature.', 'improveseo'),
+			primary: {
+				label: grow ? __('Upgrade', 'improveseo') : __('Subscribe', 'improveseo'),
+				onClick: function () { window.open(ISEO_PLANS_URL, '_blank', 'noopener'); }
+			},
+			secondary: { label: __('Not now', 'improveseo') }
+		});
+	};
+
+	window.iseoBulkBlocked = function () {
+		var access = window.iseoBulkAccess;
+		return !!(access && access.allowed === false);
+	};
+
+	// Every way into the bulk wizard goes to action=create_post_bulk: links, and the
+	// "+ New Bulk Project" buttons on Bulk Post Projects, which navigate from an inline onclick.
+	// One delegated capture-phase listener covers them all, including ones added to the page
+	// later, and stops before the button's own onclick runs.
+	document.addEventListener('click', function (e) {
+		if (!window.iseoBulkBlocked()) { return; }
+		var link = e.target && e.target.closest ? e.target.closest('a[href*="action=create_post_bulk"], [onclick*="action=create_post_bulk"]') : null;
+		if (!link) { return; }
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		window.iseoBulkUpgradeModal(window.iseoBulkAccess.tier);
+	}, true);
 })(window, document);

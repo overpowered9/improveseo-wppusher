@@ -1018,8 +1018,24 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 						btn.classList.remove('is-copied');
 					}, 2000);
 				}, function () {
-					// Nothing reached the clipboard: hand the text over in a prompt, pre-selected.
-					window.prompt('Copy your site details:', text);
+					// Nothing reached the clipboard: hand the text over pre-selected, in the shared
+					// popup so it looks like every other one (the browser prompt it replaces did not).
+					if (typeof iseoModal === 'undefined') {
+						window.prompt('Copy your site details:', text);
+						return;
+					}
+					var box = document.createElement('textarea');
+					box.className = 'iseo-ui-copybox';
+					box.readOnly = true;
+					box.rows = 4;
+					box.value = text;
+					iseoModal.info({
+						title: 'Copy your site details',
+						message: 'Copying was blocked by your browser. Select the text below and copy it.',
+						content: box,
+						primary: { label: 'Done' }
+					});
+					setTimeout(function () { box.focus(); box.select(); }, 0);
 				});
 			});
 		});

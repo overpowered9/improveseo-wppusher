@@ -523,6 +523,13 @@ $url .= $_SERVER['REQUEST_URI'];
 				}
 
 				var d = response.data || {};
+				// Bulk Post is Optimize / Scale only: old bulk projects stay viewable on other
+				// plans, but regenerating their content is not offered. Same Subscribe / Upgrade
+				// modal as the wizard entry points, before any credit maths.
+				if (d.plan_check && !d.plan_check.allowed) {
+					iseoBulkUpgradeModal(d.plan_check.tier);
+					return;
+				}
 				if (d.content_check && !d.content_check.sufficient) {
 					var needed = (d.content_check.needed != null) ? d.content_check.needed : '';
 					// The "estimated" wording is not hedging — this screen has no per-task word
@@ -564,6 +571,13 @@ $url .= $_SERVER['REQUEST_URI'];
 				},
 				error: function(xhr, status, error) {
 					jQuery('.show_loading').css("display", "none");
+					// re_generate_post() refuses with code plan_restriction when the plan has no
+					// Bulk Post (it reads the cached plan, which can differ from the check above).
+					var refused = xhr && xhr.responseJSON && xhr.responseJSON.data;
+					if (refused && refused.code === 'plan_restriction') {
+						iseoBulkUpgradeModal(refused.tier);
+						return;
+					}
 					iseoModal.error({ title: '<?php echo esc_js( __( 'Regeneration failed', 'improveseo' ) ); ?>', message: "Failed to regenerate content. Please try again." });
 					console.error(error);
 				}

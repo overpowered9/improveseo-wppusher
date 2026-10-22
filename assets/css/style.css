@@ -1263,17 +1263,19 @@ ul.breadcrumb-seo li a:hover {
 }
 
 /* ── Drafts modal ─────────────────────────────────────────────────────────
-   Same overlay pattern as #iseo-connection-guard-overlay (views/layouts/main.php) —
-   fixed, centred, dismissible by backdrop click or Escape — as a CSS class rather
-   than that modal's inline styles, matching this file's own convention. */
+   A list with a button per row, so it is its own markup rather than an iseoModal — but it
+   uses the shared popup look (assets/css/iseo-popups.css): navy overlay, white 14px card
+   with the hairline border, Poppins, an 18px navy title and the same close button. */
 .iseo-drafts-modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 999999;
-  background: rgba(0, 0, 0, 0.55);
+  padding: 24px 16px;
+  background: rgba(11, 19, 43, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .iseo-drafts-modal-overlay[hidden] {
@@ -1281,36 +1283,52 @@ ul.breadcrumb-seo li a:hover {
 }
 
 .iseo-drafts-modal {
-  background: #ffffff;
+  box-sizing: border-box;
+  background: #FFFFFF;
+  border: 1px solid #E6EBF2;
   border-radius: 14px;
-  padding: 28px 28px 20px;
+  padding: 32px 28px 24px;
   max-width: 480px;
-  width: 90%;
-  max-height: 70vh;
+  width: 100%;
+  max-height: calc(100vh - 48px);
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 24px 48px rgba(11, 19, 43, 0.18);
+  color: #0B132B;
 }
 
 .iseo-drafts-modal-close {
   position: absolute;
   top: 12px;
-  right: 14px;
-  background: none;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
   border: none;
+  border-radius: 8px;
   font-size: 22px;
-  color: #9ca3af;
-  cursor: pointer;
   line-height: 1;
-  padding: 4px;
+  color: #9AA5AD;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .iseo-drafts-modal-close:hover {
-  color: #374151;
+  background: #F1F4F8;
+  color: #0B132B;
 }
 
 .iseo-drafts-modal-title {
+  font-family: inherit !important;
   font-size: 18px !important;
+  font-weight: 600 !important;
+  line-height: 26px !important;
+  color: #0B132B !important;
   margin: 0 0 16px !important;
 }
 
@@ -1320,7 +1338,7 @@ ul.breadcrumb-seo li a:hover {
   justify-content: space-between;
   gap: 12px;
   padding: 10px 0;
-  border-top: 1px solid #ededed;
+  border-top: 1px solid #E6EBF2;
 }
 
 .iseo-drafts-modal-row:first-child {
@@ -1329,7 +1347,7 @@ ul.breadcrumb-seo li a:hover {
 
 .iseo-drafts-modal-row-title {
   font-size: 14px;
-  color: #3c434a;
+  color: #5C6B7A;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

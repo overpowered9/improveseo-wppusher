@@ -301,6 +301,20 @@ jQuery(document).ready(function($) {
         'visibility': 'hidden'
     });
     
+    // Bulk Post is Optimize / Scale only. Reached by a typed URL or a redirect (the entry links
+    // are stopped in iseo-popups.js): show the Subscribe / Upgrade modal instead of the wizard,
+    // and leave the page however it is closed.
+    if (typeof iseoBulkBlocked === 'function' && iseoBulkBlocked()) {
+        iseoBulkUpgradeModal(iseoBulkAccess.tier).then(function() {
+            if (window.history.length > 1 && document.referrer) {
+                window.history.back();
+            } else {
+                window.location.href = <?php echo wp_json_encode( admin_url( 'admin.php?page=improveseo_bulkprojects' ) ); ?>;
+            }
+        });
+        return;
+    }
+
     // Auto-trigger bulk AI popup on page load with slight delay for smooth rendering
     setTimeout(function() {
         $('#generate_ai_popup_open').trigger('click');

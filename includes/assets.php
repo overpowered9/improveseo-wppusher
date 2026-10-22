@@ -52,6 +52,9 @@ function improveseo_enqueue_admin(){
 	wp_enqueue_style('improveseo-popups', IMPROVESEO_DIR . '/assets/css/iseo-popups.css', array(), improveseo_asset_ver('assets/css/iseo-popups.css'));
 	wp_enqueue_script('improveseo-popups', IMPROVESEO_DIR . '/assets/js/iseo-popups.js', array('wp-i18n'), improveseo_asset_ver('assets/js/iseo-popups.js'), false);
 	wp_set_script_translations('improveseo-popups', 'improveseo', IMPROVESEO_ROOT . '/languages');
+	// Bulk Post plan gate (iseo-popups.js): the cached verdict, so the wizard entry links can show
+	// the Subscribe / Upgrade modal without a live call. Printed before the script that reads it.
+	wp_add_inline_script('improveseo-popups', 'window.iseoBulkAccess = ' . wp_json_encode(improveseo_bulk_access_cached()) . ';', 'before');
 
 	// Bundled locally: wp.org does not permit loading assets from a remote host, and a CDN
 	// outage would otherwise take the plugin's icons with it. Same file, same version.
@@ -101,6 +104,7 @@ function improveseo_enqueue_admin(){
 		// esc_url(): it is assigned to an href from JS, where an entity-encoded & would break it.
 		'manualListUrl' => esc_url_raw( admin_url( 'admin.php?page=improveseo_lists&action=create' ) ),
 		'i18n'          => array(
+			'title'        => __( 'Daily limit reached', 'improveseo' ),
 			'exhausted'    => __( 'Your daily Keyword Generator tool allowance is exhausted. You will be able to use the Keyword Generator tool again tomorrow.', 'improveseo' ),
 			'manualBefore' => __( 'Meanwhile you have the option to manually create', 'improveseo' ),
 			'manualLink'   => __( 'keyword lists', 'improveseo' ),
