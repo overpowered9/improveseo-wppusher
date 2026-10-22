@@ -645,11 +645,13 @@
 		return !!(access && access.allowed === false);
 	};
 
-	// Every way into the bulk wizard is a link to action=create_post_bulk, so one delegated
-	// capture-phase listener covers them all, including links added to the page later.
+	// Every way into the bulk wizard goes to action=create_post_bulk: links, and the
+	// "+ New Bulk Project" buttons on Bulk Post Projects, which navigate from an inline onclick.
+	// One delegated capture-phase listener covers them all, including ones added to the page
+	// later, and stops before the button's own onclick runs.
 	document.addEventListener('click', function (e) {
 		if (!window.iseoBulkBlocked()) { return; }
-		var link = e.target && e.target.closest ? e.target.closest('a[href*="action=create_post_bulk"]') : null;
+		var link = e.target && e.target.closest ? e.target.closest('a[href*="action=create_post_bulk"], [onclick*="action=create_post_bulk"]') : null;
 		if (!link) { return; }
 		e.preventDefault();
 		e.stopImmediatePropagation();
