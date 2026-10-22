@@ -563,6 +563,11 @@ function improveseo_store_credit_snapshot($data) {
  * Slugs follow iseoPlanLabel() in views/layouts/main.php: legacy 'starter' is Optimize, 'pro'
  * is Scale, 'basic' is Grow. Anything unrecognised fails closed.
  *
+ * A subscription that has ended counts as no subscription. The server returns the latest row
+ * whatever its status and reports is_paid for any row, so a cancelled Scale account (now on
+ * Basic) still arrives as a paid 'pro'. Live statuses are the server's own set
+ * (LIVE_SUBSCRIPTION_STATUSES in services/billing/subscription-state.ts).
+ *
  * @param array|null $status A /users/status body, or improveseo_credit_snapshot['status'].
  * @return array { allowed: bool, tier: 'free'|'grow'|'paid', plan_slug: string, plan_id: int }
  */
@@ -581,10 +586,14 @@ function improveseo_bulk_access($status) {
 	}
 	$plan_id = (int) ($subscription['plan_id'] ?? ($sub_plan['id'] ?? 0));
 	$is_paid = isset($plan['is_paid']) ? ($plan['is_paid'] === true) : !empty($subscription);
+	if ($is_paid && isset($subscription['status']) && is_string($subscription['status'])
+		&& !in_array(strtolower(trim($subscription['status'])), array('active', 'trialing', 'past_due', 'pending_downgrade'), true)) {
+		$is_paid = false;
+	}
 
 	$result = array('allowed' => false, 'tier' => 'free', 'plan_slug' => $slug, 'plan_id' => $plan_id);
 
-	// Free, trial (active or ended) and never-subscribed accounts: "Subscribe".
+	// Free, trial (active or ended), ended-subscription and never-subscribed accounts: "Subscribe".
 	if (!$is_paid || in_array($slug, array('free', 'free-trial', 'trial', 'unknown'), true)) {
 		return $result;
 	}
