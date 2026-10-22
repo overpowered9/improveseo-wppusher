@@ -11,12 +11,16 @@ if ( ! defined( 'ABSPATH' ) ) {
  *   View::render('posting.leave-wizard-modal', array(
  *       'while_open'      => '#exampleModal2', // ask only while this wizard modal is open; '' = the whole page
  *       'saves_on_submit' => 'main_form',      // a native submit of this form saves the project
+ *       'wizard_action'   => 'create_post_single', // this wizard's ?action=, for its close (X)
  *   ));
  *
  * A wizard that saves over AJAX calls window.iseoLeaveWizard.disarm() once it has saved.
+ * A wizard's close (X) is any `.iseo-wizard-close` button: it asks the same question and, on
+ * "Leave anyway", returns to the page the wizard was started from (see the script at the end).
  */
 $while_open      = isset( $while_open ) ? (string) $while_open : '';
 $saves_on_submit = isset( $saves_on_submit ) ? (string) $saves_on_submit : '';
+$wizard_action   = isset( $wizard_action ) ? (string) $wizard_action : '';
 ?>
 <!-- ── Leave-wizard confirmation ──────────────────────────────────────────────
      Nothing in a post wizard is saved until its final step submits, so a click on the
@@ -44,7 +48,11 @@ $saves_on_submit = isset( $saves_on_submit ) ? (string) $saves_on_submit : '';
 
 	// Once the project is saved, leaving is exactly what should happen, so the prompt
 	// stands down. AJAX-saving wizards (Bulk) call this from their success handler.
-	window.iseoLeaveWizard = { disarm: function () { saved = true; } };
+	// confirm(url): the same prompt, for the wizard's own close (X) rather than a link.
+	window.iseoLeaveWizard = {
+		disarm: function () { saved = true; },
+		confirm: function (url) { open(url); }
+	};
 
 	// A form-saving wizard (Single) saves by submitting its form natively.
 	// Bubble phase + defaultPrevented: a submit that another handler cancels (e.g. the
@@ -112,6 +120,64 @@ $saves_on_submit = isset( $saves_on_submit ) ? (string) $saves_on_submit : '';
 	['adminmenuwrap', 'wpadminbar'].forEach(function (id) {
 		var area = document.getElementById(id);
 		if (area) { area.addEventListener('click', guardLinks, true); }
+	});
+})();
+</script>
+
+<script>
+/*
+ * The wizard's close (X): ask "Are you sure?", then go back to the page the wizard was
+ * started from. Each wizard is started from several places (the Create page, the Single
+ * Post screen, Bulk Post Projects, Keyword Lists, onboarding…), all of them links to the
+ * wizard page, so the page that linked here (the referrer) is where to return.
+ *
+ * The referrer is remembered per wizard for this tab, because a failed save posts the form
+ * and redirects back to the wizard, and the referrer is then the wizard itself. Only
+ * same-site wp-admin addresses are used. With nothing usable, the Create page.
+ */
+(function () {
+	var action   = <?php echo wp_json_encode( $wizard_action ); ?>;
+	var KEY      = 'iseoWizardReturn:' + (action || 'wizard');
+	var fallback = <?php echo wp_json_encode( admin_url( 'admin.php?page=improveseo_posting' ) ); ?>;
+
+	function adminUrl(raw) {
+		try {
+			var u = new URL(raw, window.location.href);
+			if (u.origin !== window.location.origin || u.pathname.indexOf('/wp-admin/') === -1) { return null; }
+			return u;
+		} catch (e) { return null; }
+	}
+	function isThisWizard(u) {
+		return u.searchParams.get('page') === 'improveseo_posting'
+			&& (!action || u.searchParams.get('action') === action);
+	}
+	function remember(href) { try { sessionStorage.setItem(KEY, href); } catch (e) {} }
+	function remembered() {
+		try { var u = adminUrl(sessionStorage.getItem(KEY) || ''); return u ? u.href : null; } catch (e) { return null; }
+	}
+
+	var ref = document.referrer ? adminUrl(document.referrer) : null;
+	var returnUrl;
+	if (ref && !isThisWizard(ref)) {
+		returnUrl = ref.href;
+		remember(returnUrl);
+	} else if (ref) {
+		// Back here from the wizard's own form (a save that failed validation).
+		returnUrl = remembered() || fallback;
+	} else {
+		returnUrl = fallback;
+	}
+
+	document.addEventListener('click', function (e) {
+		var btn = e.target && e.target.closest ? e.target.closest('.iseo-wizard-close') : null;
+		if (!btn) { return; }
+		e.preventDefault();
+		if (window.iseoLeaveWizard && typeof window.iseoLeaveWizard.confirm === 'function') {
+			window.iseoLeaveWizard.confirm(returnUrl);
+		} else {
+			window.onbeforeunload = null;
+			window.location.href = returnUrl;
+		}
 	});
 })();
 </script>

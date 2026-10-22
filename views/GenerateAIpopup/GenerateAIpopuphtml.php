@@ -651,9 +651,14 @@ global $ai_modal_type;
     <div class="improveseo-bulk-ai">
         <div class="singlepost-title">
             <h1> <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ); ?>"
-                    alt="iconoir_sparks"> Generate Single Al Post</h1>
-            <!-- Close (X) removed: X'ing out dropped the user onto the bare edit-post screen with
-                 no way forward. The wizard is completed via its Next/Submit flow instead. -->
+                    alt="iconoir_sparks"> <?php esc_html_e( 'Single Post Wizard - Create posts based on one keyword', 'improveseo' ); ?></h1>
+            <!-- Close (X). It used to only hide the wizard, leaving the user on the bare edit-post
+                 form behind it. Now it asks "Are you sure?" and then returns to the page the
+                 wizard was started from — handled by posting.leave-wizard-modal. -->
+            <button type="button" class="iseo-wizard-close" id="iseo_close_single_wizard"
+                aria-label="<?php esc_attr_e( 'Close the wizard', 'improveseo' ); ?>">
+                <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/akar-icons_cross.svg' ); ?>" alt="">
+            </button>
         </div>
 
         <div class="steps">
@@ -1463,7 +1468,13 @@ global $ai_modal_type;
     <div class="improveseo-bulk-ai_multi">
         <div class="singlepost-title_multi">
             <h1><img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/iconoir_sparks-solid.svg' ); ?>"
-                    alt="iconoir_sparks"> Bulk Create AI Posts</h1>
+                    alt="iconoir_sparks"> <?php esc_html_e( 'Bulk Post Wizard - Create posts based on a keyword list', 'improveseo' ); ?></h1>
+            <!-- Close (X): asks "Are you sure?" and returns to where the wizard was started —
+                 handled by posting.leave-wizard-modal for any .iseo-wizard-close. -->
+            <button type="button" class="iseo-wizard-close" id="iseo_close_bulk_wizard"
+                aria-label="<?php esc_attr_e( 'Close the wizard', 'improveseo' ); ?>">
+                <img src="<?php echo esc_url( WT_URL . '/assets/images/latest-images/akar-icons_cross.svg' ); ?>" alt="">
+            </button>
         </div>
         <form id="pop_up_multi_form" action="multipost_form_submit" method="post" class="pop_up_multi_form">
             <div class="steps_multi">
@@ -2126,7 +2137,7 @@ global $ai_modal_type;
 // saved by the wizard's final Submit. The Single wizard's page renders its own copy, which
 // guards the whole page, so it is skipped there (one overlay per page).
 if ( 'single' !== $ai_modal_type ) {
-    \ImproveSEO\View::render( 'posting.leave-wizard-modal', array( 'while_open' => '#exampleModal2' ) );
+    \ImproveSEO\View::render( 'posting.leave-wizard-modal', array( 'while_open' => '#exampleModal2', 'wizard_action' => 'create_post_bulk' ) );
 }
 ?>
 

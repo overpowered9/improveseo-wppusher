@@ -635,6 +635,7 @@ jQuery(document).ready(function($) {
 </script>
 
 <?php // Ask before the admin sidebar or toolbar throws the unsaved project away; see the partial. ?>
-<?php View::render('posting.leave-wizard-modal', array('saves_on_submit' => 'main_form')); ?>
+<?php // Its close (X) returns to where the wizard was started; wizard_action tells it which page is "here". ?>
+<?php View::render('posting.leave-wizard-modal', array('saves_on_submit' => 'main_form', 'wizard_action' => 'create_post_single')); ?>
 
 <?php View::make('layouts.main'); ?>

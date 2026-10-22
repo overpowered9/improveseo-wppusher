@@ -857,30 +857,28 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 				<a class="iseo-qlink-link" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_posting') ); ?>">
 					<span class="iseo-qlink-icon"><?php echo iseo_dash_icon( 'plus-square' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup. ?></span>
 					<h3 class="iseo-qlink-title">Create Posts</h3>
-					<p class="iseo-qlink-desc">Create keyword-rich posts or pages. Preview content, schedule, and more!</p>
+					<p class="iseo-qlink-desc">Create content that helps customers find you — in Google and in AI assistants like ChatGPT.</p>
 				</a>
 			</div>
 			<div class="iseo-qlink">
 				<a class="iseo-qlink-link" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_projects') ); ?>">
 					<span class="iseo-qlink-icon"><?php echo iseo_dash_icon( 'document' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup. ?></span>
 					<h3 class="iseo-qlink-title">Single Post Projects</h3>
-					<p class="iseo-qlink-desc">View, edit, and manage every single AI-generated post or page you've created.</p>
+					<p class="iseo-qlink-desc">View, edit, and manage every post you've created with the Single Post Wizard.</p>
 				</a>
 			</div>
 			<div class="iseo-qlink">
 				<a class="iseo-qlink-link" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects') ); ?>">
 					<span class="iseo-qlink-icon"><?php echo iseo_dash_icon( 'documents' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup. ?></span>
 					<h3 class="iseo-qlink-title">Bulk Post Projects</h3>
-					<p class="iseo-qlink-desc">Create projects. Option to duplicate project, update all published content, download content URLs to
-					desktop, delete all posts/pages and project</p>
+					<p class="iseo-qlink-desc">View, edit, and manage every post you've created with the Bulk Post Wizard.</p>
 				</a>
 			</div>
 			<div class="iseo-qlink">
 				<a class="iseo-qlink-link" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists') ); ?>">
 					<span class="iseo-qlink-icon"><?php echo iseo_dash_icon( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup. ?></span>
 					<h3 class="iseo-qlink-title">Keyword Lists &amp; Tool</h3>
-					<p class="iseo-qlink-desc">Add keywords you want to target and use Google autosuggest to build keyword lists you can bulk
-					create posts from.</p>
+					<p class="iseo-qlink-desc">Create keyword lists you will need to use the Bulk Post Wizard. Either create them manually or use the Keyword Tool.</p>
 				</a>
 			</div>
 		</div>
