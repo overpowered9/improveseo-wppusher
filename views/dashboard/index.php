@@ -530,6 +530,10 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 
 					primaryBtn.textContent   = 'Manage Plan';
 					secondaryBtn.textContent = 'Cancel Subscription';
+					// Every state sets its own link: the card is painted from the cached snapshot and
+					// then again from the live check, which can be a different state (Basic, then
+					// paid right after subscribing) — a link left from the first paint would be wrong.
+					secondaryBtn.href        = <?php echo wp_json_encode( $iseo_qs_plans_url ); ?>;
 				} else {
 					planCard.setAttribute('data-plan-state', 'free');
 					statusEl.textContent = label.toUpperCase();
@@ -543,10 +547,13 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 					if (trial.active) {
 						primaryBtn.textContent   = 'Choose a Plan';
 						secondaryBtn.textContent = 'Get more credits';
+						secondaryBtn.href        = <?php echo wp_json_encode( $iseo_qs_plans_url ); ?>;
 					} else {
 						primaryBtn.textContent   = 'Get subscription';
 						secondaryBtn.textContent = 'Buy credit pack';
-						secondaryBtn.href        = <?php echo wp_json_encode( $iseo_credits_url ); ?>;
+						// ?addCredits=1 opens the credit pack picker, as the CMS's own "Buy credit
+						// pack" button does, rather than the bare Credits page.
+						secondaryBtn.href        = <?php echo wp_json_encode( add_query_arg( 'addCredits', '1', $iseo_credits_url ) ); ?>;
 					}
 				}
 
