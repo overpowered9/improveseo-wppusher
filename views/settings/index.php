@@ -446,12 +446,21 @@ document.addEventListener('DOMContentLoaded', function() {
             ? iseoPlanLabel(plan, d.subscription, trial)
             : ((plan && plan.name) ? plan.name : 'Connected');
 
-        if (plan && plan.is_paid) {
+        // OLD: if (plan && plan.is_paid) — true even for a cancelled subscription.
+        var paidLive = (typeof iseoHasLivePlan === 'function')
+            ? iseoHasLivePlan(plan, d.subscription)
+            : !!(plan && plan.is_paid);
+
+        if (paidLive) {
             badgeColor = '#0f7b6c';
             statusLine = 'Active subscription — full access.';
-        } else if (trial && trial.expired) {
-            badgeColor = '#b3521a';
-            statusLine = 'Your free trial has ended. Upgrade to restore full access — any credits you purchased remain usable.';
+        // OLD: } else if (trial && trial.expired) {
+        //     badgeColor = '#b3521a';
+        //     statusLine = 'Your free trial has ended. Upgrade to restore full access — any credits you purchased remain usable.';
+        // REQUESTED: on Basic, say what the CMS's Basic plan says.
+        } else if (!(trial && trial.active)) {
+            badgeColor = '#6b7280';
+            statusLine = 'Basic plan — no monthly charge. Pay as you go.';
         } else if (trial && trial.active) {
             badgeColor = '#0f7b6c';
             var days = (trial.days_remaining != null) ? trial.days_remaining : null;

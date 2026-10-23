@@ -217,7 +217,7 @@
  * @param {object} plan         The `plan` block: { is_paid, name }.
  * @param {object} subscription The `subscription` block: { plan: { id, slug, name } }.
  * @param {object} trial        The `trial` block: { active, expired, days_remaining, ends_at }.
- * @returns {string} One of: Free Trial, Trial ended, Free Plan, Grow Plan, Optimize Plan,
+ * @returns {string} One of: Free Trial, Basic Plan, Grow Plan, Optimize Plan,
  *                   Scale Plan, Enterprise Plan, or a title-cased passthrough.
  */
 window.iseoPlanLabel = function(plan, subscription, trial) {
@@ -226,14 +226,14 @@ window.iseoPlanLabel = function(plan, subscription, trial) {
 
 	var subPlan = (subscription && subscription.plan) ? subscription.plan : {};
 
-	// Trial states stand on their own — they are not a plan tier.
-	if (trial.expired && plan.is_paid !== true) { return 'Trial ended'; }
-	if (trial.active  && plan.is_paid !== true) { return 'Free Trial'; }
-
-	// An account without a paid subscription is on the free plan, whatever stale paid name
-	// the server may still be carrying against it. This is what stopped free accounts from
-	// being labelled "Pro Plan".
-	if (plan.is_paid !== true) { return 'Free Plan'; }
+	// OLD: if (trial.expired && plan.is_paid !== true) { return 'Trial ended'; }
+	//      if (trial.active  && plan.is_paid !== true) { return 'Free Trial'; }
+	//      if (plan.is_paid !== true) { return 'Free Plan'; }
+	// REQUESTED: on Basic, match the CMS's Credits & Subscriptions page, which says "Basic Plan"
+	// once the trial is over, and also once a paid plan has ended.
+	var paid = window.iseoHasLivePlan(plan, subscription);
+	if (trial.active && !paid) { return 'Free Trial'; }
+	if (!paid) { return 'Basic Plan'; }
 
 	// Legacy names on the left, current lineup on the right. Keys are lowercase and carry no
 	// trailing "plan" — the caller strips that below, so "Pro" and "Pro Plan" both key as 'pro'.
@@ -272,5 +272,18 @@ window.iseoPlanLabel = function(plan, subscription, trial) {
 	var raw = bare(subPlan.name) || bare(plan.name);
 	if (!raw) { return 'Paid Plan'; }
 	return raw.replace(/\S+/g, function(w) { return w.charAt(0).toUpperCase() + w.slice(1); }) + ' Plan';
+};
+
+/**
+ * Is a paid plan running right now?
+ *
+ * /users/status sets plan.is_paid for ANY subscription row, including one that has been
+ * cancelled — so an account whose paid plan ended would still read as paid. The CMS treats
+ * cancelled/canceled/paused as ended (isLiveSubscription), and so does this.
+ */
+window.iseoHasLivePlan = function(plan, subscription) {
+	if (!plan || plan.is_paid !== true) { return false; }
+	var status = String((subscription && subscription.status) || '').toLowerCase();
+	return ['cancelled', 'canceled', 'paused'].indexOf(status) === -1;
 };
 </script>

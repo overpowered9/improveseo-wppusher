@@ -507,7 +507,11 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 					? window.iseoPlanLabel(plan, d.subscription, trial)
 					: (plan.name || 'Your Plan');
 
-				var isPaid     = plan.is_paid === true;
+				// OLD: var isPaid = plan.is_paid === true;
+				// is_paid stays true on a cancelled subscription; an ended plan is Basic.
+				var isPaid     = (typeof window.iseoHasLivePlan === 'function')
+					? window.iseoHasLivePlan(plan, d.subscription)
+					: plan.is_paid === true;
 				var cancelling = isPaid && sub && sub.cancel_at_period_end === true;
 
 				document.getElementById('iseo-plan-name').textContent = label;
@@ -533,8 +537,17 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 					var trialEnd = trial.active ? iseoFormatDate(trial.ends_at) : null;
 					dateEl.textContent = trialEnd ? ('Trial ends ' + trialEnd) : '';
 
-					primaryBtn.textContent   = 'Choose a Plan';
-					secondaryBtn.textContent = 'Get more credits';
+					// OLD: always 'Choose a Plan' + 'Get more credits'.
+					// REQUESTED: on Basic, the same two buttons as the CMS's Credits &
+					// Subscriptions page. A running trial keeps its own pair.
+					if (trial.active) {
+						primaryBtn.textContent   = 'Choose a Plan';
+						secondaryBtn.textContent = 'Get more credits';
+					} else {
+						primaryBtn.textContent   = 'Get subscription';
+						secondaryBtn.textContent = 'Buy credit pack';
+						secondaryBtn.href        = <?php echo wp_json_encode( $iseo_credits_url ); ?>;
+					}
 				}
 
 				planCard.hidden = false;
