@@ -507,7 +507,11 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 					? window.iseoPlanLabel(plan, d.subscription, trial)
 					: (plan.name || 'Your Plan');
 
-				var isPaid     = plan.is_paid === true;
+				// OLD: var isPaid = plan.is_paid === true;
+				// is_paid stays true on a cancelled subscription; an ended plan is Basic.
+				var isPaid     = (typeof window.iseoHasLivePlan === 'function')
+					? window.iseoHasLivePlan(plan, d.subscription)
+					: plan.is_paid === true;
 				var cancelling = isPaid && sub && sub.cancel_at_period_end === true;
 
 				document.getElementById('iseo-plan-name').textContent = label;
@@ -526,6 +530,10 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 
 					primaryBtn.textContent   = 'Manage Plan';
 					secondaryBtn.textContent = 'Cancel Subscription';
+					// Every state sets its own link: the card is painted from the cached snapshot and
+					// then again from the live check, which can be a different state (Basic, then
+					// paid right after subscribing) — a link left from the first paint would be wrong.
+					secondaryBtn.href        = <?php echo wp_json_encode( $iseo_qs_plans_url ); ?>;
 				} else {
 					planCard.setAttribute('data-plan-state', 'free');
 					statusEl.textContent = label.toUpperCase();
@@ -533,8 +541,20 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 					var trialEnd = trial.active ? iseoFormatDate(trial.ends_at) : null;
 					dateEl.textContent = trialEnd ? ('Trial ends ' + trialEnd) : '';
 
-					primaryBtn.textContent   = 'Choose a Plan';
-					secondaryBtn.textContent = 'Get more credits';
+					// OLD: always 'Choose a Plan' + 'Get more credits'.
+					// REQUESTED: on Basic, the same two buttons as the CMS's Credits &
+					// Subscriptions page. A running trial keeps its own pair.
+					if (trial.active) {
+						primaryBtn.textContent   = 'Choose a Plan';
+						secondaryBtn.textContent = 'Get more credits';
+						secondaryBtn.href        = <?php echo wp_json_encode( $iseo_qs_plans_url ); ?>;
+					} else {
+						primaryBtn.textContent   = 'Get subscription';
+						secondaryBtn.textContent = 'Buy credit pack';
+						// ?addCredits=1 opens the credit pack picker, as the CMS's own "Buy credit
+						// pack" button does, rather than the bare Credits page.
+						secondaryBtn.href        = <?php echo wp_json_encode( add_query_arg( 'addCredits', '1', $iseo_credits_url ) ); ?>;
+					}
 				}
 
 				planCard.hidden = false;
