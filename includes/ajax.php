@@ -132,12 +132,23 @@ function test_improveseo_connection() {
  * to divide the balance itself (by article + image, rounded), so 100 credits read as
  * 7 pieces here and 5 in the CMS.
  *
+ * The answer is kept (improveseo_cached_pieces()) for the balance it was asked about, so
+ * a page load whose balance has not changed skips this second round trip to the server,
+ * and the Dashboard can print the line with the page instead of waiting on the live check.
+ *
  * @return int|null  null when the server did not answer — never a local guess.
  */
 function improveseo_estimate_pieces($credits) {
     $credits = (int) $credits;
     if ($credits < 0) {
         return null;
+    }
+
+    // Credits per piece change only with pricing, so a 12-hour-old answer for the
+    // same balance is still the server's answer.
+    $cached = improveseo_cached_pieces($credits, 12 * HOUR_IN_SECONDS);
+    if ($cached !== null) {
+        return $cached;
     }
 
     $response = wp_remote_get(
@@ -152,7 +163,36 @@ function improveseo_estimate_pieces($credits) {
     if (!isset($body['data']['estimates'][0]['pieces'])) {
         return null;
     }
-    return (int) $body['data']['estimates'][0]['pieces'];
+    $pieces = (int) $body['data']['estimates'][0]['pieces'];
+
+    // autoload=false: read only by the Dashboard and this function.
+    update_option(
+        'improveseo_pieces_estimate',
+        array('credits' => $credits, 'pieces' => $pieces, 'at' => time()),
+        false
+    );
+    return $pieces;
+}
+
+/**
+ * The server's last pieces estimate, if it was for this exact balance. No network call.
+ *
+ * @param int $credits  The balance the estimate must be for.
+ * @param int $max_age  Seconds; 0 accepts any age (fine for a first paint the live check refreshes).
+ * @return int|null
+ */
+function improveseo_cached_pieces($credits, $max_age = 0) {
+    $saved = get_option('improveseo_pieces_estimate');
+    if (!is_array($saved) || !isset($saved['credits'], $saved['pieces'], $saved['at'])) {
+        return null;
+    }
+    if ((int) $saved['credits'] !== (int) $credits) {
+        return null;
+    }
+    if ($max_age > 0 && (time() - (int) $saved['at']) > $max_age) {
+        return null;
+    }
+    return (int) $saved['pieces'];
 }
 
 

@@ -309,9 +309,18 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 							echo '&mdash;';
 						}
 					?></p>
-					<?php // "This equals approximately N pieces…" — the same line Settings shows under its total.
-					// Filled in by iseoPopulateCreditsRemaining() from the live check only. ?>
-					<p class="iseo-quickstart-msg" id="iseo-credits-remaining-pieces" hidden></p>
+					<?php
+					// "This equals approximately N pieces…" — the same line Settings shows under its total.
+					// Printed with the page from the server's last estimate for this same balance
+					// (improveseo_cached_pieces(), no network), so it appears with the number above it;
+					// iseoPopulateCreditsRemaining() then refreshes it from the live check.
+					$iseo_cr_pieces = ( $iseo_qs_snap_total !== null ) ? improveseo_cached_pieces( $iseo_qs_snap_total ) : null;
+					?>
+					<p class="iseo-quickstart-msg" id="iseo-credits-remaining-pieces" <?php echo ( $iseo_cr_pieces === null ) ? 'hidden' : ''; ?>><?php
+						if ( $iseo_cr_pieces !== null ) {
+							echo esc_html( 'This equals approximately ' . $iseo_cr_pieces . ' piece' . ( 1 === $iseo_cr_pieces ? '' : 's' ) . ' of SEO content with AI Images' );
+						}
+					?></p>
 					<p class="iseo-quickstart-msg" id="iseo-credits-remaining-expiry"><?php echo esc_html( $iseo_cr_expiry ); ?></p>
 				</div>
 			</div>
