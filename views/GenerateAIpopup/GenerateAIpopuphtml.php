@@ -1607,8 +1607,10 @@ global $ai_modal_type;
                                     <option value="1200 to 2400 words">Medium (1200 to 2400 words) </option>
                                     <option value="2400 to 3600 words">Large (2400 to 3600 words)</option>
                                 </select>
-                                <?php // Filled by iseoCreditEstimate; empty until the price table arrives. ?>
-                                <div class="iseo-credit-estimate" id="iseo_credit_estimate_bulk" aria-live="polite"></div>
+                                <?php // REQUESTED: the cost line under Post Size is removed — it only appeared after
+                                // Continue -> Previous, and the "Confirm content generation" popup already shows the
+                                // same figures. renderBulk() returns early when this box is absent.
+                                // OLD: <div class="iseo-credit-estimate" id="iseo_credit_estimate_bulk" aria-live="polite"></div> ?>
                             </div>
                             <?php // Hidden mirror of the selection, kept with the field it mirrors. ?>
                             <div class="row" style="display: none;">

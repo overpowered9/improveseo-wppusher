@@ -1435,6 +1435,10 @@ li {
   width: 100%;
   row-gap: 20px;
   column-gap: 20px;
+  /* REQUESTED: keep the ~38px above "Assign Author" when the schedule inputs show.
+     The options column's 15px gap moves above this box once it is visible, so the
+     space below it is put back here. Hidden (display:none), it adds nothing. */
+  margin-bottom: 21px;
 }
 
 #number_of_post_schedule_box input,
