@@ -481,7 +481,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // the two screens described the same account in incompatible ways.
         var pooled = (cd && cd.content) ? cd.content : null;
         var total = null;
-        if (pooled && pooled.total != null)              { total = pooled.total; }
+        // d.balance.total first: it is summed from the same live credit batches (d.lots) the
+        // breakdown below lists, so the headline can never disagree with the rows under it.
+        // credit_details is the server's cached balance, which kept counting a batch after it
+        // expired (QA: "1,251" above a single "Purchased credits 120" row). Older servers omit
+        // d.balance and fall through to the cached figure, as before.
+        if (d.balance && d.balance.total != null && !isNaN(Number(d.balance.total))) { total = Number(d.balance.total); }
+        else if (pooled && pooled.total != null)         { total = pooled.total; }
         else if (d.credits && d.credits.total != null)   { total = d.credits.total; }
         else if (d.credits && d.credits.content != null) { total = d.credits.content; }
 
