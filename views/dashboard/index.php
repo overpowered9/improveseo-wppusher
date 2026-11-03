@@ -309,6 +309,9 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 							echo '&mdash;';
 						}
 					?></p>
+					<?php // "This equals approximately N pieces…" — the same line Settings shows under its total.
+					// Filled in by iseoPopulateCreditsRemaining() from the live check only. ?>
+					<p class="iseo-quickstart-msg" id="iseo-credits-remaining-pieces" hidden></p>
 					<p class="iseo-quickstart-msg" id="iseo-credits-remaining-expiry"><?php echo esc_html( $iseo_cr_expiry ); ?></p>
 				</div>
 			</div>
@@ -624,6 +627,18 @@ if ( ! function_exists( 'iseo_dash_icon' ) ) {
 
 				var total = iseoReadCreditsTotal(d);
 				iseoSetCreditsFigure(document.getElementById('iseo-credits-remaining-figure'), total);
+
+				// Same field and same sentence as Settings (views/settings/index.php, creditsCard):
+				// d.pieces is the server's estimate, added by test_improveseo_connection(). Only a
+				// live response carries it; the cached snapshot doesn't, so leave the line alone then.
+				var piecesEl = document.getElementById('iseo-credits-remaining-pieces');
+				if (piecesEl && d.pieces !== undefined) {
+					var pieces = (d.pieces != null && !isNaN(parseInt(d.pieces, 10))) ? parseInt(d.pieces, 10) : null;
+					piecesEl.textContent = pieces != null
+						? 'This equals approximately ' + pieces + ' piece' + (pieces === 1 ? '' : 's') + ' of SEO content with AI Images'
+						: '';
+					piecesEl.hidden = (pieces == null);
+				}
 
 				// Same fields, same wording as the site-wide notice (includes/connection-status.php,
 				// improveseo_global_notices()) — one description of "credits are expiring soon".

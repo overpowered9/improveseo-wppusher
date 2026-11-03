@@ -507,6 +507,18 @@
   margin-bottom: 18px;
 }
 
+/* "This equals approximately N pieces…" under the figure, sized like the Credits Used note. */
+.iseo-dash #iseo-credits-remaining-pieces {
+  margin: 0 0 18px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* With the line shown, it takes over the figure's bottom gap. */
+.iseo-dash #iseo-credits-remaining-card .iseo-credits-figure:has(+ #iseo-credits-remaining-pieces:not([hidden])) {
+  margin-bottom: 4px;
+}
+
 /* Credits Used bar on the bottom edge. */
 .iseo-dash .iseo-usage-track {
   width: 100%;
