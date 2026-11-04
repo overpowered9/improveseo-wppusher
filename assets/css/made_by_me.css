@@ -1435,6 +1435,10 @@ li {
   width: 100%;
   row-gap: 20px;
   column-gap: 20px;
+  /* REQUESTED: keep the ~38px above "Assign Author" when the schedule inputs show.
+     The options column's 15px gap moves above this box once it is visible, so the
+     space below it is put back here. Hidden (display:none), it adds nothing. */
+  margin-bottom: 21px;
 }
 
 #number_of_post_schedule_box input,
@@ -2431,6 +2435,14 @@ form#pop_up_multi_form label[for="keyword_list_name"] {
   font-size: 18px;
   padding: 0 20px 5px;
   margin: 0;
+}
+
+/* REQUESTED: "Tone of Voice" gets the same space above it as "Select Title Type".
+   That one sits below the empty .form-group spacer after Tone of Voice (Bootstrap's
+   margin-bottom: 1rem); Post Size had nothing below its select now that the cost
+   line under it is gone, so the next label touched the field. */
+form#pop_up_multi_form #bulk_article_size {
+  margin-bottom: 1rem;
 }
 
 /* Section headers inside the bulk wizard (Select Category / Publish steps) should read
