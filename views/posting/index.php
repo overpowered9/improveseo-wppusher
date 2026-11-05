@@ -137,13 +137,9 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 							<svg viewBox="0 0 400 220" role="img" aria-label="<?php esc_attr_e( 'A keyword list of five keywords becomes a stack of posts', 'improveseo' ); ?>">
 								<defs>
 									<filter id="iseo-bulk-shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0B132B" flood-opacity="0.10"></feDropShadow></filter>
-									<clipPath id="iseo-bulk-img"><rect x="248" y="74" width="96" height="56" rx="6"></rect></clipPath>
 								</defs>
 								<g filter="url(#iseo-bulk-shadow)">
 									<rect x="6" y="20" width="160" height="182" rx="10" fill="#fff" stroke="#EBE3D7"></rect>
-									<rect x="254" y="20" width="124" height="150" rx="10" fill="#CFE6F2"></rect>
-									<rect x="244" y="30" width="124" height="150" rx="10" fill="#E4F1F8"></rect>
-									<rect x="234" y="40" width="124" height="150" rx="10" fill="#fff" stroke="#E2E8EE"></rect>
 								</g>
 								<path d="M6 30a10 10 0 0 1 10-10h140a10 10 0 0 1 10 10v20H6z" fill="#F7F3ED"></path>
 								<rect x="16" y="28" width="16" height="16" rx="3" fill="#1D8F4E"></rect>
@@ -164,17 +160,41 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 								<text x="44" y="<?php echo (int) $iseo_y + 19; ?>" font-size="10.5" fill="#26303B"><?php echo esc_html( $iseo_kw ); ?></text>
 								<?php endforeach; ?>
 								<line x1="34" y1="50" x2="34" y2="200" stroke="#F0EAE1"></line>
-								<path d="M176 112C184 152 204 150 224 124" fill="none" stroke="#F2711C" stroke-width="3.5" stroke-linecap="round"></path>
-								<path d="M215.7 127.4L224 124L222.8 132.9" fill="none" stroke="#F2711C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
-								<rect x="248" y="54" width="70" height="6" rx="3" fill="#CBD8E2"></rect>
-								<g clip-path="url(#iseo-bulk-img)">
-									<rect x="248" y="74" width="96" height="56" fill="#D6EEFB"></rect>
-									<circle cx="328" cy="87" r="5.5" fill="#FFC94D"></circle>
-									<path d="M248 114C264 100 280 102 294 111C308 100 328 98 344 108V130H248z" fill="#8FD9A0"></path>
-									<path d="M248 123C266 113 288 115 304 121C318 116 332 116 344 119V130H248z" fill="#34B36A"></path>
+								<?php // A gentle arc from the middle of the sheet, ending 10px before the front page. ?>
+								<circle cx="172" cy="118" r="3" fill="#F2711C"></circle>
+								<path d="M172 118Q201 140 230 118" fill="none" stroke="#F2711C" stroke-width="3.5" stroke-linecap="round"></path>
+								<path d="M221 118.6L230 118L226.4 126.3" fill="none" stroke="#F2711C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+								<?php
+								// Three separate posts fanned out diagonally, each with its own picture in a
+								// brand colour (Pacific Teal, Mint, Coral Accent — brand guidelines p.3), so
+								// the stack reads as several different posts, not one. Drawn back to front.
+								$iseo_pages = array(
+									array( 'x' => 276, 'y' => 16, 'sky' => '#D7E9F1', 'hill' => '#7FB3CA', 'front' => '#1C7293' ),
+									array( 'x' => 258, 'y' => 46, 'sky' => '#DDF5F2', 'hill' => '#8FE0D6', 'front' => '#2EC4B6' ),
+									array( 'x' => 240, 'y' => 76, 'sky' => '#FDE6DE', 'hill' => '#FBB29E', 'front' => '#F77A59' ),
+								);
+								foreach ( $iseo_pages as $iseo_n => $iseo_p ) :
+									$iseo_x = (int) $iseo_p['x'];
+									$iseo_y = (int) $iseo_p['y'];
+									$iseo_ix = $iseo_x + 8;
+									$iseo_iy = $iseo_y + 8;
+								?>
+								<g filter="url(#iseo-bulk-shadow)">
+									<rect x="<?php echo $iseo_x; ?>" y="<?php echo $iseo_y; ?>" width="96" height="124" rx="9" fill="#fff" stroke="#E2E8EE"></rect>
 								</g>
-								<rect x="248" y="142" width="90" height="5" rx="2.5" fill="#DCE5EC"></rect>
-								<rect x="248" y="154" width="60" height="5" rx="2.5" fill="#DCE5EC"></rect>
+								<clipPath id="iseo-bulk-img-<?php echo (int) $iseo_n; ?>"><rect x="<?php echo $iseo_ix; ?>" y="<?php echo $iseo_iy; ?>" width="80" height="46" rx="5"></rect></clipPath>
+								<g clip-path="url(#iseo-bulk-img-<?php echo (int) $iseo_n; ?>)">
+									<rect x="<?php echo $iseo_ix; ?>" y="<?php echo $iseo_iy; ?>" width="80" height="46" fill="<?php echo esc_attr( $iseo_p['sky'] ); ?>"></rect>
+									<?php // Hills sit high in the picture, so they still show above the page in front. ?>
+									<circle cx="<?php echo $iseo_ix + 14; ?>" cy="<?php echo $iseo_iy + 8; ?>" r="4.5" fill="#FFC94D"></circle>
+									<path d="M<?php echo $iseo_ix; ?> <?php echo $iseo_iy + 16; ?>c13-10 26-9 38-3c12-8 28-9 42-2v35h-80z" fill="<?php echo esc_attr( $iseo_p['hill'] ); ?>"></path>
+									<path d="M<?php echo $iseo_ix; ?> <?php echo $iseo_iy + 22; ?>c15-8 32-7 46-2c12-4 24-4 34-1v27h-80z" fill="<?php echo esc_attr( $iseo_p['front'] ); ?>"></path>
+								</g>
+								<rect x="<?php echo $iseo_ix; ?>" y="<?php echo $iseo_iy + 56; ?>" width="62" height="6" rx="3" fill="#CBD8E2"></rect>
+								<rect x="<?php echo $iseo_ix; ?>" y="<?php echo $iseo_iy + 69; ?>" width="78" height="5" rx="2.5" fill="#DCE5EC"></rect>
+								<rect x="<?php echo $iseo_ix; ?>" y="<?php echo $iseo_iy + 80; ?>" width="66" height="5" rx="2.5" fill="#DCE5EC"></rect>
+								<rect x="<?php echo $iseo_ix; ?>" y="<?php echo $iseo_iy + 91; ?>" width="48" height="5" rx="2.5" fill="#DCE5EC"></rect>
+								<?php endforeach; ?>
 								<g stroke="#F2711C" stroke-width="3" stroke-linecap="round">
 									<line x1="382" y1="14" x2="385" y2="4"></line>
 									<line x1="388" y1="20" x2="396" y2="14"></line>
