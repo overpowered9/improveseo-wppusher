@@ -4565,7 +4565,8 @@ div#ai-image-display {
    so the old GIF no longer shows. The message is real text (translatable, sharp);
    the animation is four squares chasing each other round a square (from
    Uiverse.io by NlghtM4re) in the brand colours. */
-#loadingAIImage.overlay_ai_image {
+#loadingAIImage.overlay_ai_image,
+#loadingAIData.overlay_ai_data {
   background: #FFFFFF none;
 }
 
@@ -4593,6 +4594,23 @@ div#ai-image-display {
   text-transform: uppercase;
   text-wrap: balance;
   color: #EA6A2C;
+  /* The status line changes every few seconds (custom-plugin-script.js); it fades
+     out, swaps, and fades back in. min-height keeps the squares from jumping when
+     a message wraps to two lines. */
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+}
+
+.iseo-img-loader .iseo-img-loader-text.is-changing {
+  opacity: 0;
+}
+
+/* Article loader: dark text, as Writing-Optimization.gif had. */
+.iseo-img-loader--content .iseo-img-loader-text {
+  color: #3D434B;
 }
 
 .iseo-img-loader-anim {
@@ -4652,6 +4670,10 @@ div#ai-image-display {
 @media (prefers-reduced-motion: reduce) {
   .iseo-img-loader-anim div {
     animation-duration: 12s;
+  }
+
+  .iseo-img-loader .iseo-img-loader-text {
+    transition: none;
   }
 }
 
