@@ -137,15 +137,15 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 							<svg viewBox="0 0 400 220" role="img" aria-label="<?php esc_attr_e( 'A keyword list of five keywords becomes a stack of posts', 'improveseo' ); ?>">
 								<defs>
 									<filter id="iseo-bulk-shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0B132B" flood-opacity="0.10"></feDropShadow></filter>
-									<clipPath id="iseo-bulk-img"><rect x="248" y="74" width="96" height="56" rx="6"></rect></clipPath>
+									<clipPath id="iseo-bulk-img"><rect x="262" y="74" width="84" height="56" rx="6"></rect></clipPath>
 								</defs>
 								<g filter="url(#iseo-bulk-shadow)">
-									<rect x="6" y="20" width="160" height="182" rx="10" fill="#fff" stroke="#EBE3D7"></rect>
-									<rect x="254" y="20" width="124" height="150" rx="10" fill="#CFE6F2"></rect>
-									<rect x="244" y="30" width="124" height="150" rx="10" fill="#E4F1F8"></rect>
-									<rect x="234" y="40" width="124" height="150" rx="10" fill="#fff" stroke="#E2E8EE"></rect>
+									<rect x="6" y="20" width="154" height="182" rx="10" fill="#fff" stroke="#EBE3D7"></rect>
+									<rect x="270" y="20" width="110" height="150" rx="10" fill="#CFE6F2"></rect>
+									<rect x="260" y="30" width="110" height="150" rx="10" fill="#E4F1F8"></rect>
+									<rect x="250" y="40" width="110" height="150" rx="10" fill="#fff" stroke="#E2E8EE"></rect>
 								</g>
-								<path d="M6 30a10 10 0 0 1 10-10h140a10 10 0 0 1 10 10v20H6z" fill="#F7F3ED"></path>
+								<path d="M6 30a10 10 0 0 1 10-10h134a10 10 0 0 1 10 10v20H6z" fill="#F7F3ED"></path>
 								<rect x="16" y="28" width="16" height="16" rx="3" fill="#1D8F4E"></rect>
 								<text x="24" y="40" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">X</text>								<?php
 								$iseo_keywords = array(
@@ -158,27 +158,28 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 								foreach ( $iseo_keywords as $iseo_i => $iseo_kw ) :
 									$iseo_y = 50 + $iseo_i * 30;
 								?>
-								<?php if ( $iseo_i % 2 ) : ?><rect x="7" y="<?php echo (int) $iseo_y; ?>" width="158" height="30" fill="#FBF8F4"></rect><?php endif; ?>
-								<line x1="7" y1="<?php echo (int) $iseo_y; ?>" x2="165" y2="<?php echo (int) $iseo_y; ?>" stroke="#F0EAE1"></line>
+								<?php if ( $iseo_i % 2 ) : ?><rect x="7" y="<?php echo (int) $iseo_y; ?>" width="152" height="30" fill="#FBF8F4"></rect><?php endif; ?>
+								<line x1="7" y1="<?php echo (int) $iseo_y; ?>" x2="159" y2="<?php echo (int) $iseo_y; ?>" stroke="#F0EAE1"></line>
 								<text x="21" y="<?php echo (int) $iseo_y + 19; ?>" font-size="10" fill="#8A97A4" text-anchor="middle"><?php echo (int) $iseo_i + 1; ?></text>
-								<text x="44" y="<?php echo (int) $iseo_y + 19; ?>" font-size="10.5" fill="#26303B"><?php echo esc_html( $iseo_kw ); ?></text>
+								<text x="44" y="<?php echo (int) $iseo_y + 19; ?>" font-size="10" fill="#26303B"><?php echo esc_html( $iseo_kw ); ?></text>
 								<?php endforeach; ?>
 								<line x1="34" y1="50" x2="34" y2="200" stroke="#F0EAE1"></line>
-								<path d="M176 112C184 152 204 150 224 124" fill="none" stroke="#F2711C" stroke-width="3.5" stroke-linecap="round"></path>
-								<path d="M215.7 127.4L224 124L222.8 132.9" fill="none" stroke="#F2711C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
-								<rect x="248" y="54" width="70" height="6" rx="3" fill="#CBD8E2"></rect>
+								<?php // Same curve and arrowhead as the Single card's arrow (about 2/3 of its length); it ends 10px before the front page. ?>
+								<path d="M166 108C175 135 217 137.4 240 110.6" fill="none" stroke="#F2711C" stroke-width="3.5" stroke-linecap="round"></path>
+								<path d="M230.6 113.9L240 110.6L238.2 120.4" fill="none" stroke="#F2711C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+								<rect x="262" y="54" width="60" height="6" rx="3" fill="#CBD8E2"></rect>
 								<g clip-path="url(#iseo-bulk-img)">
-									<rect x="248" y="74" width="96" height="56" fill="#D6EEFB"></rect>
-									<circle cx="328" cy="87" r="5.5" fill="#FFC94D"></circle>
-									<path d="M248 114C264 100 280 102 294 111C308 100 328 98 344 108V130H248z" fill="#8FD9A0"></path>
-									<path d="M248 123C266 113 288 115 304 121C318 116 332 116 344 119V130H248z" fill="#34B36A"></path>
+									<rect x="262" y="74" width="84" height="56" fill="#D6EEFB"></rect>
+									<circle cx="330" cy="87" r="5.5" fill="#FFC94D"></circle>
+									<path d="M262 114C276 100 290 102 302 111C314 100 332 98 346 108V130H262z" fill="#8FD9A0"></path>
+									<path d="M262 123C278 113 296 115 310 121C322 116 336 116 346 119V130H262z" fill="#34B36A"></path>
 								</g>
-								<rect x="248" y="142" width="90" height="5" rx="2.5" fill="#DCE5EC"></rect>
-								<rect x="248" y="154" width="60" height="5" rx="2.5" fill="#DCE5EC"></rect>
+								<rect x="262" y="142" width="78" height="5" rx="2.5" fill="#DCE5EC"></rect>
+								<rect x="262" y="154" width="52" height="5" rx="2.5" fill="#DCE5EC"></rect>
 								<g stroke="#F2711C" stroke-width="3" stroke-linecap="round">
-									<line x1="382" y1="14" x2="385" y2="4"></line>
-									<line x1="388" y1="20" x2="396" y2="14"></line>
-									<line x1="389" y1="29" x2="398" y2="29"></line>
+									<line x1="385" y1="14" x2="388" y2="4"></line>
+									<line x1="390" y1="21" x2="397" y2="16"></line>
+									<line x1="390" y1="30" x2="398" y2="30"></line>
 								</g>
 							</svg>
 						</div>
