@@ -7,7 +7,13 @@
    </div>
    <div id="loadingAIData" style="display:none;" class="overlay_ai_data"></div>
    
-   <div id="loadingAIImage" style="display:none;" class="overlay_ai_image"></div>
+   <?php // AI image loader: the message stays as live text (not inside an image) and four brand-coloured squares chase each other. Styles: assets/css/style.css (.iseo-img-loader). ?>
+   <div id="loadingAIImage" style="display:none;" class="overlay_ai_image">
+       <div class="iseo-img-loader" role="status" aria-live="polite">
+           <p class="iseo-img-loader-text"><?php esc_html_e( 'We’re getting your AI image ready, just a moment!', 'improveseo' ); ?></p>
+           <div class="iseo-img-loader-anim" aria-hidden="true"><div></div><div></div><div></div><div></div></div>
+       </div>
+   </div>
    
            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
               <div class="modal-content">

@@ -4558,3 +4558,106 @@ div#ai-image-display {
     width: 100% !important;
   }
 }
+
+/* ── AI image loader (#loadingAIImage) ────────────────────────────────────────
+   Replaces the AI-generated.gif / loadingImage.gif backgrounds. The ID selector
+   beats the .overlay_ai_image rules printed inline by the popup and the AI forms,
+   so the old GIF no longer shows. The message is real text (translatable, sharp);
+   the animation is four squares chasing each other round a square (from
+   Uiverse.io by NlghtM4re) in the brand colours. */
+#loadingAIImage.overlay_ai_image {
+  background: #FFFFFF none;
+}
+
+.iseo-img-loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 44px;
+  width: min(90vw, 460px);
+  text-align: center;
+  font-family: var(--iseo-font);
+}
+
+/* Same words and look as the old GIF's caption. */
+.iseo-img-loader .iseo-img-loader-text {
+  margin: 0;
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: #EA6A2C;
+}
+
+.iseo-img-loader-anim {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 120px;
+  height: 120px;
+}
+
+.iseo-img-loader-anim div {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  animation: iseo-img-loader-move 4s infinite;
+}
+
+.iseo-img-loader-anim div:nth-child(1) {
+  background-color: #F77A59; /* Coral Accent */
+  box-shadow: rgba(247, 122, 89, 0.55) 0 7px 29px 0;
+  transform: translate(-30px, -30px);
+  animation-delay: -1s;
+}
+
+.iseo-img-loader-anim div:nth-child(2) {
+  background-color: #1C7293; /* Pacific Teal */
+  box-shadow: rgba(28, 114, 147, 0.55) 0 7px 29px 0;
+  transform: translate(30px, -30px);
+  animation-delay: -2s;
+}
+
+.iseo-img-loader-anim div:nth-child(3) {
+  background-color: #2EC4B6; /* Mint */
+  box-shadow: rgba(46, 196, 182, 0.55) 0 7px 29px 0;
+  transform: translate(30px, 30px);
+  animation-delay: -3s;
+}
+
+.iseo-img-loader-anim div:nth-child(4) {
+  background-color: #8EC5DF; /* light Pacific Teal, used across the plugin */
+  box-shadow: rgba(142, 197, 223, 0.55) 0 7px 29px 0;
+  transform: translate(-30px, 30px);
+  animation-delay: -4s;
+}
+
+@keyframes iseo-img-loader-move {
+  0%   { transform: translate(-30px, -30px); }
+  25%  { transform: translate(30px, -30px); }
+  50%  { transform: translate(30px, 30px); }
+  75%  { transform: translate(-30px, 30px); }
+  100% { transform: translate(-30px, -30px); }
+}
+
+/* Reduced motion: a much slower loop instead of a frozen screen, so it still reads as working. */
+@media (prefers-reduced-motion: reduce) {
+  .iseo-img-loader-anim div {
+    animation-duration: 12s;
+  }
+}
+
+@media (max-width: 639px) {
+  .iseo-img-loader .iseo-img-loader-text {
+    font-size: 16px;
+    line-height: 22px;
+  }
+}
