@@ -1828,9 +1828,13 @@ input:checked + .switch:before {
 .iseo-create .iseo-create-cta {
   position: relative;
   z-index: 2;
-  display: flex;
-  width: 100%;
-  margin-top: 22px;
+  min-width: 220px;
+  margin-top: 18px;
+  /* Same size as before the redesign; the card is a left-aligned column now, so
+     centre the button explicitly. */
+  align-self: center;
+  justify-content: center;
+  text-align: center;
 }
 
 /* The Bulk card has a "Need a keyword list?" line under its button. The Single card
