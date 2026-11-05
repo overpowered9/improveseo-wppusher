@@ -23,91 +23,114 @@ use ImproveSEO\View;
 
 <h1 class="hidden">Improve SEO Settings</h1>
 
-<div class="iseo-settings-page">
+<?php
+// Which card's Save Changes brought us back here. Each form below overrides _wp_http_referer
+// with ?iseo_saved=<card>#<card id>, and options.php appends settings-updated=true to it — so
+// the page reopens at that card and can say "Saved" right next to the button that was pressed.
+// WordPress files its own "Settings saved." under 'general', which this screen never printed.
+// phpcs:disable WordPress.Security.NonceVerification.Recommended -- reading redirect flags, not acting on input.
+$iseo_saved_card = '';
+if ( ! empty( $_GET['settings-updated'] ) && isset( $_GET['iseo_saved'] ) ) {
+    $iseo_saved_card = sanitize_key( wp_unslash( $_GET['iseo_saved'] ) );
+    if ( ! in_array( $iseo_saved_card, array( 'server', 'business' ), true ) ) {
+        $iseo_saved_card = '';
+    }
+}
+// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-    <!-- Intro guidance banner -->
-    <div class="iseo-intro-banner">
-        <svg class="iseo-intro-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-        <p>Configure your ImproveSEO server settings to enable AI content generation. Get your API Key and Site Code from your <a href="https://account.improveseoplugin.com/" target="_blank">ImproveSEO Dashboard</a>.</p>
-    </div>
+$iseo_settings_url = admin_url( 'admin.php?page=improveseo_settings' );
 
-    <!-- Two-column layout -->
-    <div class="iseo-settings-grid">
+// Same "credentials are saved" test the Dashboard header uses; the pill starts at "Checking…"
+// and improveseoRunConnectionCheck() below sets the real state.
+$iseo_conn_creds = improveseo_connection_credentials();
+$iseo_conn_saved = ( $iseo_conn_creds['api_key'] !== '' && $iseo_conn_creds['site_code'] !== '' );
 
-        <!-- ── LEFT COLUMN: main settings ─────────────────── -->
-        <div class="iseo-col-main">
+$iseo_saved_pill = '<span class="iseo-save-status" role="status" data-autohide="1">'
+    . '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+    . esc_html__( 'Saved', 'improveseo' ) . '</span>';
+?>
 
-            <!-- Main Settings Panel -->
-            <div class="iseo-settings-container">
+<?php // Same panel as the Dashboard (.global-wrap.iseo-dash), so both screens share its background, header and card tokens. ?>
+<div class="global-wrap iseo-dash iseo-settings-page">
+    <div class="improve-seo-container">
 
-                <!-- Plugin Identity Bar -->
-                <div class="iseo-identity-bar">
-                    <div class="iseo-identity-brand">
-                        <img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO">
-                        <span class="iseo-brand-name">ImproveSEO</span>
-                        <span class="iseo-version"><?php echo esc_html( defined('IMPROVESEO_VERSION') ? IMPROVESEO_VERSION : '' ); ?></span>
-                    </div>
-                </div>
+        <?php // Dashboard header (views/dashboard/index.php): logo tile, name + version over the breadcrumb, connection pill on the right. ?>
+        <div class="iseo-dash-header">
+            <span class="iseo-dash-logo"><img src="<?php echo esc_url( improveseo_logo_url() ); ?>" alt="ImproveSEO logo"></span>
+            <div class="iseo-dash-header-text">
+                <h1 class="iseo-dash-title">ImproveSEO <span class="iseo-dash-version">| <?php echo esc_html( IMPROVESEO_VERSION ); ?></span></h1>
+                <ul class="breadcrumb-seo">
+                    <li><a href="<?php echo esc_url( admin_url( 'admin.php?page=improveseo_dashboard' ) ); ?>">Improve SEO</a></li>
+                    <li>Settings</li>
+                </ul>
+            </div>
+            <span class="iseo-dash-status" id="iseo-dash-status" role="status" data-state="<?php echo $iseo_conn_saved ? 'checking' : 'off'; ?>"><span class="iseo-dash-status-dot" aria-hidden="true"></span><span id="iseo-dash-status-text"><?php echo $iseo_conn_saved ? 'Checking connection&hellip;' : 'Not connected'; ?></span></span>
+        </div>
 
-                <form class="improve-seo-form-global iseo-settings-form" method="post" action="options.php">
-                    <?php settings_fields('improveseo_settings'); ?>
+        <div class="iseo-settings-body">
 
-                    <?php
-                    // Errors recorded by improveseo_sanitize_and_verify_credentials_field() during
-                    // the save this page just redirected from — e.g. the API Key / Site Code being
-                    // rejected by the live connection check. Without reading them here they are
-                    // recorded but never shown, and a refused save would look identical to a
-                    // successful one.
-                    //
-                    // The three credential codes are lifted OUT of the inline notice list and handed
-                    // to the modal at the bottom of this file instead, as the matching
-                    // ISEO_SAVE_ISSUES key. That is where a refusal is reported when JavaScript is
-                    // on (the submit gate never reaches options.php at all), so routing this path
-                    // to the same entry keeps one refusal looking like one refusal, word for word,
-                    // rather than two unrelated messages. Everything else — above all WordPress's
-                    // own "Settings saved." — still renders as a normal notice.
-                    $iseo_modal_error_issues = array(
-                        'iseo_not_connected'      => 'rejected',
-                        'iseo_incomplete_pair'    => 'incomplete',
-                        'iseo_verify_unreachable' => 'unreachable',
-                    );
-                    $iseo_save_failure_issue = '';
+            <!-- Intro guidance banner -->
+            <div class="iseo-intro-banner">
+                <svg class="iseo-intro-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <p>Configure your ImproveSEO server settings to enable AI content generation. Get your API Key and Site Code from your <a href="https://account.improveseoplugin.com/" target="_blank">ImproveSEO Dashboard</a>.</p>
+            </div>
 
-                    foreach ( get_settings_errors( 'improveseo_settings' ) as $iseo_error ) {
-                        if ( isset( $iseo_modal_error_issues[ $iseo_error['code'] ] ) ) {
-                            if ( '' === $iseo_save_failure_issue ) {
-                                $iseo_save_failure_issue = $iseo_modal_error_issues[ $iseo_error['code'] ];
-                            }
-                            continue;
-                        }
+            <!-- Two-column layout: the two forms on the left, auto-saved features and account links on the right -->
+            <div class="iseo-settings-grid">
 
-                        // Same markup settings_errors() would have emitted, including its
-                        // 'updated' → 'success' rename, so the surviving notices are unchanged.
-                        $iseo_notice_type = ( 'updated' === $iseo_error['type'] ) ? 'success' : $iseo_error['type'];
-                        if ( ! in_array( $iseo_notice_type, array( 'error', 'success', 'warning', 'info' ), true ) ) {
-                            $iseo_notice_type = 'info';
-                        }
-                        printf(
-                            '<div id="%s" class="notice notice-%s settings-error is-dismissible"><p><strong>%s</strong></p></div>',
-                            esc_attr( 'setting-error-' . $iseo_error['code'] ),
-                            esc_attr( $iseo_notice_type ),
-                            esc_html( $iseo_error['message'] )
+                <!-- ── LEFT COLUMN: the two forms, each with its own Save Changes ── -->
+                <div class="iseo-col-main">
+
+                    <!-- ── Card 1: Server Connection (option group improveseo_settings) ── -->
+                    <form id="iseo-server-settings" class="improve-seo-form-global iseo-settings-form iseo-settings-card" method="post" action="options.php">
+                        <?php settings_fields('improveseo_settings'); ?>
+                        <?php // After settings_fields() so it wins over the referer field that prints: brings the save back to this card. ?>
+                        <input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr( wp_make_link_relative( add_query_arg( 'iseo_saved', 'server', $iseo_settings_url ) ) . '#iseo-server-settings' ); ?>">
+
+                        <?php
+                        // Errors recorded by improveseo_sanitize_and_verify_credentials_field() during
+                        // the save this page just redirected from — e.g. the API Key / Site Code being
+                        // rejected by the live connection check. Without reading them here they are
+                        // recorded but never shown, and a refused save would look identical to a
+                        // successful one.
+                        //
+                        // The three credential codes are lifted OUT of the inline notice list and handed
+                        // to the modal at the bottom of this file instead, as the matching
+                        // ISEO_SAVE_ISSUES key. That is where a refusal is reported when JavaScript is
+                        // on (the submit gate never reaches options.php at all), so routing this path
+                        // to the same entry keeps one refusal looking like one refusal, word for word,
+                        // rather than two unrelated messages. Anything else still renders as a normal
+                        // notice; a successful save is confirmed by the "Saved" pill in the card footer.
+                        $iseo_modal_error_issues = array(
+                            'iseo_not_connected'      => 'rejected',
+                            'iseo_incomplete_pair'    => 'incomplete',
+                            'iseo_verify_unreachable' => 'unreachable',
                         );
-                    }
-                    ?>
+                        $iseo_save_failure_issue = '';
 
-                    <!-- Form top bar: breadcrumb navigation + save button -->
-                    <div class="iseo-form-topbar">
-                        <nav class="iseo-breadcrumb" aria-label="Settings breadcrumb">
-                            <a href="<?php echo esc_url( admin_url('admin.php?page=improveseo_dashboard') ); ?>">Improve SEO</a>
-                            <span class="iseo-breadcrumb-sep">›</span>
-                            <span>Settings</span>
-                        </nav>
-                        <input type="submit" class="iseo-btn-save active setting_submit" value="<?php esc_html_e('Save Changes', 'improveseo') ?>">
-                    </div>
+                        foreach ( get_settings_errors( 'improveseo_settings' ) as $iseo_error ) {
+                            if ( isset( $iseo_modal_error_issues[ $iseo_error['code'] ] ) ) {
+                                if ( '' === $iseo_save_failure_issue ) {
+                                    $iseo_save_failure_issue = $iseo_modal_error_issues[ $iseo_error['code'] ];
+                                }
+                                continue;
+                            }
 
-                    <!-- ── Section 1: Server Connection ──────────────── -->
-                    <div class="iseo-card-section">
+                            // Same markup settings_errors() would have emitted, including its
+                            // 'updated' → 'success' rename, so the surviving notices are unchanged.
+                            $iseo_notice_type = ( 'updated' === $iseo_error['type'] ) ? 'success' : $iseo_error['type'];
+                            if ( ! in_array( $iseo_notice_type, array( 'error', 'success', 'warning', 'info' ), true ) ) {
+                                $iseo_notice_type = 'info';
+                            }
+                            printf(
+                                '<div id="%s" class="notice notice-%s settings-error is-dismissible"><p><strong>%s</strong></p></div>',
+                                esc_attr( 'setting-error-' . $iseo_error['code'] ),
+                                esc_attr( $iseo_notice_type ),
+                                esc_html( $iseo_error['message'] )
+                            );
+                        }
+                        ?>
+
                         <div class="iseo-card-header">
                             <div class="iseo-card-icon iseo-icon-server">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
@@ -157,23 +180,44 @@ use ImproveSEO\View;
 
                         </div>
                         <div class="iseo-card-footer">
-                            <div class="iseo-connection-actions">
-                                <button type="button" id="test_server_connection" class="iseo-btn-secondary" aria-describedby="iseo-confirm-connection-tip">
-                                    🔌 <?php esc_html_e( 'Confirm website connection', 'improveseo' ); ?>
-                                </button>
-                                <span class="iseo-info-tip" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'About Confirm website connection', 'improveseo' ); ?>">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                    <span id="iseo-confirm-connection-tip" class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--above" role="tooltip">
-                                        <?php esc_html_e( "Click 'Confirm website connection' to confirm that this website is properly connected to your ImproveSEO user account.", 'improveseo' ); ?>
+                            <div class="iseo-card-actions">
+                                <input type="submit" class="iseo-btn-save active setting_submit" value="<?php esc_attr_e( 'Save Changes', 'improveseo' ); ?>">
+                                <div class="iseo-connection-actions">
+                                    <button type="button" id="test_server_connection" class="iseo-btn-secondary" aria-describedby="iseo-confirm-connection-tip">
+                                        <?php esc_html_e( 'Confirm website connection', 'improveseo' ); ?>
+                                    </button>
+                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'About Confirm website connection', 'improveseo' ); ?>">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span id="iseo-confirm-connection-tip" class="iseo-info-tip-bubble iseo-info-tip-bubble--field iseo-info-tip-bubble--above" role="tooltip">
+                                            <?php esc_html_e( "Click 'Confirm website connection' to confirm that this website is properly connected to your ImproveSEO user account.", 'improveseo' ); ?>
+                                        </span>
                                     </span>
-                                </span>
+                                </div>
+                                <?php
+                                // Only when this card was the one saved AND the save went through: a refused
+                                // credentials save is reported by the modal instead (see $iseo_save_failure_issue).
+                                if ( 'server' === $iseo_saved_card && '' === $iseo_save_failure_issue ) {
+                                    echo $iseo_saved_pill; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built above from a fixed SVG and esc_html__().
+                                }
+                                ?>
                             </div>
                             <div id="connection_status" class="iseo-connection-status"></div>
                         </div>
-                    </div>
 
-                    <!-- ── Section 2: Business Details ───────────────── -->
-                    <div class="iseo-card-section" id="iseo-business-details" style="scroll-margin-top: 48px;">
+                        <!-- Legacy Settings (hidden — kept for backwards compatibility) -->
+                        <div style="display: none;">
+                            <div class="seo-form-field">
+                                <label> Chat GPT Key (Legacy - Hidden) </label>
+                                <input type="text" placeholder="Ex. sadfe456fds2v1xczv86s65g4s5fd4gr6e5tge5r4g54321xc86dssdfewtwerPP" name="improveseo_chatgpt_api_key" value="<?php echo esc_attr( get_option('improveseo_chatgpt_api_key') ); ?>">
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- ── Card 2: Business Details (option group improveseo_business_settings) ── -->
+                    <form id="iseo-business-details" class="improve-seo-form-global iseo-business-form iseo-settings-card" method="post" action="options.php" style="scroll-margin-top: 48px;">
+                        <?php settings_fields('improveseo_business_settings'); ?>
+                        <input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr( wp_make_link_relative( add_query_arg( 'iseo_saved', 'business', $iseo_settings_url ) ) . '#iseo-business-details' ); ?>">
+
                         <div class="iseo-card-header">
                             <div class="iseo-card-icon iseo-icon-business">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -216,119 +260,124 @@ use ImproveSEO\View;
                             </div>
 
                         </div>
-                    </div>
-
-                    <!-- Legacy Settings (hidden — kept for backwards compatibility) -->
-                    <div style="display: none;">
-                        <div class="seo-form-field">
-                            <label> Chat GPT Key (Legacy - Hidden) </label>
-                            <input type="text" placeholder="Ex. sadfe456fds2v1xczv86s65g4s5fd4gr6e5tge5r4g54321xc86dssdfewtwerPP" name="improveseo_chatgpt_api_key" value="<?php echo esc_attr( get_option('improveseo_chatgpt_api_key') ); ?>">
+                        <div class="iseo-card-footer">
+                            <div class="iseo-card-actions">
+                                <input type="submit" class="iseo-btn-save active setting_submit" value="<?php esc_attr_e( 'Save Changes', 'improveseo' ); ?>">
+                                <?php
+                                if ( 'business' === $iseo_saved_card ) {
+                                    echo $iseo_saved_pill; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built above from a fixed SVG and esc_html__().
+                                }
+                                ?>
+                            </div>
                         </div>
-                    </div>
+                    </form>
 
-                </form>
+                </div><!-- .iseo-col-main -->
 
-            </div><!-- .iseo-settings-container -->
+                <!-- ── RIGHT COLUMN: auto-saved features, account links ── -->
+                <div class="iseo-col-sidebar">
 
-            <!-- Account & Subscription -->
-            <div class="iseo-standalone-card iseo-account-card">
-                <div class="iseo-card-header">
-                    <div class="iseo-card-icon iseo-icon-account">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    </div>
-                    <div class="iseo-card-header-text">
-                        <h3 class="iseo-card-title">ImproveSEO Account</h3>
-                        <p class="iseo-card-subtitle">Manage your subscription, credits, support tickets, and website settings from your ImproveSEO dashboard.</p>
-                    </div>
-                </div>
-                <div class="iseo-account-actions">
-                    <a href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer" class="iseo-btn-primary">
-                        Open Dashboard &rarr;
-                    </a>
-                    <a href="https://account.improveseoplugin.com/support" target="_blank" rel="noopener noreferrer" class="iseo-btn-outlined">
-                        Support Tickets
-                    </a>
-                </div>
-            </div>
+                    <!-- Content Features Card (toggles auto-save via AJAX — no Save button) -->
+                    <div class="iseo-settings-card iseo-features-card">
+                        <div class="iseo-card-header">
+                            <div class="iseo-card-icon iseo-icon-image">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                            </div>
+                            <div class="iseo-card-header-text">
+                                <h3 class="iseo-card-title">Content Features</h3>
+                                <p class="iseo-card-subtitle">Control which AI content generation options are active on your site.</p>
+                            </div>
+                        </div>
+                        <div class="iseo-card-body iseo-toggles-body">
 
-        </div><!-- .iseo-col-main -->
+                            <!-- Main toggle: Enable Featured Images -->
+                            <div class="iseo-toggle-group">
 
-        <!-- ── RIGHT COLUMN: additional settings ──────────── -->
-        <div class="iseo-col-sidebar">
-
-            <!-- Content Features Card (toggles auto-save via AJAX — no Save button) -->
-            <div class="iseo-standalone-card iseo-features-card">
-                <div class="iseo-card-header">
-                    <div class="iseo-card-icon iseo-icon-image">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                    </div>
-                    <div class="iseo-card-header-text">
-                        <h3 class="iseo-card-title">Content Features</h3>
-                        <p class="iseo-card-subtitle">Control which AI content generation options are active on your site.</p>
-                    </div>
-                </div>
-                <div class="iseo-card-body iseo-toggles-body">
-
-                    <!-- Main toggle: Enable Featured Images -->
-                    <div class="iseo-toggle-group">
-
-                        <div class="iseo-toggle-row iseo-toggle-main">
-                            <div class="iseo-toggle-info">
-                                <span class="iseo-toggle-label">
-                                    Enable Featured Images
-                                    <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a Featured Image?">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                        <span class="iseo-info-tip-bubble" role="tooltip">
-                                            <strong>What is a Featured Image?</strong>
-                                            This is the main image WordPress uses to represent your post — in blog listings, social media shares, and sometimes at the top of the post itself. By default, we set your hero image as the Featured Image. If your theme already displays the hero image inside the post, turn this off to avoid showing it twice.
+                                <div class="iseo-toggle-row iseo-toggle-main">
+                                    <div class="iseo-toggle-info">
+                                        <span class="iseo-toggle-label">
+                                            Enable Featured Images
+                                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="What is a Featured Image?">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                                <span class="iseo-info-tip-bubble" role="tooltip">
+                                                    <strong>What is a Featured Image?</strong>
+                                                    This is the main image WordPress uses to represent your post — in blog listings, social media shares, and sometimes at the top of the post itself. By default, we set your hero image as the Featured Image. If your theme already displays the hero image inside the post, turn this off to avoid showing it twice.
+                                                </span>
+                                            </span>
                                         </span>
-                                    </span>
-                                </span>
-                                <span class="iseo-toggle-desc">Automatically attach main post image (AI generated or uploaded) as WP featured image to AI-created posts.</span>
-                            </div>
-                            <label class="iseo-toggle-switch" aria-label="Enable Featured Images">
-                                <input type="checkbox" id="iseo_featured_images_enabled" name="improveseo_featured_images_enabled" value="1" <?php checked( get_option( 'improveseo_featured_images_enabled', '1' ), '1' ); ?>>
-                                <span class="iseo-toggle-track"></span>
-                            </label>
+                                        <span class="iseo-toggle-desc">Automatically attach main post image (AI generated or uploaded) as WP featured image to AI-created posts.</span>
+                                    </div>
+                                    <label class="iseo-toggle-switch" aria-label="Enable Featured Images">
+                                        <input type="checkbox" id="iseo_featured_images_enabled" name="improveseo_featured_images_enabled" value="1" <?php checked( get_option( 'improveseo_featured_images_enabled', '1' ), '1' ); ?>>
+                                        <span class="iseo-toggle-track"></span>
+                                    </label>
+                                </div>
+
+                                <!-- Sub-toggles (indented) -->
+                                <div class="iseo-sub-toggles">
+
+                                    <div class="iseo-toggle-row iseo-toggle-sub">
+                                        <div class="iseo-toggle-info">
+                                            <span class="iseo-toggle-label">For Bulk Posts</span>
+                                            <span class="iseo-toggle-desc">Apply when running bulk post generation projects.</span>
+                                        </div>
+                                        <label class="iseo-toggle-switch" aria-label="Enable for Bulk Posts">
+                                            <input type="checkbox" id="iseo_featured_images_bulk" name="improveseo_featured_images_bulk" value="1" <?php checked( get_option( 'improveseo_featured_images_bulk', '1' ), '1' ); ?>>
+                                            <span class="iseo-toggle-track"></span>
+                                        </label>
+                                    </div>
+
+                                    <div class="iseo-toggle-row iseo-toggle-sub iseo-toggle-last">
+                                        <div class="iseo-toggle-info">
+                                            <span class="iseo-toggle-label">For Single Post</span>
+                                            <span class="iseo-toggle-desc">Apply when generating a single post at a time.</span>
+                                        </div>
+                                        <label class="iseo-toggle-switch" aria-label="Enable for Single Post">
+                                            <input type="checkbox" id="iseo_featured_images_single" name="improveseo_featured_images_single" value="1" <?php checked( get_option( 'improveseo_featured_images_single', '1' ), '1' ); ?>>
+                                            <span class="iseo-toggle-track"></span>
+                                        </label>
+                                    </div>
+
+                                </div><!-- .iseo-sub-toggles -->
+
+                            </div><!-- .iseo-toggle-group -->
+
                         </div>
+                        <?php // No Save button here: each toggle saves the moment it changes. The note says so, so nobody looks for one. ?>
+                        <div class="iseo-card-footer iseo-features-footer">
+                            <span class="iseo-autosave-note">Changes save automatically</span>
+                            <span class="iseo-features-save" id="iseo_toggle_save_status" aria-live="polite"></span>
+                        </div>
+                    </div><!-- .iseo-features-card -->
 
-                        <!-- Sub-toggles (indented) -->
-                        <div class="iseo-sub-toggles">
-
-                            <div class="iseo-toggle-row iseo-toggle-sub">
-                                <div class="iseo-toggle-info">
-                                    <span class="iseo-toggle-label">For Bulk Posts</span>
-                                    <span class="iseo-toggle-desc">Apply when running bulk post generation projects.</span>
-                                </div>
-                                <label class="iseo-toggle-switch" aria-label="Enable for Bulk Posts">
-                                    <input type="checkbox" id="iseo_featured_images_bulk" name="improveseo_featured_images_bulk" value="1" <?php checked( get_option( 'improveseo_featured_images_bulk', '1' ), '1' ); ?>>
-                                    <span class="iseo-toggle-track"></span>
-                                </label>
+                    <!-- Account & Subscription -->
+                    <div class="iseo-settings-card iseo-account-card">
+                        <div class="iseo-card-header">
+                            <div class="iseo-card-icon iseo-icon-account">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             </div>
-
-                            <div class="iseo-toggle-row iseo-toggle-sub iseo-toggle-last">
-                                <div class="iseo-toggle-info">
-                                    <span class="iseo-toggle-label">For Single Post</span>
-                                    <span class="iseo-toggle-desc">Apply when generating a single post at a time.</span>
-                                </div>
-                                <label class="iseo-toggle-switch" aria-label="Enable for Single Post">
-                                    <input type="checkbox" id="iseo_featured_images_single" name="improveseo_featured_images_single" value="1" <?php checked( get_option( 'improveseo_featured_images_single', '1' ), '1' ); ?>>
-                                    <span class="iseo-toggle-track"></span>
-                                </label>
+                            <div class="iseo-card-header-text">
+                                <h3 class="iseo-card-title">ImproveSEO Account</h3>
+                                <p class="iseo-card-subtitle">Manage your subscription, credits, support tickets, and website settings from your ImproveSEO dashboard.</p>
                             </div>
+                        </div>
+                        <div class="iseo-account-actions">
+                            <a href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer" class="iseo-btn-primary">
+                                Open Dashboard &rarr;
+                            </a>
+                            <a href="https://account.improveseoplugin.com/support" target="_blank" rel="noopener noreferrer" class="iseo-btn-outlined">
+                                Support Tickets
+                            </a>
+                        </div>
+                    </div>
 
-                        </div><!-- .iseo-sub-toggles -->
+                </div><!-- .iseo-col-sidebar -->
 
-                    </div><!-- .iseo-toggle-group -->
+            </div><!-- .iseo-settings-grid -->
 
-                    <div class="iseo-features-save" id="iseo_toggle_save_status" aria-live="polite" style="font-size:12px; color:#6b7280; min-height:18px;"></div>
-                </div>
-            </div><!-- .iseo-features-card -->
+        </div><!-- .iseo-settings-body -->
 
-        </div><!-- .iseo-col-sidebar -->
-
-    </div><!-- .iseo-settings-grid -->
-
+    </div><!-- .improve-seo-container -->
 </div><!-- .iseo-settings-page -->
 
 <!-- ── Save-refused modal ─────────────────────────────────────────────────
@@ -379,12 +428,22 @@ document.addEventListener('DOMContentLoaded', function() {
         // state of all three is sent together — only these three options, nothing else.
         var statusEl = document.getElementById('iseo_toggle_save_status');
         var statusTimer = null;
-        function showToggleStatus(text, ok) {
+        // Same "Saved" pill the two Save Changes cards show (.iseo-save-status), so all three
+        // cards confirm a save the same way. state: 'busy' | 'ok' | 'error'.
+        var ISEO_CHECK_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        function showToggleStatus(text, state) {
             if (!statusEl) return;
-            statusEl.textContent = text;
-            statusEl.style.color = ok ? '#0f7b6c' : '#b32d2e';
             if (statusTimer) clearTimeout(statusTimer);
-            if (ok) statusTimer = setTimeout(function() { statusEl.textContent = ''; }, 2500);
+            statusEl.className = 'iseo-features-save iseo-save-status'
+                + (state === 'error' ? ' is-error' : (state === 'busy' ? ' is-busy' : ''));
+            statusEl.innerHTML = state === 'ok' ? ISEO_CHECK_SVG : '';
+            statusEl.appendChild(document.createTextNode(text));
+            if (state === 'ok') {
+                statusTimer = setTimeout(function() {
+                    statusEl.className = 'iseo-features-save';
+                    statusEl.textContent = '';
+                }, 2500);
+            }
         }
         function saveFeatureToggles() {
             var data = new FormData();
@@ -393,14 +452,18 @@ document.addEventListener('DOMContentLoaded', function() {
             data.append('enabled', main.checked ? '1' : '0');
             data.append('bulk', subs[0].checked ? '1' : '0');
             data.append('single', subs[1].checked ? '1' : '0');
-            showToggleStatus('Saving…', true);
+            showToggleStatus('Saving…', 'busy');
             fetch('<?php echo esc_url( admin_url("admin-ajax.php") ); ?>', { method: 'POST', body: data })
                 .then(function(r) { return r.json(); })
                 .then(function(res) {
-                    showToggleStatus(res && res.success ? '✓ Saved' : '✗ Save failed — try again', !!(res && res.success));
+                    if (res && res.success) {
+                        showToggleStatus('Saved', 'ok');
+                    } else {
+                        showToggleStatus('Save failed — try again', 'error');
+                    }
                 })
                 .catch(function() {
-                    showToggleStatus('✗ Save failed — try again', false);
+                    showToggleStatus('Save failed — try again', 'error');
                 });
         }
 
@@ -440,8 +503,10 @@ document.addEventListener('DOMContentLoaded', function() {
         //
         // The label itself comes from iseoPlanLabel() in views/layouts/main.php — one resolver
         // shared with the bulk-post gate, so the same account can never be named "Scale" here
-        // and "Pro" there. This screen only chooses the colour and the sentence beneath it.
-        var badgeText, badgeColor, statusLine;
+        // and "Pro" there. This screen only chooses the tone and the sentence beneath it.
+        // badgeTone: 'active' (mint tag, paid or trial) or 'neutral' (grey tag, Basic): the
+        // Dashboard's tag styles (.iseo-card-tag / --mint), see .iseo-conn-badge in settings-redesign.css.
+        var badgeText, badgeTone, statusLine;
         badgeText = (typeof iseoPlanLabel === 'function')
             ? iseoPlanLabel(plan, d.subscription, trial)
             : ((plan && plan.name) ? plan.name : 'Connected');
@@ -452,24 +517,24 @@ document.addEventListener('DOMContentLoaded', function() {
             : !!(plan && plan.is_paid);
 
         if (paidLive) {
-            badgeColor = '#0f7b6c';
+            badgeTone = 'active';
             statusLine = 'Active subscription — full access.';
         // OLD: } else if (trial && trial.expired) {
         //     badgeColor = '#b3521a';
         //     statusLine = 'Your free trial has ended. Upgrade to restore full access — any credits you purchased remain usable.';
         // REQUESTED: on Basic, say what the CMS's Basic plan says.
         } else if (!(trial && trial.active)) {
-            badgeColor = '#6b7280';
+            badgeTone = 'neutral';
             statusLine = 'Basic plan — no monthly charge. Pay as you go.';
         } else if (trial && trial.active) {
-            badgeColor = '#0f7b6c';
+            badgeTone = 'active';
             var days = (trial.days_remaining != null) ? trial.days_remaining : null;
             var ends = trial.ends_at ? new Date(trial.ends_at).toLocaleDateString() : '';
             statusLine = 'Free trial active'
                 + (days != null ? ' — ' + days + ' day' + (days === 1 ? '' : 's') + ' left' : '')
                 + (ends ? ' (ends ' + esc(ends) + ')' : '') + '.';
         } else {
-            badgeColor = '#0f7b6c';
+            badgeTone = 'active';
             statusLine = 'Account connected.';
         }
         badgeText = esc(badgeText);
@@ -665,16 +730,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         var who = esc(d.email || d.user || 'Authenticated');
 
+        // Styled in settings-redesign.css (.iseo-conn-*), with the Dashboard's tokens: a mint
+        // dot like the header pill, and the plan as a Dashboard-style tag.
         return ''
-          + '<div style="border:1px solid #d5e5e2;background:#f6faf9;border-radius:10px;padding:14px 16px;margin-top:10px;">'
-          +   '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
-          +     '<span style="color:#0f7b6c;font-size:16px;">✅</span>'
-          +     '<strong style="color:#111827;">Connected</strong>'
-          +     '<span style="margin-left:auto;background:' + badgeColor + ';color:#fff;font-size:11px;font-weight:700;letter-spacing:.03em;padding:3px 9px;border-radius:9999px;">' + badgeText + '</span>'
+          + '<div class="iseo-conn-panel">'
+          +   '<div class="iseo-conn-head">'
+          +     '<span class="iseo-conn-dot" aria-hidden="true"></span>'
+          +     '<strong class="iseo-conn-title">Connected</strong>'
+          +     '<span class="iseo-conn-badge is-' + badgeTone + '">' + badgeText + '</span>'
           +   '</div>'
-          +   '<div style="color:#4b5563;font-size:13px;margin-bottom:12px;line-height:1.5;">' + statusLine + '</div>'
+          +   '<div class="iseo-conn-line">' + statusLine + '</div>'
           +   creditsCard
-          +   '<div style="border-top:1px solid #e5eeec;margin-top:10px;padding-top:8px;font-size:12px;color:#6b7280;">Account: ' + who + ' · Server: ' + esc(d.server || 'Connected') + '</div>'
+          +   '<div class="iseo-conn-foot">Account: ' + who + ' · Server: ' + esc(d.server || 'Connected') + '</div>'
           + '</div>';
     }
 
@@ -706,7 +773,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * it is working, because the user did not ask for it and may be mid-edit.
      */
     // Same string as the button's markup, so restoring it after a click cannot drift from it.
-    const ISEO_CONFIRM_LABEL = '🔌 ' + <?php echo wp_json_encode( __( 'Confirm website connection', 'improveseo' ) ); ?>;
+    const ISEO_CONFIRM_LABEL = <?php echo wp_json_encode( __( 'Confirm website connection', 'improveseo' ) ); ?>;
 
     // Shown whenever the answer is "these credentials do not connect this website to an
     // account" — including a click with a field left empty. It points back at the steps printed
@@ -820,6 +887,25 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     /**
+     * Header pill: the same states and words as the Dashboard's (views/dashboard/index.php,
+     * iseoSetConnStatus), so the two screens never describe one connection differently.
+     */
+    function iseoSetConnStatus(state) {
+        const pill = document.getElementById('iseo-dash-status');
+        const text = document.getElementById('iseo-dash-status-text');
+        if (!pill || !text) { return; }
+        const labels = {
+            checking:    'Checking connection…',
+            active:      'API Connected & Active',
+            rejected:    'API connection rejected',
+            unavailable: 'Connection status unavailable',
+            off:         'Not connected'
+        };
+        pill.setAttribute('data-state', state);
+        text.textContent = labels[state];
+    }
+
+    /**
      * @param {boolean} auto - true for the silent on-load/on-focus check; false for the
      *   "Confirm website connection" button click, which owns the button's busy state.
      * @param {function(boolean, object=)=} onDone - called once with (connected, failure).
@@ -832,21 +918,32 @@ document.addEventListener('DOMContentLoaded', function() {
     function improveseoRunConnectionCheck(auto, onDone, context) {
         const button    = document.getElementById('test_server_connection');
         const statusDiv = document.getElementById('connection_status');
-        const apiKey    = document.querySelector('input[name="improveseo_api_key"]').value.trim();
-        const siteCode  = document.querySelector('input[name="improveseo_site_code"]').value.trim();
+        const apiInput  = document.querySelector('input[name="improveseo_api_key"]');
+        const codeInput = document.querySelector('input[name="improveseo_site_code"]');
+        const apiKey    = apiInput.value.trim();
+        const siteCode  = codeInput.value.trim();
+
+        // The header pill describes the SAVED connection. defaultValue is what PHP rendered,
+        // i.e. what is stored; a check of half-typed or unsaved values (Confirm button, or the
+        // Save gate's pre-check) must not tell the header the saved connection is broken.
+        const checksSaved = apiKey === apiInput.defaultValue.trim() && siteCode === codeInput.defaultValue.trim();
+        const pill = function (state) { if (checksSaved) { iseoSetConnStatus(state); } };
 
         if (!apiKey || !siteCode) {
             // Nothing to check. Silent when automatic: a fresh install has no credentials yet and
             // an error on first sight of the screen would read as a fault.
+            pill('off');
             if (!auto) {
                 statusDiv.innerHTML = ISEO_NOT_CONNECTED_HTML;
             }
             return;
         }
 
+        pill('checking');
+
         if (!auto) {
             button.disabled = true;
-            button.textContent = '🔄 Confirming connection…';
+            button.textContent = 'Confirming connection…';
         }
         statusDiv.innerHTML = auto
             ? '<div class="iseo-status-loading">⏳ Checking connection…</div>'
@@ -872,6 +969,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(result => {
             restore();
             if (result.success) {
+                pill('active');
                 statusDiv.innerHTML = renderConnectionPanel(result.data);
                 if (onDone) { onDone(true); }
             } else {
@@ -881,10 +979,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 // DIFFERENT one of this account's websites) mean the same thing to the user:
                 // this website is not connected to their account. The steps above are the fix.
                 if (failure.status === 401 || failure.status === 403) {
+                    pill('rejected');
                     statusDiv.innerHTML = ISEO_NOT_CONNECTED_HTML;
                     if (onDone) { onDone(false, failure); }
                     return;
                 }
+                pill('unavailable');
                 // Anything else is the server failing to answer, not a verdict on the credentials,
                 // so saying "not connected" would send the user to fix something that is not broken.
                 const err = failure.error || failure.message || 'Unknown error';
@@ -903,6 +1003,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             restore();
+            pill('unavailable');
             const savedNote = context === 'presubmit'
                 ? 'Settings have not been saved — try Save Changes again.'
                 : 'Your settings are saved. Press Confirm website connection to try again.';
@@ -948,11 +1049,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Credentials untouched — don't hold this save hostage to a network call.
             //
             // defaultValue is the value PHP rendered into the markup, i.e. what is currently
-            // stored, so this is "did the user actually edit either field". These inputs share
-            // a form with Business Type / City / Service, and most saves after setup only touch
-            // those: verifying anyway would mean a cold or unreachable admin server blocks an
-            // edit that has nothing to do with the connection. Mirrors the same skip in
-            // improveseo_sanitize_and_verify_credentials_field().
+            // stored, so this is "did the user actually edit either field". Business Details
+            // saves from its own form now, but a connection-card save with untouched credentials
+            // still should not be blocked by a cold or unreachable admin server. Mirrors the same
+            // skip in improveseo_sanitize_and_verify_credentials_field().
             if (apiKey === apiInput.defaultValue.trim() && siteCode === codeInput.defaultValue.trim()) {
                 return;
             }
@@ -1002,6 +1102,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }, 'presubmit');
         });
+    })();
+
+    // "Saved" pill from the card whose Save Changes was just pressed (PHP prints it only after a
+    // successful save of that card). Fades after a moment, and the redirect flags are taken out
+    // of the address bar so a refresh does not claim a second save.
+    (function () {
+        try {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('iseo_saved') || url.searchParams.has('settings-updated')) {
+                url.searchParams.delete('iseo_saved');
+                url.searchParams.delete('settings-updated');
+                window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+            }
+        } catch (e) { /* old browser without URL(): the flags simply stay */ }
+        document.querySelectorAll('.iseo-save-status[data-autohide]').forEach(function (el) {
+            setTimeout(function () { el.classList.add('is-fading'); }, 4000);
+        });
+    })();
+
+    // Keep a linked card in view (#iseo-business-details: the Business Save above, and the
+    // Dashboard's "Review details" button). The browser jumps to it on load, then the connection
+    // panel — filled in a moment later by the live check, and ABOVE that card — grows by a few
+    // hundred pixels and pushes it off screen. While that panel is still changing size, put the
+    // card back, unless the user has started scrolling or typing on their own.
+    (function () {
+        const target = window.location.hash ? document.getElementById(window.location.hash.slice(1)) : null;
+        const statusArea = document.getElementById('connection_status');
+        if (!target || !statusArea || typeof ResizeObserver === 'undefined') { return; }
+        // Only a target BELOW the status area moves when it grows.
+        if (!(statusArea.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING)) { return; }
+
+        let userMoved = false;
+        const stop = function () { userMoved = true; observer.disconnect(); };
+        const observer = new ResizeObserver(function () {
+            if (!userMoved) { target.scrollIntoView({ block: 'start' }); }
+        });
+        observer.observe(statusArea);
+        ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function (type) {
+            window.addEventListener(type, stop, { once: true, passive: true });
+        });
+        setTimeout(function () { observer.disconnect(); }, 15000);
     })();
 
 <?php if ( '' !== $iseo_save_failure_issue ) : ?>

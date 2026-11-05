@@ -35,10 +35,14 @@ function improveseo_init_settings() {
 	register_setting('improveseo_settings', 'improveseo_api_key',   array( 'sanitize_callback' => 'improveseo_sanitize_api_key' ));
 	register_setting('improveseo_settings', 'improveseo_site_code', array( 'sanitize_callback' => 'improveseo_sanitize_site_code' ));
 
-	// Business details (collected during onboarding, used for schema markup & AI content)
-	register_setting('improveseo_settings', 'improveseo_business_type',    array( 'sanitize_callback' => 'sanitize_text_field' ));
-	register_setting('improveseo_settings', 'improveseo_business_city',    array( 'sanitize_callback' => 'sanitize_text_field' ));
-	register_setting('improveseo_settings', 'improveseo_business_service', array( 'sanitize_callback' => 'sanitize_text_field' ));
+	// Business details (collected during onboarding, used for schema markup & AI content).
+	// Own group for the same reason as the feature toggles below: the Business Details card is
+	// its own <form> with its own Save Changes button, and options.php nulls every option in the
+	// submitted group that the form did not send. Sharing 'improveseo_settings' would make a
+	// Business save wipe the API Key / Site Code and a connection save wipe these three.
+	register_setting('improveseo_business_settings', 'improveseo_business_type',    array( 'sanitize_callback' => 'sanitize_text_field' ));
+	register_setting('improveseo_business_settings', 'improveseo_business_city',    array( 'sanitize_callback' => 'sanitize_text_field' ));
+	register_setting('improveseo_business_settings', 'improveseo_business_service', array( 'sanitize_callback' => 'sanitize_text_field' ));
 
 	// Featured image toggles
 	// NOTE: these live in their own settings group because they are saved from a
@@ -104,11 +108,10 @@ function improveseo_sanitize_and_verify_credentials_field($option, $value) {
 
 	// Credentials unchanged — nothing to re-verify.
 	//
-	// These two fields share a form with Business Type / City / Service, so most saves after
-	// setup don't touch the credentials at all. Without this, someone correcting their
-	// business city pays for a live round trip to the admin server, and — worse — a cold or
-	// unreachable server would reject that save and show them a credentials error for
-	// something they never edited.
+	// Business Type / City / Service now save from their own form (group
+	// improveseo_business_settings), so they never reach this callback. A connection-card save
+	// with untouched credentials still should not pay for a live round trip, or be refused by a
+	// cold or unreachable server for something the user never edited.
 	//
 	// Safe against the two callbacks running in sequence: this is only a skip when BOTH
 	// values already match what is stored, so if either one is genuinely being changed, the

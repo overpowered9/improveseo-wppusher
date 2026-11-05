@@ -38,10 +38,12 @@ function improveseo_enqueue_admin(){
 	wp_enqueue_style('improveseocss12121', IMPROVESEO_DIR . '/assets/css/made_by_me.css', array(), filemtime(IMPROVESEO_ROOT . '/assets/css/made_by_me.css'));
 	wp_enqueue_style('improveseo-settings-redesign', IMPROVESEO_DIR . '/assets/css/settings-redesign.css', array(), improveseo_asset_ver('assets/css/settings-redesign.css'));
 
-	// Dashboard redesign: loads after style.css / made_by_me.css on the dashboard only.
-	// Every rule is scoped to .iseo-dash (views/dashboard/index.php).
+	// Dashboard redesign: loads after style.css / made_by_me.css on the Dashboard and Settings.
+	// Every rule is scoped to .iseo-dash (views/dashboard/index.php); Settings wraps itself in
+	// the same .global-wrap.iseo-dash panel to reuse its header and card tokens, so the two
+	// screens read as one product.
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading the current admin screen, not acting on input.
-	if ( isset( $_GET['page'] ) && 'improveseo_dashboard' === sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
+	if ( isset( $_GET['page'] ) && in_array( sanitize_key( wp_unslash( $_GET['page'] ) ), array( 'improveseo_dashboard', 'improveseo_settings' ), true ) ) {
 		wp_enqueue_style('improveseo-dashboard-redesign', IMPROVESEO_DIR . '/assets/css/dashboard-redesign.css', array('improveseo-latest-css1', 'improveseocss12121'), improveseo_asset_ver('assets/css/dashboard-redesign.css'));
 	}
 
