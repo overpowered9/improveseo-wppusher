@@ -1837,6 +1837,18 @@ input:checked + .switch:before {
   text-align: center;
 }
 
+/* No border or ring on the Start buttons in any state, as on the old cards. The
+   transparent border keeps the button's size; WordPress admin's a:focus ring is removed. */
+.iseo-create .iseo-create-cta,
+.iseo-create .iseo-create-cta:hover,
+.iseo-create .iseo-create-cta:focus,
+.iseo-create .iseo-create-cta:focus-visible,
+.iseo-create .iseo-create-cta:active {
+  border-color: transparent;
+  outline: none;
+  box-shadow: none;
+}
+
 /* The Bulk card has a "Need a keyword list?" line under its button. The Single card
    keeps the same space empty, so the two buttons sit at the same height side by side. */
 @media (min-width: 992px) {
