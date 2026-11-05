@@ -1876,11 +1876,13 @@ input:checked + .switch:before {
   color: #FFFFFF;
 }
 
-/* Hover: a small lift, a soft shadow and a border in the card's own accent colour. */
+/* Hover: identical to the Dashboard cards (assets/css/dashboard-redesign.css,
+   .iseo-quickstart-card:hover) — a 2px lift, the same shadow and the same Pacific
+   Teal border, over the same 0.18s transition. No scale. */
 .iseo-create .create-ai-col:hover {
-  transform: translateY(-3px);
-  border-color: var(--iseo-card-accent);
-  box-shadow: 0 2px 4px rgba(11, 19, 43, 0.05), 0 16px 32px rgba(11, 19, 43, 0.10);
+  transform: translateY(-2px);
+  border-color: var(--iseo-primary);
+  box-shadow: 0 2px 4px rgba(11, 19, 43, 0.06), 0 14px 30px rgba(11, 19, 43, 0.12);
 }
 
 /* Same solid button as the Dashboard: Pacific Teal, Midnight Navy under the pointer. */
