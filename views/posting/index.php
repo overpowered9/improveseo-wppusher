@@ -147,9 +147,7 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 								</g>
 								<path d="M6 30a10 10 0 0 1 10-10h140a10 10 0 0 1 10 10v20H6z" fill="#F7F3ED"></path>
 								<rect x="16" y="28" width="16" height="16" rx="3" fill="#1D8F4E"></rect>
-								<text x="24" y="40" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">X</text>
-								<text x="40" y="40" font-size="10.5" font-weight="600" fill="#0B132B">Keywords.csv</text>
-								<?php
+								<text x="24" y="40" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">X</text>								<?php
 								$iseo_keywords = array(
 									__( 'Lawn care tips', 'improveseo' ),
 									__( 'Weed control', 'improveseo' ),
