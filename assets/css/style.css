@@ -1705,57 +1705,97 @@ input:checked + .switch:before {
   align-items: stretch;
 }
 
+/* Each card has its own tint (Single: cool blue, Bulk: warm cream) set through
+   custom properties, so the hover border, icon tile and (i) colour follow it. A
+   column flexbox pushes the Start button to the bottom, so both buttons line up. */
 .iseo-create .create-ai-col {
-  width: calc(50% - 10px);
-  padding: 14px 14px 22px;
-  /* Same surface as the dashboard cards (.iseo-quickstart-card), without its wave;
-     the hover lift is shared with the Quick Links rule above (navy fill below). */
-  background: #FFFFFF;
-  border: 1px solid var(--iseo-dash-line);
-  border-radius: 14px;
-  box-shadow: var(--iseo-dash-shadow);
-  transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+  --iseo-card-bg: #EEF8FD;
+  --iseo-card-accent: #1C8FC4;
+  --iseo-card-tile: linear-gradient(145deg, #8EDBFA 0%, #4FBDEB 100%);
+  --iseo-card-tile-ink: #0E5F86;
+  display: flex;
+  flex-direction: column;
+  width: calc(50% - 12px);
+  padding: 28px 28px 26px;
+  text-align: left;
+  background: var(--iseo-card-bg);
+  border: 2px solid transparent;
+  border-radius: 20px;
+  box-shadow: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
   font-family: var(--iseo-font);
 }
 
-/* Fixed-height panel; the drawing takes ~70–75% of its width, centered. On very wide
-   cards the panel height caps it first (max-height), which keeps its text below
-   the card title in size. */
+.iseo-create .iseo-create-col--bulk {
+  --iseo-card-bg: #FFF7EC;
+  --iseo-card-accent: #F2711C;
+  --iseo-card-tile: linear-gradient(145deg, #FFD9AE 0%, #FFAE70 100%);
+  --iseo-card-tile-ink: #E25E12;
+}
+
+/* Header row: icon tile, then title + description. */
+.iseo-create-cardhead {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.iseo-create-tile {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 18px;
+  background: var(--iseo-card-tile);
+  color: var(--iseo-card-tile-ink);
+  box-shadow: 0 6px 16px rgba(11, 19, 43, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.iseo-create-headtext {
+  min-width: 0;
+}
+
+/* The drawing sits on a soft white panel and grows to fill the card, so both cards
+   keep the same height whatever their title length. */
 .iseo-create-art {
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* About 60% of the earlier 230px, per the client's layout: title and description come
-     first now, so the drawing illustrates them rather than leading the card. */
-  height: 140px;
-  padding: 14px;
-  background: #F4F6F8;
-  border-radius: 10px;
+  min-height: 230px;
+  padding: 18px 20px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
 }
 
 .iseo-create-art svg {
   display: block;
-  width: 77%;
+  width: 100%;
+  max-width: 420px;
   height: auto;
-  max-height: 100%;
+  max-height: 230px;
+  overflow: visible;
   font-family: var(--iseo-font);
 }
 
 .iseo-create .create-ai-col h3.iseo-create-title {
-  margin: 6px 0 4px;
+  margin: 0 0 4px;
   font-family: var(--iseo-font);
-  font-size: 19px;
-  line-height: 28px;
+  font-size: 21px;
+  line-height: 29px;
   font-weight: 600;
   color: var(--iseo-navy);
 }
 
 /* One line under the title saying what the card makes. */
 .iseo-create .create-ai-col .iseo-create-desc {
-  margin: 0 0 16px;
+  margin: 0;
   font-family: var(--iseo-font);
-  font-size: 13.5px;
-  line-height: 20px;
+  font-size: 14px;
+  line-height: 21px;
   color: var(--iseo-muted);
 }
 
@@ -1765,7 +1805,7 @@ input:checked + .switch:before {
   position: absolute;
   inset: 0;
   z-index: 1;
-  border-radius: 14px;
+  border-radius: 20px;
 }
 
 /* No ring around the title itself: WordPress admin draws one on every focused link
@@ -1788,8 +1828,21 @@ input:checked + .switch:before {
 .iseo-create .iseo-create-cta {
   position: relative;
   z-index: 2;
-  min-width: 220px;
-  margin-top: 18px;
+  display: flex;
+  width: 100%;
+  margin-top: 22px;
+}
+
+/* The Bulk card has a "Need a keyword list?" line under its button. The Single card
+   keeps the same space empty, so the two buttons sit at the same height side by side. */
+@media (min-width: 992px) {
+  .iseo-create .iseo-create-col--single {
+    padding-bottom: 58px;
+  }
+}
+
+.iseo-create .iseo-create-needlist {
+  text-align: center;
 }
 
 .iseo-create .iseo-info-tip {
@@ -1800,7 +1853,7 @@ input:checked + .switch:before {
 .iseo-create .iseo-info-tip {
   margin-left: 6px;
   cursor: pointer;
-  color: var(--iseo-primary);
+  color: var(--iseo-card-accent, var(--iseo-primary));
 }
 
 .iseo-create .iseo-info-tip:hover,
@@ -1819,13 +1872,11 @@ input:checked + .switch:before {
   color: #FFFFFF;
 }
 
-/* Hover: the Dashboard's card hover (assets/css/dashboard-redesign.css) — a 2px lift,
-   a stronger navy-tinted shadow and a Pacific Teal border. The card stays white; the
-   title, (i) marker and illustration panel keep their colours. */
+/* Hover: a small lift, a soft shadow and a border in the card's own accent colour. */
 .iseo-create .create-ai-col:hover {
-  transform: translateY(-2px);
-  border-color: var(--iseo-primary);
-  box-shadow: 0 2px 4px rgba(11, 19, 43, 0.06), 0 14px 30px rgba(11, 19, 43, 0.12);
+  transform: translateY(-3px);
+  border-color: var(--iseo-card-accent);
+  box-shadow: 0 2px 4px rgba(11, 19, 43, 0.05), 0 16px 32px rgba(11, 19, 43, 0.10);
 }
 
 /* Same solid button as the Dashboard: Pacific Teal, Midnight Navy under the pointer. */
@@ -1868,8 +1919,28 @@ input:checked + .switch:before {
     line-height: 26px;
   }
 
+  .iseo-create .create-ai-col {
+    padding: 20px 16px;
+  }
+
+  .iseo-create-cardhead {
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .iseo-create-tile {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+  }
+
+  .iseo-create .create-ai-col h3.iseo-create-title {
+    font-size: 18px;
+    line-height: 25px;
+  }
+
   .iseo-create-art {
-    height: 120px;
+    min-height: 0;
     padding: 12px;
   }
 }

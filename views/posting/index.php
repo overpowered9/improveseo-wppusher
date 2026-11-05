@@ -50,107 +50,138 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 			      // comes from .iseo-btn-arrow, as on the Dashboard. ?>
 			<div class="create-ai-post">
 				<div class="create-ai">
-					<div class="create-ai-col">
-						<h3 class="iseo-create-title">
-							<a class="Posting__post-button iseo-create-card-link" href="<?php echo esc_url( $single_url ); ?>"><?php esc_html_e( 'Create Single Post', 'improveseo' ); ?></a>
-							<span class="iseo-info-tip" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'What is a Single Post?', 'improveseo' ); ?>">
-								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-								<span class="iseo-info-tip-bubble iseo-info-tip-bubble--above" role="tooltip"><?php esc_html_e( 'Create a single post based on a chosen seed keyword', 'improveseo' ); ?></span>
+					<div class="create-ai-col iseo-create-col iseo-create-col--single">
+						<?php // Header: coloured icon tile on the left, title, (i) and one-line description beside it. ?>
+						<div class="iseo-create-cardhead">
+							<span class="iseo-create-tile" aria-hidden="true">
+								<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="14" y2="17"></line></svg>
 							</span>
-						</h3>
-						<p class="iseo-create-desc"><?php esc_html_e( 'One post built from one keyword.', 'improveseo' ); ?></p>
+							<div class="iseo-create-headtext">
+								<h3 class="iseo-create-title">
+									<a class="Posting__post-button iseo-create-card-link" href="<?php echo esc_url( $single_url ); ?>"><?php esc_html_e( 'Create Single Post', 'improveseo' ); ?></a>
+									<span class="iseo-info-tip" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'What is a Single Post?', 'improveseo' ); ?>">
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+										<span class="iseo-info-tip-bubble iseo-info-tip-bubble--above" role="tooltip"><?php esc_html_e( 'Create a single post based on a chosen seed keyword', 'improveseo' ); ?></span>
+									</span>
+								</h3>
+								<p class="iseo-create-desc"><?php esc_html_e( 'One post built from one keyword.', 'improveseo' ); ?></p>
+							</div>
+						</div>
+						<?php // Keyword search pill -> curved arrow -> post in a browser window. The arrow ends
+						      // 10px short of the window's left edge, so it never crosses the post. ?>
 						<div class="iseo-create-art">
-							<svg viewBox="0 0 360 172" role="img" aria-label="<?php esc_attr_e( 'One keyword, Lawn Mowing, becomes one published post', 'improveseo' ); ?>">
-								<rect x="2" y="58" width="160" height="56" rx="28" fill="#fff" stroke="#1C7293" stroke-width="2"></rect>
-								<circle cx="32" cy="86" r="18" fill="#1C7293" fill-opacity="0.12"></circle>
-								<path d="M39 80H29l-6 6 6 6h10z" fill="#1C7293"></path>
-								<circle cx="30" cy="86" r="1.8" fill="#fff"></circle>
-								<text x="58" y="84" font-size="13" font-weight="600" fill="#0B132B"><?php esc_html_e( 'Lawn Mowing', 'improveseo' ); ?></text>
-								<text x="58" y="101" font-size="10" fill="#5C6B7A"><?php esc_html_e( '1 Keyword', 'improveseo' ); ?></text>
-								<line x1="168" y1="86" x2="214" y2="86" stroke="#1C7293" stroke-width="2" stroke-dasharray="5 4"></line>
-								<circle cx="190" cy="86" r="7" fill="#1C7293" opacity="0.18"></circle>
-								<circle cx="190" cy="86" r="4" fill="#1C7293"></circle>
-								<path d="M214 80l8 6-8 6z" fill="#1C7293"></path>
-								<rect x="230" y="16" width="120" height="140" rx="9" fill="#fff" stroke="#D5DEE6"></rect>
-								<path d="M230 25a9 9 0 0 1 9-9h102a9 9 0 0 1 9 9v25H230z" fill="#1C7293" fill-opacity="0.12"></path>
-								<rect x="240" y="24" width="26" height="18" rx="2" fill="#fff" stroke="#1C7293" stroke-opacity="0.45"></rect>
-								<path d="M243 39l6-6 4 4 4-3 6 5z" fill="#1C7293" opacity="0.7"></path>
-								<circle cx="260" cy="28.5" r="1.8" fill="#1C7293" opacity="0.7"></circle>
-								<rect x="274" y="28" width="64" height="4" rx="2" fill="#1C7293" opacity="0.55"></rect>
-								<rect x="274" y="37" width="44" height="4" rx="2" fill="#1C7293" opacity="0.3"></rect>
-								<rect x="242" y="64" width="96" height="6" rx="3" fill="#0B132B"></rect>
-								<rect x="242" y="78" width="96" height="4" rx="2" fill="#D5DEE6"></rect>
-								<rect x="242" y="88" width="80" height="4" rx="2" fill="#D5DEE6"></rect>
-								<rect x="242" y="98" width="90" height="4" rx="2" fill="#D5DEE6"></rect>
-								<rect x="242" y="118" width="72" height="20" rx="10" fill="#E6F8F5" stroke="#2EC4B6"></rect>
-								<circle cx="253" cy="128" r="5" fill="#2EC4B6"></circle>
-								<path d="M250.8 128.1l1.6 1.6 2.9-3.1" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
-								<text x="262" y="131.5" font-size="9.5" font-weight="600" fill="#138A7E"><?php esc_html_e( 'Published', 'improveseo' ); ?></text>
+							<svg viewBox="0 0 400 220" role="img" aria-label="<?php esc_attr_e( 'One keyword, Lawn mowing tips, becomes one published post', 'improveseo' ); ?>">
+								<defs>
+									<filter id="iseo-single-shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0B132B" flood-opacity="0.10"></feDropShadow></filter>
+									<clipPath id="iseo-single-img"><rect x="238" y="100" width="122" height="58" rx="6"></rect></clipPath>
+								</defs>
+								<g filter="url(#iseo-single-shadow)">
+									<rect x="8" y="86" width="180" height="48" rx="24" fill="#fff" stroke="#D3E8F2"></rect>
+									<rect x="224" y="24" width="150" height="176" rx="10" fill="#fff" stroke="#DCE7EF"></rect>
+								</g>
+								<circle cx="34" cy="110" r="16" fill="#1C7293"></circle>
+								<circle cx="32" cy="108" r="6" fill="none" stroke="#fff" stroke-width="2.4"></circle>
+								<line x1="36.5" y1="112.5" x2="41" y2="117" stroke="#fff" stroke-width="2.4" stroke-linecap="round"></line>
+								<text x="60" y="115" font-size="13" font-weight="600" fill="#0B132B"><?php esc_html_e( 'Lawn mowing tips', 'improveseo' ); ?></text>
+								<path d="M96 144C110 186 176 190 212 148" fill="none" stroke="#1C8FC4" stroke-width="3.5" stroke-linecap="round"></path>
+								<path d="M202.6 151.3L212 148L210.2 157.8" fill="none" stroke="#1C8FC4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+								<path d="M224 34a10 10 0 0 1 10-10h130a10 10 0 0 1 10 10v12H224z" fill="#DDF0FA"></path>
+								<circle cx="238" cy="35" r="3" fill="#7CC4E4"></circle>
+								<circle cx="248" cy="35" r="3" fill="#7CC4E4"></circle>
+								<rect x="238" y="58" width="96" height="6" rx="3" fill="#CBD8E2"></rect>
+								<rect x="238" y="70" width="116" height="5" rx="2.5" fill="#DCE5EC"></rect>
+								<rect x="238" y="81" width="80" height="5" rx="2.5" fill="#DCE5EC"></rect>
+								<g clip-path="url(#iseo-single-img)">
+									<rect x="238" y="100" width="122" height="58" fill="#D6EEFB"></rect>
+									<circle cx="342" cy="114" r="6" fill="#FFC94D"></circle>
+									<path d="M238 140C258 124 276 126 294 136C312 124 336 122 360 134V158H238z" fill="#8FD9A0"></path>
+									<path d="M238 150C262 138 290 140 312 148C330 142 346 142 360 146V158H238z" fill="#34B36A"></path>
+								</g>
+								<rect x="238" y="168" width="110" height="5" rx="2.5" fill="#DCE5EC"></rect>
+								<rect x="238" y="179" width="76" height="5" rx="2.5" fill="#DCE5EC"></rect>
+								<circle cx="370" cy="192" r="16" fill="#fff"></circle>
+								<circle cx="370" cy="192" r="12.5" fill="#22B07D"></circle>
+								<path d="M364.5 192.2l3.8 3.8 7-7.4" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
+								<g stroke="#1C8FC4" stroke-width="3" stroke-linecap="round">
+									<line x1="379" y1="15" x2="382" y2="5"></line>
+									<line x1="386" y1="22" x2="394" y2="16"></line>
+									<line x1="387" y1="31" x2="396" y2="31"></line>
+								</g>
 							</svg>
 						</div>
 						<a class="Posting__post-button iseo-btn iseo-btn-solid iseo-btn-arrow iseo-create-cta" href="<?php echo esc_url( $single_url ); ?>"><?php esc_html_e( 'Start single post', 'improveseo' ); ?></a>
 					</div>
 
-					<div class="create-ai-col">
-						<h3 class="iseo-create-title">
-							<a class="Posting__page-button iseo-create-card-link" href="<?php echo esc_url( $bulk_url ); ?>"><?php esc_html_e( 'Create Bulk Post Project', 'improveseo' ); ?></a>
-							<span class="iseo-info-tip" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'What is a Bulk Post Project?', 'improveseo' ); ?>">
-								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-								<span class="iseo-info-tip-bubble iseo-info-tip-bubble--above" role="tooltip"><?php
-									/* translators: %s: "Create one" link to the Keyword Lists screen */
-									echo sprintf( esc_html__( 'Create a project with multiple posts based on a keyword list. Don’t have a keyword list? %s before you get started.', 'improveseo' ), '<a href="' . esc_url( $lists_url ) . '">' . esc_html__( 'Create one', 'improveseo' ) . '</a>' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every part is escaped above.
-								?></span>
+					<div class="create-ai-col iseo-create-col iseo-create-col--bulk">
+						<div class="iseo-create-cardhead">
+							<span class="iseo-create-tile" aria-hidden="true">
+								<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 12 12 17 22 12"></polyline><polyline points="2 17 12 22 22 17"></polyline></svg>
 							</span>
-						</h3>
-						<p class="iseo-create-desc"><?php esc_html_e( 'Multiple posts built from a keyword list.', 'improveseo' ); ?></p>
+							<div class="iseo-create-headtext">
+								<h3 class="iseo-create-title">
+									<a class="Posting__page-button iseo-create-card-link" href="<?php echo esc_url( $bulk_url ); ?>"><?php esc_html_e( 'Create Bulk Post Project', 'improveseo' ); ?></a>
+									<span class="iseo-info-tip" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'What is a Bulk Post Project?', 'improveseo' ); ?>">
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+										<span class="iseo-info-tip-bubble iseo-info-tip-bubble--above" role="tooltip"><?php
+											/* translators: %s: "Create one" link to the Keyword Lists screen */
+											echo sprintf( esc_html__( 'Create a project with multiple posts based on a keyword list. Don’t have a keyword list? %s before you get started.', 'improveseo' ), '<a href="' . esc_url( $lists_url ) . '">' . esc_html__( 'Create one', 'improveseo' ) . '</a>' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every part is escaped above.
+										?></span>
+									</span>
+								</h3>
+								<p class="iseo-create-desc"><?php esc_html_e( 'Multiple posts built from a keyword list.', 'improveseo' ); ?></p>
+							</div>
+						</div>
+						<?php // Keyword sheet -> curved arrow -> stack of posts. The arrow runs only in the gap
+						      // between the sheet and the stack, touching neither. ?>
 						<div class="iseo-create-art">
-							<svg viewBox="0 0 360 172" role="img" aria-label="<?php esc_attr_e( 'A keyword list of four keywords becomes four ready posts', 'improveseo' ); ?>">
-								<rect x="6" y="8" width="128" height="156" rx="8" fill="#fff" stroke="#CDD6DF"></rect>
-								<text x="16" y="27" font-size="8.5" font-weight="600" fill="#5C6B7A" letter-spacing="0.4"><?php esc_html_e( 'KEYWORD LIST (4)', 'improveseo' ); ?></text>
-								<rect x="14" y="36" width="112" height="24" rx="5" fill="#1C7293" fill-opacity="0.12" stroke="#1C7293" stroke-opacity="0.45"></rect>
-								<circle cx="25" cy="48" r="3" fill="#1C7293"></circle>
-								<text x="34" y="51.5" font-size="9" font-weight="600" fill="#0B132B"><?php esc_html_e( 'Lawn Mowing', 'improveseo' ); ?></text>
-								<rect x="14" y="66" width="112" height="24" rx="5" fill="#F5F7F9" stroke="#E9EDF2"></rect>
-								<circle cx="25" cy="78" r="3" fill="#B9C3CC"></circle>
-								<text x="34" y="81.5" font-size="9" fill="#5C6B7A"><?php esc_html_e( 'Weed Control', 'improveseo' ); ?></text>
-								<rect x="14" y="96" width="112" height="24" rx="5" fill="#F5F7F9" stroke="#E9EDF2"></rect>
-								<circle cx="25" cy="108" r="3" fill="#B9C3CC"></circle>
-								<text x="34" y="111.5" font-size="9" fill="#5C6B7A"><?php esc_html_e( 'Lawn Aeration', 'improveseo' ); ?></text>
-								<rect x="14" y="126" width="112" height="24" rx="5" fill="#F5F7F9" stroke="#E9EDF2"></rect>
-								<circle cx="25" cy="138" r="3" fill="#B9C3CC"></circle>
-								<text x="34" y="141.5" font-size="9" fill="#5C6B7A"><?php esc_html_e( 'Grass Seeding', 'improveseo' ); ?></text>
-								<path d="M136 60L158 86L136 112" fill="none" stroke="#1C7293" stroke-width="1.8" stroke-linejoin="round"></path>
-								<g stroke="#1C7293" stroke-width="4" stroke-linecap="round">
-									<line x1="187" y1="86" x2="193" y2="86"></line>
-									<line x1="183.8" y1="93.8" x2="188" y2="98"></line>
-									<line x1="176" y1="97" x2="176" y2="103"></line>
-									<line x1="168.2" y1="93.8" x2="164" y2="98"></line>
-									<line x1="165" y1="86" x2="159" y2="86"></line>
-									<line x1="168.2" y1="78.2" x2="164" y2="74"></line>
-									<line x1="176" y1="75" x2="176" y2="69"></line>
-									<line x1="183.8" y1="78.2" x2="188" y2="74"></line>
+							<svg viewBox="0 0 400 220" role="img" aria-label="<?php esc_attr_e( 'A keyword list of five keywords becomes a stack of posts', 'improveseo' ); ?>">
+								<defs>
+									<filter id="iseo-bulk-shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0B132B" flood-opacity="0.10"></feDropShadow></filter>
+									<clipPath id="iseo-bulk-img"><rect x="248" y="74" width="96" height="56" rx="6"></rect></clipPath>
+								</defs>
+								<g filter="url(#iseo-bulk-shadow)">
+									<rect x="6" y="20" width="160" height="182" rx="10" fill="#fff" stroke="#EBE3D7"></rect>
+									<rect x="254" y="20" width="124" height="150" rx="10" fill="#CFE6F2"></rect>
+									<rect x="244" y="30" width="124" height="150" rx="10" fill="#E4F1F8"></rect>
+									<rect x="234" y="40" width="124" height="150" rx="10" fill="#fff" stroke="#E2E8EE"></rect>
 								</g>
-								<circle cx="176" cy="86" r="12" fill="#1C7293"></circle>
-								<circle cx="176" cy="86" r="4.5" fill="#fff"></circle>
-								<line x1="198" y1="86" x2="216" y2="86" stroke="#1C7293" stroke-width="2" stroke-dasharray="4 3"></line>
-								<path d="M216 81l7 5-7 5z" fill="#1C7293"></path>
-								<rect x="250" y="10" width="100" height="146" rx="8" fill="#EEF2F6" stroke="#CDD6DF"></rect>
-								<rect x="242" y="17" width="100" height="146" rx="8" fill="#F5F7F9" stroke="#CDD6DF"></rect>
-								<rect x="234" y="24" width="100" height="146" rx="8" fill="#fff" stroke="#1C7293" stroke-width="1.5"></rect>
-								<rect x="294" y="3" width="60" height="18" rx="9" fill="#1C7293"></rect>
-								<text x="324" y="15.5" font-size="9" font-weight="700" fill="#fff" text-anchor="middle"><?php esc_html_e( '4 POSTS', 'improveseo' ); ?></text>
-								<rect x="244" y="38" width="60" height="5" rx="2.5" fill="#0B132B"></rect>
-								<rect x="244" y="49" width="80" height="3" rx="1.5" fill="#D5DEE6"></rect>
-								<rect x="244" y="57" width="60" height="3" rx="1.5" fill="#D5DEE6"></rect>
-								<?php foreach ( array( 70, 94, 118, 142 ) as $iseo_i => $iseo_y ) : ?>
-								<rect x="244" y="<?php echo (int) $iseo_y; ?>" width="80" height="20" rx="4" fill="#E9F9F5" stroke="#2EC4B6"></rect>
-								<circle cx="254" cy="<?php echo (int) $iseo_y + 10; ?>" r="5" fill="#2EC4B6"></circle>
-								<path d="M251.8 <?php echo (int) $iseo_y + 10.1; ?>l1.6 1.6 2.9-3.1" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
-								<text x="263" y="<?php echo (int) $iseo_y + 13.5; ?>" font-size="8.5" font-weight="600" fill="#138A7E"><?php
-									/* translators: %d: post number, 1 to 4 */
-									echo esc_html( sprintf( __( 'Post %d Ready', 'improveseo' ), $iseo_i + 1 ) );
-								?></text>
+								<path d="M6 30a10 10 0 0 1 10-10h140a10 10 0 0 1 10 10v20H6z" fill="#F7F3ED"></path>
+								<rect x="16" y="28" width="16" height="16" rx="3" fill="#1D8F4E"></rect>
+								<text x="24" y="40" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">X</text>
+								<text x="40" y="40" font-size="10.5" font-weight="600" fill="#0B132B">Keywords.csv</text>
+								<?php
+								$iseo_keywords = array(
+									__( 'Lawn care tips', 'improveseo' ),
+									__( 'Weed control', 'improveseo' ),
+									__( 'Garden maintenance', 'improveseo' ),
+									__( 'Seasonal landscaping', 'improveseo' ),
+									__( 'Irrigation systems', 'improveseo' ),
+								);
+								foreach ( $iseo_keywords as $iseo_i => $iseo_kw ) :
+									$iseo_y = 50 + $iseo_i * 30;
+								?>
+								<?php if ( $iseo_i % 2 ) : ?><rect x="7" y="<?php echo (int) $iseo_y; ?>" width="158" height="30" fill="#FBF8F4"></rect><?php endif; ?>
+								<line x1="7" y1="<?php echo (int) $iseo_y; ?>" x2="165" y2="<?php echo (int) $iseo_y; ?>" stroke="#F0EAE1"></line>
+								<text x="21" y="<?php echo (int) $iseo_y + 19; ?>" font-size="10" fill="#8A97A4" text-anchor="middle"><?php echo (int) $iseo_i + 1; ?></text>
+								<text x="44" y="<?php echo (int) $iseo_y + 19; ?>" font-size="10.5" fill="#26303B"><?php echo esc_html( $iseo_kw ); ?></text>
 								<?php endforeach; ?>
+								<line x1="34" y1="50" x2="34" y2="200" stroke="#F0EAE1"></line>
+								<path d="M176 112C184 152 204 150 224 124" fill="none" stroke="#F2711C" stroke-width="3.5" stroke-linecap="round"></path>
+								<path d="M215.7 127.4L224 124L222.8 132.9" fill="none" stroke="#F2711C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+								<rect x="248" y="54" width="70" height="6" rx="3" fill="#CBD8E2"></rect>
+								<g clip-path="url(#iseo-bulk-img)">
+									<rect x="248" y="74" width="96" height="56" fill="#D6EEFB"></rect>
+									<circle cx="328" cy="87" r="5.5" fill="#FFC94D"></circle>
+									<path d="M248 114C264 100 280 102 294 111C308 100 328 98 344 108V130H248z" fill="#8FD9A0"></path>
+									<path d="M248 123C266 113 288 115 304 121C318 116 332 116 344 119V130H248z" fill="#34B36A"></path>
+								</g>
+								<rect x="248" y="142" width="90" height="5" rx="2.5" fill="#DCE5EC"></rect>
+								<rect x="248" y="154" width="60" height="5" rx="2.5" fill="#DCE5EC"></rect>
+								<g stroke="#F2711C" stroke-width="3" stroke-linecap="round">
+									<line x1="382" y1="14" x2="385" y2="4"></line>
+									<line x1="388" y1="20" x2="396" y2="14"></line>
+									<line x1="389" y1="29" x2="398" y2="29"></line>
+								</g>
 							</svg>
 						</div>
 						<a class="Posting__page-button iseo-btn iseo-btn-solid iseo-btn-arrow iseo-create-cta" href="<?php echo esc_url( $bulk_url ); ?>"><?php esc_html_e( 'Start bulk project', 'improveseo' ); ?></a>
