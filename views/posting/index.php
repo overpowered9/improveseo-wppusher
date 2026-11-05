@@ -140,12 +140,13 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 									<clipPath id="iseo-bulk-img"><rect x="262" y="74" width="84" height="56" rx="6"></rect></clipPath>
 								</defs>
 								<g filter="url(#iseo-bulk-shadow)">
-									<rect x="6" y="30" width="154" height="150" rx="10" fill="#fff" stroke="#EBE3D7"></rect>
+									<rect x="6" y="20" width="154" height="172" rx="10" fill="#fff" stroke="#EBE3D7"></rect>
 									<rect x="270" y="20" width="110" height="150" rx="10" fill="#CFE6F2"></rect>
 									<rect x="260" y="30" width="110" height="150" rx="10" fill="#E4F1F8"></rect>
 									<rect x="250" y="40" width="110" height="150" rx="10" fill="#fff" stroke="#E2E8EE"></rect>
 								</g>
-								<?php // Keyword list: five rows, no header bar. ?>
+								<?php // Keyword list: a thin header bar (same height as the Single card's), then five rows. ?>
+								<path d="M6 30a10 10 0 0 1 10-10h134a10 10 0 0 1 10 10v12H6z" fill="#F7F3ED"></path>
 								<?php
 								$iseo_keywords = array(
 									__( 'Lawn care tips', 'improveseo' ),
@@ -155,14 +156,14 @@ $lists_url  = admin_url( 'admin.php?page=improveseo_lists' );
 									__( 'Irrigation systems', 'improveseo' ),
 								);
 								foreach ( $iseo_keywords as $iseo_i => $iseo_kw ) :
-									$iseo_y = 30 + $iseo_i * 30;
+									$iseo_y = 42 + $iseo_i * 30;
 								?>
 								<?php if ( $iseo_i % 2 ) : ?><rect x="7" y="<?php echo (int) $iseo_y; ?>" width="152" height="30" fill="#FBF8F4"></rect><?php endif; ?>
-								<?php if ( $iseo_i ) : ?><line x1="7" y1="<?php echo (int) $iseo_y; ?>" x2="159" y2="<?php echo (int) $iseo_y; ?>" stroke="#F0EAE1"></line><?php endif; ?>
+								<line x1="7" y1="<?php echo (int) $iseo_y; ?>" x2="159" y2="<?php echo (int) $iseo_y; ?>" stroke="#F0EAE1"></line>
 								<text x="21" y="<?php echo (int) $iseo_y + 19; ?>" font-size="10" fill="#8A97A4" text-anchor="middle"><?php echo (int) $iseo_i + 1; ?></text>
 								<text x="44" y="<?php echo (int) $iseo_y + 19; ?>" font-size="10" fill="#26303B"><?php echo esc_html( $iseo_kw ); ?></text>
 								<?php endforeach; ?>
-								<line x1="34" y1="30" x2="34" y2="180" stroke="#F0EAE1"></line>
+								<line x1="34" y1="42" x2="34" y2="192" stroke="#F0EAE1"></line>
 								<?php // Same curve and arrowhead as the Single card's arrow (about 2/3 of its length); it ends 10px before the front page. ?>
 								<path d="M166 108C175 135 217 137.4 240 110.6" fill="none" stroke="#F2711C" stroke-width="3.5" stroke-linecap="round"></path>
 								<path d="M230.6 113.9L240 110.6L238.2 120.4" fill="none" stroke="#F2711C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
