@@ -503,12 +503,43 @@
     line-height: 1.5;
 }
 
-.iseo-settings-page .iseo-connection-status {
-    margin-top: 14px;
+/* ── Connection card: fields left, status panel right ─────────
+   flex-wrap instead of a breakpoint: the two columns sit side by side (about 60/40) while
+   the card is wide enough for both minimums, and the status drops below on its own when it
+   is not — whatever the screen, the WP admin menu state or the zoom level. */
+.iseo-settings-page .iseo-conn-layout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
 }
 
-.iseo-settings-page .iseo-connection-status:empty {
-    margin-top: 0;
+.iseo-settings-page .iseo-conn-main {
+    flex: 3 1 480px;
+    min-width: 0;
+}
+
+.iseo-settings-page .iseo-conn-aside {
+    flex: 2 1 340px;
+    min-width: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 2px 20px 20px;
+}
+
+/* Nothing to show yet (not connected / check not run): no empty column. */
+.iseo-settings-page .iseo-conn-aside:empty {
+    display: none;
+}
+
+/* Long values (account email, plan names) wrap instead of pushing the column wider. */
+.iseo-settings-page .iseo-conn-aside,
+.iseo-settings-page .iseo-conn-aside * {
+    overflow-wrap: anywhere;
+}
+
+.iseo-settings-page .iseo-conn-aside .iseo-credits-row-value,
+.iseo-settings-page .iseo-conn-aside .iseo-conn-badge {
+    overflow-wrap: normal;
 }
 
 /* ── "Connected" panel (renderConnectionPanel() in views/settings/index.php) ──
@@ -1125,6 +1156,93 @@
 .iseo-settings-page .iseo-info-tip-bubble--above::after {
     border-bottom-color: transparent;
     border-top-color: var(--iseo-navy);
+}
+
+/* ── Small screens ─────────────────────────────────────────── */
+@media (max-width: 782px) {
+    /* WP admin's own mobile breakpoint: tighter page inset. */
+    .iseo-settings-page .iseo-settings-body {
+        padding: 0 12px;
+    }
+
+    .iseo-settings-page .iseo-card-header,
+    .iseo-settings-page .iseo-card-body,
+    .iseo-settings-page .iseo-card-footer,
+    .iseo-settings-page .iseo-account-actions,
+    .iseo-settings-page .iseo-conn-aside {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    /* Tabs become a 2x2 grid instead of a strip you have to scroll sideways. */
+    .iseo-settings-page .iseo-settings-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
+        padding: 6px;
+        overflow: visible;
+    }
+
+    .iseo-settings-page .iseo-settings-tab {
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 10px;
+        border-radius: 8px;
+        font-size: 13px;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .iseo-settings-page .iseo-settings-tab::after {
+        left: 16px;
+        right: 16px;
+    }
+
+    .iseo-settings-page .iseo-settings-tab.is-active {
+        background: var(--iseo-dash-tint);
+    }
+
+    /* Buttons full width and stacked: easy to tap, nothing runs off the card. */
+    .iseo-settings-page .iseo-card-actions,
+    .iseo-settings-page .iseo-account-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .iseo-settings-page .iseo-card-actions > input[type="submit"],
+    .iseo-settings-page .iseo-account-actions > a {
+        width: 100%;
+    }
+
+    .iseo-settings-page .iseo-connection-actions {
+        flex-wrap: nowrap;
+    }
+
+    .iseo-settings-page .iseo-connection-actions .iseo-btn-secondary {
+        flex: 1 1 auto;
+        white-space: normal;
+    }
+
+    .iseo-settings-page .iseo-save-status {
+        align-self: flex-start;
+    }
+
+    /* Card lift is a pointer effect; on touch it only makes the card jump. */
+    .iseo-settings-page .iseo-settings-card:hover {
+        transform: none;
+    }
+
+    .iseo-settings-page .iseo-credits-total {
+        font-size: 26px;
+    }
+}
+
+@media (max-width: 380px) {
+    .iseo-settings-page .iseo-settings-tabs {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 /* Toggle on Settings: off track in a brand neutral, on track teal, solid focus ring. */

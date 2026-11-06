@@ -174,6 +174,14 @@ $iseo_saved_pill = '<span class="iseo-save-status" role="status" data-autohide="
                                 <p class="iseo-card-subtitle">Connect your site to the ImproveSEO AI engine to start generating content.</p>
                             </div>
                         </div>
+                        <?php
+                        // Two columns that wrap on their own (flex-wrap, no fixed breakpoint): fields,
+                        // guide and buttons on the left; the connection status panel on the right.
+                        // While the status is empty the right column is hidden (:empty) and the left
+                        // takes the full width; on a narrow screen the status drops below.
+                        ?>
+                        <div class="iseo-conn-layout">
+                        <div class="iseo-conn-main">
                         <div class="iseo-card-body">
 
                             <div class="iseo-field-group">
@@ -235,8 +243,10 @@ $iseo_saved_pill = '<span class="iseo-save-status" role="status" data-autohide="
                                 }
                                 ?>
                             </div>
-                            <div id="connection_status" class="iseo-connection-status"></div>
                         </div>
+                        </div><!-- .iseo-conn-main -->
+                        <div id="connection_status" class="iseo-connection-status iseo-conn-aside" aria-live="polite"></div>
+                        </div><!-- .iseo-conn-layout -->
 
                         <!-- Legacy Settings (hidden — kept for backwards compatibility) -->
                         <div style="display: none;">
