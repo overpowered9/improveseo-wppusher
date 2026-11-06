@@ -1705,57 +1705,97 @@ input:checked + .switch:before {
   align-items: stretch;
 }
 
+/* Each card has its own tint (Single: cool blue, Bulk: warm cream) set through
+   custom properties, so the hover border, icon tile and (i) colour follow it. A
+   column flexbox pushes the Start button to the bottom, so both buttons line up. */
 .iseo-create .create-ai-col {
-  width: calc(50% - 10px);
-  padding: 14px 14px 22px;
-  /* Same surface as the dashboard cards (.iseo-quickstart-card), without its wave;
-     the hover lift is shared with the Quick Links rule above (navy fill below). */
-  background: #FFFFFF;
-  border: 1px solid var(--iseo-dash-line);
-  border-radius: 14px;
-  box-shadow: var(--iseo-dash-shadow);
-  transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+  --iseo-card-bg: #EEF8FD;
+  --iseo-card-accent: #1C8FC4;
+  --iseo-card-tile: linear-gradient(145deg, #8EDBFA 0%, #4FBDEB 100%);
+  --iseo-card-tile-ink: #0E5F86;
+  display: flex;
+  flex-direction: column;
+  width: calc(50% - 12px);
+  padding: 28px 28px 26px;
+  text-align: left;
+  background: var(--iseo-card-bg);
+  border: 2px solid transparent;
+  border-radius: 20px;
+  box-shadow: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
   font-family: var(--iseo-font);
 }
 
-/* Fixed-height panel; the drawing takes ~70–75% of its width, centered. On very wide
-   cards the panel height caps it first (max-height), which keeps its text below
-   the card title in size. */
+.iseo-create .iseo-create-col--bulk {
+  --iseo-card-bg: #FFF7EC;
+  --iseo-card-accent: #F2711C;
+  --iseo-card-tile: linear-gradient(145deg, #FFD9AE 0%, #FFAE70 100%);
+  --iseo-card-tile-ink: #E25E12;
+}
+
+/* Header row: icon tile, then title + description. */
+.iseo-create-cardhead {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.iseo-create-tile {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 18px;
+  background: var(--iseo-card-tile);
+  color: var(--iseo-card-tile-ink);
+  box-shadow: 0 6px 16px rgba(11, 19, 43, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.iseo-create-headtext {
+  min-width: 0;
+}
+
+/* The drawing sits on a soft white panel and grows to fill the card, so both cards
+   keep the same height whatever their title length. */
 .iseo-create-art {
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* About 60% of the earlier 230px, per the client's layout: title and description come
-     first now, so the drawing illustrates them rather than leading the card. */
-  height: 140px;
-  padding: 14px;
-  background: #F4F6F8;
-  border-radius: 10px;
+  min-height: 230px;
+  padding: 18px 20px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
 }
 
 .iseo-create-art svg {
   display: block;
-  width: 77%;
+  width: 100%;
+  max-width: 420px;
   height: auto;
-  max-height: 100%;
+  max-height: 230px;
+  overflow: visible;
   font-family: var(--iseo-font);
 }
 
 .iseo-create .create-ai-col h3.iseo-create-title {
-  margin: 6px 0 4px;
+  margin: 0 0 4px;
   font-family: var(--iseo-font);
-  font-size: 19px;
-  line-height: 28px;
+  font-size: 21px;
+  line-height: 29px;
   font-weight: 600;
   color: var(--iseo-navy);
 }
 
 /* One line under the title saying what the card makes. */
 .iseo-create .create-ai-col .iseo-create-desc {
-  margin: 0 0 16px;
+  margin: 0;
   font-family: var(--iseo-font);
-  font-size: 13.5px;
-  line-height: 20px;
+  font-size: 14px;
+  line-height: 21px;
   color: var(--iseo-muted);
 }
 
@@ -1765,7 +1805,7 @@ input:checked + .switch:before {
   position: absolute;
   inset: 0;
   z-index: 1;
-  border-radius: 14px;
+  border-radius: 20px;
 }
 
 /* No ring around the title itself: WordPress admin draws one on every focused link
@@ -1790,6 +1830,35 @@ input:checked + .switch:before {
   z-index: 2;
   min-width: 220px;
   margin-top: 18px;
+  /* Same size as before the redesign; the card is a left-aligned column now, so
+     centre the button explicitly. */
+  align-self: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* No border or ring on the Start buttons in any state, as on the old cards. The
+   transparent border keeps the button's size; WordPress admin's a:focus ring is removed. */
+.iseo-create .iseo-create-cta,
+.iseo-create .iseo-create-cta:hover,
+.iseo-create .iseo-create-cta:focus,
+.iseo-create .iseo-create-cta:focus-visible,
+.iseo-create .iseo-create-cta:active {
+  border-color: transparent;
+  outline: none;
+  box-shadow: none;
+}
+
+/* The Bulk card has a "Need a keyword list?" line under its button. The Single card
+   keeps the same space empty, so the two buttons sit at the same height side by side. */
+@media (min-width: 992px) {
+  .iseo-create .iseo-create-col--single {
+    padding-bottom: 58px;
+  }
+}
+
+.iseo-create .iseo-create-needlist {
+  text-align: center;
 }
 
 .iseo-create .iseo-info-tip {
@@ -1800,7 +1869,7 @@ input:checked + .switch:before {
 .iseo-create .iseo-info-tip {
   margin-left: 6px;
   cursor: pointer;
-  color: var(--iseo-primary);
+  color: var(--iseo-card-accent, var(--iseo-primary));
 }
 
 .iseo-create .iseo-info-tip:hover,
@@ -1819,9 +1888,9 @@ input:checked + .switch:before {
   color: #FFFFFF;
 }
 
-/* Hover: the Dashboard's card hover (assets/css/dashboard-redesign.css) — a 2px lift,
-   a stronger navy-tinted shadow and a Pacific Teal border. The card stays white; the
-   title, (i) marker and illustration panel keep their colours. */
+/* Hover: identical to the Dashboard cards (assets/css/dashboard-redesign.css,
+   .iseo-quickstart-card:hover) — a 2px lift, the same shadow and the same Pacific
+   Teal border, over the same 0.18s transition. No scale. */
 .iseo-create .create-ai-col:hover {
   transform: translateY(-2px);
   border-color: var(--iseo-primary);
@@ -1868,8 +1937,28 @@ input:checked + .switch:before {
     line-height: 26px;
   }
 
+  .iseo-create .create-ai-col {
+    padding: 20px 16px;
+  }
+
+  .iseo-create-cardhead {
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .iseo-create-tile {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+  }
+
+  .iseo-create .create-ai-col h3.iseo-create-title {
+    font-size: 18px;
+    line-height: 25px;
+  }
+
   .iseo-create-art {
-    height: 120px;
+    min-height: 0;
     padding: 12px;
   }
 }
@@ -4479,5 +4568,130 @@ div#ai-image-display {
   iframe#content_ifr {
     min-width: 100% !important;
     width: 100% !important;
+  }
+}
+
+/* ── AI image loader (#loadingAIImage) ────────────────────────────────────────
+   Replaces the AI-generated.gif / loadingImage.gif backgrounds. The ID selector
+   beats the .overlay_ai_image rules printed inline by the popup and the AI forms,
+   so the old GIF no longer shows. The message is real text (translatable, sharp);
+   the animation is four squares chasing each other round a square (from
+   Uiverse.io by NlghtM4re) in the brand colours. */
+#loadingAIImage.overlay_ai_image,
+#loadingAIData.overlay_ai_data {
+  background: #FFFFFF none;
+}
+
+.iseo-img-loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 44px;
+  width: min(90vw, 460px);
+  text-align: center;
+  font-family: var(--iseo-font);
+}
+
+/* Same words and look as the old GIF's caption. */
+.iseo-img-loader .iseo-img-loader-text {
+  margin: 0;
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: #EA6A2C;
+  /* The status line changes every few seconds (custom-plugin-script.js); it fades
+     out, swaps, and fades back in. min-height keeps the squares from jumping when
+     a message wraps to two lines. */
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+}
+
+.iseo-img-loader .iseo-img-loader-text.is-changing {
+  opacity: 0;
+}
+
+/* Article loader: dark text, as Writing-Optimization.gif had. */
+.iseo-img-loader--content .iseo-img-loader-text {
+  color: #3D434B;
+}
+
+.iseo-img-loader-anim {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 120px;
+  height: 120px;
+}
+
+.iseo-img-loader-anim div {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  animation: iseo-img-loader-move 4s infinite;
+}
+
+.iseo-img-loader-anim div:nth-child(1) {
+  background-color: #F77A59; /* Coral Accent */
+  box-shadow: rgba(247, 122, 89, 0.55) 0 7px 29px 0;
+  transform: translate(-30px, -30px);
+  animation-delay: -1s;
+}
+
+.iseo-img-loader-anim div:nth-child(2) {
+  background-color: #1C7293; /* Pacific Teal */
+  box-shadow: rgba(28, 114, 147, 0.55) 0 7px 29px 0;
+  transform: translate(30px, -30px);
+  animation-delay: -2s;
+}
+
+.iseo-img-loader-anim div:nth-child(3) {
+  background-color: #2EC4B6; /* Mint */
+  box-shadow: rgba(46, 196, 182, 0.55) 0 7px 29px 0;
+  transform: translate(30px, 30px);
+  animation-delay: -3s;
+}
+
+.iseo-img-loader-anim div:nth-child(4) {
+  background-color: #8EC5DF; /* light Pacific Teal, used across the plugin */
+  box-shadow: rgba(142, 197, 223, 0.55) 0 7px 29px 0;
+  transform: translate(-30px, 30px);
+  animation-delay: -4s;
+}
+
+@keyframes iseo-img-loader-move {
+  0%   { transform: translate(-30px, -30px); }
+  25%  { transform: translate(30px, -30px); }
+  50%  { transform: translate(30px, 30px); }
+  75%  { transform: translate(-30px, 30px); }
+  100% { transform: translate(-30px, -30px); }
+}
+
+/* Reduced motion: a much slower loop instead of a frozen screen, so it still reads as working. */
+@media (prefers-reduced-motion: reduce) {
+  .iseo-img-loader-anim div {
+    animation-duration: 12s;
+  }
+
+  .iseo-img-loader .iseo-img-loader-text {
+    transition: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .iseo-img-loader .iseo-img-loader-text {
+    font-size: 16px;
+    line-height: 22px;
   }
 }

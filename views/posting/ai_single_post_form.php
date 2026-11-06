@@ -5,9 +5,10 @@
    
    <!-- <img src="'.home_url('/').'wp-content/plugins/jobseq_jobs_pugin/assets/image/loader.gif" alt="Loading..."> -->
    </div>
-   <div id="loadingAIData" style="display:none;" class="overlay_ai_data"></div>
+   <div id="loadingAIData" style="display:none;" class="overlay_ai_data"><?php improveseo_ai_loader( 'content' ); ?></div>
    
-   <div id="loadingAIImage" style="display:none;" class="overlay_ai_image"></div>
+   <?php // AI loaders: animation + changing status text, see improveseo_ai_loader() in includes/helpers.php. ?>
+   <div id="loadingAIImage" style="display:none;" class="overlay_ai_image"><?php improveseo_ai_loader( 'image' ); ?></div>
    
            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
               <div class="modal-content">

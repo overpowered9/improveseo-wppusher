@@ -3277,3 +3277,54 @@ jQuery(document).ready(function () {
   syncNicheUI();
   sel.addEventListener("change", syncNicheUI);
 });
+
+/* ── AI loader status text ───────────────────────────────────────────────────
+   #loadingAIImage / #loadingAIData are opened and closed with jQuery show()/hide()
+   in this file. While one is visible, its status line steps through the messages
+   printed by improveseo_ai_loader() (includes/helpers.php), one every 3.5 seconds,
+   with a short fade, and loops. Each time an overlay opens it starts again from the
+   first message. */
+(function () {
+  var STEP_MS = 3500;
+  var FADE_MS = 300;
+
+  function tick() {
+    var loaders = document.querySelectorAll(".iseo-img-loader[data-iseo-messages]");
+    for (var i = 0; i < loaders.length; i++) {
+      var el = loaders[i];
+      var visible = el.offsetParent !== null || el.getClientRects().length > 0;
+      if (!visible) {
+        if (el._iseoStart) {
+          el._iseoStart = 0;
+          el._iseoIndex = 0;
+          var t = el.querySelector(".iseo-img-loader-text");
+          if (t && el._iseoMessages) { t.textContent = el._iseoMessages[0]; }
+        }
+        continue;
+      }
+      if (!el._iseoMessages) {
+        try { el._iseoMessages = JSON.parse(el.getAttribute("data-iseo-messages")) || []; }
+        catch (e) { el._iseoMessages = []; }
+      }
+      if (el._iseoMessages.length < 2) { continue; }
+      var now = Date.now();
+      if (!el._iseoStart) { el._iseoStart = now; el._iseoIndex = 0; continue; }
+      var index = Math.floor((now - el._iseoStart) / STEP_MS) % el._iseoMessages.length;
+      if (index !== el._iseoIndex) {
+        el._iseoIndex = index;
+        swap(el.querySelector(".iseo-img-loader-text"), el._iseoMessages[index]);
+      }
+    }
+  }
+
+  function swap(textEl, message) {
+    if (!textEl) { return; }
+    textEl.classList.add("is-changing");
+    setTimeout(function () {
+      textEl.textContent = message;
+      textEl.classList.remove("is-changing");
+    }, FADE_MS);
+  }
+
+  setInterval(tick, 250);
+})();

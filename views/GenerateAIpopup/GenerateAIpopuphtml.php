@@ -637,9 +637,10 @@ global $ai_modal_type;
     <div id="loadingImage" style="display:none ;" class="overlay2">
         <!-- <img src="' . home_url('/') . 'wp-content/plugins/jobseq_jobs_pugin/assets/image/loader.gif" alt="Loading..."> -->
     </div>
-    <div id="loadingAIData" style="display:none;" class="overlay_ai_data"></div>
+    <div id="loadingAIData" style="display:none;" class="overlay_ai_data"><?php improveseo_ai_loader( 'content' ); ?></div>
 
-    <div id="loadingAIImage" style="display:none;" class="overlay_ai_image"></div>
+    <?php // AI loaders: animation + changing status text, see improveseo_ai_loader() in includes/helpers.php. ?>
+    <div id="loadingAIImage" style="display:none;" class="overlay_ai_image"><?php improveseo_ai_loader( 'image' ); ?></div>
 
     <!-- Shared lightbox: clicking any generated/uploaded cover image opens it enlarged here.
          Close via the X, clicking the backdrop, or pressing Escape. -->
@@ -1461,9 +1462,10 @@ global $ai_modal_type;
 
         <!-- <img src="' . home_url('/') . 'wp-content/plugins/jobseq_jobs_pugin/assets/image/loader.gif" alt="Loading..."> -->
     </div>
-    <div id="loadingAIData" style="display:none;" class="overlay_ai_data"></div>
+    <div id="loadingAIData" style="display:none;" class="overlay_ai_data"><?php improveseo_ai_loader( 'content' ); ?></div>
 
-    <div id="loadingAIImage" style="display:none;" class="overlay_ai_image"></div>
+    <?php // AI loaders: animation + changing status text, see improveseo_ai_loader() in includes/helpers.php. ?>
+    <div id="loadingAIImage" style="display:none;" class="overlay_ai_image"><?php improveseo_ai_loader( 'image' ); ?></div>
 
     <div class="improveseo-bulk-ai_multi">
         <div class="singlepost-title_multi">
