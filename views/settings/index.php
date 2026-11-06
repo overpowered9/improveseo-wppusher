@@ -67,25 +67,59 @@ $iseo_saved_pill = '<span class="iseo-save-status" role="status" data-autohide="
             <span class="iseo-dash-status" id="iseo-dash-status" role="status" data-state="<?php echo $iseo_conn_saved ? 'checking' : 'off'; ?>"><span class="iseo-dash-status-dot" aria-hidden="true"></span><span id="iseo-dash-status-text"><?php echo $iseo_conn_saved ? 'Checking connection&hellip;' : 'Not connected'; ?></span></span>
         </div>
 
+        <?php
+        // Tabs: one card per tab, full width. The tab that opens first is decided here from
+        // ?iseo_saved= (the card whose Save Changes brought us back), so the right card is showing
+        // before any script runs; the script below then honours a #card link from elsewhere
+        // (the Dashboard's "Review details" and the Business Details menu item use #iseo-business-details).
+        $iseo_tabs = array(
+            'connection' => array(
+                'label' => __( 'Connection', 'improveseo' ),
+                'icon'  => '<rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>',
+            ),
+            'business'   => array(
+                'label' => __( 'Business Details', 'improveseo' ),
+                'icon'  => '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>',
+            ),
+            'features'   => array(
+                'label' => __( 'Content Features', 'improveseo' ),
+                'icon'  => '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline>',
+            ),
+            'account'    => array(
+                'label' => __( 'Account', 'improveseo' ),
+                'icon'  => '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>',
+            ),
+        );
+        $iseo_active_tab = ( 'business' === $iseo_saved_card ) ? 'business' : 'connection';
+        ?>
+
         <div class="iseo-settings-body">
 
-            <!-- Intro guidance banner -->
-            <div class="iseo-intro-banner">
-                <svg class="iseo-intro-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                <p>Configure your ImproveSEO server settings to enable AI content generation. Get your API Key and Site Code from your <a href="https://account.improveseoplugin.com/" target="_blank">ImproveSEO Dashboard</a>.</p>
+            <div class="iseo-settings-tabs" role="tablist" aria-label="<?php esc_attr_e( 'Settings sections', 'improveseo' ); ?>">
+                <?php foreach ( $iseo_tabs as $iseo_tab_key => $iseo_tab ) : $iseo_is_active = ( $iseo_tab_key === $iseo_active_tab ); ?>
+                    <button type="button" role="tab" class="iseo-settings-tab<?php echo $iseo_is_active ? ' is-active' : ''; ?>"
+                        id="iseo-tab-<?php echo esc_attr( $iseo_tab_key ); ?>"
+                        data-tab="<?php echo esc_attr( $iseo_tab_key ); ?>"
+                        aria-controls="iseo-panel-<?php echo esc_attr( $iseo_tab_key ); ?>"
+                        aria-selected="<?php echo $iseo_is_active ? 'true' : 'false'; ?>"
+                        tabindex="<?php echo $iseo_is_active ? '0' : '-1'; ?>">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><?php echo $iseo_tab['icon']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG markup above. ?></svg>
+                        <span><?php echo esc_html( $iseo_tab['label'] ); ?></span>
+                        <?php if ( 'connection' === $iseo_tab_key ) : ?>
+                            <span class="iseo-tab-dot" id="iseo-tab-conn-dot" data-state="<?php echo $iseo_conn_saved ? 'checking' : 'off'; ?>" aria-hidden="true"></span>
+                        <?php endif; ?>
+                    </button>
+                <?php endforeach; ?>
             </div>
 
-            <!-- Two-column layout: the two forms on the left, auto-saved features and account links on the right -->
-            <div class="iseo-settings-grid">
-
-                <!-- ── LEFT COLUMN: the two forms, each with its own Save Changes ── -->
-                <div class="iseo-col-main">
+            <!-- ── Tab: Connection ── -->
+            <div class="iseo-settings-panel" role="tabpanel" id="iseo-panel-connection" aria-labelledby="iseo-tab-connection" <?php echo 'connection' === $iseo_active_tab ? '' : 'hidden'; ?>>
 
                     <!-- ── Card 1: Server Connection (option group improveseo_settings) ── -->
                     <form id="iseo-server-settings" class="improve-seo-form-global iseo-settings-form iseo-settings-card" method="post" action="options.php">
                         <?php settings_fields('improveseo_settings'); ?>
-                        <?php // After settings_fields() so it wins over the referer field that prints: brings the save back to this card. ?>
-                        <input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr( wp_make_link_relative( add_query_arg( 'iseo_saved', 'server', $iseo_settings_url ) ) . '#iseo-server-settings' ); ?>">
+                        <?php // After settings_fields() so it wins over the referer field that prints: brings the save back to this tab. No #fragment: the tab is picked from ?iseo_saved=, and a fragment would make the browser jump past the header. ?>
+                        <input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr( wp_make_link_relative( add_query_arg( 'iseo_saved', 'server', $iseo_settings_url ) ) ); ?>">
 
                         <?php
                         // Errors recorded by improveseo_sanitize_and_verify_credentials_field() during
@@ -213,10 +247,15 @@ $iseo_saved_pill = '<span class="iseo-save-status" role="status" data-autohide="
                         </div>
                     </form>
 
+            </div><!-- #iseo-panel-connection -->
+
+            <!-- ── Tab: Business Details ── -->
+            <div class="iseo-settings-panel" role="tabpanel" id="iseo-panel-business" aria-labelledby="iseo-tab-business" <?php echo 'business' === $iseo_active_tab ? '' : 'hidden'; ?>>
+
                     <!-- ── Card 2: Business Details (option group improveseo_business_settings) ── -->
-                    <form id="iseo-business-details" class="improve-seo-form-global iseo-business-form iseo-settings-card" method="post" action="options.php" style="scroll-margin-top: 48px;">
+                    <form id="iseo-business-details" class="improve-seo-form-global iseo-business-form iseo-settings-card" method="post" action="options.php">
                         <?php settings_fields('improveseo_business_settings'); ?>
-                        <input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr( wp_make_link_relative( add_query_arg( 'iseo_saved', 'business', $iseo_settings_url ) ) . '#iseo-business-details' ); ?>">
+                        <input type="hidden" name="_wp_http_referer" value="<?php echo esc_attr( wp_make_link_relative( add_query_arg( 'iseo_saved', 'business', $iseo_settings_url ) ) ); ?>">
 
                         <div class="iseo-card-header">
                             <div class="iseo-card-icon iseo-icon-business">
@@ -272,13 +311,13 @@ $iseo_saved_pill = '<span class="iseo-save-status" role="status" data-autohide="
                         </div>
                     </form>
 
-                </div><!-- .iseo-col-main -->
+            </div><!-- #iseo-panel-business -->
 
-                <!-- ── RIGHT COLUMN: auto-saved features, account links ── -->
-                <div class="iseo-col-sidebar">
+            <!-- ── Tab: Content Features ── -->
+            <div class="iseo-settings-panel" role="tabpanel" id="iseo-panel-features" aria-labelledby="iseo-tab-features" hidden>
 
                     <!-- Content Features Card (toggles auto-save via AJAX — no Save button) -->
-                    <div class="iseo-settings-card iseo-features-card">
+                    <div class="iseo-settings-card iseo-features-card" id="iseo-content-features">
                         <div class="iseo-card-header">
                             <div class="iseo-card-icon iseo-icon-image">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
@@ -350,8 +389,13 @@ $iseo_saved_pill = '<span class="iseo-save-status" role="status" data-autohide="
                         </div>
                     </div><!-- .iseo-features-card -->
 
+            </div><!-- #iseo-panel-features -->
+
+            <!-- ── Tab: Account ── -->
+            <div class="iseo-settings-panel" role="tabpanel" id="iseo-panel-account" aria-labelledby="iseo-tab-account" hidden>
+
                     <!-- Account & Subscription -->
-                    <div class="iseo-settings-card iseo-account-card">
+                    <div class="iseo-settings-card iseo-account-card" id="iseo-account">
                         <div class="iseo-card-header">
                             <div class="iseo-card-icon iseo-icon-account">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -362,18 +406,17 @@ $iseo_saved_pill = '<span class="iseo-save-status" role="status" data-autohide="
                             </div>
                         </div>
                         <div class="iseo-account-actions">
+                            <?php $iseo_ext_icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>'; ?>
                             <a href="https://account.improveseoplugin.com/" target="_blank" rel="noopener noreferrer" class="iseo-btn-primary">
-                                Open Dashboard &rarr;
+                                Open Dashboard <?php echo $iseo_ext_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG. ?>
                             </a>
                             <a href="https://account.improveseoplugin.com/support" target="_blank" rel="noopener noreferrer" class="iseo-btn-outlined">
-                                Support Tickets
+                                Support Tickets <?php echo $iseo_ext_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed SVG. ?>
                             </a>
                         </div>
                     </div>
 
-                </div><!-- .iseo-col-sidebar -->
-
-            </div><!-- .iseo-settings-grid -->
+            </div><!-- #iseo-panel-account -->
 
         </div><!-- .iseo-settings-body -->
 
@@ -903,6 +946,9 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         pill.setAttribute('data-state', state);
         text.textContent = labels[state];
+        // The Connection tab carries the same state as a dot.
+        const tabDot = document.getElementById('iseo-tab-conn-dot');
+        if (tabDot) { tabDot.setAttribute('data-state', state); }
     }
 
     /**
@@ -1121,28 +1167,64 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     })();
 
-    // Keep a linked card in view (#iseo-business-details: the Business Save above, and the
-    // Dashboard's "Review details" button). The browser jumps to it on load, then the connection
-    // panel — filled in a moment later by the live check, and ABOVE that card — grows by a few
-    // hundred pixels and pushes it off screen. While that panel is still changing size, put the
-    // card back, unless the user has started scrolling or typing on their own.
+    // ── Tabs ─────────────────────────────────────────────
+    // One card per tab. PHP already opened the right tab for a save redirect; a #card link
+    // (the Dashboard's "Review details", the Business Details menu item, the connection
+    // guide) opens that card's tab instead. Switching writes the card's #id into the URL, so
+    // a reload or a shared link lands on the same tab.
     (function () {
-        const target = window.location.hash ? document.getElementById(window.location.hash.slice(1)) : null;
-        const statusArea = document.getElementById('connection_status');
-        if (!target || !statusArea || typeof ResizeObserver === 'undefined') { return; }
-        // Only a target BELOW the status area moves when it grows.
-        if (!(statusArea.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING)) { return; }
+        const tabs = Array.prototype.slice.call(document.querySelectorAll('.iseo-settings-tab'));
+        if (!tabs.length) { return; }
+        const HASH_TO_TAB = {
+            'iseo-server-settings': 'connection',
+            'iseo-connect-guide':   'connection',
+            'iseo-business-details': 'business',
+            'iseo-content-features': 'features',
+            'iseo-account':          'account'
+        };
+        const TAB_TO_HASH = {
+            connection: 'iseo-server-settings',
+            business:   'iseo-business-details',
+            features:   'iseo-content-features',
+            account:    'iseo-account'
+        };
 
-        let userMoved = false;
-        const stop = function () { userMoved = true; observer.disconnect(); };
-        const observer = new ResizeObserver(function () {
-            if (!userMoved) { target.scrollIntoView({ block: 'start' }); }
+        function activate(key, opts) {
+            opts = opts || {};
+            tabs.forEach(function (tab) {
+                const on = tab.getAttribute('data-tab') === key;
+                tab.classList.toggle('is-active', on);
+                tab.setAttribute('aria-selected', on ? 'true' : 'false');
+                tab.setAttribute('tabindex', on ? '0' : '-1');
+                const panel = document.getElementById(tab.getAttribute('aria-controls'));
+                if (panel) { panel.hidden = !on; }
+                if (on && opts.focus) { tab.focus(); }
+            });
+            if (opts.updateHash && window.history && window.history.replaceState) {
+                window.history.replaceState(null, '', window.location.pathname + window.location.search + '#' + TAB_TO_HASH[key]);
+            }
+        }
+
+        tabs.forEach(function (tab, i) {
+            tab.addEventListener('click', function () {
+                activate(tab.getAttribute('data-tab'), { updateHash: true });
+            });
+            // Arrow keys / Home / End move between tabs (WAI-ARIA tabs pattern).
+            tab.addEventListener('keydown', function (e) {
+                let next = null;
+                if (e.key === 'ArrowRight') { next = tabs[(i + 1) % tabs.length]; }
+                else if (e.key === 'ArrowLeft') { next = tabs[(i - 1 + tabs.length) % tabs.length]; }
+                else if (e.key === 'Home') { next = tabs[0]; }
+                else if (e.key === 'End') { next = tabs[tabs.length - 1]; }
+                if (next) {
+                    e.preventDefault();
+                    activate(next.getAttribute('data-tab'), { focus: true, updateHash: true });
+                }
+            });
         });
-        observer.observe(statusArea);
-        ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function (type) {
-            window.addEventListener(type, stop, { once: true, passive: true });
-        });
-        setTimeout(function () { observer.disconnect(); }, 15000);
+
+        const fromHash = HASH_TO_TAB[window.location.hash.slice(1)];
+        if (fromHash) { activate(fromHash); }
     })();
 
 <?php if ( '' !== $iseo_save_failure_issue ) : ?>
