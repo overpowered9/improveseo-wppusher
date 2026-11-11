@@ -852,6 +852,22 @@ function improveseo_dashboard() {
 				}
 
 			}
+			// Search data shown for the seed keyword (JSON from the wizard's hidden field).
+			// Validated down to the contract's fields; anything else is dropped. Read back by
+			// the builder (modules/builder.php) into the post's _iseo_keyword_data meta.
+			if ( function_exists( 'improveseo_keyword_data_validate_metrics' ) && ! empty( $_POST['ai_keyword_data'] ) ) {
+				$iseo_kw_items = improveseo_keyword_data_validate_metrics( array( json_decode( wp_unslash( (string) $_POST['ai_keyword_data'] ), true ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated field by field inside
+				$iseo_kw_item  = ! empty( $iseo_kw_items ) ? reset( $iseo_kw_items ) : null;
+				if ( $iseo_kw_item ) {
+					$options_data['ai_keyword_data'] = wp_json_encode( $iseo_kw_item );
+				}
+			}
+			if ( isset( $_POST['ai_keyword_source'] ) ) {
+				$iseo_kw_src = sanitize_key( wp_unslash( $_POST['ai_keyword_source'] ) );
+				if ( in_array( $iseo_kw_src, array( 'keyword_finder', 'typed' ), true ) ) {
+					$options_data['ai_keyword_source'] = $iseo_kw_src;
+				}
+			}
 
 		}
 

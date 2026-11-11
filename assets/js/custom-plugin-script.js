@@ -979,6 +979,9 @@ function copyAIFieldsToHiddenInputs() {
   jQuery("#ai_image_option_hidden").val(jQuery("input[name='aiImage']:checked").val() || "");
   jQuery("#ai_generated_title_hidden").val(jQuery("#AI_Title").val() || jQuery("#ai_title").val() || "");
   jQuery("#ai_for_testing_only_hidden").val(jQuery("#for_testing_only").is(":checked") ? "1" : "0");
+  // Search data for the seed keyword (keyword-wizard.js keeps #iseo_keyword_data_json current).
+  jQuery("#ai_keyword_data_hidden").val(jQuery("#iseo_keyword_data_json").val() || "");
+  jQuery("#ai_keyword_source_hidden").val(jQuery("#iseo_keyword_source").val() || "");
 
   // Carry the wizard's Meta Title / Description into the On-Page SEO fields on EVERY form
   // submit (Publish AND Save As Draft). Without this, a draft could be saved before/without

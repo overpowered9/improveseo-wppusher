@@ -70,10 +70,13 @@ function improveseo_get_keyword_list_data() {
         $keyword_min = $keyword_count * 3;
         $keyword_time = number_format($keyword_min / 60, 2);
         
+        // Search data saved with the list (keyword => metrics), for the wizard's summary line.
+        $metrics = function_exists( 'improveseo_lists_metrics_for' ) ? improveseo_lists_metrics_for( $list_id ) : array();
         wp_send_json_success(array(
             'keywords' => $keywords,
             'count' => $keyword_count,
-            'time' => $keyword_time
+            'time' => $keyword_time,
+            'metrics' => ! empty( $metrics ) ? $metrics : null,
         ));
     } else {
         wp_send_json_error(array('message' => 'List not found'));

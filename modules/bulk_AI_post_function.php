@@ -1101,6 +1101,9 @@ function generateBulkAiContent($id = '', $regenerate = '')
 				// Refresh the SEO meta too so the regenerated post's title/description
 				// stay in sync with the new content (improveseo_custom_* + active SEO plugin).
 				improveseo_write_seo_meta($value->post_id, $meta_title, $meta_description);
+				if ( function_exists( 'improveseo_save_keyword_meta' ) ) {
+					improveseo_save_keyword_meta( $value->post_id, $value->keyword_name, improveseo_bulk_task_keyword_data( $value ) );
+				}
 
 				my_plugin_log('generateBulkAiContent: WordPress post updated successfully');
 			}
@@ -1693,6 +1696,11 @@ function saveContentInTaskList()
 				return false;
 			} else {
 				my_plugin_log('saveContentInTaskList: ✅ WordPress post created successfully | Post ID: ' . $post_id . ' | Task ID: ' . $task_id);
+				// Seed keyword + the search data saved with the project's keyword list
+				// (modules/keyword-data.php). Skipped silently when the list has none.
+				if ( function_exists( 'improveseo_save_keyword_meta' ) ) {
+					improveseo_save_keyword_meta( $post_id, $value->keyword_name, improveseo_bulk_task_keyword_data( $value ) );
+				}
 
 				// ── Featured image (bulk) ───────────────────────────────────────
 				try {

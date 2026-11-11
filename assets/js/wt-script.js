@@ -307,7 +307,8 @@ jQuery(function($){
                             var bulkUrl = ajax_vars.ajax_url.replace('admin-ajax.php', 'admin.php?page=improveseo_posting&action=create_post_bulk&keyword_list=' + savedListId);
                             window.location.href = bulkUrl;
                         };
-                        popup.querySelector('div[style*="display: flex"]').appendChild(bulkBtn);
+                        // The button row is the Close button's parent (the icon circle is a flex box too).
+                        document.getElementById('closeKeywordPopup').parentNode.appendChild(bulkBtn);
                         // "Write a post" links in the metrics table can now carry the list id, so
                         // the wizard reads the metrics from the saved list instead of looking them up.
                         if (window.iseoKeywordMetrics && typeof window.iseoKeywordMetrics.setListId === 'function') {

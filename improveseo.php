@@ -943,6 +943,10 @@ function improveseo_preserve_generation_options( array &$options_data, $project_
 
 	$generation_keys = array(
 		'ai_seed_keyword',
+		// Search data shown for the seed keyword, and where the keyword came from
+		// (modules/keyword-data.php); kept so publishing a draft keeps them too.
+		'ai_keyword_data',
+		'ai_keyword_source',
 		'ai_seed_options',
 		'ai_content_type',
 		'ai_nos_of_words',

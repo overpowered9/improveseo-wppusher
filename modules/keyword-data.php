@@ -541,3 +541,130 @@ function improveseo_keyword_metrics_localize() {
 		),
 	) );
 }
+
+/* ======================================================================================
+ * Phase 3: hand-off into the wizards and post meta.
+ * ====================================================================================*/
+
+/**
+ * Post meta keys written on every plugin-generated post (single and bulk).
+ *
+ *   _iseo_seed_keyword  the keyword the post was generated from (plain text)
+ *   _iseo_keyword_data  the metrics snapshot the user saw for it (JSON item), or absent
+ */
+define( 'IMPROVESEO_META_SEED_KEYWORD', '_iseo_seed_keyword' );
+define( 'IMPROVESEO_META_KEYWORD_DATA', '_iseo_keyword_data' );
+
+/**
+ * Save the seed keyword and its metrics snapshot on a generated post.
+ *
+ * @param int         $post_id Post ID.
+ * @param string      $seed    Seed keyword; nothing is written when empty.
+ * @param array|null  $item    Clean metrics item (improveseo_keyword_data_clean_item) or null.
+ * @return void
+ */
+function improveseo_save_keyword_meta( $post_id, $seed, $item = null ) {
+	$post_id = absint( $post_id );
+	$seed    = sanitize_text_field( (string) $seed );
+	if ( ! $post_id || '' === trim( $seed ) ) {
+		return;
+	}
+	update_post_meta( $post_id, IMPROVESEO_META_SEED_KEYWORD, $seed );
+	$item = is_array( $item ) ? improveseo_keyword_data_clean_item( $item ) : null;
+	if ( $item ) {
+		update_post_meta( $post_id, IMPROVESEO_META_KEYWORD_DATA, wp_json_encode( $item ) );
+	}
+}
+
+/**
+ * The metrics item for a bulk task row, from the list the project was created from.
+ *
+ * keyword_list_name holds the list's id (the Bulk wizard's select posts option values), so the
+ * stored metrics map is read once per list per request and the row's keyword looked up in it.
+ *
+ * @param object $task Row of improveseo_bulktasksdetails (keyword_name, keyword_list_name).
+ * @return array|null
+ */
+function improveseo_bulk_task_keyword_data( $task ) {
+	static $cache = array();
+	if ( ! is_object( $task ) || empty( $task->keyword_name ) ) {
+		return null;
+	}
+	$list_id = isset( $task->keyword_list_name ) ? absint( $task->keyword_list_name ) : 0;
+	if ( ! $list_id ) {
+		return null;
+	}
+	if ( ! array_key_exists( $list_id, $cache ) ) {
+		$cache[ $list_id ] = improveseo_lists_metrics_for( $list_id );
+	}
+	$key = improveseo_keyword_data_normalize( $task->keyword_name );
+	return isset( $cache[ $list_id ][ $key ] ) ? $cache[ $list_id ][ $key ] : null;
+}
+
+/**
+ * AJAX: the one-line summary for a keyword, for the wizards.
+ *
+ * Reads the saved list's metrics when the keyword came from one (kw_list), otherwise asks the
+ * server for that single keyword (a cache hit when the Keyword Generator fetched it earlier).
+ * The wizard pages need edit_posts, so that is the gate here.
+ */
+add_action( 'wp_ajax_improveseo_keyword_summary', 'improveseo_ajax_keyword_summary' );
+function improveseo_ajax_keyword_summary() {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'improveseo' ) ), 403 );
+	}
+	$keyword = isset( $_POST['keyword'] ) ? sanitize_text_field( wp_unslash( $_POST['keyword'] ) ) : '';
+	$list_id = isset( $_POST['kw_list'] ) ? absint( wp_unslash( $_POST['kw_list'] ) ) : 0;
+	if ( '' === trim( $keyword ) ) {
+		wp_send_json_error( array( 'message' => __( 'No keyword.', 'improveseo' ) ), 400 );
+	}
+
+	$key  = improveseo_keyword_data_normalize( $keyword );
+	$item = null;
+	$from = '';
+	if ( $list_id ) {
+		$map = improveseo_lists_metrics_for( $list_id );
+		if ( isset( $map[ $key ] ) ) {
+			$item = $map[ $key ];
+			$from = 'list';
+		}
+	}
+	$error = '';
+	if ( ! $item ) {
+		$nc     = false;
+		$result = improveseo_keyword_metrics( array( $keyword ), $error, $nc );
+		if ( is_array( $result ) && isset( $result['items'][ $key ] ) ) {
+			$item = $result['items'][ $key ];
+			$from = 'lookup';
+		}
+	}
+
+	wp_send_json_success( array(
+		'keyword' => $key,
+		'item'    => $item,
+		'line'    => $item ? improveseo_keyword_data_summary_line( $item ) : '',
+		'source'  => $from,
+		// Not an error for the UI: no data simply hides the line. Logged for QA.
+		'reason'  => $item ? '' : $error,
+	) );
+}
+
+/**
+ * Config for assets/js/keyword-wizard.js on the post wizard pages (single and bulk).
+ */
+add_action( 'admin_enqueue_scripts', 'improveseo_keyword_wizard_localize', 20 );
+function improveseo_keyword_wizard_localize() {
+	if ( ! wp_script_is( 'improveseo-keyword-wizard', 'enqueued' ) ) {
+		return;
+	}
+	wp_localize_script( 'improveseo-keyword-wizard', 'improveseoKeywordWizard', array(
+		'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
+		'nonce'         => wp_create_nonce( 'improveseo_ajax' ),
+		// Option B (Phase 4): '1' only when the beta setting is on. Phase 3 ships it off.
+		'v3KeywordData' => function_exists( 'improveseo_v3_keyword_data_enabled' ) && improveseo_v3_keyword_data_enabled() ? '1' : '0',
+		'i18n'          => array(
+			'bulkSummary' => __( 'Search data (US monthly searches) is available for %1$s of %2$s keywords.', 'improveseo' ),
+		),
+	) );
+}

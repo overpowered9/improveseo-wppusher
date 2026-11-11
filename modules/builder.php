@@ -1463,6 +1463,13 @@ function improveseo_builder()
 
 
 			add_post_meta($post_id, 'improveseo_project_id', $project->id);
+			// Seed keyword + the search data the user saw for it (modules/keyword-data.php).
+			// $options is the project's options array (ai_seed_keyword from the single wizard;
+			// ai_keyword_data when the wizard had metrics). Nothing is written without a seed.
+			if ( function_exists( 'improveseo_save_keyword_meta' ) && is_array( $options ) && ! empty( $options['ai_seed_keyword'] ) ) {
+				$iseo_kw_item = ! empty( $options['ai_keyword_data'] ) ? json_decode( (string) $options['ai_keyword_data'], true ) : null;
+				improveseo_save_keyword_meta( $post_id, $options['ai_seed_keyword'], is_array( $iseo_kw_item ) ? $iseo_kw_item : null );
+			}
 
 			// Flag preview-generated posts so the cron sweep can target them
 			// precisely and never touch a real draft.
@@ -3512,6 +3519,11 @@ function improveseo_builder_update()
 
 
 			add_post_meta($post_id, 'improveseo_project_id', $project->id);
+			// Seed keyword + search data meta, as in improveseo_builder() above (modules/keyword-data.php).
+			if ( function_exists( 'improveseo_save_keyword_meta' ) && is_array( $options ) && ! empty( $options['ai_seed_keyword'] ) ) {
+				$iseo_kw_item = ! empty( $options['ai_keyword_data'] ) ? json_decode( (string) $options['ai_keyword_data'], true ) : null;
+				improveseo_save_keyword_meta( $post_id, $options['ai_seed_keyword'], is_array( $iseo_kw_item ) ? $iseo_kw_item : null );
+			}
 
 			// Flag preview-generated posts so the cron sweep can target them
 			// precisely and never touch a real draft.

@@ -81,6 +81,9 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 	<input type="hidden" name="ai_image_option" id="ai_image_option_hidden" />
 	<input type="hidden" name="ai_generated_title" id="ai_generated_title_hidden" />
 	<input type="hidden" name="ai_for_testing_only" id="ai_for_testing_only_hidden" value="0" />
+	<?php // The search data shown for the seed keyword (JSON item) and where the keyword came from; saved into the project options and the post's _iseo_keyword_data meta. ?>
+	<input type="hidden" name="ai_keyword_data" id="ai_keyword_data_hidden" />
+	<input type="hidden" name="ai_keyword_source" id="ai_keyword_source_hidden" />
     
 	<div class="style_create_page_form iseo-single-post-view" style="display: none;">
 		<div class="CreatePost improveseo_wrapper create_page_cont_1">

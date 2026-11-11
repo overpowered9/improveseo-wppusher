@@ -218,9 +218,18 @@ function generateAIpopup()
     // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- pre-selects a dropdown option; changes nothing.
     $preselected_list_id = isset($_GET['keyword_list']) ? absint(wp_unslash($_GET['keyword_list'])) : 0;
 
+    // Per-list search data (keyword => metrics), when the list was saved from the Keyword
+    // Generator; read from the same rows, so no extra query. Lists made by hand have none.
+    $all_metrics = [];
     foreach ($listdata as $list_key => $list_value) {
 
         $html_key .= '<option value="' . esc_attr($list_value->id) . '"' . selected($preselected_list_id, (int) $list_value->id, false) . '>' . esc_html($list_value->name) . '</option>';
+        if ( ! empty( $list_value->metrics ) && function_exists( 'improveseo_keyword_data_validate_metrics' ) ) {
+            $iseo_list_metrics = improveseo_keyword_data_validate_metrics( $list_value->metrics );
+            if ( ! empty( $iseo_list_metrics ) ) {
+                $all_metrics[ $list_value->id ] = $iseo_list_metrics;
+            }
+        }
 
         $all_keywords[$list_value->id] = $list_value->list;
 

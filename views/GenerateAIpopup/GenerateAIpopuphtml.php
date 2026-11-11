@@ -758,6 +758,20 @@ global $ai_modal_type;
                         }
                         $prefill_keyword = esc_attr( $prefill_keyword );
                     }
+                    // Pre-fill from the Keyword Generator's "Write a post" link:
+                    // &keyword=<kw>&kw_src=finder[&kw_list=<id>]. Read-only; the keyword is
+                    // sanitised and the list id is only ever used to look metrics up.
+                    // phpcs:disable WordPress.Security.NonceVerification.Recommended -- pre-fills a field; changes nothing.
+                    $iseo_kw_source  = '';
+                    $iseo_kw_list_id = 0;
+                    if ( '' === $prefill_keyword && isset( $_GET['keyword'] ) ) {
+                        $prefill_keyword = esc_attr( sanitize_text_field( wp_unslash( $_GET['keyword'] ) ) );
+                        if ( '' !== $prefill_keyword ) {
+                            $iseo_kw_source  = ( isset( $_GET['kw_src'] ) && 'finder' === sanitize_key( wp_unslash( $_GET['kw_src'] ) ) ) ? 'keyword_finder' : 'typed';
+                            $iseo_kw_list_id = isset( $_GET['kw_list'] ) ? absint( wp_unslash( $_GET['kw_list'] ) ) : 0;
+                        }
+                    }
+                    // phpcs:enable WordPress.Security.NonceVerification.Recommended
                     ?>
                     <div class="seo-form-field">
                         <label class="data-label" for="seed_keyword">Seed keyword
@@ -772,11 +786,21 @@ global $ai_modal_type;
                         <input type="text" class="form-control" placeholder="Enter Seed Keyword" id="seed_keyword"
                             name="seed_keyword" value="<?php echo esc_attr( $prefill_keyword ); ?>"></input>
                         <span id="error_seed_keyword" style="color: red;"></span>
-                        <?php if ( $prefill_keyword ) : ?>
+                        <?php if ( $prefill_keyword && '' === $iseo_kw_source ) : ?>
                         <span class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;">
                             Pre-filled from your business setup — you can edit this.
                         </span>
                         <?php endif; ?>
+                        <?php
+                        // Search data for the keyword, one line: "US monthly searches: 2,400 · Difficulty: 18 ·
+                        // Intent: commercial". Filled by assets/js/keyword-wizard.js; hidden when there is none.
+                        // The hidden inputs carry what the user saw into the post's meta (_iseo_keyword_data)
+                        // via copyAIFieldsToHiddenInputs(); the numbers are never sent to the server.
+                        ?>
+                        <div id="iseo-kw-summary" class="iseo-kw-summary" style="font-size:12px;color:#4b5563;display:none;margin-top:4px;" aria-live="polite"></div>
+                        <input type="hidden" name="iseo_keyword_data" id="iseo_keyword_data_json" value="">
+                        <input type="hidden" name="iseo_keyword_source" id="iseo_keyword_source" value="<?php echo esc_attr( $iseo_kw_source ); ?>">
+                        <input type="hidden" name="iseo_keyword_list" id="iseo_keyword_list" value="<?php echo esc_attr( $iseo_kw_list_id ); ?>">
                     </div>
                     <?php
                     // Pre-select the niche from the onboarding business type when it maps cleanly.
@@ -1563,6 +1587,8 @@ global $ai_modal_type;
                                 <textarea id="keyword_list" name="keyword_list" class="form-control" rows="10"
                                     style="max-width: 100% !important; width: 100%;"></textarea>
                                 <div id="keyword_count"></div>
+                                <?php // How many of the list's keywords have search data; assets/js/keyword-wizard.js fills it from the list's stored metrics. ?>
+                                <div id="iseo-bulk-kw-summary" style="font-size:12px;color:#4b5563;display:none;padding-left:20px;margin-top:4px;" aria-live="polite"></div>
                             </div>
                             <div id="create_keyword_container"
                                 style="display: none; max-width: 100% !important; width: 100%; padding-bottom:15px;">
@@ -4604,6 +4630,12 @@ if ( 'single' !== $ai_modal_type ) {
                 jQuery('#keywordcounts').text(keywordCount);
                 jQuery('#keywordtime').text(window.formatEstimatedTime(keywordCount));
                 jQuery('#keyword_list').val(allKeywords[selectedOption]);
+                // Search-data line under the keywords (keyword-wizard.js); the per-list
+                // metrics map is cached in the page next to the keywords.
+                var allMetrics = <?php echo wp_json_encode( isset( $all_metrics ) && is_array( $all_metrics ) ? $all_metrics : new stdClass() ); ?>;
+                if (window.iseoKeywordWizard && typeof window.iseoKeywordWizard.bulkSummary === 'function') {
+                    window.iseoKeywordWizard.bulkSummary(allKeywords[selectedOption], allMetrics[selectedOption] || null);
+                }
             } else {
                 // Data not in cache (newly created list) - fetch from server
                 jQuery('#keyword_list').val('Loading keywords...');
@@ -4623,6 +4655,9 @@ if ( 'single' !== $ai_modal_type ) {
                             
                             // Cache it for next time
                             allKeywords[selectedOption] = response.data.keywords;
+                            if (window.iseoKeywordWizard && typeof window.iseoKeywordWizard.bulkSummary === 'function') {
+                                window.iseoKeywordWizard.bulkSummary(response.data.keywords, response.data.metrics || null);
+                            }
                         } else {
                             jQuery('#keyword_list').val('');
                             showImproveSEONotification(
