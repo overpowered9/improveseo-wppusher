@@ -127,6 +127,12 @@ if (file_exists(dirname(__FILE__) . '/modules/bulk_AI_post_function.php'))
 
 	include_once dirname(__FILE__) . '/modules/bulk_AI_post_function.php';
 
+// Keyword data (search volume / difficulty / intent): server client, keyword tool metrics,
+// wizard hand-off and the dormant Content v3 keyword-data fields.
+if (file_exists(dirname(__FILE__) . '/modules/keyword-data.php'))
+
+	include_once dirname(__FILE__) . '/modules/keyword-data.php';
+
 
 // if( file_exists( dirname(__FILE__).'/includes/admin.php' )) include_once dirname(__FILE__).'/includes/admin.php';
 
