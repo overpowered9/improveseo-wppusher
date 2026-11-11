@@ -12,8 +12,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 global $improveseo_db_version;
 
 
-// 1.0: `metrics` column on improveseo_lists (keyword search volume / difficulty / intent).
-$improveseo_db_version = '1.0';
+// Deliberately NOT bumped for the `metrics` column on improveseo_lists (keyword search volume /
+// difficulty / intent, 2026-11): improveseo_update_db_check() runs improveseo_install() at
+// plugins_loaded, and improveseo_install() ends with $wp_rewrite->flush_rules() — but WordPress
+// creates $wp_rewrite AFTER plugins_loaded, so a version change fatals once on every existing
+// site. The column is added on demand instead (improveseo_ensure_lists_metrics_column(),
+// modules/keyword-data.php) and by dbDelta/ensure on activation.
+$improveseo_db_version = '0.9';
 
 
 
