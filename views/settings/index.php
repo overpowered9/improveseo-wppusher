@@ -342,6 +342,29 @@ $iseo_saved_pill = '<span class="iseo-save-status" role="status" data-autohide="
 
                             </div><!-- .iseo-toggle-group -->
 
+                            <?php // Content v3 keyword data (beta). Default OFF. Saved by the same auto-save as the toggles above (includes/ajax.php). ?>
+                            <div class="iseo-toggle-group iseo-toggle-group-v3kw">
+                                <div class="iseo-toggle-row iseo-toggle-main">
+                                    <div class="iseo-toggle-info">
+                                        <span class="iseo-toggle-label">
+                                            <?php esc_html_e( 'Use keyword data in Content v3 (beta)', 'improveseo' ); ?>
+                                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'What does keyword data do?', 'improveseo' ); ?>">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                                <span class="iseo-info-tip-bubble" role="tooltip">
+                                                    <strong><?php esc_html_e( 'Keyword data (beta)', 'improveseo' ); ?></strong>
+                                                    <?php esc_html_e( 'When on, the Content v3 title and planning steps can use search volume, difficulty and intent for your keyword (US, national figures). The server only reads data it already has; nothing is sent from this site. Off: everything works exactly as before.', 'improveseo' ); ?>
+                                                </span>
+                                            </span>
+                                        </span>
+                                        <span class="iseo-toggle-desc"><?php esc_html_e( 'Let the Content v3 title and planner steps use search data for the chosen keyword. Off by default.', 'improveseo' ); ?></span>
+                                    </div>
+                                    <label class="iseo-toggle-switch" aria-label="<?php esc_attr_e( 'Use keyword data in Content v3 (beta)', 'improveseo' ); ?>">
+                                        <input type="checkbox" id="iseo_v3_keyword_data" name="improveseo_v3_keyword_data" value="1" <?php checked( get_option( 'improveseo_v3_keyword_data', '0' ), '1' ); ?>>
+                                        <span class="iseo-toggle-track"></span>
+                                    </label>
+                                </div>
+                            </div><!-- .iseo-toggle-group-v3kw -->
+
                         </div>
                         <?php // No Save button here: each toggle saves the moment it changes. The note says so, so nobody looks for one. ?>
                         <div class="iseo-card-footer iseo-features-footer">
@@ -452,6 +475,9 @@ document.addEventListener('DOMContentLoaded', function() {
             data.append('enabled', main.checked ? '1' : '0');
             data.append('bulk', subs[0].checked ? '1' : '0');
             data.append('single', subs[1].checked ? '1' : '0');
+            // Content v3 keyword data (beta): same request, one more whitelisted field.
+            var v3kw = document.getElementById('iseo_v3_keyword_data');
+            if (v3kw) { data.append('v3_keyword_data', v3kw.checked ? '1' : '0'); }
             showToggleStatus('Saving…', 'busy');
             fetch('<?php echo esc_url( admin_url("admin-ajax.php") ); ?>', { method: 'POST', body: data })
                 .then(function(r) { return r.json(); })
@@ -482,6 +508,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 saveFeatureToggles();
             });
         });
+        var v3kwToggle = document.getElementById('iseo_v3_keyword_data');
+        if (v3kwToggle) { v3kwToggle.addEventListener('change', saveFeatureToggles); }
     })();
 
     // Build the connection-test status panel — mirrors the dashboard's plan/credit view.

@@ -26,6 +26,8 @@ function improveseo_save_feature_toggles() {
         'enabled' => 'improveseo_featured_images_enabled',
         'bulk'    => 'improveseo_featured_images_bulk',
         'single'  => 'improveseo_featured_images_single',
+        // "Use keyword data in Content v3 (beta)" — same card, same auto-save.
+        'v3_keyword_data' => 'improveseo_v3_keyword_data',
     );
 
     $saved = array();

@@ -668,3 +668,133 @@ function improveseo_keyword_wizard_localize() {
 		),
 	) );
 }
+
+/* ======================================================================================
+ * Phase 4: Option B, dormant. Setting, prefetch, request fields, recent posts.
+ *
+ * The plugin has no Content v3 Title or Planner calls today (titles come from
+ * /generate/auxiliary, articles from /content-v2/article, and the server's v3 step routes are
+ * admin-only). So nothing here is attached to a live request: improveseo_v3_step_fields() is
+ * the one integration point the future v3 calls will spread into their payload. With the
+ * setting OFF it returns an empty array, so every payload stays byte-identical to today's.
+ * ====================================================================================*/
+
+/**
+ * "Use keyword data in Content v3 (beta)" — Settings > Content Features. Default OFF.
+ *
+ * @return bool
+ */
+function improveseo_v3_keyword_data_enabled() {
+	return '1' === (string) get_option( 'improveseo_v3_keyword_data', '0' );
+}
+
+/**
+ * The site's most recent plugin-generated posts, in the server's recent_posts shape.
+ *
+ * A post counts as plugin-generated when it carries _iseo_seed_keyword (new), or
+ * improveseo_project_id (single-wizard posts from before this change), or is linked from a
+ * bulk task row (post_id on improveseo_bulktasksdetails). Published posts only, newest first.
+ *
+ * @param int $limit At most 20 (the server's cap).
+ * @return array<int, array{post_id:int,title:string,seed_keyword?:string}>
+ */
+function improveseo_recent_plugin_posts( $limit = 20 ) {
+	global $wpdb;
+	$limit = max( 1, min( 20, (int) $limit ) );
+
+	$bulk_table = $wpdb->prefix . 'improveseo_bulktasksdetails';
+	$has_bulk   = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $bulk_table ) ) === $bulk_table;
+
+	$bulk_join = $has_bulk
+		? "LEFT JOIN `{$bulk_table}` bt ON bt.post_id = p.ID"
+		: '';
+	$bulk_cond = $has_bulk ? 'OR bt.id IS NOT NULL' : '';
+
+	// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the only interpolations are table names and the two fixed fragments above
+	$rows = $wpdb->get_results( $wpdb->prepare(
+		"SELECT DISTINCT p.ID, p.post_title, p.post_date, seed.meta_value AS seed_keyword
+		 FROM {$wpdb->posts} p
+		 LEFT JOIN {$wpdb->postmeta} seed ON seed.post_id = p.ID AND seed.meta_key = %s
+		 LEFT JOIN {$wpdb->postmeta} proj ON proj.post_id = p.ID AND proj.meta_key = %s
+		 {$bulk_join}
+		 WHERE p.post_type = 'post' AND p.post_status = 'publish'
+		   AND ( seed.meta_id IS NOT NULL OR proj.meta_id IS NOT NULL {$bulk_cond} )
+		 ORDER BY p.post_date DESC
+		 LIMIT %d",
+		IMPROVESEO_META_SEED_KEYWORD,
+		'improveseo_project_id',
+		$limit
+	) );
+	// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+	$out = array();
+	foreach ( (array) $rows as $row ) {
+		$entry = array(
+			'post_id' => (int) $row->ID,
+			'title'   => wp_strip_all_tags( (string) $row->post_title ),
+		);
+		if ( ! empty( $row->seed_keyword ) ) {
+			$entry['seed_keyword'] = sanitize_text_field( (string) $row->seed_keyword );
+		}
+		$out[] = $entry;
+	}
+	return $out;
+}
+
+/**
+ * Extra request fields for a Content v3 step, per the server contract.
+ *
+ *   title    -> { use_keyword_data: true }
+ *   planner  -> { use_keyword_data: true, recent_posts: [...] }
+ *
+ * Empty when the setting is off, so a caller can always `array_merge()` it in.
+ *
+ * @param string $step 'title' | 'planner'.
+ * @return array
+ */
+function improveseo_v3_step_fields( $step ) {
+	if ( ! improveseo_v3_keyword_data_enabled() ) {
+		return array();
+	}
+	$fields = array( 'use_keyword_data' => true );
+	if ( 'planner' === $step ) {
+		$fields['recent_posts'] = improveseo_recent_plugin_posts( 20 );
+	}
+	return $fields;
+}
+
+/**
+ * AJAX: warm the server's keyword cache for the seed the user is typing (Option B).
+ *
+ * Only does anything when the setting is on; the browser side (keyword-wizard.js) is also
+ * gated, this is the server-side guard. Never an error for the UI: unavailable is a 200.
+ */
+add_action( 'wp_ajax_improveseo_keyword_prefetch', 'improveseo_ajax_keyword_prefetch' );
+function improveseo_ajax_keyword_prefetch() {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'improveseo' ) ), 403 );
+	}
+	if ( ! improveseo_v3_keyword_data_enabled() ) {
+		wp_send_json_success( array( 'status' => 'off', 'seed' => null, 'related_count' => 0 ) );
+	}
+	$keyword = isset( $_POST['keyword'] ) ? sanitize_text_field( wp_unslash( $_POST['keyword'] ) ) : '';
+	$error   = '';
+	$result  = improveseo_keyword_prefetch( $keyword, $error );
+	wp_send_json_success( $result );
+}
+
+/**
+ * Bulk: nothing changes while bulk still generates through v2. Logged once per task when the
+ * setting is on so a QA run can see the fields the future v3 Title call would carry.
+ *
+ * @param object $task Row of improveseo_bulktasksdetails.
+ * @return void
+ */
+function improveseo_bulk_log_v3_keyword_data( $task ) {
+	if ( ! improveseo_v3_keyword_data_enabled() || ! function_exists( 'my_plugin_log' ) ) {
+		return;
+	}
+	$fields = improveseo_v3_step_fields( 'title' );
+	my_plugin_log( 'keyword data (v3, dormant): task ' . ( isset( $task->id ) ? (int) $task->id : 0 ) . ' would send ' . wp_json_encode( $fields ) . ' with its Title request; bulk still uses v2, nothing sent.' );
+}

@@ -790,6 +790,11 @@ function generateBulkAiContent($id = '', $regenerate = '')
 		}
 
 		// AI Title
+		// Content v3 keyword data (beta): bulk still generates through v2, so this only logs
+		// what a v3 Title request would carry when the setting is on (modules/keyword-data.php).
+		if ( function_exists( 'improveseo_bulk_log_v3_keyword_data' ) ) {
+			improveseo_bulk_log_v3_keyword_data( $value );
+		}
 
 
 

@@ -54,6 +54,9 @@ function improveseo_init_settings() {
 	register_setting('improveseo_feature_settings', 'improveseo_featured_images_enabled', array( 'sanitize_callback' => 'absint' ));
 	register_setting('improveseo_feature_settings', 'improveseo_featured_images_bulk',    array( 'sanitize_callback' => 'absint' ));
 	register_setting('improveseo_feature_settings', 'improveseo_featured_images_single',  array( 'sanitize_callback' => 'absint' ));
+	// Content v3 keyword data (beta). OFF by default; when off every generation request is
+	// exactly what it was before (modules/keyword-data.php, improveseo_v3_keyword_data_enabled()).
+	register_setting('improveseo_feature_settings', 'improveseo_v3_keyword_data',          array( 'sanitize_callback' => 'absint', 'default' => 0 ));
 
 }
 

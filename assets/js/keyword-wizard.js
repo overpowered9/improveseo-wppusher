@@ -91,9 +91,80 @@
 		box.style.display = 'block';
 	}
 
+	/* ---------- Option B (beta setting ON only): prefetch and the overlap notice ---------- */
+
+	var PREFETCH_DEBOUNCE_MS = 600;
+	var PREFETCH_CAP = 3;          // per wizard session
+	var prefetchCount = 0;
+	var prefetchTimer = null;
+	var prefetched = {};           // normalised keyword -> true
+
+	function v3Enabled() { return String(cfg.v3KeywordData) === '1'; }
+
+	// Warms the server's keyword cache for the seed being typed, so the Title step finds it.
+	// Skipped when the keyword came from the Keyword Generator: the server cached it then.
+	function prefetch(keyword) {
+		var key = normalize(keyword);
+		if (!v3Enabled() || !key || !cfg.ajaxUrl) { return; }
+		if ($('#iseo_keyword_source').val() === 'keyword_finder') { return; }
+		if (prefetched[key] || prefetchCount >= PREFETCH_CAP) { return; }
+		prefetched[key] = true;
+		prefetchCount++;
+		$.ajax({
+			url: cfg.ajaxUrl, type: 'POST', dataType: 'json', timeout: 20000,
+			data: { action: 'improveseo_keyword_prefetch', nonce: cfg.nonce, keyword: keyword }
+		}).done(function (resp) {
+			var d = (resp && resp.data) || {};
+			if (window.console) { window.console.info('[ImproveSEO] keyword prefetch "' + keyword + '": ' + (d.status || 'unknown') + (d.reason ? ' (' + d.reason + ')' : '')); }
+		}).fail(function () {
+			if (window.console) { window.console.info('[ImproveSEO] keyword prefetch "' + keyword + '" failed; generation is not affected.'); }
+		});
+	}
+
+	function schedulePrefetch(keyword) {
+		if (!v3Enabled()) { return; }
+		if (prefetchTimer) { clearTimeout(prefetchTimer); }
+		prefetchTimer = setTimeout(function () { prefetch(keyword); }, PREFETCH_DEBOUNCE_MS);
+	}
+
+	// "A recent post may already cover this: <title>. <reason>" with Keep keyword / Change keyword.
+	// Called by iseoHandlePlannerResponse() once the plugin makes Planner requests.
+	function showOverlapNotice(opts) {
+		opts = opts || {};
+		if (!window.iseoModal || typeof window.iseoModal.confirm !== 'function') { return false; }
+		var msg = 'A recent post may already cover this: ' + (opts.title || '') + (opts.reason ? '. ' + opts.reason : '');
+		// iseoModal.confirm({title, message, primary:{label}, secondary:{label}}) resolves true for primary.
+		window.iseoModal.confirm({
+			title: 'Similar post found',
+			message: msg,
+			primary: { label: 'Keep keyword' },
+			secondary: { label: 'Change keyword' }
+		}).then(function (keep) {
+			if (keep) {
+				if (typeof opts.onKeep === 'function') { opts.onKeep(); }
+			} else {
+				$('#seed_keyword').trigger('focus');
+				if (typeof opts.onChange === 'function') { opts.onChange(); }
+			}
+		});
+		return true;
+	}
+
+	// The Planner response hook: data.overlap is { post_id, reason } or null per the contract.
+	function handlePlannerResponse(resp, handlers) {
+		var data = (resp && resp.data) || resp || {};
+		if (!data.overlap || !data.overlap.post_id) { return false; }
+		var title = data.overlap.title || ('post #' + data.overlap.post_id);
+		return showOverlapNotice({ title: title, reason: data.overlap.reason || '', onKeep: handlers && handlers.onKeep, onChange: handlers && handlers.onChange });
+	}
+
 	$(function () {
 		var $seed = $('#seed_keyword');
 		if (!$seed.length) { return; }
+
+		if (v3Enabled()) {
+			$seed.on('input', function () { schedulePrefetch($(this).val() || ''); });
+		}
 
 		var source = $('#iseo_keyword_source').val() || '';
 		var listId = parseInt($('#iseo_keyword_list').val(), 10) || 0;
@@ -117,5 +188,7 @@
 		});
 	});
 
-	window.iseoKeywordWizard = { fetchSummary: fetchSummary, bulkSummary: bulkSummary, showLine: showLine };
+	window.iseoKeywordWizard = { fetchSummary: fetchSummary, bulkSummary: bulkSummary, showLine: showLine, prefetch: prefetch };
+	window.iseoShowOverlapNotice = showOverlapNotice;
+	window.iseoHandlePlannerResponse = handlePlannerResponse;
 })(window, document, jQuery);
