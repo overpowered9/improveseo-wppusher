@@ -190,9 +190,18 @@ jQuery(function($){
 
             'action'            : 'sw_saved_search_results_keyword' ,
 
+            // The handler now checks the shared admin AJAX nonce (improveseo_vars is
+            // localized on this handle by improveseo_localize_ajax_nonces()).
+            'nonce'             : (typeof improveseo_vars !== 'undefined' && improveseo_vars.nonce) ? improveseo_vars.nonce : '',
+
             'proj_name'         : proj_name ,
 
             'search_results'    : output ,
+
+            // Search volume / difficulty / intent the Keyword Generator fetched for these
+            // keywords (assets/js/keyword-metrics.js keeps #iseo_kw_metrics_json current).
+            // Empty when the metrics table is not on the page or nothing was fetched.
+            'metrics'           : $('#iseo_kw_metrics_json').val() || '',
 
         }
 
@@ -284,6 +293,28 @@ jQuery(function($){
                     overlay.appendChild(popup);
                     document.body.appendChild(overlay);
                     
+                    // Create bulk project: the save handler returns the new list's id, and the
+                    // Bulk wizard already pre-selects a list from &keyword_list=<id> — so the
+                    // popup can open it directly instead of sending the user via Keyword Lists.
+                    var savedListId = (responseData && responseData.id) ? parseInt(responseData.id, 10) : 0;
+                    if (savedListId > 0) {
+                        var bulkBtn = document.createElement('button');
+                        bulkBtn.id = 'createBulkFromKeywordList';
+                        bulkBtn.type = 'button';
+                        bulkBtn.style.cssText = 'padding: 10px 20px; background: #1f5fae; border: 1px solid #184a88; border-radius: 6px; cursor: pointer; font-size: 14px; color: white; transition: all 0.3s;';
+                        bulkBtn.textContent = 'Create bulk project';
+                        bulkBtn.onclick = function() {
+                            var bulkUrl = ajax_vars.ajax_url.replace('admin-ajax.php', 'admin.php?page=improveseo_posting&action=create_post_bulk&keyword_list=' + savedListId);
+                            window.location.href = bulkUrl;
+                        };
+                        popup.querySelector('div[style*="display: flex"]').appendChild(bulkBtn);
+                        // "Write a post" links in the metrics table can now carry the list id, so
+                        // the wizard reads the metrics from the saved list instead of looking them up.
+                        if (window.iseoKeywordMetrics && typeof window.iseoKeywordMetrics.setListId === 'function') {
+                            window.iseoKeywordMetrics.setListId(savedListId);
+                        }
+                    }
+
                     // Close button handler
                     document.getElementById('closeKeywordPopup').onclick = function() {
                         overlay.remove();

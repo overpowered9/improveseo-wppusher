@@ -322,3 +322,222 @@ function improveseo_keyword_prefetch( $keyword, &$error = null ) {
 
 	return $result;
 }
+
+/* ======================================================================================
+ * Phase 2: keyword tool metrics — storage column, validation, AJAX and page assets.
+ * ====================================================================================*/
+
+/**
+ * Make sure wp_improveseo_lists has the nullable `metrics` column (JSON, keyed by keyword).
+ *
+ * Same self-healing shape as improveseo_ensure_bulk_meta_columns() (improveseo.php): dbDelta is
+ * unreliable at adding a column to an existing table, so this checks SHOW COLUMNS once, adds the
+ * column with ALTER TABLE, and remembers the result in an option so it costs nothing afterwards.
+ * Called from the save handler (before the INSERT) and from improveseo_install().
+ *
+ * @return bool True when the column exists (or was just added).
+ */
+function improveseo_ensure_lists_metrics_column() {
+	global $wpdb;
+
+	if ( get_option( 'improveseo_lists_metrics_col' ) === 'ready' ) {
+		return true;
+	}
+
+	$table = $wpdb->prefix . 'improveseo_lists';
+
+	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+		return false;
+	}
+
+	$cols = $wpdb->get_col( "SHOW COLUMNS FROM `$table`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
+	if ( ! is_array( $cols ) ) {
+		return false;
+	}
+
+	if ( ! in_array( 'metrics', $cols, true ) ) {
+		$wpdb->query( "ALTER TABLE `$table` ADD COLUMN `metrics` LONGTEXT NULL DEFAULT NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- schema statement; the table name is an identifier and cannot be bound
+		if ( function_exists( 'my_plugin_log' ) ) {
+			my_plugin_log( 'improveseo_ensure_lists_metrics_column: added metrics' . ( $wpdb->last_error ? ' | MySQL Error: ' . $wpdb->last_error : ' | OK' ) );
+		}
+		$cols = $wpdb->get_col( "SHOW COLUMNS FROM `$table`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name, which cannot be bound
+	}
+
+	$ready = is_array( $cols ) && in_array( 'metrics', $cols, true );
+	if ( $ready ) {
+		update_option( 'improveseo_lists_metrics_col', 'ready', false );
+	}
+	return $ready;
+}
+
+/**
+ * Validate a metrics payload (JSON text or decoded array) down to clean contract items.
+ *
+ * Accepts either a list of items or a map keyed by keyword; always returns a map keyed by the
+ * normalised keyword. Anything that is not an item is dropped. Used for what the browser posts
+ * back on Save (it originally came from the server, but it has been through the browser since).
+ *
+ * @param string|array $raw JSON string or array.
+ * @return array<string, array>
+ */
+function improveseo_keyword_data_validate_metrics( $raw ) {
+	if ( is_string( $raw ) ) {
+		$raw = trim( wp_unslash( $raw ) );
+		if ( '' === $raw ) {
+			return array();
+		}
+		$raw = json_decode( $raw, true );
+	}
+	if ( ! is_array( $raw ) ) {
+		return array();
+	}
+	$out = array();
+	foreach ( $raw as $item ) {
+		$item = improveseo_keyword_data_clean_item( $item );
+		if ( $item ) {
+			$out[ $item['keyword'] ] = $item;
+		}
+	}
+	return $out;
+}
+
+/**
+ * Metrics stored with a saved keyword list.
+ *
+ * @param int $list_id wp_improveseo_lists.id.
+ * @return array<string, array> Map keyed by normalised keyword; empty when the list has none.
+ */
+function improveseo_lists_metrics_for( $list_id ) {
+	global $wpdb;
+	$list_id = absint( $list_id );
+	if ( ! $list_id || ! improveseo_ensure_lists_metrics_column() ) {
+		return array();
+	}
+	$raw = $wpdb->get_var( $wpdb->prepare( "SELECT metrics FROM {$wpdb->prefix}improveseo_lists WHERE id = %d", $list_id ) );
+	if ( empty( $raw ) ) {
+		return array();
+	}
+	return improveseo_keyword_data_validate_metrics( $raw );
+}
+
+/**
+ * Format one metrics item as the one-line summary both wizards show under the keyword.
+ *
+ * @param array|null $item Clean item.
+ * @return string '' when there is nothing to show.
+ */
+function improveseo_keyword_data_summary_line( $item ) {
+	if ( ! is_array( $item ) ) {
+		return '';
+	}
+	$parts = array();
+	if ( null !== $item['search_volume'] ) {
+		/* translators: %s: formatted number */
+		$parts[] = sprintf( __( 'US monthly searches: %s', 'improveseo' ), number_format_i18n( (int) $item['search_volume'] ) );
+	}
+	if ( null !== $item['keyword_difficulty'] ) {
+		/* translators: %d: keyword difficulty 0-100 */
+		$parts[] = sprintf( __( 'Difficulty: %d', 'improveseo' ), (int) $item['keyword_difficulty'] );
+	}
+	if ( ! empty( $item['intent'] ) ) {
+		/* translators: %s: search intent label */
+		$parts[] = sprintf( __( 'Intent: %s', 'improveseo' ), $item['intent'] );
+	}
+	return implode( ' · ', $parts );
+}
+
+/**
+ * AJAX: metrics for the keywords the Keyword Generator just produced.
+ *
+ * Browser → WordPress → server, like every other generation call that needs the X-Site-Domain
+ * header. Same guards as the rest of the plugin's admin AJAX (modules/ajax_keyword_refresh.php);
+ * manage_options because that is the capability the Keyword Generator page itself requires
+ * (includes/menus.php).
+ */
+add_action( 'wp_ajax_improveseo_keyword_metrics', 'improveseo_ajax_keyword_metrics' );
+function improveseo_ajax_keyword_metrics() {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'improveseo' ) ), 403 );
+	}
+
+	$keywords = array();
+	if ( isset( $_POST['keywords'] ) ) {
+		$posted = wp_unslash( $_POST['keywords'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each entry is sanitized below
+		if ( is_string( $posted ) ) {
+			$posted = preg_split( '/\r\n|\r|\n/', $posted );
+		}
+		if ( is_array( $posted ) ) {
+			foreach ( $posted as $kw ) {
+				$kw = sanitize_text_field( (string) $kw );
+				if ( '' !== trim( $kw ) ) {
+					$keywords[] = $kw;
+				}
+			}
+		}
+	}
+	if ( empty( $keywords ) ) {
+		wp_send_json_error( array( 'message' => __( 'No keywords to look up.', 'improveseo' ) ), 400 );
+	}
+	// The tool itself never produces more than 50 (the server clamps count to 1-50); a hard cap
+	// here keeps a hand-crafted request from fanning out into many provider calls.
+	$keywords = array_slice( $keywords, 0, 200 );
+
+	$error  = '';
+	$nc     = false;
+	$result = improveseo_keyword_metrics( $keywords, $error, $nc );
+	if ( null === $result ) {
+		wp_send_json_error( array(
+			'message'       => $error,
+			'not_connected' => $nc,
+		) );
+	}
+	wp_send_json_success( array(
+		'items'        => array_values( $result['items'] ),
+		'cached_count' => $result['cached_count'],
+		// Partial failure on a later chunk: items so far plus the reason, so the UI can say so.
+		'warning'      => $error,
+	) );
+}
+
+/**
+ * Config for assets/js/keyword-metrics.js on the Keyword Generator page.
+ *
+ * Priority 20, after the handles are registered (includes/assets.php) and after pluggable.php
+ * is loaded so wp_create_nonce() is safe — the same reason improveseo_localize_ajax_nonces()
+ * (improveseo.php) is hooked this way.
+ */
+add_action( 'admin_enqueue_scripts', 'improveseo_keyword_metrics_localize', 20 );
+function improveseo_keyword_metrics_localize() {
+	if ( ! wp_script_is( 'improveseo-keyword-metrics', 'enqueued' ) ) {
+		return;
+	}
+	wp_localize_script( 'improveseo-keyword-metrics', 'improveseoKeywordMetrics', array(
+		'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+		'nonce'        => wp_create_nonce( 'improveseo_ajax' ),
+		// Raw rather than esc_url(): assigned to hrefs from JS, where an entity-encoded & breaks.
+		'writePostUrl' => esc_url_raw( admin_url( 'admin.php?page=improveseo_posting&action=create_post_single' ) ),
+		'bulkUrl'      => esc_url_raw( admin_url( 'admin.php?page=improveseo_posting&action=create_post_bulk' ) ),
+		'i18n'         => array(
+			'keyword'      => __( 'Keyword', 'improveseo' ),
+			'volume'       => __( 'Monthly searches (US)', 'improveseo' ),
+			'difficulty'   => __( 'Difficulty', 'improveseo' ),
+			'intent'       => __( 'Intent', 'improveseo' ),
+			'actions'      => __( 'Actions', 'improveseo' ),
+			'writePost'    => __( 'Write a post', 'improveseo' ),
+			'bulkSelected' => __( 'Create bulk project', 'improveseo' ),
+			'loading'      => __( 'Fetching search volume, difficulty and intent…', 'improveseo' ),
+			'empty'        => __( 'No keywords yet. Generate keywords to see their search data.', 'improveseo' ),
+			'noData'       => __( 'No search data came back for these keywords.', 'improveseo' ),
+			'failed'       => __( 'Search data could not be loaded.', 'improveseo' ),
+			'retry'        => __( 'Retry', 'improveseo' ),
+			'selectAll'    => __( 'Select all', 'improveseo' ),
+			'selected'     => __( 'selected', 'improveseo' ),
+			'saving'       => __( 'Saving…', 'improveseo' ),
+			'saveFailed'   => __( 'The keyword list could not be saved. Please try again.', 'improveseo' ),
+			'selection'    => __( 'selection', 'improveseo' ),
+			'sortHint'     => __( 'Click to sort', 'improveseo' ),
+			'national'     => __( 'National (US) figures. Town-level data is not available yet.', 'improveseo' ),
+		),
+	) );
+}

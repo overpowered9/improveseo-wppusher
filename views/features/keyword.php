@@ -73,8 +73,29 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
                         <input id="viewkeywordlists" type="button" onclick="window.location.href='<?php echo esc_url( admin_url('admin.php?page=improveseo_lists') ); ?>'" value="Cancel" class="view-keyword-lists-btn iseo-kwg-cancel">
                     </div>
                 </div>
-            </form>     
-        </div>  
+                <?php
+                // Search volume / difficulty / intent for the generated keywords, filled by
+                // assets/js/keyword-metrics.js after generate() succeeds. The hidden input
+                // mirrors the latest metrics so Save Results (wt-script.js) stores them with
+                // the list. Hidden until there is something to show.
+                ?>
+                <input type="hidden" id="iseo_kw_metrics_json" value="">
+                <div id="iseo-kw-metrics" class="iseo-kwm" hidden>
+                    <div class="iseo-kwm-head">
+                        <div>
+                            <p class="iseo-kwm-title"><?php esc_html_e( 'Search data', 'improveseo' ); ?></p>
+                            <p class="iseo-kwm-note"><?php esc_html_e( 'National (US) figures. Town-level data is not available yet.', 'improveseo' ); ?></p>
+                        </div>
+                        <div class="iseo-kwm-toolbar">
+                            <span class="iseo-kwm-count" aria-live="polite"></span>
+                            <button type="button" class="iseo-kwm-bulk" disabled><?php esc_html_e( 'Create bulk project', 'improveseo' ); ?></button>
+                        </div>
+                    </div>
+                    <div class="iseo-kwm-state" hidden></div>
+                    <div class="iseo-kwm-wrap" hidden></div>
+                </div>
+            </form>
+        </div>
     </div>
 
    
@@ -142,6 +163,10 @@ input.sw-save-search-results.keyword_save_result_btn:hover {
                 var keywords = (response.data && response.data.keywords) || [];
                 jQuery('#output').val(keywords.join('\n'));
                 console.log('✅ ' + keywords.length + ' keywords generated (keyword lists are free — no credits used)');
+                // One bulk metrics call for the whole list (assets/js/keyword-metrics.js).
+                if (window.iseoKeywordMetrics && typeof window.iseoKeywordMetrics.load === 'function') {
+                    window.iseoKeywordMetrics.load(keywords);
+                }
             },
             error: function(xhr, status, error) {
                 console.error('❌ Keyword generation failed:', status, error, xhr.responseText);

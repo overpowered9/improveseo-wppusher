@@ -116,6 +116,13 @@ function improveseo_enqueue_admin(){
 
 
 
+	// Keyword Generator only: the search volume / difficulty / intent table. Its config (nonce,
+	// URLs, strings) is localized at priority 20 in modules/keyword-data.php.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading the current admin screen, not acting on input.
+	if ( isset( $_GET['page'] ) && 'improveseo_keyword_generator' === sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
+		wp_enqueue_style('improveseo-keyword-metrics', IMPROVESEO_DIR . '/assets/css/keyword-metrics.css', array(), improveseo_asset_ver('assets/css/keyword-metrics.css'));
+		wp_enqueue_script('improveseo-keyword-metrics', IMPROVESEO_DIR . '/assets/js/keyword-metrics.js', array('jquery', 'improveseo-popups'), improveseo_asset_ver('assets/js/keyword-metrics.js'), true);
+	}
 	wp_enqueue_script('improveseo-posting', IMPROVESEO_DIR . '/assets/js/posting.js', array('jquery'), improveseo_asset_ver('assets/js/posting.js'), true);
 
 	wp_localize_script('improveseo-posting', 'posting_ajax_vars', array(

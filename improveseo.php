@@ -86,6 +86,8 @@ function improveseo_localize_ajax_nonces()
 	// Attach to every handle that talks to admin-ajax.php. wp_localize_script() is a
 	// no-op for a handle not registered on the current screen, so listing them all
 	// here keeps the nonce source in one place.
+	// tmm_script_js (assets/js/wt-script.js) is listed so the Keyword Generator's Save Results
+	// request can carry the shared nonce; the handle is registered on the keyword pages only.
 	foreach ( array( 'custom-plugin-script', 'improveseo-form', 'improveseo-main', 'improveseo-posting', 'tmm_script_js' ) as $handle ) {
 		wp_localize_script( $handle, 'improveseo_vars', $data );
 	}
@@ -1542,9 +1544,33 @@ class WC_Testimonial
 
 		global $wpdb;
 
-		$proj_name = isset($_REQUEST['proj_name']) ? $_REQUEST['proj_name'] : '';
+		// Was: no nonce and no capability check, and the two fields were inserted raw. The
+		// request comes from wt-script.js (improveseo_vars.nonce) and the Keyword Generator
+		// page needs manage_options, so the same gate applies here.
+		check_ajax_referer( 'improveseo_ajax', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+		}
 
-		$search_results = isset($_REQUEST['search_results']) ? $_REQUEST['search_results'] : '';
+		$proj_name = isset($_REQUEST['proj_name']) ? sanitize_text_field( wp_unslash( $_REQUEST['proj_name'] ) ) : '';
+
+		$search_results = isset($_REQUEST['search_results']) ? sanitize_textarea_field( wp_unslash( $_REQUEST['search_results'] ) ) : '';
+
+		if ( '' === trim( $proj_name ) || '' === trim( $search_results ) ) {
+			wp_send_json_error( array( 'message' => 'A list name and at least one keyword are required.' ), 400 );
+		}
+
+		// Optional: the metrics the Keyword Generator showed for these keywords, as JSON. They
+		// came from the server originally but have been through the browser since, so they are
+		// validated down to the contract's fields; anything else is dropped. Stored keyed by
+		// keyword next to the list, never sent back to the server.
+		$metrics_json = null;
+		if ( function_exists( 'improveseo_keyword_data_validate_metrics' ) && ! empty( $_REQUEST['metrics'] ) ) {
+			$metrics = improveseo_keyword_data_validate_metrics( (string) $_REQUEST['metrics'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated field by field inside
+			if ( ! empty( $metrics ) && improveseo_ensure_lists_metrics_column() ) {
+				$metrics_json = wp_json_encode( $metrics );
+			}
+		}
 
 
 
@@ -1584,15 +1610,12 @@ class WC_Testimonial
 
 		$list_size = sizeof(explode("\n", $search_results));
 
-		$name = $proj_name;
+		// The `name` column is VARCHAR(50); a long seed used to fail the INSERT silently.
+		$name = mb_substr( $proj_name, 0, 50 );
 
 
 
-
-
-
-
-		$wpdb->insert($wpdb->prefix . "improveseo_lists", array(
+		$row = array(
 
 
 
@@ -1608,7 +1631,17 @@ class WC_Testimonial
 			// uses H:i:s.
 			'created_at' => gmdate('Y-m-d H:i:s')
 
-		));
+		);
+		if ( null !== $metrics_json ) {
+			$row['metrics'] = $metrics_json;
+		}
+
+		$inserted = $wpdb->insert($wpdb->prefix . "improveseo_lists", $row);
+
+		if ( false === $inserted ) {
+			error_log( 'sw_saved_search_results_keyword: insert failed | ' . $wpdb->last_error );
+			wp_send_json_error( array( 'message' => 'The keyword list could not be saved.' ), 500 );
+		}
 
 		$inserted_id = $wpdb->insert_id;
 

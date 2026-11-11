@@ -2229,6 +2229,9 @@ function saveProject() {
     data: {
       action: "sw_saved_search_results_keyword",
 
+      // The handler now checks the shared admin AJAX nonce.
+      nonce: typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "",
+
       proj_name: seed_keyword,
 
       search_results: results,

@@ -12,7 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 global $improveseo_db_version;
 
 
-$improveseo_db_version = '0.9';
+// 1.0: `metrics` column on improveseo_lists (keyword search volume / difficulty / intent).
+$improveseo_db_version = '1.0';
 
 
 
@@ -304,6 +305,9 @@ function improveseo_install() {
 		`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
 
+		`metrics` LONGTEXT NULL DEFAULT NULL,
+
+
 		PRIMARY KEY (`id`)
 
 
@@ -314,6 +318,13 @@ function improveseo_install() {
 
 
 	dbDelta($sql);
+
+	// Search volume / difficulty / intent per keyword (JSON). dbDelta above creates it on a fresh
+	// install; on an existing site this adds it, the same way the bulk meta columns are added.
+	if ( function_exists( 'improveseo_ensure_lists_metrics_column' ) ) {
+		delete_option( 'improveseo_lists_metrics_col' ); // force a fresh check
+		improveseo_ensure_lists_metrics_column();
+	}
 
 
 

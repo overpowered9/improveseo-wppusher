@@ -16,7 +16,10 @@ class Lists extends AbstractModel
 	protected $fillable = array(
 		'name',
 		'list',
-		'size'
+		'size',
+		// JSON map of keyword => { search_volume, keyword_difficulty, intent, scope, fetched_at }.
+		// Nullable: lists made by hand or before the Keyword Generator fetched metrics have none.
+		'metrics'
 	);
 
 	public function setNameAttribute($value) 
