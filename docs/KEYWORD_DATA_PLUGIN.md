@@ -94,8 +94,24 @@ Two passes. **Pass 1 (2026-11-11):** local Docker WordPress (`improveseo_wp`, ht
 ### Merge readiness (checked 2026-11-12, no merge performed)
 
 - Plugin: `origin/Nov-03` is still `00e2dd6`, the commit the branch was cut from → `feature/keyword-data-v3` is a **pure fast-forward** of `Nov-03`; no conflicts possible. Working tree clean.
-- Server: `origin/main` is still `571cb62` → `feature/keyword-data-v3` (ad46eff) is a **pure fast-forward** of `main`. Working tree clean.
+- Server: `origin/main` is still `571cb62` → `feature/keyword-data-v3` (now `3e04d18` plus the report update) is a **pure fast-forward** of `main`. Working tree clean.
 - After the merge nothing changes at runtime until the Render env carries the DataForSEO variables (see below); with them absent the new routes answer 503 `KEYWORD_DATA_NOT_CONFIGURED` and the plugin shows its "not enabled yet" message, exactly as in pass 1.
+
+### Pass 3: merged branches (2026-11-13)
+
+Both branches were fast-forwarded locally (plugin `Nov-03` → this branch, server `main` → `feature/keyword-data-v3`; no conflicts possible, nothing pushed) and the whole QA was run again on the merged code, against real DataForSEO data and the real site key.
+
+| # | Scenario | Result |
+|---|---|---|
+| U | **Upgrade path:** existing site without the `metrics` column (column dropped, option deleted) | Pass. Dashboard, Keyword Lists, Keyword Generator, both wizards and Settings all load (HTTP 200), no fatal, no new notice; the first Save adds `metrics LONGTEXT NULL` and stores all 10 items. |
+| 1 | Keyword tool, real metrics | Pass. Same real figures as pass 2 (e.g. 90,500 / 7 / commercial); sort, selection, save, "Write a post" link with `kw_list`. |
+| 1b | Error paths: 503 not configured, timeout, 401 | Pass. Correct banner each time, every value "—", Save Results still works. |
+| 3 | Hand-offs | Pass. Single wizard line from the saved list (1,300 · 3 · informational), typed keyword (27,100 · 12 · commercial), bulk "10 of 10 keywords". |
+| 4 | Setting OFF/ON payloads | Pass. The 6 generation requests are byte-identical OFF vs ON. |
+| 5 | Setting ON, real prefetch | Pass. 3 calls for 4 keywords (cap), all `ready`; overlap notice Keep / Change works. |
+| 8 | Post meta | Pass. Single (real builder, project 16) and bulk (real list) both carry `_iseo_seed_keyword` and the snapshot; a list without data stores only the seed. |
+| S | Server on merged `main` | Pass after two fixes (see the server report, "QA fixes after the real-data run"): a flaky test caused by a clock comparison in the late-fetch log, and Planner/Title `max_tokens` too small for models that think by default. 754/754 tests on three consecutive runs, typecheck clean, Planner 6/6 first-attempt successes. |
+| — | `debug.log` | 0 fatals. All 45 distinct warning locations are pre-existing; none is on a line this branch added or changed (checked line by line against the diff). |
 
 ### Pass 1: stub and error paths (2026-11-11)
 
