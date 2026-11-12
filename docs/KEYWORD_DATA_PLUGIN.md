@@ -71,7 +71,33 @@ Branch `feature/keyword-data-v3`, cut from `Nov-03` (00e2dd6), built 2026-11-11/
 
 ## QA results
 
-Local Docker WordPress (`improveseo_wp`, http://localhost:8088) with `WP_DEBUG` + `WP_DEBUG_LOG` on, headless Chrome driven over CDP, the plugin's server calls intercepted by a throwaway mu-plugin (contract-shaped stub, or rewritten to the server branch running locally on port 3005). No DataForSEO credentials were available, so real numbers were not fetched; every code path including the real server's auth and error answers was.
+Two passes. **Pass 1 (2026-11-11):** local Docker WordPress (`improveseo_wp`, http://localhost:8088) with `WP_DEBUG` + `WP_DEBUG_LOG` on, headless Chrome driven over CDP, the plugin's server calls intercepted by a throwaway mu-plugin (contract-shaped stub, or rewritten to the server branch running locally on port 3005); no DataForSEO credentials yet. **Pass 2 (2026-11-12, real data):** the team lead's DataForSEO credentials in the local server's `.env`, the real site API key (user 1 / website 19 / `609E`, copied from the DB without printing it) in the local WordPress, the plugin pointed at the local server branch, `ISEO_DOMAIN_ENFORCEMENT=off` locally because the WP runs on `localhost:8088`. Screenshots from pass 2 are delivered separately (the `keyword-data-delivery` folder with the Word report), not in the repo.
+
+### Pass 2: real DataForSEO data (2026-11-12)
+
+| # | Scenario | Result |
+|---|---|---|
+| S1 | Server: `POST /generate/keywords/metrics` with the real key, 3 keywords | Pass. `water heater repair cost` 1,300 / KD 3 / informational; `tankless water heater installation` 40,500 / 0 / transactional; `sump pump replacement` 5,400 / 2 / commercial; `cost_usd` 0.01236. Log: `[dataforseo] endpoint=keyword_overview http=200 status=20000`. **The DataForSEO field names the server report flagged as unverified are confirmed correct** (volume, difficulty and intent all populated). |
+| S2 | Server: `POST /content-v3/keyword-data/prefetch` | Pass. `status: ready`, seed item, `related_count: 20`, `related_keywords` endpoint cost 0.0144. Cache tables missing (migration 022 not applied) → `[keyword-data] cache unavailable` logged, call still succeeds. |
+| S3 | Server (admin): Title step with `use_keyword_data: true` | Pass. `keyword_data.used = true`, prompt `content_v3_title_keyword_data` (in-code fallback; production Mongo deliberately not seeded from a dev box), `<keyword_data>` block in the user message with the seed + 10 related keywords and real volumes; title "Water heater repair cost in Española: what drives the price", 1 attempt. |
+| S4 | Server (admin): Planner step with keyword data + `recent_posts` | Pass. `keyword_data.used = true`, 19 related; `recent_posts` selected post 12 (score 0.571), `overlap = { post_id: 12, reason: … }`, `demand_notes` written; article_type `cost`, size `small`. First attempt returned non-JSON, second succeeded (the 3-attempt rule working). |
+| S5 | Server (admin): A/B harness, 2 keywords, `save: false` | Pass. Both keywords ran OFF then ON; totals: DataForSEO $0.054, 78 s, tokens reported; prefetch `ready` for both. |
+| 1 | Keyword tool, real metrics (10 keywords) | Pass. Table shows real figures, e.g. `water heater repair near me` 90,500 / KD 7 / commercial; `water heater repair or replace` 90 / 2; sort by volume 90,500 → 90; "2 selected" enables Create bulk project; Save Results stores all 10 items in `metrics`; "Write a post" link gains `kw_list=2`. (The keyword-*ideas* call is the plugin's existing browser → Render request; production rejects it from `localhost:8088` by domain, so for this local run that one call was answered with a fixed list. It is unchanged code.) |
+| 3 | Hand-offs | Pass. Single wizard from the link: "US monthly searches: 1,300 · Difficulty: 3 · Intent: informational" from the saved list; typing `tankless water heater installation cost` → one real lookup → "US monthly searches: 27,100 · Difficulty: 12 · Intent: commercial"; bulk wizard: "Search data (US monthly searches) is available for 10 of 10 keywords." |
+| 4 | Setting OFF: payloads unchanged | Pass. Title + article generation: the 6 generation requests (`/auxiliary` ×5, `/content-v2/article`) are byte-identical with the setting OFF and ON; the only extra requests with it ON are the 3 prefetch calls made while typing. |
+| 5 | Setting ON: real prefetch | Pass. Fast typing → 1 call; 4 distinct keywords → 3 calls (cap); all answered `ready` (`sump pump replacement`, `sump pump replacement cost`, `drain cleaning`). |
+| 8 | Post meta | Pass. Single: project 15 built through the real builder → post has `_iseo_seed_keyword = water heater repair cost` and the real snapshot. Bulk: `saveContentInTaskList()` wrote `water heater repair near me` + snapshot (90,500 / 7 / commercial) for the real list and only the seed for a list without data; `improveseo_recent_plugin_posts()` lists them. |
+| — | Spend | 27 DataForSEO calls in the whole pass, **$0.36** total (from the server's per-call `cost=` log lines; prefetch ≈ $0.027 per seed, metrics ≈ $0.012–0.013 per batch). |
+| — | Lint / tests after the pass | `php -l` clean on every changed PHP file, `node --check` clean, server `npm test` 754/754, `typecheck` clean. |
+| — | `debug.log` | No new notice from the changed code. Seen and pre-existing on Nov-03: `Undefined variable $post_author` in `saveContentInTaskList` (`bulk_AI_post_function.php`, the author fallback block) when a project has no assigned author; it falls back to author 1 as before. |
+
+### Merge readiness (checked 2026-11-12, no merge performed)
+
+- Plugin: `origin/Nov-03` is still `00e2dd6`, the commit the branch was cut from → `feature/keyword-data-v3` is a **pure fast-forward** of `Nov-03`; no conflicts possible. Working tree clean.
+- Server: `origin/main` is still `571cb62` → `feature/keyword-data-v3` (ad46eff) is a **pure fast-forward** of `main`. Working tree clean.
+- After the merge nothing changes at runtime until the Render env carries the DataForSEO variables (see below); with them absent the new routes answer 503 `KEYWORD_DATA_NOT_CONFIGURED` and the plugin shows its "not enabled yet" message, exactly as in pass 1.
+
+### Pass 1: stub and error paths (2026-11-11)
 
 | # | Scenario | Result |
 |---|---|---|
@@ -100,7 +126,7 @@ Local Docker WordPress (`improveseo_wp`, http://localhost:8088) with `WP_DEBUG` 
 ## What is needed to make it production-ready
 
 Server (Render), on a deploy that includes `feature/keyword-data-v3`:
-- `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD` (DataForSEO Labs). Without them the tool shows "Keyword data is not enabled on the ImproveSEO server yet." and the wizards show no line.
+- `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD` (DataForSEO Labs; the account the team lead provided works, balance $50.57 before QA). Without them the tool shows "Keyword data is not enabled on the ImproveSEO server yet." and the wizards show no line.
 - Migration 022 (two tables, `keyword_metrics_cache` and `keyword_related_cache`) applied to Supabase: `npm run --silent migrations:print` in the server repo prints the SQL. Until then every lookup pays DataForSEO (logged `[keyword-data] cache unavailable`).
 - `KEYWORD_METRICS_CREDIT_COST` (default `0`, i.e. free) — a product decision.
 - `ISEO_V3_KEYWORD_DATA=true` only when Option B should be live for Title/Planner (keep unset until the A/B test passes); `POST /api/v1/content-v3/prompts/seed` once with an admin token to register the step prompts.
@@ -110,7 +136,7 @@ Plugin: nothing beyond the existing API key + site code per site. The beta setti
 
 ## Known limitations and open questions
 
-1. **No real DataForSEO numbers were seen in QA** (no credentials). The first live run should confirm the item shape (`search_volume`, `keyword_difficulty`, `intent`) against the server's normaliser.
+1. **Real DataForSEO data verified on 2026-11-12** (pass 2 above): the item shape matches the server's normaliser; some keywords legitimately return difficulty `0` (shown as 0, not "—"). The DataForSEO API password was shared through chat for this run; rotating it in the DataForSEO dashboard (API Access → Reset password) before production is recommended.
 2. **Option B is dormant.** The plugin makes no Content v3 Title/Planner requests, and the server's step routes are admin-only. When those calls are built, spread `improveseo_v3_step_fields('title'|'planner')` into their payloads and call `window.iseoHandlePlannerResponse(resp, {onKeep, onChange})` with the Planner's answer.
 3. **National data only (US, `location_code` 2840).** No town-level figures; the table says so.
 4. A typed keyword in the single wizard costs one metrics lookup (server-side DataForSEO call unless cached), capped at 3 per visit.
