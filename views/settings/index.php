@@ -273,6 +273,76 @@ $iseo_saved_pill = '<span class="iseo-save-status" role="status" data-autohide="
                                 <span class="iseo-helper-text"><?php esc_html_e( 'Offered as the Target town when you write a post. Add the state (e.g. "Española, NM") so the right town is found.', 'improveseo' ); ?></span>
                             </div>
 
+                            <?php
+                            // Content v3: niche (search-as-you-type over the server's niche list, with synonyms and
+                            // small typos tolerated), the closest profile for "Other …", the proof level (the niche's
+                            // default is only a suggestion; never set silently), point of view, and the details the
+                            // writer uses. assets/js/business-niche-picker.js drives the picker.
+                            $iseo_v3_niche     = (string) get_option( 'improveseo_business_niche', '' );
+                            $iseo_v3_niche_row = function_exists( 'improveseo_business_niche_row' ) ? improveseo_business_niche_row() : null;
+                            $iseo_v3_profile   = (string) get_option( 'improveseo_business_profile', '' );
+                            $iseo_v3_proof     = (string) get_option( 'improveseo_business_proof_level', '' );
+                            $iseo_v3_pov       = (string) get_option( 'improveseo_business_pov', '' );
+                            ?>
+                            <div class="iseo-field-group" id="iseo_niche_group">
+                                <label class="iseo-label" for="iseo_business_niche_search"><?php esc_html_e( 'Niche', 'improveseo' ); ?></label>
+                                <input type="text" id="iseo_business_niche_search" class="iseo-input" autocomplete="off" placeholder="<?php esc_attr_e( 'Start typing, e.g. plumbing, dentist, salon', 'improveseo' ); ?>" value="<?php echo esc_attr( $iseo_v3_niche_row ? $iseo_v3_niche_row['label'] : '' ); ?>" aria-autocomplete="list" aria-controls="iseo_niche_suggestions">
+                                <input type="hidden" id="iseo_business_niche" name="improveseo_business_niche" value="<?php echo esc_attr( $iseo_v3_niche ); ?>">
+                                <ul id="iseo_niche_suggestions" class="iseo-niche-suggestions" role="listbox" style="display:none;"></ul>
+                                <span class="iseo-helper-text" id="iseo_niche_help"><?php esc_html_e( 'Content v3 uses your niche to match how your customers buy and how strictly claims must be sourced.', 'improveseo' ); ?></span>
+                            </div>
+
+                            <div class="iseo-field-group" id="iseo_profile_group" style="<?php echo ( $iseo_v3_niche_row && ! empty( $iseo_v3_niche_row['choose_profile'] ) ) ? '' : 'display:none;'; ?>">
+                                <label class="iseo-label" for="iseo_business_profile"><?php esc_html_e( 'Closest kind of business', 'improveseo' ); ?></label>
+                                <select id="iseo_business_profile" name="improveseo_business_profile" class="iseo-select">
+                                    <option value=""><?php esc_html_e( '— Choose —', 'improveseo' ); ?></option>
+                                    <?php foreach ( array( 'trades' => __( 'Trades and repair', 'improveseo' ), 'health' => __( 'Health and care', 'improveseo' ), 'money_legal' => __( 'Money and legal', 'improveseo' ), 'appointment' => __( 'Appointment services', 'improveseo' ), 'expertise' => __( 'Expertise and advisory', 'improveseo' ), 'food_venues' => __( 'Food, lodging and venues', 'improveseo' ), 'shops' => __( 'Shops and products', 'improveseo' ), 'content_only' => __( 'Content only', 'improveseo' ) ) as $iseo_pk => $iseo_pl ) : ?>
+                                        <option value="<?php echo esc_attr( $iseo_pk ); ?>" <?php selected( $iseo_v3_profile, $iseo_pk ); ?>><?php echo esc_html( $iseo_pl ); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <div class="iseo-field-group">
+                                <label class="iseo-label" for="iseo_business_proof_level"><?php esc_html_e( 'Is the business in a regulated field?', 'improveseo' ); ?></label>
+                                <select id="iseo_business_proof_level" name="improveseo_business_proof_level" class="iseo-select">
+                                    <option value="" <?php selected( $iseo_v3_proof, '' ); ?>><?php esc_html_e( '— Not set (posts are checked one by one) —', 'improveseo' ); ?></option>
+                                    <option value="standard" <?php selected( $iseo_v3_proof, 'standard' ); ?>><?php esc_html_e( 'Standard', 'improveseo' ); ?></option>
+                                    <option value="regulated" <?php selected( $iseo_v3_proof, 'regulated' ); ?>><?php esc_html_e( 'Regulated (health, legal, financial or insurance)', 'improveseo' ); ?></option>
+                                </select>
+                                <span class="iseo-helper-text" id="iseo_proof_suggestion" aria-live="polite"></span>
+                            </div>
+
+                            <div class="iseo-field-group">
+                                <label class="iseo-label" for="iseo_business_pov"><?php esc_html_e( 'How the business refers to itself', 'improveseo' ); ?></label>
+                                <select id="iseo_business_pov" name="improveseo_business_pov" class="iseo-select">
+                                    <option value="we" <?php selected( in_array( $iseo_v3_pov, array( '', 'we' ), true ) ); ?>><?php esc_html_e( 'We / our', 'improveseo' ); ?></option>
+                                    <option value="i" <?php selected( $iseo_v3_pov, 'i' ); ?>><?php esc_html_e( 'I / my', 'improveseo' ); ?></option>
+                                    <option value="business_name" <?php selected( $iseo_v3_pov, 'business_name' ); ?>><?php esc_html_e( 'Business name only', 'improveseo' ); ?></option>
+                                </select>
+                                <span class="iseo-helper-text"><?php esc_html_e( 'The default for every post; you can change it per post.', 'improveseo' ); ?></span>
+                            </div>
+
+                            <div class="iseo-field-group">
+                                <label class="iseo-label" for="iseo_business_name"><?php esc_html_e( 'Business name', 'improveseo' ); ?></label>
+                                <input type="text" id="iseo_business_name" class="iseo-input" maxlength="120" name="improveseo_business_name" value="<?php echo esc_attr( (string) get_option( 'improveseo_business_name', '' ) ); ?>" placeholder="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+                            </div>
+
+                            <div class="iseo-field-group">
+                                <label class="iseo-label" for="iseo_business_description"><?php esc_html_e( 'What the business does', 'improveseo' ); ?></label>
+                                <textarea id="iseo_business_description" class="iseo-input" rows="2" maxlength="600" name="improveseo_business_description" placeholder="<?php esc_attr_e( 'One or two sentences, in your own words', 'improveseo' ); ?>"><?php echo esc_textarea( (string) get_option( 'improveseo_business_description', '' ) ); ?></textarea>
+                            </div>
+
+                            <div class="iseo-field-group">
+                                <label class="iseo-label" for="iseo_business_ideal_client"><?php esc_html_e( 'Your ideal client', 'improveseo' ); ?></label>
+                                <textarea id="iseo_business_ideal_client" class="iseo-input" rows="2" maxlength="600" name="improveseo_business_ideal_client" placeholder="<?php esc_attr_e( 'Who you most want to reach, e.g. homeowners with older houses', 'improveseo' ); ?>"><?php echo esc_textarea( (string) get_option( 'improveseo_business_ideal_client', '' ) ); ?></textarea>
+                            </div>
+
+                            <div class="iseo-field-group">
+                                <label class="iseo-label" for="iseo_business_stand_out"><?php esc_html_e( 'What makes you stand out', 'improveseo' ); ?></label>
+                                <textarea id="iseo_business_stand_out" class="iseo-input" rows="2" maxlength="600" name="improveseo_business_stand_out" placeholder="<?php esc_attr_e( 'Facts only: years in business, licences, guarantees you really offer', 'improveseo' ); ?>"><?php echo esc_textarea( (string) get_option( 'improveseo_business_stand_out', '' ) ); ?></textarea>
+                                <span class="iseo-helper-text"><?php esc_html_e( 'Posts only state what you write here; nothing is made up.', 'improveseo' ); ?></span>
+                            </div>
+
                             <div class="iseo-field-group">
                                 <label class="iseo-label" for="iseo_business_service">Main Service or Topic</label>
                                 <input type="text" id="iseo_business_service" class="iseo-input" placeholder="e.g. Plumbing, Wedding Photography, Digital Marketing" name="improveseo_business_service" value="<?php echo esc_attr( get_option('improveseo_business_service', '') ); ?>">

@@ -323,6 +323,25 @@ function improveseo_content_v3_maybe_fallback( $status ) {
 	}
 }
 
+/**
+ * The niche to send: the Business details niche key when set; otherwise the wizard's niche select
+ * key (v2 list, which the server maps), or the "Other" text the user typed.
+ *
+ * @return string
+ */
+function improveseo_content_v3_niche_for_request() {
+	$business = (string) get_option( 'improveseo_business_niche', '' );
+	if ( '' !== $business ) {
+		return $business;
+	}
+	$wizard = improveseo_content_v3_post_text( 'niche', 120 );
+	if ( 'other' === $wizard ) {
+		$other = improveseo_content_v3_post_text( 'niche_other', 120 );
+		return '' !== $other ? $other : 'other';
+	}
+	return $wizard;
+}
+
 add_action( 'wp_ajax_improveseo_v3_generate_title', 'improveseo_ajax_v3_generate_title' );
 function improveseo_ajax_v3_generate_title() {
 	check_ajax_referer( 'improveseo_ajax', 'nonce' );
@@ -350,17 +369,19 @@ function improveseo_ajax_v3_generate_title() {
 		'session_key'        => $session_key,
 		'seed_keyword'       => $keyword,
 		'language'           => improveseo_content_v3_post_text( 'language', 40 ),
-		'niche'              => improveseo_content_v3_post_text( 'niche', 120 ),
+		'niche'              => improveseo_content_v3_niche_for_request(),
 		'reach'              => $reach,
 		'featured_service'   => trim( (string) get_option( 'improveseo_business_service', '' ) ),
 		'target_town'        => $target_town,
 		'not_about_location' => $not_about,
 		'state_hint'         => improveseo_business_state_hint(),
 		'regenerate'         => isset( $_POST['regenerate'] ) && '1' === $_POST['regenerate'], // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- compared to a literal.
+		// T5: the business-level proof level (decided 3 Nov). Standard unless the user chose Regulated.
+		'proof_level'        => improveseo_business_proof_level(),
 	);
-	$proof = (string) get_option( 'improveseo_business_proof_level', '' );
-	if ( in_array( $proof, array( 'standard', 'regulated' ), true ) ) {
-		$body['proof_level'] = $proof;
+	$ideal_client = trim( (string) get_option( 'improveseo_business_ideal_client', '' ) );
+	if ( '' !== $ideal_client ) {
+		$body['ideal_client'] = $ideal_client;
 	}
 	// Option B: the keyword data opt-in rides along only when its beta setting is on, exactly as
 	// improveseo_v3_step_fields() documents.
@@ -436,6 +457,9 @@ function improveseo_content_v3_enqueue() {
 		'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 		'nonce'   => wp_create_nonce( 'improveseo_ajax' ),
 		'reach'   => improveseo_business_reach(),
+		// G5: no Witty tone for a regulated niche (the business set Regulated, or its niche usually is).
+		'regulatedNiche' => ( 'regulated' === improveseo_business_proof_level() || ( ( $iseo_row = improveseo_business_niche_row() ) && 'regulated' === $iseo_row['proof_level'] ) ) ? '1' : '0',
+		'pov'            => improveseo_business_pov(),
 		'i18n'    => array(
 			'chooseTown'     => __( 'Choose the town this post is about, or "Not about a specific location".', 'improveseo' ),
 			'newTownEmpty'   => __( 'Type the town, for example "Española, NM".', 'improveseo' ),
@@ -500,17 +524,15 @@ function improveseo_ajax_v3_approve_title() {
 		'title'              => $title,
 		'seed_keyword'       => $keyword,
 		'language'           => improveseo_content_v3_post_text( 'language', 40 ),
-		'niche'              => improveseo_content_v3_post_text( 'niche', 120 ),
+		'niche'              => improveseo_content_v3_niche_for_request(),
+		'niche_profile'      => (string) get_option( 'improveseo_business_profile', '' ),
 		'reach'              => $reach,
 		'featured_service'   => trim( (string) get_option( 'improveseo_business_service', '' ) ),
 		'target_town'        => $target_town,
 		'not_about_location' => $not_about,
 		'state_hint'         => improveseo_business_state_hint(),
+		'proof_level'        => improveseo_business_proof_level(),
 	);
-	$proof = (string) get_option( 'improveseo_business_proof_level', '' );
-	if ( in_array( $proof, array( 'standard', 'regulated' ), true ) ) {
-		$body['proof_level'] = $proof;
-	}
 	$description = trim( (string) get_option( 'improveseo_business_description', '' ) );
 	if ( '' !== $description ) {
 		$body['business_description'] = $description;
@@ -577,4 +599,171 @@ function improveseo_ajax_v3_approve_title() {
 		),
 		'fallback'    => ! empty( $d['fallback'] ),
 	) );
+}
+
+/* ======================================================================================
+ * Business details for Content v3, part 2: niche, profile, proof level, point of view and the
+ * details the Writer uses (N1, G1, G3, W9). The niche list comes from the server's settings
+ * (GET /api/v1/content-v3/niches) so "adding a niche is one row" there; cached for 12 hours.
+ * ====================================================================================*/
+
+const IMPROVESEO_V3_PROFILES = array( 'trades', 'health', 'money_legal', 'appointment', 'expertise', 'food_venues', 'shops', 'content_only' );
+
+function improveseo_sanitize_business_niche( $value ) {
+	$value = is_string( $value ) ? sanitize_key( $value ) : '';
+	return substr( $value, 0, 40 );
+}
+
+function improveseo_sanitize_business_profile( $value ) {
+	$value = is_string( $value ) ? sanitize_key( $value ) : '';
+	return in_array( $value, IMPROVESEO_V3_PROFILES, true ) ? $value : '';
+}
+
+/**
+ * Proof level: only what the user chose. Switching to Regulated queues the one-time notice (G3).
+ *
+ * @param mixed $value Raw value.
+ * @return string 'standard', 'regulated' or ''.
+ */
+function improveseo_sanitize_business_proof_level( $value ) {
+	$value = is_string( $value ) ? sanitize_key( $value ) : '';
+	$value = in_array( $value, array( 'standard', 'regulated' ), true ) ? $value : '';
+	if ( 'regulated' === $value && 'regulated' !== get_option( 'improveseo_business_proof_level', '' ) && ! get_option( 'improveseo_regulated_notice_seen', false ) ) {
+		set_transient( 'improveseo_regulated_notice', 1, HOUR_IN_SECONDS );
+	}
+	return $value;
+}
+
+function improveseo_sanitize_business_pov( $value ) {
+	$value = is_string( $value ) ? sanitize_key( $value ) : '';
+	return in_array( $value, array( 'we', 'i', 'business_name' ), true ) ? $value : '';
+}
+
+function improveseo_sanitize_business_short_text( $value ) {
+	$value = is_string( $value ) ? trim( sanitize_text_field( $value ) ) : '';
+	return function_exists( 'mb_substr' ) ? mb_substr( $value, 0, 120 ) : substr( $value, 0, 120 );
+}
+
+function improveseo_sanitize_business_long_text( $value ) {
+	$value = is_string( $value ) ? trim( sanitize_textarea_field( $value ) ) : '';
+	return function_exists( 'mb_substr' ) ? mb_substr( $value, 0, 600 ) : substr( $value, 0, 600 );
+}
+
+/**
+ * The niche list from the server (keys, labels, profiles, default proof levels, synonyms).
+ *
+ * @param bool $force Skip the cache.
+ * @return array{niches: array, profiles: array}|null Null when the server could not be reached.
+ */
+function improveseo_content_v3_niches( $force = false ) {
+	$cached = $force ? false : get_transient( 'improveseo_content_v3_niches' );
+	if ( is_array( $cached ) && ! empty( $cached['niches'] ) ) {
+		return $cached;
+	}
+	$error  = '';
+	$status = 0;
+	$data   = improveseo_content_v3_request( 'GET', '/api/v1/content-v3/niches', null, $error, $status, 10 );
+	if ( ! is_array( $data ) || empty( $data['data']['niches'] ) || ! is_array( $data['data']['niches'] ) ) {
+		return null;
+	}
+	$niches = array();
+	foreach ( $data['data']['niches'] as $n ) {
+		if ( ! is_array( $n ) || empty( $n['key'] ) || empty( $n['label'] ) ) {
+			continue;
+		}
+		$niches[] = array(
+			'key'            => sanitize_key( $n['key'] ),
+			'label'          => sanitize_text_field( $n['label'] ),
+			'profile'        => isset( $n['profile'] ) ? sanitize_key( $n['profile'] ) : '',
+			'profile_name'   => isset( $n['profile_name'] ) ? sanitize_text_field( $n['profile_name'] ) : '',
+			'proof_level'    => isset( $n['proof_level'] ) && 'regulated' === $n['proof_level'] ? 'regulated' : 'standard',
+			'proof_open'     => ! empty( $n['proof_open'] ),
+			'choose_profile' => ! empty( $n['choose_profile'] ),
+			'synonyms'       => array_values( array_map( 'sanitize_text_field', array_filter( (array) ( isset( $n['synonyms'] ) ? $n['synonyms'] : array() ), 'is_string' ) ) ),
+		);
+	}
+	$profiles = array();
+	foreach ( (array) ( isset( $data['data']['profiles'] ) ? $data['data']['profiles'] : array() ) as $p ) {
+		if ( is_array( $p ) && ! empty( $p['key'] ) && in_array( $p['key'], IMPROVESEO_V3_PROFILES, true ) ) {
+			$profiles[] = array( 'key' => $p['key'], 'name' => sanitize_text_field( (string) ( isset( $p['name'] ) ? $p['name'] : $p['key'] ) ) );
+		}
+	}
+	$result = array( 'niches' => $niches, 'profiles' => $profiles );
+	set_transient( 'improveseo_content_v3_niches', $result, 12 * HOUR_IN_SECONDS );
+	return $result;
+}
+
+/**
+ * The niche row the business picked, or null.
+ *
+ * @return array|null
+ */
+function improveseo_business_niche_row() {
+	$key = (string) get_option( 'improveseo_business_niche', '' );
+	if ( '' === $key ) {
+		return null;
+	}
+	$list = improveseo_content_v3_niches();
+	foreach ( (array) ( $list ? $list['niches'] : array() ) as $n ) {
+		if ( $n['key'] === $key ) {
+			return $n;
+		}
+	}
+	return null;
+}
+
+/**
+ * The proof level to send. Never Regulated unless the user chose it; unset counts as Standard so the
+ * post-level check (topics list + Planner) runs (G1, G2).
+ *
+ * @return string
+ */
+function improveseo_business_proof_level() {
+	return 'regulated' === get_option( 'improveseo_business_proof_level', '' ) ? 'regulated' : 'standard';
+}
+
+/**
+ * Point of view from Business details: 'we', 'i' or 'business_name'. Unset → 'we' (a business site).
+ *
+ * @return string
+ */
+function improveseo_business_pov() {
+	$pov = improveseo_sanitize_business_pov( get_option( 'improveseo_business_pov', '' ) );
+	return '' !== $pov ? $pov : 'we';
+}
+
+/**
+ * W9 migration at read time: the v2 wizard's values ("Auto (AI decides)", "Speaking to the reader")
+ * map to the Business details value; the two v2 voices map to their v3 option.
+ *
+ * @param string $value A stored point_of_view value (v2 or v3).
+ * @return string 'we', 'i' or 'business_name'.
+ */
+function improveseo_v3_map_point_of_view( $value ) {
+	$value = (string) $value;
+	if ( in_array( $value, array( 'we', 'i', 'business_name' ), true ) ) {
+		return $value;
+	}
+	if ( 0 === strpos( $value, 'First person plural' ) ) {
+		return 'we';
+	}
+	if ( 0 === strpos( $value, 'First person singular' ) ) {
+		return 'i';
+	}
+	return improveseo_business_pov(); // "none", "Whatever is suited to keyword", "Second Person …"
+}
+
+/**
+ * G3: the one-time notice after a business is set to Regulated.
+ */
+add_action( 'admin_notices', 'improveseo_regulated_notice' );
+function improveseo_regulated_notice() {
+	if ( ! current_user_can( 'manage_options' ) || ! get_transient( 'improveseo_regulated_notice' ) ) {
+		return;
+	}
+	delete_transient( 'improveseo_regulated_notice' );
+	update_option( 'improveseo_regulated_notice_seen', 1, false );
+	echo '<div class="notice notice-info is-dismissible"><p><strong>' . esc_html__( 'Your business is set as Regulated.', 'improveseo' ) . '</strong> ' .
+		esc_html__( 'Every new Content v3 post uses stricter sourcing: figures need a cited source, no outcomes are promised, and posts link to at least 3 sources. Bulk posts are saved as drafts so you can review them before publishing. You can turn Regulated off for a single post in the post wizard.', 'improveseo' ) .
+		'</p></div>';
 }

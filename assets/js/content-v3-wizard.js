@@ -48,12 +48,13 @@
     return { town: v, notAbout: false, ok: v !== '' };
   }
 
+  /** The wizard's niche key (the server maps v2 keys); Business details' niche wins server-side. */
   function nicheLabel() {
-    var key = $('#niche_select').val() || '';
-    if (key === 'other') {
-      return ($('#niche_other').val() || '').trim();
-    }
-    return ($('#niche_select option:selected').text() || '').trim();
+    return $('#niche_select').val() || '';
+  }
+
+  function nicheOther() {
+    return ($('#niche_other').val() || '').trim();
   }
 
   function sprintf2(tpl, a, b) {
@@ -153,6 +154,7 @@
       not_about_location: c.notAbout ? '1' : '0',
       language: $('#language').val() || '',
       niche: nicheLabel(),
+      niche_other: nicheOther(),
       regenerate: regenerate ? '1' : '0'
     })
       .done(function (res) {
@@ -320,7 +322,8 @@
           target_town: c.town,
           not_about_location: c.notAbout ? '1' : '0',
           language: $('#language').val() || '',
-          niche: nicheLabel()
+          niche: nicheLabel(),
+          niche_other: nicheOther()
         }
       })
         .done(function (res) {
@@ -369,7 +372,23 @@
     };
   };
 
+  /** G5: the Witty tone is not offered for a regulated niche. */
+  function hideWittyForRegulated() {
+    if (cfg.regulatedNiche !== '1') {
+      return;
+    }
+    // Every tone select: the single and bulk popups both use id "cotnt_type".
+    $('select[name="content_type"]').each(function () {
+      var $tone = $(this);
+      if ($tone.val() === 'witty') {
+        $tone.val('professional').trigger('change');
+      }
+      $tone.find('option[value="witty"]').remove();
+    });
+  }
+
   $(function () {
+    hideWittyForRegulated();
     $(document).on('change', '#iseo_v3_post_size', function () {
       setSize($(this).val());
     });

@@ -1054,3 +1054,15 @@
 .iseo-settings-page .iseo-info-tip:focus {
     color: var(--iseo-primary);
 }
+
+/* Content v3 — Business details niche picker (assets/js/business-niche-picker.js). */
+.iseo-settings-page #iseo_niche_group { position: relative; }
+.iseo-settings-page .iseo-niche-suggestions {
+	position: absolute; z-index: 20; left: 0; right: 0; margin: 4px 0 0; padding: 4px 0;
+	list-style: none; background: #fff; border: 1px solid #d1d5db; border-radius: 8px;
+	box-shadow: 0 6px 18px rgba(17, 24, 39, 0.12); max-height: 280px; overflow-y: auto;
+}
+.iseo-settings-page .iseo-niche-suggestions li { margin: 0; padding: 8px 12px; cursor: pointer; }
+.iseo-settings-page .iseo-niche-suggestions li:hover,
+.iseo-settings-page .iseo-niche-suggestions li:focus { background: #f3f4f6; outline: none; }
+.iseo-settings-page .iseo-niche-suggestions li.iseo-niche-empty { cursor: default; color: #6b7280; }

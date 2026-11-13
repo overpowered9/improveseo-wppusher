@@ -1130,6 +1130,21 @@ global $ai_modal_type;
                                         </span>
                                     </span>
                                 </label>
+                                <?php if ( function_exists( 'improveseo_content_v3_active' ) && improveseo_content_v3_active() ) : ?>
+                                <?php
+                                // Content v3, W9: how the business refers to itself. Three options, prefilled from
+                                // Business details and changeable per post. ("Speaking to the reader" and "Auto"
+                                // are gone; stored old values map to the Business details value,
+                                // improveseo_v3_map_point_of_view().)
+                                $iseo_v3_pov = improveseo_business_pov();
+                                ?>
+                                <select class="content-opt custom-selcected" name="point_of_view" id="size" data-iseo-v3-pov="1" aria-describedby="iseo_v3_pov_help">
+                                    <option value="we" <?php selected( $iseo_v3_pov, 'we' ); ?>><?php esc_html_e( 'We / our', 'improveseo' ); ?></option>
+                                    <option value="i" <?php selected( $iseo_v3_pov, 'i' ); ?>><?php esc_html_e( 'I / my', 'improveseo' ); ?></option>
+                                    <option value="business_name" <?php selected( $iseo_v3_pov, 'business_name' ); ?>><?php esc_html_e( 'Business name only', 'improveseo' ); ?></option>
+                                </select>
+                                <span id="iseo_v3_pov_help" class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;"><?php esc_html_e( 'How the business refers to itself in this post. The default comes from Business details.', 'improveseo' ); ?></span>
+                                <?php else : ?>
                                 <select class="content-opt custom-selcected" name="point_of_view" id="size">
                                     <option value="none">Auto (AI Decides)</option>
                                     <option value="Second Person (you,your,yours)">Speaking to the Reader ("you", "your")</option>
@@ -1137,6 +1152,7 @@ global $ai_modal_type;
                                     <option value="First person singular (I,me,my,mine)">Personal Voice ("I", "my")</option>
 
                                 </select>
+                                <?php endif; ?>
                             </div>
                         </div>
 

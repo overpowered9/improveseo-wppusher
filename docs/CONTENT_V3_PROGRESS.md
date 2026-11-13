@@ -16,8 +16,8 @@ Kept up to date at the end of every phase (brief rule 11), so a fresh session ca
 | 3 | Title + wizard step 1 | **Done** | server + plugin |
 | 4 | Research (Perplexity Agent API) | **Done (mocked)**; live run blocked on `PERPLEXITY_API_KEY` | server |
 | 5 | Approve → Research → Planner, step 2, regulated topics | **Done** | server + plugin |
-| 6 | Niche profile + proof level | Next | |
-| 7 | Blueprint + admin tester panel | | |
+| 6 | Niche profile + proof level | **Done** (G4 texts blocked) | server + plugin |
+| 7 | Blueprint + admin tester panel | Next | |
 | 8 | Writer draft 2 + post-processing + validator + paid v3 route | | |
 | 9 | Interim approaches U1–U6 | | |
 | 10 | Bulk parity + bulk and bug fixes | | |
@@ -59,7 +59,7 @@ Statuses: DONE / PARTIAL / WRONG / MISSING / BLOCKED. Evidence for the starting 
 | W6 | DONE | `/wizard/town-check` (free) on keyword/town change and with the title; one line under the town. |
 | W7 | DONE | Step 2 panel: article type (editable), post size with size_reason, owner questions with answer fields, regulated line with Keep / Turn off. |
 | W8 | DONE | Sizes below `minimum_size` are disabled in step 2 and in step 1's priced select; step 2 size drives `#post_size`. Effect on blueprint step 3m: phase 7. |
-| W9 | WRONG | `point_of_view` never sent; options wrong. Phase 6/12. |
+| W9 | PARTIAL | Business details "How the business refers to itself" (We / our, I / my, Business name only); wizard step 2 shows those three under v3, prefilled, changeable; old values map via `improveseo_v3_map_point_of_view()`. Sending it with the article: phase 8. |
 | W10 | PARTIAL | Server `POST /content-v3/session/clear` + plugin AJAX exist (phase 1); modal wiring phase 12. |
 | W11 | PARTIAL | Phase 8. |
 | W12 | DONE | Regenerate sends the session's earlier titles for this keyword; search data reused from the session (E2E: `session hit`, no second DataForSEO charge). |
@@ -124,6 +124,17 @@ Real run 14 Nov ("water heater repair Española", Española NM): town call thin 
 
 ### G, B, N, WR, V, U, X, BULK, BUG, K
 Unchanged from Phase 0 except:
+- **N1** DONE: profiles, niche mapping, watchlists, default proof levels = one editable JSON setting (`content_v3_niche_profiles`), values = the doc tables (test). Per-niche provider/help phrases are working values (doc gives them per profile).
+- **N2** DONE: Standard and Regulated pieces verbatim, editable (`content_v3_niche_standard_piece`, `_regulated_piece`).
+- **N3** DONE: type adjustment lines verbatim, only on a matching type + niche row.
+- **N4** DONE: `<niche_profile>` as in the doc's example; nationwide next step for nationwide sites.
+- **N5** PARTIAL: firmest closing exposed (`buildNicheProfile().firmest`); the blueprint caps step 3k with it in phase 7.
+- **G1** DONE: Business details proof level, the niche's default shown only as a suggestion, never set silently; editable.
+- **G3** PARTIAL: business Regulated → every post starts Regulated (approve `regulated=business`), one-time notice; bulk drafts in phase 10.
+- **G4** BLOCKED: disclaimer setting `content_v3_disclaimers` exists and ships empty; no disclaimer is inserted until the texts are written (team lead).
+- **G5** DONE: Witty removed from both tone selects for a regulated niche or business.
+- **G6** PARTIAL: final proof level known per post (approve + Keep/Turn off); stored with the article in phase 8.
+- **U6** DONE (approved interim): no setup scan; Business details gets niche (search-as-you-type over the server list, synonyms, typos), closest profile for "Other …", proof level, point of view, business name, description, ideal client, what makes you stand out.
 - **G2** DONE: regulated topics list = the doc's table (test compares with the doc), exclusions, editable registry setting `content_v3_regulated_topics`; list OR Planner suggests; single wizard Keep / Turn off.
 - **WR3** PARTIAL: the backup and replace mechanism exists (phase 1); the new Writer text lands in phase 8.
 - **WR9** PARTIAL: the wrapper sends the system block with `cache_control`, and the log line records `cache_read` per call, so cached tokens on the second article will be visible in the logs.
@@ -175,6 +186,13 @@ Unchanged from Phase 0 except:
 - The regulated line does not mention a disclaimer while the disclaimer texts (G4) do not exist.
 - E2E 14 Nov: approve 33 s (Planner 27 s on claude-sonnet-5 with adaptive thinking, ~2.8k output tokens, $0.035); research skipped (no key) and the step 2 note says so.
 
+## Phase 6 notes
+
+- **For the team lead:** per-niche "provider" and "professional help" phrases are working values (e.g. HVAC → "call a licensed HVAC technician"); the doc gives them per profile, with Plumbing as its only niche example. Editable in the `content_v3_niche_profiles` setting.
+- Proof level sent with every v3 request: Standard unless the user chose Regulated (unset = Standard, so the post-level check runs).
+- E2E 14 Nov: picker finds "chiro" → Wellness/Chiropractic/Massage, typo "plumbr" → Plumbing; Dental shows "Suggested: Regulated" without changing the field; saving Regulated shows the one-time notice; wizard hides Witty and shows the three point-of-view options; approve logs `niche=dental proof=regulated regulated=business`.
+- Pre-existing console error on the settings page: `jQuery(...).smartWizard is not a function` (custom-plugin-script.js:2706) — on the phase 13 fix list.
+
 ## Next
 
-Phase 6: niche profile (8 profiles, mapping, watchlists, default proof levels, Standard/Regulated pieces, type adjustments, `<niche_profile>` block), business proof level in Business details (never silent), Witty hidden for regulated niches, POV dropdown, disclaimer settings (texts blocked). N1–N5, G1, G3–G6, W9.
+Phase 7: blueprint draft-1 algorithm (pins, draws a–m, history checks, word targets, numbered titles, TOC, firmness capped by the niche, `<blueprint>` wrap, picks saved per post) and the admin tester panel changes. B1–B12, X1–X7.

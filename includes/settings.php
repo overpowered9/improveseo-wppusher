@@ -47,6 +47,16 @@ function improveseo_init_settings() {
 	// search data lookup and the Target town question in the wizard), and the towns it serves.
 	register_setting('improveseo_business_settings', 'improveseo_business_reach',   array( 'sanitize_callback' => 'improveseo_sanitize_business_reach', 'default' => '' ));
 	register_setting('improveseo_business_settings', 'improveseo_business_towns',   array( 'sanitize_callback' => 'improveseo_sanitize_business_towns', 'default' => '' ));
+	// Content v3 Business details (niche profile, proof level, point of view, writer details). The
+	// proof level is only ever set by the user: the niche's default is shown as a suggestion (G1).
+	register_setting('improveseo_business_settings', 'improveseo_business_niche',        array( 'sanitize_callback' => 'improveseo_sanitize_business_niche', 'default' => '' ));
+	register_setting('improveseo_business_settings', 'improveseo_business_profile',      array( 'sanitize_callback' => 'improveseo_sanitize_business_profile', 'default' => '' ));
+	register_setting('improveseo_business_settings', 'improveseo_business_proof_level',  array( 'sanitize_callback' => 'improveseo_sanitize_business_proof_level', 'default' => '' ));
+	register_setting('improveseo_business_settings', 'improveseo_business_pov',          array( 'sanitize_callback' => 'improveseo_sanitize_business_pov', 'default' => '' ));
+	register_setting('improveseo_business_settings', 'improveseo_business_name',         array( 'sanitize_callback' => 'improveseo_sanitize_business_short_text', 'default' => '' ));
+	register_setting('improveseo_business_settings', 'improveseo_business_description',  array( 'sanitize_callback' => 'improveseo_sanitize_business_long_text', 'default' => '' ));
+	register_setting('improveseo_business_settings', 'improveseo_business_ideal_client', array( 'sanitize_callback' => 'improveseo_sanitize_business_long_text', 'default' => '' ));
+	register_setting('improveseo_business_settings', 'improveseo_business_stand_out',    array( 'sanitize_callback' => 'improveseo_sanitize_business_long_text', 'default' => '' ));
 
 	// Featured image toggles
 	// NOTE: these live in their own settings group because they are saved from a

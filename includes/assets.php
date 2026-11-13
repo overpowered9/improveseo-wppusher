@@ -123,6 +123,22 @@ function improveseo_enqueue_admin(){
 		wp_enqueue_style('improveseo-keyword-metrics', IMPROVESEO_DIR . '/assets/css/keyword-metrics.css', array(), improveseo_asset_ver('assets/css/keyword-metrics.css'));
 		wp_enqueue_script('improveseo-keyword-metrics', IMPROVESEO_DIR . '/assets/js/keyword-metrics.js', array('jquery', 'improveseo-popups'), improveseo_asset_ver('assets/js/keyword-metrics.js'), true);
 	}
+	// Settings: the Business details niche picker (Content v3). Data localized below.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading the current admin screen, not acting on input.
+	if ( isset( $_GET['page'] ) && 'improveseo_settings' === sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
+		wp_enqueue_script('improveseo-business-niche-picker', IMPROVESEO_DIR . '/assets/js/business-niche-picker.js', array(), improveseo_asset_ver('assets/js/business-niche-picker.js'), true);
+		$iseo_niche_data = function_exists( 'improveseo_content_v3_niches' ) ? improveseo_content_v3_niches() : null;
+		wp_localize_script('improveseo-business-niche-picker', 'iseoNichePicker', array(
+			'niches' => $iseo_niche_data ? $iseo_niche_data['niches'] : array(),
+			'i18n'   => array(
+				'suggestRegulated' => __( 'Suggested for %s: Regulated. Please confirm by choosing it above; it is never set for you.', 'improveseo' ),
+				'suggestStandard'  => __( 'Suggested for %s: Standard.', 'improveseo' ),
+				'suggestOpen'      => __( 'Suggested for %s: Standard, but some businesses in this niche are regulated. Choose what fits yours.', 'improveseo' ),
+				'unavailable'      => __( 'The niche list could not be loaded from the ImproveSEO server. Check the connection and reload this page.', 'improveseo' ),
+				'noMatch'          => __( 'No niche matches. Try another word, or choose "Other service business".', 'improveseo' ),
+			),
+		));
+	}
 	// Post wizards (single and bulk): the search-data line under the keyword, and the Content v3
 	// keyword-data hooks (dormant until the beta setting is on). Config localized at priority 20
 	// in modules/keyword-data.php.
