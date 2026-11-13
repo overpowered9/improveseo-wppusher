@@ -28,6 +28,9 @@ function improveseo_save_feature_toggles() {
         'single'  => 'improveseo_featured_images_single',
         // "Use keyword data in Content v3 (beta)" — same card, same auto-save.
         'v3_keyword_data' => 'improveseo_v3_keyword_data',
+        // "Use Content v3" — same card, same auto-save. Takes effect only while the server's
+        // CONTENT_V3_ENABLED is on too (modules/content-v3.php, improveseo_content_v3_active()).
+        'content_v3'      => 'improveseo_content_v3',
     );
 
     $saved = array();
@@ -36,6 +39,10 @@ function improveseo_save_feature_toggles() {
             $value = ($_POST[$field] === '1') ? '1' : '0';
             update_option($option, $value);
             $saved[$option] = $value;
+            if ('improveseo_content_v3' === $option && function_exists('improveseo_content_v3_forget_server_status')) {
+                // Re-ask the server on the next wizard load instead of trusting a cached answer.
+                improveseo_content_v3_forget_server_status();
+            }
         }
     }
 

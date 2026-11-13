@@ -135,6 +135,10 @@ if (file_exists(dirname(__FILE__) . '/modules/keyword-data.php'))
 
 	include_once dirname(__FILE__) . '/modules/keyword-data.php';
 
+// Content v3: the "Use Content v3" switch, the server status check and the v3 wizard calls.
+if (file_exists(dirname(__FILE__) . '/modules/content-v3.php'))
+	include_once dirname(__FILE__) . '/modules/content-v3.php';
+
 
 // if( file_exists( dirname(__FILE__).'/includes/admin.php' )) include_once dirname(__FILE__).'/includes/admin.php';
 

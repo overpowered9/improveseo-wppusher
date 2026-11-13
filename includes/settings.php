@@ -57,6 +57,9 @@ function improveseo_init_settings() {
 	// Content v3 keyword data (beta). OFF by default; when off every generation request is
 	// exactly what it was before (modules/keyword-data.php, improveseo_v3_keyword_data_enabled()).
 	register_setting('improveseo_feature_settings', 'improveseo_v3_keyword_data',          array( 'sanitize_callback' => 'absint', 'default' => 0 ));
+	// "Use Content v3". OFF by default; v2 stays the generator until both this and the server's
+	// CONTENT_V3_ENABLED are on (modules/content-v3.php).
+	register_setting('improveseo_feature_settings', 'improveseo_content_v3',               array( 'sanitize_callback' => 'absint', 'default' => 0 ));
 
 }
 

@@ -365,6 +365,36 @@ $iseo_saved_pill = '<span class="iseo-save-status" role="status" data-autohide="
                                 </div>
                             </div><!-- .iseo-toggle-group-v3kw -->
 
+                            <?php // Content v3. Default OFF. Same auto-save. Only takes effect while the server has v3 switched on. ?>
+                            <div class="iseo-toggle-group iseo-toggle-group-v3">
+                                <div class="iseo-toggle-row iseo-toggle-main">
+                                    <div class="iseo-toggle-info">
+                                        <span class="iseo-toggle-label">
+                                            <?php esc_html_e( 'Use Content v3', 'improveseo' ); ?>
+                                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'What does Content v3 do?', 'improveseo' ); ?>">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                                <span class="iseo-info-tip-bubble" role="tooltip">
+                                                    <strong><?php esc_html_e( 'Content v3', 'improveseo' ); ?></strong>
+                                                    <?php esc_html_e( 'The new article pipeline: a title from real search results, topic research, a plan you can review, then the article. It is used only when the ImproveSEO server has it switched on as well; otherwise posts are generated exactly as before.', 'improveseo' ); ?>
+                                                </span>
+                                            </span>
+                                        </span>
+                                        <span class="iseo-toggle-desc">
+                                            <?php esc_html_e( 'Generate posts with the Content v3 pipeline. Off by default.', 'improveseo' ); ?>
+                                            <?php
+                                            if ( function_exists( 'improveseo_content_v3_site_enabled' ) && improveseo_content_v3_site_enabled() && function_exists( 'improveseo_content_v3_server_enabled' ) && ! improveseo_content_v3_server_enabled() ) {
+                                                echo ' <strong>' . esc_html__( 'The ImproveSEO server has not switched Content v3 on yet, so posts still use the current pipeline.', 'improveseo' ) . '</strong>';
+                                            }
+                                            ?>
+                                        </span>
+                                    </div>
+                                    <label class="iseo-toggle-switch" aria-label="<?php esc_attr_e( 'Use Content v3', 'improveseo' ); ?>">
+                                        <input type="checkbox" id="iseo_content_v3" name="improveseo_content_v3" value="1" <?php checked( get_option( 'improveseo_content_v3', '0' ), '1' ); ?>>
+                                        <span class="iseo-toggle-track"></span>
+                                    </label>
+                                </div>
+                            </div><!-- .iseo-toggle-group-v3 -->
+
                         </div>
                         <?php // No Save button here: each toggle saves the moment it changes. The note says so, so nobody looks for one. ?>
                         <div class="iseo-card-footer iseo-features-footer">
@@ -478,6 +508,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Content v3 keyword data (beta): same request, one more whitelisted field.
             var v3kw = document.getElementById('iseo_v3_keyword_data');
             if (v3kw) { data.append('v3_keyword_data', v3kw.checked ? '1' : '0'); }
+            var v3 = document.getElementById('iseo_content_v3');
+            if (v3) { data.append('content_v3', v3.checked ? '1' : '0'); }
             showToggleStatus('Saving…', 'busy');
             fetch('<?php echo esc_url( admin_url("admin-ajax.php") ); ?>', { method: 'POST', body: data })
                 .then(function(r) { return r.json(); })
@@ -510,6 +542,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         var v3kwToggle = document.getElementById('iseo_v3_keyword_data');
         if (v3kwToggle) { v3kwToggle.addEventListener('change', saveFeatureToggles); }
+        var v3Toggle = document.getElementById('iseo_content_v3');
+        if (v3Toggle) { v3Toggle.addEventListener('change', saveFeatureToggles); }
     })();
 
     // Build the connection-test status panel — mirrors the dashboard's plan/credit view.
