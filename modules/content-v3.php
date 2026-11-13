@@ -448,6 +448,133 @@ function improveseo_content_v3_enqueue() {
 			'keywordHeading' => __( 'Seed Keyword Required', 'improveseo' ),
 			'townHeading'    => __( 'Target town required', 'improveseo' ),
 			'genericError'   => __( 'We couldn\'t generate a title. Please try again.', 'improveseo' ),
+			'planning'          => __( 'Planning your article...', 'improveseo' ),
+			'planningMsg'       => __( 'Researching the topic and planning the article. This can take up to a minute.', 'improveseo' ),
+			'planFailed'        => __( 'We couldn\'t plan the article this time. Please try again.', 'improveseo' ),
+			'planFailedHeading' => __( 'Planning failed', 'improveseo' ),
+			'titleNotesHeading' => __( 'About your title', 'improveseo' ),
+			'ownerHeading'      => __( 'A quick question for you (optional, makes the post more specific)', 'improveseo' ),
+			'ownerPlaceholder'  => __( 'Your answer, in a few words', 'improveseo' ),
+			/* translators: %1$s: what the topic involves, e.g. "medical treatment". */
+			'regulatedTopic'    => __( 'This topic involves %1$s, so this article uses stricter sourcing. Keep this, or turn it off for this post.', 'improveseo' ),
+			/* translators: %1$s: the reason the planner gave. */
+			'regulatedPlanner'  => __( 'This topic may be regulated (%1$s), so this article uses stricter sourcing. Keep this, or turn it off for this post.', 'improveseo' ),
+			'regulatedGeneric'  => __( 'health, legal, financial or insurance', 'improveseo' ),
+			'regulatedBusiness' => __( 'Your business is set as Regulated, so this article uses stricter sourcing. You can turn it off for this post.', 'improveseo' ),
+			'planFallback'      => __( 'We could not plan this article in detail, so it uses a simple plan. You can still generate it.', 'improveseo' ),
+			'researchSkipped'   => __( 'Topic research was not available this time; the article will not quote figures.', 'improveseo' ),
 		),
+	) );
+}
+
+/* ======================================================================================
+ * Approve title (W3): title check → research → planner on the server; step 2 gets the plan.
+ * ====================================================================================*/
+
+add_action( 'wp_ajax_improveseo_v3_approve_title', 'improveseo_ajax_v3_approve_title' );
+function improveseo_ajax_v3_approve_title() {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'improveseo' ) ), 403 );
+	}
+	if ( ! improveseo_content_v3_active() ) {
+		wp_send_json_success( array( 'fallback' => 'v2' ) );
+	}
+
+	$session_key = improveseo_content_v3_session_key( isset( $_POST['session_key'] ) ? $_POST['session_key'] : '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized in improveseo_content_v3_session_key().
+	$keyword     = improveseo_content_v3_post_text( 'seed_keyword', 200 );
+	$title       = improveseo_content_v3_post_text( 'title', 300 );
+	if ( '' === $session_key || '' === $keyword ) {
+		wp_send_json_error( array( 'message' => __( 'Please enter a seed keyword.', 'improveseo' ) ), 400 );
+	}
+	if ( '' === $title ) {
+		wp_send_json_error( array( 'message' => __( 'Please write or generate a title first.', 'improveseo' ) ), 400 );
+	}
+
+	$reach       = improveseo_business_reach();
+	$not_about   = isset( $_POST['not_about_location'] ) && '1' === $_POST['not_about_location']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- compared to a literal.
+	$target_town = $not_about ? '' : improveseo_content_v3_post_text( 'target_town', 120 );
+
+	$body = array(
+		'session_key'        => $session_key,
+		'title'              => $title,
+		'seed_keyword'       => $keyword,
+		'language'           => improveseo_content_v3_post_text( 'language', 40 ),
+		'niche'              => improveseo_content_v3_post_text( 'niche', 120 ),
+		'reach'              => $reach,
+		'featured_service'   => trim( (string) get_option( 'improveseo_business_service', '' ) ),
+		'target_town'        => $target_town,
+		'not_about_location' => $not_about,
+		'state_hint'         => improveseo_business_state_hint(),
+	);
+	$proof = (string) get_option( 'improveseo_business_proof_level', '' );
+	if ( in_array( $proof, array( 'standard', 'regulated' ), true ) ) {
+		$body['proof_level'] = $proof;
+	}
+	$description = trim( (string) get_option( 'improveseo_business_description', '' ) );
+	if ( '' !== $description ) {
+		$body['business_description'] = $description;
+	}
+	$ideal_client = trim( (string) get_option( 'improveseo_business_ideal_client', '' ) );
+	if ( '' !== $ideal_client ) {
+		$body['ideal_client'] = $ideal_client;
+	}
+	if ( function_exists( 'improveseo_v3_step_fields' ) ) {
+		$body = array_merge( $body, improveseo_v3_step_fields( 'planner' ) );
+	}
+	$body = array_filter( $body, function ( $v ) {
+		return '' !== $v && null !== $v;
+	} );
+
+	$error  = '';
+	$status = 0;
+	// Research (up to 3 Perplexity attempts) and the Planner (up to 3) can take a while.
+	$data = improveseo_content_v3_request( 'POST', '/api/v1/content-v3/wizard/approve', $body, $error, $status, 420 );
+	if ( ! is_array( $data ) ) {
+		improveseo_content_v3_maybe_fallback( $status );
+		wp_send_json_error( array( 'message' => $error ), $status ? $status : 502 );
+	}
+	$d    = isset( $data['data'] ) && is_array( $data['data'] ) ? $data['data'] : array();
+	$plan = isset( $d['plan'] ) && is_array( $d['plan'] ) ? $d['plan'] : array();
+	$reg  = isset( $d['regulated'] ) && is_array( $d['regulated'] ) ? $d['regulated'] : array();
+	$res  = isset( $d['research'] ) && is_array( $d['research'] ) ? $d['research'] : array();
+
+	$types = array( 'cost', 'decision', 'question', 'topic' );
+	$sizes = array( 'small', 'medium', 'large' );
+	$owner = array();
+	foreach ( (array) ( isset( $plan['owner_questions'] ) ? $plan['owner_questions'] : array() ) as $q ) {
+		if ( is_string( $q ) && '' !== trim( $q ) && count( $owner ) < 2 ) {
+			$owner[] = sanitize_text_field( $q );
+		}
+	}
+	$notes = array();
+	foreach ( (array) ( isset( $d['title_notes'] ) ? $d['title_notes'] : array() ) as $n ) {
+		if ( is_string( $n ) ) {
+			$notes[] = sanitize_text_field( $n );
+		}
+	}
+	$by = isset( $reg['by'] ) && in_array( $reg['by'], array( 'list', 'planner', 'both', 'business' ), true ) ? $reg['by'] : '';
+
+	wp_send_json_success( array(
+		'title'       => isset( $d['title'] ) ? sanitize_text_field( (string) $d['title'] ) : $title,
+		'title_notes' => $notes,
+		'plan'        => array(
+			'article_type'    => isset( $plan['article_type'] ) && in_array( $plan['article_type'], $types, true ) ? $plan['article_type'] : 'topic',
+			'post_size'       => isset( $plan['post_size'] ) && in_array( $plan['post_size'], $sizes, true ) ? $plan['post_size'] : 'small',
+			'minimum_size'    => isset( $plan['minimum_size'] ) && in_array( $plan['minimum_size'], $sizes, true ) ? $plan['minimum_size'] : 'small',
+			'size_reason'     => isset( $plan['size_reason'] ) ? sanitize_text_field( (string) $plan['size_reason'] ) : '',
+			'owner_questions' => $owner,
+		),
+		'regulated'   => array(
+			'suggested' => ! empty( $reg['suggested'] ),
+			'by'        => $by,
+			'phrase'    => isset( $reg['phrase'] ) ? sanitize_text_field( (string) $reg['phrase'] ) : '',
+			'reason'    => isset( $reg['reason'] ) ? sanitize_text_field( (string) $reg['reason'] ) : '',
+		),
+		'research'    => array(
+			'status' => isset( $res['status'] ) ? sanitize_key( (string) $res['status'] ) : '',
+			'facts'  => isset( $res['facts'] ) ? absint( $res['facts'] ) : 0,
+		),
+		'fallback'    => ! empty( $d['fallback'] ),
 	) );
 }

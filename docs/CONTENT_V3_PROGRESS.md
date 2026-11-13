@@ -15,8 +15,8 @@ Kept up to date at the end of every phase (brief rule 11), so a fresh session ca
 | 2 | Search data lookup (DataForSEO SERP) | **Done** | server |
 | 3 | Title + wizard step 1 | **Done** | server + plugin |
 | 4 | Research (Perplexity Agent API) | **Done (mocked)**; live run blocked on `PERPLEXITY_API_KEY` | server |
-| 5 | Planner + step 2 + regulated topics | Next | |
-| 6 | Niche profile + proof level | | |
+| 5 | Approve → Research → Planner, step 2, regulated topics | **Done** | server + plugin |
+| 6 | Niche profile + proof level | Next | |
 | 7 | Blueprint + admin tester panel | | |
 | 8 | Writer draft 2 + post-processing + validator + paid v3 route | | |
 | 9 | Interim approaches U1–U6 | | |
@@ -53,12 +53,12 @@ Statuses: DONE / PARTIAL / WRONG / MISSING / BLOCKED. Evidence for the starting 
 |---|---|---|
 | W1 | BLOCKED | Keyword check rules are in the missing "Single wizard: input fields" doc. |
 | W2 | DONE (generated title) | Generate title → `improveseo_v3_generate_title` → server `/content-v3/wizard/title` (search data → Title). Typed title: lookup on Approve, phase 5. |
-| W3 | MISSING | Phase 5. |
+| W3 | DONE (working title-check rules) | Leaving step 1 (after the existing approval and credit check) runs `/wizard/approve`: title check → Research → Planner. Title-check rules are working values until the wizard doc arrives (blocking: empty, markup, >150 chars; notes: >70 chars, no keyword word). |
 | W4 | MISSING | Phase 8. |
 | W5 | DONE | Target town select for a local business: saved towns (Business details), "A new town…", "Not about a specific location"; required before Generate. Preselected only when the site has exactly one saved town. |
 | W6 | DONE | `/wizard/town-check` (free) on keyword/town change and with the title; one line under the town. |
-| W7 | MISSING | Phase 5. |
-| W8 | MISSING | Phase 5. |
+| W7 | DONE | Step 2 panel: article type (editable), post size with size_reason, owner questions with answer fields, regulated line with Keep / Turn off. |
+| W8 | DONE | Sizes below `minimum_size` are disabled in step 2 and in step 1's priced select; step 2 size drives `#post_size`. Effect on blueprint step 3m: phase 7. |
 | W9 | WRONG | `point_of_view` never sent; options wrong. Phase 6/12. |
 | W10 | PARTIAL | Server `POST /content-v3/session/clear` + plugin AJAX exist (phase 1); modal wiring phase 12. |
 | W11 | PARTIAL | Phase 8. |
@@ -115,15 +115,16 @@ Real run 14 Nov ("water heater repair Española", Española NM): town call thin 
 ### P — Planner
 | ID | Status | Note |
 |---|---|---|
-| P1 | PARTIAL | System prompt byte-equal to the doc; now through model-call.ts. Replacing `content_v3_intelligence` in the Writer chain: phase 8. |
+| P1 | PARTIAL | Byte-equal to the doc, low-cost model, runs on Approve. Replacing `content_v3_intelligence` in the Writer chain: phase 8. |
 | P2 | DONE | |
-| P3 | PARTIAL | Phase 5. |
-| P4 | WRONG | Phase 5. |
-| P5 | PARTIAL | Phase 5. |
+| P3 | DONE | JSON, size ≥ minimum, FAQ 1–5 with evidence (C2), no FAQ repeating a body question, ≤2 owner questions; 3 attempts. |
+| P4 | DONE | Fallback plan after 3 failures (keyword type guess, minimum size, no owner questions, no profile); the article can still be generated. |
+| P5 | DONE | `/wizard/approve` returns only type, size + reason + minimum, owner questions, regulated line; the rest stays in the session for the Writer. |
 | P6 | DONE (fields) / WRONG (prompt) | Phase 11. |
 
 ### G, B, N, WR, V, U, X, BULK, BUG, K
 Unchanged from Phase 0 except:
+- **G2** DONE: regulated topics list = the doc's table (test compares with the doc), exclusions, editable registry setting `content_v3_regulated_topics`; list OR Planner suggests; single wizard Keep / Turn off.
 - **WR3** PARTIAL: the backup and replace mechanism exists (phase 1); the new Writer text lands in phase 8.
 - **WR9** PARTIAL: the wrapper sends the system block with `cache_control`, and the log line records `cache_read` per call, so cached tokens on the second article will be visible in the logs.
 - **K1, K2, K4** DONE; **K3** DONE (step level); **K5** WRONG (phase 11).
@@ -167,6 +168,13 @@ Unchanged from Phase 0 except:
 - Local E2E 14 Nov (real DataForSEO + Claude, local server, v3 on): title 11 s; Regenerate reused the session search data and read 1,533 cached prompt tokens; "Not about a specific location" names no town; no console errors. With "Use Content v3" off the wizard loads no v3 script and no town field.
 - Known, pre-existing, outside v3 code (to fix before the gate, phase 13): `wp_enqueue_script` notice for the `custom-plugin-script` handle, undefined `$task` / `$word_ai_email` in `views/posting/create-post-single.php` and `form.php`, `foreach` on false in `modules/GenerateAIpopup.php:398-504`.
 
+## Phase 5 notes
+
+- `<minimum_size>`: smallest size whose body budget (doc targets 900/1,800/3,000 minus fixed 380/450/540) holds the title's items at 60 words each; Small otherwise. Working rule until doc C.
+- Fallback plan's FAQ candidates are the search data's People Also Ask questions (real questions, local first); body questions empty.
+- The regulated line does not mention a disclaimer while the disclaimer texts (G4) do not exist.
+- E2E 14 Nov: approve 33 s (Planner 27 s on claude-sonnet-5 with adaptive thinking, ~2.8k output tokens, $0.035); research skipped (no key) and the step 2 note says so.
+
 ## Next
 
-Phase 5: Approve title → title check → Research → Planner (plugin-auth route), Planner fallback after 3 failures, step 2 UI (article type, size with size_reason and minimum, owner questions, regulated Keep / Turn off), regulated topics list. P1–P6, W3, W7, W8, G2.
+Phase 6: niche profile (8 profiles, mapping, watchlists, default proof levels, Standard/Regulated pieces, type adjustments, `<niche_profile>` block), business proof level in Business details (never silent), Witty hidden for regulated niches, POV dropdown, disclaimer settings (texts blocked). N1–N5, G1, G3–G6, W9.

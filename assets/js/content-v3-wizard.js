@@ -189,7 +189,196 @@
       });
   };
 
+  /* ----------------------------------------------------------------------------------
+   * Approve title → step 2 (W3, W7, W8). Runs when the user leaves step 1, after the
+   * existing title approval and credit check. The plan is cached per title + keyword + town
+   * so going back and forward does not plan twice.
+   * ---------------------------------------------------------------------------------- */
+  var SIZE_VALUES = { small: '600 to 1200 words', medium: '1200 to 2400 words', large: '2400 to 3600 words' };
+  var SIZE_ORDER = ['small', 'medium', 'large'];
+  var lastApproveSig = '';
+  window.iseoV3Plan = null;
+
+  function approvedTitle() {
+    if ($('#seed_select').val() === 'seed_option1') {
+      return seedKeyword(); // "Exact Keyword as Title"
+    }
+    return ($('#maintitlearea').val() || '').trim();
+  }
+
+  function sizeKeyFromValue(v) {
+    for (var k in SIZE_VALUES) {
+      if (Object.prototype.hasOwnProperty.call(SIZE_VALUES, k) && SIZE_VALUES[k] === v) {
+        return k;
+      }
+    }
+    return '';
+  }
+
+  /** W8: sizes below the minimum cannot be chosen, in step 2 and in step 1's priced select. */
+  function applyMinimumSize(minimum) {
+    var minIdx = Math.max(0, SIZE_ORDER.indexOf(minimum));
+    $('#iseo_v3_post_size option').each(function () {
+      $(this).prop('disabled', SIZE_ORDER.indexOf(this.value) < minIdx);
+    });
+    $('#post_size option').each(function () {
+      var key = sizeKeyFromValue(this.value);
+      $(this).prop('disabled', key !== '' && SIZE_ORDER.indexOf(key) < minIdx);
+    });
+  }
+
+  function setSize(key) {
+    if (!SIZE_VALUES[key]) {
+      return;
+    }
+    $('#iseo_v3_post_size').val(key);
+    // #post_size is what the credit estimate and the generation read; keep it in step.
+    $('#post_size').val(SIZE_VALUES[key]).trigger('change');
+  }
+
+  function renderPlan(d) {
+    var plan = d.plan || {};
+    $('#iseo_v3_article_type').val(plan.article_type || 'topic');
+    applyMinimumSize(plan.minimum_size || 'small');
+    setSize(plan.post_size || plan.minimum_size || 'small');
+    $('#iseo_v3_size_reason').text(plan.size_reason || '');
+
+    var $q = $('#iseo_v3_owner_questions').empty();
+    (plan.owner_questions || []).forEach(function (question, i) {
+      var id = 'iseo_v3_owner_answer_' + i;
+      var $field = $('<div class="seo-form-field iseo-v3-owner-q"></div>');
+      $field.append($('<label></label>').attr('for', id).text(question));
+      $field.append($('<textarea class="form-control" rows="2" maxlength="600"></textarea>').attr('id', id).attr('data-question', question).attr('placeholder', t.ownerPlaceholder || ''));
+      $q.append($field);
+    });
+    if ((plan.owner_questions || []).length) {
+      $q.prepend($('<p style="margin:0 0 6px;font-weight:600;"></p>').text(t.ownerHeading || ''));
+    }
+
+    var r = d.regulated || {};
+    if (r.suggested) {
+      var text;
+      if (r.by === 'business') {
+        text = t.regulatedBusiness;
+      } else if (r.phrase) {
+        text = sprintf2(t.regulatedTopic, r.phrase, '');
+      } else {
+        text = sprintf2(t.regulatedPlanner, r.reason || t.regulatedGeneric, '');
+      }
+      $('#iseo_v3_regulated_text').text(text);
+      $('input[name="iseo_v3_regulated_choice"][value="keep"]').prop('checked', true);
+      $('#iseo_v3_regulated').show();
+    } else {
+      $('#iseo_v3_regulated').hide();
+    }
+
+    var notes = [];
+    if (d.fallback) {
+      notes.push(t.planFallback);
+    }
+    if (d.research && d.research.status && d.research.status !== 'ok') {
+      notes.push(t.researchSkipped);
+    }
+    $('#iseo_v3_plan_note').text(notes.join(' ')).toggle(notes.length > 0);
+    $('#iseo_v3_plan').show();
+  }
+
+  window.iseoV3BeforeAdvance = function () {
+    return new Promise(function (resolve) {
+      if (!window.iseoContentV3 || window.iseoContentV3.active !== '1') {
+        resolve(true);
+        return;
+      }
+      var title = approvedTitle();
+      var kw = seedKeyword();
+      var c = townChoice();
+      if (!c.ok) {
+        var msg = $('#iseo_v3_target_town').val() === '__new' ? t.newTownEmpty : t.chooseTown;
+        $('#error_iseo_v3_target_town').text(msg);
+        notify('warning', msg, t.townHeading);
+        resolve(false);
+        return;
+      }
+      var sig = [title, kw, c.town, c.notAbout ? '1' : '0'].join('|').toLowerCase();
+      if (sig === lastApproveSig && window.iseoV3Plan) {
+        resolve(true);
+        return;
+      }
+      if (typeof window.ImproveSEOLoading !== 'undefined') {
+        window.ImproveSEOLoading.show({ title: t.planning, message: t.planningMsg });
+      }
+      $.ajax({
+        url: cfg.ajaxUrl,
+        type: 'POST',
+        timeout: 450000,
+        data: {
+          action: 'improveseo_v3_approve_title',
+          nonce: cfg.nonce,
+          session_key: sessionKey(),
+          title: title,
+          seed_keyword: kw,
+          target_town: c.town,
+          not_about_location: c.notAbout ? '1' : '0',
+          language: $('#language').val() || '',
+          niche: nicheLabel()
+        }
+      })
+        .done(function (res) {
+          hideLoading();
+          if (res && res.success && res.data && res.data.fallback === 'v2') {
+            window.iseoContentV3.active = '0';
+            resolve(true);
+            return;
+          }
+          if (!res || !res.success || !res.data) {
+            notify('error', (res && res.data && res.data.message) || t.planFailed, t.planFailedHeading);
+            resolve(false);
+            return;
+          }
+          window.iseoV3Plan = res.data;
+          lastApproveSig = sig;
+          renderPlan(res.data);
+          if (res.data.title_notes && res.data.title_notes.length) {
+            notify('info', res.data.title_notes.join(' '), t.titleNotesHeading);
+          }
+          resolve(true);
+        })
+        .fail(function (xhr) {
+          hideLoading();
+          var m = xhr && xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message ? xhr.responseJSON.data.message : t.planFailed;
+          notify('error', m, t.planFailedHeading);
+          resolve(false);
+        });
+    });
+  };
+
+  /** What step 2 decided, for the article request (phase 8). */
+  window.iseoV3StepTwoChoices = function () {
+    var answers = [];
+    $('#iseo_v3_owner_questions textarea').each(function () {
+      var a = ($(this).val() || '').trim();
+      if (a) {
+        answers.push({ question: $(this).attr('data-question') || '', answer: a });
+      }
+    });
+    return {
+      article_type: $('#iseo_v3_article_type').val() || '',
+      post_size: $('#iseo_v3_post_size').val() || '',
+      owner_answers: answers,
+      regulated: $('#iseo_v3_regulated').is(':visible') ? ($('input[name="iseo_v3_regulated_choice"]:checked').val() === 'keep') : null
+    };
+  };
+
   $(function () {
+    $(document).on('change', '#iseo_v3_post_size', function () {
+      setSize($(this).val());
+    });
+    $(document).on('change', '#post_size', function () {
+      var key = sizeKeyFromValue($(this).val());
+      if (key && $('#iseo_v3_post_size').val() !== key) {
+        $('#iseo_v3_post_size').val(key);
+      }
+    });
     $(document).on('change', '#iseo_v3_target_town', function () {
       var isNew = $(this).val() === '__new';
       $('#iseo_v3_new_town').toggle(isNew);
