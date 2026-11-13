@@ -12,8 +12,8 @@ Kept up to date at the end of every phase (brief rule 11), so a fresh session ca
 |---|---|---|---|
 | 0 | Audit and plan | Done, approved 14 Nov | (plan only) |
 | 1 | Foundations: flags, prompt registry, model-call wrapper, cost logging, storage, errors, env list, doc-equality harness | **Done** | see `git log` on each branch |
-| 2 | Search data lookup | Next | |
-| 3 | Title + wizard step 1 | | |
+| 2 | Search data lookup (DataForSEO SERP) | **Done** | server |
+| 3 | Title + wizard step 1 | Next | |
 | 4 | Research (Perplexity) | Blocked on `PERPLEXITY_API_KEY` for the live run; built with mocks | |
 | 5 | Planner + step 2 + regulated topics | | |
 | 6 | Niche profile + proof level | | |
@@ -67,12 +67,23 @@ Statuses: DONE / PARTIAL / WRONG / MISSING / BLOCKED. Evidence for the starting 
 | W14 | PARTIAL | Session store exists (phase 1); reuse phase 12. |
 | W15 | PARTIAL | Phase 3. |
 
-### S — search data lookup
+### S — search data lookup (phase 2, server `src/services/search-data/`)
 | ID | Status | Note |
 |---|---|---|
-| S1–S7, S9–S11 | MISSING | Phase 2. |
-| S8 | DONE | No state-level call exists; keep it that way. |
-| S12 | PARTIAL | `searchDataBlock` matches the doc; caps/dedupe phase 2. |
+| S1 | DONE | Organic live/advanced, depth 10, `people_also_ask_click_depth` 1, language from `<language>` (`languageCodeFor`). |
+| S2 | DONE | Nationwide or "Not about a specific location": one country call. |
+| S3 | DONE (working value) | Town resolved on DataForSEO's locations list; unlisted towns → `SEARCH_DATA_TOWN_ALIASES_JSON` (nearest listed city), else coordinates if given, else one country call, logged. Zaid to confirm the choice. |
+| S4 | DONE | `SEARCH_DATA_THIN_THRESHOLD` (default 3). |
+| S5 | DONE | Country call with the town (and its "in"/state) stripped from the keyword. |
+| S6 | DONE | Local first, dedupe, caps 10/8/8, scoped items; block records location, national_fallback and counts. |
+| S7 | DONE | `meta.local_domains` = LOCAL ranking domains only (for R4). |
+| S8 | DONE | No state-level call. |
+| S9 | DONE | Stored in the wizard session (`sessionSearchData`), reused on Regenerate title; one `[search-data]` log line with both calls' counts. |
+| S10 | DONE (working value) | Town in keyword detected on the locations list; one-word towns only after in/near/around or before a state. |
+| S11 | DONE | Shared DataForSEO client (`assertAllowedPath`: Labs + exactly the two SERP paths), cost per call in `[dataforseo]` lines. |
+| S12 | DONE | Existing `searchDataBlock` fed by the lookup; real run output matches the doc's shape. |
+
+Real run 14 Nov ("water heater repair Española", Española NM): town call thin → country call → merged t10/q8/r5, $0.0043, 5.3 s; field names confirmed.
 
 ### T — Title
 | ID | Status | Note |
@@ -141,4 +152,4 @@ Unchanged from Phase 0 except:
 
 ## Next
 
-Phase 2: search data lookup (DataForSEO SERP), S1–S12.
+Phase 3: Title step for the wizard (plugin-auth v3 title route: search data → Title, previous titles, title only to the user) and wizard step 1 (Target town, town check line), T1–T9, W2, W5, W6, W12, W15.
