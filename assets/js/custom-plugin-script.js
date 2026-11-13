@@ -1869,7 +1869,13 @@ function resetSmartWizard() {
 }
 
 // Function to generate AI title
-function generateAITitle() {
+function generateAITitle(opts) {
+  // Content v3: when the site and the server both have it on, assets/js/content-v3-wizard.js
+  // generates the title (search data lookup, then the v3 Title prompt). It calls back here with
+  // forceV2 when the server says v3 is off, so the v2 path below runs unchanged.
+  if (!(opts && opts.forceV2) && window.iseoContentV3 && window.iseoContentV3.active === "1" && typeof window.iseoV3GenerateTitle === "function") {
+    return window.iseoV3GenerateTitle();
+  }
   // Generating a title spends credits, so an unconnected site is stopped here with the same
   // modal the bulk flow shows. Without this the request went out, came back as an empty 200
   // (improveseo_call_auxiliary_api bails when there are no credentials) and surfaced as a

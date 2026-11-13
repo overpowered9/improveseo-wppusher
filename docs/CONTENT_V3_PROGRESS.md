@@ -13,8 +13,8 @@ Kept up to date at the end of every phase (brief rule 11), so a fresh session ca
 | 0 | Audit and plan | Done, approved 14 Nov | (plan only) |
 | 1 | Foundations: flags, prompt registry, model-call wrapper, cost logging, storage, errors, env list, doc-equality harness | **Done** | see `git log` on each branch |
 | 2 | Search data lookup (DataForSEO SERP) | **Done** | server |
-| 3 | Title + wizard step 1 | Next | |
-| 4 | Research (Perplexity) | Blocked on `PERPLEXITY_API_KEY` for the live run; built with mocks | |
+| 3 | Title + wizard step 1 | **Done** | server + plugin |
+| 4 | Research (Perplexity) | Next. Blocked on `PERPLEXITY_API_KEY` for the live run; built with mocks | |
 | 5 | Planner + step 2 + regulated topics | | |
 | 6 | Niche profile + proof level | | |
 | 7 | Blueprint + admin tester panel | | |
@@ -52,20 +52,20 @@ Statuses: DONE / PARTIAL / WRONG / MISSING / BLOCKED. Evidence for the starting 
 | ID | Status | Note |
 |---|---|---|
 | W1 | BLOCKED | Keyword check rules are in the missing "Single wizard: input fields" doc. |
-| W2 | PARTIAL | Phase 3. |
+| W2 | DONE (generated title) | Generate title → `improveseo_v3_generate_title` → server `/content-v3/wizard/title` (search data → Title). Typed title: lookup on Approve, phase 5. |
 | W3 | MISSING | Phase 5. |
 | W4 | MISSING | Phase 8. |
-| W5 | MISSING | Phase 3. |
-| W6 | MISSING | Phase 3. |
+| W5 | DONE | Target town select for a local business: saved towns (Business details), "A new town…", "Not about a specific location"; required before Generate. Preselected only when the site has exactly one saved town. |
+| W6 | DONE | `/wizard/town-check` (free) on keyword/town change and with the title; one line under the town. |
 | W7 | MISSING | Phase 5. |
 | W8 | MISSING | Phase 5. |
 | W9 | WRONG | `point_of_view` never sent; options wrong. Phase 6/12. |
 | W10 | PARTIAL | Server `POST /content-v3/session/clear` + plugin AJAX exist (phase 1); modal wiring phase 12. |
 | W11 | PARTIAL | Phase 8. |
-| W12 | WRONG | Phase 3. |
+| W12 | DONE | Regenerate sends the session's earlier titles for this keyword; search data reused from the session (E2E: `session hit`, no second DataForSEO charge). |
 | W13 | PARTIAL | Phase 12. |
 | W14 | PARTIAL | Session store exists (phase 1); reuse phase 12. |
-| W15 | PARTIAL | Phase 3. |
+| W15 | DONE | Only `title` returned; form/items/main_concern/page_kind logged (`[content-v3] title …`) and stored in the session. |
 
 ### S — search data lookup (phase 2, server `src/services/search-data/`)
 | ID | Status | Note |
@@ -90,11 +90,11 @@ Real run 14 Nov ("water heater repair Española", Española NM): town call thin 
 |---|---|---|
 | T1 | DONE | Byte-equal to the doc by section heading (`doc-equality.test.ts`). Production DB must be seeded with `?mode=replace` and `GET /prompts/check` must say `all_equal`. |
 | T2 | DONE | Writing model. |
-| T3 | PARTIAL | Phase 3. |
+| T3 | DONE (working value) | `<max_list_items>` 15 (doc C size table missing; 15 is the doc's cap) and `<previous_titles>` from the session. |
 | T4 | DONE | |
-| T5 | PARTIAL | Phase 3/6. |
-| T6 | DONE (server) | Now through model-call.ts with timeout + per-attempt log. Plugin side phase 3. |
-| T7 | PARTIAL | Phase 3. |
+| T5 | PARTIAL | Sent when Business details has a proof level (`improveseo_business_proof_level`, phase 6 adds the field). |
+| T6 | DONE | Server: 3 attempts through model-call.ts; after 3 failures the route answers an empty title + plain message and the wizard leaves the box empty. |
+| T7 | DONE | Parsed and validated (`normalizeTitleOutput`/`validateTitleOutput`). |
 | T8 | DONE (finding) | Today's title prompt is hard-coded server-side (`generation.routes.ts`, aux type `title`); v3 Title is template `content_v3_title`. |
 | T9 | WRONG | Phase 11 (V2 must be V1 verbatim + one appended block). |
 
@@ -150,6 +150,13 @@ Unchanged from Phase 0 except:
 | Apply migration 023 (and 022) in Supabase | sessions + history in production | Team lead |
 | Run `POST /content-v3/prompts/seed?mode=replace` after deploy; `GET /prompts/check` must say `all_equal` | gate item 2 | Team lead |
 
+## Phase 3 notes
+
+- Business details gains "Who does the business serve?" (`improveseo_business_reach`, local/nationwide; unset = derived from business type) and "Towns you serve" (`improveseo_business_towns`, one per line).
+- The wizard's "Select Title Type" stays as it is. Under v3, "Question-Style" generates through the same v3 Title prompt (the prompt chooses the form itself; no new prompt text is allowed to force it). "Exact Keyword as Title" generates nothing; the lookup runs on Approve (phase 5). **For the team lead:** keep or hide "Question-Style" under v3?
+- Local E2E 14 Nov (real DataForSEO + Claude, local server, v3 on): title 11 s; Regenerate reused the session search data and read 1,533 cached prompt tokens; "Not about a specific location" names no town; no console errors. With "Use Content v3" off the wizard loads no v3 script and no town field.
+- Known, pre-existing, outside v3 code (to fix before the gate, phase 13): `wp_enqueue_script` notice for the `custom-plugin-script` handle, undefined `$task` / `$word_ai_email` in `views/posting/create-post-single.php` and `form.php`, `foreach` on false in `modules/GenerateAIpopup.php:398-504`.
+
 ## Next
 
-Phase 3: Title step for the wizard (plugin-auth v3 title route: search data → Title, previous titles, title only to the user) and wizard step 1 (Target town, town check line), T1–T9, W2, W5, W6, W12, W15.
+Phase 4: Research (Perplexity Agent API), R1–R10. Built and tested with a mocked provider; the live run waits for `PERPLEXITY_API_KEY`, model and effort level.

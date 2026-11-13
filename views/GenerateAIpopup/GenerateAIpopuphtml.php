@@ -803,6 +803,37 @@ global $ai_modal_type;
                         <input type="hidden" name="iseo_keyword_list" id="iseo_keyword_list" value="<?php echo esc_attr( $iseo_kw_list_id ); ?>">
                     </div>
                     <?php
+                    // Content v3, W5/W6: a local business chooses the post's Target town (a saved town, a
+                    // new one, or "Not about a specific location"). Rendered only while v3 is active
+                    // (modules/content-v3.php), so the v2 wizard is unchanged. assets/js/content-v3-wizard.js
+                    // sends the choice with Generate title and shows the town check line.
+                    if ( function_exists( 'improveseo_content_v3_active' ) && improveseo_content_v3_active() && 'local' === improveseo_business_reach() ) :
+                        $iseo_v3_towns = improveseo_business_towns();
+                        ?>
+                    <div class="seo-form-field" id="iseo_v3_town_wrap">
+                        <label for="iseo_v3_target_town"><?php esc_html_e( 'Target town', 'improveseo' ); ?>
+                            <span class="iseo-info-tip" tabindex="0" role="button" aria-label="<?php esc_attr_e( 'What is the Target town?', 'improveseo' ); ?>">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
+                                    <strong><?php esc_html_e( 'Which town is this post for?', 'improveseo' ); ?></strong>
+                                    <?php esc_html_e( 'We look up what people in this town search for before writing the title. Choose "Not about a specific location" for a general topic.', 'improveseo' ); ?>
+                                </span>
+                            </span>
+                        </label>
+                        <select class="form-control" id="iseo_v3_target_town" name="iseo_v3_target_town" style="max-width:100% !important;">
+                            <option value=""<?php selected( count( $iseo_v3_towns ) !== 1 ); ?>><?php esc_html_e( '— Choose the town this post is about —', 'improveseo' ); ?></option>
+                            <?php foreach ( $iseo_v3_towns as $iseo_v3_i => $iseo_v3_town ) : ?>
+                                <option value="<?php echo esc_attr( $iseo_v3_town ); ?>"<?php selected( 1 === count( $iseo_v3_towns ) && 0 === $iseo_v3_i ); ?>><?php echo esc_html( $iseo_v3_town ); ?></option>
+                            <?php endforeach; ?>
+                            <option value="__new"><?php esc_html_e( 'A new town…', 'improveseo' ); ?></option>
+                            <option value="__none"><?php esc_html_e( 'Not about a specific location', 'improveseo' ); ?></option>
+                        </select>
+                        <input type="text" class="form-control" id="iseo_v3_new_town" maxlength="120" placeholder="<?php esc_attr_e( 'Town, ST (for example Española, NM)', 'improveseo' ); ?>" style="display:none;margin-top:6px;">
+                        <span id="error_iseo_v3_target_town" style="color: red;"></span>
+                        <div id="iseo_v3_town_check" class="iseo-v3-town-check" style="display:none;font-size:12px;color:#92400e;margin-top:4px;" aria-live="polite"></div>
+                    </div>
+                    <?php endif; ?>
+                    <?php
                     // Pre-select the niche from the onboarding business type when it maps cleanly.
                     // Token => niche key; first substring match of the business type wins.
                     $iseo_prefill_niche = '';

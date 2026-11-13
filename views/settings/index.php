@@ -253,6 +253,26 @@ $iseo_saved_pill = '<span class="iseo-save-status" role="status" data-autohide="
                                 <span class="iseo-helper-text">Used for local SEO targeting in AI-generated content</span>
                             </div>
 
+                            <?php
+                            // Content v3: reach and served towns. Shown always (harmless with v3 off) so the
+                            // details are ready when the site switches v3 on.
+                            $iseo_reach = function_exists( 'improveseo_business_reach' ) ? improveseo_business_reach() : 'local';
+                            ?>
+                            <div class="iseo-field-group">
+                                <label class="iseo-label" for="iseo_business_reach"><?php esc_html_e( 'Who does the business serve?', 'improveseo' ); ?></label>
+                                <select id="iseo_business_reach" name="improveseo_business_reach" class="iseo-select">
+                                    <option value="local" <?php selected( $iseo_reach, 'local' ); ?>><?php esc_html_e( 'Local: customers in specific towns', 'improveseo' ); ?></option>
+                                    <option value="nationwide" <?php selected( $iseo_reach, 'nationwide' ); ?>><?php esc_html_e( 'Nationwide: customers anywhere in the country', 'improveseo' ); ?></option>
+                                </select>
+                                <span class="iseo-helper-text"><?php esc_html_e( 'Content v3 uses this to look up local or nationwide search results.', 'improveseo' ); ?></span>
+                            </div>
+
+                            <div class="iseo-field-group">
+                                <label class="iseo-label" for="iseo_business_towns"><?php esc_html_e( 'Towns you serve', 'improveseo' ); ?></label>
+                                <textarea id="iseo_business_towns" class="iseo-input" rows="3" placeholder="<?php esc_attr_e( "One per line, e.g.\nEspañola, NM\nSanta Fe, NM", 'improveseo' ); ?>" name="improveseo_business_towns"><?php echo esc_textarea( (string) get_option( 'improveseo_business_towns', '' ) ); ?></textarea>
+                                <span class="iseo-helper-text"><?php esc_html_e( 'Offered as the Target town when you write a post. Add the state (e.g. "Española, NM") so the right town is found.', 'improveseo' ); ?></span>
+                            </div>
+
                             <div class="iseo-field-group">
                                 <label class="iseo-label" for="iseo_business_service">Main Service or Topic</label>
                                 <input type="text" id="iseo_business_service" class="iseo-input" placeholder="e.g. Plumbing, Wedding Photography, Digital Marketing" name="improveseo_business_service" value="<?php echo esc_attr( get_option('improveseo_business_service', '') ); ?>">

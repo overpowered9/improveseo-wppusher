@@ -43,6 +43,10 @@ function improveseo_init_settings() {
 	register_setting('improveseo_business_settings', 'improveseo_business_type',    array( 'sanitize_callback' => 'sanitize_text_field' ));
 	register_setting('improveseo_business_settings', 'improveseo_business_city',    array( 'sanitize_callback' => 'sanitize_text_field' ));
 	register_setting('improveseo_business_settings', 'improveseo_business_service', array( 'sanitize_callback' => 'sanitize_text_field' ));
+	// Content v3 (modules/content-v3.php): whether the business is local or nationwide (drives the
+	// search data lookup and the Target town question in the wizard), and the towns it serves.
+	register_setting('improveseo_business_settings', 'improveseo_business_reach',   array( 'sanitize_callback' => 'improveseo_sanitize_business_reach', 'default' => '' ));
+	register_setting('improveseo_business_settings', 'improveseo_business_towns',   array( 'sanitize_callback' => 'improveseo_sanitize_business_towns', 'default' => '' ));
 
 	// Featured image toggles
 	// NOTE: these live in their own settings group because they are saved from a

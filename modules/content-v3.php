@@ -204,3 +204,250 @@ function improveseo_ajax_content_v3_clear_session() {
 	$data   = improveseo_content_v3_request( 'POST', '/api/v1/content-v3/session/clear', array( 'session_key' => $key ), $error, $status, 10 );
 	wp_send_json_success( array( 'cleared' => is_array( $data ) && ! empty( $data['cleared'] ) ) );
 }
+
+/* ======================================================================================
+ * Business details for Content v3: reach and served towns (Settings → Business Details).
+ * ====================================================================================*/
+
+/**
+ * @param mixed $value Raw option value.
+ * @return string 'local', 'nationwide' or '' (not chosen yet).
+ */
+function improveseo_sanitize_business_reach( $value ) {
+	$value = is_string( $value ) ? sanitize_key( $value ) : '';
+	return in_array( $value, array( 'local', 'nationwide' ), true ) ? $value : '';
+}
+
+/**
+ * One town per line; each sanitized, duplicates removed, at most 20, at most 120 characters.
+ *
+ * @param mixed $value Raw textarea value.
+ * @return string
+ */
+function improveseo_sanitize_business_towns( $value ) {
+	$lines = preg_split( '/\r\n|\r|\n/', is_string( $value ) ? $value : '' );
+	$out   = array();
+	$seen  = array();
+	foreach ( (array) $lines as $line ) {
+		$town = trim( sanitize_text_field( $line ) );
+		if ( '' === $town ) {
+			continue;
+		}
+		$town = function_exists( 'mb_substr' ) ? mb_substr( $town, 0, 120 ) : substr( $town, 0, 120 );
+		$key  = function_exists( 'mb_strtolower' ) ? mb_strtolower( $town ) : strtolower( $town );
+		if ( isset( $seen[ $key ] ) ) {
+			continue;
+		}
+		$seen[ $key ] = true;
+		$out[]        = $town;
+		if ( count( $out ) >= 20 ) {
+			break;
+		}
+	}
+	return implode( "\n", $out );
+}
+
+/**
+ * Local or nationwide. Unset: derived from the business type chosen at onboarding (online stores,
+ * blogs and software are nationwide; everything else local, which most of these businesses are).
+ *
+ * @return string 'local' or 'nationwide'.
+ */
+function improveseo_business_reach() {
+	$reach = improveseo_sanitize_business_reach( get_option( 'improveseo_business_reach', '' ) );
+	if ( '' !== $reach ) {
+		return $reach;
+	}
+	$type = (string) get_option( 'improveseo_business_type', '' );
+	return in_array( $type, array( 'ecommerce', 'blog', 'saas' ), true ) ? 'nationwide' : 'local';
+}
+
+/**
+ * The towns offered as Target town: the served-towns list, with the business city first when it
+ * is not already in it.
+ *
+ * @return string[]
+ */
+function improveseo_business_towns() {
+	$towns = array_filter( array_map( 'trim', explode( "\n", (string) get_option( 'improveseo_business_towns', '' ) ) ) );
+	$city  = trim( (string) get_option( 'improveseo_business_city', '' ) );
+	if ( '' !== $city ) {
+		$lower = array_map( 'strtolower', $towns );
+		if ( ! in_array( strtolower( $city ), $lower, true ) ) {
+			array_unshift( $towns, $city );
+		}
+	}
+	return array_values( $towns );
+}
+
+/**
+ * "Española, NM" → "NM": the state the business city names, to place a town typed without one.
+ *
+ * @return string
+ */
+function improveseo_business_state_hint() {
+	$city = (string) get_option( 'improveseo_business_city', '' );
+	$parts = array_map( 'trim', explode( ',', $city ) );
+	return isset( $parts[1] ) ? sanitize_text_field( $parts[1] ) : '';
+}
+
+/* ======================================================================================
+ * Wizard step 1: Generate / Regenerate title through Content v3, and the town check line.
+ * ====================================================================================*/
+
+/**
+ * Text field from $_POST, sanitized and trimmed.
+ *
+ * @param string $key Field name.
+ * @param int    $max Max length.
+ * @return string
+ */
+function improveseo_content_v3_post_text( $key, $max = 200 ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- every caller has checked the nonce.
+	$value = isset( $_POST[ $key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) : '';
+	$value = trim( $value );
+	return function_exists( 'mb_substr' ) ? mb_substr( $value, 0, $max ) : substr( $value, 0, $max );
+}
+
+/**
+ * The server answered 409 v3_disabled: forget the cached status so the next page load uses v2,
+ * and tell the browser to fall back now.
+ *
+ * @param int $status HTTP status of the failed request.
+ * @return void
+ */
+function improveseo_content_v3_maybe_fallback( $status ) {
+	if ( 409 === (int) $status ) {
+		improveseo_content_v3_forget_server_status();
+		wp_send_json_success( array( 'fallback' => 'v2' ) );
+	}
+}
+
+add_action( 'wp_ajax_improveseo_v3_generate_title', 'improveseo_ajax_v3_generate_title' );
+function improveseo_ajax_v3_generate_title() {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'improveseo' ) ), 403 );
+	}
+	if ( ! improveseo_content_v3_active() ) {
+		wp_send_json_success( array( 'fallback' => 'v2' ) );
+	}
+
+	$session_key = improveseo_content_v3_session_key( isset( $_POST['session_key'] ) ? $_POST['session_key'] : '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized in improveseo_content_v3_session_key().
+	$keyword     = improveseo_content_v3_post_text( 'seed_keyword', 200 );
+	if ( '' === $session_key || '' === $keyword ) {
+		wp_send_json_error( array( 'message' => __( 'Please enter a seed keyword.', 'improveseo' ) ), 400 );
+	}
+
+	$reach        = improveseo_business_reach();
+	$not_about    = isset( $_POST['not_about_location'] ) && '1' === $_POST['not_about_location']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- compared to a literal.
+	$target_town  = $not_about ? '' : improveseo_content_v3_post_text( 'target_town', 120 );
+	if ( 'local' === $reach && ! $not_about && '' === $target_town ) {
+		wp_send_json_error( array( 'message' => __( 'Choose the town this post is about, or "Not about a specific location".', 'improveseo' ) ), 400 );
+	}
+
+	$body = array(
+		'session_key'        => $session_key,
+		'seed_keyword'       => $keyword,
+		'language'           => improveseo_content_v3_post_text( 'language', 40 ),
+		'niche'              => improveseo_content_v3_post_text( 'niche', 120 ),
+		'reach'              => $reach,
+		'featured_service'   => trim( (string) get_option( 'improveseo_business_service', '' ) ),
+		'target_town'        => $target_town,
+		'not_about_location' => $not_about,
+		'state_hint'         => improveseo_business_state_hint(),
+		'regenerate'         => isset( $_POST['regenerate'] ) && '1' === $_POST['regenerate'], // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- compared to a literal.
+	);
+	$proof = (string) get_option( 'improveseo_business_proof_level', '' );
+	if ( in_array( $proof, array( 'standard', 'regulated' ), true ) ) {
+		$body['proof_level'] = $proof;
+	}
+	// Option B: the keyword data opt-in rides along only when its beta setting is on, exactly as
+	// improveseo_v3_step_fields() documents.
+	if ( function_exists( 'improveseo_v3_step_fields' ) ) {
+		$body = array_merge( $body, improveseo_v3_step_fields( 'title' ) );
+	}
+	$body = array_filter( $body, function ( $v ) {
+		return '' !== $v && null !== $v;
+	} );
+
+	$error  = '';
+	$status = 0;
+	$data   = improveseo_content_v3_request( 'POST', '/api/v1/content-v3/wizard/title', $body, $error, $status, 240 );
+	if ( ! is_array( $data ) ) {
+		improveseo_content_v3_maybe_fallback( $status );
+		wp_send_json_error( array( 'message' => $error ), $status ? $status : 502 );
+	}
+	$d = isset( $data['data'] ) && is_array( $data['data'] ) ? $data['data'] : array();
+	wp_send_json_success( array(
+		'title'      => isset( $d['title'] ) ? sanitize_text_field( (string) $d['title'] ) : '',
+		'failed'     => ! empty( $d['failed'] ),
+		'message'    => isset( $d['message'] ) ? sanitize_text_field( (string) $d['message'] ) : '',
+		'town_check' => isset( $d['town_check'] ) && is_array( $d['town_check'] ) ? array(
+			'keyword_town' => sanitize_text_field( (string) ( isset( $d['town_check']['keyword_town'] ) ? $d['town_check']['keyword_town'] : '' ) ),
+			'target_town'  => sanitize_text_field( (string) ( isset( $d['town_check']['target_town'] ) ? $d['town_check']['target_town'] : '' ) ),
+		) : null,
+	) );
+}
+
+add_action( 'wp_ajax_improveseo_v3_town_check', 'improveseo_ajax_v3_town_check' );
+function improveseo_ajax_v3_town_check() {
+	check_ajax_referer( 'improveseo_ajax', 'nonce' );
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'improveseo' ) ), 403 );
+	}
+	if ( ! improveseo_content_v3_active() ) {
+		wp_send_json_success( array( 'town_check' => null ) );
+	}
+	$keyword = improveseo_content_v3_post_text( 'seed_keyword', 200 );
+	$town    = improveseo_content_v3_post_text( 'target_town', 120 );
+	if ( '' === $keyword || '' === $town ) {
+		wp_send_json_success( array( 'town_check' => null ) );
+	}
+	$error  = '';
+	$status = 0;
+	$data   = improveseo_content_v3_request( 'POST', '/api/v1/content-v3/wizard/town-check', array( 'seed_keyword' => $keyword, 'target_town' => $town ), $error, $status, 15 );
+	$check  = is_array( $data ) && isset( $data['data']['town_check'] ) && is_array( $data['data']['town_check'] ) ? $data['data']['town_check'] : null;
+	wp_send_json_success( array(
+		'town_check' => $check ? array(
+			'keyword_town' => sanitize_text_field( (string) ( isset( $check['keyword_town'] ) ? $check['keyword_town'] : '' ) ),
+			'target_town'  => sanitize_text_field( (string) ( isset( $check['target_town'] ) ? $check['target_town'] : '' ) ),
+		) : null,
+	) );
+}
+
+/**
+ * The v3 wizard script, on the post wizard screen only and only while v3 is active, so a site with
+ * v3 off loads exactly what it loaded before.
+ */
+add_action( 'admin_enqueue_scripts', 'improveseo_content_v3_enqueue', 20 );
+function improveseo_content_v3_enqueue() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading the current admin screen, not acting on input.
+	if ( ! isset( $_GET['page'] ) || 'improveseo_posting' !== sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
+		return;
+	}
+	if ( ! improveseo_content_v3_active() ) {
+		return;
+	}
+	$ver = function_exists( 'improveseo_asset_ver' ) ? improveseo_asset_ver( 'assets/js/content-v3-wizard.js' ) : null;
+	wp_enqueue_script( 'improveseo-content-v3-wizard', IMPROVESEO_DIR . '/assets/js/content-v3-wizard.js', array( 'jquery' ), $ver, true );
+	wp_localize_script( 'improveseo-content-v3-wizard', 'iseoContentV3', array(
+		'active'  => '1',
+		'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+		'nonce'   => wp_create_nonce( 'improveseo_ajax' ),
+		'reach'   => improveseo_business_reach(),
+		'i18n'    => array(
+			'chooseTown'     => __( 'Choose the town this post is about, or "Not about a specific location".', 'improveseo' ),
+			'newTownEmpty'   => __( 'Type the town, for example "Española, NM".', 'improveseo' ),
+			/* translators: 1: town named in the keyword, 2: the chosen Target town. */
+			'townCheck'      => __( 'Your keyword mentions %1$s, but this post is set to %2$s. Please check the town.', 'improveseo' ),
+			'generating'     => __( 'Generating Title...', 'improveseo' ),
+			'generatingMsg'  => __( 'Looking up what people search for, then writing your title.', 'improveseo' ),
+			'failedTitle'    => __( 'Title not generated', 'improveseo' ),
+			'keywordNeeded'  => __( 'Please enter a seed keyword before generating a title.', 'improveseo' ),
+			'keywordHeading' => __( 'Seed Keyword Required', 'improveseo' ),
+			'townHeading'    => __( 'Target town required', 'improveseo' ),
+			'genericError'   => __( 'We couldn\'t generate a title. Please try again.', 'improveseo' ),
+		),
+	) );
+}
