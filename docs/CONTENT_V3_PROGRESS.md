@@ -14,8 +14,8 @@ Kept up to date at the end of every phase (brief rule 11), so a fresh session ca
 | 1 | Foundations: flags, prompt registry, model-call wrapper, cost logging, storage, errors, env list, doc-equality harness | **Done** | see `git log` on each branch |
 | 2 | Search data lookup (DataForSEO SERP) | **Done** | server |
 | 3 | Title + wizard step 1 | **Done** | server + plugin |
-| 4 | Research (Perplexity) | Next. Blocked on `PERPLEXITY_API_KEY` for the live run; built with mocks | |
-| 5 | Planner + step 2 + regulated topics | | |
+| 4 | Research (Perplexity Agent API) | **Done (mocked)**; live run blocked on `PERPLEXITY_API_KEY` | server |
+| 5 | Planner + step 2 + regulated topics | Next | |
 | 6 | Niche profile + proof level | | |
 | 7 | Blueprint + admin tester panel | | |
 | 8 | Writer draft 2 + post-processing + validator + paid v3 route | | |
@@ -98,9 +98,19 @@ Real run 14 Nov ("water heater repair Española", Española NM): town call thin 
 | T8 | DONE (finding) | Today's title prompt is hard-coded server-side (`generation.routes.ts`, aux type `title`); v3 Title is template `content_v3_title`. |
 | T9 | WRONG | Phase 11 (V2 must be V1 verbatim + one appended block). |
 
-### R — Research
-| R1–R9 | MISSING | Phase 4. Needs `PERPLEXITY_API_KEY`, model and effort level. |
-| R10 | PARTIAL | Phase 4. |
+### R — Research (phase 4, server `src/services/research/`)
+| ID | Status | Note |
+|---|---|---|
+| R1 | DONE (mocked) | Agent API `POST /v1/agent`: instructions / input / web_search tool / response_format json_schema / effort; shape checked against Perplexity's docs 14 Nov. |
+| R2 | DONE | Instructions byte-equal to the doc (doc-equality test); input = the doc's data block; schema = the doc's shape as JSON Schema. |
+| R3 | DONE | `user_location { city, region, country }` for a Target town. |
+| R4 | DONE | Denylist of LOCAL ranking domains, max 20, skip list configurable (`RESEARCH_FILTER_SKIP_DOMAINS`). |
+| R5 | DONE | Source numbers mapped to `search_results`; unmatched facts/questions/conditions dropped and counted. |
+| R6 | DONE | Caps 15 / 10 / 6 in code. |
+| R7 | DONE | 3 attempts via model-call.ts; then the run continues without research (also when no key). |
+| R8 | DONE | Stored in the wizard session (`sessionResearch`), reused for Regenerate / Change Image. |
+| R9 | DONE (working value) / BLOCKED (decision) | `PERPLEXITY_EFFORT` (default low), `PERPLEXITY_MODEL`; cost from `usage.cost.total_cost` logged. Zaid to choose model and effort; real cost unknown until the key exists. |
+| R10 | DONE | Tokens S1… on facts, local conditions continue the numbering, `<local_conditions>` inside `<research>`; each token → URL + date. |
 
 ### P — Planner
 | ID | Status | Note |
@@ -159,4 +169,4 @@ Unchanged from Phase 0 except:
 
 ## Next
 
-Phase 4: Research (Perplexity Agent API), R1–R10. Built and tested with a mocked provider; the live run waits for `PERPLEXITY_API_KEY`, model and effort level.
+Phase 5: Approve title → title check → Research → Planner (plugin-auth route), Planner fallback after 3 failures, step 2 UI (article type, size with size_reason and minimum, owner questions, regulated Keep / Turn off), regulated topics list. P1–P6, W3, W7, W8, G2.
