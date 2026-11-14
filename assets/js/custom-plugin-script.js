@@ -588,6 +588,10 @@ function iseoRunContentGeneration() {
       value: form_inputValue,
       action: "getaaldata",
       nonce: typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "",
+      // Content v3: one id per article click, kept until an article arrives, so a retry after a
+      // timeout gets the article the server already made instead of paying for it again.
+      request_id: (window.iseoV3RequestId =
+        window.iseoV3RequestId || "iseo_rq_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 12)),
     }, // Send the captured value to the server
 
     complete: function () {
@@ -635,6 +639,9 @@ function iseoRunContentGeneration() {
         }
         return;
       }
+
+      // An article arrived: the next Generate or Regenerate is a new request.
+      window.iseoV3RequestId = null;
 
       var searchData = response.data.search_data;
 

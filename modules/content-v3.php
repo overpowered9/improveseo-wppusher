@@ -93,6 +93,7 @@ function improveseo_content_v3_request( $method, $path, $body = null, &$error = 
 	if ( is_wp_error( $response ) ) {
 		error_log( 'improveseo_content_v3_request: HTTP error for ' . $path . ' — ' . $response->get_error_message() );
 		$error = __( 'Could not reach the ImproveSEO server. Check this site\'s internet connection and try again.', 'improveseo' );
+		improveseo_content_v3_last_response( array( 'status' => 0, 'code' => '' ) );
 		return null;
 	}
 
@@ -111,10 +112,28 @@ function improveseo_content_v3_request( $method, $path, $body = null, &$error = 
 		} else {
 			$error = __( 'Something went wrong on the ImproveSEO server. Please try again.', 'improveseo' );
 		}
+		improveseo_content_v3_last_response( array( 'status' => $status, 'code' => $code ) );
 		return null;
 	}
 
+	improveseo_content_v3_last_response( array( 'status' => $status, 'code' => '' ) );
 	return $data;
+}
+
+/**
+ * The status and error code of the last server answer in this request (B-7): bulk tells a server
+ * outage (status 0 or 5xx: pause, don't count an attempt) from a real failure, and a switched-off
+ * v3 (409) from an error. Pass an array to set it.
+ *
+ * @param array|null $set array( 'status' => int, 'code' => string ).
+ * @return array{status: int, code: string}
+ */
+function improveseo_content_v3_last_response( $set = null ) {
+	static $last = array( 'status' => -1, 'code' => '' );
+	if ( is_array( $set ) ) {
+		$last = array( 'status' => (int) $set['status'], 'code' => (string) $set['code'] );
+	}
+	return $last;
 }
 
 /**
@@ -145,16 +164,30 @@ function improveseo_content_v3_server_status( $force = false ) {
 			'reached'           => true,
 		);
 		set_transient( IMPROVESEO_CONTENT_V3_STATUS_TRANSIENT, $result, 5 * MINUTE_IN_SECONDS );
+		// B-8: remembered, so one slow check cannot switch a running wizard or batch to v2.
+		update_option( 'improveseo_content_v3_last_good', array_merge( $result, array( 'at' => time() ) ), false );
 		return $result;
 	}
 
-	// Unreachable, an old server without the route (404), or a rejected key: v2 for now, ask again soon.
-	$result = array(
-		'enabled'           => false,
-		'keyword_data'      => false,
-		'disclaimer_niches' => array(),
-		'reached'           => false,
-	);
+	// The check failed (a slow server, a cold start, a network blip). B-8: keep the last answer the
+	// server gave (for up to a day) instead of switching v3 off for a minute; only a server that
+	// says v3 is off, or has never answered, means v2. Ask again in a minute.
+	$last = get_option( 'improveseo_content_v3_last_good', array() );
+	if ( is_array( $last ) && isset( $last['enabled'], $last['at'] ) && time() - (int) $last['at'] < DAY_IN_SECONDS ) {
+		$result = array(
+			'enabled'           => ! empty( $last['enabled'] ),
+			'keyword_data'      => ! empty( $last['keyword_data'] ),
+			'disclaimer_niches' => isset( $last['disclaimer_niches'] ) && is_array( $last['disclaimer_niches'] ) ? $last['disclaimer_niches'] : array(),
+			'reached'           => false,
+		);
+	} else {
+		$result = array(
+			'enabled'           => false,
+			'keyword_data'      => false,
+			'disclaimer_niches' => array(),
+			'reached'           => false,
+		);
+	}
 	set_transient( IMPROVESEO_CONTENT_V3_STATUS_TRANSIENT, $result, MINUTE_IN_SECONDS );
 	return $result;
 }
@@ -934,8 +967,11 @@ function improveseo_content_v3_generate_article( array $arr, $title ) {
 	}
 	$tone = isset( $arr['content_type'] ) ? sanitize_key( $arr['content_type'] ) : '';
 
+	// B-3: the wizard's per-click request id (kept until an article arrives): a retry replays.
+	$request_id = isset( $_POST['request_id'] ) ? sanitize_text_field( wp_unslash( $_POST['request_id'] ) ) : '';
 	$body = array(
 		'session_key'      => $session_key,
+		'request_id'       => preg_match( '/^[A-Za-z0-9_-]{8,120}$/', $request_id ) ? $request_id : null,
 		'post_size'        => $size,
 		'article_type'     => isset( $arr['iseo_v3_article_type'] ) && in_array( $arr['iseo_v3_article_type'], array( 'cost', 'decision', 'question', 'topic' ), true ) ? $arr['iseo_v3_article_type'] : null,
 		'regulated'        => $regulated,
@@ -1044,7 +1080,9 @@ const IMPROVESEO_BULK_MAX_ATTEMPTS = 3;
  */
 function improveseo_ensure_bulk_v3_columns() {
 	global $wpdb;
-	if ( 'ready' === get_option( 'improveseo_bulk_v3_cols' ) ) {
+	// 'ready2' adds the lease, retry-time and request-id columns (B-7) to 'ready' (attempts,
+	// last_error, v3_review), so an install that already ran the first version gets them too.
+	if ( 'ready2' === get_option( 'improveseo_bulk_v3_cols' ) ) {
 		return;
 	}
 	$table = $wpdb->prefix . 'improveseo_bulktasksdetails';
@@ -1065,13 +1103,167 @@ function improveseo_ensure_bulk_v3_columns() {
 	if ( ! in_array( 'v3_review', $cols, true ) ) {
 		$adds[] = 'ADD COLUMN `v3_review` TEXT NULL DEFAULT NULL';
 	}
+	$more = array(
+		'lease_token'     => 'ADD COLUMN `lease_token` VARCHAR(40) NULL DEFAULT NULL',
+		'lease_until'     => 'ADD COLUMN `lease_until` DATETIME NULL DEFAULT NULL',
+		'next_attempt_at' => 'ADD COLUMN `next_attempt_at` DATETIME NULL DEFAULT NULL',
+		'v3_request_id'   => 'ADD COLUMN `v3_request_id` VARCHAR(120) NULL DEFAULT NULL',
+	);
+	foreach ( $more as $col => $sql ) {
+		if ( ! in_array( $col, $cols, true ) ) {
+			$adds[] = $sql;
+		}
+	}
 	if ( $adds ) {
 		$wpdb->query( "ALTER TABLE `$table` " . implode( ', ', $adds ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name
 		$cols = $wpdb->get_col( "SHOW COLUMNS FROM `$table`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name
 	}
-	if ( is_array( $cols ) && ! array_diff( array( 'attempts', 'last_error', 'v3_review' ), $cols ) ) {
-		update_option( 'improveseo_bulk_v3_cols', 'ready', true );
+	if ( is_array( $cols ) && ! array_diff( array( 'attempts', 'last_error', 'v3_review', 'lease_token', 'lease_until', 'next_attempt_at', 'v3_request_id' ), $cols ) ) {
+		update_option( 'improveseo_bulk_v3_cols', 'ready2', true );
 	}
+}
+
+/** B-7: a claimed task's lease (minutes): longer than the longest v3 task (title + approve + article ≈ 21 min). */
+if ( ! defined( 'IMPROVESEO_BULK_LEASE_MINUTES' ) ) {
+	define( 'IMPROVESEO_BULK_LEASE_MINUTES', 30 );
+}
+
+/**
+ * B-7: refresh a claimed task's lease between steps. False when another run took the task (its
+ * lease expired), so this run stops instead of writing over it.
+ *
+ * @param object $task Row of improveseo_bulktasksdetails, with lease_token set by the claim.
+ * @return bool
+ */
+function improveseo_bulk_heartbeat( $task ) {
+	global $wpdb;
+	if ( empty( $task->lease_token ) ) {
+		return true;
+	}
+	$n = $wpdb->query(
+		$wpdb->prepare(
+			"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails` SET lease_until = DATE_ADD(NOW(), INTERVAL %d MINUTE), updated_at = NOW() WHERE id = %d AND lease_token = %s",
+			IMPROVESEO_BULK_LEASE_MINUTES,
+			(int) $task->id,
+			(string) $task->lease_token
+		)
+	);
+	return 1 === (int) $n;
+}
+
+/** The WHERE for a write by the run that holds the task (B-7). */
+function improveseo_bulk_owner_where( $task ) {
+	$where = array( 'id' => (int) $task->id );
+	if ( ! empty( $task->lease_token ) ) {
+		$where['lease_token'] = (string) $task->lease_token;
+	}
+	return $where;
+}
+
+/**
+ * B-7: the server could not be reached (or answered 5xx). Not the task's fault: no attempt is
+ * counted, the task waits, and the whole queue pauses with a growing wait (1, 2, 4 … 30 min) so an
+ * outage cannot burn every task's attempts. The request id is kept: the server may have finished.
+ *
+ * @param object $task   The task.
+ * @param string $reason Shown on the task details screen.
+ */
+function improveseo_bulk_task_outage( $task, $reason ) {
+	global $wpdb;
+	$pause = get_option( 'improveseo_bulk_pause', array() );
+	$level = is_array( $pause ) && isset( $pause['level'] ) ? min( 5, (int) $pause['level'] + 1 ) : 0;
+	$wait  = min( 1800, 60 * ( 2 ** $level ) );
+	update_option( 'improveseo_bulk_pause', array( 'until' => time() + $wait, 'level' => $level ), false );
+	$wpdb->update(
+		$wpdb->prefix . 'improveseo_bulktasksdetails',
+		array(
+			'status'          => 'Pending',
+			'last_error'      => (string) $reason,
+			'next_attempt_at' => gmdate( 'Y-m-d H:i:s', time() + $wait ),
+			'lease_token'     => null,
+			'lease_until'     => null,
+			'updated_at'      => current_time( 'mysql' ),
+		),
+		improveseo_bulk_owner_where( $task )
+	);
+	if ( function_exists( 'my_plugin_log' ) ) {
+		my_plugin_log( 'bulk task ' . (int) $task->id . ' paused (server unreachable), queue resumes in ' . $wait . ' s | ' . $reason );
+	}
+}
+
+/** B-7: is the queue paused after a server outage? */
+function improveseo_bulk_paused() {
+	$pause = get_option( 'improveseo_bulk_pause', array() );
+	return is_array( $pause ) && isset( $pause['until'] ) && (int) $pause['until'] > time();
+}
+
+/** B-7: the server answered again: lift the pause. */
+function improveseo_bulk_unpause() {
+	if ( false !== get_option( 'improveseo_bulk_pause', false ) ) {
+		delete_option( 'improveseo_bulk_pause' );
+	}
+}
+
+/**
+ * B-7: the server switched v3 off for this request (409 v3_disabled, or v3_regulated_disabled for a
+ * Regulated business without a disclaimer): the task goes back to the queue without counting an
+ * attempt and the cached status is dropped, so the next run generates it through v2.
+ *
+ * @param object $task The task.
+ */
+function improveseo_bulk_task_requeue_v2( $task ) {
+	global $wpdb;
+	improveseo_content_v3_forget_server_status();
+	$wpdb->update(
+		$wpdb->prefix . 'improveseo_bulktasksdetails',
+		array( 'status' => 'Pending', 'lease_token' => null, 'lease_until' => null, 'v3_request_id' => null, 'updated_at' => current_time( 'mysql' ) ),
+		improveseo_bulk_owner_where( $task )
+	);
+	if ( function_exists( 'my_plugin_log' ) ) {
+		my_plugin_log( 'bulk task ' . (int) $task->id . ': the server answered v3 off — requeued for v2' );
+	}
+}
+
+/**
+ * B-7: decide what a failed v3 call means for the task, from the last server answer: an outage
+ * pauses, a switched-off v3 requeues for v2, anything else is a counted failure.
+ *
+ * @param object $task   The task.
+ * @param string $reason The failure text.
+ * @param array  $keep   Columns to keep (as improveseo_bulk_task_failed).
+ * @param bool   $final  Fail at once (no credits, not connected).
+ * @return void
+ */
+function improveseo_bulk_v3_failure( $task, $reason, array $keep = array(), $final = false ) {
+	$last = improveseo_content_v3_last_response();
+	if ( 0 === $last['status'] || $last['status'] >= 500 ) {
+		improveseo_bulk_task_outage( $task, __( 'The ImproveSEO server could not be reached; this post will be retried automatically.', 'improveseo' ) );
+		return;
+	}
+	if ( 409 === $last['status'] && in_array( $last['code'], array( 'v3_disabled', 'v3_regulated_disabled' ), true ) ) {
+		improveseo_bulk_task_requeue_v2( $task );
+		return;
+	}
+	improveseo_bulk_task_failed( $task, $reason, $keep, $final );
+}
+
+/**
+ * B-3/B-7: the task's article request id: created once, kept until the article is saved to the
+ * task (or a definite failure), so a run that dies after the server finished replays that article
+ * instead of buying it again.
+ *
+ * @param object $task The task.
+ * @return string
+ */
+function improveseo_bulk_v3_request_id( $task ) {
+	global $wpdb;
+	if ( ! empty( $task->v3_request_id ) && preg_match( '/^[A-Za-z0-9_-]{8,120}$/', (string) $task->v3_request_id ) ) {
+		return (string) $task->v3_request_id;
+	}
+	$id = 'iseo_bulk_t' . absint( $task->id ) . '_' . strtolower( wp_generate_password( 12, false, false ) );
+	$wpdb->update( $wpdb->prefix . 'improveseo_bulktasksdetails', array( 'v3_request_id' => $id ), array( 'id' => (int) $task->id ) );
+	$task->v3_request_id = $id;
+	return $id;
 }
 
 /**
@@ -1140,13 +1332,18 @@ function improveseo_bulk_task_failed( $task, $reason, array $keep = array(), $fi
 	$data     = array_merge(
 		array_intersect_key( $keep, array_flip( array( 'ai_title', 'ai_image', 'ai_content', 'meta_title', 'meta_description', 'v3_review' ) ) ),
 		array(
-			'status'     => $status,
-			'attempts'   => $attempts,
-			'last_error' => (string) $reason,
-			'updated_at' => current_time( 'mysql' ),
+			'status'          => $status,
+			'attempts'        => $attempts,
+			'last_error'      => (string) $reason,
+			'updated_at'      => current_time( 'mysql' ),
+			// B-7: wait before the next attempt (2, 4, 8 … min), release the lease, start a new request.
+			'next_attempt_at' => 'Pending' === $status ? gmdate( 'Y-m-d H:i:s', time() + 60 * min( 30, 2 ** $attempts ) ) : null,
+			'lease_token'     => null,
+			'lease_until'     => null,
+			'v3_request_id'   => null,
 		)
 	);
-	$wpdb->update( $wpdb->prefix . 'improveseo_bulktasksdetails', $data, array( 'id' => (int) $task->id ) );
+	$wpdb->update( $wpdb->prefix . 'improveseo_bulktasksdetails', $data, improveseo_bulk_owner_where( $task ) );
 	if ( function_exists( 'my_plugin_log' ) ) {
 		my_plugin_log( 'bulk task ' . (int) $task->id . ' failed attempt ' . $attempts . '/' . IMPROVESEO_BULK_MAX_ATTEMPTS . ' → ' . $status . ' | ' . $reason );
 	}
@@ -1272,6 +1469,8 @@ function improveseo_bulk_v3_article( $task, $title ) {
 	$body = array_filter(
 		array(
 			'session_key'   => improveseo_bulk_v3_session_key( $task ),
+			// B-3: kept until the article is saved to the task, so a dead run replays instead of re-buying.
+			'request_id'    => improveseo_bulk_v3_request_id( $task ),
 			'post_size'     => improveseo_bulk_v3_size( $task ),
 			'point_of_view' => improveseo_v3_map_point_of_view( isset( $task->point_of_view ) ? (string) $task->point_of_view : '' ),
 			'tone'          => isset( $task->tone_of_voice ) ? sanitize_key( (string) $task->tone_of_voice ) : '',
