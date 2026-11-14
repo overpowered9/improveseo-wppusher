@@ -121,7 +121,7 @@ function improveseo_content_v3_request( $method, $path, $body = null, &$error = 
  * The server's Content v3 status, cached.
  *
  * @param bool $force Skip the cache.
- * @return array{enabled: bool, keyword_data: bool, reached: bool}
+ * @return array{enabled: bool, keyword_data: bool, disclaimer_niches: string[], reached: bool}
  */
 function improveseo_content_v3_server_status( $force = false ) {
 	if ( ! $force ) {
@@ -136,10 +136,13 @@ function improveseo_content_v3_server_status( $force = false ) {
 	$data   = improveseo_content_v3_request( 'GET', '/api/v1/content-v3/status', null, $error, $status, 8 );
 
 	if ( is_array( $data ) && isset( $data['data'] ) && is_array( $data['data'] ) ) {
+		$niches = isset( $data['data']['disclaimer_niches'] ) && is_array( $data['data']['disclaimer_niches'] ) ? $data['data']['disclaimer_niches'] : array();
 		$result = array(
-			'enabled'      => ! empty( $data['data']['enabled'] ),
-			'keyword_data' => ! empty( $data['data']['keyword_data'] ),
-			'reached'      => true,
+			'enabled'           => ! empty( $data['data']['enabled'] ),
+			'keyword_data'      => ! empty( $data['data']['keyword_data'] ),
+			// A3: niche/profile keys with a disclaimer text (a Regulated business needs one for v3).
+			'disclaimer_niches' => array_values( array_filter( array_map( 'sanitize_key', array_map( 'strval', $niches ) ) ) ),
+			'reached'           => true,
 		);
 		set_transient( IMPROVESEO_CONTENT_V3_STATUS_TRANSIENT, $result, 5 * MINUTE_IN_SECONDS );
 		return $result;
@@ -147,12 +150,30 @@ function improveseo_content_v3_server_status( $force = false ) {
 
 	// Unreachable, an old server without the route (404), or a rejected key: v2 for now, ask again soon.
 	$result = array(
-		'enabled'      => false,
-		'keyword_data' => false,
-		'reached'      => false,
+		'enabled'           => false,
+		'keyword_data'      => false,
+		'disclaimer_niches' => array(),
+		'reached'           => false,
 	);
 	set_transient( IMPROVESEO_CONTENT_V3_STATUS_TRANSIENT, $result, MINUTE_IN_SECONDS );
 	return $result;
+}
+
+/**
+ * A3 (decision 14 Nov): a business set to Regulated stays on v2 until the server holds a disclaimer
+ * text for its niche (or its profile). Standard businesses are never held back here.
+ *
+ * @return bool
+ */
+function improveseo_content_v3_business_allowed() {
+	if ( 'regulated' !== improveseo_business_proof_level() ) {
+		return true;
+	}
+	$s       = improveseo_content_v3_server_status();
+	$keys    = isset( $s['disclaimer_niches'] ) && is_array( $s['disclaimer_niches'] ) ? $s['disclaimer_niches'] : array();
+	$niche   = sanitize_key( (string) get_option( 'improveseo_business_niche', '' ) );
+	$profile = sanitize_key( (string) get_option( 'improveseo_business_profile', '' ) );
+	return ( '' !== $niche && in_array( $niche, $keys, true ) ) || ( '' !== $profile && in_array( $profile, $keys, true ) );
 }
 
 /**
@@ -172,7 +193,7 @@ function improveseo_content_v3_server_enabled() {
  * @return bool
  */
 function improveseo_content_v3_active() {
-	return improveseo_content_v3_site_enabled() && improveseo_content_v3_server_enabled();
+	return improveseo_content_v3_site_enabled() && improveseo_content_v3_server_enabled() && improveseo_content_v3_business_allowed();
 }
 
 /**
@@ -833,9 +854,11 @@ function improveseo_regulated_notice() {
 	}
 	delete_transient( 'improveseo_regulated_notice' );
 	update_option( 'improveseo_regulated_notice_seen', 1, false );
-	echo '<div class="notice notice-info is-dismissible"><p><strong>' . esc_html__( 'Your business is set as Regulated.', 'improveseo' ) . '</strong> ' .
-		esc_html__( 'Every new Content v3 post uses stricter sourcing: figures need a cited source, no outcomes are promised, and posts link to at least 3 sources. Bulk posts are saved as drafts so you can review them before publishing. You can turn Regulated off for a single post in the post wizard.', 'improveseo' ) .
-		'</p></div>';
+	// A3: until a disclaimer text exists for this niche, a Regulated business keeps the current generator.
+	$text = improveseo_content_v3_site_enabled() && ! improveseo_content_v3_business_allowed()
+		? __( 'Content v3 is not available for regulated businesses yet, so this site keeps generating posts the current way. Once it is, every new post will use stricter sourcing: figures need a cited source, no outcomes are promised, and posts link to at least 3 sources.', 'improveseo' )
+		: __( 'Every new Content v3 post uses stricter sourcing: figures need a cited source, no outcomes are promised, and posts link to at least 3 sources. Bulk posts are saved as drafts so you can review them before publishing. You can turn Regulated off for a single post in the post wizard.', 'improveseo' );
+	echo '<div class="notice notice-info is-dismissible"><p><strong>' . esc_html__( 'Your business is set as Regulated.', 'improveseo' ) . '</strong> ' . esc_html( $text ) . '</p></div>';
 }
 
 /* ======================================================================================
@@ -936,7 +959,9 @@ function improveseo_content_v3_generate_article( array $arr, $title ) {
 	$code   = '';
 	$data   = improveseo_content_v3_request( 'POST', '/api/v1/content-v3/article', $body, $error, $status, 600, $code );
 	if ( ! is_array( $data ) ) {
-		if ( 409 === $status && 'v3_disabled' === $code ) {
+		// v3 switched off on the server, or (A3) a Regulated business without a disclaimer text yet:
+		// forget the cached status and let the caller generate through v2.
+		if ( 409 === $status && in_array( $code, array( 'v3_disabled', 'v3_regulated_disabled' ), true ) ) {
 			improveseo_content_v3_forget_server_status();
 			return null;
 		}
