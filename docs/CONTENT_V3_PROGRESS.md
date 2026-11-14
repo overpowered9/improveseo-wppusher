@@ -17,8 +17,8 @@ Kept up to date at the end of every phase (brief rule 11), so a fresh session ca
 | 4 | Research (Perplexity Agent API) | **Done (mocked)**; live run blocked on `PERPLEXITY_API_KEY` | server |
 | 5 | Approve → Research → Planner, step 2, regulated topics | **Done** | server + plugin |
 | 6 | Niche profile + proof level | **Done** (G4 texts blocked) | server + plugin |
-| 7 | Blueprint + admin tester panel | Next | |
-| 8 | Writer draft 2 + post-processing + validator + paid v3 route | | |
+| 7 | Blueprint + admin tester panel | **Done** | server + admin |
+| 8 | Writer draft 2 + post-processing + validator + paid v3 route | Next | |
 | 9 | Interim approaches U1–U6 | | |
 | 10 | Bulk parity + bulk and bug fixes | | |
 | 11 | Keyword data integration | | |
@@ -124,6 +124,12 @@ Real run 14 Nov ("water heater repair Española", Española NM): town call thin 
 
 ### G, B, N, WR, V, U, X, BULK, BUG, K
 Unchanged from Phase 0 except:
+- **B1** DONE: every piece verbatim (test re-parses the doc), one editable record `content_v3_blueprint_directives` (replace mode backs up the old JSON as pre-v3).
+- **B2–B7, B10, B11** DONE: draws a–m in order, history checks, word targets, numbered titles, TOC auto by size, pins. Working values: front/back-heavy 1.4↔0.7; "one fewer" stops at the size's range minimum.
+- **B8** DONE: "no figure" piece when no currency amount in research facts or Business details pricing.
+- **B9** PARTIAL: `<recent_headings>` builder done; fed from `content_v3_posts` in phase 8.
+- **B12** PARTIAL: picks + fingerprint returned; stored per post in phase 8.
+- **X1–X7** DONE (panel) / PARTIAL (effect): new pins in the tester, sent as `blueprint_pins`; `/article/test` uses them once phase 8 moves it to the new chain. Preview button works now.
 - **N1** DONE: profiles, niche mapping, watchlists, default proof levels = one editable JSON setting (`content_v3_niche_profiles`), values = the doc tables (test). Per-niche provider/help phrases are working values (doc gives them per profile).
 - **N2** DONE: Standard and Regulated pieces verbatim, editable (`content_v3_niche_standard_piece`, `_regulated_piece`).
 - **N3** DONE: type adjustment lines verbatim, only on a matching type + niche row.
@@ -193,6 +199,12 @@ Unchanged from Phase 0 except:
 - E2E 14 Nov: picker finds "chiro" → Wellness/Chiropractic/Massage, typo "plumbr" → Plumbing; Dental shows "Suggested: Regulated" without changing the field; saving Regulated shows the one-time notice; wizard hides Witty and shows the three point-of-view options; approve logs `niche=dental proof=regulated regulated=business`.
 - Pre-existing console error on the settings page: `jQuery(...).smartWizard is not a function` (custom-plugin-script.js:2706) — on the phase 13 fix list.
 
+## Phase 7 notes
+
+- Real preview 14 Nov (Medium chosen over a suggested Small) first gave 3 body sections, below Medium's 4–6: the bottom-of-range aim plus a 3:1 back-heavy split starved a section under 120 words and the "one fewer" rule kept going. Fixed (see working values above).
+- The tester panel's pins have no effect on `/article/test` until phase 8 (the old chain ignores `blueprint_pins`).
+- The scratchpad was wiped mid-session; QA scripts now live in `content-v3-delivery/qa/` (outside the repos).
+
 ## Next
 
-Phase 7: blueprint draft-1 algorithm (pins, draws a–m, history checks, word targets, numbered titles, TOC, firmness capped by the niche, `<blueprint>` wrap, picks saved per post) and the admin tester panel changes. B1–B12, X1–X7.
+Phase 8: Writer draft 2 (core + six rules blocks byte-equal, cached system block), post-processing (source links, TOC, disclaimer, FAQ from HTML), validator, Cleanup interim U2/U3, meta U4, paid `/content-v3/article` with reserve/refund, posts history (B9, B12), plugin generation. WR1–WR9, V1–V11, U1–U5, OPS4, G6.
