@@ -128,9 +128,19 @@ function improveseo_enqueue_admin(){
 	if ( isset( $_GET['page'] ) && 'improveseo_settings' === sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
 		wp_enqueue_script('improveseo-business-niche-picker', IMPROVESEO_DIR . '/assets/js/business-niche-picker.js', array(), improveseo_asset_ver('assets/js/business-niche-picker.js'), true);
 		$iseo_niche_data = function_exists( 'improveseo_content_v3_niches' ) ? improveseo_content_v3_niches() : null;
+		// B-5: the niche list loads only while Content v3 is on (site setting and server switch).
+		$iseo_v3_state = 'on';
+		if ( function_exists( 'improveseo_content_v3_site_enabled' ) && ! improveseo_content_v3_site_enabled() ) {
+			$iseo_v3_state = 'off_site';
+		} elseif ( function_exists( 'improveseo_content_v3_server_enabled' ) && ! improveseo_content_v3_server_enabled() ) {
+			$iseo_v3_state = 'off_server';
+		}
 		wp_localize_script('improveseo-business-niche-picker', 'iseoNichePicker', array(
 			'niches' => $iseo_niche_data ? $iseo_niche_data['niches'] : array(),
+			'state'  => $iseo_v3_state,
 			'i18n'   => array(
+				'offSite'          => __( 'To choose your niche, switch on "Use Content v3" below, then reload this page.', 'improveseo' ),
+				'offServer'        => __( 'You can choose your niche once the ImproveSEO server switches Content v3 on.', 'improveseo' ),
 				'suggestRegulated' => __( 'Suggested for %s: Regulated. Please confirm by choosing it above; it is never set for you.', 'improveseo' ),
 				'suggestStandard'  => __( 'Suggested for %s: Standard.', 'improveseo' ),
 				'suggestOpen'      => __( 'Suggested for %s: Standard, but some businesses in this niche are regulated. Choose what fits yours.', 'improveseo' ),

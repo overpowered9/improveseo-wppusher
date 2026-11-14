@@ -784,6 +784,10 @@ function improveseo_content_v3_niches( $force = false ) {
 	if ( is_array( $cached ) && ! empty( $cached['niches'] ) ) {
 		return $cached;
 	}
+	// B-5: the server answers the niche list only while Content v3 is on; no request otherwise.
+	if ( ! improveseo_content_v3_site_enabled() || ! improveseo_content_v3_server_enabled() ) {
+		return null;
+	}
 	$error  = '';
 	$status = 0;
 	$data   = improveseo_content_v3_request( 'GET', '/api/v1/content-v3/niches', null, $error, $status, 10 );

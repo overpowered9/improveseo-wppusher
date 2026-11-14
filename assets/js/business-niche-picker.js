@@ -104,7 +104,9 @@
     if (!input || !hidden || !list) return;
 
     if (!niches.length) {
-      if (help) help.textContent = t.unavailable || '';
+      // B-5: with Content v3 off the list is not loaded; say why instead of a connection error.
+      var why = cfg.state === 'off_site' ? t.offSite : cfg.state === 'off_server' ? t.offServer : t.unavailable;
+      if (help) help.textContent = why || '';
       input.disabled = true;
       return;
     }
