@@ -90,8 +90,10 @@ function improveseo_content_v3_request( $method, $path, $body = null, &$error = 
 		$response = wp_remote_get( $base . $path, $args );
 	}
 
+	// D: the wizard session key, so a plugin line and the server's lines of one run are found together.
+	$run = is_array( $body ) && ! empty( $body['session_key'] ) ? ' run=' . preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $body['session_key'] ) : '';
 	if ( is_wp_error( $response ) ) {
-		error_log( 'improveseo_content_v3_request: HTTP error for ' . $path . ' — ' . $response->get_error_message() );
+		error_log( 'improveseo_content_v3_request: HTTP error for ' . $path . $run . ' — ' . $response->get_error_message() );
 		$error = __( 'Could not reach the ImproveSEO server. Check this site\'s internet connection and try again.', 'improveseo' );
 		improveseo_content_v3_last_response( array( 'status' => 0, 'code' => '' ) );
 		return null;
@@ -102,7 +104,7 @@ function improveseo_content_v3_request( $method, $path, $body = null, &$error = 
 
 	if ( 200 !== $status || ! is_array( $data ) || empty( $data['success'] ) ) {
 		$code = is_array( $data ) && isset( $data['error'] ) && is_string( $data['error'] ) ? sanitize_key( $data['error'] ) : '';
-		error_log( 'improveseo_content_v3_request: failure path=' . $path . ' | status=' . $status . ' | code=' . ( $code ? $code : 'unknown' ) );
+		error_log( 'improveseo_content_v3_request: failure path=' . $path . $run . ' | status=' . $status . ' | code=' . ( $code ? $code : 'unknown' ) );
 		if ( is_array( $data ) && ! empty( $data['message'] ) && is_string( $data['message'] ) ) {
 			$error = $data['message'];
 		} elseif ( 401 === $status || 403 === $status ) {
@@ -1341,7 +1343,7 @@ function improveseo_bulk_task_outage( $task, $reason ) {
 		improveseo_bulk_owner_where( $task )
 	);
 	if ( function_exists( 'my_plugin_log' ) ) {
-		my_plugin_log( 'bulk task ' . (int) $task->id . ' paused (server unreachable), queue resumes in ' . $wait . ' s | ' . $reason );
+		my_plugin_log( 'bulk task ' . (int) $task->id . ' run=' . improveseo_bulk_v3_session_key( $task ) . ' paused (server unreachable), queue resumes in ' . $wait . ' s | ' . $reason );
 	}
 }
 
@@ -1374,7 +1376,7 @@ function improveseo_bulk_task_requeue_v2( $task ) {
 		improveseo_bulk_owner_where( $task )
 	);
 	if ( function_exists( 'my_plugin_log' ) ) {
-		my_plugin_log( 'bulk task ' . (int) $task->id . ': the server answered v3 off — requeued for v2' );
+		my_plugin_log( 'bulk task ' . (int) $task->id . ' run=' . improveseo_bulk_v3_session_key( $task ) . ': the server answered v3 off — requeued for v2' );
 	}
 }
 
@@ -1499,7 +1501,7 @@ function improveseo_bulk_task_failed( $task, $reason, array $keep = array(), $fi
 	);
 	$wpdb->update( $wpdb->prefix . 'improveseo_bulktasksdetails', $data, improveseo_bulk_owner_where( $task ) );
 	if ( function_exists( 'my_plugin_log' ) ) {
-		my_plugin_log( 'bulk task ' . (int) $task->id . ' failed attempt ' . $attempts . '/' . IMPROVESEO_BULK_MAX_ATTEMPTS . ' → ' . $status . ' | ' . $reason );
+		my_plugin_log( 'bulk task ' . (int) $task->id . ' run=' . improveseo_bulk_v3_session_key( $task ) . ' failed attempt ' . $attempts . '/' . IMPROVESEO_BULK_MAX_ATTEMPTS . ' → ' . $status . ' | ' . $reason );
 	}
 	if ( 'Failed' === $status && ! empty( $task->bulktask_id ) && function_exists( 'improveseo_sync_bulk_parent_progress' ) ) {
 		improveseo_sync_bulk_parent_progress( (int) $task->bulktask_id );
