@@ -574,7 +574,7 @@ function improveseo_content_v3_enqueue() {
 		'nonce'   => wp_create_nonce( 'improveseo_ajax' ),
 		'reach'   => improveseo_business_reach(),
 		// G5: no Witty tone for a regulated niche (the business set Regulated, or its niche usually is).
-		'regulatedNiche' => ( 'regulated' === improveseo_business_proof_level() || ( ( $iseo_row = improveseo_business_niche_row() ) && 'regulated' === $iseo_row['proof_level'] ) ) ? '1' : '0',
+		'regulatedNiche' => improveseo_v3_regulated_niche() ? '1' : '0',
 		'pov'            => improveseo_business_pov(),
 		'i18n'    => array(
 			'chooseTown'     => __( 'Choose the town this post is about, or "Not about a specific location".', 'improveseo' ),
@@ -882,6 +882,48 @@ function improveseo_v3_map_point_of_view( $value ) {
 }
 
 /**
+ * A point of view stored by a v3 wizard, for the v2 generator (a task made under v3 and run by v2
+ * after v3 was switched off). v2's own values pass through unchanged.
+ *
+ * @param string $value Stored point_of_view.
+ * @return string
+ */
+function improveseo_v2_point_of_view( $value ) {
+	$map = array(
+		'we'            => 'First person plural (we,us,our,ours)',
+		'i'             => 'First person singular (I,me,my,mine)',
+		'business_name' => 'Whatever is suited to keyword',
+	);
+	$value = (string) $value;
+	return isset( $map[ $value ] ) ? $map[ $value ] : $value;
+}
+
+/**
+ * G5: a regulated niche (the business is set to Regulated, or its niche usually is) gets no Witty tone.
+ *
+ * @return bool
+ */
+function improveseo_v3_regulated_niche() {
+	if ( 'regulated' === improveseo_business_proof_level() ) {
+		return true;
+	}
+	$row = improveseo_business_niche_row();
+	return $row && 'regulated' === $row['proof_level'];
+}
+
+/**
+ * G5: the tone a v3 article is written in; a stored "witty" becomes "friendly" for a regulated niche
+ * (older bulk projects and tasks still hold it; the wizards no longer offer it there).
+ *
+ * @param string $tone Stored tone.
+ * @return string
+ */
+function improveseo_v3_tone( $tone ) {
+	$tone = sanitize_key( (string) $tone );
+	return 'witty' === $tone && improveseo_v3_regulated_niche() ? 'friendly' : $tone;
+}
+
+/**
  * G3: the one-time notice after a business is set to Regulated.
  */
 add_action( 'admin_notices', 'improveseo_regulated_notice' );
@@ -969,7 +1011,8 @@ function improveseo_content_v3_generate_article( array $arr, $title ) {
 	if ( '' !== $cta_url && function_exists( 'improveseo_normalize_cta_url' ) ) {
 		$cta_url = improveseo_normalize_cta_url( $cta_url );
 	}
-	$tone = isset( $arr['content_type'] ) ? sanitize_key( $arr['content_type'] ) : '';
+	// G5: the wizard hides Witty for a regulated niche; a stored or forced "witty" is mapped too.
+	$tone = isset( $arr['content_type'] ) ? improveseo_v3_tone( (string) $arr['content_type'] ) : '';
 
 	// B-3: the wizard's per-click request id (kept until an article arrives): a retry replays.
 	$request_id = isset( $_POST['request_id'] ) ? sanitize_text_field( wp_unslash( $_POST['request_id'] ) ) : '';
@@ -1386,13 +1429,42 @@ function improveseo_bulk_v3_size( $task ) {
 }
 
 /**
- * What every v3 bulk request shares. Bulk has no town question yet: a local business writes for its
- * first saved town, a nationwide one for no town.
+ * W5: a bulk project's Target town, chosen in the bulk wizard: one of the saved towns, or
+ * "__none__" for "Not about a specific location". Stored per project as an option.
+ *
+ * @param int    $project_id improveseo_bulktasks id.
+ * @param string $town       The choice.
+ * @return void
+ */
+function improveseo_bulk_v3_set_town( $project_id, $town ) {
+	$town = trim( (string) $town );
+	if ( $project_id <= 0 || '' === $town ) {
+		return;
+	}
+	if ( '__none__' !== $town && ! in_array( $town, improveseo_business_towns(), true ) ) {
+		return;
+	}
+	update_option( 'improveseo_bulk_v3_town_' . (int) $project_id, $town, false );
+}
+
+/**
+ * What every v3 bulk request shares. A local business writes for the project's Target town (W5;
+ * default the first saved town), or for no town when the project chose "Not about a specific
+ * location"; a nationwide one for no town.
  */
 function improveseo_bulk_v3_common( $task ) {
-	$reach = improveseo_business_reach();
-	$towns = improveseo_business_towns();
-	$town  = 'local' === $reach && $towns ? $towns[0] : '';
+	$reach  = improveseo_business_reach();
+	$towns  = improveseo_business_towns();
+	$chosen = isset( $task->bulktask_id ) ? (string) get_option( 'improveseo_bulk_v3_town_' . (int) $task->bulktask_id, '' ) : '';
+	if ( 'local' !== $reach ) {
+		$town = '';
+	} elseif ( '__none__' === $chosen ) {
+		$town = '';
+	} elseif ( '' !== $chosen ) {
+		$town = $chosen;
+	} else {
+		$town = $towns ? $towns[0] : '';
+	}
 	$niche = (string) get_option( 'improveseo_business_niche', '' );
 	return array_filter(
 		array(
@@ -1477,7 +1549,7 @@ function improveseo_bulk_v3_article( $task, $title ) {
 			'request_id'    => improveseo_bulk_v3_request_id( $task ),
 			'post_size'     => improveseo_bulk_v3_size( $task ),
 			'point_of_view' => improveseo_v3_map_point_of_view( isset( $task->point_of_view ) ? (string) $task->point_of_view : '' ),
-			'tone'          => isset( $task->tone_of_voice ) ? sanitize_key( (string) $task->tone_of_voice ) : '',
+			'tone'          => isset( $task->tone_of_voice ) ? improveseo_v3_tone( (string) $task->tone_of_voice ) : '',
 			'language'      => isset( $task->content_lang ) ? sanitize_text_field( (string) $task->content_lang ) : '',
 			'business_name' => trim( (string) get_option( 'improveseo_business_name', '' ) ) ? trim( (string) get_option( 'improveseo_business_name', '' ) ) : wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
 			'stand_out'     => trim( (string) get_option( 'improveseo_business_stand_out', '' ) ),

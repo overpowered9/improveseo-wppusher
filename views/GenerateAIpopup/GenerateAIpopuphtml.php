@@ -1124,10 +1124,17 @@ global $ai_modal_type;
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                         <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
                                             <strong>Point of View</strong>
+                                            <?php if ( function_exists( 'improveseo_content_v3_active' ) && improveseo_content_v3_active() ) : ?>
+                                            <?php esc_html_e( 'How the business refers to itself in this post (the post always speaks to the reader as "you"):', 'improveseo' ); ?>
+                                            <span class="iseo-tip-item"><b><?php esc_html_e( 'We / our', 'improveseo' ); ?></b>: <?php esc_html_e( 'the business speaks as a team.', 'improveseo' ); ?></span>
+                                            <span class="iseo-tip-item"><b><?php esc_html_e( 'I / my', 'improveseo' ); ?></b>: <?php esc_html_e( 'the owner speaks personally.', 'improveseo' ); ?></span>
+                                            <span class="iseo-tip-item"><b><?php esc_html_e( 'Business name only', 'improveseo' ); ?></b>: <?php esc_html_e( 'the business is named, never "we" or "I".', 'improveseo' ); ?></span>
+                                            <?php else : ?>
                                             Choose from which perspective the post shall be written:
                                             <span class="iseo-tip-item"><b>Speaking to the Reader</b> (you, your): you are addressing the reader directly. This option is recommended for engaging, direct copy.</span>
                                             <span class="iseo-tip-item"><b>Business Voice</b> (we, our): you are talking from the perspective of your company and your team. This option is recommended if you write an informational piece about your business.</span>
                                             <span class="iseo-tip-item"><b>Personal Voice</b> (I, mine): you are talking from your own perspective as the business owner. This option is recommended for sharing your personal experience (trust building).</span>
+                                            <?php endif; ?>
                                         </span>
                                     </span>
                                 </label>
@@ -1826,13 +1833,34 @@ global $ai_modal_type;
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                             <span class="iseo-info-tip-bubble iseo-info-tip-bubble--field" role="tooltip">
                                                 <strong>Point of View</strong>
+                                                <?php $iseo_bulk_v3 = function_exists( 'improveseo_content_v3_active' ) && improveseo_content_v3_active(); ?>
+                                                <?php if ( $iseo_bulk_v3 ) : ?>
+                                                <?php esc_html_e( 'How the business refers to itself in these posts (they always speak to the reader as "you"):', 'improveseo' ); ?>
+                                                <span class="iseo-tip-item"><b><?php esc_html_e( 'We / our', 'improveseo' ); ?></b>: <?php esc_html_e( 'the business speaks as a team.', 'improveseo' ); ?></span>
+                                                <span class="iseo-tip-item"><b><?php esc_html_e( 'I / my', 'improveseo' ); ?></b>: <?php esc_html_e( 'the owner speaks personally.', 'improveseo' ); ?></span>
+                                                <span class="iseo-tip-item"><b><?php esc_html_e( 'Business name only', 'improveseo' ); ?></b>: <?php esc_html_e( 'the business is named, never "we" or "I".', 'improveseo' ); ?></span>
+                                                <?php else : ?>
                                                 Choose from which perspective the posts within this bulk project shall be written:
                                                 <span class="iseo-tip-item"><b>Speaking to the Reader</b> (you, your): you are addressing the reader directly. This option is recommended for engaging, direct copy.</span>
                                                 <span class="iseo-tip-item"><b>Business Voice</b> (we, our): you are talking from the perspective of your company and your team. This option is recommended if you write an informational piece about your business.</span>
                                                 <span class="iseo-tip-item"><b>Personal Voice</b> (I, mine): you are talking from your own perspective as the business owner. This option is recommended for sharing your personal experience (trust building).</span>
+                                                <?php endif; ?>
                                             </span>
                                         </span>
                                     </label>
+                                    <?php if ( $iseo_bulk_v3 ) : ?>
+                                    <?php
+                                    // Content v3, W9: the same three options as the single wizard, prefilled from
+                                    // Business details. ("Speaking to the reader" and "Auto" are gone under v3.)
+                                    $iseo_bulk_pov = improveseo_business_pov();
+                                    ?>
+                                    <select class="form-control" name="point_of_view" data-iseo-v3-pov="1"
+                                        style="max-width: 100% !important;  padding: 10px 20px !important;">
+                                        <option value="we" <?php selected( $iseo_bulk_pov, 'we' ); ?>><?php esc_html_e( 'We / our', 'improveseo' ); ?></option>
+                                        <option value="i" <?php selected( $iseo_bulk_pov, 'i' ); ?>><?php esc_html_e( 'I / my', 'improveseo' ); ?></option>
+                                        <option value="business_name" <?php selected( $iseo_bulk_pov, 'business_name' ); ?>><?php esc_html_e( 'Business name only', 'improveseo' ); ?></option>
+                                    </select>
+                                    <?php else : ?>
                                     <select class="form-control" name="point_of_view"
                                         style="max-width: 100% !important;  padding: 10px 20px !important;">
 
@@ -1842,6 +1870,7 @@ global $ai_modal_type;
                                         <option value="First person singular (I,me,my,mine)">Personal Voice ("I", "my")</option>
 
                                     </select>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="form-group col">
                                     <label style="padding-left:20px;" for="language">Select Language</label>
@@ -1856,6 +1885,27 @@ global $ai_modal_type;
                                     </select>
                                 </div>
                             </div>
+
+                            <?php
+                            // Content v3, W5: the town these posts are about, for the whole project (a local
+                            // business). Default: the first saved town, as before.
+                            $iseo_bulk_towns = ( $iseo_bulk_v3 && function_exists( 'improveseo_business_reach' ) && 'local' === improveseo_business_reach() ) ? improveseo_business_towns() : array();
+                            if ( $iseo_bulk_v3 && function_exists( 'improveseo_business_reach' ) && 'local' === improveseo_business_reach() ) :
+                            ?>
+                            <div class="row">
+                                <div class="form-group col">
+                                    <label style="padding-left:20px;" for="iseo_v3_bulk_town"><?php esc_html_e( 'Target town', 'improveseo' ); ?></label>
+                                    <select class="form-control" name="iseo_v3_bulk_town" id="iseo_v3_bulk_town" aria-describedby="iseo_v3_bulk_town_help"
+                                        style="max-width: 100% !important;  padding: 10px 20px !important;">
+                                        <?php foreach ( $iseo_bulk_towns as $iseo_town ) : ?>
+                                        <option value="<?php echo esc_attr( $iseo_town ); ?>"><?php echo esc_html( $iseo_town ); ?></option>
+                                        <?php endforeach; ?>
+                                        <option value="__none__"><?php esc_html_e( 'Not about a specific location', 'improveseo' ); ?></option>
+                                    </select>
+                                    <span id="iseo_v3_bulk_town_help" class="iseo-prefill-hint" style="font-size:12px;color:#888;display:block;padding-left:20px;"><?php esc_html_e( 'Every post in this project is written for this town. Add towns in Settings, Business details.', 'improveseo' ); ?></span>
+                                </div>
+                            </div>
+                            <?php endif; ?>
 
                             <div class="row">
                                 <div class="form-group col-md-12">

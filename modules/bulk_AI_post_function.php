@@ -943,7 +943,7 @@ function generateBulkAiContent($id = '', $regenerate = '')
 			}
 		} else {
 			// target_key: the task's slot, so the server prices a regeneration as one (as the single wizard does).
-			$generation_result = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, $value->point_of_view, $ai_title, $iseo_cta['text'], $value->details_to_include, '', $iseo_niche, $iseo_niche_data, $iseo_brand_profile, $iseo_cta['url'], improveseo_bulk_v3_session_key( $value ));
+			$generation_result = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, function_exists( 'improveseo_v2_point_of_view' ) ? improveseo_v2_point_of_view( $value->point_of_view ) : $value->point_of_view, $ai_title, $iseo_cta['text'], $value->details_to_include, '', $iseo_niche, $iseo_niche_data, $iseo_brand_profile, $iseo_cta['url'], improveseo_bulk_v3_session_key( $value ));
 		}
 
 		// Extract content from the result array
@@ -2467,6 +2467,11 @@ function multiPostData()
 
 
 		$lastid = $wpdb->insert_id;
+		// Content v3, W5: the project's Target town (a saved town or "Not about a specific location"),
+		// kept per project in an option (no new table column); read by improveseo_bulk_v3_common().
+		if ( $lastid && isset( $_POST['iseo_v3_bulk_town'] ) && function_exists( 'improveseo_bulk_v3_set_town' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- the surrounding handler checks the bulk nonce.
+			improveseo_bulk_v3_set_town( (int) $lastid, sanitize_text_field( wp_unslash( $_POST['iseo_v3_bulk_town'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		}
 		
 		if (!$lastid) {
 			throw new Exception('Failed to get parent project ID');
