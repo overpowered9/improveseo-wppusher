@@ -183,6 +183,7 @@
         $('#aigeneratedtitle').val(res.data.title);
         $('#reload-btn-text').text('Regenerate');
         generatedFor = kw.toLowerCase();
+        window.iseoV3SessionUsed = true;
       })
       .fail(function (xhr) {
         hideLoading();
@@ -343,6 +344,7 @@
             return;
           }
           window.iseoV3Plan = res.data;
+          window.iseoV3SessionUsed = true;
           lastApproveSig = sig;
           renderPlan(res.data);
           if (res.data.title_notes && res.data.title_notes.length) {
@@ -434,6 +436,50 @@
       $tone.find('option[value="witty"]').remove();
     });
   }
+
+  /* ----------------------------------------------------------------------------------
+   * W10: leaving the wizard deletes everything stored for this post — the server session
+   * (search data, titles, research, plan) and the image files generated for it. The leave
+   * modal (views/posting/leave-wizard-modal.php) uses this wording and calls cleanup() on
+   * Leave. Closing the tab or reloading also cleans up (a beacon on pagehide). After Submit
+   * only the server session goes: the saved post uses its image.
+   * ---------------------------------------------------------------------------------- */
+  var submitted = false;
+  var cleaned = false;
+  // The leave modal is shared with the bulk wizard; this wording and cleanup are for one post.
+  var onSingleWizard = /(?:^|[?&])action=create_post_single(?:&|$)/.test(window.location.search);
+  window.iseoV3SessionUsed = false;
+  function clearBody(keepFiles) {
+    var fd = new FormData();
+    fd.append('action', 'improveseo_content_v3_clear_session');
+    fd.append('nonce', cfg.nonce);
+    fd.append('session_key', sessionKey());
+    fd.append('keep_files', keepFiles ? '1' : '0');
+    return fd;
+  }
+  if (onSingleWizard) window.iseoV3Leave = {
+    title: t.leaveTitle,
+    message: t.leaveMessage,
+    stay: t.leaveStay,
+    leave: t.leaveLeave,
+    cleanup: function () {
+      cleaned = true;
+      return new Promise(function (resolve) {
+        if (!sessionKey()) { resolve(); return; }
+        var timer = setTimeout(resolve, 4000); // never keep the user waiting longer
+        fetch(cfg.ajaxUrl, { method: 'POST', body: clearBody(false), credentials: 'same-origin', keepalive: true })
+          .then(function () { clearTimeout(timer); resolve(); }, function () { clearTimeout(timer); resolve(); });
+      });
+    }
+  };
+  document.addEventListener('submit', function (e) {
+    if (e.target && e.target.id === 'main_form' && !e.defaultPrevented) { submitted = true; }
+  });
+  window.addEventListener('pagehide', function () {
+    if (!onSingleWizard || !window.iseoV3SessionUsed || cleaned || !sessionKey() || !navigator.sendBeacon) { return; }
+    cleaned = true;
+    navigator.sendBeacon(cfg.ajaxUrl, clearBody(submitted));
+  });
 
   $(function () {
     hideWittyForRegulated();

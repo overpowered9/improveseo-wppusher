@@ -198,12 +198,73 @@ function improveseo_ajax_content_v3_clear_session() {
 	}
 	$key = improveseo_content_v3_session_key( isset( $_POST['session_key'] ) ? $_POST['session_key'] : '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized in improveseo_content_v3_session_key().
 	if ( '' === $key ) {
-		wp_send_json_success( array( 'cleared' => false ) );
+		wp_send_json_success( array( 'cleared' => false, 'files_deleted' => 0 ) );
 	}
+	// On Submit the post keeps its image: only the server session goes (keep_files=1). On Leave,
+	// the image files generated for this post go too (W10).
+	$keep_files = isset( $_POST['keep_files'] ) && '1' === $_POST['keep_files']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- compared to a literal.
+	$deleted    = $keep_files ? 0 : improveseo_content_v3_delete_wizard_files( $key );
+	delete_transient( improveseo_content_v3_files_transient( $key ) );
 	$error  = '';
 	$status = 0;
 	$data   = improveseo_content_v3_request( 'POST', '/api/v1/content-v3/session/clear', array( 'session_key' => $key ), $error, $status, 10 );
-	wp_send_json_success( array( 'cleared' => is_array( $data ) && ! empty( $data['cleared'] ) ) );
+	wp_send_json_success( array( 'cleared' => is_array( $data ) && ! empty( $data['cleared'] ), 'files_deleted' => $deleted ) );
+}
+
+/** Transient name holding the image files one wizard session created (7 days, like the server session). */
+function improveseo_content_v3_files_transient( $key ) {
+	return 'iseo_v3_files_' . md5( (string) $key );
+}
+
+/**
+ * Remember an image file the wizard created for this session (W10). Only files inside uploads.
+ *
+ * @param string $key  The wizard's session key.
+ * @param string $path Absolute path of the saved file.
+ * @return void
+ */
+function improveseo_content_v3_track_wizard_file( $key, $path ) {
+	$key = improveseo_content_v3_session_key( $key );
+	if ( '' === $key || ! improveseo_content_v3_active() ) {
+		return;
+	}
+	$uploads = wp_upload_dir();
+	$base    = wp_normalize_path( trailingslashit( $uploads['basedir'] ) );
+	$path    = wp_normalize_path( (string) $path );
+	if ( 0 !== strpos( $path, $base ) ) {
+		return;
+	}
+	$name  = improveseo_content_v3_files_transient( $key );
+	$files = get_transient( $name );
+	$files = is_array( $files ) ? $files : array();
+	if ( ! in_array( $path, $files, true ) && count( $files ) < 50 ) {
+		$files[] = $path;
+	}
+	set_transient( $name, $files, 7 * DAY_IN_SECONDS );
+}
+
+/**
+ * Delete the image files recorded for this session — only those, only inside uploads, only images.
+ *
+ * @param string $key The wizard's session key.
+ * @return int Files deleted.
+ */
+function improveseo_content_v3_delete_wizard_files( $key ) {
+	$files = get_transient( improveseo_content_v3_files_transient( $key ) );
+	if ( ! is_array( $files ) ) {
+		return 0;
+	}
+	$uploads = wp_upload_dir();
+	$base    = wp_normalize_path( trailingslashit( $uploads['basedir'] ) );
+	$deleted = 0;
+	foreach ( $files as $path ) {
+		$path = wp_normalize_path( (string) $path );
+		if ( 0 === strpos( $path, $base ) && preg_match( '/\.(webp|png|jpe?g)$/i', $path ) && false === strpos( $path, '..' ) && is_file( $path ) ) {
+			wp_delete_file( $path );
+			$deleted++;
+		}
+	}
+	return $deleted;
 }
 
 /* ======================================================================================
@@ -488,6 +549,10 @@ function improveseo_content_v3_enqueue() {
 			'regulatedBusiness' => __( 'Your business is set as Regulated, so this article uses stricter sourcing. You can turn it off for this post.', 'improveseo' ),
 			'planFallback'      => __( 'We could not plan this article in detail, so it uses a simple plan. You can still generate it.', 'improveseo' ),
 			'researchSkipped'   => __( 'Topic research was not available this time; the article will not quote figures.', 'improveseo' ),
+			'leaveTitle'        => __( 'Leave this post?', 'improveseo' ),
+			'leaveMessage'      => __( 'All data for this post will be lost: the title, the research, the plan, the article and any images generated for it.', 'improveseo' ),
+			'leaveStay'         => __( 'Stay', 'improveseo' ),
+			'leaveLeave'        => __( 'Leave', 'improveseo' ),
 			'reviewTitle'       => __( 'Please check this article', 'improveseo' ),
 			'reviewLead'        => __( 'We wrote this article twice, but it still misses some of our quality checks:', 'improveseo' ),
 			'useAnyway'         => __( 'Use anyway', 'improveseo' ),

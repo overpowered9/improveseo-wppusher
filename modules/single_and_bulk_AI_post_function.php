@@ -885,6 +885,10 @@ function fetch_AI_image_callback()
             // the server anyway, and omitting it keeps the payload honest about what is known.
             $target_key = isset($_POST['target_key']) ? sanitize_text_field(wp_unslash($_POST['target_key'])) : '';
             if ($target_key !== '') { $payload['target_key'] = $target_key; }
+            // W14: the regenerate dialog's instruction for this run. The browser sends it and the
+            // v2 image route reads it, but it was never forwarded.
+            $iseo_img_instruction = isset($_POST['custom_instruction']) ? trim(sanitize_textarea_field(wp_unslash($_POST['custom_instruction']))) : '';
+            if ($iseo_img_instruction !== '') { $payload['custom_instruction'] = $iseo_img_instruction; }
             // noedit: pass the raw prompt straight to the image model (v2 uses it verbatim)
             if ($noedit) { $payload['prompt'] = $title; }
         } else {
@@ -1028,8 +1032,17 @@ function fetch_AI_image_callback()
                 wp_delete_file($file_path);
                 
                 $final_image_url = $upload_dir['url'] . '/' . $webp_file_name;
+                $iseo_saved_path = $webp_file_path;
             } else {
                 $final_image_url = $upload_dir['url'] . '/' . $file_name;
+                $iseo_saved_path = $file_path;
+            }
+
+            // Content v3, W10: remember the files this wizard session created, so Leave can delete
+            // them (modules/content-v3.php, improveseo_content_v3_track_wizard_file()).
+            if ( function_exists( 'improveseo_content_v3_track_wizard_file' ) && ! empty( $_POST['target_key'] ) ) {
+                // The image slot is "<wizard key>:image" (iseoImageTargetKey); files belong to the wizard key.
+                improveseo_content_v3_track_wizard_file( preg_replace( '/:image$/', '', sanitize_text_field( wp_unslash( $_POST['target_key'] ) ) ), $iseo_saved_path );
             }
             
             wp_send_json_success(array($final_image_url));

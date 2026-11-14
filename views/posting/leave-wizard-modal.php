@@ -82,18 +82,22 @@ $wizard_action   = isset( $wizard_action ) ? (string) $wizard_action : '';
 	function open(url) {
 		if (asking) { return; }
 		asking = true;
+		// Content v3 (W10, decided 3 Nov): its own wording, and Leave deletes what the wizard
+		// stored for this post (assets/js/content-v3-wizard.js) before leaving.
+		var v3 = window.iseoV3Leave || null;
 		iseoModal.warning({
-			title: <?php echo wp_json_encode( __( 'Are you sure you want to leave?', 'improveseo' ) ); ?>,
-			message: <?php echo wp_json_encode( __( 'This project will only be saved at the end of this Wizard. You will need to start over again if you leave now.', 'improveseo' ) ); ?>,
-			primary: { label: <?php echo wp_json_encode( __( 'Stay on this page', 'improveseo' ) ); ?> },
-			secondary: { label: <?php echo wp_json_encode( __( 'Leave anyway', 'improveseo' ) ); ?> }
+			title: v3 ? v3.title : <?php echo wp_json_encode( __( 'Are you sure you want to leave?', 'improveseo' ) ); ?>,
+			message: v3 ? v3.message : <?php echo wp_json_encode( __( 'This project will only be saved at the end of this Wizard. You will need to start over again if you leave now.', 'improveseo' ) ); ?>,
+			primary: { label: v3 ? v3.stay : <?php echo wp_json_encode( __( 'Stay on this page', 'improveseo' ) ); ?> },
+			secondary: { label: v3 ? v3.leave : <?php echo wp_json_encode( __( 'Leave anyway', 'improveseo' ) ); ?> }
 		}).then(function (result) {
 			asking = false;
 			if (result !== 'secondary') { return; }
 			// Already confirmed here — don't let posting.js' generic beforeunload
 			// prompt ask a second time.
 			window.onbeforeunload = null;
-			window.location.href = url;
+			var go = function () { window.location.href = url; };
+			if (v3 && typeof v3.cleanup === 'function') { v3.cleanup().then(go, go); } else { go(); }
 		});
 	}
 

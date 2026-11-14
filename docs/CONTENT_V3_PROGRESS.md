@@ -21,9 +21,9 @@ Kept up to date at the end of every phase (brief rule 11), so a fresh session ca
 | 8 | Writer draft 2 + post-processing + validator + paid v3 route | **Done** (V10 blocked) | server + plugin |
 | 9 | Interim approaches U1–U6 | **Done** (no new code: U1–U4 in 8, U6 in 6, U5 unchanged by design) | — |
 | 10 | Bulk parity + bulk and bug fixes | **Done** | server + plugin |
-| 11 | Keyword data integration | Next | |
-| 12 | Remaining wizard items | | |
-| 13 | E2E, 10-keyword run, docs, production gate | | |
+| 11 | Keyword data integration | **Done, one change awaiting approval** (C6 wording) | server (uncommitted) |
+| 12 | Remaining wizard items | **Done** | plugin |
+| 13 | E2E, 10-keyword run, docs, production gate | Next | |
 
 ## What phase 1 built
 
@@ -60,11 +60,11 @@ Statuses: DONE / PARTIAL / WRONG / MISSING / BLOCKED. Evidence for the starting 
 | W7 | DONE | Step 2 panel: article type (editable), post size with size_reason, owner questions with answer fields, regulated line with Keep / Turn off. |
 | W8 | DONE | Sizes below `minimum_size` are disabled in step 2 and in step 1's priced select; step 2 size drives `#post_size`. Effect on blueprint step 3m: phase 7. |
 | W9 | PARTIAL | Business details "How the business refers to itself" (We / our, I / my, Business name only); wizard step 2 shows those three under v3, prefilled, changeable; old values map via `improveseo_v3_map_point_of_view()`. Sending it with the article: phase 8. |
-| W10 | PARTIAL | Server `POST /content-v3/session/clear` + plugin AJAX exist (phase 1); modal wiring phase 12. |
+| W10 | DONE | The leave modal (sidebar/toolbar links and the wizard's ×) uses the v3 wording on the single wizard ("Leave this post? All data for this post will be lost…", Stay / Leave); Leave deletes the server session and the image files generated for this post (recorded server-side per wizard key, only those, only inside uploads). Closing the tab or reloading does the same with a beacon; after Submit only the session goes (the post keeps its image). Browser-verified. |
 | W11 | PARTIAL | Phase 8. |
 | W12 | DONE | Regenerate sends the session's earlier titles for this keyword; search data reused from the session (E2E: `session hit`, no second DataForSEO charge). |
-| W13 | PARTIAL | Phase 12. |
-| W14 | PARTIAL | Session store exists (phase 1); reuse phase 12. |
+| W13 | DONE | Regenerate Content keeps the plan's questions and draws new picks (the earlier article is in the post history, so the blueprint avoids it): live, the regeneration got fingerprint 385ac963 vs fbc4f3a4. The instruction travels as `<anything_else>`. |
+| W14 | DONE | Regenerate and Change Image reuse the session (search data, research, plan); Change Image now forwards the regenerate dialog's instruction to the image route (it was dropped). |
 | W15 | DONE | Only `title` returned; form/items/main_concern/page_kind logged (`[content-v3] title …`) and stored in the session. |
 
 ### S — search data lookup (phase 2, server `src/services/search-data/`)
@@ -169,7 +169,8 @@ Unchanged from Phase 0 except:
 - **G2** DONE: regulated topics list = the doc's table (test compares with the doc), exclusions, editable registry setting `content_v3_regulated_topics`; list OR Planner suggests; single wizard Keep / Turn off.
 - **WR3** PARTIAL: the backup and replace mechanism exists (phase 1); the new Writer text lands in phase 8.
 - **WR9** PARTIAL: the wrapper sends the system block with `cache_control`, and the log line records `cache_read` per call, so cached tokens on the second article will be visible in the logs.
-- **K1, K2, K4** DONE; **K3** DONE (step level); **K5** WRONG (phase 11).
+- **K1, K2, K4** DONE; **K3** DONE (step level, and the wizard sends the opt-in under v3: live title `keyword_data=used`).
+- **K5 / T9 / P6** DONE in the working tree, **not committed**: V2 = V1 byte for byte + one appended block. The only new wording (C6) is one Planner sentence — see "Awaiting approval" below.
 - **BUG4** DONE.
 
 ### OPS
@@ -243,6 +244,14 @@ Unchanged from Phase 0 except:
 - **Found and fixed during QA:** landing on wizard step 4 starts generation automatically; a click on "Generate AI Post" while it ran sent a second request that WordPress queued behind the first, so the server charged a regeneration (also true for v2). The wizard now ignores a second start while one is running. And the v3 review notice regenerated on any dismissal; now only an explicit "Regenerate" opens the regenerate dialog. Both verified in the browser with mocked answers.
 - **QA side effects on the connected test account (production DB):** 16 credits charged (6 + 4 accidental duplicate + 6 bulk) and 5 "bulk project completed" emails sent by the local server for the test projects. The QA router now answers bulk notifications itself.
 
+## Awaiting approval (C6)
+
+Server `src/services/content-v3-steps/prompts.ts` (uncommitted): the keyword-data variants are now V1 byte for byte followed by one block. Title: the existing KEYWORD DATA rules, unchanged. Planner: the existing "7. KEYWORD DATA AND RECENT POSTS" rules, unchanged, plus this one new sentence:
+
+> When this section applies, add two fields to the JSON above: "demand_notes": "one sentence, or null", and "overlap": {"post_id": the post_id from recent_posts, "reason": "one sentence"} or null.
+
+Live check 14 Nov: the Planner returned `overlap` for the matching recent post (post 501) and `demand_notes: null`.
+
 ## Next
 
-Phase 11: keyword data end to end under v3 (K1–K5), including T9/P6: rebuild the keyword-data Title/Planner variants as "V1 verbatim + one appended KEYWORD DATA block" (C6: the new wording must be shown to the team lead before commit).
+Phase 13: the 10-keyword run (full chain via the admin route, review sheet), CHANGELOG, rollout/rollback runbook, production gate list, final report.
