@@ -1324,12 +1324,16 @@ function improveseo_bulk_owner_where( $task ) {
  * @param object $task   The task.
  * @param string $reason Shown on the task details screen.
  */
-function improveseo_bulk_task_outage( $task, $reason ) {
+function improveseo_bulk_task_outage( $task, $reason, $whole_queue = true ) {
 	global $wpdb;
 	$pause = get_option( 'improveseo_bulk_pause', array() );
 	$level = is_array( $pause ) && isset( $pause['level'] ) ? min( 5, (int) $pause['level'] + 1 ) : 0;
 	$wait  = min( 1800, 60 * ( 2 ** $level ) );
-	update_option( 'improveseo_bulk_pause', array( 'until' => time() + $wait, 'level' => $level ), false );
+	if ( $whole_queue ) {
+		update_option( 'improveseo_bulk_pause', array( 'until' => time() + $wait, 'level' => $level ), false );
+	} else {
+		$wait = 120; // Only this task waits (its earlier run is still finishing on the server).
+	}
 	$wpdb->update(
 		$wpdb->prefix . 'improveseo_bulktasksdetails',
 		array(
@@ -1344,6 +1348,39 @@ function improveseo_bulk_task_outage( $task, $reason ) {
 	);
 	if ( function_exists( 'my_plugin_log' ) ) {
 		my_plugin_log( 'bulk task ' . (int) $task->id . ' run=' . improveseo_bulk_v3_session_key( $task ) . ' paused (server unreachable), queue resumes in ' . $wait . ' s | ' . $reason );
+	}
+}
+
+/**
+ * H1: how many times one task may be put back as "retry later" (an outage, a restart, a rate
+ * limit) before the next one counts as a failed attempt, so no task can wait forever.
+ */
+const IMPROVESEO_BULK_MAX_OUTAGES = 8;
+
+/**
+ * H1: counts one "retry later" for this task; false once its budget is used up.
+ *
+ * @param object $task The task.
+ * @return bool
+ */
+function improveseo_bulk_outage_budget_left( $task ) {
+	$map = get_option( 'improveseo_bulk_outages', array() );
+	$map = is_array( $map ) ? $map : array();
+	$id  = (string) absint( $task->id );
+	$map[ $id ] = ( isset( $map[ $id ] ) ? (int) $map[ $id ] : 0 ) + 1;
+	if ( count( $map ) > 500 ) {
+		$map = array_slice( $map, -500, null, true );
+	}
+	update_option( 'improveseo_bulk_outages', $map, false );
+	return $map[ $id ] <= IMPROVESEO_BULK_MAX_OUTAGES;
+}
+
+/** H1: the task finished (Done or Failed): forget its outage count. */
+function improveseo_bulk_outage_forget( $task ) {
+	$map = get_option( 'improveseo_bulk_outages', array() );
+	if ( is_array( $map ) && isset( $map[ (string) absint( $task->id ) ] ) ) {
+		unset( $map[ (string) absint( $task->id ) ] );
+		update_option( 'improveseo_bulk_outages', $map, false );
 	}
 }
 
@@ -1391,13 +1428,28 @@ function improveseo_bulk_task_requeue_v2( $task ) {
  * @return void
  */
 function improveseo_bulk_v3_failure( $task, $reason, array $keep = array(), $final = false ) {
-	$last = improveseo_content_v3_last_response();
-	if ( 0 === $last['status'] || $last['status'] >= 500 ) {
-		improveseo_bulk_task_outage( $task, __( 'The ImproveSEO server could not be reached; this post will be retried automatically.', 'improveseo' ) );
+	$last   = improveseo_content_v3_last_response();
+	$status = (int) $last['status'];
+	$code   = (string) $last['code'];
+	if ( 409 === $status && in_array( $code, array( 'v3_disabled', 'v3_regulated_disabled' ), true ) ) {
+		improveseo_bulk_task_requeue_v2( $task );
 		return;
 	}
-	if ( 409 === $last['status'] && in_array( $last['code'], array( 'v3_disabled', 'v3_regulated_disabled' ), true ) ) {
-		improveseo_bulk_task_requeue_v2( $task );
+	// H1: "retry later" only when the server could not be reached, a gateway answered with no v3
+	// error (a deploy or a cold start), the server restarted mid-article, or a limit was hit; a
+	// step that failed (step_failed, timeout, server_error, …) is a counted attempt, so a task that
+	// fails every time ends Failed instead of retrying forever.
+	$unreachable = 0 === $status || ( in_array( $status, array( 502, 503, 504 ), true ) && '' === $code );
+	$later       = $unreachable || in_array( $code, array( 'service_unavailable', 'rate_limited', 'already_generating' ), true );
+	if ( ! $final && $later && improveseo_bulk_outage_budget_left( $task ) ) {
+		if ( 'rate_limited' === $code ) {
+			$why = __( 'Too many requests in a short time; this post will be retried automatically.', 'improveseo' );
+		} elseif ( 'already_generating' === $code ) {
+			$why = __( 'An earlier run of this post is still finishing; it will be retried automatically.', 'improveseo' );
+		} else {
+			$why = __( 'The ImproveSEO server could not be reached; this post will be retried automatically.', 'improveseo' );
+		}
+		improveseo_bulk_task_outage( $task, $why, 'already_generating' !== $code );
 		return;
 	}
 	improveseo_bulk_task_failed( $task, $reason, $keep, $final );
@@ -1416,7 +1468,7 @@ function improveseo_bulk_v3_request_id( $task ) {
 	if ( ! empty( $task->v3_request_id ) && preg_match( '/^[A-Za-z0-9_-]{8,120}$/', (string) $task->v3_request_id ) ) {
 		return (string) $task->v3_request_id;
 	}
-	$id = 'iseo_bulk_t' . absint( $task->id ) . '_' . strtolower( wp_generate_password( 12, false, false ) );
+	$id = improveseo_bulk_v3_session_key( $task ) . '_' . strtolower( wp_generate_password( 12, false, false ) );
 	$wpdb->update( $wpdb->prefix . 'improveseo_bulktasksdetails', array( 'v3_request_id' => $id ), array( 'id' => (int) $task->id ) );
 	$task->v3_request_id = $id;
 	return $id;
@@ -1485,6 +1537,9 @@ function improveseo_bulk_task_failed( $task, $reason, array $keep = array(), $fi
 	improveseo_ensure_bulk_v3_columns();
 	$attempts = ( isset( $task->attempts ) ? (int) $task->attempts : 0 ) + 1;
 	$status   = ( $final || $attempts >= IMPROVESEO_BULK_MAX_ATTEMPTS ) ? 'Failed' : 'Pending';
+	if ( 'Failed' === $status ) {
+		improveseo_bulk_outage_forget( $task );
+	}
 	$data     = array_merge(
 		array_intersect_key( $keep, array_flip( array( 'ai_title', 'ai_image', 'ai_content', 'meta_title', 'meta_description', 'v3_review' ) ) ),
 		array(
@@ -1511,7 +1566,10 @@ function improveseo_bulk_task_failed( $task, $reason, array $keep = array(), $fi
 
 /** Stable per task, so a regeneration is priced as one (server history keyed on it). */
 function improveseo_bulk_v3_session_key( $task ) {
-	return 'iseo_bulk_t' . absint( $task->id );
+	// H3: task ids restart at 1 on every site, so the site code makes the key unique per account
+	// (server-side regeneration pricing and the one-running-run rule are keyed by it).
+	$site = strtolower( preg_replace( '/[^A-Za-z0-9]/', '', (string) get_option( 'improveseo_site_code', '' ) ) );
+	return 'iseo_bulk_' . ( '' !== $site ? substr( $site, 0, 24 ) : 'site' ) . '_t' . absint( $task->id );
 }
 
 /**
@@ -1691,6 +1749,8 @@ function improveseo_bulk_v3_article( $task, $title ) {
 	}
 	return array(
 		'content'          => '<div class="main-content-section-improveseo">' . $content . '</div>',
+		// M4: the title the article was written for (a replay answers with the original one).
+		'title'            => isset( $d['title'] ) ? sanitize_text_field( (string) $d['title'] ) : '',
 		'meta_title'       => isset( $d['meta_title'] ) ? sanitize_text_field( (string) $d['meta_title'] ) : '',
 		'meta_description' => isset( $d['meta_description'] ) ? sanitize_text_field( (string) $d['meta_description'] ) : '',
 		'v3'               => array(

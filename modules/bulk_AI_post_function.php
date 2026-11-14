@@ -890,6 +890,11 @@ function generateBulkAiContent($id = '', $regenerate = '')
 		}
 
 		my_plugin_log('generateBulkAiContent: Generated title for task ' . $id . ': "' . $ai_title . '"');
+		// M4: a fresh v3 title is saved at once, so a retry after an outage keeps it and a replayed
+		// article always matches its title.
+		if ( $iseo_use_v3 && '' === $iseo_prev_title ) {
+			$wpdb->update( $wpdb->prefix . 'improveseo_bulktasksdetails', array( 'ai_title' => $ai_title ), improveseo_bulk_owner_where( $value ) );
+		}
 		if ( ! improveseo_bulk_heartbeat( $value ) ) {
 			my_plugin_log('generateBulkAiContent: task ' . $id . ' was taken over by another run (lease lost) — stopping');
 			return false;
@@ -941,9 +946,14 @@ function generateBulkAiContent($id = '', $regenerate = '')
 			if ( isset( $generation_result['v3'] ) && is_array( $generation_result['v3'] ) ) {
 				$iseo_v3_review = improveseo_bulk_v3_review( $generation_result['v3'] );
 			}
+			// M4: the article belongs to the title the server wrote it for.
+			if ( ! empty( $generation_result['title'] ) && $generation_result['title'] !== $ai_title ) {
+				my_plugin_log('generateBulkAiContent: task ' . $id . ' uses the title its article was written for: "' . $generation_result['title'] . '"');
+				$ai_title = improveseo_normalize_generated_title( $generation_result['title'] );
+			}
 		} else {
-			// target_key: the task's slot, so the server prices a regeneration as one (as the single wizard does).
-			$generation_result = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, function_exists( 'improveseo_v2_point_of_view' ) ? improveseo_v2_point_of_view( $value->point_of_view ) : $value->point_of_view, $ai_title, $iseo_cta['text'], $value->details_to_include, '', $iseo_niche, $iseo_niche_data, $iseo_brand_profile, $iseo_cta['url'], improveseo_bulk_v3_session_key( $value ));
+			// v2 is called exactly as before Content v3 (no target_key, so v2 bulk billing is unchanged).
+			$generation_result = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, function_exists( 'improveseo_v2_point_of_view' ) ? improveseo_v2_point_of_view( $value->point_of_view ) : $value->point_of_view, $ai_title, $iseo_cta['text'], $value->details_to_include, '', $iseo_niche, $iseo_niche_data, $iseo_brand_profile, $iseo_cta['url']);
 		}
 
 		// Extract content from the result array
@@ -965,8 +975,9 @@ function generateBulkAiContent($id = '', $regenerate = '')
 			|| false !== strpos( (string) $AI_Content, 'Missing API credentials' );
 		if ( $iseo_use_v3 ) {
 			improveseo_bulk_v3_failure( $value, improveseo_bulk_error_reason( $AI_Content ), array( 'ai_title' => $ai_title ), $iseo_final );
-		} elseif ( false !== strpos( (string) $AI_Content, 'Failed to connect to content generation server' ) || preg_match( '/error status: 5\d\d/', (string) $AI_Content ) ) {
-			// B-7: the v2 generator could not reach the server either: pause, don't count.
+		} elseif ( ( false !== strpos( (string) $AI_Content, 'Failed to connect to content generation server' ) || preg_match( '/error status: 50[234]\b/', (string) $AI_Content ) ) && improveseo_bulk_outage_budget_left( $value ) ) {
+			// B-7 / H1: the v2 generator could not reach the server (or a gateway error): pause, don't
+			// count, up to the per-task cap; any other error is a counted attempt.
 			improveseo_bulk_task_outage( $value, __( 'The ImproveSEO server could not be reached; this post will be retried automatically.', 'improveseo' ) );
 		} else {
 			improveseo_bulk_task_failed( $value, improveseo_bulk_error_reason( $AI_Content ), array( 'ai_title' => $ai_title ), $iseo_final );
@@ -1107,6 +1118,9 @@ function generateBulkAiContent($id = '', $regenerate = '')
 			return false;
 		}
 		improveseo_bulk_unpause();
+		if ( function_exists( 'improveseo_bulk_outage_forget' ) ) {
+			improveseo_bulk_outage_forget( $value );
+		}
 		
 		// ✅ CRITICAL: Verify the update succeeded
 		if ($update_result === false) {

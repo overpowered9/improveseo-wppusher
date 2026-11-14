@@ -23,6 +23,7 @@ $improveseo_v3_options = array(
 	'improveseo_v3_keyword_data',
 	'improveseo_regulated_notice_seen',
 	'improveseo_bulk_pause',
+	'improveseo_bulk_outages',
 	'improveseo_bulk_v3_cols',
 	'improveseo_lists_metrics_col',
 	'improveseo_v3_wizard_files',

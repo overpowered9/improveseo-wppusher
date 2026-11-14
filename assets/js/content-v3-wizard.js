@@ -475,6 +475,9 @@
   document.addEventListener('submit', function (e) {
     if (e.target && e.target.id === 'main_form' && !e.defaultPrevented) { submitted = true; }
   });
+  // L3: a form sent with form.submit() fires no submit event; that path calls this first, so the
+  // page-hide cleanup keeps the new post's images and article.
+  window.iseoV3MarkSubmitted = function () { submitted = true; };
   window.addEventListener('pagehide', function () {
     if (!onSingleWizard || !window.iseoV3SessionUsed || cleaned || !sessionKey() || !navigator.sendBeacon) { return; }
     cleaned = true;

@@ -634,6 +634,8 @@ jQuery(document).ready(function($) {
 				if (submitter && submitter.name) {
 					$('<input type="hidden">').attr('name', submitter.name).val(submitter.value || '1').appendTo($form);
 				}
+				// form.submit() fires no submit event: tell the Content v3 cleanup this is a Submit (L3).
+				if (typeof window.iseoV3MarkSubmitted === 'function') { window.iseoV3MarkSubmitted(); }
 				$form[0].submit();
 			}
 		}
