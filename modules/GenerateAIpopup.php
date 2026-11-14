@@ -392,6 +392,9 @@ function generateAIpopup()
 
 
     $saved_rnos = get_option('get_saved_random_numbers');
+    if (!is_array($saved_rnos) && !is_object($saved_rnos)) {
+        $saved_rnos = array(); // unset option: nothing to list (foreach on false warned)
+    }
 
     $shortcode_html = '<h3>Testimonial</h3>';
 
@@ -700,7 +703,7 @@ function generateAIpopup()
 
     $html_key_to_send = $html_key;
 
-    $list_to_send = $list;
+    $list_to_send = $list ?? null;
 
     $AllShortCode_to_send = $AllShortCode;
 

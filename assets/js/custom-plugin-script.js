@@ -2390,9 +2390,10 @@ jQuery(document).ready(function ($) {
     }
   );
 
-  // Make the gallery sortable
+  // Make the gallery sortable (only where jQuery UI Sortable is loaded: this file also runs on the
+  // front end, where the call threw on every page view).
 
-  jQuery(".multi-upload-gallery").sortable({
+  if (typeof jQuery.fn.sortable === "function") jQuery(".multi-upload-gallery").sortable({
     items: "li",
 
     cursor: "-webkit-grabbing",
@@ -2718,7 +2719,8 @@ jQuery(document).ready(function () {
     }
   );
 
-  jQuery("#smartwizard_multi").smartWizard({
+  // Settings and other plugin pages load this file without SmartWizard, where this call threw.
+  if (typeof jQuery.fn.smartWizard === "function") jQuery("#smartwizard_multi").smartWizard({
     selected: 0,
 
     theme: "default", // theme for the wizard, related CSS need to include for other than default theme

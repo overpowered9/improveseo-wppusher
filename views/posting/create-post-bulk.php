@@ -101,7 +101,7 @@ $ai_modal_type = 'bulk';
 						if (isset($_GET['cat_pre'])) {
 							$cat_pre = $_GET['cat_pre'];
 							$cat_pre = explode(",", $cat_pre);
-						} else if ($task->cats != "") {
+						} else if (isset($task->cats) && $task->cats != "") {
 							$cat_pre = json_decode($task->cats, true);
 						}
 
@@ -112,6 +112,7 @@ $ai_modal_type = 'bulk';
 							"order" => "ASC"
 						);
 						$cats = get_categories($args);
+						$select = '';
 						foreach ($cats as $category) {
 							// do not show improve SEO category
 						
@@ -174,7 +175,7 @@ $ai_modal_type = 'bulk';
 										</div>
 										<div class="google-mobile-preview-pagename">
 											<?php
-											if ($task->options['custom_title'] == "")
+											if (($task->options['custom_title'] ?? '') == "")
 												echo '@title';
 											else
 												echo esc_html( $task->options['custom_title'] ); ?>
@@ -185,7 +186,7 @@ $ai_modal_type = 'bulk';
 												－ </span>
 											<span class="google-description-content">
 												<?php
-												if ($task->options['custom_title'] == "") {
+												if (($task->options['custom_title'] ?? '') == "") {
 													echo "Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.";
 												} else {
 													echo esc_html( $task->options['custom_title'] );
@@ -208,7 +209,7 @@ $ai_modal_type = 'bulk';
 										</div>
 										<div class="google-desktop-preview-pagename">
 											<?php
-											if ($task->options['custom_title'] == "")
+											if (($task->options['custom_title'] ?? '') == "")
 												echo '@title';
 											else
 												echo esc_html( $task->options['custom_title'] ); ?>
@@ -219,7 +220,7 @@ $ai_modal_type = 'bulk';
 											</span>
 											<span class="google-description-content">
 												<?php
-												if ($task->options['custom_title'] == "") {
+												if (($task->options['custom_title'] ?? '') == "") {
 													echo "Please provide a meta description by editing the snippet below. If you don't, Google will try to find a relevant part of your post to show in the search results.";
 												} else {
 													echo esc_html( $task->options['custom_title'] );
@@ -237,7 +238,7 @@ $ai_modal_type = 'bulk';
 										style="padding: 20px; border-radius: 10px !important; border-color: #cccccc; margin-bottom: 20px; "
 										class="full-width form-control textarea-control"
 										placeholder="Meta Title:Here Ex:Mango: Health Benefits"
-										value="<?php echo esc_attr( Validator::old('custom_title', $task->options['custom_title']) ); ?>">
+										value="<?php echo esc_attr( Validator::old('custom_title', $task->options['custom_title'] ?? null) ); ?>">
 									<!-- <span>Ex.</span> -->
 								</div>
 								<div id="custom-title-error" style="display:none; color:red; margin-top:5px;">
@@ -252,7 +253,7 @@ $ai_modal_type = 'bulk';
 								<textarea id="custom-description"
 									placeholder="Meta Description:Discover Mango Magic: Health Benefits, Recipes, and Tips for the Perfect Fruit."
 									name="custom_description" rows="5"
-									class="full-width textarea-control"><?php echo esc_html( Validator::old('custom_description', $task->options['custom_description']) ); ?></textarea>
+									class="full-width textarea-control"><?php echo esc_html( Validator::old('custom_description', $task->options['custom_description'] ?? null) ); ?></textarea>
 								<!-- <span>Ex.</span> -->
 								<!-- </div> -->
 								<div id="custom-description-error" style="display:none; color:red; margin-top:5px;">Your
@@ -267,7 +268,7 @@ $ai_modal_type = 'bulk';
 				</div>
 
 
-				<?php if ($word_ai_email && $word_ai_pass): ?>
+				<?php if (!empty($word_ai_email) && !empty($word_ai_pass)): ?>
 					<!-- Word AI -->
 					<div class="postbox">
 						<button type="button" class="handlediv button-link" aria-expanded="true">

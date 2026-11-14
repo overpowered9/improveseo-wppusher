@@ -43,7 +43,7 @@ $_isSingleCreate = isset($ai_modal_type) && $ai_modal_type === 'single';
 						</span>
 					<?php endif; ?></label>
 					<input type="text" name="name" class="PostForm__name form-control" placeholder="Project name here"
-						value="<?php echo esc_attr( Validator::old('name', $task->name) ); ?>" required>
+						value="<?php echo esc_attr( Validator::old('name', $task->name ?? null) ); ?>" required>
 				<?php if (Validator::hasError('name')): ?>
 					<span class="PostForm__error"><?php echo esc_html( Validator::get('name') ); ?></span>
 				<?php endif; ?>
@@ -60,14 +60,14 @@ $_isSingleCreate = isset($ai_modal_type) && $ai_modal_type === 'single';
 						</span>
 					<?php endif; ?></label>
 					<input type="text" id="title" name="title" class="PostForm__title form-control"
-						placeholder="Enter title here" value="<?php echo esc_attr( Validator::old('title', $task->content['title']) ); ?>">
+						placeholder="Enter title here" value="<?php echo esc_attr( Validator::old('title', $task->content['title'] ?? null) ); ?>">
 				<?php if (Validator::hasError('title')): ?>
 					<span class="PostForm__error"><?php echo esc_html( Validator::get('title') ); ?></span>
 				<?php endif; ?>
 
 				<div id="edit-slug-box">
 					<?php
-					$old_permalink = Validator::old('permalink', $task->options['permalink']);
+					$old_permalink = Validator::old('permalink', $task->options['permalink'] ?? null);
 					?>
 					<?php // Permalink display + "non-editable URL structure" note removed by request (single,
 					// bulk and edit screens). Removed server-side so it never renders — no flash/flicker,
@@ -94,7 +94,7 @@ $_isSingleCreate = isset($ai_modal_type) && $ai_modal_type === 'single';
 					</span>
 				</label>
 				<?php endif; ?>
-				<?php wp_editor(Validator::old('content', $task->content['content']), 'content', array(
+				<?php wp_editor(Validator::old('content', $task->content['content'] ?? ''), 'content', array(
 				'_content_editor_dfw' => '',
 				'drag_drop_upload' => true,
 				'tabfocus_elements' => 'content-html,save-post',

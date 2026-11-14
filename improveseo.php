@@ -34,34 +34,31 @@ define('WT_PATH', untrailingslashit(plugin_dir_path(__FILE__)));
 
 define('WT_URL', untrailingslashit(plugin_dir_url(__FILE__)));
 
-wp_enqueue_script(
+/**
+ * The plugin's main admin script. Enqueued from the enqueue hooks: calling wp_enqueue_script() while
+ * plugin files load raised a "called incorrectly" notice on every request. Both hooks keep it on
+ * every screen that printed it before (admin and front end).
+ */
+function improveseo_enqueue_custom_plugin_script()
+{
+	wp_enqueue_script(
+		'custom-plugin-script',
+		plugin_dir_url(__FILE__) . 'assets/js/custom-plugin-script.js',
+		array('jquery', 'wp-i18n'),
+		filemtime(plugin_dir_path(__FILE__) . 'assets/js/custom-plugin-script.js'),
+		true
+	);
 
-	'custom-plugin-script',
+	wp_localize_script('custom-plugin-script', 'standred_var', array(
+		'ajax_url' => admin_url('admin-ajax.php')
+	));
 
-	plugin_dir_url(__FILE__) . 'assets/js/custom-plugin-script.js',
+	// Popup strings in this script use wp.i18n.__( ..., 'improveseo' ) (hence the wp-i18n dependency).
+	wp_set_script_translations('custom-plugin-script', 'improveseo', plugin_dir_path(__FILE__) . 'languages');
+}
 
-	array('jquery', 'wp-i18n'),
-
-	filemtime(plugin_dir_path(__FILE__) . 'assets/js/custom-plugin-script.js'),
-
-	true
-
-);
-
-
-
-$standred_variable = array(
-
-	'ajax_url' => admin_url('admin-ajax.php')
-
-);
-
-
-
-wp_localize_script('custom-plugin-script', 'standred_var', $standred_variable);
-
-// Popup strings in this script use wp.i18n.__( ..., 'improveseo' ) (hence the wp-i18n dependency).
-wp_set_script_translations('custom-plugin-script', 'improveseo', plugin_dir_path(__FILE__) . 'languages');
+add_action('admin_enqueue_scripts', 'improveseo_enqueue_custom_plugin_script');
+add_action('wp_enqueue_scripts', 'improveseo_enqueue_custom_plugin_script');
 
 
 
@@ -272,6 +269,7 @@ switch ($ai_modal_type) {
 
 
 
+	$list = '';
 	if (!empty($seo_list)) {
 
 		foreach ($seo_list as $li) {
@@ -1160,23 +1158,7 @@ function improveseo_set_featured_image_from_url( $post_id, $image_url, $post_tit
 
 
 
-//function custom_plugin_enqueue_script() {
-
-// Enqueue the script
-
-wp_enqueue_script(
-
-	'custom-plugin-script', // Script handle
-
-	plugin_dir_url(__FILE__) . 'assets/js/custom-plugin-script.js', // Script URL
-
-	array('jquery'), // Dependencies (optional)
-
-	filemtime(plugin_dir_path(__FILE__) . 'assets/js/custom-plugin-script.js'), // Script version (optional)
-
-	true // Load script in footer
-
-);
+// custom-plugin-script is enqueued once, by improveseo_enqueue_custom_plugin_script() near the top.
 
 
 
