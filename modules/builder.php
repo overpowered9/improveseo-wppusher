@@ -1470,6 +1470,9 @@ function improveseo_builder()
 				$iseo_kw_item = ! empty( $options['ai_keyword_data'] ) ? json_decode( (string) $options['ai_keyword_data'], true ) : null;
 				improveseo_save_keyword_meta( $post_id, $options['ai_seed_keyword'], is_array( $iseo_kw_item ) ? $iseo_kw_item : null );
 			}
+			if ( function_exists( 'improveseo_save_v3_post_meta' ) ) {
+				improveseo_save_v3_post_meta( $post_id, $options );
+			}
 
 			// Flag preview-generated posts so the cron sweep can target them
 			// precisely and never touch a real draft.
@@ -3523,6 +3526,9 @@ function improveseo_builder_update()
 			if ( function_exists( 'improveseo_save_keyword_meta' ) && is_array( $options ) && ! empty( $options['ai_seed_keyword'] ) ) {
 				$iseo_kw_item = ! empty( $options['ai_keyword_data'] ) ? json_decode( (string) $options['ai_keyword_data'], true ) : null;
 				improveseo_save_keyword_meta( $post_id, $options['ai_seed_keyword'], is_array( $iseo_kw_item ) ? $iseo_kw_item : null );
+			}
+			if ( function_exists( 'improveseo_save_v3_post_meta' ) ) {
+				improveseo_save_v3_post_meta( $post_id, $options );
 			}
 
 			// Flag preview-generated posts so the cron sweep can target them

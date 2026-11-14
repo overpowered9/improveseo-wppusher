@@ -84,6 +84,9 @@ add_filter('wp_insert_post_data', function ($data, $postarr) {
 	<?php // The search data shown for the seed keyword (JSON item) and where the keyword came from; saved into the project options and the post's _iseo_keyword_data meta. ?>
 	<input type="hidden" name="ai_keyword_data" id="ai_keyword_data_hidden" />
 	<input type="hidden" name="ai_keyword_source" id="ai_keyword_source_hidden" />
+	<?php // Content v3: the article's final proof level and the server generation id, saved as _iseo_proof_level / _iseo_v3_generation_id (modules/content-v3.php). ?>
+	<input type="hidden" name="ai_v3_proof_level" id="ai_v3_proof_level_hidden" />
+	<input type="hidden" name="ai_v3_generation_id" id="ai_v3_generation_id_hidden" />
     
 	<div class="style_create_page_form iseo-single-post-view" style="display: none;">
 		<div class="CreatePost improveseo_wrapper create_page_cont_1">

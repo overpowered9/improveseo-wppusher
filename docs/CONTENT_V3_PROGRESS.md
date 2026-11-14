@@ -18,8 +18,8 @@ Kept up to date at the end of every phase (brief rule 11), so a fresh session ca
 | 5 | Approve → Research → Planner, step 2, regulated topics | **Done** | server + plugin |
 | 6 | Niche profile + proof level | **Done** (G4 texts blocked) | server + plugin |
 | 7 | Blueprint + admin tester panel | **Done** | server + admin |
-| 8 | Writer draft 2 + post-processing + validator + paid v3 route | Next | |
-| 9 | Interim approaches U1–U6 | | |
+| 8 | Writer draft 2 + post-processing + validator + paid v3 route | **Done** (V10 blocked) | server + plugin |
+| 9 | Interim approaches U1–U6 | Next (U1–U4, U6 done in 5/6/8) | |
 | 10 | Bulk parity + bulk and bug fixes | | |
 | 11 | Keyword data integration | | |
 | 12 | Remaining wizard items | | |
@@ -124,6 +124,21 @@ Real run 14 Nov ("water heater repair Española", Española NM): town call thin 
 
 ### G, B, N, WR, V, U, X, BULK, BUG, K
 Unchanged from Phase 0 except:
+- **WR1–WR4** DONE: core + six rules blocks verbatim (equality tests), core's order (C1), user message in the doc's order, `===WRITER_JSON===` parsed. Templates: core `content_v3_system`, rules_seo `content_v3_seo_rules`, reader_first `content_v3_business_context`, four new `content_v3_rules_*`.
+- **WR3** DONE (mechanism) / gate: production still holds the pre-v3 texts in the three shared templates; the server uses the doc text from code until `POST /content-v3/prompts/seed?mode=replace` runs (needs your go-ahead: it writes to the production prompt DB, backing up first).
+- **WR5, WR6** DONE: `data-iseo` values quick-answer / takeaways / body / faq / closing; meta and FAQ out of the Writer JSON (FAQ read from the HTML).
+- **WR7** DONE: first use of up to 4 sources linked as `(domain)`, other tokens removed, unknown tokens logged.
+- **WR8** DONE: TOC (`<nav class="iseo-toc">` after the summary, C3); disclaimer slot (empty until G4 texts).
+- **WR9** DONE: system prompt identical per article; live: 8,399 cached tokens on the second call, writer cost $0.114 → $0.067.
+- **WR10** DONE: HTML allowlist sanitizer.
+- **V1–V9, V11** DONE: validator (see server docs/CONTENT_V3.md), report stored on `user_generations.metadata` and `content_v3_posts.validator`. **V10** BLOCKED (Humanizer v1.2 doc).
+- **W4** DONE: Generate AI Post under v3 → `/content-v3/article` (paid like v2); v2 fallback when the server says v3 is off.
+- **W11** DONE: "Please check this article" with the failing checks, "Use anyway" / "Regenerate".
+- **BUG2** DONE: FAQ located by `data-iseo="faq"` and parsed from `<h3>`+`<p>` (v2 shapes unchanged).
+- **BUG3** DONE for v3 (the writer model is recorded); v2 in phase 10.
+- **G6** DONE: final proof level per post (business level + Keep / Turn off), stored server-side and as `_iseo_proof_level` post meta.
+- **OPS4** DONE for v3: timeouts, ≤ 3 attempts per step, credits reserved once, refunded on failure, double-click refused.
+- **U1** DONE (approved): the old humanizer does not run on v3. **U2/U3** DONE (single wizard; bulk draft in phase 10). **U4** DONE.
 - **B1** DONE: every piece verbatim (test re-parses the doc), one editable record `content_v3_blueprint_directives` (replace mode backs up the old JSON as pre-v3).
 - **B2–B7, B10, B11** DONE: draws a–m in order, history checks, word targets, numbered titles, TOC auto by size, pins. Working values: front/back-heavy 1.4↔0.7; "one fewer" stops at the size's range minimum.
 - **B8** DONE: "no figure" piece when no currency amount in research facts or Business details pricing.
@@ -205,6 +220,12 @@ Unchanged from Phase 0 except:
 - The tester panel's pins have no effect on `/article/test` until phase 8 (the old chain ignores `blueprint_pins`).
 - The scratchpad was wiped mid-session; QA scripts now live in `content-v3-delivery/qa/` (outside the repos).
 
+## Phase 8 notes
+
+- Live tester run (Medium, standard, plumbing, Española): passed first try, 1,388 words, writer $0.139.
+- Live wizard run (Small; the test site was still Regulated/dental from phase 6): the repair run fixed a summary-form error; the article then needed review because a Regulated post needs 3 cited sources and there is no research without the Perplexity key. **Every Regulated article will need review until research is live.** It used the owner's answer ($180–$450). Cost $0.26 total. 6 credits charged on the connected test account (local server uses the production DB).
+- Writing-quality notes for the 10-keyword review (prompt text, not code): without research the Writer still wrote one unsourced local claim ("New Mexico water tends to be hard") and one announcement ("Below we walk through…"); it flagged the unsourced lifespan claim itself in `claims_to_check`.
+
 ## Next
 
-Phase 8: Writer draft 2 (core + six rules blocks byte-equal, cached system block), post-processing (source links, TOC, disclaimer, FAQ from HTML), validator, Cleanup interim U2/U3, meta U4, paid `/content-v3/article` with reserve/refund, posts history (B9, B12), plugin generation. WR1–WR9, V1–V11, U1–U5, OPS4, G6.
+Phase 9: remaining interim approaches (U5 image prompts unchanged under v3; check U6 complete). Then phase 10: bulk parity (BULK1–7) and BUG1/BUG3.

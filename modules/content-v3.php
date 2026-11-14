@@ -53,9 +53,10 @@ function improveseo_content_v3_forget_server_status() {
  * @param int        $timeout Seconds.
  * @return array|null Decoded body on success (HTTP 200 and success: true), else null.
  */
-function improveseo_content_v3_request( $method, $path, $body = null, &$error = null, &$status = null, $timeout = 30 ) {
+function improveseo_content_v3_request( $method, $path, $body = null, &$error = null, &$status = null, $timeout = 30, &$code = null ) {
 	$error  = '';
 	$status = 0;
+	$code   = '';
 
 	$api_key   = get_option( 'improveseo_api_key' );
 	$site_code = get_option( 'improveseo_site_code' );
@@ -99,7 +100,7 @@ function improveseo_content_v3_request( $method, $path, $body = null, &$error = 
 	$data   = json_decode( wp_remote_retrieve_body( $response ), true );
 
 	if ( 200 !== $status || ! is_array( $data ) || empty( $data['success'] ) ) {
-		$code = is_array( $data ) && isset( $data['error'] ) && is_string( $data['error'] ) ? $data['error'] : '';
+		$code = is_array( $data ) && isset( $data['error'] ) && is_string( $data['error'] ) ? sanitize_key( $data['error'] ) : '';
 		error_log( 'improveseo_content_v3_request: failure path=' . $path . ' | status=' . $status . ' | code=' . ( $code ? $code : 'unknown' ) );
 		if ( is_array( $data ) && ! empty( $data['message'] ) && is_string( $data['message'] ) ) {
 			$error = $data['message'];
@@ -487,6 +488,10 @@ function improveseo_content_v3_enqueue() {
 			'regulatedBusiness' => __( 'Your business is set as Regulated, so this article uses stricter sourcing. You can turn it off for this post.', 'improveseo' ),
 			'planFallback'      => __( 'We could not plan this article in detail, so it uses a simple plan. You can still generate it.', 'improveseo' ),
 			'researchSkipped'   => __( 'Topic research was not available this time; the article will not quote figures.', 'improveseo' ),
+			'reviewTitle'       => __( 'Please check this article', 'improveseo' ),
+			'reviewLead'        => __( 'We wrote this article twice, but it still misses some of our quality checks:', 'improveseo' ),
+			'useAnyway'         => __( 'Use anyway', 'improveseo' ),
+			'regenerate'        => __( 'Regenerate', 'improveseo' ),
 		),
 	) );
 }
@@ -766,4 +771,160 @@ function improveseo_regulated_notice() {
 	echo '<div class="notice notice-info is-dismissible"><p><strong>' . esc_html__( 'Your business is set as Regulated.', 'improveseo' ) . '</strong> ' .
 		esc_html__( 'Every new Content v3 post uses stricter sourcing: figures need a cited source, no outcomes are promised, and posts link to at least 3 sources. Bulk posts are saved as drafts so you can review them before publishing. You can turn Regulated off for a single post in the post wizard.', 'improveseo' ) .
 		'</p></div>';
+}
+
+/* ======================================================================================
+ * Generate AI Post (W4): the paid v3 article from the wizard session's plan.
+ * ====================================================================================*/
+
+/**
+ * The v3 article for the single wizard. Called from getaaldata() (single_AI_post_function.php)
+ * while v3 is active. Returns the same keys createAIpost2() returns, plus 'v3'; error texts use the
+ * same sentinels the wizard's JS already handles (402 credit notice, ISEO_NOT_CONNECTED::).
+ *
+ * @param array  $arr   The wizard form, parsed.
+ * @param string $title The approved title.
+ * @return array|null Null when the server answered that v3 is off: the caller runs v2 instead.
+ */
+function improveseo_content_v3_generate_article( array $arr, $title ) {
+	$session_key = improveseo_content_v3_session_key( isset( $arr['target_key'] ) ? $arr['target_key'] : '' );
+	if ( '' === $session_key ) {
+		return array( 'content' => 'Error: ' . __( 'The wizard session could not be identified. Please reload the page and start again.', 'improveseo' ), 'meta_title' => '', 'meta_description' => '' );
+	}
+	$text = function ( $key, $max = 600 ) use ( $arr ) {
+		$v = isset( $arr[ $key ] ) && is_string( $arr[ $key ] ) ? trim( sanitize_textarea_field( wp_unslash( $arr[ $key ] ) ) ) : '';
+		return function_exists( 'mb_substr' ) ? mb_substr( $v, 0, $max ) : substr( $v, 0, $max );
+	};
+
+	$sizes = array(
+		'600 to 1200 words'  => 'small',
+		'1200 to 2400 words' => 'medium',
+		'2400 to 3600 words' => 'large',
+	);
+	$size = isset( $arr['iseo_v3_post_size'] ) && in_array( $arr['iseo_v3_post_size'], array( 'small', 'medium', 'large' ), true )
+		? $arr['iseo_v3_post_size']
+		: ( isset( $arr['nos_of_words'], $sizes[ urldecode( $arr['nos_of_words'] ) ] ) ? $sizes[ urldecode( $arr['nos_of_words'] ) ] : 'medium' );
+
+	$answers   = array();
+	$questions = isset( $arr['iseo_v3_owner_q'] ) && is_array( $arr['iseo_v3_owner_q'] ) ? $arr['iseo_v3_owner_q'] : array();
+	$replies   = isset( $arr['iseo_v3_owner_a'] ) && is_array( $arr['iseo_v3_owner_a'] ) ? $arr['iseo_v3_owner_a'] : array();
+	foreach ( $questions as $i => $q ) {
+		$a = isset( $replies[ $i ] ) ? trim( sanitize_textarea_field( wp_unslash( (string) $replies[ $i ] ) ) ) : '';
+		if ( '' !== $a && count( $answers ) < 2 ) {
+			$answers[] = array( 'question' => sanitize_text_field( wp_unslash( (string) $q ) ), 'answer' => $a );
+		}
+	}
+
+	// "Details for this post" (nd_<id>) and the regenerate instruction travel as <anything_else>;
+	// a pricing detail also tells the blueprint a price is available.
+	$details = array();
+	$pricing = '';
+	foreach ( $arr as $k => $v ) {
+		if ( 0 !== strpos( (string) $k, 'nd_' ) ) {
+			continue;
+		}
+		$v = is_array( $v ) ? implode( ', ', array_map( 'sanitize_text_field', $v ) ) : sanitize_text_field( (string) $v );
+		if ( '' === trim( $v ) ) {
+			continue;
+		}
+		$label     = str_replace( '_', ' ', substr( (string) $k, 3 ) );
+		$details[] = $label . ': ' . $v;
+		if ( false !== strpos( $label, 'pric' ) || false !== strpos( $label, 'cost' ) ) {
+			$pricing .= ( $pricing ? '; ' : '' ) . $v;
+		}
+	}
+	$anything = trim( implode( "\n", array_filter( array( $text( 'custom_instruction', 500 ), implode( "\n", $details ) ) ) ) );
+
+	$regulated = null;
+	if ( isset( $arr['iseo_v3_regulated_shown'] ) && '1' === $arr['iseo_v3_regulated_shown'] ) {
+		$regulated = ! ( isset( $arr['iseo_v3_regulated_choice'] ) && 'off' === $arr['iseo_v3_regulated_choice'] );
+	}
+
+	$cta_url = isset( $arr['cta_url'] ) ? trim( (string) $arr['cta_url'] ) : '';
+	if ( '' !== $cta_url && function_exists( 'improveseo_normalize_cta_url' ) ) {
+		$cta_url = improveseo_normalize_cta_url( $cta_url );
+	}
+	$tone = isset( $arr['content_type'] ) ? sanitize_key( $arr['content_type'] ) : '';
+
+	$body = array(
+		'session_key'      => $session_key,
+		'post_size'        => $size,
+		'article_type'     => isset( $arr['iseo_v3_article_type'] ) && in_array( $arr['iseo_v3_article_type'], array( 'cost', 'decision', 'question', 'topic' ), true ) ? $arr['iseo_v3_article_type'] : null,
+		'regulated'        => $regulated,
+		'point_of_view'    => improveseo_v3_map_point_of_view( isset( $arr['point_of_view'] ) ? (string) $arr['point_of_view'] : '' ),
+		'tone'             => $tone,
+		'language'         => $text( 'content_lang', 40 ),
+		'business_name'    => trim( (string) get_option( 'improveseo_business_name', '' ) ) ? trim( (string) get_option( 'improveseo_business_name', '' ) ) : wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+		'stand_out'        => trim( (string) get_option( 'improveseo_business_stand_out', '' ) ),
+		'business_pricing' => $pricing,
+		'cta_text'         => $text( 'call_to_action', 300 ),
+		'cta_url'          => $cta_url,
+		'owner_answers'    => $answers,
+		'anything_else'    => $anything,
+	);
+	$body = array_filter( $body, function ( $v ) {
+		return null !== $v && '' !== $v && array() !== $v;
+	} );
+
+	$error  = '';
+	$status = 0;
+	$code   = '';
+	$data   = improveseo_content_v3_request( 'POST', '/api/v1/content-v3/article', $body, $error, $status, 600, $code );
+	if ( ! is_array( $data ) ) {
+		if ( 409 === $status && 'v3_disabled' === $code ) {
+			improveseo_content_v3_forget_server_status();
+			return null;
+		}
+		if ( 401 === $status || 403 === $status ) {
+			return array( 'content' => 'ISEO_NOT_CONNECTED::' . $error, 'meta_title' => '', 'meta_description' => '' );
+		}
+		if ( 402 === $status ) {
+			return array( 'content' => 'Error: Content generation server returned error status: 402 — ' . $error, 'meta_title' => '', 'meta_description' => '' );
+		}
+		return array( 'content' => 'Error: ' . $error, 'meta_title' => '', 'meta_description' => '' );
+	}
+
+	$d      = isset( $data['data'] ) && is_array( $data['data'] ) ? $data['data'] : array();
+	$review = isset( $d['review'] ) && is_array( $d['review'] ) ? $d['review'] : array();
+	$issues = array();
+	foreach ( (array) ( isset( $review['issues'] ) ? $review['issues'] : array() ) as $issue ) {
+		if ( is_array( $issue ) && ! empty( $issue['message'] ) ) {
+			$issues[] = array(
+				'severity' => isset( $issue['severity'] ) && 'error' === $issue['severity'] ? 'error' : 'warning',
+				'message'  => sanitize_text_field( (string) $issue['message'] ),
+			);
+		}
+	}
+	return array(
+		// The article HTML is the server's sanitized output; it is shown in the preview and saved
+		// through the normal post flow, which applies wp_kses_post().
+		'content'          => isset( $d['content'] ) ? (string) $d['content'] : '',
+		'meta_title'       => isset( $d['meta_title'] ) ? sanitize_text_field( (string) $d['meta_title'] ) : '',
+		'meta_description' => isset( $d['meta_description'] ) ? sanitize_text_field( (string) $d['meta_description'] ) : '',
+		'v3'               => array(
+			'generation_id' => isset( $d['generation_id'] ) ? absint( $d['generation_id'] ) : 0,
+			'proof_level'   => isset( $d['proof_level'] ) && 'regulated' === $d['proof_level'] ? 'regulated' : 'standard',
+			'needs_review'  => ! empty( $d['needs_review'] ),
+			'issues'        => $issues,
+		),
+	);
+}
+
+/**
+ * Post meta for a v3 article (G6): the final proof level and the server's generation id.
+ *
+ * @param int   $post_id Post ID.
+ * @param array $options The project options (ai_v3_proof_level, ai_v3_generation_id).
+ * @return void
+ */
+function improveseo_save_v3_post_meta( $post_id, $options ) {
+	$post_id = absint( $post_id );
+	if ( ! $post_id || ! is_array( $options ) || empty( $options['ai_v3_proof_level'] ) ) {
+		return;
+	}
+	$level = 'regulated' === $options['ai_v3_proof_level'] ? 'regulated' : 'standard';
+	update_post_meta( $post_id, '_iseo_proof_level', $level );
+	if ( ! empty( $options['ai_v3_generation_id'] ) ) {
+		update_post_meta( $post_id, '_iseo_v3_generation_id', absint( $options['ai_v3_generation_id'] ) );
+	}
 }

@@ -862,6 +862,16 @@ function improveseo_dashboard() {
 					$options_data['ai_keyword_data'] = wp_json_encode( $iseo_kw_item );
 				}
 			}
+			// Content v3: final proof level + generation id (modules/content-v3.php, improveseo_save_v3_post_meta()).
+			if ( isset( $_POST['ai_v3_proof_level'] ) ) {
+				$iseo_v3_level = sanitize_key( wp_unslash( $_POST['ai_v3_proof_level'] ) );
+				if ( in_array( $iseo_v3_level, array( 'standard', 'regulated' ), true ) ) {
+					$options_data['ai_v3_proof_level'] = $iseo_v3_level;
+				}
+			}
+			if ( ! empty( $_POST['ai_v3_generation_id'] ) ) {
+				$options_data['ai_v3_generation_id'] = absint( wp_unslash( $_POST['ai_v3_generation_id'] ) );
+			}
 			if ( isset( $_POST['ai_keyword_source'] ) ) {
 				$iseo_kw_src = sanitize_key( wp_unslash( $_POST['ai_keyword_source'] ) );
 				if ( in_array( $iseo_kw_src, array( 'keyword_finder', 'typed' ), true ) ) {

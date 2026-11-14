@@ -250,7 +250,9 @@
       var id = 'iseo_v3_owner_answer_' + i;
       var $field = $('<div class="seo-form-field iseo-v3-owner-q"></div>');
       $field.append($('<label></label>').attr('for', id).text(question));
-      $field.append($('<textarea class="form-control" rows="2" maxlength="600"></textarea>').attr('id', id).attr('data-question', question).attr('placeholder', t.ownerPlaceholder || ''));
+      // Named so the wizard form carries them to the article request (iseo_v3_owner_q[] / _a[]).
+      $field.append($('<input type="hidden" name="iseo_v3_owner_q[]">').val(question));
+      $field.append($('<textarea class="form-control" rows="2" maxlength="600" name="iseo_v3_owner_a[]"></textarea>').attr('id', id).attr('data-question', question).attr('placeholder', t.ownerPlaceholder || ''));
       $q.append($field);
     });
     if ((plan.owner_questions || []).length) {
@@ -269,8 +271,10 @@
       }
       $('#iseo_v3_regulated_text').text(text);
       $('input[name="iseo_v3_regulated_choice"][value="keep"]').prop('checked', true);
+      $('#iseo_v3_regulated_shown').val('1');
       $('#iseo_v3_regulated').show();
     } else {
+      $('#iseo_v3_regulated_shown').val('0');
       $('#iseo_v3_regulated').hide();
     }
 
@@ -353,6 +357,47 @@
           resolve(false);
         });
     });
+  };
+
+  /**
+   * After Generate AI Post (W4, W11): keep the article's proof level and generation id for the
+   * saved post, and when the checks still found problems after the Writer's second run, say so
+   * plainly with "Use anyway" or "Regenerate".
+   */
+  window.iseoV3LastArticle = null;
+  window.iseoV3AfterArticle = function (data) {
+    if (!data || !data.v3) {
+      return;
+    }
+    window.iseoV3LastArticle = data.v3;
+    $('#ai_v3_proof_level_hidden').val(data.v3.proof_level || '');
+    $('#ai_v3_generation_id_hidden').val(data.v3.generation_id || '');
+    if (!data.v3.needs_review) {
+      return;
+    }
+    var problems = (data.v3.issues || []).filter(function (i) { return i.severity === 'error'; }).map(function (i) { return i.message; });
+    var list = document.createElement('ul');
+    list.style.margin = '8px 0 0 18px';
+    problems.slice(0, 6).forEach(function (m) {
+      var li = document.createElement('li');
+      li.textContent = m;
+      list.appendChild(li);
+    });
+    if (window.iseoModal && window.iseoModal.confirm) {
+      window.iseoModal.confirm({
+        title: t.reviewTitle,
+        message: t.reviewLead,
+        content: list,
+        primary: { label: t.useAnyway },
+        secondary: { label: t.regenerate }
+      }).then(function (useAnyway) {
+        if (!useAnyway) {
+          $('#generateapivalue').trigger('click');
+        }
+      });
+    } else {
+      notify('warning', t.reviewLead + ' ' + problems.join(' '), t.reviewTitle);
+    }
   };
 
   /** What step 2 decided, for the article request (phase 8). */

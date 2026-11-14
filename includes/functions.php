@@ -1893,9 +1893,12 @@ function improveseo_locate_faq_section( $html ) {
         return null;
     }
 
-    // The heading text may be wrapped (<h2><strong>FAQ</strong></h2>), hence the optional inner tags.
-    $heading = '~<h([1-6])\b[^>]*>\s*(?:<[^>]+>\s*)*(?:FAQ|FAQs|F\.A\.Q\.?|Frequently\s+Asked\s+Questions)\b[^<]*(?:<[^>]+>\s*)*</h\1>~i';
-    if ( ! preg_match( $heading, $html, $m, PREG_OFFSET_CAPTURE ) ) {
+    // Content v3 marks its FAQ heading with data-iseo="faq" and gives it a descriptive title that
+    // never starts with "FAQ" (BUG2); look for that first. Then the label headings v2 writes. The
+    // heading text may be wrapped (<h2><strong>FAQ</strong></h2>), hence the optional inner tags.
+    $v3_heading = '~<h([1-6])\b[^>]*\bdata-iseo=(["\'])faq\2[^>]*>.*?</h\1>~is';
+    $heading    = '~<h([1-6])\b[^>]*>\s*(?:<[^>]+>\s*)*(?:FAQ|FAQs|F\.A\.Q\.?|Frequently\s+Asked\s+Questions)\b[^<]*(?:<[^>]+>\s*)*</h\1>~i';
+    if ( ! preg_match( $v3_heading, $html, $m, PREG_OFFSET_CAPTURE ) && ! preg_match( $heading, $html, $m, PREG_OFFSET_CAPTURE ) ) {
         return null;
     }
 
@@ -1949,6 +1952,14 @@ function improveseo_parse_faq_pairs( $html ) {
         PREG_SET_ORDER
     ) ) {
         return improveseo_clean_faq_pairs( $matches );
+    }
+
+    // ── 1b. Content v3: each question is a plain <h3> followed by its answer <p> (BUG2) ──
+    if ( preg_match_all( '~<h3\b[^>]*>(.*?)</h3>\s*<p\b[^>]*>(.*?)</p>~is', $body, $matches, PREG_SET_ORDER ) ) {
+        $cleaned = improveseo_clean_faq_pairs( $matches );
+        if ( ! empty( $cleaned ) ) {
+            return $cleaned;
+        }
     }
 
     // ── 2/3. Bold-run split — the shape that produces the single-paragraph bug ─

@@ -1084,7 +1084,7 @@ global $ai_modal_type;
                     <div id="iseo_v3_plan" class="iseo-v3-plan" style="display:none;margin-bottom:16px;">
                         <div class="seo-form-field">
                             <label for="iseo_v3_article_type"><?php esc_html_e( 'Article type', 'improveseo' ); ?></label>
-                            <select class="form-control" id="iseo_v3_article_type" style="max-width:100% !important;">
+                            <select class="form-control" id="iseo_v3_article_type" name="iseo_v3_article_type" style="max-width:100% !important;">
                                 <option value="cost"><?php esc_html_e( 'Cost guide: what it costs and why', 'improveseo' ); ?></option>
                                 <option value="decision"><?php esc_html_e( 'Decision guide: helps the reader choose', 'improveseo' ); ?></option>
                                 <option value="question"><?php esc_html_e( 'Answer: answers one question in full', 'improveseo' ); ?></option>
@@ -1093,7 +1093,7 @@ global $ai_modal_type;
                         </div>
                         <div class="seo-form-field">
                             <label for="iseo_v3_post_size"><?php esc_html_e( 'Post size', 'improveseo' ); ?></label>
-                            <select class="form-control" id="iseo_v3_post_size" style="max-width:100% !important;">
+                            <select class="form-control" id="iseo_v3_post_size" name="iseo_v3_post_size" style="max-width:100% !important;">
                                 <option value="small"><?php esc_html_e( 'Small (600 to 1200 words)', 'improveseo' ); ?></option>
                                 <option value="medium"><?php esc_html_e( 'Medium (1200 to 2400 words)', 'improveseo' ); ?></option>
                                 <option value="large"><?php esc_html_e( 'Large (2400 to 3600 words)', 'improveseo' ); ?></option>
@@ -1102,6 +1102,7 @@ global $ai_modal_type;
                         </div>
                         <div id="iseo_v3_owner_questions"></div>
                         <div id="iseo_v3_regulated" class="seo-form-field" style="display:none;">
+                            <input type="hidden" name="iseo_v3_regulated_shown" id="iseo_v3_regulated_shown" value="0">
                             <p id="iseo_v3_regulated_text" style="margin:0 0 6px;"></p>
                             <label style="margin-right:16px;"><input type="radio" name="iseo_v3_regulated_choice" value="keep" checked> <?php esc_html_e( 'Keep', 'improveseo' ); ?></label>
                             <label><input type="radio" name="iseo_v3_regulated_choice" value="off"> <?php esc_html_e( 'Turn off', 'improveseo' ); ?></label>

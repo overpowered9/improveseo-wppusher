@@ -652,6 +652,11 @@ function iseoRunContentGeneration() {
       // The v2 route already returns finished HTML, so it is used as-is (no textToHtml wrapping).
       renderGeneratedPreview(content);
 
+      // Content v3: proof level + generation id for the saved post, and the review notice (W11).
+      if (typeof window.iseoV3AfterArticle === "function") {
+        window.iseoV3AfterArticle(response.data);
+      }
+
       jQuery("#meta_title").val(jQuery.trim(meta_title == null ? "" : String(meta_title)));
 
       jQuery("#meta_descreption").val(jQuery.trim(meta_descreption == null ? "" : String(meta_descreption)));

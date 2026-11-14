@@ -69,6 +69,22 @@ function getaaldata()
 
 	}
 
+	// ----- Content v3 (modules/content-v3.php) -----
+	// While v3 is active the article comes from the v3 route: the plan from Approve title is in the
+	// wizard session on the server. A server that says v3 is off returns null, and v2 runs below.
+	if ( function_exists( 'improveseo_content_v3_active' ) && improveseo_content_v3_active() ) {
+		$iseo_v3 = improveseo_content_v3_generate_article( $arr, $search_data );
+		if ( null !== $iseo_v3 ) {
+			wp_send_json_success( array(
+				'search_data'      => $search_data,
+				'content'          => $iseo_v3['content'],
+				'meta_title'       => $iseo_v3['meta_title'],
+				'meta_descreption' => $iseo_v3['meta_description'],
+				'v3'               => isset( $iseo_v3['v3'] ) ? $iseo_v3['v3'] : null,
+			) );
+		}
+	}
+
 	// ----- v2 fields -----
 	$niche = ( isset( $arr['niche'] ) && $arr['niche'] !== '' ) ? sanitize_text_field( $arr['niche'] ) : 'general_blog';
 	// "Other" niche: pass the user's typed-in niche through so the writer gets real
