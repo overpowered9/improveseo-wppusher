@@ -237,7 +237,7 @@ $iseo_project_url = function ( $project_id ) {
 												<span class="iseo-kwl-action-tip" aria-hidden="true">Edit Keyword List</span>
 											</a>
 											<a class="iseo-kwl-action submitdelete"
-												href="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=delete&id=' . $item->id . '&noheader=true') ); ?>"
+												href="<?php echo esc_url( wp_nonce_url( admin_url('admin.php?page=improveseo_lists&action=delete&id=' . absint( $item->id ) . '&noheader=true'), 'improveseo_list_delete_' . absint( $item->id ) ) ); ?>"
 												data-iseo-confirm="Are you sure you want to delete the list?"
 												data-iseo-confirm-title="<?php echo esc_attr__( 'Delete keyword list', 'improveseo' ); ?>"
 												data-iseo-confirm-label="<?php echo esc_attr__( 'Delete', 'improveseo' ); ?>"

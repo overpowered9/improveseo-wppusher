@@ -4,6 +4,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+if ( ! function_exists( 'improveseo_can_generate' ) ) {
+	/**
+	 * May the current user run something that spends the site's credits or the provider's money
+	 * (titles, plans, articles, images, meta, bulk projects, keyword lookups)? Every plugin screen
+	 * already requires manage_options; the AJAX handlers behind those screens now ask the same, so a
+	 * Contributor or Author holding a nonce cannot spend. Filterable for sites that let editors
+	 * generate: add_filter( 'improveseo_generation_capability', fn() => 'edit_others_posts' ).
+	 *
+	 * @return bool
+	 */
+	function improveseo_can_generate() {
+		$cap = apply_filters( 'improveseo_generation_capability', 'manage_options' );
+		return current_user_can( is_string( $cap ) && '' !== $cap ? $cap : 'manage_options' );
+	}
+}
+
 
 
 

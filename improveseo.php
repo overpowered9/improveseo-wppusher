@@ -70,8 +70,14 @@ add_action('wp_enqueue_scripts', 'improveseo_enqueue_custom_plugin_script');
  * loading, because pluggable.php has not been read yet and there is no current user.
  * Priority 20 keeps it after the handles are registered.
  */
-function improveseo_localize_ajax_nonces()
+function improveseo_localize_ajax_nonces( $hook_suffix = '' )
 {
+	// Only the plugin's own screens use these nonces (every reader is wizard or keyword code on
+	// them). custom-plugin-script loads on every admin screen, so without this check the shared
+	// nonce was printed for every logged-in user on every screen.
+	if ( false === strpos( (string) $hook_suffix, 'improveseo' ) ) {
+		return;
+	}
 	$data = array(
 		'ajax_url'     => admin_url( 'admin-ajax.php' ),
 		'upload_nonce' => wp_create_nonce( 'improveseo_upload_nonce' ),

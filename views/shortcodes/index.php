@@ -75,7 +75,7 @@ use ImproveSEO\View;
 										|
 									</span>
 									<span class="trash">
-										<a class="submitdelete" href="<?php echo esc_url( admin_url('admin.php?page=improveseo_shortcodes&action=delete&id='. $code->id .'&noheader=true') ); ?>">Trash</a>
+										<a class="submitdelete" href="<?php echo esc_url( wp_nonce_url( admin_url('admin.php?page=improveseo_shortcodes&action=delete&id=' . absint( $code->id ) . '&noheader=true'), 'improveseo_delete_shortcode_' . absint( $code->id ) ) ); ?>">Trash</a>
 									</span>
 								</div>
 								<button type="button" class="toggle-row"><span class="screen-reader-text">Show more details</span></button>

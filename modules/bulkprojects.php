@@ -465,6 +465,8 @@ function improveseo_bulkprojects()
 		exit;
 
 	elseif ($action == 'delete'):
+		// CSRF: this deletes the project AND every post it generated, so the link carries a nonce.
+		check_admin_referer( 'improveseo_delete_bulk_project_' . absint( isset( $_GET['id'] ) ? $_GET['id'] : 0 ) );
 		$id = absint($_GET['id']);
 		// Delete all posts from this project
 		$wpdb->query($wpdb->prepare("DELETE FROM " . $wpdb->prefix . "posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}postmeta WHERE meta_key = 'improveseo_project_id' AND meta_value = %s)", $id));

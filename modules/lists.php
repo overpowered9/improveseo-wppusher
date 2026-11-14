@@ -134,6 +134,9 @@ function improveseo_lists() {
 
 	elseif ($action == 'do_create'):
 
+		// CSRF (BUG4): the form carries a nonce; a forged POST stops here.
+		check_admin_referer( 'improveseo_list_create' );
+
 		if (!Validator::validate($_POST, array(
 
 
@@ -214,6 +217,8 @@ function improveseo_lists() {
 
 	elseif ($action == 'do_edit'):
 
+		// CSRF (BUG4): the form carries a nonce bound to this list.
+		check_admin_referer( 'improveseo_list_edit_' . absint( isset( $_GET['id'] ) ? $_GET['id'] : 0 ) );
 
 
 
@@ -277,11 +282,10 @@ function improveseo_lists() {
 
 	elseif ($action == 'delete'):
 
+		// CSRF: the delete link carries a nonce bound to this list (a bare GET link could be forged).
+		check_admin_referer( 'improveseo_list_delete_' . absint( isset( $_GET['id'] ) ? $_GET['id'] : 0 ) );
 
-
-
-
-		$id = $_GET['id'];
+		$id = absint( $_GET['id'] );
 
 
 		$model->delete($id);

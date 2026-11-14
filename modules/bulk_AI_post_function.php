@@ -2243,7 +2243,7 @@ function multiPostData()
 
 {
 	check_ajax_referer( 'improveseo_ajax', 'nonce' );
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( ! improveseo_can_generate() ) {
 		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
 	}
 
@@ -2721,7 +2721,7 @@ function generateAIMeta()
 
 {
 	check_ajax_referer( 'improveseo_ajax', 'nonce' );
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( ! improveseo_can_generate() ) {
 		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
 	}
 
@@ -2755,7 +2755,7 @@ function generateAIMeta()
 function multi_form_data()
 {
 	check_ajax_referer( 'improveseo_ajax', 'nonce' );
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( ! improveseo_can_generate() ) {
 		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
 	}
 
@@ -2812,7 +2812,7 @@ function getGPTdata()
 {
 	check_ajax_referer( 'improveseo_gpt_nonce', 'nonce' );
 
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( ! improveseo_can_generate() ) {
 		echo 'Error: You are not allowed to generate titles.';
 		die();
 	}
@@ -2916,7 +2916,7 @@ add_action('wp_ajax_re_generate_post', 're_generate_post');
 function re_generate_post()
 {
 	check_ajax_referer( 'improveseo_ajax', 'nonce' );
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( ! improveseo_can_generate() ) {
 		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
 	}
 

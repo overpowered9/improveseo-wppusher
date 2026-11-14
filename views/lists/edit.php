@@ -56,6 +56,7 @@ $iseo_list     = null !== $iseo_old_list ? wp_unslash( (string) $iseo_old_list )
 		<form class="improve-seo-form-global"
 			action="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=do_edit&id=' . absint( $list->id ) . '&noheader=true') ); ?>"
 			method="post">
+			<?php wp_nonce_field( 'improveseo_list_edit_' . absint( $list->id ) ); ?>
 			<div class="seo-form-field<?php if ( Validator::hasError( 'name' ) ) echo ' PostForm--error'; ?>">
 				<label for="iseo-kwl-name"> Keyword List Name </label>
 				<input type="text" id="iseo-kwl-name" name="name" placeholder="Ex. List 1" value="<?php echo esc_attr( $iseo_name ); ?>">

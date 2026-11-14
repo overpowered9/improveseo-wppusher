@@ -611,7 +611,7 @@ function improveseo_bulk_task_keyword_data( $task ) {
 add_action( 'wp_ajax_improveseo_keyword_summary', 'improveseo_ajax_keyword_summary' );
 function improveseo_ajax_keyword_summary() {
 	check_ajax_referer( 'improveseo_ajax', 'nonce' );
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( ! improveseo_can_generate() ) {
 		wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'improveseo' ) ), 403 );
 	}
 	$keyword = isset( $_POST['keyword'] ) ? sanitize_text_field( wp_unslash( $_POST['keyword'] ) ) : '';
@@ -772,7 +772,7 @@ function improveseo_v3_step_fields( $step ) {
 add_action( 'wp_ajax_improveseo_keyword_prefetch', 'improveseo_ajax_keyword_prefetch' );
 function improveseo_ajax_keyword_prefetch() {
 	check_ajax_referer( 'improveseo_ajax', 'nonce' );
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( ! improveseo_can_generate() ) {
 		wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'improveseo' ) ), 403 );
 	}
 	if ( ! improveseo_v3_keyword_data_enabled() ) {

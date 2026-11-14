@@ -257,7 +257,7 @@ if (isset($_GET['post_preview'])) {
 													</span>
 													<span class="trash">
 														<a class="popup-link delete-link submitdelete"
-															href="<?php echo esc_url( admin_url('admin.php?page=improveseo_bulkprojects&action=delete&id=' . $project->id) ); ?>"
+															href="<?php echo esc_url( wp_nonce_url( admin_url('admin.php?page=improveseo_bulkprojects&action=delete&id=' . absint( $project->id ) ), 'improveseo_delete_bulk_project_' . absint( $project->id ) ) ); ?>"
 															data-iseo-confirm="This action will delete the project and all generated posts/pages"
 															data-iseo-confirm-title="<?php echo esc_attr__( 'Delete project', 'improveseo' ); ?>"
 															data-iseo-confirm-label="<?php echo esc_attr__( 'Delete', 'improveseo' ); ?>"

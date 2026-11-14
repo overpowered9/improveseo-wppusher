@@ -43,6 +43,7 @@ use ImproveSEO\Validator;
         <div class="improve-seo-form-box">
             <?php View::render( 'lists.best-practices-notice' ); ?>
             <form class="improve-seo-form-global" action="<?php echo esc_url( admin_url('admin.php?page=improveseo_lists&action=do_create&noheader=true') ); ?>" method="post" >
+                <?php wp_nonce_field( 'improveseo_list_create' ); ?>
                 <?php // A refused save (empty field, or a name already taken) redirects back here. The
                       // edit screen already showed why and kept what was typed; this one used to come
                       // back blank and silent. ?>

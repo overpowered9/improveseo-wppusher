@@ -214,7 +214,7 @@ function improveseo_content_v3_session_key( $raw ) {
 add_action( 'wp_ajax_improveseo_content_v3_clear_session', 'improveseo_ajax_content_v3_clear_session' );
 function improveseo_ajax_content_v3_clear_session() {
 	check_ajax_referer( 'improveseo_ajax', 'nonce' );
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( ! improveseo_can_generate() ) {
 		wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'improveseo' ) ), 403 );
 	}
 	$key = improveseo_content_v3_session_key( isset( $_POST['session_key'] ) ? $_POST['session_key'] : '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- sanitized in improveseo_content_v3_session_key().
@@ -428,7 +428,7 @@ function improveseo_content_v3_niche_for_request() {
 add_action( 'wp_ajax_improveseo_v3_generate_title', 'improveseo_ajax_v3_generate_title' );
 function improveseo_ajax_v3_generate_title() {
 	check_ajax_referer( 'improveseo_ajax', 'nonce' );
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( ! improveseo_can_generate() ) {
 		wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'improveseo' ) ), 403 );
 	}
 	if ( ! improveseo_content_v3_active() ) {
@@ -497,7 +497,7 @@ function improveseo_ajax_v3_generate_title() {
 add_action( 'wp_ajax_improveseo_v3_town_check', 'improveseo_ajax_v3_town_check' );
 function improveseo_ajax_v3_town_check() {
 	check_ajax_referer( 'improveseo_ajax', 'nonce' );
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( ! improveseo_can_generate() ) {
 		wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'improveseo' ) ), 403 );
 	}
 	if ( ! improveseo_content_v3_active() ) {
@@ -589,7 +589,7 @@ function improveseo_content_v3_enqueue() {
 add_action( 'wp_ajax_improveseo_v3_approve_title', 'improveseo_ajax_v3_approve_title' );
 function improveseo_ajax_v3_approve_title() {
 	check_ajax_referer( 'improveseo_ajax', 'nonce' );
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( ! improveseo_can_generate() ) {
 		wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'improveseo' ) ), 403 );
 	}
 	if ( ! improveseo_content_v3_active() ) {
@@ -985,10 +985,19 @@ function improveseo_content_v3_generate_article( array $arr, $title ) {
 			);
 		}
 	}
+	// The server sanitizes the article to its allowlist; the plugin filters it again with
+	// wp_kses_post() (keeps data-iseo, id and class) because the save flow does not, and the post is
+	// written by an admin with unfiltered_html. Then the same FAQ normalising and content wrapper as
+	// v2 (createAIpost2), so the FAQ schema and the plugin's styles apply to v3 posts too (BUG2).
+	$content = isset( $d['content'] ) ? wp_kses_post( (string) $d['content'] ) : '';
+	if ( function_exists( 'improveseo_normalize_faq_markup' ) ) {
+		$content = improveseo_normalize_faq_markup( $content );
+	}
 	return array(
-		// The article HTML is the server's sanitized output; it is shown in the preview and saved
-		// through the normal post flow, which applies wp_kses_post().
-		'content'          => isset( $d['content'] ) ? (string) $d['content'] : '',
+		// An empty article is an error, never a post (B-1: the wizard shows it as a notice).
+		'content'          => '' === trim( wp_strip_all_tags( $content ) )
+			? 'Error: ' . __( 'The article came back empty. Please try again.', 'improveseo' )
+			: '<div class="main-content-section-improveseo">' . $content . '</div>',
 		'meta_title'       => isset( $d['meta_title'] ) ? sanitize_text_field( (string) $d['meta_title'] ) : '',
 		'meta_description' => isset( $d['meta_description'] ) ? sanitize_text_field( (string) $d['meta_description'] ) : '',
 		'v3'               => array(
@@ -1288,7 +1297,11 @@ function improveseo_bulk_v3_article( $task, $title ) {
 			$issues[] = sanitize_text_field( (string) $issue['message'] );
 		}
 	}
-	$content = isset( $d['content'] ) ? (string) $d['content'] : '';
+	// wp_kses_post() as in the single wizard; an empty article is a failed attempt, never a post (BULK7).
+	$content = isset( $d['content'] ) ? wp_kses_post( (string) $d['content'] ) : '';
+	if ( '' === trim( wp_strip_all_tags( $content ) ) ) {
+		return $fail( __( 'The article came back empty.', 'improveseo' ), 0 );
+	}
 	if ( function_exists( 'improveseo_normalize_faq_markup' ) ) {
 		$content = improveseo_normalize_faq_markup( $content );
 	}

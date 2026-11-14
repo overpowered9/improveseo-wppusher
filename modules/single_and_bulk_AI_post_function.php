@@ -815,7 +815,7 @@ add_action('wp_ajax_getPromptForImages', 'getPromptForImages');
 function getPromptForImages()
 {
 	check_ajax_referer( 'improveseo_ajax', 'nonce' );
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( ! improveseo_can_generate() ) {
 		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
 	}
 
@@ -840,7 +840,7 @@ add_action('wp_ajax_fetch_AI_image', 'fetch_AI_image_callback');
 function fetch_AI_image_callback()
 {
 	check_ajax_referer( 'improveseo_ajax', 'nonce' );
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( ! improveseo_can_generate() ) {
 		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
 	}
 

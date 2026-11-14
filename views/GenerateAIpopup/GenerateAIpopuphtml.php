@@ -2816,6 +2816,19 @@ if ( 'single' !== $ai_modal_type ) {
                 );
                 return false;
             }
+            // Never publish a generator error as the post: error text, a not-connected marker, or
+            // content with no readable text at all.
+            var generatedText = generated.value.trim();
+            var readable = generatedText.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').trim();
+            if (/^(Error:|ISEO_NOT_CONNECTED::)/.test(generatedText) || readable === '' || /^Error:/.test(readable)) {
+                showImproveSEONotification(
+                    'error',
+                    'Content Not Ready',
+                    'The generated content is an error message, not an article. Please generate the post again.',
+                    null
+                );
+                return false;
+            }
 
             return true;
         }

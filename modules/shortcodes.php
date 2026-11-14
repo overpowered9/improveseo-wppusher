@@ -163,6 +163,8 @@ function improveseo_shortcodes() {
 		exit;
 
 	elseif ($action == 'delete'):
+		// CSRF: the Trash link carries a nonce bound to this shortcode.
+		check_admin_referer( 'improveseo_delete_shortcode_' . absint( isset( $_GET['id'] ) ? $_GET['id'] : 0 ) );
 
 		$id = $_GET['id'];
 		$model->delete($id);

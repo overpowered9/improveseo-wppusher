@@ -12,10 +12,34 @@ include_once dirname(__FILE__) . '/GenerateAIpopup.php';
 
 add_action('wp_ajax_getaaldata', 'getaaldata');
 
+/**
+ * A generator error must never reach the wizard as article text (it could be submitted as the post).
+ * "Not connected" and 402 keep their content markers: the wizard opens the connection modal or the
+ * credit notice for them and never shows them as the article. Any other "Error: …", or an empty
+ * article, is sent as a failed response, which the wizard shows as a notice. Applies to v3 and v2.
+ *
+ * @param string $content The generated content or the generator's error text.
+ * @return void Sends the JSON response and exits when the content is an error.
+ */
+function improveseo_wizard_send_if_error( $content ) {
+	$content = (string) $content;
+	if ( 0 === strpos( $content, 'ISEO_NOT_CONNECTED::' ) || false !== strpos( $content, 'returned error status: 402' ) ) {
+		return;
+	}
+	$trimmed = ltrim( $content );
+	if ( 0 === strpos( $trimmed, 'Error:' ) ) {
+		$message = trim( substr( $trimmed, strlen( 'Error:' ) ) );
+		wp_send_json_error( array( 'content' => '' !== $message ? $message : __( 'The article could not be generated. Please try again.', 'improveseo' ) ) );
+	}
+	if ( '' === trim( wp_strip_all_tags( $content ) ) ) {
+		wp_send_json_error( array( 'content' => __( 'The article came back empty. Please try again.', 'improveseo' ) ) );
+	}
+}
+
 function getaaldata()
 {
 	check_ajax_referer( 'improveseo_ajax', 'nonce' );
-	if ( ! current_user_can( 'edit_posts' ) ) {
+	if ( ! improveseo_can_generate() ) {
 		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
 	}
 
@@ -75,6 +99,7 @@ function getaaldata()
 	if ( function_exists( 'improveseo_content_v3_active' ) && improveseo_content_v3_active() ) {
 		$iseo_v3 = improveseo_content_v3_generate_article( $arr, $search_data );
 		if ( null !== $iseo_v3 ) {
+			improveseo_wizard_send_if_error( $iseo_v3['content'] );
 			wp_send_json_success( array(
 				'search_data'      => $search_data,
 				'content'          => $iseo_v3['content'],
@@ -197,6 +222,9 @@ if (strpos($content, 'ISEO_NOT_CONNECTED::') === 0) {
 		"meta_descreption" => '',
 	));
 }
+
+// A generator error is answered as an error, before any meta call is spent on it.
+improveseo_wizard_send_if_error( $content );
 
 // Fallback to separate GPT calls only if server didn't return meta data
 if (empty($meta_title)) {
