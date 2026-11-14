@@ -233,6 +233,9 @@ $url .= $_SERVER['REQUEST_URI'];
 										echo 'Completed';
 								} else if ($project->status == 'Stoped') {
 									echo '<span style="color: #ff4d4f; font-weight: 600;">Canceled</span>';
+								} else if ($project->status == 'Failed') {
+									// Phase 10 (BULK6): gave up after its attempts; the reason is on the task details screen.
+									echo '<span style="color: #ff4d4f; font-weight: 600;" title="' . esc_attr( isset( $project->last_error ) ? (string) $project->last_error : '' ) . '">' . esc_html__( 'Failed', 'improveseo' ) . '</span>';
 									} else {
 										echo 'Queued';
 									}
@@ -253,6 +256,8 @@ $url .= $_SERVER['REQUEST_URI'];
 									<td data-label="Post Status" class="status paused">									
 										<?php if($project->status == 'Stoped') {
 											echo '<span style="color: #ff4d4f; font-weight: 600;">Canceled</span>';
+										} else if($project->status == 'Failed') {
+											echo '<span style="color: #ff4d4f; font-weight: 600;">' . esc_html__( 'Not created', 'improveseo' ) . '</span>';
 										} else if($project->status != 'Done') {
 											echo 'Pending Creation';
 										} else if($project->state == 'Published' && $project->post_id) {

@@ -165,7 +165,12 @@ function getaaldata()
 
 		$brand_profile,
 
-		$cta_url
+		$cta_url,
+
+		// BUG1: the wizard slot and the regenerate instruction (see createAIpost2).
+		isset( $arr['target_key'] ) && preg_match( '/^[A-Za-z0-9_-]{8,80}$/', (string) $arr['target_key'] ) ? (string) $arr['target_key'] : '',
+
+		isset( $arr['custom_instruction'] ) ? trim( sanitize_textarea_field( wp_unslash( (string) $arr['custom_instruction'] ) ) ) : ''
 
 	);
 
@@ -405,7 +410,7 @@ function ChatGPTCall($question)
 
 
 }
-function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '', $niche = 'general_blog', $niche_data = array(), $brand_profile = array(), $cta_url = '')
+function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '', $niche = 'general_blog', $niche_data = array(), $brand_profile = array(), $cta_url = '', $target_key = '', $custom_instruction = '')
 {
 	global $wpdb, $user_ID;
 
@@ -446,6 +451,15 @@ function createAIpost2($seed_keyword, $keyword_selection, $seed_options, $nos_of
 	}
 	if (!empty($cta_url)) {
 		$payload['cta_url'] = $cta_url;
+	}
+	// BUG1: the wizard slot (so the server prices a regeneration as one) and the regenerate
+	// dialog's instruction were never sent. The v2 server reads both; it does not read
+	// point_of_view or seed_options, so those stay out.
+	if ($target_key !== '') {
+		$payload['target_key'] = $target_key;
+	}
+	if ($custom_instruction !== '') {
+		$payload['custom_instruction'] = $custom_instruction;
 	}
 	
 	// Set up cURL for HTTP request to admin server

@@ -19,9 +19,9 @@ Kept up to date at the end of every phase (brief rule 11), so a fresh session ca
 | 6 | Niche profile + proof level | **Done** (G4 texts blocked) | server + plugin |
 | 7 | Blueprint + admin tester panel | **Done** | server + admin |
 | 8 | Writer draft 2 + post-processing + validator + paid v3 route | **Done** (V10 blocked) | server + plugin |
-| 9 | Interim approaches U1–U6 | Next (U1–U4, U6 done in 5/6/8) | |
-| 10 | Bulk parity + bulk and bug fixes | | |
-| 11 | Keyword data integration | | |
+| 9 | Interim approaches U1–U6 | **Done** (no new code: U1–U4 in 8, U6 in 6, U5 unchanged by design) | — |
+| 10 | Bulk parity + bulk and bug fixes | **Done** | server + plugin |
+| 11 | Keyword data integration | Next | |
 | 12 | Remaining wizard items | | |
 | 13 | E2E, 10-keyword run, docs, production gate | | |
 
@@ -139,6 +139,16 @@ Unchanged from Phase 0 except:
 - **G6** DONE: final proof level per post (business level + Keep / Turn off), stored server-side and as `_iseo_proof_level` post meta.
 - **OPS4** DONE for v3: timeouts, ≤ 3 attempts per step, credits reserved once, refunded on failure, double-click refused.
 - **U1** DONE (approved): the old humanizer does not run on v3. **U2/U3** DONE (single wizard; bulk draft in phase 10). **U4** DONE.
+- **U5** DONE (approved interim): "AI Image From Title" and "Custom Prompt" unchanged; no image code path changed under v3.
+- **BULK1** DONE: with v3 active, each bulk task runs v3 Title (or keyword as title) → Approve (research + planner) → article, one task per cron tick, session key `iseo_bulk_t<task id>` (stable, so a regeneration is priced as one).
+- **BULK2** DONE: a Regulated business's bulk posts, and posts that still fail the checks after the second Writer run, are saved as drafts with the reason and the failed checks on the task details screen (G3, U3). Post-level regulated suggestions apply automatically in bulk.
+- **BULK3** DONE: the batch id travels with each article; the blueprint's history (site's last 20, which includes the batch's earlier posts) keeps a batch from repeating structures (B5).
+- **BULK4** PARTIAL: keyword data opt-in fields ride along on bulk v3 Title/Planner requests (Option B); phase 11 checks the end-to-end.
+- **BULK5** DONE: order is title → article → image; an image failure keeps the paid article and retries only the image; after 3 image failures the post is saved without a cover image instead of losing the article. Nothing an earlier attempt produced is bought twice.
+- **BULK6** DONE: `attempts` and `last_error` columns (idempotent ALTER, option-guarded, `improveseo_db_version` untouched); 3 attempts then **Failed** (terminal, counted by project progress, shown with its plain reason); no credits / not connected fail at once; Regenerate resets the count.
+- **BULK7** DONE: any generator output starting "Error:" is an error whatever its length; a 402 message can no longer be saved as Done and published.
+- **BUG1** DONE: the single v2 article sends `target_key` (regeneration priced as one) and the regenerate dialog's instruction; v2 bulk sends its task key. The v2 server does not read `point_of_view` or `seed_options`, so those stay out.
+- **BUG3** DONE: v2 records the writing model.
 - **B1** DONE: every piece verbatim (test re-parses the doc), one editable record `content_v3_blueprint_directives` (replace mode backs up the old JSON as pre-v3).
 - **B2–B7, B10, B11** DONE: draws a–m in order, history checks, word targets, numbered titles, TOC auto by size, pins. Working values: front/back-heavy 1.4↔0.7; "one fewer" stops at the size's range minimum.
 - **B8** DONE: "no figure" piece when no currency amount in research facts or Business details pricing.
@@ -226,6 +236,13 @@ Unchanged from Phase 0 except:
 - Live wizard run (Small; the test site was still Regulated/dental from phase 6): the repair run fixed a summary-form error; the article then needed review because a Regulated post needs 3 cited sources and there is no research without the Perplexity key. **Every Regulated article will need review until research is live.** It used the owner's answer ($180–$450). Cost $0.26 total. 6 credits charged on the connected test account (local server uses the production DB).
 - Writing-quality notes for the 10-keyword review (prompt text, not code): without research the Writer still wrote one unsourced local claim ("New Mexico water tends to be hard") and one announcement ("Below we walk through…"); it flagged the unsourced lifespan claim itself in `claims_to_check`.
 
+## Phase 10 notes
+
+- Bulk tests in the local WordPress (mocked server answers, 18 checks, all pass): v3 402 → Failed at once with "Not enough credits…", nothing stored as content, no image bought; v2 402 (≥ 100 characters) → Failed, never published; image failure → article kept, second run reuses it (article bought once); 3 failures → Pending, Pending, Failed; project finishes with Failed counted; draft post gets `_iseo_proof_level` and `_iseo_v3_generation_id`; FAQ normalised.
+- Real v3 bulk task (no mocks): 97 s, Done, $0.21, draft post with meta. The repair run was triggered by "at most 1 in 3 body headings may be questions": with 2 body sections (Small) that allows none. Literal reading of the doc; flag for the 10-keyword review.
+- **Found and fixed during QA:** landing on wizard step 4 starts generation automatically; a click on "Generate AI Post" while it ran sent a second request that WordPress queued behind the first, so the server charged a regeneration (also true for v2). The wizard now ignores a second start while one is running. And the v3 review notice regenerated on any dismissal; now only an explicit "Regenerate" opens the regenerate dialog. Both verified in the browser with mocked answers.
+- **QA side effects on the connected test account (production DB):** 16 credits charged (6 + 4 accidental duplicate + 6 bulk) and 5 "bulk project completed" emails sent by the local server for the test projects. The QA router now answers bulk notifications itself.
+
 ## Next
 
-Phase 9: remaining interim approaches (U5 image prompts unchanged under v3; check U6 complete). Then phase 10: bulk parity (BULK1–7) and BUG1/BUG3.
+Phase 11: keyword data end to end under v3 (K1–K5), including T9/P6: rebuild the keyword-data Title/Planner variants as "V1 verbatim + one appended KEYWORD DATA block" (C6: the new wording must be shown to the team lead before commit).

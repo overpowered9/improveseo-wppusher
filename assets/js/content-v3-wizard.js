@@ -383,15 +383,18 @@
       li.textContent = m;
       list.appendChild(li);
     });
-    if (window.iseoModal && window.iseoModal.confirm) {
-      window.iseoModal.confirm({
+    if (window.iseoModal && window.iseoModal.warning) {
+      // Only an explicit click on Regenerate regenerates (and that still goes through the
+      // regenerate dialog, which shows the cost). Closing the notice, or another notice
+      // replacing it, keeps the article.
+      window.iseoModal.warning({
         title: t.reviewTitle,
         message: t.reviewLead,
         content: list,
         primary: { label: t.useAnyway },
         secondary: { label: t.regenerate }
-      }).then(function (useAnyway) {
-        if (!useAnyway) {
+      }).then(function (result) {
+        if (result === 'secondary') {
           $('#generateapivalue').trigger('click');
         }
       });

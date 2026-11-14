@@ -792,6 +792,8 @@ function improveseo_bulkprojects()
 				$content_status = 'Done';
 			} elseif ($task->status == 'Stoped') {
 				$content_status = 'Canceled';
+			} elseif ($task->status == 'Failed') {
+				$content_status = 'Failed' . ( ! empty( $task->last_error ) ? ': ' . $task->last_error : '' );
 			} else {
 				$content_status = $task->status;
 			}

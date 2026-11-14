@@ -557,6 +557,12 @@ function iseoRunContentGeneration() {
   // from the regenerate dialog's confirm callback, not only from that click.
   if (typeof iseoRequireConnection === 'function' && !iseoRequireConnection()) { return; }
 
+  // One generation at a time. Landing on Step 4 starts one automatically; a click on the button
+  // while it runs used to send a second request, which WordPress can queue behind the first, so
+  // the server saw two separate generations and charged both (found in Content v3 QA, 14 Nov).
+  if (window.iseoContentGenerationRunning) { return; }
+  window.iseoContentGenerationRunning = true;
+
   jQuery("#loadingAIData").show();
 
   jQuery("#for_testing_only").css("display", "none");
@@ -583,6 +589,10 @@ function iseoRunContentGeneration() {
       action: "getaaldata",
       nonce: typeof improveseo_vars !== "undefined" ? improveseo_vars.nonce : "",
     }, // Send the captured value to the server
+
+    complete: function () {
+      window.iseoContentGenerationRunning = false;
+    },
 
     success: function (response) {
       // Handle the success response from the server

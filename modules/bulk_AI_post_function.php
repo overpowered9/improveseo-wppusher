@@ -420,6 +420,15 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
             )
         );
         
+        // Tasks that gave up after their attempts (phase 10, BULK6): terminal, counted as failed.
+        $failed = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(1) FROM {$wpdb->prefix}improveseo_bulktasksdetails WHERE bulktask_id = %d AND status = %s",
+                $bulktask_id,
+                'Failed'
+            )
+        );
+        
         // Get total number of tasks for this bulk project
         $total = (int) $wpdb->get_var(
             $wpdb->prepare(
@@ -436,7 +445,7 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
         );
         
         // Check if all tasks have reached a terminal status (Done or Canceled)
-        if ($total > 0 && ($done + $canceled) >= $total) {
+        if ($total > 0 && ($done + $canceled + $failed) >= $total) {
             // If ALL tasks are canceled, mark project as Cancelled
             if ($canceled === $total) {
                 $update_data['state'] = 'Cancelled';
@@ -461,7 +470,7 @@ if (!function_exists('improveseo_sync_bulk_parent_progress')) {
                     improveseo_notify_bulk_status('task_completed', array(
                         'task_name'       => $parent_row->name ?: 'Bulk Project #' . $bulktask_id,
                         'completed_tasks' => $done,
-                        'failed_tasks'    => $canceled,
+                        'failed_tasks'    => $canceled + $failed,
                         'project_id'      => $bulktask_id,
                     ));
                 }
@@ -789,35 +798,50 @@ function generateBulkAiContent($id = '', $regenerate = '')
 			my_plugin_log('generateBulkAiContent: Parent bulk task ' . $value->bulktask_id . ' state: ' . ($parent_task ? $parent_task->state : 'NOT FOUND'));
 		}
 
-		// AI Title
-		// Content v3 keyword data (beta): bulk still generates through v2, so this only logs
-		// what a v3 Title request would carry when the setting is on (modules/keyword-data.php).
-		if ( function_exists( 'improveseo_bulk_log_v3_keyword_data' ) ) {
+		// ── Phase 10 (docs/CONTENT_V3_PROGRESS.md): title → content → image, each reused when an
+		// earlier attempt already produced it, so a failure never re-buys paid work (BULK5); every
+		// failure counts an attempt and ends in Failed after IMPROVESEO_BULK_MAX_ATTEMPTS instead
+		// of Pending forever (BULK6); an error text can never be saved as the article (BULK7).
+		improveseo_ensure_bulk_v3_columns();
+		$iseo_use_v3 = function_exists( 'improveseo_content_v3_active' ) && improveseo_content_v3_active();
+		if ( ! $iseo_use_v3 && function_exists( 'improveseo_bulk_log_v3_keyword_data' ) ) {
 			improveseo_bulk_log_v3_keyword_data( $value );
 		}
 
+		// A regeneration clears these columns first (re_generate_post), so it always starts fresh.
+		$iseo_prev_title   = trim( (string) $value->ai_title );
+		$iseo_prev_content = ! empty( $value->ai_content ) ? (string) base64_decode( $value->ai_content ) : '';
+		if ( '' !== $iseo_prev_content && improveseo_bulk_content_is_error( $iseo_prev_content ) ) {
+			$iseo_prev_content = '';
+		}
+		$iseo_prev_image = ( $value->aiImage == 'AI_image_one' ) ? (string) $value->ai_image : '';
 
-
-		$getAudienceData = getAudienceData($value->keyword_name);
-
-		if ($value->select_exisiting_options == 'seed_option1') {
-
-			$ai_title = $value->keyword_name;
-
-		} else if ($value->select_exisiting_options == 'seed_option2') {
-
-			$ai_title = bulkAiTitle($getAudienceData, 'normal', $value->keyword_name, $value->tone_of_voice);
-
-		} else if ($value->select_exisiting_options == 'seed_option3') {
-
-			$ai_title = bulkAiTitle($getAudienceData, 'question', $value->keyword_name, $value->tone_of_voice);
-
+		// ✅ STEP 3: Title
+		$getAudienceData = '';
+		if ( '' !== $iseo_prev_title ) {
+			$ai_title = $iseo_prev_title;
+			my_plugin_log('generateBulkAiContent: Reusing the title from an earlier attempt for task ' . $id);
+		} elseif ( $iseo_use_v3 ) {
+			$iseo_title_error = '';
+			$ai_title = improveseo_bulk_v3_title( $value, $iseo_title_error );
+			if ( '' === $ai_title ) {
+				improveseo_bulk_task_failed( $value, $iseo_title_error !== '' ? $iseo_title_error : 'No title was generated.' );
+				return false;
+			}
 		} else {
+			$getAudienceData = getAudienceData($value->keyword_name);
 
-			// Unknown option — fall back to keyword so title is never empty
-			my_plugin_log('generateBulkAiContent: Unknown select_exisiting_options value "' . $value->select_exisiting_options . '" for task ' . $id . ' — using keyword as title fallback');
-			$ai_title = $value->keyword_name;
-
+			if ($value->select_exisiting_options == 'seed_option1') {
+				$ai_title = $value->keyword_name;
+			} else if ($value->select_exisiting_options == 'seed_option2') {
+				$ai_title = bulkAiTitle($getAudienceData, 'normal', $value->keyword_name, $value->tone_of_voice);
+			} else if ($value->select_exisiting_options == 'seed_option3') {
+				$ai_title = bulkAiTitle($getAudienceData, 'question', $value->keyword_name, $value->tone_of_voice);
+			} else {
+				// Unknown option — fall back to keyword so title is never empty
+				my_plugin_log('generateBulkAiContent: Unknown select_exisiting_options value "' . $value->select_exisiting_options . '" for task ' . $id . ' — using keyword as title fallback');
+				$ai_title = $value->keyword_name;
+			}
 		}
 
 		$ai_title = str_replace('"', '', $ai_title);
@@ -837,14 +861,6 @@ function generateBulkAiContent($id = '', $regenerate = '')
 
 		my_plugin_log('generateBulkAiContent: Generated title for task ' . $id . ': "' . $ai_title . '"');
 
-
-
-
-
-
-
-
-
 	// ----- v2 fields (one niche for the whole batch, derived from the business setup) -----
 	$iseo_bt = strtolower((string) get_option('improveseo_business_type', ''));
 	$iseo_niche = 'general_blog';
@@ -860,142 +876,104 @@ function generateBulkAiContent($id = '', $regenerate = '')
 	if ($iseo_bp_city)    { $iseo_brand_profile['location'] = array('city' => $iseo_bp_city); }
 	if ($iseo_bp_service) { $iseo_brand_profile['services'] = array($iseo_bp_service); }
 
-	// ✅ STEP 3: Generate AI Image
-	my_plugin_log('generateBulkAiContent: Starting image generation for task ' . $id . ' | Image option: ' . $value->aiImage);
+	// ✅ STEP 4: Generate AI Content — before the image, so an image failure can never discard
+	// (and re-buy) a finished article.
+	$iseo_v3_review = null;
+	if ( '' !== $iseo_prev_content ) {
+		$AI_Content       = $iseo_prev_content;
+		$meta_title       = (string) $value->meta_title;
+		$meta_description = (string) $value->meta_description;
+		if ( ! empty( $value->v3_review ) ) {
+			$iseo_v3_review = json_decode( (string) $value->v3_review, true );
+		}
+		my_plugin_log('generateBulkAiContent: Reusing the article from an earlier attempt for task ' . $id);
+	} else {
+		my_plugin_log('generateBulkAiContent: Starting content generation for task ' . $id . ' | Words: ' . $value->nos_of_words . ' | Language: ' . $value->content_lang . ' | Pipeline: ' . ( $iseo_use_v3 ? 'v3' : 'v2' ));
 
-	if ($value->aiImage == 'AI_image_one') {
+		$keyword_selection = '';
 
-		$imageURL = generateBulkAiImage($ai_title, $getAudienceData, $iseo_niche);
-
-		// Check if image generation failed (returns false, or the 'ISEO_NOT_CONNECTED'
-		// sentinel on a confirmed 401/403 — see generateBulkAiImage). Either way this is
-		// not a URL, so it must not be stored as one.
-		if ($imageURL === false || $imageURL === 'ISEO_NOT_CONNECTED') {
-			my_plugin_log('generateBulkAiContent: Image generation FAILED for task ' . $id . ($imageURL === 'ISEO_NOT_CONNECTED' ? ' (credentials rejected — reconnect in Settings)' : ''));
-			$imageURL = ''; // Set empty string for database
-		} else {
-			my_plugin_log('generateBulkAiContent: Image generated successfully for task ' . $id . ' | URL: ' . substr($imageURL, 0, 100) . '...');
-			// Encode the valid URL for storage
-			$imageURL = base64_encode($imageURL);
+		// The CTA URL is stored folded into call_to_action ("CTA URL: <url>" line) so no
+		// schema change was needed — but it must still reach the generator as the STRUCTURED
+		// cta_url field. Passing '' here left the URL visible only as prose inside
+		// call_to_action, so whether the model turned it into a real link varied per post
+		// (siblings in one project could differ). Split it back out and send both.
+		$iseo_cta = improveseo_split_cta_field($value->call_to_action);
+		if ($iseo_cta['url'] === '' && !empty($value->call_to_action)) {
+			my_plugin_log('generateBulkAiContent: Task ' . $id . ' has a CTA text but no CTA URL — article will be generated without a link');
 		}
 
-	} else {
+		if ( $iseo_use_v3 ) {
+			$generation_result = improveseo_bulk_v3_article( $value, $ai_title );
+			if ( isset( $generation_result['v3'] ) && is_array( $generation_result['v3'] ) ) {
+				$iseo_v3_review = improveseo_bulk_v3_review( $generation_result['v3'] );
+			}
+		} else {
+			// target_key: the task's slot, so the server prices a regeneration as one (as the single wizard does).
+			$generation_result = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, $value->point_of_view, $ai_title, $iseo_cta['text'], $value->details_to_include, '', $iseo_niche, $iseo_niche_data, $iseo_brand_profile, $iseo_cta['url'], improveseo_bulk_v3_session_key( $value ));
+		}
 
+		// Extract content from the result array
+		$AI_Content = $generation_result['content'];
+		$meta_title = $generation_result['meta_title'];
+		$meta_description = $generation_result['meta_description'];
+
+		my_plugin_log('generateBulkAiContent: Content generation result for task ' . $id . ' | Content length: ' . strlen($AI_Content) . ' characters | Meta title: ' . $meta_title);
+	}
+
+	// ✅ STEP 5: Validate content (BULK7). Every generator error starts "Error:", whatever its
+	// length; the old under-100-characters test let a longer one (a 402 message) through to be
+	// saved Done and published as the post body.
+	if ( improveseo_bulk_content_is_error( $AI_Content ) ) {
+		my_plugin_log('generateBulkAiContent: ERROR - generator returned an error for task ' . $id . ': ' . substr(wp_strip_all_tags((string) $AI_Content), 0, 160));
+		// Retrying cannot help without credits or a working connection: fail now.
+		$iseo_final = false !== strpos( (string) $AI_Content, 'status: 402' )
+			|| false !== strpos( (string) $AI_Content, 'ISEO_NOT_CONNECTED' )
+			|| false !== strpos( (string) $AI_Content, 'Missing API credentials' );
+		improveseo_bulk_task_failed( $value, improveseo_bulk_error_reason( $AI_Content ), array( 'ai_title' => $ai_title ), $iseo_final );
+		return false;
+	}
+
+	// ✅ STEP 6: Image (BULK5: after the content; a failed image keeps the article and retries the
+	// image only; out of attempts, the post is saved without a cover image rather than lost).
+	$iseo_note = '';
+	if ($value->aiImage == 'AI_image_one') {
+		if ( '' !== $iseo_prev_image ) {
+			$imageURL = $iseo_prev_image;
+			my_plugin_log('generateBulkAiContent: Reusing the image from an earlier attempt for task ' . $id);
+		} else {
+			if ( '' === $getAudienceData ) {
+				$getAudienceData = getAudienceData($value->keyword_name);
+			}
+			my_plugin_log('generateBulkAiContent: Starting image generation for task ' . $id);
+			$imageURL = generateBulkAiImage($ai_title, $getAudienceData, $iseo_niche);
+			if ($imageURL === false || $imageURL === 'ISEO_NOT_CONNECTED' || $imageURL === '') {
+				$iseo_attempt_no = ( isset( $value->attempts ) ? (int) $value->attempts : 0 ) + 1;
+				$iseo_keep = array(
+					'ai_title'         => $ai_title,
+					'ai_content'       => base64_encode($AI_Content),
+					'meta_title'       => (string) $meta_title,
+					'meta_description' => (string) $meta_description,
+				);
+				if ( $iseo_v3_review ) {
+					$iseo_keep['v3_review'] = wp_json_encode( $iseo_v3_review );
+				}
+				if ( $iseo_attempt_no < IMPROVESEO_BULK_MAX_ATTEMPTS ) {
+					improveseo_bulk_task_failed( $value, $imageURL === 'ISEO_NOT_CONNECTED' ? 'This site is not connected to ImproveSEO; the cover image will be retried.' : 'The cover image could not be generated; it will be retried.', $iseo_keep );
+					return false;
+				}
+				my_plugin_log('generateBulkAiContent: Image failed ' . $iseo_attempt_no . ' times for task ' . $id . ' — saving the post without a cover image');
+				$imageURL  = '';
+				$iseo_note = 'The cover image could not be generated, so the post was saved without one.';
+			} else {
+				my_plugin_log('generateBulkAiContent: Image generated successfully for task ' . $id . ' | URL: ' . substr($imageURL, 0, 100) . '...');
+				$imageURL = base64_encode($imageURL);
+			}
+		}
+	} else {
 		$imageURL = $value->ai_image;
 		my_plugin_log('generateBulkAiContent: Using existing image for task ' . $id);
-
 	}
 
-	// ✅ STEP 4: Generate AI Content
-	my_plugin_log('generateBulkAiContent: Starting content generation for task ' . $id . ' | Words: ' . $value->nos_of_words . ' | Language: ' . $value->content_lang);
-	
-	$keyword_selection = '';
-
-	// The CTA URL is stored folded into call_to_action ("CTA URL: <url>" line) so no
-	// schema change was needed — but it must still reach the generator as the STRUCTURED
-	// cta_url field. Passing '' here left the URL visible only as prose inside
-	// call_to_action, so whether the model turned it into a real link varied per post
-	// (siblings in one project could differ). Split it back out and send both.
-	$iseo_cta = improveseo_split_cta_field($value->call_to_action);
-	if ($iseo_cta['url'] === '' && !empty($value->call_to_action)) {
-		my_plugin_log('generateBulkAiContent: Task ' . $id . ' has a CTA text but no CTA URL — article will be generated without a link');
-	}
-
-	$generation_result = createAIpost2bulk($value->keyword_name, $keyword_selection, $value->select_exisiting_options, $value->nos_of_words, $value->content_lang, $shortcode = '', $is_single_keyword = '', $value->tone_of_voice, $value->point_of_view, $ai_title, $iseo_cta['text'], $value->details_to_include, '', $iseo_niche, $iseo_niche_data, $iseo_brand_profile, $iseo_cta['url']);
-
-	// Extract content from the result array
-	$AI_Content = $generation_result['content'];
-	$meta_title = $generation_result['meta_title'];
-	$meta_description = $generation_result['meta_description'];
-
-	my_plugin_log('generateBulkAiContent: Content generation result for task ' . $id . ' | Content length: ' . strlen($AI_Content) . ' characters | Meta title: ' . $meta_title);
-
-	// ✅ CRITICAL FIX: Validate title and image FIRST - these are mandatory fields
-	// These MUST NOT be NULL in database - hard fail if missing
-	if (empty($ai_title)) {
-		my_plugin_log('generateBulkAiContent: CRITICAL ERROR - Missing title for task ' . $id . '. Cannot proceed.');
-		
-		// Keep in Processing state to prevent retry loop - manual intervention needed
-		$wpdb->query(
-			$wpdb->prepare(
-				"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
-				 SET status = %s WHERE id = %d",
-				'Processing',
-				$id
-			)
-		);
-		
-		return false;
-	}
-	
-	// Image validation - if image generation was requested but failed, reset to Pending for retry
-	if ($value->aiImage == 'AI_image_one' && empty($imageURL)) {
-		my_plugin_log('generateBulkAiContent: Image generation failed for task ' . $id . '. Saving title, resetting status to Pending for retry.');
-
-		$wpdb->query(
-			$wpdb->prepare(
-				"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
-				 SET status = %s, ai_title = %s WHERE id = %d",
-				'Pending',
-				$ai_title,
-				$id
-			)
-		);
-
-		return false;
-	}
-
-	// ✅ STEP 5: Validate content - check for errors
-	if (empty($AI_Content)) {
-		my_plugin_log('generateBulkAiContent: ERROR - Empty content received for task ' . $id . '. Saving title/image, resetting status for content retry.');
-		
-		// ✅ CRITICAL: Save title and image even if content failed!
-		$wpdb->query(
-			$wpdb->prepare(
-				"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
-				 SET status = %s, ai_title = %s, ai_image = %s WHERE id = %d",
-				'Pending',
-				$ai_title,
-				$imageURL,
-				$id
-			)
-		);
-		
-		return false;
-	}
-	
-	// Check if content is suspiciously short (likely an error message), OR is the explicit
-	// "credentials rejected" sentinel from createAIpost2bulk.
-	//
-	// The sentinel is matched by name rather than left to the length/keyword heuristic below
-	// it. That heuristic only catches an error string UNDER 100 characters: the sentinel
-	// carries the admin server's own message, so a longer message from a future server build
-	// would sail past this check and be persisted and PUBLISHED as the body of a blog post.
-	// Matching the marker itself cannot drift that way.
-	if (strpos($AI_Content, 'Error: ISEO_NOT_CONNECTED') === 0 || (strlen($AI_Content) < 100 && (
-		stripos($AI_Content, 'Error') !== false ||
-		stripos($AI_Content, 'Failed') !== false ||
-		stripos($AI_Content, 'failed to open stream') !== false ||
-		stripos($AI_Content, 'connection') !== false))) {
-		
-		my_plugin_log('generateBulkAiContent: ERROR - Content appears to be an error message for task ' . $id . ': ' . substr($AI_Content, 0, 100) . '... | Saving title/image, resetting status for content retry.');
-		
-		// ✅ CRITICAL: Save title and image even if content is an error message!
-		$wpdb->query(
-			$wpdb->prepare(
-				"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`
-				 SET status = %s, ai_title = %s, ai_image = %s, ai_content = %s WHERE id = %d",
-				'Pending',
-				$ai_title,
-				$imageURL,
-				base64_encode($AI_Content), // Store error for debugging
-				$id
-			)
-		);
-		
-		return false;
-	}
-	
 	my_plugin_log('generateBulkAiContent: Content validation passed for task ' . $id);
 
 		$data_array = array('ai_title' => $ai_title, 'imageURL' => $imageURL, 'AI_Content' => $AI_Content);
@@ -1081,6 +1059,19 @@ function generateBulkAiContent($id = '', $regenerate = '')
 		}
 		
 		my_plugin_log('generateBulkAiContent: ✅ Database verification passed | ai_title: "' . substr($verification->ai_title, 0, 50) . '" | ai_image: ' . strlen($verification->ai_image) . ' bytes | ai_content: ' . strlen($verification->ai_content) . ' bytes');
+
+		// Phase 10: clear the failure note (or keep the image note), and for v3 record the proof
+		// level / generation id and save Regulated-business and still-failing posts as drafts
+		// for review (G3, U3).
+		$iseo_extra = array( 'last_error' => '' !== $iseo_note ? $iseo_note : null );
+		if ( is_array( $iseo_v3_review ) ) {
+			$iseo_extra['v3_review'] = wp_json_encode( $iseo_v3_review );
+			if ( ! empty( $iseo_v3_review['draft_reason'] ) ) {
+				$iseo_extra['schedule_posts'] = 'draft_posts';
+				my_plugin_log('generateBulkAiContent: v3 task ' . $id . ' will be saved as a draft for review (' . $iseo_v3_review['draft_reason'] . ')');
+			}
+		}
+		$wpdb->update( $wpdb->prefix . 'improveseo_bulktasksdetails', $iseo_extra, array( 'id' => $id ) );
 
 		my_plugin_log('generateBulkAiContent: ✅ SUCCESS - Content generation complete for task ID: ' . $id . ' | Status: Done | State: ' . $value->state);
 
@@ -1706,6 +1697,9 @@ function saveContentInTaskList()
 				if ( function_exists( 'improveseo_save_keyword_meta' ) ) {
 					improveseo_save_keyword_meta( $post_id, $value->keyword_name, improveseo_bulk_task_keyword_data( $value ) );
 				}
+				if ( function_exists( 'improveseo_bulk_v3_post_meta' ) ) {
+					improveseo_bulk_v3_post_meta( $post_id, $value );
+				}
 
 				// ── Featured image (bulk) ───────────────────────────────────────
 				try {
@@ -2030,7 +2024,7 @@ function generateBulkAiImage($title, $AudienceData, $niche = 'general_blog')
         return false; // ✅ Return false on save failure
     }
 }
-function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '', $niche = 'general_blog', $niche_data = array(), $brand_profile = array(), $cta_url = '')
+function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $nos_of_words, $content_lang, $shortcode = '', $is_single_keyword = '', $voice_tone = '', $point_of_view = '', $title = '', $call_to_action = '', $details_to_include = '', $for_testing_only = '', $niche = 'general_blog', $niche_data = array(), $brand_profile = array(), $cta_url = '', $target_key = '')
 {
 	global $wpdb, $user_ID;
 
@@ -2077,6 +2071,9 @@ function createAIpost2bulk($seed_keyword, $keyword_selection, $seed_options, $no
 	}
 	if (!empty($cta_url)) {
 		$payload['cta_url'] = $cta_url;
+	}
+	if ($target_key !== '') {
+		$payload['target_key'] = $target_key;
 	}
 	
 	// Set up cURL for HTTP request to admin server
@@ -2942,6 +2939,11 @@ function re_generate_post()
 	
 	// Clear old content and post_id so saveContentInTaskList picks it up after cron regenerates.
 	// post_id must be set to SQL NULL (not 0/'') because saveContentInTaskList queries post_id IS NULL.
+	// Phase 10: a regeneration also starts a fresh attempt count (a Failed task can be retried).
+	if ( function_exists( 'improveseo_ensure_bulk_v3_columns' ) ) {
+		improveseo_ensure_bulk_v3_columns();
+		$wpdb->update( $wpdb->prefix . 'improveseo_bulktasksdetails', array( 'attempts' => 0, 'last_error' => null, 'v3_review' => null ), array( 'id' => $id ) );
+	}
 	$update_result = $wpdb->query(
 		$wpdb->prepare(
 			"UPDATE `{$wpdb->prefix}improveseo_bulktasksdetails`

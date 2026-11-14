@@ -126,6 +126,7 @@ function btd_content_status_label($status) {
         'Processing' => 'Generating',
         'Pending'    => 'Queued',
         'Stoped'     => 'Canceled',
+        'Failed'     => 'Failed',
         'Draft'      => 'Completed',
     );
     return isset($map[$status]) ? $map[$status] : 'Queued';
@@ -378,10 +379,32 @@ function btd_datetime($val) {
                         $status = $task->status;
                         $badge = 'btd-badge-pending';
                         if ($status === 'Done') $badge = 'btd-badge-done';
-                        elseif ($status === 'Stoped') $badge = 'btd-badge-stoped';
+                        elseif ($status === 'Stoped' || $status === 'Failed') $badge = 'btd-badge-stoped';
                         elseif ($status === 'Draft') $badge = 'btd-badge-draft';
                         ?>
                         <span class="btd-badge <?php echo esc_attr( $badge ) ?>"><?php echo  esc_html(btd_content_status_label($status)) ?></span>
+                        <?php
+                        // Phase 10: why the last attempt failed (plain words), and for Content v3 why the
+                        // post was saved as a draft and which checks it missed.
+                        $btd_last_error = isset( $task->last_error ) ? trim( (string) $task->last_error ) : '';
+                        if ( '' !== $btd_last_error ) {
+                            echo '<div class="btd-note" style="margin-top:6px;color:#6b7280;font-size:12px;">' . esc_html( $btd_last_error ) . '</div>';
+                        }
+                        $btd_v3 = ! empty( $task->v3_review ) ? json_decode( (string) $task->v3_review, true ) : null;
+                        if ( is_array( $btd_v3 ) && ! empty( $btd_v3['draft_reason'] ) ) {
+                            $btd_why = 'regulated' === $btd_v3['draft_reason']
+                                ? __( 'Saved as a draft: your business is set as Regulated, so please review it before publishing.', 'improveseo' )
+                                : __( 'Saved as a draft: the article still missed some quality checks.', 'improveseo' );
+                            echo '<div class="btd-note" style="margin-top:6px;color:#92400e;font-size:12px;">' . esc_html( $btd_why ) . '</div>';
+                            if ( ! empty( $btd_v3['issues'] ) && is_array( $btd_v3['issues'] ) ) {
+                                echo '<ul style="margin:4px 0 0 18px;color:#92400e;font-size:12px;">';
+                                foreach ( array_slice( $btd_v3['issues'], 0, 6 ) as $btd_issue ) {
+                                    echo '<li>' . esc_html( (string) $btd_issue ) . '</li>';
+                                }
+                                echo '</ul>';
+                            }
+                        }
+                        ?>
                     </div>
                 </div>
                 <div class="btd-row">
@@ -392,6 +415,9 @@ function btd_datetime($val) {
                         // content generation finishes, so status gates what Post Status can be.
                         if ($task->status === 'Stoped') {
                             $post_status_label = 'Canceled';
+                            $state_badge = 'btd-badge-stoped';
+                        } elseif ($task->status === 'Failed') {
+                            $post_status_label = 'Not created';
                             $state_badge = 'btd-badge-stoped';
                         } elseif ($task->status !== 'Done') {
                             $post_status_label = 'Pending Creation';

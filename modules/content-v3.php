@@ -928,3 +928,324 @@ function improveseo_save_v3_post_meta( $post_id, $options ) {
 		update_post_meta( $post_id, '_iseo_v3_generation_id', absint( $options['ai_v3_generation_id'] ) );
 	}
 }
+
+/* ======================================================================================
+ * Bulk (phase 10): failure bookkeeping for every bulk run (BULK5–BULK7), and the v3 chain per
+ * task (BULK1–BULK3). Bulk runs one task per cron tick (bulk_AI_post_function.php).
+ * ====================================================================================*/
+
+/** A failed step is retried at most this many times in all; then the task is marked Failed. */
+const IMPROVESEO_BULK_MAX_ATTEMPTS = 3;
+
+/**
+ * The columns phase 10 adds to the bulk task table: attempts, last_error, v3_review (JSON:
+ * proof level, generation id, why the post was saved as a draft, the checks that failed).
+ * Explicit, idempotent ALTER like improveseo_ensure_bulk_meta_columns(); improveseo_db_version
+ * is never bumped for it.
+ */
+function improveseo_ensure_bulk_v3_columns() {
+	global $wpdb;
+	if ( 'ready' === get_option( 'improveseo_bulk_v3_cols' ) ) {
+		return;
+	}
+	$table = $wpdb->prefix . 'improveseo_bulktasksdetails';
+	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+		return;
+	}
+	$cols = $wpdb->get_col( "SHOW COLUMNS FROM `$table`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name
+	if ( ! is_array( $cols ) ) {
+		return;
+	}
+	$adds = array();
+	if ( ! in_array( 'attempts', $cols, true ) ) {
+		$adds[] = 'ADD COLUMN `attempts` INT NOT NULL DEFAULT 0';
+	}
+	if ( ! in_array( 'last_error', $cols, true ) ) {
+		$adds[] = 'ADD COLUMN `last_error` TEXT NULL DEFAULT NULL';
+	}
+	if ( ! in_array( 'v3_review', $cols, true ) ) {
+		$adds[] = 'ADD COLUMN `v3_review` TEXT NULL DEFAULT NULL';
+	}
+	if ( $adds ) {
+		$wpdb->query( "ALTER TABLE `$table` " . implode( ', ', $adds ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name
+		$cols = $wpdb->get_col( "SHOW COLUMNS FROM `$table`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- fixed query text; the only interpolation is the table name
+	}
+	if ( is_array( $cols ) && ! array_diff( array( 'attempts', 'last_error', 'v3_review' ), $cols ) ) {
+		update_option( 'improveseo_bulk_v3_cols', 'ready', true );
+	}
+}
+
+/**
+ * Is this generator output an error rather than an article? (BULK7)
+ *
+ * Every generator error is returned as content beginning "Error:" (createAIpost2bulk, the v3 path
+ * below), whatever its length. The old check only caught errors under 100 characters, so a longer
+ * message — a 402 "Not enough credits: this needs 10 and you have 4…" — was saved as Done and
+ * PUBLISHED as the post body.
+ *
+ * @param string $content Generated content.
+ * @return bool
+ */
+function improveseo_bulk_content_is_error( $content ) {
+	$t = ltrim( (string) $content );
+	if ( '' === $t ) {
+		return true;
+	}
+	if ( 0 === stripos( $t, 'Error:' ) || 0 === strpos( $t, 'ISEO_NOT_CONNECTED' ) ) {
+		return true;
+	}
+	return strlen( $t ) < 100 && (
+		false !== stripos( $t, 'Error' ) ||
+		false !== stripos( $t, 'Failed' ) ||
+		false !== stripos( $t, 'failed to open stream' ) ||
+		false !== stripos( $t, 'connection' )
+	);
+}
+
+/**
+ * A short, plain reason for the task details screen. Never the provider's raw text.
+ *
+ * @param string $content The error content.
+ * @return string
+ */
+function improveseo_bulk_error_reason( $content ) {
+	$t = trim( wp_strip_all_tags( (string) $content ) );
+	if ( false !== strpos( $t, 'status: 402' ) || false !== stripos( $t, 'not enough credits' ) || false !== stripos( $t, 'insufficient' ) ) {
+		return __( 'Not enough credits for this post. Buy credits, then regenerate it.', 'improveseo' );
+	}
+	if ( false !== strpos( $t, 'ISEO_NOT_CONNECTED' ) || false !== strpos( $t, 'API credentials' ) ) {
+		return __( 'This site is not connected to ImproveSEO. Reconnect it in Settings, then regenerate.', 'improveseo' );
+	}
+	$t = preg_replace( '/^Error:\s*/i', '', $t );
+	$t = preg_replace( '/^Content generation server returned error status: \d+\s*—?\s*/', '', $t );
+	return function_exists( 'mb_substr' ) ? mb_substr( $t, 0, 300 ) : substr( $t, 0, 300 );
+}
+
+/**
+ * Record a failed attempt (BULK6). Keeps whatever was already produced (title, image, content)
+ * so the next run does not pay for it again (BULK5). After IMPROVESEO_BULK_MAX_ATTEMPTS, or at once
+ * when retrying cannot help (no credits, not connected), the task is marked Failed — a terminal
+ * status the project progress counts — instead of staying Pending forever.
+ *
+ * @param object $task   The task row.
+ * @param string $reason Plain reason.
+ * @param array  $keep   Columns to save (ai_title, ai_image, ai_content [base64], meta_title, meta_description).
+ * @param bool   $final  Fail now regardless of the count.
+ * @return string The new status.
+ */
+function improveseo_bulk_task_failed( $task, $reason, array $keep = array(), $final = false ) {
+	global $wpdb;
+	improveseo_ensure_bulk_v3_columns();
+	$attempts = ( isset( $task->attempts ) ? (int) $task->attempts : 0 ) + 1;
+	$status   = ( $final || $attempts >= IMPROVESEO_BULK_MAX_ATTEMPTS ) ? 'Failed' : 'Pending';
+	$data     = array_merge(
+		array_intersect_key( $keep, array_flip( array( 'ai_title', 'ai_image', 'ai_content', 'meta_title', 'meta_description', 'v3_review' ) ) ),
+		array(
+			'status'     => $status,
+			'attempts'   => $attempts,
+			'last_error' => (string) $reason,
+			'updated_at' => current_time( 'mysql' ),
+		)
+	);
+	$wpdb->update( $wpdb->prefix . 'improveseo_bulktasksdetails', $data, array( 'id' => (int) $task->id ) );
+	if ( function_exists( 'my_plugin_log' ) ) {
+		my_plugin_log( 'bulk task ' . (int) $task->id . ' failed attempt ' . $attempts . '/' . IMPROVESEO_BULK_MAX_ATTEMPTS . ' → ' . $status . ' | ' . $reason );
+	}
+	if ( 'Failed' === $status && ! empty( $task->bulktask_id ) && function_exists( 'improveseo_sync_bulk_parent_progress' ) ) {
+		improveseo_sync_bulk_parent_progress( (int) $task->bulktask_id );
+	}
+	return $status;
+}
+
+/** Stable per task, so a regeneration is priced as one (server history keyed on it). */
+function improveseo_bulk_v3_session_key( $task ) {
+	return 'iseo_bulk_t' . absint( $task->id );
+}
+
+/**
+ * The most list items a size holds: its body words over the strictest per-item minimum (60),
+ * capped at 15 — the server's minimum-size rule, so a bulk title never needs a larger size.
+ *
+ * @param string $size small|medium|large.
+ * @return int
+ */
+function improveseo_bulk_v3_max_items( $size ) {
+	$body = array( 'small' => 900 - 380, 'medium' => 1800 - 450, 'large' => 3000 - 540 );
+	$n    = isset( $body[ $size ] ) ? (int) floor( $body[ $size ] / 60 ) : 15;
+	return max( 1, min( 15, $n ) );
+}
+
+function improveseo_bulk_v3_size( $task ) {
+	$map = array(
+		'600 to 1200 words'  => 'small',
+		'1200 to 2400 words' => 'medium',
+		'2400 to 3600 words' => 'large',
+	);
+	$words = isset( $task->nos_of_words ) ? urldecode( (string) $task->nos_of_words ) : '';
+	return isset( $map[ $words ] ) ? $map[ $words ] : 'medium';
+}
+
+/**
+ * What every v3 bulk request shares. Bulk has no town question yet: a local business writes for its
+ * first saved town, a nationwide one for no town.
+ */
+function improveseo_bulk_v3_common( $task ) {
+	$reach = improveseo_business_reach();
+	$towns = improveseo_business_towns();
+	$town  = 'local' === $reach && $towns ? $towns[0] : '';
+	$niche = (string) get_option( 'improveseo_business_niche', '' );
+	return array_filter(
+		array(
+			'session_key'          => improveseo_bulk_v3_session_key( $task ),
+			'seed_keyword'         => trim( (string) $task->keyword_name ),
+			'language'             => isset( $task->content_lang ) ? sanitize_text_field( (string) $task->content_lang ) : '',
+			'niche'                => '' !== $niche ? $niche : 'general_blog',
+			'niche_profile'        => (string) get_option( 'improveseo_business_profile', '' ),
+			'reach'                => $reach,
+			'target_town'          => $town,
+			'not_about_location'   => 'local' === $reach && '' === $town,
+			'state_hint'           => improveseo_business_state_hint(),
+			'proof_level'          => improveseo_business_proof_level(),
+			'featured_service'     => trim( (string) get_option( 'improveseo_business_service', '' ) ),
+			'ideal_client'         => trim( (string) get_option( 'improveseo_business_ideal_client', '' ) ),
+			'business_description' => trim( (string) get_option( 'improveseo_business_description', '' ) ),
+		),
+		function ( $v ) {
+			return '' !== $v && null !== $v && false !== $v;
+		}
+	);
+}
+
+/**
+ * The v3 title for a bulk task ('' with $error on failure). "Exact keyword as title" stays the keyword.
+ */
+function improveseo_bulk_v3_title( $task, &$error = null ) {
+	$error = '';
+	if ( isset( $task->select_exisiting_options ) && 'seed_option1' === $task->select_exisiting_options ) {
+		return trim( (string) $task->keyword_name );
+	}
+	$body = improveseo_bulk_v3_common( $task );
+	unset( $body['niche_profile'], $body['business_description'] );
+	$body['max_list_items'] = improveseo_bulk_v3_max_items( improveseo_bulk_v3_size( $task ) );
+	if ( function_exists( 'improveseo_v3_step_fields' ) ) {
+		$body = array_merge( $body, improveseo_v3_step_fields( 'title' ) );
+	}
+	$status = 0;
+	$data   = improveseo_content_v3_request( 'POST', '/api/v1/content-v3/wizard/title', $body, $error, $status, 240 );
+	if ( ! is_array( $data ) ) {
+		return '';
+	}
+	$title = isset( $data['data']['title'] ) ? sanitize_text_field( (string) $data['data']['title'] ) : '';
+	if ( '' === $title ) {
+		$error = isset( $data['data']['message'] ) ? sanitize_text_field( (string) $data['data']['message'] ) : __( 'No title was generated.', 'improveseo' );
+	}
+	return $title;
+}
+
+/**
+ * Approve the title (research + planner) and write the article, for one bulk task.
+ *
+ * Returns the createAIpost2bulk() shape — content (or "Error: …"), meta_title, meta_description —
+ * plus 'v3' with the proof level, the generation id, needs_review and the failed checks. In bulk the
+ * regulated suggestion applies automatically (regulated: null on the article request).
+ */
+function improveseo_bulk_v3_article( $task, $title ) {
+	$fail = function ( $message, $status = 0 ) {
+		$prefix = 402 === (int) $status ? 'Content generation server returned error status: 402 — ' : '';
+		return array( 'content' => 'Error: ' . $prefix . $message, 'meta_title' => '', 'meta_description' => '' );
+	};
+
+	$approve          = improveseo_bulk_v3_common( $task );
+	$approve['title'] = $title;
+	$approve['bulk_batch'] = 'bulk_' . absint( $task->bulktask_id );
+	if ( function_exists( 'improveseo_v3_step_fields' ) ) {
+		$approve = array_merge( $approve, improveseo_v3_step_fields( 'planner' ) );
+	}
+	$error  = '';
+	$status = 0;
+	$code   = '';
+	$plan   = improveseo_content_v3_request( 'POST', '/api/v1/content-v3/wizard/approve', $approve, $error, $status, 420, $code );
+	if ( ! is_array( $plan ) ) {
+		return $fail( $error, $status );
+	}
+
+	$cta = function_exists( 'improveseo_split_cta_field' ) ? improveseo_split_cta_field( isset( $task->call_to_action ) ? $task->call_to_action : '' ) : array( 'text' => '', 'url' => '' );
+	$body = array_filter(
+		array(
+			'session_key'   => improveseo_bulk_v3_session_key( $task ),
+			'post_size'     => improveseo_bulk_v3_size( $task ),
+			'point_of_view' => improveseo_v3_map_point_of_view( isset( $task->point_of_view ) ? (string) $task->point_of_view : '' ),
+			'tone'          => isset( $task->tone_of_voice ) ? sanitize_key( (string) $task->tone_of_voice ) : '',
+			'language'      => isset( $task->content_lang ) ? sanitize_text_field( (string) $task->content_lang ) : '',
+			'business_name' => trim( (string) get_option( 'improveseo_business_name', '' ) ) ? trim( (string) get_option( 'improveseo_business_name', '' ) ) : wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+			'stand_out'     => trim( (string) get_option( 'improveseo_business_stand_out', '' ) ),
+			'cta_text'      => isset( $cta['text'] ) ? (string) $cta['text'] : '',
+			'cta_url'       => isset( $cta['url'] ) ? (string) $cta['url'] : '',
+			'anything_else' => isset( $task->details_to_include ) ? sanitize_textarea_field( (string) $task->details_to_include ) : '',
+		),
+		function ( $v ) {
+			return '' !== $v && null !== $v;
+		}
+	);
+	$data = improveseo_content_v3_request( 'POST', '/api/v1/content-v3/article', $body, $error, $status, 600, $code );
+	if ( ! is_array( $data ) ) {
+		return $fail( $error, $status );
+	}
+	$d      = isset( $data['data'] ) && is_array( $data['data'] ) ? $data['data'] : array();
+	$issues = array();
+	foreach ( (array) ( isset( $d['review']['issues'] ) ? $d['review']['issues'] : array() ) as $issue ) {
+		if ( is_array( $issue ) && isset( $issue['severity'], $issue['message'] ) && 'error' === $issue['severity'] ) {
+			$issues[] = sanitize_text_field( (string) $issue['message'] );
+		}
+	}
+	$content = isset( $d['content'] ) ? (string) $d['content'] : '';
+	if ( function_exists( 'improveseo_normalize_faq_markup' ) ) {
+		$content = improveseo_normalize_faq_markup( $content );
+	}
+	return array(
+		'content'          => '<div class="main-content-section-improveseo">' . $content . '</div>',
+		'meta_title'       => isset( $d['meta_title'] ) ? sanitize_text_field( (string) $d['meta_title'] ) : '',
+		'meta_description' => isset( $d['meta_description'] ) ? sanitize_text_field( (string) $d['meta_description'] ) : '',
+		'v3'               => array(
+			'proof_level'   => isset( $d['proof_level'] ) && 'regulated' === $d['proof_level'] ? 'regulated' : 'standard',
+			'generation_id' => isset( $d['generation_id'] ) ? absint( $d['generation_id'] ) : 0,
+			'needs_review'  => ! empty( $d['needs_review'] ),
+			'issues'        => $issues,
+		),
+	);
+}
+
+/**
+ * Bulk v3 drafts (G3, U3): a Regulated business's posts, and any post that still failed the
+ * checks, are saved as drafts for the owner to review. Returns the v3_review JSON for the task.
+ */
+function improveseo_bulk_v3_review( array $v3 ) {
+	$reason = '';
+	if ( 'regulated' === improveseo_business_proof_level() ) {
+		$reason = 'regulated';
+	}
+	if ( ! empty( $v3['needs_review'] ) ) {
+		$reason = 'needs_review';
+	}
+	return array(
+		'proof_level'   => isset( $v3['proof_level'] ) ? $v3['proof_level'] : 'standard',
+		'generation_id' => isset( $v3['generation_id'] ) ? (int) $v3['generation_id'] : 0,
+		'draft_reason'  => $reason,
+		'issues'        => isset( $v3['issues'] ) ? array_slice( (array) $v3['issues'], 0, 8 ) : array(),
+	);
+}
+
+/** Post meta for a bulk v3 post, from the task's v3_review JSON (G6). */
+function improveseo_bulk_v3_post_meta( $post_id, $task ) {
+	if ( empty( $task->v3_review ) ) {
+		return;
+	}
+	$r = json_decode( (string) $task->v3_review, true );
+	if ( ! is_array( $r ) ) {
+		return;
+	}
+	improveseo_save_v3_post_meta( $post_id, array(
+		'ai_v3_proof_level'   => isset( $r['proof_level'] ) ? $r['proof_level'] : 'standard',
+		'ai_v3_generation_id' => isset( $r['generation_id'] ) ? $r['generation_id'] : 0,
+	) );
+}
