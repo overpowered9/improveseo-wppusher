@@ -259,9 +259,11 @@ function improveseo_ajax_content_v3_clear_session() {
 	$keep_files = isset( $_POST['keep_files'] ) && '1' === $_POST['keep_files']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- compared to a literal.
 	$deleted    = $keep_files ? 0 : improveseo_content_v3_delete_wizard_files( $key );
 	delete_transient( improveseo_content_v3_files_transient( $key ) );
+	improveseo_content_v3_files_index_forget( $key );
 	$error  = '';
 	$status = 0;
-	$data   = improveseo_content_v3_request( 'POST', '/api/v1/content-v3/session/clear', array( 'session_key' => $key ), $error, $status, 10 );
+	// Leave (no keep_files): the server also drops the unsubmitted post's history row and article text.
+	$data   = improveseo_content_v3_request( 'POST', '/api/v1/content-v3/session/clear', array( 'session_key' => $key, 'left' => ! $keep_files ), $error, $status, 10 );
 	wp_send_json_success( array( 'cleared' => is_array( $data ) && ! empty( $data['cleared'] ), 'files_deleted' => $deleted ) );
 }
 
@@ -295,6 +297,114 @@ function improveseo_content_v3_track_wizard_file( $key, $path ) {
 		$files[] = $path;
 	}
 	set_transient( $name, $files, 7 * DAY_IN_SECONDS );
+
+	// D: also in a small index, so files of a wizard that was closed without Leave or Submit are
+	// found by the daily cleanup after the transient has expired.
+	$index = get_option( IMPROVESEO_V3_FILES_INDEX, array() );
+	$index = is_array( $index ) ? $index : array();
+	$entry = isset( $index[ $key ] ) && is_array( $index[ $key ] ) ? $index[ $key ] : array( 't' => time(), 'files' => array() );
+	if ( ! in_array( $path, (array) $entry['files'], true ) && count( (array) $entry['files'] ) < 50 ) {
+		$entry['files'][] = $path;
+	}
+	$index[ $key ] = $entry;
+	if ( count( $index ) > 500 ) {
+		uasort( $index, function ( $a, $b ) {
+			return (int) $a['t'] - (int) $b['t'];
+		} );
+		$index = array_slice( $index, -500, null, true );
+	}
+	update_option( IMPROVESEO_V3_FILES_INDEX, $index, false );
+}
+
+const IMPROVESEO_V3_FILES_INDEX = 'improveseo_v3_wizard_files';
+
+/** Submit or Leave ended this wizard: its files are no longer pending. */
+function improveseo_content_v3_files_index_forget( $key ) {
+	$index = get_option( IMPROVESEO_V3_FILES_INDEX, array() );
+	if ( is_array( $index ) && isset( $index[ $key ] ) ) {
+		unset( $index[ $key ] );
+		update_option( IMPROVESEO_V3_FILES_INDEX, $index, false );
+	}
+}
+
+/**
+ * Is this image used anywhere: an attachment, a post's content or GUID, or any post meta?
+ * The daily cleanup deletes nothing that answers yes (trashed posts count as using it).
+ *
+ * @param string $path Absolute path inside uploads.
+ * @return bool
+ */
+function improveseo_content_v3_file_in_use( $path ) {
+	global $wpdb;
+	$uploads = wp_upload_dir();
+	$url     = str_replace( wp_normalize_path( $uploads['basedir'] ), $uploads['baseurl'], wp_normalize_path( $path ) );
+	if ( attachment_url_to_postid( $url ) ) {
+		return true;
+	}
+	$like = '%' . $wpdb->esc_like( basename( $path ) ) . '%';
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- a daily cleanup check, nothing to cache.
+	if ( $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_content LIKE %s OR guid LIKE %s LIMIT 1", $like, $like ) ) ) {
+		return true;
+	}
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- as above.
+	return (bool) $wpdb->get_var( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->postmeta} WHERE meta_value LIKE %s LIMIT 1", $like ) );
+}
+
+/**
+ * Deletes one wizard image: only inside uploads, never with "..", and only an image (by extension,
+ * or by its content for a file saved without one when GD was missing).
+ *
+ * @param string $path Absolute path.
+ * @return bool Deleted.
+ */
+function improveseo_content_v3_delete_wizard_file( $path ) {
+	$uploads = wp_upload_dir();
+	$base    = wp_normalize_path( trailingslashit( $uploads['basedir'] ) );
+	$path    = wp_normalize_path( (string) $path );
+	if ( 0 !== strpos( $path, $base ) || false !== strpos( $path, '..' ) || ! is_file( $path ) ) {
+		return false;
+	}
+	$is_image = preg_match( '/\.(webp|png|jpe?g)$/i', $path )
+		|| ( false === strpos( basename( $path ), '.' ) && function_exists( 'wp_get_image_mime' ) && wp_get_image_mime( $path ) );
+	if ( ! $is_image ) {
+		return false;
+	}
+	wp_delete_file( $path );
+	return true;
+}
+
+/**
+ * D: once a day, the files of wizards left open for more than 8 days without Leave or Submit
+ * are deleted, unless something uses them.
+ */
+add_action( 'improveseo_v3_files_cleanup', 'improveseo_content_v3_files_cleanup' );
+function improveseo_content_v3_files_cleanup() {
+	$index = get_option( IMPROVESEO_V3_FILES_INDEX, array() );
+	if ( ! is_array( $index ) || ! $index ) {
+		return;
+	}
+	$deleted = 0;
+	foreach ( $index as $key => $entry ) {
+		if ( ! is_array( $entry ) || (int) ( isset( $entry['t'] ) ? $entry['t'] : 0 ) > time() - 8 * DAY_IN_SECONDS ) {
+			continue;
+		}
+		foreach ( (array) ( isset( $entry['files'] ) ? $entry['files'] : array() ) as $path ) {
+			if ( ! improveseo_content_v3_file_in_use( $path ) && improveseo_content_v3_delete_wizard_file( $path ) ) {
+				$deleted++;
+			}
+		}
+		unset( $index[ $key ] );
+	}
+	update_option( IMPROVESEO_V3_FILES_INDEX, $index, false );
+	if ( $deleted ) {
+		error_log( 'improveseo content v3: daily cleanup deleted ' . $deleted . ' image file(s) of abandoned wizards' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- one line a day at most.
+	}
+}
+add_action( 'init', 'improveseo_content_v3_schedule_files_cleanup' );
+function improveseo_content_v3_schedule_files_cleanup() {
+	if ( ! wp_next_scheduled( 'improveseo_v3_files_cleanup' ) ) {
+		wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'improveseo_v3_files_cleanup' );
+	}
 }
 
 /**
@@ -306,15 +416,12 @@ function improveseo_content_v3_track_wizard_file( $key, $path ) {
 function improveseo_content_v3_delete_wizard_files( $key ) {
 	$files = get_transient( improveseo_content_v3_files_transient( $key ) );
 	if ( ! is_array( $files ) ) {
-		return 0;
+		$index = get_option( IMPROVESEO_V3_FILES_INDEX, array() );
+		$files = is_array( $index ) && isset( $index[ $key ]['files'] ) ? (array) $index[ $key ]['files'] : array();
 	}
-	$uploads = wp_upload_dir();
-	$base    = wp_normalize_path( trailingslashit( $uploads['basedir'] ) );
 	$deleted = 0;
 	foreach ( $files as $path ) {
-		$path = wp_normalize_path( (string) $path );
-		if ( 0 === strpos( $path, $base ) && preg_match( '/\.(webp|png|jpe?g)$/i', $path ) && false === strpos( $path, '..' ) && is_file( $path ) ) {
-			wp_delete_file( $path );
+		if ( improveseo_content_v3_delete_wizard_file( $path ) ) {
 			$deleted++;
 		}
 	}
