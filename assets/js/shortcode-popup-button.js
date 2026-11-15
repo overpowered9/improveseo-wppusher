@@ -1,4 +1,6 @@
 (function() {
+	// Printed on admin screens without the editor too (includes/assets.php): nothing to add there.
+	if (typeof tinymce === 'undefined') { return; }
 	tinymce.PluginManager.add('improveseo_mce_button', function( editor, url ) {
 		editor.addButton('improveseo_mce_button', {
 			text: false,
