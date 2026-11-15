@@ -36,7 +36,12 @@ var geoRepeated = {};
 var allowedLocalSEO = {country: 1, state: 0, stateshort: 0, city: 0, zip: 0};
 
 function getUniqueLocations() {
-	var locations = jQuery('#jstree').jstree(true).get_checked();
+	// No location tree on this screen (the single post wizard has none): no locations. Without this
+	// guard every editor change threw here, and the throw inside the wizard's final insert stopped
+	// Submit from ever sending the form.
+	var tree = jQuery('#jstree').length ? jQuery('#jstree').jstree(true) : false;
+	if (!tree || typeof tree.get_checked !== 'function') return [];
+	var locations = tree.get_checked();
 	var uniqueLocations = [];
 
 	_.each(locations, function(location, i) {

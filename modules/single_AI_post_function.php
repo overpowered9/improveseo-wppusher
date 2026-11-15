@@ -53,7 +53,7 @@ function getaaldata()
 
 	$seed_keyword = $arr['seed_keyword'];
 
-	$keyword_selection = $arr['keyword_selection'];
+	$keyword_selection = isset( $arr['keyword_selection'] ) ? $arr['keyword_selection'] : '';
 
 	$seed_options = $arr['seed_options'];
 
@@ -63,7 +63,7 @@ function getaaldata()
 
 	$call_to_action = $arr['call_to_action'];
 
-	$for_testing_only = $arr['for_testing_only'];
+	$for_testing_only = isset( $arr['for_testing_only'] ) ? $arr['for_testing_only'] : '';
 
 
 

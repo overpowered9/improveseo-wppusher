@@ -1566,10 +1566,11 @@ function improveseo_bulk_task_failed( $task, $reason, array $keep = array(), $fi
 
 /** Stable per task, so a regeneration is priced as one (server history keyed on it). */
 function improveseo_bulk_v3_session_key( $task ) {
-	// H3: task ids restart at 1 on every site, so the site code makes the key unique per account
-	// (server-side regeneration pricing and the one-running-run rule are keyed by it).
-	$site = strtolower( preg_replace( '/[^A-Za-z0-9]/', '', (string) get_option( 'improveseo_site_code', '' ) ) );
-	return 'iseo_bulk_' . ( '' !== $site ? substr( $site, 0, 24 ) : 'site' ) . '_t' . absint( $task->id );
+	// H3: task ids restart at 1 on every site, so a short hash of the site code makes the key unique
+	// per account (server-side regeneration pricing and the one-running-run rule are keyed by it)
+	// without writing the site code itself into every log line.
+	$site = (string) get_option( 'improveseo_site_code', '' );
+	return 'iseo_bulk_' . substr( md5( 'iseo-bulk|' . $site ), 0, 10 ) . '_t' . absint( $task->id );
 }
 
 /**
