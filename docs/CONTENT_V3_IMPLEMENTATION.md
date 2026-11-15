@@ -6,7 +6,18 @@ This document describes Content v3 end to end: what was asked for, and how and w
 - Server (Express, TypeScript): `imporve-seo-admin-server`, branch `feature/content-v3` (paths start with **S**).
 - Admin panel (React): `improvese0-admin-frontend`, branch `feature/content-v3` (paths start with **A**).
 
-Status: built and tested on 14–15 November 2026. Nothing is pushed or deployed. Section 12 lists what the team lead adds on the server side, and section 13 maps every requirement to the code.
+Status: built and tested on 14–15 November 2026 (section 14). Nothing is pushed or deployed.
+
+**Verdict.**
+- **Deploy the code: GO.** With `CONTENT_V3_ENABLED` unset, users see v2 as today, plus security and reliability fixes that also apply to v2 (section 11).
+- **Switch v3 on: GO once the team lead has done section 12, steps 1–4** (migrations, prompt step, Perplexity key). Without the migrations v3 stays off automatically.
+- **Open items with owners:**
+  - 3 requirements wait on the team lead's documents (W1, G4, V10);
+  - the code-built wording needs his sign-off;
+  - the Perplexity model choice is Zaid's;
+  - credit pricing is yours.
+
+Section 13 maps every requirement to the code: 129 done, 3 blocked.
 
 ---
 
@@ -699,7 +710,46 @@ Count: 3 BLOCKED, 129 DONE (of 132).
 
 ## 14. How it was verified
 
-<!-- VERIFICATION -->
+Verified on 15 November 2026 against the final commits (server `eab0698`, plugin `3fbf523`, admin `a518a99`).
+
+### Automated checks
+| Check | Result |
+|---|---|
+| Server unit and integration tests (`npm test`) | 1026 of 1026 pass |
+| Server typecheck (`tsc --noEmit`), plus unused-code checks on the v3 files | Clean (the 8 unused-code hits are all in older files) |
+| Every prompt and text piece against the design doc | Byte-equal (equality tests) |
+| Plugin PHP syntax, all 34 files the branch changed | Pass on PHP 7.4.33 and 8.2.33; no PHP 8-only functions |
+| Admin panel build and lint | Builds; no new lint problems |
+| Migrations and stores on a real, throwaway Postgres 16 | 34 of 34 checks pass: migrations up twice, down, up; session merge; replay; refunds; stale sweep; guards; post history; keyword caches |
+| `uninstall.php` on copies of the tables under a throwaway prefix | Removes only what v3 added; older options, meta and columns stay |
+
+### Independent review
+- A separate reviewer that had not seen the work checked the code against the design doc and both briefs. It reported 17 findings: 3 high, 4 medium, 10 low.
+- All 17 were fixed. The reviewer then re-checked every fix and found five smaller residual risks, which were fixed too:
+  - a double refund in a narrow race;
+  - shutdown coverage before the charge;
+  - the stale-sweep threshold on mixed instances;
+  - a database blip in the table check;
+  - provider outages reported as failures.
+
+### End-to-end, local WordPress
+The real plugin and the real local server ran against the production database, with WP_DEBUG on, driven through the browser. The credits were charged to the test account.
+
+| Scenario | Result |
+|---|---|
+| Single wizard, Medium, local | Title, Regenerate title (cached search data and prompt), Approve (plan with type, size, 2 owner questions), image, Generate: 1,205 words, all section tags, TOC, FAQ, meta; validator passed after the second, rescaled Writer run. Cost $0.28, 89 s. |
+| Submit | Creates the project and publishes the post with the content wrapper, the FAQ, the proof level and the generation id. Found and fixed on the way: an old error in `posting.js` (no location tree on the screen) had stopped Submit from sending the form; it predates v3. |
+| Extra clicks on Generate, then Leave | One generation and one charge. Leave asks first, then removes the session, the post row, the article text and the stored answer. |
+| Keyword data on | Title and Planner use their keyword-data variants (`keyword_data=used`). |
+| Bulk, 5 posts, Small, Target town Santa Fe, as drafts | Two queue runs at once took two different posts (the lease works). All 5 done: $0.11–0.18 each. The regulated-topic post was saved as a draft for review. |
+| Bulk: server down | The post waits (no attempt used), the queue pauses for a minute, with a plain message. |
+| Bulk: server switches v3 off | `v3_disabled` sends the post back to the queue for v2. |
+| Site switch off; Regulated business without a disclaimer | The wizard shows v2, with no console errors. |
+| PHP notices and console errors | None from the v3 code paths. An old `tinymce is not defined` error on admin screens was fixed. The legacy project builder (shared by v2 and v3 Submit) still logs older warnings (undefined keys in `builder.php`, `api.php`, `dashboard.php`, `functions.php`); they predate v3 and are left as they were. |
+
+### 10-keyword runs
+<!-- TEN_KEYWORDS -->
+
 
 ---
 

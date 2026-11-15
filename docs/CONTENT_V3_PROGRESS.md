@@ -48,7 +48,11 @@ Kept up to date at the end of every phase (brief rule 11), so a fresh session ca
 
 Statuses: DONE / PARTIAL / WRONG / MISSING / BLOCKED. The starting state and its evidence are in the Phase 0 audit (`~/.claude/plans/pasted-content-id-1113-you-are-typed-scott.md`, section 2). Paths: P = plugin, S = server, A = admin panel. "Working value" = the doc leaves the number or rule open; the value used is listed so the team lead can confirm or change it.
 
-**Count:** 132 IDs. 126 DONE (several with working values; R1 and R9 with the live run and the model choice still open), 3 PARTIAL (BULK4, OPS3, OPS6), 3 BLOCKED (W1, G4, V10).
+**Completion and production-readiness pass (14–15 Nov), current status:** 132 IDs, 129 DONE, 3 BLOCKED (W1, G4, V10: the team lead's documents). The rows below are the first pass. The current status, how each requirement is built and the verification are in `docs/CONTENT_V3_IMPLEMENTATION.md` (section 13 is the requirement map). What waits on the team lead is in `docs/CONTENT_V3_LEAD_REQUIREMENTS.md`.
+- Commits: server `cd7301c`…`eab0698`, plugin `56c67fa`…`3fbf523`, admin `3e88dd5`, `4eb8694`, `a518a99`.
+- Next for a fresh session: nothing to build. The launch steps are section 12 of the implementation doc (migrations, deploy with v3 off, prompt replace step, Perplexity key, plugin release, staged switch-on).
+
+**First-pass count:** 132 IDs. 126 DONE (several with working values; R1 and R9 with the live run and the model choice still open), 3 PARTIAL (BULK4, OPS3, OPS6), 3 BLOCKED (W1, G4, V10).
 
 ### W — wizard
 | ID | Status | Evidence / note |
