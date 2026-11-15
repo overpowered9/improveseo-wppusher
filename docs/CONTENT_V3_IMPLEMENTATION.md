@@ -748,7 +748,22 @@ The real plugin and the real local server ran against the production database, w
 | PHP notices and console errors | None from the v3 code paths. An old `tinymce is not defined` error on admin screens was fixed. The legacy project builder (shared by v2 and v3 Submit) still logs older warnings (undefined keys in `builder.php`, `api.php`, `dashboard.php`, `functions.php`); they predate v3 and are left as they were. |
 
 ### 10-keyword runs
-<!-- TEN_KEYWORDS -->
+The ten keywords in `docs/content-v3-test-keywords.json` ran through the full chain twice on 15 November, with keyword data off and then on. This is the same code as the admin tester: no credits, real model and DataForSEO costs, and no research (no Perplexity key yet). The review sheet with both runs side by side, each with its "What to check in testing" list, is at S `data/v3-runs/2026-11-15T10-52-20-207Z/review.html` (git-ignored, local).
+
+| | Keyword data off | Keyword data on |
+|---|---|---|
+| All checks passed | 7 of 10 | 7 of 10 |
+| Failures | 3 × "regulated sources" (the 3 regulated topics: no research without the key), 1 × quick answer length | 2 × "regulated sources", 2 × question headings |
+| Keyword data used | not requested | 9 of 10 (one DataForSEO lookup hit the 8 s limit and fell back, as designed) |
+| Cost per article, Small | $0.10–0.18 (median $0.16) | $0.09–0.21 (median $0.13) |
+| Cost per article, Medium | $0.12–0.22 (median $0.14) | $0.12–0.27 (median $0.21) |
+| Cost per article, Large | $0.19 | $0.21 |
+| Time per article | 61–134 s | 81–194 s |
+
+- **Length now lands in range.** The Large article had 2,420 words with keyword data off and 2,512 with it on (range 2,400–3,600). Before the calibration (decision A1) the Writer delivered about 55% of its Large targets. Medium articles were 1,254–1,607 words.
+- **Regulated topics need the Perplexity key.** Without research there are no sources to link, so these posts fail "regulated sources". They are saved for review, as designed, until the key is added.
+- **Prompt caching works.** Every Writer call after the first reads its 8,399-token system prompt from the cache.
+
 
 
 ---
