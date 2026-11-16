@@ -65,9 +65,11 @@ function improveseo_content_v3_request( $method, $path, $body = null, &$error = 
 		return null;
 	}
 
-	$base = function_exists( 'improveseo_keyword_data_server_url' )
-		? improveseo_keyword_data_server_url()
-		: ( defined( 'IMPROVESEO_CONNECTION_SERVER' ) ? IMPROVESEO_CONNECTION_SERVER : 'https://imporve-seo-admin-server-nzbm.onrender.com' );
+	// The main admin server. Keyword data is the only thing that lives on the second
+	// Render service (IMPROVESEO_KEYWORD_DATA_SERVER); the v3 content routes do not.
+	$base = defined( 'IMPROVESEO_CONNECTION_SERVER' )
+		? IMPROVESEO_CONNECTION_SERVER
+		: 'https://imporve-seo-admin-server-nzbm.onrender.com';
 
 	$headers = array(
 		'Accept'      => 'application/json',

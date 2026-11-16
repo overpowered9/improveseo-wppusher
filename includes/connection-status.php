@@ -49,6 +49,17 @@ if (!defined('ABSPATH')) exit;
 define('IMPROVESEO_CONNECTION_SERVER', 'https://imporve-seo-admin-server-nzbm.onrender.com');
 
 /**
+ * The admin server the keyword-data routes talk to.
+ *
+ * Keyword data (DataForSEO-backed) runs on the second Render service, not on
+ * the main admin server, so it gets its own constant. Define it earlier (in
+ * wp-config.php or an mu-plugin) to point a site at a different host.
+ */
+if ( ! defined( 'IMPROVESEO_KEYWORD_DATA_SERVER' ) ) {
+	define( 'IMPROVESEO_KEYWORD_DATA_SERVER', 'https://imporve-seo-admin-server-2.onrender.com' );
+}
+
+/**
  * Request timeout, in seconds.
  *
  * NOT the 10 the settings panel's Test Connection uses. The server is on
