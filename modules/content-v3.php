@@ -65,11 +65,11 @@ function improveseo_content_v3_request( $method, $path, $body = null, &$error = 
 		return null;
 	}
 
-	// The main admin server. Keyword data is the only thing that lives on the second
-	// Render service (IMPROVESEO_KEYWORD_DATA_SERVER); the v3 content routes do not.
-	$base = defined( 'IMPROVESEO_CONNECTION_SERVER' )
-		? IMPROVESEO_CONNECTION_SERVER
-		: 'https://imporve-seo-admin-server-nzbm.onrender.com';
+	// The second Render service. Every /api/v1/content-v3/* route is deployed there and
+	// nowhere else — the main admin server 404s all of them.
+	$base = defined( 'IMPROVESEO_V3_SERVER' )
+		? IMPROVESEO_V3_SERVER
+		: 'https://imporve-seo-admin-server-2.onrender.com';
 
 	$headers = array(
 		'Accept'      => 'application/json',

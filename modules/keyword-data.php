@@ -27,15 +27,20 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Admin server base URL.
  *
  * The keyword-data routes live on the second Render service, not on the main admin server, so
- * this uses IMPROVESEO_KEYWORD_DATA_SERVER (includes/connection-status.php, overridable from
- * wp-config.php) rather than IMPROVESEO_CONNECTION_SERVER. The literal is the fallback for the
- * (unexpected) case where that file is not loaded yet.
+ * this uses IMPROVESEO_KEYWORD_DATA_SERVER, then IMPROVESEO_V3_SERVER (both in
+ * includes/connection-status.php, both overridable from wp-config.php), rather than
+ * IMPROVESEO_CONNECTION_SERVER. The first constant exists only so keyword data can be moved off
+ * the v3 service on its own. The literal is the fallback for the (unexpected) case where that
+ * file is not loaded yet.
  *
  * @return string
  */
 function improveseo_keyword_data_server_url() {
 	if ( defined( 'IMPROVESEO_KEYWORD_DATA_SERVER' ) ) {
 		return IMPROVESEO_KEYWORD_DATA_SERVER;
+	}
+	if ( defined( 'IMPROVESEO_V3_SERVER' ) ) {
+		return IMPROVESEO_V3_SERVER;
 	}
 	return 'https://imporve-seo-admin-server-2.onrender.com';
 }

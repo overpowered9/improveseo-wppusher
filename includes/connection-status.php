@@ -49,14 +49,18 @@ if (!defined('ABSPATH')) exit;
 define('IMPROVESEO_CONNECTION_SERVER', 'https://imporve-seo-admin-server-nzbm.onrender.com');
 
 /**
- * The admin server the keyword-data routes talk to.
+ * The second Render service: Content v3 and keyword data.
  *
- * Keyword data (DataForSEO-backed) runs on the second Render service, not on
- * the main admin server, so it gets its own constant. Define it earlier (in
- * wp-config.php or an mu-plugin) to point a site at a different host.
+ * Verified 2026-11-16 — the main server above 404s every /api/v1/content-v3/*
+ * and /api/v1/generate/keywords/* route; they are deployed only here. v2
+ * generation, auth, credits and status stay on the main server above.
+ *
+ * Define either constant earlier (wp-config.php or an mu-plugin) to point a
+ * site at a different host; IMPROVESEO_KEYWORD_DATA_SERVER exists so keyword
+ * data can be moved on its own, and falls back to this one.
  */
-if ( ! defined( 'IMPROVESEO_KEYWORD_DATA_SERVER' ) ) {
-	define( 'IMPROVESEO_KEYWORD_DATA_SERVER', 'https://imporve-seo-admin-server-2.onrender.com' );
+if ( ! defined( 'IMPROVESEO_V3_SERVER' ) ) {
+	define( 'IMPROVESEO_V3_SERVER', 'https://imporve-seo-admin-server-2.onrender.com' );
 }
 
 /**
