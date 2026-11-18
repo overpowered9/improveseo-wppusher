@@ -2822,7 +2822,7 @@ input[type="text"].iseo-search-input::placeholder { color: #b0b0b0; }
   display: inline-block;
   padding: 6px 14px;
   border: 1px solid #ddd;
-  border-radius: 50px;
+  border-radius: 9999px;
   font-size: 13px;
   color: #555;
   text-decoration: none;
@@ -3899,7 +3899,7 @@ form#popup_form .iseo-credit-estimate {
   align-items: center;
   gap: 6px;
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: 9999px;
   font-size: 13px;
   font-weight: 600;
   line-height: 1.5;

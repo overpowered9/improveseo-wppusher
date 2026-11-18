@@ -20,75 +20,130 @@
     padding: 0 20px;
 }
 
-/* ── Two-Column Grid Layout ────────────────────────────────── */
-.iseo-settings-page .iseo-settings-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 320px;
-    gap: 16px;
-    align-items: start;
-}
-
-.iseo-settings-page .iseo-col-main,
-.iseo-settings-page .iseo-col-sidebar {
-    min-width: 0;
-}
-
-@media (max-width: 1100px) {
-    .iseo-settings-page .iseo-settings-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
-
-/* ── Intro Banner ──────────────────────────────────────────── */
-.iseo-settings-page .iseo-intro-banner {
+/* ── Tabs ──────────────────────────────────────────────────────
+   One card per tab. Underline tabs on a white strip; hover = teal text on the solid light-teal
+   tint, active = teal + 2px teal underline. All colours solid. */
+.iseo-settings-page .iseo-settings-tabs {
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    background: var(--iseo-dash-tint);
-    border: 1px solid #D3E6EE;
-    border-radius: 12px;
-    padding: 12px 16px;
-    margin-bottom: 16px;
-    line-height: 1.55;
-}
-
-.iseo-settings-page .iseo-intro-banner p {
-    margin: 0 !important;
-    font-size: 13px;
-    color: var(--iseo-navy);
-}
-
-.iseo-settings-page .iseo-intro-icon {
-    flex-shrink: 0;
-    margin-top: 1px;
-    color: var(--iseo-primary);
-}
-
-.iseo-settings-page .iseo-intro-banner a {
-    color: var(--iseo-primary);
-    font-weight: 600;
-    text-decoration: none;
-}
-
-.iseo-settings-page .iseo-intro-banner a:hover {
-    text-decoration: underline;
-}
-
-/* ── Cards: one look, the Dashboard's ──────────────────────────
-   No hover lift, unlike the Dashboard's clickable cards: these hold form fields, and a card
-   that jumps while you type in it reads as a glitch. */
-.iseo-settings-page .iseo-settings-card {
+    align-items: flex-end;
+    gap: 4px;
+    margin: 0 0 16px;
+    padding: 0 8px;
     background: #FFFFFF;
     border: 1px solid var(--iseo-dash-line);
     border-radius: 14px;
     box-shadow: var(--iseo-dash-shadow);
-    margin: 0 0 16px;
-    scroll-margin-top: 48px;
+    overflow-x: auto;
+    scrollbar-width: none;
 }
 
-.iseo-settings-page .iseo-col-main > .iseo-settings-card:last-child,
-.iseo-settings-page .iseo-col-sidebar > .iseo-settings-card:last-child {
-    margin-bottom: 0;
+.iseo-settings-page .iseo-settings-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.iseo-settings-page .iseo-settings-tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    min-height: 50px;
+    margin: 0;
+    padding: 0 16px;
+    background: #FFFFFF;
+    border: 0;
+    border-radius: 8px 8px 0 0;
+    box-shadow: none;
+    font-family: var(--iseo-font);
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--iseo-muted);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.18s ease, background-color 0.18s ease;
+}
+
+.iseo-settings-page .iseo-settings-tab::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 0;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    background: var(--iseo-primary);
+    transform: scaleX(0);
+    transition: transform 0.18s ease;
+}
+
+.iseo-settings-page .iseo-settings-tab svg {
+    flex: 0 0 auto;
+    color: currentColor;
+}
+
+.iseo-settings-page .iseo-settings-tab:hover {
+    color: var(--iseo-primary);
+    background: var(--iseo-dash-tint);
+}
+
+.iseo-settings-page .iseo-settings-tab:focus-visible {
+    outline: 2px solid var(--iseo-primary);
+    outline-offset: -2px;
+}
+
+.iseo-settings-page .iseo-settings-tab.is-active {
+    color: var(--iseo-primary);
+    font-weight: 600;
+}
+
+.iseo-settings-page .iseo-settings-tab.is-active::after {
+    transform: scaleX(1);
+}
+
+/* Connection state on the Connection tab — the header pill's dot colours. */
+.iseo-settings-page .iseo-tab-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #9AA5AD;
+}
+
+.iseo-settings-page .iseo-tab-dot[data-state="active"] {
+    background: var(--iseo-mint);
+}
+
+.iseo-settings-page .iseo-tab-dot[data-state="rejected"] {
+    background: #D92D20;
+}
+
+/* ── Panels: one full-width card each ──────────────────────── */
+.iseo-settings-page .iseo-settings-panel[hidden] {
+    display: none !important;
+}
+
+/* ── Cards: one look, one hover — the Dashboard's ───────────── */
+.iseo-settings-page .iseo-settings-card {
+    width: 100%;
+    box-sizing: border-box;
+    background: #FFFFFF;
+    border: 1px solid var(--iseo-dash-line);
+    border-radius: 14px;
+    box-shadow: var(--iseo-dash-shadow);
+    margin: 0;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.iseo-settings-page .iseo-settings-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--iseo-dash-shadow-hover);
+    border-color: var(--iseo-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .iseo-settings-page .iseo-settings-card:hover {
+        transform: none;
+    }
 }
 
 /* ── Card Header ───────────────────────────────────────────── */
@@ -176,7 +231,7 @@
     font-size: 13.5px !important;
     font-family: var(--iseo-font) !important;
     color: var(--iseo-navy) !important;
-    background: var(--iseo-dash-soft, #F8FAFC) !important;
+    background: #FFFFFF !important;
     border: 1px solid #DCE3EB !important;
     border-radius: 8px !important;
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
@@ -186,21 +241,22 @@
 }
 
 .iseo-settings-page .iseo-input::placeholder {
-    color: #8A97A6 !important;
+    color: var(--iseo-muted) !important;
     font-size: 13px !important;
     opacity: 1 !important;
 }
 
 .iseo-settings-page .iseo-input:hover,
 .iseo-settings-page .iseo-select:hover {
-    border-color: #C5D0DC !important;
+    border-color: var(--iseo-primary) !important;
 }
 
+/* Focus ring in the solid light-teal tint, not a translucent teal. */
 .iseo-settings-page .iseo-input:focus,
 .iseo-settings-page .iseo-select:focus {
     border-color: var(--iseo-primary) !important;
-    background: #fff !important;
-    box-shadow: 0 0 0 3px rgba(28, 114, 147, 0.12) !important;
+    background-color: #FFFFFF !important;
+    box-shadow: 0 0 0 3px var(--iseo-dash-tint) !important;
     outline: none !important;
 }
 
@@ -235,9 +291,9 @@
    that one loads on the posting page — so the unscoped rules below were overriding the tour's
    heading with Settings' typography wherever the two met. */
 .iseo-settings-page .iseo-guide-block {
-    background: var(--iseo-dash-tint);
-    border: 1px solid #D3E6EE;
-    border-radius: 12px;
+    background: var(--iseo-dash-tile);
+    border: 0;
+    border-radius: 10px;
     padding: 14px 18px;
     margin-top: 20px;
 }
@@ -435,8 +491,9 @@
     padding: 2px 20px 20px;
 }
 
+/* Natural width: on a full-width card, stretched buttons would be page-wide bars. */
 .iseo-settings-page .iseo-account-actions > a {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
 }
 
 /* ── Connection Status Messages ────────────────────────────── */
@@ -446,12 +503,43 @@
     line-height: 1.5;
 }
 
-.iseo-settings-page .iseo-connection-status {
-    margin-top: 14px;
+/* ── Connection card: fields left, status panel right ─────────
+   flex-wrap instead of a breakpoint: the two columns sit side by side (about 60/40) while
+   the card is wide enough for both minimums, and the status drops below on its own when it
+   is not — whatever the screen, the WP admin menu state or the zoom level. */
+.iseo-settings-page .iseo-conn-layout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
 }
 
-.iseo-settings-page .iseo-connection-status:empty {
-    margin-top: 0;
+.iseo-settings-page .iseo-conn-main {
+    flex: 3 1 480px;
+    min-width: 0;
+}
+
+.iseo-settings-page .iseo-conn-aside {
+    flex: 2 1 340px;
+    min-width: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 2px 20px 20px;
+}
+
+/* Nothing to show yet (not connected / check not run): no empty column. */
+.iseo-settings-page .iseo-conn-aside:empty {
+    display: none;
+}
+
+/* Long values (account email, plan names) wrap instead of pushing the column wider. */
+.iseo-settings-page .iseo-conn-aside,
+.iseo-settings-page .iseo-conn-aside * {
+    overflow-wrap: anywhere;
+}
+
+.iseo-settings-page .iseo-conn-aside .iseo-credits-row-value,
+.iseo-settings-page .iseo-conn-aside .iseo-conn-badge {
+    overflow-wrap: normal;
 }
 
 /* ── "Connected" panel (renderConnectionPanel() in views/settings/index.php) ──
@@ -998,14 +1086,14 @@
     box-shadow: 0 0 0 3px rgba(28, 114, 147, 0.15);
 }
 
-/* ── Sub-toggles container ─────────────────────────────────── */
+/* ── Sub-toggles container: indented under the main toggle with a guide line ── */
 .iseo-sub-toggles {
-    background: var(--iseo-dash-soft, #F8FAFC);
-    border: 1px solid var(--iseo-dash-line, #E9EDF2);
-    border-radius: 10px;
-    padding: 0 14px;
-    margin-top: 2px;
-    margin-bottom: 8px;
+    background: #FFFFFF;
+    border: 0;
+    border-left: 2px solid var(--iseo-dash-line, #E6EBF2);
+    border-radius: 0;
+    padding: 0 0 0 18px;
+    margin: 2px 0 8px 6px;
 }
 
 .iseo-toggle-sub .iseo-toggle-label {
@@ -1066,3 +1154,118 @@
 .iseo-settings-page .iseo-niche-suggestions li:hover,
 .iseo-settings-page .iseo-niche-suggestions li:focus { background: #f3f4f6; outline: none; }
 .iseo-settings-page .iseo-niche-suggestions li.iseo-niche-empty { cursor: default; color: #6b7280; }
+
+/* Tooltips on Settings: solid Midnight Navy (the shared rule's grey stays for the wizards). */
+.iseo-settings-page .iseo-info-tip-bubble {
+    background: var(--iseo-navy);
+    color: #E9EDF2;
+}
+
+.iseo-settings-page .iseo-info-tip-bubble::after {
+    border-bottom-color: var(--iseo-navy);
+}
+
+.iseo-settings-page .iseo-info-tip-bubble--above::after {
+    border-bottom-color: transparent;
+    border-top-color: var(--iseo-navy);
+}
+
+/* ── Small screens ─────────────────────────────────────────── */
+@media (max-width: 782px) {
+    /* WP admin's own mobile breakpoint: tighter page inset. */
+    .iseo-settings-page .iseo-settings-body {
+        padding: 0 12px;
+    }
+
+    .iseo-settings-page .iseo-card-header,
+    .iseo-settings-page .iseo-card-body,
+    .iseo-settings-page .iseo-card-footer,
+    .iseo-settings-page .iseo-account-actions,
+    .iseo-settings-page .iseo-conn-aside {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    /* Tabs become a 2x2 grid instead of a strip you have to scroll sideways. */
+    .iseo-settings-page .iseo-settings-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
+        padding: 6px;
+        overflow: visible;
+    }
+
+    .iseo-settings-page .iseo-settings-tab {
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 10px;
+        border-radius: 8px;
+        font-size: 13px;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .iseo-settings-page .iseo-settings-tab::after {
+        left: 16px;
+        right: 16px;
+    }
+
+    .iseo-settings-page .iseo-settings-tab.is-active {
+        background: var(--iseo-dash-tint);
+    }
+
+    /* Buttons full width and stacked: easy to tap, nothing runs off the card. */
+    .iseo-settings-page .iseo-card-actions,
+    .iseo-settings-page .iseo-account-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .iseo-settings-page .iseo-card-actions > input[type="submit"],
+    .iseo-settings-page .iseo-account-actions > a {
+        width: 100%;
+    }
+
+    .iseo-settings-page .iseo-connection-actions {
+        flex-wrap: nowrap;
+    }
+
+    .iseo-settings-page .iseo-connection-actions .iseo-btn-secondary {
+        flex: 1 1 auto;
+        white-space: normal;
+    }
+
+    .iseo-settings-page .iseo-save-status {
+        align-self: flex-start;
+    }
+
+    /* Card lift is a pointer effect; on touch it only makes the card jump. */
+    .iseo-settings-page .iseo-settings-card:hover {
+        transform: none;
+    }
+
+    .iseo-settings-page .iseo-credits-total {
+        font-size: 26px;
+    }
+}
+
+@media (max-width: 380px) {
+    .iseo-settings-page .iseo-settings-tabs {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Toggle on Settings: off track in a brand neutral, on track teal, solid focus ring. */
+.iseo-settings-page .iseo-toggle-track {
+    background: #CFD8E3;
+}
+
+.iseo-settings-page .iseo-toggle-switch input[type="checkbox"]:checked + .iseo-toggle-track {
+    background: var(--iseo-primary);
+}
+
+.iseo-settings-page .iseo-toggle-switch input[type="checkbox"]:focus-visible + .iseo-toggle-track {
+    box-shadow: 0 0 0 3px var(--iseo-dash-tint);
+}
